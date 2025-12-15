@@ -1,59 +1,98 @@
+:root {
+  --color-cafe-principal: #3B2F2F;
+  --color-blanco-fondo: #F5F0E0;
+  --color-cafe-claro: #6D5C5C;
+  --color-blanco: #fff;
+}
+
 body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: var(--color-blanco-fondo);
 }
 
-.login-container {
-    max-width: 450px;
-    margin: 0 auto;
+/* CONTENEDOR */
+#loginContainer {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e2d1c3, #c2a28f);
 }
 
+/* TARJETA */
 .login-card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    padding: 40px;
+  width: 380px;
+  min-height: 500px;
+  background: var(--color-blanco);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
 }
 
-.login-header {
-    text-align: center;
-    margin-bottom: 30px;
+/* HEADER CAFÉ */
+.card-header {
+  position: relative;
+  height: 140px;
+  background: var(--color-cafe-principal);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
-.login-header i {
-    font-size: 60px;
-    color: #667eea;
-    margin-bottom: 20px;
+/* CANVAS */
+#bolaCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
-.login-header h2 {
-    color: #2c3e50;
-    font-weight: 700;
+/* LOGO */
+.card-header img {
+  position: relative;
+  z-index: 1;
 }
 
-.form-floating {
-    margin-bottom: 20px;
+/* BODY */
+.card-body {
+  padding: 35px;
 }
 
-.btn-login {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    font-weight: 600;
-    border-radius: 8px;
-    transition: transform 0.3s;
+.card-body input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
-.btn-login:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+.card-body button {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-cafe-principal);
+  color: white;
+  border: none;
+  border-radius: 8px;
 }
 
-.register-link {
-    text-align: center;
-    margin-top: 20px;
+/* PASSWORD */
+.password-wrapper {
+  position: relative;
+}
+
+#togglePassword {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* LINK */
+.forgot-password {
+  display: block;
+  text-align: right;
+  margin-bottom: 15px;
+  color: var(--color-cafe-principal);
 }

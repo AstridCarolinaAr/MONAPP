@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}App{% endblock %}</title>
 
-    <!-- Tipografía Inter -->
+    <!-- Tipografía -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <!-- CSS -->
@@ -16,31 +16,30 @@
 
 <div class="wrapper">
 
-    <!-- Botón de accesibilidad -->
+    <!-- Botón accesibilidad -->
     <button class="btn-accesibilidad">A+</button>
 
-    <!-- Header -->
+    <!-- HEADER -->
     <header class="header">
         <div class="logo">
             <h1>Mi Sitio</h1>
         </div>
 
-        <div class="header-buttons">
-            <a href="#" class="btn-pill">Contabilidad</a>
-            <a href="#" class="btn-pill">Servicios</a>
-            <a href="#" class="btn-pill">Productos</a>
-            <a href="#" class="btn-pill">Clientes</a>
-            <a href="#" class="btn-pill">Login</a>
-        </div>
+        <!-- BOTONES DEL MENÚ -->
+        <nav class="header-buttons">
+            {% comment %} <a href="{% url 'core:contabilidad' %}" class="btn-pill">Contabilidad</a>
+            <a href="{% url 'core:servicios' %}" class="btn-pill">Servicios</a>
+            <a href="{% url 'core:productos' %}" class="btn-pill">Productos</a>
+            <a href="{% url 'core:clientes' %}" class="btn-pill">Clientes</a> {% endcomment %}
+        </nav>
 
-        <a href="#" class="btn-iniciar-sesion">Iniciar Sesión</a>
+        <a href="{% url 'usuarios:login' %}" class="btn-iniciar-sesion">
+            Iniciar Sesión
+        </a>
     </header>
 
-    <!-- Hero -->
-    <section class="hero">
-        <h1>Mis Servicios</h1>
-        <p>Ofrecemos …</p>
-    </section>
+
+    {% block content %}{% endblock %}
 
 </div>
 
