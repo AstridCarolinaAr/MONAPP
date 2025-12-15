@@ -1,18 +1,52 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <title>{% block title %}App{% endblock %}</title>
 
-    <title>{% block title %} {% endblock %}</title>
-    {%load bootstrap5%}
-    {% bootstrap5_css %}
-    {% bootstrap5_javascript %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Tipografía Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
 </head>
+
 <body>
-    {% block content %} 
-    {% endblock %}
-    
+
+<div class="wrapper">
+
+    <!-- Botón de accesibilidad -->
+    <button class="btn-accesibilidad">A+</button>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h1>Mi Sitio</h1>
+        </div>
+
+        <div class="header-buttons">
+            <a href="#" class="btn-pill">Contabilidad</a>
+            <a href="#" class="btn-pill">Servicios</a>
+            <a href="#" class="btn-pill">Productos</a>
+            <a href="#" class="btn-pill">Clientes</a>
+            <a href="#" class="btn-pill">Login</a>
+        </div>
+
+        <a href="#" class="btn-iniciar-sesion">Iniciar Sesión</a>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Mis Servicios</h1>
+        <p>Ofrecemos …</p>
+    </section>
+
+</div>
+
+<footer>
+    <p>© Mi negocio</p>
+</footer>
+
 </body>
 </html>
