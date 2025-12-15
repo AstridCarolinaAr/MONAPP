@@ -16,7 +16,7 @@
 <div id="loginContainer">
   <div class="login-card">
 
-    <!-- HEADER CAFÉ (AQUÍ VAN LAS BOLAS) -->
+ 
     <div class="card-header">
       <canvas id="bolaCanvas"></canvas>
       <img src="{% static 'logo1..png' %}" width="120" alt="Logo">
@@ -29,10 +29,18 @@
 
         <input type="text" name="username" placeholder="Usuario" required>
 
-        <div class="password-wrapper">
-          <input type="password" name="password" placeholder="Contraseña" required>
-          <span id="togglePassword">👁️</span>
-        </div>
+       <div class="password-wrapper">
+  <input
+    type="password"
+    id="password"
+    name="password"
+    placeholder="Contraseña"
+    required
+  />
+
+  <i id="togglePassword" class="bi bi-eye"></i>
+</div>
+
 
         <a href="#" class="forgot-password">¿Olvidaste la contraseña?</a>
 

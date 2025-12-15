@@ -45,13 +45,16 @@ body {
 #bolaCanvas {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* LOGO */
 .card-header img {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* BODY */
@@ -81,13 +84,27 @@ body {
   position: relative;
 }
 
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
 #togglePassword {
   position: absolute;
-  right: 10px;
   top: 50%;
+  right: 12px;
   transform: translateY(-50%);
   cursor: pointer;
+  font-size: 1.3rem;     /* CLAVE */
+  color: #3B2F2F;        /* CLAVE */
+  z-index: 5;
 }
+
+
+#togglePassword:hover {
+    opacity: 1;
+}
+
 
 /* LINK */
 .forgot-password {

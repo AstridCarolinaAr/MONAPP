@@ -1,51 +1,32 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}App{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+<!-- HEADER -->
+<header class="header">
+    <div class="logo">MI SITIO</div>
 
-    <!-- Tipografía -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
-</head>
-
-<body>
-
-<div class="wrapper">
-
-    <!-- Botón accesibilidad -->
-    <button class="btn-accesibilidad">A+</button>
-
-    <!-- HEADER -->
-    <header class="header">
-        <div class="logo">
-            <h1>Mi Sitio</h1>
+    <nav class="nav">
+            <a href="#" class="btn-header">Inicio</a>
+            <a href="#"class="btn-header">Nosotros</a>
+            <a href="#"class ="btn-header">Servicios</a>
+            <a href="#"class ="btn-header">Productos</a>
+            <a href="#"class ="btn-header">Contactenos</a>
         </div>
+    </nav>
 
-        <!-- BOTONES DEL MENÚ -->
-        <nav class="header-buttons">
-            {% comment %} <a href="{% url 'core:contabilidad' %}" class="btn-pill">Contabilidad</a>
-            <a href="{% url 'core:servicios' %}" class="btn-pill">Servicios</a>
-            <a href="{% url 'core:productos' %}" class="btn-pill">Productos</a>
-            <a href="{% url 'core:clientes' %}" class="btn-pill">Clientes</a> {% endcomment %}
-        </nav>
+    <div class="header-actions">
+        <a href="{% url 'usuarios:login' %}" class="login">Iniciar sesión</a>
+        <a href="" class="btn-header">Empezar</a>
+    </div>
+</header>
 
-        <a href="{% url 'usuarios:login' %}" class="btn-iniciar-sesion">
-            Iniciar Sesión
-        </a>
-    </header>
-
-
-    {% block content %}{% endblock %}
-
-</div>
-
-<footer>
-    <p>© Mi negocio</p>
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2025 Mi Sitio. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
+        </div>
+    </div>
 </footer>
-
-</body>
-</html>
