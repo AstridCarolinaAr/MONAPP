@@ -1,18 +1,84 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <title>{% block title %} {% endblock %}</title>
-    {%load bootstrap5%}
-    {% bootstrap5_css %}
-    {% bootstrap5_javascript %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    {% block content %} 
-    {% endblock %}
-    
-</body>
-</html>
+	
+  <body>
+
+    <header>
+         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+
+                <a class="navbar-brand" href="{% url 'core:index' %}">
+                    <img src="{% static 'img/LogoSENA.png' %}" alt="Logo" height="30" class="d-inline-block">
+                    Mi Proyecto SENA
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                             <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" 
+
+
+                            href="{% url 'core:index' %}">
+                                <i class="bi bi-house"></i> Inicio
+                            </a>
+                        </li>
+                          {% if user.is_authenticated %}
+
+                            <!-- Usuario autenticado -->
+                            {% if user.is_staff %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:panel_admin_base' %}">
+                                        <i class="bi bi-speedometer2"></i> Panel Admin
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" 
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {% if user.perfil.foto_perfil %}
+                                        <img src="{{ user.perfil.foto_perfil.url }}" 
+                                            alt="{{ user.get_full_name }}" 
+                                            class="rounded-circle" 
+                                            width="30" height="30">
+                                    {% else %}
+                                        <i class="bi bi-person-circle fs-5"></i>
+                                    {% endif %}
+                                    {{ user.get_full_name|default:user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
+                                            <i class="bi bi-person"></i> Mi Perfil
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{% url 'usuarios:logout' %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <!-- Usuario NO autenticado -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'usuarios:login' %}">
+                                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-light ms-2" href="{% url 'usuarios:registro' %}">
+                                    <i class="bi bi-person-plus"></i> Registrarse
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            </header>
+    <main> 
+        {% block content %}
