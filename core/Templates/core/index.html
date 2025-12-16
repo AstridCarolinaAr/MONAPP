@@ -8,7 +8,9 @@
 {% block title %}
 Servicios
 {% endblock %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}">
+{% endblock %}
 
 {# ===============================
    CONTENIDO PRINCIPAL
@@ -154,6 +156,7 @@ Servicios
         <button id="next">→</button>
     </div>
 </section>
+<!-- ==================== IMAGEN ==================== -->
 
 <!-- ==================== FINAL CTA ==================== -->
 <section class="sq-cta">
@@ -161,7 +164,7 @@ Servicios
     <a href="#" class="sq-btn dark">Crear servicio</a>
 </section>
 {% block extra_js %}
-<script src="{% static 'js/panel_admin_base.js' %}"></script>
+<script src="{% static 'core/js/panel_admin_base.js' %}"></script>
 {% endblock %}
 
 {% endblock %}

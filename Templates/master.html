@@ -9,6 +9,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     
@@ -31,9 +32,11 @@
     </div>
 </header>
 
-<!-- CONTENIDO DE PRUEBA -->
-<main class="main-content">
-    <div style="height:2000px"></div>
+<!-- ==================== CONTENIDO DE CADA PÁGINA ==================== -->
+<main>
+    {% block content %}
+    <!-- Aquí se inyecta index.html, servicios.html, etc -->
+    {% endblock %}
 </main>
 
 <!-- FOOTER -->
