@@ -1,52 +1,32 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}App{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+<!-- HEADER -->
+<header class="header">
+    <div class="logo">MI SITIO</div>
 
-    <!-- Tipografía Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
-</head>
-
-<body>
-
-<div class="wrapper">
-
-    <!-- Botón de accesibilidad -->
-    <button class="btn-accesibilidad">A+</button>
-
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <h1>Mi Sitio</h1>
+    <nav class="nav">
+            <a href="#" class="btn-header">Inicio</a>
+            <a href="#"class="btn-header">Nosotros</a>
+            <a href="#"class ="btn-header">Servicios</a>
+            <a href="#"class ="btn-header">Productos</a>
+            <a href="#"class ="btn-header">Contactenos</a>
         </div>
+    </nav>
 
-        <div class="header-buttons">
-            <a href="#" class="btn-pill">Contabilidad</a>
-            <a href="#" class="btn-pill">Servicios</a>
-            <a href="#" class="btn-pill">Productos</a>
-            <a href="#" class="btn-pill">Clientes</a>
-            <a href="#" class="btn-pill">Login</a>
+    <div class="header-actions">
+        <a href="{% url 'usuarios:login' %}" class="login">Iniciar sesión</a>
+        <a href="" class="btn-header">Empezar</a>
+    </div>
+</header>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2025 Mi Sitio. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
         </div>
-
-        <a href="#" class="btn-iniciar-sesion">Iniciar Sesión</a>
-    </header>
-
-    <!-- Hero -->
-    <section class="hero">
-        <h1>Mis Servicios</h1>
-        <p>Ofrecemos …</p>
-    </section>
-
-</div>
-
-<footer>
-    <p>© Mi negocio</p>
+    </div>
 </footer>
-
-</body>
-</html>
