@@ -1,0 +1,128 @@
+/* ===== HEADER ===== */
+.body{
+    padding-top: 80px; /* espacio para header fijo */
+    background: #8C5A32;
+}
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(0); /* inicial transparente */
+}
+
+/* Header se encoge al scroll */
+.header.scrolled {
+    padding: 0.5rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Logo */
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+}
+
+/* Navegación */
+.nav {
+    display: flex;
+    gap: 1rem;
+}
+
+/* ===== BOTONES PÍLDORA ===== */
+.btn-header {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px; /* píldora */
+    border: 1px solid rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.1); /* transparente inicial */
+    color: #000;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.btn-header:hover {
+    background: rgba(255,255,255,0.3);
+    color: #000;
+    transform: translateY(-2px);
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    width: 100%;
+    text-align: center;
+    padding: 1rem 0;
+    position: relative;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.5s ease;
+    background: none;
+    color: #000;
+}
+
+.footer.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Footer Links */
+.footer-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #000;
+    font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+    color: #555;
+}
+/* boton login */
+
+.login-section {
+    margin-left: 1rem;
+}
+
+.btn-login {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px; /* estilo píldora */
+    border: 1px solid rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.1); /* transparente inicial */
+    color: #000;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+/* Hover efecto vidrio */
+.btn-login:hover {
+    background: rgba(255,255,255,0.3);
+    color: #000;
+    transform: translateY(-2px);
+}
+.main-content {
+    background: #fff;
+    backdrop-filter: blur(3px); /* efecto vidrio opcional */
+    padding: 2rem;
+    min-height: calc(100vh - 160px); /* altura mínima considerando header + footer */
+}

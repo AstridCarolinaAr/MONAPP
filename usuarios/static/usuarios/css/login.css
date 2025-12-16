@@ -1,0 +1,129 @@
+:root {
+  --color-cafe-principal: #3B2F2F;
+  --color-blanco-fondo: #F5F0E0;
+  --color-cafe-claro: #6D5C5C;
+  --color-blanco: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  min-height: 100vh;
+
+  background: linear-gradient(
+    to bottom,
+    #0e0806 0%,
+    #1c120d 20%,
+    #4a2e1f 45%,
+    #3b2f2f 85%,
+    #120b08 100%
+  );
+}
+
+
+
+
+/* CONTENEDOR */
+#loginContainer {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: transparent;
+}
+
+
+/* TARJETA */
+.login-card {
+  width: 380px;
+  min-height: 500px;
+  background: var(--color-blanco);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+}
+
+/* HEADER CAFÉ */
+.card-header {
+  position: relative;
+  height: 140px;
+  background: var(--color-cafe-principal);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* CANVAS */
+#bolaCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* LOGO */
+.card-header img {
+  position: relative;
+  z-index: 2;
+}
+
+/* BODY */
+.card-body {
+  padding: 35px;
+}
+
+.card-body input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.card-body button {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-cafe-principal);
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+/* PASSWORD */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+#togglePassword {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.3rem;     /* CLAVE */
+  color: #3B2F2F;        /* CLAVE */
+  z-index: 5;
+}
+
+
+#togglePassword:hover {
+    opacity: 1;
+}
+
+
+/* LINK */
+.forgot-password {
+  display: block;
+  text-align: right;
+  margin-bottom: 15px;
+  color: var(--color-cafe-principal);
+}

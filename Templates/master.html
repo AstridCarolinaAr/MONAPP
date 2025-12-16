@@ -1,0 +1,58 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Sitio</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    
+
+<!-- HEADER -->
+<header class="header">
+    <div class="logo">MI SITIO</div>
+
+    <nav class="nav">
+        <a href="#" class="btn-header">Inicio</a>
+        <a href="#" class="btn-header">Nosotros</a>
+        <a href="#" class="btn-header">Servicios</a>
+        <a href="#" class="btn-header">Productos</a>
+        <a href="#" class="btn-header">Contactenos</a>
+    </nav>
+
+    <div class="header-actions">
+        <a href="{% url 'usuarios:login' %}" class="btn-login">Iniciar sesión</a>
+        <a href="#" class="btn-header">Empezar</a>
+    </div>
+</header>
+
+<!-- ==================== CONTENIDO DE CADA PÁGINA ==================== -->
+<main>
+    {% block content %}
+    <!-- Aquí se inyecta index.html, servicios.html, etc -->
+    {% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2025 Mi Sitio. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="#">Política de privacidad</a>
+            <a href="#">Términos de uso</a>
+            <a href="#">Contacto</a>
+        </div>
+    </div>
+</footer>
+
+<!-- JS -->
+<script src="{% static 'core/js/main.js' %}"></script>
+
+</body>
+</html>
