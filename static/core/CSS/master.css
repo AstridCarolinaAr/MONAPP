@@ -1,298 +1,178 @@
-/* -------------------- Tipografía y Body -------------------- */
-html, body {
-    height: 100%;
+/* RESET */
+* {
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    background-color: #8C5A32; /* color de fondo general */
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.wrapper {
-    min-height: 100%;
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: #8C5A32;
     display: flex;
     flex-direction: column;
 }
 
-/* -------------------- Botón de accesibilidad -------------------- */
-.btn-accesibilidad {
-    position: fixed;
-    top: 900px;
-    right: 20px;
-    padding: 10px 20px;
-    color: black;
-    font-weight: 600;
-    cursor: pointer;
-    z-index: 1100;
-
-    /* --- EFECTO VIDRIO / PÍLDORA --- */
-    background: rgba(255, 255, 255, 0.12);         /* transparencia suave */
-    backdrop-filter: blur(10px);                   /* efecto vidrio */
-    -webkit-backdrop-filter: blur(10px);           /* safari */
-    border: 1px solid rgba(255, 255, 255, 0.25);   /* borde transparente */
-    border-radius: 50px;                           /* forma píldora */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);       /* sombra suave */
-
-    /* evitar salto de línea */
-    white-space: nowrap;
-
-    transition: background 0.25s ease, transform 0.25s ease;
-}
-
-.btn-accesibilidad:hover {
-    background: rgba(255, 255, 255, 0.22);
-    transform: translateY(-2px);
-}
-
-
-.btn-accesibilidad:hover {
-    background: #8C5A32;
-}
-
-/* -------------------- Header -------------------- */
-/* Header sólido sin transparencia */
+/* ---------------- HEADER ---------------- */
 .header {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 30px;
-    border-radius: 50px;
+    width: 100%;
+    padding: 20px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    background: #2e1d13;
+    flex-shrink: 0; /* No se encoge */
+}
+
+.logo {
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.nav {
+    display: flex;
+    gap: 32px;
+}
+
+.nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.85;
+    transition: opacity 0.3s;
+}
+
+.nav a:hover {
+    opacity: 1;
+}
+
+.header-actions {
     display: flex;
     align-items: center;
     gap: 20px;
-    z-index: 1000;
-    background-color: #7B4F30; /* color sólido */
-    backdrop-filter: none;      /* quita el blur */
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
 }
 
-.header .logo h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #8C5A32;
-    left: -459px;
-    position: relative;
-
-    /* --- EFECTO PÍLDORA / VIDRIO --- */
-    padding: 8px 20px;
-    border-radius: 50px;
-    font-weight: 700;
-    white-space: nowrap;               /* evita salto de línea */
-    background: rgba(255, 255, 255, 0.12);      /* fondo translúcido */
-    backdrop-filter: blur(10px);                /* efecto vidrio */
-    -webkit-backdrop-filter: blur(10px);        /* safari */
-    border: 1px solid rgba(255, 255, 255, 0.25); /* borde transparente */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);     /* sombra suave */
-    
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-}
-
-/* Hover */
-.header .logo h1:hover {
-    background: rgba(255, 255, 255, 0.22);
-    transform: translateY(-2px);
-}
-
-/* -------------------- Botón iniciar sesión -------------------- */
-.btn-iniciar-sesion {
+.login {
+    color: #fff;
     text-decoration: none;
-    color: #8C5A32;
-    padding: 10px 18px;
-    font-weight: 600;
-    border-radius: 50px; /* píldora */
-    position: relative;
-    left: 460px;
-    display: inline-block;
-    white-space: nowrap;
-
-    /* --- EFECTO VIDRIO --- */
-    background: rgba(255, 255, 255, 0.12);         /* capa translúcida */
-    backdrop-filter: blur(10px);                  /* desenfoque del fondo */
-    -webkit-backdrop-filter: blur(10px);          /* safari */
-    border: 1px solid rgba(255, 255, 255, 0.25);  /* borde translúcido */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);      /* sombra suave */
-
-    transition: background 0.25s ease, transform 0.25s ease;
+    font-size: 14px;
+    opacity: 0.85;
 }
 
-.btn-iniciar-sesion:hover {
-    background: rgba(255, 255, 255, 0.22);
-    transform: translateY(-2px);
-}
-
-
-/* -------------------- Menú principal -------------------- */
-.nav-menu ul {
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
-}
-
-.nav-menu li {
-    position: relative;
-}
-
-.nav-menu > ul > li {
-    margin-right: 20px;
-}
-
-/* Links del menú */
-.nav-menu a {
-    text-decoration: none;
-    color: #fff;
-    padding: 10px 12px;
-    display: block;
-    font-weight: 600;
-    transition: background 0.25s, color 0.25s;
-}
-
-.nav-menu a:hover {
-    background: #7B4F30;
-    color: #fff;
-    border-radius: 4px;
-}
-
-/* -------------------- Submenú -------------------- */
-.submenu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    padding: 0;
-    min-width: 200px;
-    z-index: 1000;
-    background: transparent;
-}
-
-.submenu li {
-    margin: 0;
-}
-
-.submenu li a {
-    color: #0a6d2c;
-    padding: 8px 16px;
-    display: block;
-    background: transparent;
-    border-radius: 4px;
-    transition: background 0.25s, color 0.25s;
-}
-
-.submenu li a:hover {
-    background: #196d32;
-    color: #fff;
-}
-
-.has-submenu:hover .submenu {
-    display: block;
-}
-
-/* -------------------- Hero -------------------- */
-.hero {
-    padding: 120px 20px 40px 20px;
-    text-align: center;
+.btn-header {
     background: #fff;
-    flex: 1;
-}
-
-.hero h1 {
-    font-size: 2.8rem;
-    margin-bottom: 16px;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    max-width: 600px;
-    margin: 0 auto;
-    color: #fff;
-}
-
-/* -------------------- Sección de Servicios -------------------- */
-.services {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 24px;
-    padding: 40px 20px;
-    justify-items: center;
-    flex: 1;
-}
-
-.btn {
-    display: inline-block;
-    padding: 14px 24px;
-    background: #7B4F30;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    border: none;
+    color: #2e1d13;
+    padding: 10px 18px;
     border-radius: 4px;
-    transition: background 0.25s ease, transform 0.25s ease;
-}
-
-.btn:hover {
-    background: #8C5A32;
-    transform: translateY(-2px);
-}
-
-/* -------------------- Footer -------------------- */
-footer {
-    text-align: center;
-    padding: 20px;
-    color: #fff;
-    background: rgba(0,0,0,0.2); /* semi-transparente */
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-/* -------------------- Header flotante centrado -------------------- */
-.header {
-    position: fixed;
-    top: 20px;              /* separación del borde superior */
-    left: 50%;              /* centrado horizontal */
-    transform: translateX(-50%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 10px 30px;
-    border-radius: 50px;     /* bordes redondeados tipo pill */
-    display: flex;
-    align-items: center;
-    gap: 20px;              /* separación entre logo y botones */
-    z-index: 1000;
-    background: transparent;
-}
-
-/* -------------------- Botones tipo pill -------------------- */
-.header-buttons {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    
-    /* Fondo translúcido tipo vidrio */
-    background: rgba(255, 255, 255, 0.1); /* transparencia */
-    backdrop-filter: blur(8px);           /* efecto de desenfoque del fondo */
-    -webkit-backdrop-filter: blur(8px);   /* soporte Safari */
-    border-radius: 50px;                  /* bordes tipo píldora */
-    padding: 8px 12px;                    /* espacio interno */
-}
-
-
-/* Botones tipo pill con borde/transparencia */
-.btn-pill {
     text-decoration: none;
-    background: rgba(255,255,255,0.1); /* borde/transparencia solo aquí */
-    color: #8C5A32;
-    padding: 8px 20px;
-    border: 2px solid rgba(255,255,255,0.3); /* ejemplo de borde transparente */
-    border-radius: 50px;
     font-weight: 600;
-    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* sombra opcional */
+    transition: transform 0.3s;
+}
+
+.btn-header:hover {
+    transform: translateY(-2px);
+}
+
+/* ---------------- FOOTER ---------------- */
+.footer {
+    width: 100%;
+    padding: 20px 64px;
+    background: #1f1309;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto; /* Esto empuja el footer hacia abajo */
+}
+
+.footer-content p {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.footer-links a:hover {
+    opacity: 1;
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 900px) {
+    .nav {
+        display: none;
+    }
+    
+    .header {
+        padding: 20px 32px;
+    }
+
+    .footer {
+        padding: 20px 32px;
+    }
+}
+/* ---------------- BOTONES HEADER ---------------- */
+/* ---------------- BOTONES HEADER (efecto vidrio permanente) ---------------- */
+.btn-header, .login {
+    padding: 10px 20px;
+    border-radius: 50px; /* forma de pastilla */
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.6); /* borde semitransparente */
+    background: rgba(255, 255, 255, 0.1); /* fondo semi-transparente */
+    backdrop-filter: blur(8px); /* efecto vidrio */
+    -webkit-backdrop-filter: blur(8px); /* soporte Safari */
+    color: #fff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Hover opcional: solo resalta un poco */
+.btn-header:hover, .login:hover {
+    background: rgba(255, 255, 255, 0.15); /* un poco más visible */
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
 }
 
 
-.btn-pill:hover {
-    background: rgba(255,255,255,0.2);
+
+/* Botón principal */
+.btn-header {
+    background: #2e1d13; /* fondo oscuro */
+    color: #fff; /* texto blanco */
+    border: 2px solid #fff; /* borde blanco */
+}
+
+
+
+/* Botón login secundario */
+.login {
+    background: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+    opacity: 0.85;
+}
+
+.login:hover {
+    background: #fff;
+    color: #2e1d13;
+    opacity: 1;
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
