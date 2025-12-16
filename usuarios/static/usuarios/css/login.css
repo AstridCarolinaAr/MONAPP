@@ -8,8 +8,20 @@
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
-  background: var(--color-blanco-fondo);
+  min-height: 100vh;
+
+  background: linear-gradient(
+    to bottom,
+    #0e0806 0%,
+    #1c120d 20%,
+    #4a2e1f 45%,
+    #3b2f2f 85%,
+    #120b08 100%
+  );
 }
+
+
+
 
 /* CONTENEDOR */
 #loginContainer {
@@ -17,8 +29,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #e2d1c3, #c2a28f);
+
+  background: transparent;
 }
+
 
 /* TARJETA */
 .login-card {
