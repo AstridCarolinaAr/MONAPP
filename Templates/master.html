@@ -5,20 +5,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Sitio</title>
+    <title>Mi Sitio - {% block title %}{% endblock %}</title>
 
-    <!-- CSS -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- CSS Personalizado -->
     <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+    
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    
 
 <!-- HEADER -->
 <header class="header">
     <div class="logo">MI SITIO</div>
 
     <nav class="nav">
-        <a href="#" class="btn-header">Inicio</a>
+        <a href="{% url 'core:index' %}" class="btn-header">Inicio</a>
         <a href="#" class="btn-header">Nosotros</a>
         <a href="#" class="btn-header">Servicios</a>
         <a href="#" class="btn-header">Productos</a>
@@ -26,14 +32,139 @@
     </nav>
 
     <div class="header-actions">
-        <a href="{% url 'usuarios:login' %}" class="btn-login">Iniciar sesión</a>
-        <a href="#" class="btn-header">Empezar</a>
+        {% if user.is_authenticated %}
+            <span class="text-dark me-3">Hola, {{ user.get_full_name|default:user.username }}</span>
+            {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'core:dashboard' %}" class="btn-header">
+                    <i class="bi bi-speedometer2"></i> Panel Admin
+                </a>
+            {% endif %}
+            <a href="{% url 'usuarios:logout' %}" class="btn-header">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        {% else %}
+            <button class="btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="bi bi-person"></i> Iniciar sesión
+            </button>
+
+        {% endif %}
     </div>
 </header>
 
-<!-- CONTENIDO DE PRUEBA -->
+<!-- MODAL DE LOGIN -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content login-modal-content">
+            <!-- Header del Modal -->
+            <div class="card-header">
+                <canvas id="bolaCanvas"></canvas>
+                <img src="{% static 'logo1..png' %}" width="120" alt="Logo">
+            </div>
+
+            <!-- Body del Modal -->
+            <div class="modal-body p-0">
+                <div class="card-body">
+                    <!-- MENSAJES DEL SISTEMA -->
+                    {% if messages %}
+                        <div class="messages-container">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'usuarios:login' %}" id="loginForm">
+                        {% csrf_token %}
+                        
+                        <!-- Campo Username -->
+                        <div class="mb-3">
+                            <input 
+                                type="text" 
+                                class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                name="username" 
+                                id="id_username"
+                                placeholder="Usuario o Documento" 
+                                value="{{ form.username.value|default:'' }}"
+                                required
+                            >
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Password -->
+                        <div class="mb-3">
+                            <div class="password-wrapper">
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                                    placeholder="Contraseña"
+                                    required
+                                />
+                                <i id="togglePassword" class="bi bi-eye"></i>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Errores generales del formulario -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Checkbox Recordarme -->
+                        <div class="mb-3 form-check">
+                            <input 
+                                type="checkbox" 
+                                class="form-check-input" 
+                                id="remember_me" 
+                                name="remember_me"
+                                checked
+                            >
+                            <label class="form-check-label" for="remember_me">
+                                Recordarme
+                            </label>
+                        </div>
+
+                        <a href="#" class="forgot-password">¿Olvidaste la contraseña?</a>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Ingresar
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <small>¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a></small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
 <main class="main-content">
+    {% block content %}
     <div style="height:2000px"></div>
+    {% endblock %}
 </main>
 
 <!-- FOOTER -->
@@ -48,8 +179,22 @@
     </div>
 </footer>
 
-<!-- JS -->
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JS Personalizado -->
 <script src="{% static 'core/js/main.js' %}"></script>
+<script src="{% static 'usuarios/js/login.js' %}"></script>
 
+<script>
+    // Si hay mensajes o errores en el formulario, abrir el modal automáticamente
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages or form.errors %}
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        {% endif %}
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

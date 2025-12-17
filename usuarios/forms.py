@@ -13,7 +13,7 @@ class LoginForm(AuthenticationForm):
         max_length=20,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingrese su documento',
+            'placeholder': 'Ingrese su documento o usuario',
             'autofocus': True
         })
     )
@@ -22,7 +22,8 @@ class LoginForm(AuthenticationForm):
         label='Contraseña',
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingrese su contraseña'
+            'placeholder': 'Ingrese su contraseña',
+            'id': 'password'
         })
     )
     
@@ -30,7 +31,8 @@ class LoginForm(AuthenticationForm):
         required=False,
         initial=True,
         widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
+            'class': 'form-check-input',
+            'id': 'remember_me'
         }),
         label='Recordarme'
     )

@@ -127,3 +127,175 @@ body {
   margin-bottom: 15px;
   color: var(--color-cafe-principal);
 }
+
+/* ========================================
+   ESTILOS ADICIONALES PARA MODAL DE LOGIN
+   ======================================== */
+
+/* Modal Personalizado */
+.login-modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+}
+
+.login-modal-content .card-header {
+    position: relative;
+    height: 140px;
+    background: var(--color-cafe-principal);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: none;
+    margin: 0;
+    border-radius: 15px 15px 0 0;
+}
+
+/* Canvas para animación de bolas - IMPORTANTE */
+#bolaCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.login-modal-content .card-header img {
+    position: relative;
+    z-index: 2;
+}
+
+/* Body del Modal */
+.login-modal-content .card-body {
+    padding: 35px;
+    background: var(--color-blanco);
+}
+
+.login-modal-content .form-control {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+}
+
+.login-modal-content .form-control:focus {
+    border-color: var(--color-cafe-principal);
+    box-shadow: 0 0 0 0.2rem rgba(59, 47, 47, 0.15);
+}
+
+/* Wrapper de contraseña en el modal */
+.login-modal-content .password-wrapper {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.login-modal-content .password-wrapper input {
+    padding-right: 45px;
+}
+
+.login-modal-content #togglePassword {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.3rem;
+    color: var(--color-cafe-principal);
+    z-index: 5;
+}
+
+.login-modal-content #togglePassword:hover {
+    opacity: 0.7;
+}
+
+/* Link de olvidó contraseña */
+.login-modal-content .forgot-password {
+    display: block;
+    text-align: right;
+    margin-bottom: 15px;
+    color: var(--color-cafe-principal);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.login-modal-content .forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Botón de enviar */
+.login-modal-content .btn-primary {
+    background: var(--color-cafe-principal);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.login-modal-content .btn-primary:hover {
+    background: var(--color-cafe-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 47, 47, 0.3);
+}
+
+/* Mensajes en el modal */
+.login-modal-content .messages-container {
+    margin-bottom: 20px;
+}
+
+.login-modal-content .alert {
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+/* Checkbox recordarme */
+.login-modal-content .form-check {
+    margin-bottom: 15px;
+}
+
+.login-modal-content .form-check-input:checked {
+    background-color: var(--color-cafe-principal);
+    border-color: var(--color-cafe-principal);
+}
+
+/* Responsive para el modal */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    .login-modal-content .card-body {
+        padding: 25px;
+    }
+    
+    .login-modal-content .card-header {
+        height: 120px;
+    }
+    
+    .login-modal-content .card-header img {
+        width: 100px;
+    }
+}
+
+/* Animación de apertura del modal */
+.modal.fade .modal-dialog {
+    transform: scale(0.8);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Backdrop más oscuro */
+.modal-backdrop.show {
+    opacity: 0.7;
+} 
