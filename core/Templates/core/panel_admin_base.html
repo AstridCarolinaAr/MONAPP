@@ -1,176 +1,297 @@
-
 {% load static %}
 
-{% block title %}Panel Administrativo{% endblock %}
-
-{% block extra_css %}
-<style>
-    .stats-card {
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 20px;
-        color: white;
-        transition: transform 0.3s;
-    }
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body class="dashboard-body">
     
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .stats-card .icon {
-        font-size: 3rem;
-        opacity: 0.3;
-        position: absolute;
-        right: 20px;
-        top: 20px;
-    }
-    
-    .stats-card h3 {
-        font-size: 2.5rem;
-        font-weight: bold;
-    }
-    
-    .card-usuarios {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .card-activos {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-    
-    .card-staff {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-    
-    .card-nuevos {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="display-5 fw-bold">
-                <i class="bi bi-speedometer2"></i> Panel de Administración
-            </h1>
-            <p class="text-muted">Bienvenido, {{ request.user.get_full_name }}</p>
-        </div>
-    </div>
-    
-    <!-- Tarjetas de Estadísticas -->
-    <div class="row">
-        <div class="col-md-3">
-            <div class="stats-card card-usuarios">
-                <i class="bi bi-people icon"></i>
-                <p class="mb-0">Total Usuarios</p>
-                <h3>{{ total_usuarios }}</h3>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <!-- Avatar del usuario -->
+            <div class="user-avatar">
+                {% if user.perfil.foto_perfil %}
+                    <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="avatar-img">
+                {% else %}
+                    <div class="avatar-placeholder">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                {% endif %}
             </div>
+            
+            <!-- Nombre del usuario -->
+            <h6 class="user-name">{{ user.get_full_name|default:user.username }}</h6>
+            <p class="user-role text-muted">
+                {% if user.is_superuser %}
+                    Superadministrador
+                {% elif user.is_staff %}
+                    Administrador
+                {% else %}
+                    Usuario
+                {% endif %}
+            </p>
+            <div class="divider"></div>
         </div>
         
-        <div class="col-md-3">
-            <div class="stats-card card-activos">
-                <i class="bi bi-check-circle icon"></i>
-                <p class="mb-0">Usuarios Activos</p>
-                <h3>{{ usuarios_activos }}</h3>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="stats-card card-staff">
-                <i class="bi bi-shield-check icon"></i>
-                <p class="mb-0">Administradores</p>
-                <h3>{{ usuarios_staff }}</h3>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="stats-card card-nuevos">
-                <i class="bi bi-person-plus icon"></i>
-                <p class="mb-0">Nuevos Este Mes</p>
-                <h3>{{ nuevos_usuarios_mes }}</h3>
-            </div>
-        </div>
+        <!-- Menú de navegación -->
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{% url 'core:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-calendar3"></i>
+                        <span>Calendario</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-inbox-fill"></i>
+                        <span>Mensajes</span>
+                        <span class="badge bg-danger ms-auto">7</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}" class="nav-link {% if request.resolver_match.url_name == 'lista_usuarios' %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-list-check"></i>
+                        <span>Tareas</span>
+                        <span class="badge bg-success ms-auto">4</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'usuarios:perfil' %}" class="nav-link">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+                
+                <!-- Sección de Apps del proyecto -->
+                <li class="nav-header">
+                    <span>MÓDULOS DEL SISTEMA</span>
+                </li>
+                
+                {% block sidebar_extra_items %}
+                <!-- Aquí las apps hijas pueden agregar sus propios items del menú -->
+                {% endblock %}
+                
+                <!-- Ejemplo de items adicionales -->
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Productos</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-cart3"></i>
+                        <span>Ventas</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Reportes</span>
+                    </a>
+                </li>
+                
+                <!-- Configuración -->
+                <li class="nav-header">
+                    <span>CONFIGURACIÓN</span>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-gear"></i>
+                        <span>Ajustes</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'core:index' %}" class="nav-link">
+                        <i class="bi bi-house-door"></i>
+                        <span>Ir al Sitio</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'usuarios:logout' %}" class="nav-link text-danger" onclick="return confirm('¿Seguro que deseas cerrar sesión?')">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
     
-    <!-- Acciones Rápidas -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
-                </div>
-                <div class="card-body">
-                    <a href="{% url 'usuarios:crear_usuario' %}" class="btn btn-primary me-2">
-                        <i class="bi bi-person-plus"></i> Crear Usuario
-                    </a>
-                    <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-primary me-2">
-                        <i class="bi bi-people"></i> Ver Usuarios
-                    </a>
-                    <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-person-circle"></i> Mi Perfil
-                    </a>
-                </div>
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn btn-toggle" id="sidebar-toggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h4 class="page-title mb-0">{% block page_title %}Dashboard{% endblock %}</h4>
             </div>
-        </div>
-    </div>
-    
-    <!-- Últimos Usuarios Registrados -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Últimos Usuarios Registrados</h5>
+            
+            <div class="topbar-right">
+                <!-- Barra de búsqueda -->
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" placeholder="Buscar...">
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Documento</th>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Fecha de Registro</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for usuario in ultimos_usuarios %}
-                                <tr>
-                                    <td>{{ usuario.perfil.documento }}</td>
-                                    <td>{{ usuario.get_full_name }}</td>
-                                    <td>{{ usuario.email }}</td>
-                                    <td>{{ usuario.date_joined|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        {% if usuario.is_active %}
-                                            <span class="badge bg-success">Activo</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Inactivo</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'usuarios:editar_usuario' usuario.id %}" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">
-                                        No hay usuarios registrados aún
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                
+                <!-- Notificaciones -->
+                <div class="dropdown">
+                    <button class="btn btn-icon" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge-dot"></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                        <div class="dropdown-header">
+                            <h6>Notificaciones</h6>
+                            <span class="badge bg-primary">3 nuevas</span>
+                        </div>
+                        <div class="dropdown-body">
+                            <a href="#" class="notification-item">
+                                <div class="notification-icon bg-primary">
+                                    <i class="bi bi-person-plus"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p class="notification-title">Nuevo usuario registrado</p>
+                                    <span class="notification-time">Hace 5 minutos</span>
+                                </div>
+                            </a>
+                            <a href="#" class="notification-item">
+                                <div class="notification-icon bg-success">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p class="notification-title">Tarea completada</p>
+                                    <span class="notification-time">Hace 1 hora</span>
+                                </div>
+                            </a>
+                            <a href="#" class="notification-item">
+                                <div class="notification-icon bg-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p class="notification-title">Actualización disponible</p>
+                                    <span class="notification-time">Hace 3 horas</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="dropdown-footer">
+                            <a href="#">Ver todas las notificaciones</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Usuario -->
+                <div class="dropdown">
+                    <button class="btn btn-user" data-bs-toggle="dropdown">
+                        {% if user.perfil.foto_perfil %}
+                            <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="user-avatar-sm">
+                        {% else %}
+                            <i class="bi bi-person-circle fs-4"></i>
+                        {% endif %}
+                        <span class="d-none d-md-inline ms-2">{{ user.first_name }}</span>
+                        <i class="bi bi-chevron-down ms-1"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <div class="dropdown-header">
+                            <strong>{{ user.get_full_name }}</strong>
+                            <p class="text-muted mb-0">{{ user.email }}</p>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
+                            <i class="bi bi-person"></i> Mi Perfil
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-gear"></i> Configuración
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="{% url 'usuarios:logout' %}">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Mensajes de Django -->
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Breadcrumb (opcional) -->
+        {% block breadcrumb %}
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+                {% block breadcrumb_items %}
+                {% endblock %}
+            </ol>
+        </nav>
+        {% endblock %}
+        
+        <!-- Contenido Principal -->
+        <div class="content-wrapper">
+            {% block content %}
+            <!-- El contenido específico de cada página va aquí -->
+            {% endblock %}
+        </div>
+        
+        <!-- Footer del Dashboard -->
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <p class="mb-0">&copy; {% now "Y" %} Mi Proyecto SENA. Todos los derechos reservados.</p>
+                <div class="footer-links">
+                    <a href="#">Ayuda</a>
+                    <a href="#">Soporte</a>
+                    <a href="#">Términos</a>
+                </div>
+            </div>
+        </footer>
     </div>
-</div>
-{% endblock %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- JavaScript del dashboard -->
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    
+    <!-- JavaScript adicional de cada página -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
