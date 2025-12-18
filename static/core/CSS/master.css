@@ -1,8 +1,13 @@
-/* ===== HEADER ===== */
-.body{
+/* ===== BODY ===== */
+body {
+    margin: 0;
+    padding: 0;
     padding-top: 80px; /* espacio para header fijo */
-    background: #8C5A32;
+    background: #fff; /* Cambiado de #8C5A32 a blanco */
+    min-height: 100vh;
 }
+
+/* ===== HEADER ===== */
 .header {
     position: fixed;
     top: 0;
@@ -14,6 +19,7 @@
     padding: 1rem 2rem;
     transition: all 0.3s ease;
     backdrop-filter: blur(0); /* inicial transparente */
+    background: rgba(255, 255, 255, 0.9);
 }
 
 /* Header se encoge al scroll */
@@ -59,6 +65,7 @@
 .header-actions {
     display: flex;
     gap: 1rem;
+    align-items: center;
 }
 
 /* ===== FOOTER ===== */
@@ -70,13 +77,21 @@
     opacity: 0;
     transform: translateY(50px);
     transition: all 0.5s ease;
-    background: none;
+    background: #f8f9fa;
     color: #000;
+    border-top: 1px solid #e0e0e0;
 }
 
 .footer.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Footer Content */
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 /* Footer Links */
@@ -91,13 +106,14 @@
     text-decoration: none;
     color: #000;
     font-size: 0.9rem;
+    transition: color 0.3s ease;
 }
 
 .footer-links a:hover {
     color: #555;
 }
-/* boton login */
 
+/* ===== BOTON LOGIN ===== */
 .login-section {
     margin-left: 1rem;
 }
@@ -112,6 +128,8 @@
     text-decoration: none;
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
+    cursor: pointer;
+    display: inline-block;
 }
 
 /* Hover efecto vidrio */
@@ -120,9 +138,35 @@
     color: #000;
     transform: translateY(-2px);
 }
+
+/* ===== MAIN CONTENT ===== */
 .main-content {
     background: #fff;
-    backdrop-filter: blur(3px); /* efecto vidrio opcional */
     padding: 2rem;
     min-height: calc(100vh - 160px); /* altura mínima considerando header + footer */
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem;
+    }
+    
+    .nav {
+        display: none; /* Ocultar navegación en móvil */
+    }
+    
+    .header-actions {
+        gap: 0.5rem;
+    }
+    
+    .btn-header,
+    .btn-login {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
 }
