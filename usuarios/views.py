@@ -11,101 +11,69 @@ from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
+
 @csrf_protect
 @never_cache
 def login_view(request):
     """
     Vista para el inicio de sesión de usuarios
-    Funciona tanto con página dedicada como con modal
     """
-    print("=== LOGIN VIEW LLAMADA ===")
-    print(f"Método: {request.method}")
-    
-    # Si el usuario ya está autenticado, redirigir
+    # Si el usuario ya está autenticado, redirigir al dashboard
     if request.user.is_authenticated:
-        print(f"Usuario ya autenticado: {request.user.username}")
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.is_staff:
             return redirect('core:dashboard')
-        return redirect('core:index')
+        else:
+            return redirect('core:index')
     
     if request.method == 'POST':
-        print("POST recibido")
-        print(f"POST data: {dict(request.POST)}")
-        
         form = LoginForm(request, data=request.POST)
-        
-        print(f"Form es válido: {form.is_valid()}")
-        if not form.is_valid():
-            print(f"Errores del formulario: {form.errors}")
-            print(f"Errores no de campo: {form.non_field_errors()}")
         
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            remember_me = form.cleaned_data.get('remember_me', True)
+            remember_me = form.cleaned_data.get('remember_me')
             
-            print(f"Intentando autenticar: {username}")
-            
-            # Autenticar usuario
+            # Autenticar usuario (username es el documento)
             user = authenticate(request, username=username, password=password)
             
             if user is not None:
-                print(f"Usuario autenticado: {user.username}")
-                print(f"Es staff: {user.is_staff}, Es superuser: {user.is_superuser}")
-                
                 if user.is_active:
                     login(request, user)
-                    print("Login exitoso")
                     
                     # Configurar duración de la sesión
                     if not remember_me:
-                        request.session.set_expiry(0)
+                        request.session.set_expiry(0)  # Expira al cerrar navegador
+                    else:
+                        request.session.set_expiry(1209600)  # 2 semanas
                     
                     messages.success(request, f'¡Bienvenido {user.get_full_name() or user.username}!')
                     
                     # Redirigir según el tipo de usuario
                     next_url = request.GET.get('next')
                     if next_url:
-                        print(f"Redirigiendo a next: {next_url}")
                         return redirect(next_url)
-                    elif user.is_staff or user.is_superuser:
-                        print("Redirigiendo a dashboard")
+                    elif user.is_staff:
                         return redirect('core:dashboard')
                     else:
-                        print("Redirigiendo a index")
                         return redirect('core:index')
                 else:
-                    print("Usuario no activo")
                     messages.error(request, 'Esta cuenta ha sido desactivada.')
             else:
-                print("Autenticación falló - Usuario o contraseña incorrectos")
-                messages.error(request, 'Usuario o contraseña incorrectos.')
+                messages.error(request, 'Documento o contraseña incorrectos.')
         else:
-            # Si el formulario no es válido, mostrar errores específicos
-            print("Formulario inválido")
+            # Mostrar errores del formulario
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f"{field}: {error}")
-        
-        # Renderizar la página index con el formulario y sus errores
-        context = {
-            'form': form,
-        }
-        return render(request, 'core/index.html', context)
-    
+                    messages.error(request, error)
     else:
-        # GET request - mostrar página de login si existe
         form = LoginForm()
-        context = {
-            'form': form,
-            'titulo': 'Iniciar Sesión'
-        }
-        # Si existe una página de login dedicada, mostrarla
-        # Si no, redirigir al index
-        try:
-            return render(request, 'usuarios/login.html', context)
-        except:
-            return redirect('core:index')
+    
+    context = {
+        'form': form,
+        'titulo': 'Iniciar Sesión'
+    }
+    return render(request, 'core/panel_admin_base.html', context)
+
 
 @csrf_protect
 def registro_view(request):
@@ -113,7 +81,10 @@ def registro_view(request):
     Vista para el registro de nuevos usuarios
     """
     if request.user.is_authenticated:
-        return redirect('core:dashboard')
+        if request.user.is_staff:
+            return redirect('core:dashboard')
+        else:
+            return redirect('core:index')
     
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -127,7 +98,9 @@ def registro_view(request):
             )
             return redirect('usuarios:login')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, error)
     else:
         form = RegistroForm()
     
@@ -153,7 +126,6 @@ def logout_view(request):
 def es_staff(user):
     """Función auxiliar para verificar si el usuario es staff"""
     return user.is_staff
-
 
 
 @login_required
