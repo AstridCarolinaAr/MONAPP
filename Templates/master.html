@@ -27,7 +27,7 @@
         <a href="{% url 'core:index' %}" class="btn-header">Inicio</a>
         <a href="#" class="btn-header">Nosotros</a>
         <a href="#" class="btn-header">Servicios</a>
-        <a href="{% url 'productos:lista_productos' %}" class="btn-header">Productos</a>
+        <a href="{% url 'productos:lista_productos_publica' %}" class="btn-header">Productos</a>
         <a href="" class="btn-header">Contactenos</a>
     </nav>
 
@@ -137,10 +137,6 @@
                         <button type="submit" class="btn btn-primary w-100">
                             Ingresar
                         </button>
-
-                        <div class="text-center mt-3">
-                            <small>¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a></small>
-                        </div>
                     </form>
                 </div>
             </div>

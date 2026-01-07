@@ -1,0 +1,11 @@
+{% extends "core/panel_admin_base.html" %}
+
+{% block content %}
+<h1>FUNCIONA – LISTA DE PRODUCTOS</h1>
+
+<ul>
+    {% for producto in productos %}
+        <li>{{ producto.nombre }} – {{ producto.precio }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

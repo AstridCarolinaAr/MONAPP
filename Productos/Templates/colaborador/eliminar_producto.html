@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ titulo }}</h2>
+
+  <div class="alert alert-danger mt-3">
+    ¿Seguro que deseas eliminar el producto
+    <strong>{{ producto.nombre }}</strong>?
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="d-flex gap-2">
+      <a href="{% url 'productos:lista_productos_admin' %}" class="btn btn-secondary">
+        Cancelar
+      </a>
+      <button class="btn btn-danger">Sí, eliminar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

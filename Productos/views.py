@@ -34,12 +34,15 @@ def lista_productos_publica(request):
     elif orden == 'nombre':
         productos = productos.order_by('nombre')
 
-    context = {
-        'productos': productos,
-        'buscar': buscar,
-        'orden': orden,
-    }
-    return render(request, 'productos/lista_productos_publica.html', context)
+    return render(
+        request,
+        'productos/lista_productos_publica.html',
+        {
+            'productos': productos,
+            'buscar': buscar,
+            'orden': orden,
+        }
+    )
 
 
 def detalle_producto_publico(request, codigo):
@@ -54,11 +57,14 @@ def detalle_producto_publico(request, codigo):
         estado='disponible'
     ).exclude(codigo=producto.codigo)[:4]
 
-    context = {
-        'producto': producto,
-        'productos_relacionados': productos_relacionados,
-    }
-    return render(request, 'productos/detalle_producto_publico.html', context)
+    return render(
+        request,
+        'productos/detalle_producto_publico.html',
+        {
+            'producto': producto,
+            'productos_relacionados': productos_relacionados,
+        }
+    )
 
 
 # ==================== PANEL ADMIN ====================
@@ -89,39 +95,42 @@ def lista_productos_admin(request):
     elif orden == 'nombre':
         productos = productos.order_by('nombre')
 
-    context = {
-        'titulo': 'Gestión de Productos',
-        'productos': productos,
-        'buscar': buscar,
-        'estado': estado,
-        'orden': orden,
-    }
-    return render(request, 'productos/panel_admin_base/lista_productos.html', context)
+    return render(
+        request,
+        'productos/colaborador/lista_productos.html',
+        {
+            'titulo': 'Gestión de Productos',
+            'productos': productos,
+            'buscar': buscar,
+            'estado': estado,
+            'orden': orden,
+        }
+    )
 
 
 @login_required
 @user_passes_test(es_staff, login_url='usuarios:login')
 def crear_producto(request):
     if request.method == 'POST':
-        form = ProductoForm(request.POST)
+        form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
             producto = form.save()
             messages.success(
                 request,
                 f'Producto "{producto.nombre}" creado correctamente.'
             )
-            return redirect('productos:lista_productos_admin')
-        else:
-            messages.error(request, 'Corrige los errores del formulario.')
+            return redirect('productos:lista_producto')
     else:
         form = ProductoForm()
 
-    context = {
-        'titulo': 'Crear Producto',
-        'form': form,
-        'accion': 'Crear'
-    }
-    return render(request, 'productos/panel_admin/crear_producto.html', context)
+    return render(
+        request,
+        'productos/admin/crear_productos.html',
+        {
+            'titulo': 'Crear Producto',
+            'form': form,
+        }
+    )
 
 
 @login_required
@@ -130,26 +139,26 @@ def editar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 
     if request.method == 'POST':
-        form = ProductoForm(request.POST, instance=producto)
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
         if form.is_valid():
             form.save()
             messages.success(
                 request,
                 f'Producto "{producto.nombre}" actualizado.'
             )
-            return redirect('productos:lista_productos_admin')
-        else:
-            messages.error(request, 'Corrige los errores del formulario.')
+            return redirect('productos:lista_productos')
     else:
         form = ProductoForm(instance=producto)
 
-    context = {
-        'titulo': f'Editar Producto: {producto.nombre}',
-        'form': form,
-        'producto': producto,
-        'accion': 'Actualizar'
-    }
-    return render(request, 'productos/panel_admin/editar_producto.html', context)
+    return render(
+        request,
+        'productos/admin/editar_producto.html',
+        {
+            'titulo': f'Editar Producto: {producto.nombre}',
+            'form': form,
+            'producto': producto,
+        }
+    )
 
 
 @login_required
@@ -158,16 +167,18 @@ def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 
     if request.method == 'POST':
-        nombre = producto.nombre
         producto.delete()
         messages.success(
             request,
-            f'Producto "{nombre}" eliminado.'
+            f'Producto "{producto.nombre}" eliminado.'
         )
-        return redirect('productos:lista_productos_admin')
+        return redirect('productos:lista_producto')
 
-    context = {
-        'titulo': 'Eliminar Producto',
-        'producto': producto
-    }
-    return render(request, 'productos/panel_admin/eliminar_producto.html', context)
+    return render(
+        request,
+        'productos/admin/eliminar_producto.html',
+        {
+            'titulo': 'Eliminar Producto',
+            'producto': producto,
+        }
+    )
