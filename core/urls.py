@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from . import views 
 
 app_name = 'core'
@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('panel_admin_base/', views.Panel_Admin_base, name='panel_admin_base'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    ]
+    path('dashboard/', include('Productos.urls')),
+    ]   

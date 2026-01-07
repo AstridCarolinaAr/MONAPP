@@ -1,22 +1,91 @@
-{% extends "base.html" %}
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+
+{% block page_title %}Eliminar producto{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>{{ titulo }}</h2>
+<div class="container-fluid">
 
-  <div class="alert alert-danger mt-3">
-    ¿Seguro que deseas eliminar el producto
-    <strong>{{ producto.nombre }}</strong>?
-  </div>
+    <div class="card shadow-sm border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-trash"></i> Eliminar producto
+            </h5>
+        </div>
 
-  <form method="post">
-    {% csrf_token %}
-    <div class="d-flex gap-2">
-      <a href="{% url 'productos:lista_productos_admin' %}" class="btn btn-secondary">
-        Cancelar
-      </a>
-      <button class="btn btn-danger">Sí, eliminar</button>
+        <div class="card-body">
+
+            <p>
+                ¿Estás a punto de eliminar el siguiente producto:
+            </p>
+
+            <h5 class="fw-bold text-danger">
+                {{ producto.nombre }}
+            </h5>
+
+            <form method="post" id="formEliminar">
+                {% csrf_token %}
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'productos:lista_productos_admin' %}"
+                       class="btn btn-secondary">
+                        Cancelar
+                    </a>
+
+                    <!-- BOTÓN QUE ABRE EL MODAL -->
+                    <button type="button"
+                            class="btn btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalConfirmar"
+                            data-producto="{{ producto.nombre }}">
+                        Eliminar
+                    </button>
+                </div>
+
+                <!-- MODAL -->
+                <div class="modal fade" id="modalConfirmar" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">
+                                    Confirmar eliminación
+                                </h5>
+                                <button type="button"
+                                        class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p id="textoConfirmacion"></p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cancelar
+                                </button>
+
+                                <!-- ESTE SÍ ENVÍA EL FORM -->
+                                <button type="submit"
+                                        class="btn btn-danger">
+                                    Sí, eliminar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
     </div>
-  </form>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'productos/js/eliminar_producto.js' %}"></script>
 {% endblock %}

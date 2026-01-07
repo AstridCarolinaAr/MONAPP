@@ -95,15 +95,13 @@ def lista_productos_admin(request):
     elif orden == 'nombre':
         productos = productos.order_by('nombre')
 
-    return render(
-        request,
-        'productos/colaborador/lista_productos.html',
+    return render(request,'colaborador/lista_productos.html',
         {
             'titulo': 'Gestión de Productos',
             'productos': productos,
             'buscar': buscar,
             'estado': estado,
-            'orden': orden,
+            'orden': orden, 
         }
     )
 
@@ -119,13 +117,13 @@ def crear_producto(request):
                 request,
                 f'Producto "{producto.nombre}" creado correctamente.'
             )
-            return redirect('productos:lista_producto')
+            return redirect('productos:lista_productos_admin')
     else:
         form = ProductoForm()
 
     return render(
         request,
-        'productos/admin/crear_productos.html',
+        'colaborador/crear_producto.html',
         {
             'titulo': 'Crear Producto',
             'form': form,
@@ -146,13 +144,13 @@ def editar_producto(request, codigo):
                 request,
                 f'Producto "{producto.nombre}" actualizado.'
             )
-            return redirect('productos:lista_productos')
+            return redirect('productos:lista_productos_admin')
     else:
         form = ProductoForm(instance=producto)
 
     return render(
         request,
-        'productos/admin/editar_producto.html',
+        'colaborador/editar_producto.html',
         {
             'titulo': f'Editar Producto: {producto.nombre}',
             'form': form,
@@ -172,11 +170,11 @@ def eliminar_producto(request, codigo):
             request,
             f'Producto "{producto.nombre}" eliminado.'
         )
-        return redirect('productos:lista_producto')
+        return redirect('productos:lista_productos_admin')
 
     return render(
         request,
-        'productos/admin/eliminar_producto.html',
+        'colaborador/eliminar_producto.html',
         {
             'titulo': 'Eliminar Producto',
             'producto': producto,

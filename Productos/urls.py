@@ -11,3 +11,4 @@ urlpatterns = [
     path('admin/productos/<str:codigo>/editar/', views.editar_producto, name='editar_producto'),
     path('admin/productos/<str:codigo>/eliminar/', views.eliminar_producto, name='eliminar_producto'),
 ]
+    
