@@ -4,55 +4,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos</title>
-    <link rel="stylesheet" href="{% static 'productos/css/public.css/lista_producto_publica.css' %}">
+    <title>Productos | Mi Tienda</title>
+
+    <!-- CSS -->
+<link rel="stylesheet" href="{% static 'Productos/css/lista_producto_publica.css' %}">
 </head>
 <body>
 
-    <header class="site-header">
-        <div class="container">
-            <h1 class="logo">Mi Tienda</h1>
+<!-- HEADER -->
+<header class="site-header">
+    <div class="container header-flex">
+        <h1 class="logo">Mi Tienda</h1>
 
-            <form method="GET" class="search-bar">
-                <input type="text" name="buscar" placeholder="Buscar productos..." value="{{ buscar }}">
-                <button type="submit">Buscar</button>
-            </form>
-        </div>
-    </header>
+        <form method="GET" class="search-bar">
+            <input type="text" name="buscar" placeholder="Buscar productos..." value="{{ buscar }}">
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+</header>
 
-    <section class="products-section">
-        <div class="container">
-            <h2 class="section-title">Nuestros Productos</h2>
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <h2>Nuestros Productos</h2>
+        <p>Calidad profesional, resultados visibles</p>
+    </div>
+</section>
 
-            {% if productos %}
-            <div class="products-grid">
+<!-- PRODUCTOS -->
+<section class="products-section">
+    <div class="container">
 
-                {% for producto in productos %}
-                <div class="product-card">
+        {% if productos %}
+        <div class="products-grid">
+
+            {% for producto in productos %}
+            <article class="product-card">
+
+                <div class="product-image">
                     {% if producto.imagen %}
-                    <div class="product-image">
                         <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
-                    </div>
+                    {% else %}
+                        <div class="no-image">Sin imagen</div>
                     {% endif %}
+                </div>
 
-                    <div class="product-details">
-                        <h3 class="product-name">{{ producto.nombre }}</h3>
-                        <p class="product-desc">{{ producto.descripcion|truncatechars:90 }}</p>
-                        <div class="product-meta">
-                            <span class="price">$ {{ producto.precio }}</span>
-                            <a href="{% url 'productos:detalle_producto_publico' producto.codigo %}" class="btn-view">Ver Detalle</a>
-                        </div>
+                <div class="product-body">
+                    <h3 class="product-name">{{ producto.nombre }}</h3>
+
+                    <p class="product-desc">
+                        {{ producto.descripcion|truncatechars:90 }}
+                    </p>
+
+                    <div class="product-footer">
+                        <span class="price">$ {{ producto.precio|floatformat:0 }}</span>
+
+                        <a href="{% url 'productos:detalle_producto_publico' producto.codigo %}" class="btn-product">
+                            Ver detalle
+                        </a>
                     </div>
                 </div>
-                {% endfor %}
 
-            </div>
-            {% else %}
-                <p class="no-products">No hay productos disponibles</p>
-            {% endif %}
+            </article>
+            {% endfor %}
 
         </div>
-    </section>
-    <a href="{% url 'core:index' %}" class="btn-view">Volver al Inicio</a>
+        {% else %}
+            <p class="no-products">No hay productos disponibles</p>
+        {% endif %}
+
+        <div class="back-home">
+            <a href="{% url 'core:index' %}" class="btn-back">← Volver al inicio</a>
+        </div>
+
+    </div>
+</section>
+
 </body>
 </html>

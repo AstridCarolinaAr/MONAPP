@@ -168,7 +168,7 @@ def lista_usuarios_view(request):
         'filtro_activo': filtro_activo,
         'filtro_staff': filtro_staff,
     }
-    return render(request, 'usuarios/panel_admin/lista_usuarios.html', context)
+    return render(request, 'usuarios/lista_usuarios.html', context)
 
 
 @login_required

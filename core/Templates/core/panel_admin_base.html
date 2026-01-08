@@ -35,7 +35,7 @@
         <ul class="nav flex-column">
 
             <li class="nav-item">
-                <a href="{% url 'core:dashboard' %}" class="nav-link">
+                <a  class="nav-link" href="{% url 'core:dashboard' %}">
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
@@ -48,18 +48,11 @@
                 </a>
             </li>
 
-            <!-- ✅ BOTÓN PRODUCTOS FUNCIONAL -->
+
             <li class="nav-item">
                 <a href="{% url 'productos:lista_productos_admin' %}" class="nav-link">
                     <i class="bi bi-box-seam"></i>
                     <span>Productos</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{% url 'usuarios:perfil' %}" class="nav-link">
-                    <i class="bi bi-person-circle"></i>
-                    <span>Mi Perfil</span>
                 </a>
             </li>
 
