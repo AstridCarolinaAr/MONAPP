@@ -1,0 +1,396 @@
+/* -------------------- RESET -------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Roboto, Helvetica, Arial, sans-serif;
+    color: #111;
+    background: #ffffff;
+    line-height: 1.6;
+}
+
+/* -------------------- GLOBAL -------------------- */
+
+.sq-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.sq-btn {
+    display: inline-block;
+    padding: 16px 52px;
+    border-radius: 999px;
+    border: 1px solid #111;
+    text-decoration: none;
+    color: #111;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    
+}
+
+.sq-btn:hover {
+    background: #111;
+    color: #fff;
+}
+
+.sq-btn.dark {
+    background: #111;
+    color: #fff;
+}
+
+.sq-btn.dark:hover {
+    background: #000;
+}
+
+/* -------------------- HERO -------------------- */
+.sq-hero-bg {
+    min-height: 120vh;
+    background-image: url("../img/fondo-.minimalista.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    min-height: 160vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: 220px;
+}
+.sq-hero-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 15, 15, 0.55);
+}
+
+.sq-hero,
+.sq-intro,
+.sq-services {
+    position: relative;
+    z-index: 2;
+}
+
+.sq-intro {
+    background: transparent;
+}
+
+.sq-hero h1,
+.sq-hero p,
+.sq-intro h2,
+.sq-intro p,
+.sq-card h3,
+.sq-card p {
+    color: #fff;
+}
+.sq-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 160px;
+    padding-bottom: 160px;
+
+    /* Overlay oscuro estilo Squarespace */
+    position: relative;
+}
+
+.sq-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(15,15,15,0.65) 0%,
+            rgba(15,15,15,0.35) 30%,
+            rgba(15,15,15,0.15) 55%,
+            rgba(15,15,15,0) 75%
+        );
+    pointer-events: none;
+}
+
+.sq-hero-bg::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(
+        to bottom,
+        rgba(15,15,15,0),
+        #ffffff
+    );
+    pointer-events: none;
+}
+
+
+.sq-hero-inner {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    text-align: center;
+    margin-top: 150px;
+     
+    
+}
+.sq-hero h1 {
+    font-size: clamp(2.75rem, 5vw, 4rem);
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 100px;
+}
+
+.sq-hero h2 {
+    font: 2em sans-serif;
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 100px;
+    text-align: center;
+}
+
+.sq-hero p {
+    margin-top: 32px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sq-hero .sq-btn {
+    margin-top: 50px;
+    border-color: #fff;
+    color: #fff;
+}
+
+/* -------------------- INTRO -------------------- */
+.sq-intro {
+    padding-top: 96px;
+    padding-bottom: 120px;
+    background: transparent;
+    text-align: center;
+}
+
+.sq-intro h2 {
+    font-size: 2.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+.sq-intro p {
+    margin-top: 24px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #555;
+}
+
+/* -------------------- SERVICES GRID -------------------- */
+.sq-services {
+    
+    padding-top: 180px;
+    padding-bottom: 220px;
+    background: transparent;
+}
+
+.sq-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 96px;
+}
+
+.sq-card h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+.sq-card p {
+    margin-top: 20px;
+    color: #555;
+    max-width: 320px;
+}
+
+/* -------------------- SPLIT SECTIONS -------------------- */
+.sq-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 75vh;
+}
+
+.sq-split.reverse {
+    direction: rtl;
+}
+
+.sq-split.reverse > * {
+    direction: ltr;
+}
+
+.sq-text {
+    padding: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.sq-text h2 {
+    font-size: 2.3rem;
+    font-weight: 500;
+}
+
+.sq-text p {
+    margin-top: 25px;
+    color: #555;
+}
+
+.sq-image {
+  width: 100%;
+    min-height: 420px;        /* Altura visible de la imagen */
+    background-size: cover;   /* Cubre todo el bloque */
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;  
+}
+
+.placeholder-1 {
+    background: #e5e5e5;
+}
+
+.placeholder-2 {
+    background: #dcdcdc;
+}
+
+/* -------------------- STEPS -------------------- */
+.sq-steps {
+    padding: 140px 0;
+    background: #fafafa;
+}
+
+.sq-steps h2 {
+    text-align: center;
+    font-size: 2.3rem;
+    font-weight: 500;
+    margin-bottom: 100px;
+}
+
+.sq-step span {
+    font-size: 0.9rem;
+    color: #999;
+    letter-spacing: 2px;
+}
+
+.sq-step h3 {
+    margin-top: 15px;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.sq-step p {
+    margin-top: 15px;
+    color: #555;
+}
+
+/* -------------------- BENEFITS -------------------- */
+.sq-benefits {
+    padding: 140px 0;
+}
+
+.sq-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 80px;
+}
+
+.sq-benefits h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+.sq-benefits p {
+    margin-top: 18px;
+    color: #555;
+}
+
+/* -------------------- TESTIMONIALS -------------------- */
+.sq-testimonials {
+    padding: 140px 40px;
+    text-align: center;
+    background: #fafafa;
+}
+
+.sq-testimonials h2 {
+    font-size: 2.3rem;
+    font-weight: 500;
+}
+
+.sq-testimonial {
+    max-width: 700px;
+    margin: 70px auto;
+    display: none;
+}
+
+.sq-testimonial.active {
+    display: block;
+}
+
+.sq-testimonial p {
+    font-size: 1.25rem;
+}
+
+.sq-testimonial span {
+    display: block;
+    margin-top: 25px;
+    color: #777;
+}
+
+.sq-controls button {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    margin: 0 20px;
+}
+
+/* -------------------- CTA FINAL -------------------- */
+.sq-cta {
+    padding: 160px 40px;
+    text-align: center;
+}
+
+.sq-cta h2 {
+    font-size: 2.6rem;
+    font-weight: 500;
+    margin-bottom: 50px;
+}
+
+/* -------------------- RESPONSIVE -------------------- */
+@media (max-width: 900px) {
+
+    .sq-split {
+        grid-template-columns: 1fr;
+    }
+
+    .sq-text {
+        padding: 80px 40px;
+    }
+
+    .sq-hero {
+        min-height: auto;
+        padding: 120px 40px;
+    }
+}

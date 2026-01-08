@@ -1,71 +1,142 @@
-/* ===== BODY ===== */
-body {
-    margin: 0;
-    padding: 0;
-    padding-top: 80px; /* espacio para header fijo */
-    background: #fff; /* Cambiado de #8C5A32 a blanco */
-    min-height: 100vh;
-}
+/* =====================================================
+   HEADER BASE
+===================================================== */
 
-/* ===== HEADER ===== */
 .header {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 999;
+    z-index: 1000;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(0); /* inicial transparente */
-    background: rgba(255, 255, 255, 0.9);
-}
 
-/* Header se encoge al scroll */
-.header.scrolled {
-    padding: 0.5rem 2rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem 2rem;
+    transition: padding 0.3s ease, background 0.3s ease;
 }
 
 /* Logo */
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #000;
-    text-decoration: none;
+.logo img {
+    height: 150px;
+    width: auto;
+    display: block;
 }
 
-/* Navegación */
-.nav {
-    display: flex;
-    gap: 1rem;
-}
+/* =====================================================
+   NAV GLASS (CÁPSULA BORROSA)
+===================================================== */
 
-/* ===== BOTONES PÍLDORA ===== */
-.btn-header {
-    padding: 0.5rem 1.5rem;
-    border-radius: 50px; /* píldora */
-    border: 1px solid rgba(0,0,0,0.2);
-    background: rgba(255,255,255,0.1); /* transparente inicial */
-    color: #000;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-}
-
-.btn-header:hover {
-    background: rgba(255,255,255,0.3);
-    color: #000;
-    transform: translateY(-2px);
-}
-
-/* Header Actions */
-.header-actions {
-    display: flex;
-    gap: 1rem;
+.nav-glass {
+    position: relative;
+    display: inline-flex;
     align-items: center;
+    gap: 4px;
+
+    padding: 6px;
+    border-radius: 999px;
+
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+
+    overflow: hidden;
+}
+
+/* Overlay que oculta el texto del fondo */
+.nav-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: rgba(20, 20, 20, 0.5);
+    border-radius: inherit;
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* =====================================================
+   NAV ITEMS (BOTONES)
+===================================================== */
+
+.nav-item {
+    position: relative;
+    z-index: 1;
+
+    padding:  0.65rem 1.4rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+
+    color: #ffffff;
+    text-decoration: none;
+
+    background: transparent;
+    border-radius: 6px;
+
+    transition: background 0.25s ease, color 0.25s ease, border-radius 0.25s ease;
+}
+
+/* Hover → píldora */
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #000;
+    border-radius: 999px;
+}
+
+/* CTA */
+.nav-primary {
+    font-weight: 600;
+}
+
+/* =====================================================
+   HEADER AL HACER SCROLL (MIGRADO DESDE btn-header)
+===================================================== */
+
+.header.scrolled {
+    padding: 0.5rem 2rem;
+}
+
+/* La cápsula se aclara */
+.header.scrolled .nav-glass {
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+/* Overlay claro al scroll */
+.header.scrolled .nav-glass::before {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+/* Texto oscuro al scroll */
+.header.scrolled .nav-item {
+    color: #111;
+}
+
+/* Hover al scroll */
+.header.scrolled .nav-item:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #000;
+}
+
+/* CTA al scroll */
+.header.scrolled .nav-primary {
+    font-weight: 600;
+}
+
+/* =====================================================
+   RESPONSIVE BÁSICO (opcional)
+===================================================== */
+
+@media (max-width: 900px) {
+    .nav-glass {
+        gap: 2px;
+        padding: 4px;
+    }
+
+    .nav-item {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
 }
 
 /* ===== FOOTER ===== */
@@ -77,21 +148,13 @@ body {
     opacity: 0;
     transform: translateY(50px);
     transition: all 0.5s ease;
-    background: #f8f9fa;
+    background: none;
     color: #000;
-    border-top: 1px solid #e0e0e0;
 }
 
 .footer.visible {
     opacity: 1;
     transform: translateY(0);
-}
-
-/* Footer Content */
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
 }
 
 /* Footer Links */
@@ -106,14 +169,13 @@ body {
     text-decoration: none;
     color: #000;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
 }
 
 .footer-links a:hover {
     color: #555;
 }
+/* boton login */
 
-/* ===== BOTON LOGIN ===== */
 .login-section {
     margin-left: 1rem;
 }
@@ -122,51 +184,22 @@ body {
     padding: 0.5rem 1.5rem;
     border-radius: 50px; /* estilo píldora */
     border: 1px solid rgba(0,0,0,0.2);
-    background: rgba(255,255,255,0.1); /* transparente inicial */
-    color: #000;
+    background: rgba(255,255,255,0.01); /* transparente inicial */
+    color: #fff;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-    cursor: pointer;
-    display: inline-block;
+    backdrop-filter: blur(20px);
 }
 
-/* Hover efecto vidrio */
 .btn-login:hover {
     background: rgba(255,255,255,0.3);
     color: #000;
     transform: translateY(-2px);
 }
-
-/* ===== MAIN CONTENT ===== */
 .main-content {
     background: #fff;
+    backdrop-filter: blur(3px); /* efecto vidrio opcional */
     padding: 2rem;
     min-height: calc(100vh - 160px); /* altura mínima considerando header + footer */
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .header {
-        padding: 1rem;
-    }
-    
-    .nav {
-        display: none; /* Ocultar navegación en móvil */
-    }
-    
-    .header-actions {
-        gap: 0.5rem;
-    }
-    
-    .btn-header,
-    .btn-login {
-        padding: 0.4rem 1rem;
-        font-size: 0.9rem;
-    }
-    
-    .main-content {
-        padding: 1rem;
-    }
 }
