@@ -5,7 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Sitio</title>
+    <title>Monakeratina</title>
+    
 
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
@@ -16,19 +17,19 @@
 
 <!-- HEADER -->
 <header class="header">
-    <div class="logo">MI SITIO</div>
-
-    <nav class="nav">
-        <a href="#" class="btn-header">Inicio</a>
-        <a href="#" class="btn-header">Nosotros</a>
-        <a href="#" class="btn-header">Servicios</a>
-        <a href="#" class="btn-header">Productos</a>
-        <a href="#" class="btn-header">Contactenos</a>
+   <div class="logo">                                                                                             │    
+        <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" alt="Monakeratina">                               │
+     </div>  
+    <nav class="nav nav-glass">
+        <a href="#" class="nav-item">Inicio</a>
+        <a href="#" class="nav-item">Nosotros</a>
+        <a href="#" class="nav-item">Servicios</a>
+        <a href="#" class="nav-item">Productos</a>
+        <a href="#" class="nav-item">Contactenos</a>
     </nav>
 
-    <div class="header-actions">
-        <a href="{% url 'usuarios:login' %}" class="btn-login">Iniciar sesión</a>
-        <a href="#" class="btn-header">Empezar</a>
+    <div class="nav-glass">
+        <a href="{% url 'usuarios:login' %}" class="nav-item">Iniciar sesión</a>
     </div>
 </header>
 

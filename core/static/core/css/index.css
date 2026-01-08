@@ -27,15 +27,16 @@ body {
 
 .sq-btn {
     display: inline-block;
-    padding: 14px 44px;
+    padding: 16px 52px;
     border-radius: 999px;
     border: 1px solid #111;
     text-decoration: none;
     color: #111;
     font-weight: 500;
     transition: all 0.3s ease;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     letter-spacing: 0.02em;
+    
 }
 
 .sq-btn:hover {
@@ -143,12 +144,26 @@ body {
     position: relative;
     z-index: 2;
     color: #ffffff;
+    text-align: center;
+    margin-top: 150px;
+     
+    
 }
 .sq-hero h1 {
     font-size: clamp(2.75rem, 5vw, 4rem);
     line-height: 1.08;
     font-weight: 500;
     letter-spacing: -0.03em;
+    margin-bottom: 100px;
+}
+
+.sq-hero h2 {
+    font: 2em sans-serif;
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 100px;
+    text-align: center;
 }
 
 .sq-hero p {
