@@ -825,3 +825,118 @@
         transform: rotate(360deg);
     }
 }
+/* ===============================
+   FORMULARIO PRODUCTOS - PRO
+================================ */
+
+/* Card general */
+.product-form-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    padding: 30px;
+}
+
+/* Header del formulario */
+.product-form-header {
+    background: linear-gradient(135deg, #8b5e3c, #a47148);
+    color: #fff;
+    padding: 18px 25px;
+    border-radius: 12px 12px 0 0;
+}
+
+.product-form-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Secciones */
+.form-section {
+    margin-top: 35px;
+}
+
+.form-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: #8b5e3c;
+    text-transform: uppercase;
+    border-left: 4px solid #a47148;
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+.form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+/* Inputs */
+.form-control,
+.form-select {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+    transition: all .2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #a47148;
+    box-shadow: 0 0 0 3px rgba(164,113,72,.15);
+}
+
+/* Textarea */
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Help text */
+.form-text,
+small.text-muted {
+    font-size: 0.8rem;
+}
+
+/* Errores */
+.text-danger.small {
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* Botones */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+.btn-cancel {
+    border-radius: 30px;
+    padding: 10px 22px;
+}
+
+.btn-save {
+    background: #198754;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 26px;
+    font-weight: 600;
+}
+
+.btn-save:hover {
+    background: #157347;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .product-form-card {
+        padding: 20px;
+    }
+}
+    

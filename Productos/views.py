@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q
 from .models import Producto, Marca
-from .forms import ProductoForm, MarcaForm
+from .forms import ProductoForm
 
 
 # ==================== FUNCIÓN AUXILIAR ====================

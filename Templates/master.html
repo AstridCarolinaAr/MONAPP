@@ -1,46 +1,69 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monakeratina</title>
-    
+    <title>Monakeratina  </title>
 
-    <!-- CSS -->
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- CSS BASE MONAKERATINA -->
     <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    
 
-<!-- HEADER -->
+<!-- ==================== HEADER MONAKERATINA ==================== -->
 <header class="header">
-   <div class="logo">                                                                                             │    
-        <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" alt="Monakeratina">                               │
-     </div>  
+    <div class="logo">
+        <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" alt="Monakeratina">
+    </div>
+
     <nav class="nav nav-glass">
-        <a href="#" class="nav-item">Inicio</a>
+        <a href="{% url 'core:index' %}" class="nav-item">Inicio</a>
         <a href="#" class="nav-item">Nosotros</a>
         <a href="#" class="nav-item">Servicios</a>
-        <a href="#" class="nav-item">Productos</a>
-        <a href="#" class="nav-item">Contactenos</a>
+        <a href="{% url 'productos:lista_productos_publica' %}" class="nav-item">Productos</a>
+        <a href="#" class="nav-item">Contáctenos</a>
     </nav>
 
-    <div class="nav-glass">
-        <a href="{% url 'usuarios:login' %}" class="nav-item">Iniciar sesión</a>
+    <div class="nav-glass header-actions">
+        {% if user.is_authenticated %}
+            <span class="me-3 fw-semibold">
+                Hola, {{ user.get_full_name|default:user.username }}
+            </span>
+
+            {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'core:dashboard' %}" class="nav-item">
+                    <i class="bi bi-speedometer2"></i> Panel Admin
+                </a>
+            {% endif %}
+
+            <a href="{% url 'usuarios:logout' %}" class="nav-item">
+                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+            </a>
+        {% else %}
+            <button class="nav-item btn-login"
+                    data-bs-toggle="modal"
+                    data-bs-target="#loginModal">
+                <i class="bi bi-person"></i> Iniciar sesión
+            </button>
+        {% endif %}
     </div>
 </header>
 
-<!-- ==================== CONTENIDO DE CADA PÁGINA ==================== -->
+<!-- ==================== CONTENIDO DINÁMICO ==================== -->
 <main>
-    {% block content %}
-    <!-- Aquí se inyecta index.html, servicios.html, etc -->
-    {% endblock %}
+    {% block content %}{% endblock %}
 </main>
 
-<!-- FOOTER -->
+<!-- ==================== FOOTER ==================== -->
 <footer class="footer">
     <div class="footer-content">
         <p>&copy; 2025 MONA KERATINA. Todos los derechos reservados.</p>
@@ -52,8 +75,75 @@
     </div>
 </footer>
 
-<!-- JS -->
-<script src="{% static 'core/js/main.js' %}"></script>
+<!-- ==================== MODAL LOGIN (FUNCIONALIDAD COMPLETA) ==================== -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content login-modal-content">
 
+            <div class="card-header text-center">
+                <canvas id="bolaCanvas"></canvas>
+                <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="120" alt="Monakeratina">
+            </div>
+
+            <div class="modal-body p-0">
+                <div class="card-body">
+
+                    {% if messages %}
+                        <div class="messages-container">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'usuarios:login' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <input type="text"
+                                   name="username"
+                                   class="form-control"
+                                   placeholder="Usuario o documento"
+                                   required>
+                        </div>
+
+                        <div class="mb-3 password-wrapper">
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   class="form-control"
+                                   placeholder="Contraseña"
+                                   required>
+                            <i id="togglePassword" class="bi bi-eye"></i>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100">
+                            Ingresar
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ==================== JS ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'core/js/main.js' %}"></script>
+    
+
+
+<script>
+    window.showLoginModal = {% if messages or form.errors %}true{% else %}false{% endif %};
+</script>
+
+
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

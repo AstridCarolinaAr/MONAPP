@@ -1,53 +1,135 @@
-{% extends "core/panel_admin_base.html "%}
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
 
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'Productos/CSS/colaborador/crear_producto.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
+    <div class="card product-form-card shadow-sm">
+
+        <!-- HEADER -->
+        <div class="card-header product-form-header">
             <h5 class="mb-0">
-                <i class="bi bi-plus-circle"></i> Nuevo producto
+                <i class="bi bi-pencil-square"></i> Editar producto
             </h5>
         </div>
 
         <div class="card-body">
+
             <form method="post">
                 {% csrf_token %}
-
                 {{ form.non_field_errors }}
 
-                <div class="row">
-                    {% for field in form %}
+                <!-- ===== SECCIÓN: INFORMACIÓN GENERAL ===== -->
+                <div class="form-section">
+                    <h6 class="section-title">
+                        <i class="bi bi-box-seam"></i> Información del producto
+                    </h6>
+
+                    <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">
-                                {{ field.label }}
-                            </label>
-                            {{ field }}
-
-                            {% if field.help_text %}
-                                <small class="text-muted">{{ field.help_text }}</small>
-                            {% endif %}
-
-                            {% if field.errors %}
-                                <div class="text-danger small">
-                                    {{ field.errors }}
-                                </div>
-                            {% endif %}
+                            {{ form.id_marca.label_tag }}
+                            {{ form.id_marca }}
                         </div>
-                    {% endfor %}
+
+                        <div class="col-md-6 mb-3">
+                            {{ form.nombre.label_tag }}
+                            {{ form.nombre }}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-3">
-                    <a href="{% url 'productos:lista_productos_admin' %}" class="btn btn-secondary">
+                <!-- ===== SECCIÓN: CÓDIGOS ===== -->
+                <div class="form-section">
+                    <h6 class="section-title">
+                        <i class="bi bi-upc-scan"></i> Códigos
+                    </h6>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.codigo_compra.label_tag }}
+                            {{ form.codigo_compra }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            {{ form.codigo_cliente.label_tag }}
+                            {{ form.codigo_cliente }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== SECCIÓN: DESCRIPCIÓN ===== -->
+                <div class="form-section">
+                    <h6 class="section-title">
+                        <i class="bi bi-card-text"></i> Descripción
+                    </h6>
+
+                    <div class="mb-3">
+                        {{ form.descripcion.label_tag }}
+                        {{ form.descripcion }}
+                    </div>
+                </div>
+
+                <!-- ===== SECCIÓN: CLASIFICACIÓN ===== -->
+                <div class="form-section">
+                    <h6 class="section-title">
+                        <i class="bi bi-tags"></i> Clasificación
+                    </h6>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ form.linea.label_tag }}
+                            {{ form.linea }}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            {{ form.presentacion.label_tag }}
+                            {{ form.presentacion }}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            {{ form.unidad_medida.label_tag }}
+                            {{ form.unidad_medida }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== SECCIÓN: PRECIO Y ESTADO ===== -->
+                <div class="form-section">
+                    <h6 class="section-title">
+                        <i class="bi bi-cash-coin"></i> Precio y estado
+                    </h6>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.precio.label_tag }}
+                            {{ form.precio }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            {{ form.estado.label_tag }}
+                            {{ form.estado }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ACCIONES ===== -->
+                <div class="form-actions">
+                    <a href="{% url 'productos:lista_productos_admin' %}"
+                       class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar producto
+
+                    <button type="submit" class="btn btn-primary btn-save">
+                        <i class="bi bi-save"></i> Guardar cambios
                     </button>
                 </div>
+
             </form>
+
         </div>
     </div>
 
