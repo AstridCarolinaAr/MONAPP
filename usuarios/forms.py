@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import PerfilUsuario
+from django.contrib.auth.models import Group
+
 
 class LoginForm(AuthenticationForm):
     """
@@ -43,6 +45,23 @@ class RegistroForm(UserCreationForm):
     Formulario para registro de nuevos usuarios
     Extiende UserCreationForm de Django
     """
+    
+    ROL_CHOICES = [
+        ('Administrador', 'Administrador'),
+        ('Auxiliar', 'Auxiliar'),
+        ('Colaborador', 'Colaborador'),
+    ]
+
+    rol = forms.ChoiceField(
+        choices=ROL_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
+        label='Rol del usuario'
+    )
+
+    
     documento = forms.CharField(
         max_length=20,
         required=True,
@@ -112,46 +131,64 @@ class RegistroForm(UserCreationForm):
             raise forms.ValidationError('Este correo electrónico ya está registrado.')
         return email
     
-    def save(self, commit=True):
-        """
-        Guarda el usuario y crea su perfil con el documento
-        """
-        user = super().save(commit=False)
-        user.username = self.cleaned_data['documento']  # Usamos documento como username
-        user.email = self.cleaned_data['email']
-        
-        if commit:
-            user.save()
-            # El perfil se crea automáticamente por la señal
-            perfil = user.perfil
-            perfil.documento = self.cleaned_data['documento']
-            perfil.telefono = self.cleaned_data.get('telefono', '')
-            perfil.save()
-        
-        return user
+def save(self, commit=True):
+    user = super().save(commit=False)
+
+    # Documento como username
+    user.username = self.cleaned_data['documento']
+    user.email = self.cleaned_data['email']
+
+    rol = self.cleaned_data['rol']
+
+    # Configurar is_staff según rol
+    if rol in ['Administrador', 'Auxiliar']:
+        user.is_staff = True
+    else:
+        user.is_staff = False
+
+    if commit:
+        user.save()
+
+        # Perfil (ya existe por la señal)
+        perfil = user.perfil
+        perfil.documento = self.cleaned_data['documento']
+        perfil.telefono = self.cleaned_data.get('telefono', '')
+        perfil.save()
+
+        # Asignar grupo
+        user.groups.clear()
+        grupo = Group.objects.get(name=rol)
+        user.groups.add(grupo)
+
+    return user
+
 
 
 class EditarUsuarioForm(forms.ModelForm):
-    """
-    Formulario para editar información del usuario
-    """
+
+    ROL_CHOICES = [
+        ('Administrador', 'Administrador'),
+        ('Auxiliar', 'Auxiliar'),
+        ('Colaborador', 'Colaborador'),
+    ]
+
+    rol = forms.ChoiceField(
+        choices=ROL_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Rol'
+    )
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'is_active', 'is_staff']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-        labels = {
-            'first_name': 'Nombre',
-            'last_name': 'Apellido',
-            'email': 'Correo Electrónico',
-            'is_active': 'Usuario Activo',
-            'is_staff': 'Acceso al Panel Admin',
-        }
+        fields = ['first_name', 'last_name', 'email', 'is_active']
+    def __init__(self, *args, **kwargs):
+     super().__init__(*args, **kwargs)
+     if self.instance.pk:
+        grupos = self.instance.groups.values_list('name', flat=True)
+        if grupos:
+            self.fields['rol'].initial = grupos[0]
+
 
 
 class EditarPerfilForm(forms.ModelForm):
@@ -160,11 +197,24 @@ class EditarPerfilForm(forms.ModelForm):
     """
     class Meta:
         model = PerfilUsuario
-        fields = ['documento', 'telefono', 'direccion', 'foto_perfil', 'fecha_nacimiento']
+        fields = [
+            'documento',
+            'telefono',
+            'direccion',
+            'foto_perfil',
+            'fecha_nacimiento'
+        ]
         widgets = {
-            'documento': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'documento': forms.TextInput(attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+            }),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'foto_perfil': forms.FileInput(attrs={'class': 'form-control'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_nacimiento': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
         }
+

@@ -74,6 +74,35 @@
         </ul>
     </nav>
 </div>
+<!-- ==================== MODAL PERMISOS ==================== -->
+<div class="modal fade" id="permisoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-shield-lock"></i> Acción no permitida
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        {% for message in messages %}
+          {% if 'error' in message.tags %}
+            <p class="mb-0">{{ message }}</p>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          Entendido
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- CONTENIDO -->
 <div class="main-content">
@@ -87,9 +116,22 @@
     </div>
 
 </div>
-
+<script>
+  window.tieneErrorPermiso = false;
+  {% for message in messages %}
+    {% if 'error' in message.tags %}
+      window.tieneErrorPermiso = true;
+    {% endif %}
+  {% endfor %}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JS GENERAL (modales, permisos, eliminar, etc) -->
+<script src="{% static 'core/js/main.js' %}"></script>
+
+<!-- JS SOLO DEL DASHBOARD -->
 <script src="{% static 'js/dashboard.js' %}"></script>
+
 
 </body>
 </html>

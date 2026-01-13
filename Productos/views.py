@@ -1,14 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Producto, Marca
+from .models import Producto
 from .forms import ProductoForm
-
-
-# ==================== FUNCIÓN AUXILIAR ====================
-def es_staff(user):
-    return user.is_staff
 
 
 # ==================== VISTAS PÚBLICAS ====================
@@ -70,8 +65,13 @@ def detalle_producto_publico(request, codigo):
 # ==================== PANEL ADMIN ====================
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def lista_productos_admin(request):
+
+    grupos = list(request.user.groups.values_list('name', flat=True))
+    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
+        messages.error(request, 'No tienes permisos para acceder a Productos.')
+        return redirect('core:index')
+
     productos = Producto.objects.select_related('id_marca').all()
 
     buscar = request.GET.get('buscar', '')
@@ -95,20 +95,31 @@ def lista_productos_admin(request):
     elif orden == 'nombre':
         productos = productos.order_by('nombre')
 
-    return render(request,'colaborador/lista_productos.html',
+    
+    es_admin = 'Administrador' in grupos
+
+    return render(
+        request,
+        'colaborador/lista_productos.html',
         {
             'titulo': 'Gestión de Productos',
             'productos': productos,
             'buscar': buscar,
             'estado': estado,
-            'orden': orden, 
+            'orden': orden,
+            'es_admin': es_admin,  
         }
     )
 
 
+
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def crear_producto(request):
+    grupos = list(request.user.groups.values_list('name', flat=True))
+    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
+        messages.error(request, 'No tienes permisos para crear productos.')
+        return redirect('core:index')
+
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
@@ -132,8 +143,12 @@ def crear_producto(request):
 
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def editar_producto(request, codigo):
+    grupos = list(request.user.groups.values_list('name', flat=True))
+    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
+        messages.error(request, 'No tienes permisos para editar productos.')
+        return redirect('core:index')
+
     producto = get_object_or_404(Producto, codigo=codigo)
 
     if request.method == 'POST':
@@ -160,8 +175,12 @@ def editar_producto(request, codigo):
 
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def eliminar_producto(request, codigo):
+    grupos = list(request.user.groups.values_list('name', flat=True))
+    if 'Administrador' not in grupos:
+        messages.error(request, 'Solo el administrador puede eliminar productos.')
+        return redirect('productos:lista_productos_admin')
+
     producto = get_object_or_404(Producto, codigo=codigo)
 
     if request.method == 'POST':

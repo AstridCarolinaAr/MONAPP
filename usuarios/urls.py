@@ -8,7 +8,6 @@ app_name = 'usuarios'
 urlpatterns = [
     # Autenticación
     path('login/', views.login_view, name='login'),
-    path('registro/', views.registro_view, name='registro'),
     path('logout/', views.logout_view, name='logout'),
     
     # Perfil de usuario
@@ -19,4 +18,5 @@ urlpatterns = [
     path('usuarios/crear/', views.crear_usuario_view, name='crear_usuario'),
     path('usuarios/<int:user_id>/editar/', views.editar_usuario_view, name='editar_usuario'),
     path('usuarios/<int:user_id>/eliminar/', views.eliminar_usuario_view, name='eliminar_usuario'),
+    
 ]

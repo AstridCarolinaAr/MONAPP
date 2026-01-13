@@ -1,64 +1,68 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ===============================
-    // MODAL LOGIN (mensajes / errores)
-    // ===============================
+    /* ===============================
+       MODAL LOGIN
+    =============================== */
     try {
-        if (typeof bootstrap !== 'undefined') {
-            const loginModalEl = document.getElementById('loginModal');
-
-            if (loginModalEl) {
-                // Estas variables vienen desde Django template
-                // Se evalúan antes de servir el JS
-                if (window.showLoginModal === true) {
-                    const modal = new bootstrap.Modal(loginModalEl);
-                    modal.show();
-                }
-            }
+        const loginModalEl = document.getElementById('loginModal');
+        if (loginModalEl && window.showLoginModal === true) {
+            const modal = new bootstrap.Modal(loginModalEl);
+            modal.show();
         }
     } catch (e) {
         console.warn('Login modal no disponible:', e);
     }
 
-    // ===============================
-    // ELEMENTOS GENERALES
-    // ===============================
-    const header = document.querySelector('.header');
-    const footer = document.querySelector('.footer');
-    const navItems = document.querySelectorAll('.nav-item');
+    /* ===============================
+       MODAL PERMISOS (SOLO ELIMINAR)
+    =============================== */
+const botonesEliminar = document.querySelectorAll('.btn-eliminar');
 
-    // ===============================
-    // SCROLL HEADER + FOOTER
-    // ===============================
-    window.addEventListener('scroll', () => {
+botonesEliminar.forEach(btn => {
+    btn.addEventListener('click', function (e) {
 
-        // HEADER: efecto al hacer scroll
-        if (header) {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+        const permitido = btn.dataset.permitido === "true";
+
+        if (!permitido) {
+            e.preventDefault(); // 
+
+            const modalEl = document.getElementById('permisoModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
             }
         }
 
-        // FOOTER: visible al llegar al final
+    });
+});
+
+
+    /* ===============================
+       HEADER + FOOTER SCROLL
+    =============================== */
+    const header = document.querySelector('.header');
+    const footer = document.querySelector('.footer');
+
+    window.addEventListener('scroll', () => {
+        if (header) {
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        }
+
         if (footer) {
-            if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 50) {
-                footer.classList.add('visible');
-            } else {
-                footer.classList.remove('visible');
-            }
+            footer.classList.toggle(
+                'visible',
+                window.scrollY + window.innerHeight >= document.body.scrollHeight - 50
+            );
         }
     });
 
-    // ===============================
-    // HOVER SUAVE EN ITEMS DEL NAV
-    // ===============================
-    navItems.forEach(item => {
+    /* ===============================
+       HOVER NAV
+    =============================== */
+    document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('mouseenter', () => {
             item.style.transform = 'translateY(-2px)';
         });
-
         item.addEventListener('mouseleave', () => {
             item.style.transform = 'translateY(0)';
         });

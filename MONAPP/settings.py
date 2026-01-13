@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'usuarios',
     'Productos',
+    'Proveedores',
 ]
 
 MIDDLEWARE = [
@@ -140,8 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # URLs de redirección después de login/logout
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
 LOGIN_REDIRECT_URL = 'core:dashboard'  # A dónde ir después de login exitoso
-LOGOUT_REDIRECT_URL = 'core:index'  # A dónde ir después de logout
-
+LOGOUT_REDIRECT_URL = 'usuarios:login'  # A dónde ir después de logout
 # Configuración de sesiones
 SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Actualiza la sesión en cada request

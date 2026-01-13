@@ -73,13 +73,14 @@
                                 <i class="bi bi-pencil-square"></i>
                             </a>
 
-                            <!-- Eliminar -->
                             <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
-                            class="btn btn-sm btn-danger"
-                            data-bs-toggle="tooltip"
+                            class="btn btn-sm btn-danger btn-eliminar"
+                            data-permitido="{% if es_admin %}true{% else %}false{% endif %}"
                             title="Eliminar producto">
                                 <i class="bi bi-trash"></i>
                             </a>
+
+
 
                         </div>
                     </td>
