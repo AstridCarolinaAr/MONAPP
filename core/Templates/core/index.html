@@ -1,5 +1,170 @@
 {% extends 'master.html' %}
-{% block title %} 
-    {% endblock %}
+{% load static %}
+
+{# ===============================
+   TÍTULO DE LA PÁGINA
+   (se renderiza dentro del <title> de master.html)
+================================ #}
+{% block title %}
+Servicios
+{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}">
+{% endblock %}
+
+{# ===============================
+   CONTENIDO PRINCIPAL
+================================ #}
 {% block content %}
+
+<section class="sq-hero-bg">
+
+    <!-- ==================== HERO ==================== -->
+    <section class="sq-hero">
+        <div class="sq-hero-inner">
+            <h1>Todo lo que necesitas para vender tus servicios</h1>
+            <p>
+                Reserva citas, cobra pagos y gestiona clientes con una experiencia
+                profesional y elegante.
+            </p>
+            <a href="#intro" class="sq-btn">Comenzar</a>
+        </div>
+    </section>
+
+    <!-- ==================== INTRO ==================== -->
+    <section id="intro" class="sq-intro">
+        <div class="sq-container">
+            <h2>Servicios diseñados para crecer contigo</h2>
+            <p>
+                Desde sesiones individuales hasta servicios recurrentes,
+                administra tu negocio con herramientas simples y potentes.
+            </p>
+        </div>
+    </section>
+
+    <!-- ==================== SERVICES GRID ==================== -->
+    <section class="sq-services">
+        <div class="sq-container sq-grid-3">
+            <div class="sq-card">
+                <h3>Pagos integrados</h3>
+                <p>Acepta pagos online de forma segura y sin complicaciones.</p>
+            </div>
+
+            <div class="sq-card">
+                <h3>Reservas automáticas</h3>
+                <p>Permite que los clientes reserven según tu disponibilidad.</p>
+            </div>
+
+            <div class="sq-card">
+                <h3>Formularios personalizados</h3>
+                <p>Recopila información antes de cada servicio.</p>
+            </div>
+        </div>
+    </section>
+
+</section>
+
+<!-- ==================== SPLIT 1 ==================== -->
+<section class="sq-split">
+    <div class="sq-text">
+        <h2>Una experiencia profesional</h2>
+        <p>
+            Cada detalle está diseñado para ofrecer confianza,
+            claridad y facilidad de uso.
+        </p>
+    </div>
+    <div class="sq-image placeholder-1"></div>
+</section>
+
+<!-- ==================== SPLIT 2 ==================== -->
+<section class="sq-split reverse">
+    <div class="sq-text">
+        <h2>Administra tu tiempo</h2>
+        <p>
+            Controla horarios, duración de servicios y disponibilidad
+            desde un solo lugar.
+        </p>
+    </div>
+    <div class="sq-image placeholder-2"></div>
+</section>
+
+<!-- ==================== HOW IT WORKS ==================== -->
+<section class="sq-steps">
+    <div class="sq-container">
+        <h2>Cómo funciona</h2>
+
+        <div class="sq-grid-3">
+            <div class="sq-step">
+                <span>01</span>
+                <h3>Crea tu servicio</h3>
+                <p>Define duración, precio y disponibilidad.</p>
+            </div>
+
+            <div class="sq-step">
+                <span>02</span>
+                <h3>Comparte tu enlace</h3>
+                <p>Los clientes reservan directamente desde tu sitio.</p>
+            </div>
+
+            <div class="sq-step">
+                <span>03</span>
+                <h3>Recibe pagos</h3>
+                <p>Cobra automáticamente sin pasos adicionales.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== BENEFITS ==================== -->
+<section class="sq-benefits">
+    <div class="sq-container sq-grid-2">
+        <div>
+            <h3>Diseño flexible</h3>
+            <p>Adapta los servicios a tu marca y estilo.</p>
+        </div>
+        <div>
+            <h3>Control total</h3>
+            <p>Gestiona clientes, pagos y reservas fácilmente.</p>
+        </div>
+        <div>
+            <h3>Escalable</h3>
+            <p>Ideal para negocios pequeños o en crecimiento.</p>
+        </div>
+        <div>
+            <h3>Seguro</h3>
+            <p>Pagos protegidos y datos confiables.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TESTIMONIALS ==================== -->
+<section class="sq-testimonials">
+    <h2>Historias reales</h2>
+
+    <div class="sq-testimonial active">
+        <p>“Mis clientes reservan solos y pagan sin problemas.”</p>
+        <span>— Dueña de negocio</span>
+    </div>
+
+    <div class="sq-testimonial">
+        <p>“Todo se ve profesional y organizado.”</p>
+        <span>— Emprendedora</span>
+    </div>
+
+    <div class="sq-controls">
+        <button id="prev">←</button>
+        <button id="next">→</button>
+    </div>
+</section>
+<!-- ==================== IMAGEN ==================== -->
+
+<!-- ==================== FINAL CTA ==================== -->
+<section class="sq-cta">
+    <h2>Empieza a vender tus servicios hoy</h2>
+    <a href="#" class="sq-btn dark">Crear servicio</a>
+</section>
+{% block extra_js %}
+<script src="{% static 'core/js/panel_admin_base.js' %}"></script>
+{% endblock %}
+
 {% endblock %}
