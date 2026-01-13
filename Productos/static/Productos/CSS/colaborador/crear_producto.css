@@ -145,3 +145,22 @@
         width: 100%;
     }
 }
+/* =================================================
+   AJUSTE ENTERPRISE – INFORMACIÓN DEL PRODUCTO
+   ================================================= */
+
+/* Fuerza la sección a layout vertical */
+.form-section:first-of-type .row {
+    flex-direction: column;
+}
+
+/* El campo ocupa todo el ancho */
+.form-section:first-of-type .col-md-6 {
+    max-width: 100%;
+    flex: 0 0 100%;
+}
+
+/* Espaciado elegante */
+.form-section:first-of-type .col-md-6:not(:last-child) {
+    margin-bottom: 8px;
+}

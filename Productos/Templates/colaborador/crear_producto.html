@@ -13,7 +13,7 @@
         <!-- HEADER -->
         <div class="card-header product-form-header">
             <h5 class="mb-0">
-                <i class="bi bi-pencil-square"></i> Editar producto
+                <i class="bi bi-plus-square"></i> Nuevo producto
             </h5>
         </div>
 
@@ -22,46 +22,39 @@
             <form method="post">
                 {% csrf_token %}
                 {{ form.non_field_errors }}
-
-                <!-- ===== SECCIÓN: INFORMACIÓN GENERAL ===== -->
+                 <!-- ===== INFORMACIÓN GENERAL ===== -->
                 <div class="form-section">
                     <h6 class="section-title">
                         <i class="bi bi-box-seam"></i> Información del producto
                     </h6>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.id_marca.label_tag }}
-                            {{ form.id_marca }}
-                        </div>
+                    <!-- Marca -->
+                    <div class="mb-3">
+                        {{ form.id_marca.label_tag }}
+                        {{ form.id_marca }}
+                    </div>
 
-                        <div class="col-md-6 mb-3">
-                            {{ form.nombre.label_tag }}
-                            {{ form.nombre }}
-                        </div>
+                    <!-- Código de compra -->
+                    <div class="mb-3">
+                        {{ form.codigo_compra.label_tag }}
+                        {{ form.codigo_compra }}
+                    </div>
+
+                    <!-- Nombre del producto -->
+                    <div class="mb-3">
+                        {{ form.nombre.label_tag }}
+                        {{ form.nombre }}
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="mb-3">
+                        {{ form.precio.label_tag }}
+                        {{ form.precio }}
                     </div>
                 </div>
 
-                <!-- ===== SECCIÓN: CÓDIGOS ===== -->
-                <div class="form-section">
-                    <h6 class="section-title">
-                        <i class="bi bi-upc-scan"></i> Códigos
-                    </h6>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.codigo_compra.label_tag }}
-                            {{ form.codigo_compra }}
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            {{ form.codigo_cliente.label_tag }}
-                            {{ form.codigo_cliente }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ===== SECCIÓN: DESCRIPCIÓN ===== -->
+                <!-- ===== DESCRIPCIÓN ===== -->
                 <div class="form-section">
                     <h6 class="section-title">
                         <i class="bi bi-card-text"></i> Descripción
@@ -73,7 +66,7 @@
                     </div>
                 </div>
 
-                <!-- ===== SECCIÓN: CLASIFICACIÓN ===== -->
+                <!-- ===== CLASIFICACIÓN ===== -->
                 <div class="form-section">
                     <h6 class="section-title">
                         <i class="bi bi-tags"></i> Clasificación
@@ -97,18 +90,13 @@
                     </div>
                 </div>
 
-                <!-- ===== SECCIÓN: PRECIO Y ESTADO ===== -->
+                <!-- ===== ESTADO ===== -->
                 <div class="form-section">
                     <h6 class="section-title">
-                        <i class="bi bi-cash-coin"></i> Precio y estado
+                        <i class="bi bi-toggle-on"></i> Estado
                     </h6>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.precio.label_tag }}
-                            {{ form.precio }}
-                        </div>
-
                         <div class="col-md-6 mb-3">
                             {{ form.estado.label_tag }}
                             {{ form.estado }}
@@ -124,7 +112,7 @@
                     </a>
 
                     <button type="submit" class="btn btn-primary btn-save">
-                        <i class="bi bi-save"></i> Guardar cambios
+                        <i class="bi bi-save"></i> Guardar producto
                     </button>
                 </div>
 

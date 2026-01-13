@@ -7,7 +7,6 @@ class ProductoForm(forms.ModelForm):
     Formulario para crear/editar productos
     """
 
-    # 🔹 CAMPO EXTRA SOLO PARA ESCRIBIR LA MARCA
     marca_texto = forms.CharField(
         label='Marca',
         max_length=100,
@@ -20,7 +19,7 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = [
-            'marca_texto',        # ← SOLO se cambia esto
+            'marca_texto',        
             'codigo_compra',
             'nombre',
             'precio',
