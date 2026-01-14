@@ -1,0 +1,120 @@
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'proveedor/css/proveedor.css' %}">
+{% endblock %}
+
+{% block title %}Nuevo proveedor{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="card shadow-sm">
+        <div class="proveedor-header">
+            Nuevo proveedor
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Información General -->
+                <div class="form-section">
+                    <h6>Información General del Proveedor</h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">NIT</label>
+                            {{ form.nit }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">ID Venta</label>
+                            {{ form.id_venta }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Código Marca</label>
+                            {{ form.codigo_marca }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre proveedor</label>
+                            {{ form.nombre_proveedor }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha entrega</label>
+                            {{ form.fecha_entrega }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Encargado -->
+                <div class="form-section">
+                    <h6>Información del Encargado</h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Documento</label>
+                            {{ form.cc_encargado }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            {{ form.nombre_encargado }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehículo y contacto -->
+                <div class="form-section">
+                    <h6>Información del Vehículo y Contacto</h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo vehículo</label>
+                            {{ form.tipo_vehiculo }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Placa</label>
+                            {{ form.placa_vehiculo }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Estado</label>
+                            {{ form.estado }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            {{ form.telefono_proveedor }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Correo</label>
+                            {{ form.correo_proveedor }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                        Guardar proveedor
+                    </button>
+                    <a href="{% url 'proveedores:lista_proveedor' %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
