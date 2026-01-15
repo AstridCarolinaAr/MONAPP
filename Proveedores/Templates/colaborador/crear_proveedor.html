@@ -3,6 +3,40 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'proveedor/css/proveedor.css' %}">
+<link rel="stylesheet" href="{% static 'proveedor/css/crear_proveedor.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'proveedor/js/crear_proveedor.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', function (e) {
+
+        const inputs = form.querySelectorAll('input, select, textarea');
+        let hasValue = false;
+
+        inputs.forEach(el => {
+            if (
+                el.type !== 'hidden' &&
+                el.type !== 'submit' &&
+                el.value.trim() !== ''
+            ) {
+                hasValue = true;
+            }
+        });
+
+        if (!hasValue) {
+            e.preventDefault();
+            alert('Debes completar al menos un campo antes de guardar.');
+        }
+    });
+
+});
+</script>
 {% endblock %}
 
 {% block title %}Nuevo proveedor{% endblock %}
@@ -17,10 +51,22 @@
 
         <div class="card-body">
 
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                Revisa los campos marcados en rojo.
+            </div>
+            {% endif %}
+
             <form method="post">
                 {% csrf_token %}
 
-                <!-- Información General -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <!-- ================= INFORMACIÓN GENERAL ================= -->
                 <div class="form-section">
                     <h6>Información General del Proveedor</h6>
 
@@ -52,7 +98,7 @@
                     </div>
                 </div>
 
-                <!-- Encargado -->
+                <!-- ================= ENCARGADO ================= -->
                 <div class="form-section">
                     <h6>Información del Encargado</h6>
 
@@ -69,7 +115,7 @@
                     </div>
                 </div>
 
-                <!-- Vehículo y contacto -->
+                <!-- ================= VEHÍCULO Y CONTACTO ================= -->
                 <div class="form-section">
                     <h6>Información del Vehículo y Contacto</h6>
 
@@ -101,7 +147,7 @@
                     </div>
                 </div>
 
-                <!-- Acciones -->
+                <!-- ================= ACCIONES ================= -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-success">
                         Guardar proveedor

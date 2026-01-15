@@ -562,7 +562,7 @@
     padding: 25px;
     color: white;
     position: relative;
-    overflow: hidden;
+    overflow: visible !important;
     margin-bottom: 25px;
 }
 

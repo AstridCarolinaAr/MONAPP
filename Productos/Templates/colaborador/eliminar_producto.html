@@ -1,85 +1,151 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
 
-
-
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid py-4">
 
-    <div class="card shadow-sm border-danger">
-        <div class="card-header bg-danger text-white">
-            <h5 class="mb-0">
-                <i class="bi bi-trash"></i> Eliminar producto
-            </h5>
-        </div>
-
-        <div class="card-body">
-
-            <p>
-                ¿Estás a punto de eliminar el siguiente producto:
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-danger fw-bold">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Eliminar Producto
+            </h2>
+            <p class="text-muted">
+                Confirma la eliminación del producto seleccionado. Esta acción no se puede deshacer.
             </p>
+        </div>
+    </div>
 
-            <h5 class="fw-bold text-danger">
-                {{ producto.nombre }}
-            </h5>
+    <!-- Card principal -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-danger rounded-3">
 
-            <form method="post" id="formEliminar">
-                {% csrf_token %}
-
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{% url 'productos:lista_productos_admin' %}"
-                       class="btn btn-secondary">
-                        Cancelar
-                    </a>
-
-                    <!-- BOTÓN QUE ABRE EL MODAL -->
-                    <button type="button"
-                            class="btn btn-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalConfirmar"
-                            data-producto="{{ producto.nombre }}">
-                        Eliminar
-                    </button>
+                <div class="card-header bg-danger text-white rounded-top-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="bi bi-trash-fill me-2"></i>
+                        Confirmación de Eliminación
+                    </h5>
                 </div>
 
-                <!-- MODAL -->
-                <div class="modal fade" id="modalConfirmar" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
+                <div class="card-body p-4">
 
-                            <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title">
-                                    Confirmar eliminación
-                                </h5>
-                                <button type="button"
-                                        class="btn-close btn-close-white"
-                                        data-bs-dismiss="modal"></button>
-                            </div>
+                    <!-- Detalles del producto -->
+                    <div class="alert alert-warning border-warning rounded-3 mb-4">
+                        <h6 class="alert-heading fw-bold">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Detalles del Producto
+                        </h6>
 
-                            <div class="modal-body">
-                                <p id="textoConfirmacion"></p>
-                            </div>
+                        <p class="mb-2">
+                            <strong>Nombre:</strong>
+                            <span class="text-danger fw-bold">
+                                {{ producto.nombre }}
+                            </span>
+                        </p>
 
-                            <div class="modal-footer">
-                                <button type="button"
-                                        class="btn btn-secondary"
-                                        data-bs-dismiss="modal">
-                                    Cancelar
-                                </button>
+                        {% if producto.codigo %}
+                        <p class="mb-0">
+                            <strong>Código:</strong> {{ producto.codigo }}
+                        </p>
+                        {% endif %}
+                    </div>
 
-                                
-                                <button type="submit"
-                                        class="btn btn-danger">
-                                    Sí, eliminar
-                                </button>
-                            </div>
+                    <!-- Advertencia -->
+                    <div class="alert alert-danger border-danger rounded-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Advertencia:</strong>
+                        Al eliminar este producto se perderá toda la información asociada.
+                    </div>
 
+                    <!-- Formulario -->
+                    <form method="post" id="formEliminarProducto">
+                        {% csrf_token %}
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{% url 'productos:lista_productos_admin' %}"
+                               class="btn btn-outline-secondary btn-lg px-4 rounded-pill">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Cancelar y Volver
+                            </a>
+
+                            <button type="button"
+                                    class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalConfirmarEliminacion"
+                                    data-producto="{{ producto.nombre }}">
+                                <i class="bi bi-trash-fill me-2"></i>
+                                Eliminar Producto
+                            </button>
                         </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN (MISMO ESTILO QUE PROVEEDORES) -->
+    <div class="modal fade"
+         id="modalConfirmarEliminacion"
+         tabindex="-1"
+         aria-labelledby="modalConfirmarLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-danger rounded-3 shadow-lg">
+
+                <div class="modal-header bg-danger text-white rounded-top-3">
+                    <h5 class="modal-title fw-bold" id="modalConfirmarLabel">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Confirmar Eliminación Definitiva
+                    </h5>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body p-4 text-center">
+                    <i class="bi bi-trash-fill text-danger mb-3"
+                       style="font-size: 3rem;"></i>
+
+                    <p class="fs-5 mb-3" id="textoConfirmacionProducto">
+                        ¿Estás seguro de que deseas eliminar este producto?
+                    </p>
+
+                    <p class="text-muted">
+                        Esta acción es irreversible.
+                    </p>
+
+                    <div class="form-check mt-4 text-start">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="confirmacionCheckboxProducto">
+                        <label class="form-check-label fw-bold"
+                               for="confirmacionCheckboxProducto">
+                            Confirmo que deseo eliminar este producto definitivamente.
+                        </label>
                     </div>
                 </div>
 
-            </form>
+                <div class="modal-footer justify-content-between">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-lg px-4 rounded-pill"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
 
+                    <button type="submit"
+                            form="formEliminarProducto"
+                            class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm"
+                            id="btnConfirmarEliminarProducto"
+                            disabled>
+                        Sí, eliminar definitivamente
+                    </button>
+                </div>
+
+            </div>
         </div>
     </div>
 

@@ -174,28 +174,16 @@ def editar_producto(request, codigo):
     )
 
 
-@login_required
 def eliminar_producto(request, codigo):
-    grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos:
-        messages.error(request, 'Solo el administrador puede eliminar productos.')
-        return redirect('productos:lista_productos_admin')
-
     producto = get_object_or_404(Producto, codigo=codigo)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         producto.delete()
-        messages.success(
-            request,
-            f'Producto "{producto.nombre}" eliminado.'
-        )
-        return redirect('productos:lista_productos_admin')
+        messages.success(request, "Producto eliminado correctamente.")
+        return redirect("productos:lista_productos_admin")
 
     return render(
         request,
-        'colaborador/eliminar_producto.html',
-        {
-            'titulo': 'Eliminar Producto',
-            'producto': producto,
-        }
+        "colaborador/eliminar_producto.html",
+        {"producto": producto}
     )

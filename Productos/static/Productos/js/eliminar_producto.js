@@ -1,21 +1,25 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const modal = document.getElementById('modalConfirmar');
-    const texto = document.getElementById('textoConfirmacion');
+    const modal = document.getElementById("modalConfirmarEliminacion");
+    const texto = document.getElementById("textoConfirmacionProducto");
+    const checkbox = document.getElementById("confirmacionCheckboxProducto");
+    const boton = document.getElementById("btnConfirmarEliminarProducto");
 
-    if (!modal) return;
-
-    modal.addEventListener('show.bs.modal', function (event) {
+    modal?.addEventListener("show.bs.modal", event => {
         const button = event.relatedTarget;
-        const producto = button.getAttribute('data-producto');
+        const nombre = button.getAttribute("data-producto");
 
         texto.innerHTML = `
-            ¿Estás seguro de que deseas eliminar el producto
-            <strong>${producto}</strong>?<br>
-            <span class="text-danger">
-                Esta acción no se puede deshacer.
-            </span>
+            ¿Deseas eliminar permanentemente el producto
+            <strong class="text-danger">${nombre}</strong>?
         `;
+
+        checkbox.checked = false;
+        boton.disabled = true;
+    });
+
+    checkbox?.addEventListener("change", () => {
+        boton.disabled = !checkbox.checked;
     });
 
 });

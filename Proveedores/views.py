@@ -2,15 +2,52 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Proveedor
 from .forms import ProveedorForm
+from django.shortcuts import render
+from django.db.models import Q, Count
+from .models import Proveedor
 
 
 def lista_proveedores(request):
-    proveedores = Proveedor.objects.all().order_by('nombre_proveedor')
+    q = request.GET.get("q", "").strip()
+    orden = request.GET.get("orden")
+
+    proveedores = Proveedor.objects.all()
+
+    #  BUSCADOR
+    if q:
+        proveedores = proveedores.filter(
+            Q(nombre_proveedor__icontains=q) |
+            Q(nit__icontains=q) |
+            Q(correo_proveedor__icontains=q)
+        )
+
+    #  ANOTAR ENTREGAS (ajusta cuando tengas relación real)
+    proveedores = proveedores.annotate(
+        total_entregas=Count("id")  # placeholder
+    )
+
+    #  ORDENAMIENTO
+    if orden == "nombre":
+        proveedores = proveedores.order_by("nombre_proveedor")
+
+    elif orden == "nombre_desc":
+        proveedores = proveedores.order_by("-nombre_proveedor")
+
+    elif orden == "entregas":
+        proveedores = proveedores.order_by("-total_entregas")
+
+    else:
+        proveedores = proveedores.order_by("nombre_proveedor")
+
     return render(
         request,
-        'colaborador/lista_proveedor.html',
-        {'proveedores': proveedores}
+        "colaborador/lista_proveedor.html",
+        {
+            "proveedores": proveedores,
+        }
     )
+
+
 
 
 def crear_proveedor(request):
@@ -55,9 +92,19 @@ def editar_proveedor(request, pk):
         }
     )
 
-
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
-    proveedor.delete()
-    messages.success(request, 'Proveedor eliminado correctamente.')
-    return redirect('proveedores:lista_proveedor')
+
+    if request.method == "POST":
+        proveedor.delete()
+        messages.success(request, "Proveedor eliminado correctamente.")
+        return redirect("proveedores:lista_proveedor")
+
+    # GET → solo muestra la pantalla de confirmación
+    return render(
+        request,
+        "colaborador/eliminar_proveedor.html",
+        {
+            "proveedor": proveedor
+        }
+    )
