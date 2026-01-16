@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ===============================
-       MODAL LOGIN
-    =============================== */
     try {
         const loginModalEl = document.getElementById('loginModal');
         if (loginModalEl && window.showLoginModal === true) {
@@ -20,8 +17,11 @@ const botonesEliminar = document.querySelectorAll('.btn-eliminar');
 
 botonesEliminar.forEach(btn => {
     btn.addEventListener('click', function (e) {
+     const permitido = btn.dataset.permitido === "true";
 
-        const permitido = btn.dataset.permitido === "true";
+        if (btn.dataset.permitido === undefined) {
+            console.warn("Botón eliminar sin data-permitido", btn);
+        }
 
         if (!permitido) {
             e.preventDefault(); // 
@@ -67,5 +67,22 @@ botonesEliminar.forEach(btn => {
             item.style.transform = 'translateY(0)';
         });
     });
+
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    if (window.tieneErrorPermiso === true) {
+        const modal = new bootstrap.Modal(
+            document.getElementById("modalAccionNoPermitida")
+        );
+
+        const mensaje = window.mensajePermiso || 
+            "No tienes permiso para realizar esta acción.";
+
+        document.getElementById("modalPermisoMensaje").textContent = mensaje;
+
+        modal.show();
+    }
 
 });

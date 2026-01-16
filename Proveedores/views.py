@@ -5,7 +5,7 @@ from .forms import ProveedorForm
 from django.shortcuts import render
 from django.db.models import Q, Count
 from .models import Proveedor
-
+from core.funciones import bloquear_eliminar
 
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
@@ -92,6 +92,8 @@ def editar_proveedor(request, pk):
         }
     )
 
+
+@bloquear_eliminar("No tienes permiso para eliminar proveedores.")
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -100,11 +102,8 @@ def eliminar_proveedor(request, pk):
         messages.success(request, "Proveedor eliminado correctamente.")
         return redirect("proveedores:lista_proveedor")
 
-    # GET → solo muestra la pantalla de confirmación
     return render(
         request,
         "colaborador/eliminar_proveedor.html",
-        {
-            "proveedor": proveedor
-        }
+        {"proveedor": proveedor}
     )

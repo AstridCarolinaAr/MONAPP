@@ -3,10 +3,6 @@ from .models import Producto, Marca
 
 
 class ProductoForm(forms.ModelForm):
-    """
-    Formulario para crear/editar productos
-    """
-
     marca_texto = forms.CharField(
         label='Marca',
         max_length=100,
@@ -19,7 +15,6 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = [
-            'marca_texto',        
             'codigo_compra',
             'nombre',
             'precio',
@@ -33,42 +28,50 @@ class ProductoForm(forms.ModelForm):
         widgets = {
             'codigo_compra': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Código de compra (opcional)'
+                'placeholder': 'Código de compra (opcional)',
+                'required': 'true'
             }),
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre del producto'
+                'placeholder': 'Nombre del producto',
+                'required': 'true'
             }),
-            'precio': forms.NumberInput(attrs={
-                'class': 'form-control',
+            'precio': forms.TextInput(attrs={
+                'class': 'form-control precio-formateado',
                 'min': 0,
-                'placeholder': 'Precio en pesos colombianos'
+                'placeholder': 'Precio en pesos colombianos',
+                'inputmode': 'numeric',
+                'required': 'true'
             }),
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Descripción del producto'
+                'placeholder': 'Descripción del producto',
+                'required': 'true'
             }),
             'linea': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Línea del producto'
+                'placeholder': 'Línea del producto',
+                'required': 'true'
             }),
             'presentacion': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ej: 500ml, caja x12'
+                'placeholder': 'Ej: 500ml, caja x12',
+                'required': 'true'
             }),
             'unidad_medida': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'required': 'true'
+                
             }),
             'estado': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+ 
             }),
         }
 
         labels = {
-            'marca_texto': 'Marca',
             'codigo_compra': 'Código de Compra',
-            'codigo_cliente': 'Código de Cliente',
             'nombre': 'Nombre del Producto',
             'precio': 'Precio',
             'descripcion': 'Descripción',
@@ -81,7 +84,7 @@ class ProductoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 🔹 CUANDO EDITAS, CARGA LA MARCA EN EL INPUT
+        # ✅ Cargar marca al editar
         if self.instance.pk and self.instance.id_marca:
             self.fields['marca_texto'].initial = self.instance.id_marca.nombre
 
@@ -94,10 +97,9 @@ class ProductoForm(forms.ModelForm):
     def save(self, commit=True):
         producto = super().save(commit=False)
 
-        # 🔹 CREA O REUTILIZA LA MARCA ESCRITA
         nombre_marca = self.cleaned_data['marca_texto'].strip()
 
-        marca, created = Marca.objects.get_or_create(
+        marca, _ = Marca.objects.get_or_create(
             nombre__iexact=nombre_marca,
             defaults={'nombre': nombre_marca}
         )
@@ -108,3 +110,17 @@ class ProductoForm(forms.ModelForm):
             producto.save()
 
         return producto
+def clean(self):
+    cleaned = super().clean()
+
+    for campo in [
+        'marca_texto',
+        'nombre',
+        'precio',
+        'estado',
+        'unidad_medida',
+    ]:
+        if not cleaned.get(campo):
+            self.add_error(campo, 'Este campo es obligatorio.')
+
+    return cleaned

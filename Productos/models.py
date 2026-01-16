@@ -135,7 +135,7 @@ class Producto(models.Model):
     
     def get_precio_formateado(self):
         """Retorna el precio formateado en pesos colombianos"""
-        return f"${self.precio:,}"
+        return f"${self.precio:,}".replace (",", ".")
     
     def esta_disponible(self):
         """Verifica si el producto está disponible"""

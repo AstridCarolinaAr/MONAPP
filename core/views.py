@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from datetime import datetime
+from django.contrib import messages
+from django.shortcuts import redirect
 
 
 def index(request):
@@ -50,3 +52,14 @@ def dashboard_view(request):
     }
 
     return render(request, 'core/dashboard.html', context)
+
+def solo_admin(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(
+                request,
+                "No tienes permisos para realizar esta acción."
+            )
+            return redirect("core:dashboard")
+        return view_func(request, *args, **kwargs)
+    return wrapper

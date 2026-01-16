@@ -90,38 +90,36 @@
     </nav>
 </div>
 
-<!-- MODAL PERMISOS -->
-<div class="modal fade" id="permisoModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+<!-- ==================== MODAL ACCIÓN NO PERMITIDA ==================== -->
+<div class="modal fade" id="modalAccionNoPermitida" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
 
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-shield-lock"></i> Acción no permitida
-                </h5>
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
-            </div>
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-shield-exclamation me-2"></i>
+          Acción no permitida
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
 
-            <div class="modal-body">
-                {% for message in messages %}
-                    {% if 'error' in message.tags %}
-                        <p class="mb-0">{{ message }}</p>
-                    {% endif %}
-                {% endfor %}
-            </div>
+      <div class="modal-body">
+        <!-- ⚠️ AQUÍ VA EL MENSAJE -->
+        <p id="modalPermisoMensaje" class="mb-0">
+          No tienes permiso para realizar esta acción.
+        </p>
+      </div>
 
-            <div class="modal-footer">
-                <button class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                    Entendido
-                </button>
-            </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          Entendido
+        </button>
+      </div>
 
-        </div>
     </div>
+  </div>
 </div>
+
 
 <!-- CONTENIDO -->
 <div class="main-content">
@@ -143,13 +141,17 @@
 
 <!-- FLAGS DE PERMISOS -->
 <script>
-    window.tieneErrorPermiso = false;
-    {% for message in messages %}
-        {% if 'error' in message.tags %}
-            window.tieneErrorPermiso = true;
-        {% endif %}
-    {% endfor %}
+  window.tieneErrorPermiso = false;
+  window.mensajePermiso = "";
+
+  {% for message in messages %}
+    {% if 'error' in message.tags %}
+      window.tieneErrorPermiso = true;
+      window.mensajePermiso = "{{ message|escapejs }}";
+    {% endif %}
+  {% endfor %}
 </script>
+
 
 <!-- JS GENERAL -->
 <script src="{% static 'core/js/main.js' %}"></script>

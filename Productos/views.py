@@ -2,10 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Producto
+from .models import Producto, Marca
 from .forms import ProductoForm
-
-
+from core.funciones import bloquear_eliminar
 # ==================== VISTAS PÚBLICAS ====================
 
 def lista_productos_publica(request):
@@ -63,65 +62,66 @@ def detalle_producto_publico(request, codigo):
 
 
 # ==================== PANEL ADMIN ====================
-
 @login_required
 def lista_productos_admin(request):
 
-    grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
-        messages.error(request, 'No tienes permisos para acceder a Productos.')
-        return redirect('core:index')
+    productos = Producto.objects.select_related("id_marca")
 
-    productos = Producto.objects.select_related('id_marca').all()
+    # =========================
+    # BUSCADOR
+    # =========================
+    q = request.GET.get("q")
 
-    buscar = request.GET.get('buscar', '')
-    if buscar:
+    if q:
         productos = productos.filter(
-            Q(nombre__icontains=buscar) |
-            Q(descripcion__icontains=buscar)
+            Q(nombre__icontains=q) |
+            Q(codigo__icontains=q) |
+            Q(id_marca__nombre__icontains=q) |
+            Q(presentacion__icontains=q)
         )
 
-    estado = request.GET.get('estado')
-    if estado:
-        productos = productos.filter(estado=estado)
+    # =========================
+    # ORDENAMIENTO
+    # =========================
+    orden = request.GET.get("orden")
 
-    orden = request.GET.get('orden', 'reciente')
-    if orden == 'reciente':
-        productos = productos.order_by('-fecha_creacion')
-    elif orden == 'precio_asc':
-        productos = productos.order_by('precio')
-    elif orden == 'precio_desc':
-        productos = productos.order_by('-precio')
-    elif orden == 'nombre':
-        productos = productos.order_by('nombre')
+    if orden == "nombre":
+        productos = productos.order_by("nombre")
 
-    
-    es_admin = 'Administrador' in grupos
+    elif orden == "nombre_desc":
+        productos = productos.order_by("-nombre")
+
+    elif orden == "codigo":
+        productos = productos.order_by("codigo")
+
+    elif orden == "marca":
+        productos = productos.order_by("id_marca__nombre")
+
+    elif orden == "presentacion":
+        productos = productos.order_by("presentacion")
+
+    else:
+        productos = productos.order_by("nombre")
 
     return render(
         request,
-        'colaborador/lista_productos.html',
+        "colaborador/lista_productos.html",
         {
-            'titulo': 'Gestión de Productos',
-            'productos': productos,
-            'buscar': buscar,
-            'estado': estado,
-            'orden': orden,
-            'es_admin': es_admin,  
+            "productos": productos,
         }
     )
-
-
 
 @login_required
 def crear_producto(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
+
     if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
         messages.error(request, 'No tienes permisos para crear productos.')
         return redirect('core:index')
 
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
+
         if form.is_valid():
             producto = form.save()
             messages.success(
@@ -129,6 +129,9 @@ def crear_producto(request):
                 f'Producto "{producto.nombre}" creado correctamente.'
             )
             return redirect('productos:lista_productos_admin')
+
+        
+
     else:
         form = ProductoForm()
 
@@ -140,6 +143,7 @@ def crear_producto(request):
             'form': form,
         }
     )
+
 
 
 @login_required
@@ -173,7 +177,7 @@ def editar_producto(request, codigo):
         }
     )
 
-
+@bloquear_eliminar("No tienes permiso para eliminar productos.")
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 
@@ -182,8 +186,6 @@ def eliminar_producto(request, codigo):
         messages.success(request, "Producto eliminado correctamente.")
         return redirect("productos:lista_productos_admin")
 
-    return render(
-        request,
-        "colaborador/eliminar_producto.html",
-        {"producto": producto}
-    )
+    return render(request, "colaborador/eliminar_producto.html", {
+        "producto": producto
+    })

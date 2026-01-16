@@ -216,3 +216,15 @@ h2 {
         color: var(--mona-muted);
     }
 }
+.dropdown-menu {
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.dropdown-item {
+    padding: 8px 14px;
+}
+
+.dropdown-item i {
+    margin-right: 6px;
+}
