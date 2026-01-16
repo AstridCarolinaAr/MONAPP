@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+
 
 class Marca(models.Model):
     """
@@ -8,12 +10,12 @@ class Marca(models.Model):
     descripcion = models.TextField(blank=True)
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name = "Marca"
         verbose_name_plural = "Marcas"
         ordering = ['nombre']
-    
+
     def __str__(self):
         return self.nombre
 
@@ -21,18 +23,18 @@ class Marca(models.Model):
 class Producto(models.Model):
     """
     Modelo para productos
-    Relacionado con la tabla producto de tu base de datos
     """
-    
-    # Choices para el campo estado
+
+    # ===============================
+    # CHOICES
+    # ===============================
     ESTADO_CHOICES = [
         ('disponible', 'Disponible'),
         ('agotado', 'Agotado'),
         ('descontinuado', 'Descontinuado'),
         ('en_transito', 'En Tránsito'),
     ]
-    
-    # Choices para unidad de medida
+
     UNIDAD_MEDIDA_CHOICES = [
         ('unidad', 'Unidad'),
         ('kg', 'Kilogramo'),
@@ -43,83 +45,80 @@ class Producto(models.Model):
         ('paquete', 'Paquete'),
         ('metro', 'Metro'),
     ]
-    
-    # Campo codigo como clave primaria
+
+    # ===============================
+    # CAMPOS
+    # ===============================
     codigo = models.AutoField(primary_key=True)
-    
-    # Relaciones con otras tablas
+
     id_marca = models.ForeignKey(
         Marca,
         on_delete=models.PROTECT,
         related_name='productos',
-        verbose_name='Marca',
-        help_text='Marca del producto'
+        verbose_name='Marca'
     )
-    
+
     codigo_compra = models.IntegerField(
         null=True,
         blank=True,
         help_text='Código de compra asociado'
     )
-    
+
     codigo_cliente = models.IntegerField(
         null=True,
         blank=True,
         help_text='Código de cliente asociado'
     )
-    
-    # Información del producto
+
     nombre = models.CharField(
         max_length=60,
         verbose_name='Nombre del Producto',
-        help_text='Nombre del producto'
+        help_text='Nombre del producto',
+        unique=True
     )
-    
+
     precio = models.IntegerField(
         verbose_name='Precio',
         help_text='Precio del producto en pesos colombianos'
     )
-    
+
     descripcion = models.TextField(
         blank=True,
-        verbose_name='Descripción',
-        help_text='Descripción detallada del producto'
+        verbose_name='Descripción'
     )
-    
+
     linea = models.CharField(
         max_length=45,
         blank=True,
-        verbose_name='Línea',
-        help_text='Línea o categoría del producto'
+        verbose_name='Línea'
     )
-    
+
     presentacion = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Presentación',
-        help_text='Presentación del producto (ej: 500ml, caja x12)'
+        verbose_name='Presentación'
     )
-    
+
     unidad_medida = models.CharField(
         max_length=45,
         choices=UNIDAD_MEDIDA_CHOICES,
         default='unidad',
-        verbose_name='Unidad de Medida',
-        help_text='Unidad de medida del producto'
+        verbose_name='Unidad de Medida'
     )
-    
+
     estado = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
         default='disponible',
-        verbose_name='Estado',
-        help_text='Estado actual del producto'
+        verbose_name='Estado'
     )
-    
-    # Campos adicionales útiles
+
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-    
+
+    # ===============================
+    # META
+    # ===============================
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
@@ -129,20 +128,39 @@ class Producto(models.Model):
             models.Index(fields=['estado']),
             models.Index(fields=['linea']),
         ]
-    
+
+    # ===============================
+    # VALIDACIONES PRO
+    # ===============================
+    def clean(self):
+        # Normalizar nombre
+        self.nombre = self.nombre.strip().title()
+
+        # Validar nombre duplicado (case-insensitive)
+        if Producto.objects.exclude(pk=self.pk).filter(
+            nombre__iexact=self.nombre
+        ).exists():
+            raise ValidationError({
+                'nombre': 'Ya existe un producto con este nombre.'
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # fuerza clean()
+        super().save(*args, **kwargs)
+
+    # ===============================
+    # MÉTODOS ÚTILES
+    # ===============================
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
-    
+
     def get_precio_formateado(self):
-        """Retorna el precio formateado en pesos colombianos"""
-        return f"${self.precio:,}".replace (",", ".")
-    
+        return f"${self.precio:,}".replace(",", ".")
+
     def esta_disponible(self):
-        """Verifica si el producto está disponible"""
         return self.estado == 'disponible'
-    
+
     def get_nombre_completo(self):
-        """Retorna el nombre completo con presentación"""
         if self.presentacion:
             return f"{self.nombre} - {self.presentacion}"
         return self.nombre

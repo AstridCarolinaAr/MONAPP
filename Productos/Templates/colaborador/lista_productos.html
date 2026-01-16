@@ -23,56 +23,52 @@
         </a>
     </div>
 
-    <!-- FILTRO + BUSCADOR -->
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+<div class="dropdown">
+    <button
+        class="btn btn-filter dropdown-toggle d-flex align-items-center gap-1"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false">
+        <i class="bi bi-funnel"></i> Filtrar
+    </button>
 
-        <!-- FILTRO -->
-        <div class="dropdown">
-            <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-1"
-                    type="button"
-                    data-bs-toggle="dropdown">
-                <i class="bi bi-funnel"></i> Filtrar
-            </button>
+    <ul class="dropdown-menu shadow-sm">
+        <li>
+            <a class="dropdown-item" href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                Nombre A–Z
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                Nombre Z–A
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item text-danger" href="?">
+                Quitar filtros
+            </a>
+        </li>
+    </ul>
+</div>
 
-            <ul class="dropdown-menu shadow-sm">
-                <li>
-                    <a class="dropdown-item" href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Nombre A–Z
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Nombre Z–A
-                    </a>
-                </li>
+                <!-- BUSCADOR -->
+                <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
+                    {% if request.GET.orden %}
+                        <input type="hidden" name="orden" value="{{ request.GET.orden }}">
+                    {% endif %}
 
-                <li><hr class="dropdown-divider"></li>
+                    <input type="text"
+                        name="q"
+                        class="form-control form-control-sm"
+                        placeholder="Buscar producto…"
+                        value="{{ request.GET.q }}">
 
-                <li>
-                    <a class="dropdown-item text-danger" href="?">
-                        Quitar filtros
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- BUSCADOR -->
-        <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
-            {% if request.GET.orden %}
-                <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-            {% endif %}
-
-            <input type="text"
-                   name="q"
-                   class="form-control form-control-sm"
-                   placeholder="Buscar producto…"
-                   value="{{ request.GET.q }}">
-
-            <button class="btn btn-outline-secondary btn-sm" type="submit">
-                <i class="bi bi-search"></i>
-            </button>
-        </form>
-    </div>
+                    <button class="btn btn-outline-secondary btn-sm" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
 
     <!-- TABLA -->
     <div class="table-responsive">
