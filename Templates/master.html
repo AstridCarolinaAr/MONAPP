@@ -6,34 +6,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monakeratina</title>
-    
 
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    
-
 <!-- HEADER -->
 <header class="header">
-   <div class="logo">                                                                                             │    
-        <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" alt="Monakeratina">                               │
-     </div>  
+   <div class="logo">
+    {% include "core/partials/logo_monakeratina.svg" %}
+    </div> 
     <nav class="nav nav-glass">
-        <a href="#" class="nav-item">Inicio</a>
-        <a href="#" class="nav-item">Nosotros</a>
-        <a href="#" class="nav-item">Servicios</a>
-        <a href="#" class="nav-item">Productos</a>
-        <a href="#" class="nav-item">Contactenos</a>
+        <a href="#inicio" class="nav-item">Inicio</a>
+        <a href="#intro" class="nav-item">Nosotros</a>
+        <a href="#promociones" class="nav-item">Promociones</a>
+        <a href="#infinite" class="nav-item">Servicios</a>
+        <a href="#testimonials" class="nav-item">Productos</a>
+        <a href="#cta" class="nav-item">Contactenos</a>
     </nav>
 
     <div class="nav-glass">
-        <a href="{% url 'usuarios:login' %}" class="nav-item">Iniciar sesión</a>
+        <a href="{% url 'usuarios:login' %}" class="nav-item btn-login">Iniciar sesión</a>
     </div>
 </header>
-
-<!-- ==================== CONTENIDO DE CADA PÁGINA ==================== -->
 <main>
     {% block content %}
     <!-- Aquí se inyecta index.html, servicios.html, etc -->
