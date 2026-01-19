@@ -25,10 +25,12 @@
         <a href="#testimonials" class="nav-item">Productos</a>
         <a href="#cta" class="nav-item">Contactenos</a>
     </nav>
+<button id="btnLogin" class=" nav-glass">
+    <span class="text">Iniciar Sesión</span>
+    <span class="loader"></span>
+</button>
 
-    <div class="nav-glass">
-        <a href="{% url 'usuarios:login' %}" class="nav-item btn-login">Iniciar sesión</a>
-    </div>
+
 </header>
 <main>
     {% block content %}
