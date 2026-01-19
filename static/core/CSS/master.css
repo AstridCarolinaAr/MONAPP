@@ -8,20 +8,32 @@
     width: 100%;
     z-index: 1000;
 
-    display: flex;
+     display: flex;
     justify-content: space-between;
     align-items: center;
 
     padding: 1rem 2rem;
-    transition: padding 0.3s ease, background 0.3s ease;
+
+    /* 🔥 ESTO ES EL FADE */
+    transition:
+        background-color 0.6s ease,
+        padding 0.4s ease,
+        box-shadow 0.6s ease;
 }
 
-/* Logo */
-.logo img {
+/* Logo SVG */
+.logo svg {
     height: 150px;
     width: auto;
     display: block;
+    color: #ffffff; 
+    transition: color 0.6s ease;
 }
+
+.logo {
+    isolation: isolate; /* el contenedor, no el svg */
+}
+
 
 /* =====================================================
    NAV GLASS (CÁPSULA BORROSA)
@@ -47,7 +59,7 @@
     content: "";
     position: absolute;
     inset: 0;
-
+    transition: background 0.6s ease;
     background: rgba(20, 20, 20, 0.5);
     border-radius: inherit;
 
@@ -65,7 +77,7 @@
 
     padding:  0.65rem 1.4rem;
     font-size: 1.05rem;
-    font-weight: 500;
+    font-weight: 400;
 
     color: #ffffff;
     text-decoration: none;
@@ -73,7 +85,10 @@
     background: transparent;
     border-radius: 6px;
 
-    transition: background 0.25s ease, color 0.25s ease, border-radius 0.25s ease;
+     transition:
+        color 0.4s ease,
+        background 0.4s ease,
+        transform 0.25s ease;
 }
 
 /* Hover → píldora */
@@ -122,7 +137,6 @@
 .header.scrolled .nav-primary {
     font-weight: 600;
 }
-
 /* =====================================================
    RESPONSIVE BÁSICO (opcional)
 ===================================================== */
@@ -148,8 +162,9 @@
     opacity: 0;
     transform: translateY(50px);
     transition: all 0.5s ease;
-    background: none;
-    color: #000;
+    background: #0f0f0f;
+    box-shadow: 0 -40px 80px rgba(0,0,0,0.6);
+    color: #ffffff;
 }
 
 .footer.visible {
@@ -172,7 +187,7 @@
 }
 
 .footer-links a:hover {
-    color: #555;
+    color: #000000;
 }
 /* boton login */
 
@@ -202,4 +217,44 @@
     backdrop-filter: blur(3px); /* efecto vidrio opcional */
     padding: 2rem;
     min-height: calc(100vh - 160px); /* altura mínima considerando header + footer */
+}
+/* =====================================================
+   NAVBAR OSCURO EN SECCIÓN INFINITE (FIX REAL)
+===================================================== */
+
+.header.navbar-dark .nav-glass::before {
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+/* Texto blanco */
+.header.navbar-dark .nav-item {
+    color: #ffffff !important;
+}
+
+/* Hover */
+.header.navbar-dark .nav-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+/* Logo negro */
+.header.navbar-dark .logo svg {
+    color: #000000 !important;
+}
+/* 🔥 LOGIN: quitar fondo negro */
+.header.navbar-dark .nav-glass:last-child::before {
+    background: rgba(71, 71, 71, 0.356);
+}
+
+/* Login como vidrio claro */
+.header.navbar-dark .nav-glass:last-child .nav-item {
+    color: #ffffff;
+}
+
+/* Hover del login */
+.header.navbar-dark .nav-glass:last-child .nav-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
 }
