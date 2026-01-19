@@ -32,9 +32,14 @@
         <a href="#cta" class="nav-item">Contactenos</a>
     </nav>
 
-    <div class="nav-glass">
-        <a href="{% url 'usuarios:login' %}" class="nav-item btn-login">Iniciar sesión</a>
-    </div>
+<button
+    type="button"
+    class="btn btn-outline-light"
+    data-bs-toggle="modal"
+    data-bs-target="#loginModal">
+    Iniciar sesión
+</button>
+
 </header>
 <main>
     {% block content %}{% endblock %}
