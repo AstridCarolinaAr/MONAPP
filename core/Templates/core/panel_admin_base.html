@@ -90,36 +90,37 @@
     </nav>
 </div>
 
-<!-- ==================== MODAL ACCIÓN NO PERMITIDA ==================== -->
-<div class="modal fade" id="modalAccionNoPermitida" tabindex="-1" aria-hidden="true">
+<!-- MODAL ACCIÓN NO PERMITIDA -->
+<div class="modal fade" id="modalAccionNoPermitida" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow-lg border-0">
 
       <div class="modal-header bg-danger text-white">
         <h5 class="modal-title">
-          <i class="bi bi-shield-exclamation me-2"></i>
+          <i class="bi bi-shield-lock me-2"></i>
           Acción no permitida
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body">
-        <!-- ⚠️ AQUÍ VA EL MENSAJE -->
-        <p id="modalPermisoMensaje" class="mb-0">
-          No tienes permiso para realizar esta acción.
+      <div class="modal-body text-center">
+        <p class="fw-semibold mb-1">
+          No tienes permiso para borrar este registro.
+        </p>
+        <p class="text-muted mb-0">
+          Contacta a un administrador para realizar esta acción.
         </p>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">
-          Entendido
-        </button>
+      <!-- ✅ BARRA -->
+      <div class="tiempo-cierre">
+        <div class="tiempo-barra" id="barraTiempoPermiso"></div>
       </div>
 
     </div>
   </div>
 </div>
-
 
 <!-- CONTENIDO -->
 <div class="main-content">
@@ -135,6 +136,10 @@
     </div>
 
 </div>
+<script>
+    window.ES_ADMIN = {{ request.user.is_staff|yesno:"true,false" }};
+</script>
+
 
 <!-- BOOTSTRAP JS (ÚNICO Y CORRECTO) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

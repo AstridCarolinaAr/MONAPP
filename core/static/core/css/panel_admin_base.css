@@ -939,4 +939,26 @@ small.text-muted {
         padding: 20px;
     }
 }
-    
+/* ===============================
+   BARRA – ACCIÓN NO PERMITIDA
+================================ */
+
+.tiempo-cierre {
+    width: 100%;
+    height: 6px;
+    background: rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.tiempo-barra {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #e07a7a, #c0392b);
+    transform-origin: left;
+}
+
+/* Animación */
+@keyframes cerrarModal {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}

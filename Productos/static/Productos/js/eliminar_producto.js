@@ -1,16 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const modal = document.getElementById("modalConfirmarEliminacion");
-    const texto = document.getElementById("textoConfirmacionProducto");
+    if (!modal) return;
+
     const checkbox = document.getElementById("confirmacionCheckboxProducto");
     const boton = document.getElementById("btnConfirmarEliminarProducto");
+    const texto = document.getElementById("textoConfirmacionProducto");
+    const form = document.getElementById("formEliminarProducto");
 
-    modal?.addEventListener("show.bs.modal", event => {
-        const button = event.relatedTarget;
-        const nombre = button.getAttribute("data-producto");
+    /* ===============================
+       CUANDO SE ABRE EL MODAL
+    =============================== */
+    modal.addEventListener("show.bs.modal", event => {
+        const btn = event.relatedTarget;
+        const nombre = btn?.getAttribute("data-producto") || "";
 
         texto.innerHTML = `
-            ¿Deseas eliminar permanentemente el producto
+            ¿Estás seguro de que deseas eliminar el producto
             <strong class="text-danger">${nombre}</strong>?
         `;
 
@@ -18,8 +24,22 @@ document.addEventListener("DOMContentLoaded", () => {
         boton.disabled = true;
     });
 
-    checkbox?.addEventListener("change", () => {
+    /* ===============================
+       CHECKBOX CONTROLA BOTÓN
+    =============================== */
+    checkbox.addEventListener("change", () => {
         boton.disabled = !checkbox.checked;
+    });
+
+    /* ===============================
+       BLOQUEO FINAL (SEGURIDAD REAL)
+    =============================== */
+    form.addEventListener("submit", (e) => {
+        if (!checkbox.checked) {
+            e.preventDefault();
+            e.stopPropagation();
+            alert("Debes confirmar la eliminación marcando la casilla.");
+        }
     });
 
 });
