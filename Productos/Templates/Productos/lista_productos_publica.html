@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos | Mi Tienda</title>
+
+    <!-- CSS -->
+<link rel="stylesheet" href="{% static 'Productos/css/lista_producto_publica.css' %}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+    <div class="container header-flex">
+        <h1 class="logo">Mi Tienda</h1>
+
+        <form method="GET" class="search-bar">
+            <input type="text" name="buscar" placeholder="Buscar productos..." value="{{ buscar }}">
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <h2>Nuestros Productos</h2>
+        <p>Calidad profesional, resultados visibles</p>
+    </div>
+</section>
+
+<!-- PRODUCTOS -->
+<section class="products-section">
+    <div class="container">
+
+        {% if productos %}
+        <div class="products-grid">
+
+            {% for producto in productos %}
+            <article class="product-card">
+
+                <div class="product-image">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                    {% else %}
+                        <div class="no-image">Sin imagen</div>
+                    {% endif %}
+                </div>
+
+                <div class="product-body">
+                    <h3 class="product-name">{{ producto.nombre }}</h3>
+
+                    <p class="product-desc">
+                        {{ producto.descripcion|truncatechars:90 }}
+                    </p>
+
+                    <div class="product-footer">
+                        <span class="price">$ {{ producto.precio|floatformat:0 }}</span>
+
+                        <a href="{% url 'productos:detalle_producto_publico' producto.codigo %}" class="btn-product">
+                            Ver detalle
+                        </a>
+                    </div>
+                </div>
+
+            </article>
+            {% endfor %}
+
+        </div>
+        {% else %}
+            <p class="no-products">No hay productos disponibles</p>
+        {% endif %}
+
+        <div class="back-home">
+            <a href="{% url 'core:index' %}" class="btn-back">← Volver al inicio</a>
+        </div>
+
+    </div>
+</section>
+
+</body>
+</html>

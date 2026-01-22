@@ -1,0 +1,230 @@
+:root {
+    --mona-bg: #fdf6f8;
+    --mona-card: #ffffff;
+    --mona-primary: #d97b93;
+    --mona-secondary: #f3c6d4;
+    --mona-accent: #c8a2b8;
+    --mona-text: #3a3a3a;
+    --mona-muted: #8b8b8b;
+    --mona-success: #7fc8a9;
+    --mona-danger: #e07a7a;
+}
+
+/* =============================
+   FONDO GENERAL
+============================= */
+body {
+    background: var(--mona-bg);
+    color: var(--mona-text);
+}
+
+/* =============================
+   TÍTULO
+============================= */
+h2 {
+    font-weight: 700;
+    letter-spacing: .4px;
+}
+
+/* =============================
+   BOTÓN NUEVO PRODUCTO
+============================= */
+.btn-success {
+    background: linear-gradient(
+        135deg,
+        rgba(141, 96, 74, 0.9),
+        rgba(180, 140, 110, 0.85)
+    );
+    border: none;
+    border-radius: 999px;
+    padding: 12px 28px;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 12px 30px rgba(141,96,74,.35);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(141,96,74,.45);
+}
+
+
+/* =============================
+   CARD CONTENEDOR
+============================= */
+.card {
+    border: none;
+    border-radius: 22px;
+    background: var(--mona-card);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+}
+
+/* =============================
+   TABLA
+============================= */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 16px;
+}
+
+/* HEADER */
+.table thead th {
+    border: none;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--mona-muted);
+    padding-bottom: 12px;
+}
+
+/* =============================
+   FILAS COMO TARJETAS
+============================= */
+.table tbody tr {
+    background: #fff;
+    border-radius: 18px;
+    transition: all .35s ease;
+}
+
+.table tbody tr:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(217,123,147,.18);
+}
+
+/* CELDAS */
+.table td {
+    border: none;
+    padding: 18px 16px;
+    vertical-align: middle;
+}
+
+/* =============================
+   NOMBRE PRODUCTO
+============================= */
+.table td strong {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+/* =============================
+   PRECIO
+============================= */
+.table td:nth-child(4) {
+    font-weight: 700;
+    color: var(--mona-primary);
+    font-size: 1.05rem;
+}
+
+/* =============================
+   BADGES ESTADO
+============================= */
+.badge {
+    padding: 7px 18px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.bg-success {
+    background: var(--mona-success);
+    color: #fff;
+}
+
+.bg-warning {
+    background: #f1d36b;
+    color: #4a3b00;
+}
+
+.bg-info {
+    background: #a9c7d8;
+    color: #123;
+}
+
+.bg-danger {
+    background: var(--mona-danger);
+    color: #fff;
+}
+
+/* =============================
+   ACCIONES
+============================= */
+.d-inline-flex {
+    gap: 10px;
+}
+
+.btn-sm {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+}
+
+
+/* EDITAR */
+.btn-primary {
+    background: linear-gradient(135deg,#b79ac8,#d6b4e3);
+}
+
+/* ELIMINAR */
+.btn-danger {
+    background: rgba(180, 85, 85, 0.2);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(180, 85, 85, 0.4);
+}
+
+.btn-danger i {
+    color: rgba(180, 85, 85, 0.95);
+}
+
+.btn-danger:hover {
+    background: rgba(180, 85, 85, 0.35);
+}
+
+
+/* ICONOS */
+.btn-sm i {
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+/* =============================
+   RESPONSIVE
+============================= */
+@media (max-width: 768px) {
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        padding: 14px;
+    }
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--mona-muted);
+    }
+}
+.dropdown-menu {
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.dropdown-item {
+    padding: 8px 14px;
+}
+
+.dropdown-item i {
+    margin-right: 6px;
+}

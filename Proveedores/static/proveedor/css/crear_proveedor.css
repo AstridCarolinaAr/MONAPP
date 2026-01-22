@@ -1,0 +1,194 @@
+/* ===============================
+   SECCIONES
+================================ */
+
+.form-section {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 28px 30px;
+    margin-bottom: 30px;
+    background-color: #ffffff;
+}
+
+/* Títulos de sección */
+.form-section h6 {
+    font-size: 1.15rem;          /* MÁS GRANDE */
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-bottom: 22px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+/* ===============================
+   LABELS
+================================ */
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 6px;
+}
+
+/* ===============================
+   INPUTS Y SELECTS
+================================ */
+
+input.form-control,
+select.form-select {
+    height: 44px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+}
+
+/* Focus elegante */
+input.form-control:focus,
+select.form-select:focus {
+    border-color: #a68975;
+    box-shadow: 0 0 0 0.15rem rgba(166, 137, 117, 0.25);
+}
+
+/* ===============================
+   GRID MEJORADO
+================================ */
+
+/* Espacio uniforme entre filas */
+.row.g-3 {
+    row-gap: 22px;
+}
+
+/* ===============================
+   BOTONES
+================================ */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 35px;
+}
+
+.form-actions .btn {
+    min-width: 170px;
+    height: 42px;
+    font-weight: 600;
+    border-radius: 25px;
+}
+
+/* ===============================
+   HEADER SUPERIOR
+================================ */
+
+.proveedor-header {
+    font-size: 1.25rem;   /* MÁS GRANDE */
+    font-weight: 600;
+    padding: 16px 24px;
+    background-color: #a68975;
+    color: #fff;
+    border-radius: 10px 10px 0 0;
+}
+/* ===============================
+   UNIFICAR TAMAÑO DE CAMPOS
+================================ */
+/* ===============================
+   CAMPOS COMPACTOS (10–15 chars)
+================================ */
+
+/* ===============================
+   FORMULARIO ORDENADO Y COMPACTO
+================================ */
+
+/* Columnas bien alineadas */
+.form-section .col-md-4,
+.form-section .col-md-6 {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels claros */
+.form-section .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    min-height: 22px;
+}
+
+/* INPUTS UNIFORMES (CLAVE) */
+.form-section input.form-control,
+.form-section select.form-select {
+    width: 100%;          /* SIEMPRE */
+    height: 42px;         /* compacto */
+    font-size: 0.9rem;    /* texto pequeño */
+    padding: 6px 10px;    /* menos espacio interno */
+    border-radius: 8px;
+}
+
+/* Espaciado entre filas */
+.form-section .row.g-3 {
+    row-gap: 22px;
+}
+
+/* Focus elegante */
+.form-section input:focus,
+.form-section select:focus {
+    border-color: #a68975;
+    box-shadow: 0 0 0 0.15rem rgba(166, 137, 117, 0.25);
+}
+
+/* ===============================
+   CONTROL DE ANCHO POR TIPO
+================================ */
+
+.field-sm input,
+.field-sm select {
+    max-width: 14ch;   /* 10–14 caracteres */
+}
+
+.field-md input,
+.field-md select {
+    max-width: 20ch;   /* 15–20 caracteres */
+}
+
+.field-lg input,
+.field-lg select {
+    max-width: 100%;   /* campos largos */
+}
+
+/* Todos alineados y consistentes */
+.form-section input,
+.form-section select {
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+}
+
+/* Alineación vertical perfecta */
+.form-section .col-md-4,
+.form-section .col-md-6 {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ===============================
+   ERRORES DE FORMULARIO
+================================ */
+
+.invalid-feedback {
+    font-size: 0.8rem;
+    color: #dc3545;
+    margin-top: 4px;
+}
+
+/* Inputs con error */
+input.is-invalid,
+select.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Forzar rojo cuando Django falla */
+.form-section input:has(+ .invalid-feedback),
+.form-section select:has(+ .invalid-feedback) {
+    border-color: #dc3545;
+}
