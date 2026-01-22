@@ -57,19 +57,6 @@ class Producto(models.Model):
         related_name='productos',
         verbose_name='Marca'
     )
-
-    codigo_compra = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text='Código de compra asociado'
-    )
-
-    codigo_cliente = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text='Código de cliente asociado'
-    )
-
     nombre = models.CharField(
         max_length=60,
         verbose_name='Nombre del Producto',

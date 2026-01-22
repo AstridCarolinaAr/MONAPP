@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* ===============================
-       🔥 BLOQUEO REAL DEL SUBMIT
+        BLOQUEO REAL DEL SUBMIT
     =============================== */
     form.addEventListener("submit", e => {
         if (!checkbox.checked) {

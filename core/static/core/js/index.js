@@ -1,17 +1,17 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-    document.addEventListener("DOMContentLoaded", () => {
-        const hero = document.querySelector(".sq-hero");
-        if (hero) {
-            requestAnimationFrame(() => {
-                hero.classList.add("is-visible");
-            });
-        }
-    });
-    
+
+    /* ===============================
+       HERO FADE IN
+    =============================== */
+    const hero = document.querySelector(".sq-hero");
+    if (hero) {
+        requestAnimationFrame(() => {
+            hero.classList.add("is-visible");
+        });
+    }
 
     /* =====================================================
-       CONFIGURACIÓN GENERAL
+       CONFIGURACIÓN GENERAL CARRUSEL
     ===================================================== */
     const baseSpeed = -0.8;
     const inertia = 0.08;
@@ -19,13 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const maxSpeed = 4;
 
     let isPaused = false;
-
     let velocity = baseSpeed;
     let targetVelocity = baseSpeed;
     let acceleration = 0;
 
     /* =====================================================
-       IMÁGENES DE FONDO DESDE data-bg
+       IMÁGENES DE FONDO
     ===================================================== */
     document.querySelectorAll('.sq-card').forEach(card => {
         const bg = card.dataset.bg;
@@ -41,10 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const track1 = document.getElementById('track1');
     const track2 = document.getElementById('track2');
 
-    if (!container || !track1 || !track2) return;
+    if (!container || !track1 || !track2) {
+        console.warn('Carrusel infinito no encontrado');
+        return;
+    }
 
     const trackWidth = track1.scrollWidth;
-
     let x1 = 0;
     let x2 = trackWidth;
 
@@ -55,11 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isPaused) {
 
-            // aceleración progresiva
             targetVelocity += acceleration;
             targetVelocity = Math.max(-maxSpeed, Math.min(maxSpeed, targetVelocity));
-
-            // inercia
             velocity += (targetVelocity - velocity) * inertia;
 
             x1 += velocity;
@@ -73,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (x2 >= trackWidth) x2 = x1 - trackWidth;
             }
 
-            track1.style.transform = `translate3d(${x1}px, 0, 0)`;
-            track2.style.transform = `translate3d(${x2}px, 0, 0)`;
+            track1.style.transform = `translate3d(${x1}px,0,0)`;
+            track2.style.transform = `translate3d(${x2}px,0,0)`;
         }
 
         requestAnimationFrame(animate);
@@ -85,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =====================================================
        CONTROL POR MOUSE
     ===================================================== */
-    container.addEventListener('mousemove', (e) => {
+    container.addEventListener('mousemove', e => {
         if (isPaused) return;
 
         const rect = container.getBoundingClientRect();
@@ -97,9 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
             acceleration = 0;
             targetVelocity = baseSpeed;
         } else if (distance < 0) {
-            acceleration = accelerationRate;   // izquierda → derecha
+            acceleration = accelerationRate;
         } else {
-            acceleration = -accelerationRate;  // derecha → izquierda
+            acceleration = -accelerationRate;
         }
     });
 
@@ -110,167 +108,103 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =====================================================
-       CLICK EN CARD → ABRIR VIDEO
+       CLICK EN CARD → VIDEO + PAUSA
     ===================================================== */
     document.querySelectorAll('.sq-card').forEach(card => {
 
         const video = card.querySelector('video');
 
-card.addEventListener('click', () => {
+        card.addEventListener('click', () => {
 
-    if (card.classList.contains('is-video')) return;
+            // pausa SIEMPRE al click
+            isPaused = true;
 
-    // cerrar otros videos abiertos
-    document.querySelectorAll('.sq-card.is-video').forEach(openCard => {
-        openCard.classList.remove('is-video');
-        const v = openCard.querySelector('video');
-        if (v) {
-            v.pause();
-            v.currentTime = 0;
-        }
-    });
+            if (card.classList.contains('is-video')) return;
 
-    // abrir card actual
-    card.classList.add('is-video');
-    isPaused = true;
-
-    // ▶️ reproducir video
-    if (video) {
-        video.currentTime = 0;
-        video.play().catch(err => {
-            console.warn('Autoplay bloqueado:', err);
-        });
-    }
-});
-
-
-        /* =================================================
-           CLICK EN VIDEO → CONTROL NORMAL (SIN REABRIR CARD)
-        ================================================= */
-        if (video) {
-            video.addEventListener('click', (e) => {
-                e.stopPropagation(); // evita click fantasma
+            // cerrar otros videos
+            document.querySelectorAll('.sq-card.is-video').forEach(openCard => {
+                openCard.classList.remove('is-video');
+                const v = openCard.querySelector('video');
+                if (v) {
+                    v.pause();
+                    v.currentTime = 0;
+                }
             });
-        }
 
-        /* =================================================
-           CUANDO TERMINA EL VIDEO
-        ================================================= */
+            card.classList.add('is-video');
+
+            if (video) {
+                video.currentTime = 0;
+                video.play().catch(err => {
+                    console.warn('Autoplay bloqueado:', err);
+                });
+            }
+        });
+
         if (video) {
+            video.addEventListener('click', e => e.stopPropagation());
+
             video.addEventListener('ended', () => {
-
-                // cerrar card
                 card.classList.remove('is-video');
-
-                // reset video
                 video.pause();
                 video.currentTime = 0;
 
-                // reanudar carrusel suavemente
+                // reanudar suavemente
                 setTimeout(() => {
                     isPaused = false;
                     acceleration = 0;
-                    velocity = baseSpeed;
                     targetVelocity = baseSpeed;
                 }, 150);
             });
         }
     });
-// ==================== SCROLL COLOR STATES ====================
-const body = document.body;
-
-const sections = [
-    { id: 'infinite', class: 'bg-white' },
-    { id: 'testimonials', class: 'bg-brown' },
-    { id: 'cta', class: 'bg-black' }
-];
-
-function onScrollChangeBackground() {
-    const scrollMiddle = window.scrollY + window.innerHeight / 2;
-
-    sections.forEach(section => {
-        const el = document.getElementById(section.id);
-        if (!el) return;
-
-        const top = el.offsetTop;
-        const bottom = top + el.offsetHeight;
-
-        if (scrollMiddle >= top && scrollMiddle < bottom) {
-            body.classList.remove('bg-white', 'bg-brown', 'bg-black');
-            body.classList.add(section.class);
-        }
-    });
-}
-
-window.addEventListener('scroll', onScrollChangeBackground);
-window.addEventListener('load', onScrollChangeBackground);
-
 
     /* ===============================
-       TESTIMONIOS (CAROUSEL SIMPLE)
-    ================================ */
+       CAMBIO DE FONDO POR SCROLL
+    =============================== */
+    const body = document.body;
+    const sections = [
+        { id: 'infinite', class: 'bg-white' },
+        { id: 'testimonials', class: 'bg-brown' },
+        { id: 'cta', class: 'bg-black' }
+    ];
 
-    const testimonials = document.querySelectorAll(".sq-testimonial");
-    const prevBtn = document.getElementById("prev");
-    const nextBtn = document.getElementById("next");
+    function onScrollChangeBackground() {
+        const mid = window.scrollY + window.innerHeight / 2;
 
-    let currentTestimonial = 0;
+        sections.forEach(section => {
+            const el = document.getElementById(section.id);
+            if (!el) return;
 
-    function showTestimonial(index) {
-        testimonials.forEach(t => t.classList.remove("active"));
-        testimonials[index].classList.add("active");
-    }
+            const top = el.offsetTop;
+            const bottom = top + el.offsetHeight;
 
-    // Mostrar el primer testimonio si existen
-    if (testimonials.length > 0) {
-        showTestimonial(currentTestimonial);
-    }
-
-    // Botón siguiente
-    if (nextBtn) {
-        nextBtn.addEventListener("click", () => {
-            currentTestimonial =
-                (currentTestimonial + 1) % testimonials.length;
-            showTestimonial(currentTestimonial);
+            if (mid >= top && mid < bottom) {
+                body.classList.remove('bg-white', 'bg-brown', 'bg-black');
+                body.classList.add(section.class);
+            }
         });
     }
 
-    // Botón anterior
-    if (prevBtn) {
-        prevBtn.addEventListener("click", () => {
-            currentTestimonial =
-                (currentTestimonial - 1 + testimonials.length) %
-                testimonials.length;
-            showTestimonial(currentTestimonial);
-        });
-    }
-
+    window.addEventListener('scroll', onScrollChangeBackground);
+    window.addEventListener('load', onScrollChangeBackground);
 
     /* ===============================
-       ANIMACIONES SUAVES AL SCROLL
-       (tipo Squarespace)
-    ================================ */
-
+       ANIMACIONES AL SCROLL
+    =============================== */
     const animatedSections = document.querySelectorAll(
         ".sq-card, .sq-step, .sq-benefits div, .sq-text, .block-title, .block-content"
     );
 
-    const observer = new IntersectionObserver(
-        entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("visible");
-                }
-            });
-        },
-        {
-            threshold: 0.15
-        }
-    );
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+            }
+        });
+    }, { threshold: 0.15 });
 
-    animatedSections.forEach(section => {
-        observer.observe(section);
-    });
+    animatedSections.forEach(el => observer.observe(el));
 
 });
-
+    

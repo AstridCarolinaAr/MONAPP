@@ -17,7 +17,6 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = [
-            'codigo_compra',
             'nombre',
             'precio',
             'descripcion',
@@ -28,10 +27,6 @@ class ProductoForm(forms.ModelForm):
         ]
 
         widgets = {
-            'codigo_compra': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Código de compra'
-            }),
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nombre del producto'

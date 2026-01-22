@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('scroll', onScroll);
     window.addEventListener('load', onScroll);
     window.addEventListener('resize', onScroll);
+    
 });
 
 
@@ -123,7 +124,7 @@ if (modalPermiso) {
             const instancia = bootstrap.Modal.getInstance(modalPermiso);
             if (instancia) instancia.hide();
 
-            // 🔥 elimina backdrop residual
+            //  elimina backdrop residual
             document.querySelectorAll('.modal-backdrop')
                 .forEach(b => b.remove());
 
