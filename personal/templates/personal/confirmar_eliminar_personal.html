@@ -1,0 +1,47 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}Confirmar Eliminación - Monapp{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-3">
+                        ¿Está seguro que desea eliminar al siguiente personal?
+                    </p>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <strong>{{ personal.nombres }}</strong><br>
+                        Documento: {{ personal.numero_documento }}<br>
+                        Rol: {{ personal.get_rol_display }}
+                    </div>
+
+                    <p class="text-muted">
+                        <i class="fas fa-info-circle"></i> Esta acción no se puede deshacer.
+                    </p>
+
+                    <div class="d-flex gap-2">
+                        <form method="post" class="flex-grow-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-trash"></i> Sí, Eliminar
+                            </button>
+                        </form>
+                        <a href="{% url 'personal:lista_personal' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

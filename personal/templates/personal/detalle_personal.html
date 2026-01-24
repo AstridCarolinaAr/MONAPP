@@ -1,0 +1,111 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}Detalles de Personal - Monapp{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-circle"></i> {{ personal.nombres }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">ID</h6>
+                            <p class="h5">{{ personal.id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Estado</h6>
+                            <p>
+                                {% if personal.activo %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Número de Documento</h6>
+                            <p class="h6">{{ personal.numero_documento }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Rol</h6>
+                            <p>
+                                <span class="badge bg-{% if personal.rol == 'AUX' %}warning{% else %}success{% endif %}">
+                                    {{ personal.get_rol_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Teléfono</h6>
+                            <p class="h6">
+                                <a href="tel:{{ personal.telefono }}">
+                                    <i class="fas fa-phone"></i> {{ personal.telefono }}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Correo Electrónico</h6>
+                            <p class="h6">
+                                <a href="mailto:{{ personal.correo }}">
+                                    <i class="fas fa-envelope"></i> {{ personal.correo }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Fecha de Creación</h6>
+                            <p class="h6">{{ personal.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Última Actualización</h6>
+                            <p class="h6">{{ personal.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    {% if personal.usuario %}
+                        <hr>
+                        <div class="mb-3">
+                            <h6 class="text-muted">Usuario del Sistema</h6>
+                            <p class="h6">{{ personal.usuario.username }} ({{ personal.usuario.first_name }})</p>
+                        </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'personal:editar_personal' personal.id %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'personal:eliminar_personal' personal.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                        <a href="{% url 'personal:lista_personal' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

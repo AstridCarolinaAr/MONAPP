@@ -1,0 +1,120 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - Monapp{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus{% endif %}"></i> {{ titulo }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <strong>Errores:</strong>
+                                <ul class="mb-0">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- Número de Documento -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_numero_documento" class="form-label">Número de Documento</label>
+                                {{ form.numero_documento }}
+                                {% if form.numero_documento.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.numero_documento.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Rol -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_rol" class="form-label">Rol</label>
+                                {{ form.rol }}
+                                {% if form.rol.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.rol.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Nombres -->
+                        <div class="mb-3">
+                            <label for="id_nombres" class="form-label">Nombres Completos</label>
+                            {{ form.nombres }}
+                            {% if form.nombres.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nombres.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <!-- Teléfono -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_telefono" class="form-label">Teléfono</label>
+                                {{ form.telefono }}
+                                {% if form.telefono.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.telefono.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Correo -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_correo" class="form-label">Correo Electrónico</label>
+                                {{ form.correo }}
+                                {% if form.correo.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.correo.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.activo }}
+                                <label class="form-check-label" for="id_activo">
+                                    Personal Activo (con acceso a la plataforma)
+                                </label>
+                                {% if form.activo.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.activo.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <a href="{% url 'personal:lista_personal' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
