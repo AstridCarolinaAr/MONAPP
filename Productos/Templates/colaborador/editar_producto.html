@@ -17,6 +17,7 @@
                 {% csrf_token %}
 
                 {{ form.non_field_errors }}
+<<<<<<< HEAD
 
                 <div class="row">
                     {% for field in form %}
@@ -36,6 +37,15 @@
                                 </div>
                             {% endif %}
                         </div>
+=======
+                <div class="cadr-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row" g-3>
+                            <div class="col-md-4">
+                                <label class="form-label">Código</label>
+                                {{ form.codigo }}
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
                     {% endfor %}
                 </div>
 

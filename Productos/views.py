@@ -77,7 +77,12 @@ def lista_productos_admin(request):
             Q(nombre__icontains=q) |
             Q(codigo__icontains=q) |
             Q(id_marca__nombre__icontains=q) |
+<<<<<<< HEAD
             Q(presentacion__icontains=q)
+=======
+            Q(presentacion__icontains=q)|
+            Q(estado__icontains=q)
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
         )
 
     # =========================

@@ -3,9 +3,17 @@ from .models import Producto, Marca
 
 
 class ProductoForm(forms.ModelForm):
+<<<<<<< HEAD
     marca_texto = forms.CharField(
         label='Marca',
         max_length=100,
+=======
+
+    marca_texto = forms.CharField(
+        label='Marca',
+        max_length=100,
+        required=True,
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Escribe la marca (Ej: Mona Keratina)'
@@ -15,7 +23,10 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = [
+<<<<<<< HEAD
             'codigo_compra',
+=======
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
             'nombre',
             'precio',
             'descripcion',
@@ -26,6 +37,7 @@ class ProductoForm(forms.ModelForm):
         ]
 
         widgets = {
+<<<<<<< HEAD
             'codigo_compra': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Código de compra (opcional)',
@@ -42,10 +54,21 @@ class ProductoForm(forms.ModelForm):
                 'placeholder': 'Precio en pesos colombianos',
                 'inputmode': 'numeric',
                 'required': 'true'
+=======
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del producto'
+            }),
+            'precio': forms.TextInput(attrs={
+                'class': 'form-control precio-formateado',
+                'inputmode': 'numeric',
+                'placeholder': 'Precio en pesos colombianos'
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
             }),
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
+<<<<<<< HEAD
                 'placeholder': 'Descripción del producto',
                 'required': 'true'
             }),
@@ -98,6 +121,81 @@ class ProductoForm(forms.ModelForm):
         producto = super().save(commit=False)
 
         nombre_marca = self.cleaned_data['marca_texto'].strip()
+=======
+                'placeholder': 'Descripción del producto'
+            }),
+            'linea': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Línea del producto'
+            }),
+            'presentacion': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 500ml, caja x12'
+            }),
+            'unidad_medida': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
+    # ===============================
+    # VALIDACIONES
+    # ===============================
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip().title()
+
+        if Producto.objects.exclude(pk=self.instance.pk).filter(
+            nombre__iexact=nombre
+        ).exists():
+            raise forms.ValidationError(
+                'Ya existe un producto con este nombre.'
+            )
+
+        return nombre
+
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+
+        if precio is None:
+            raise forms.ValidationError('El precio es obligatorio.')
+
+        if precio < 0:
+            raise forms.ValidationError('El precio no puede ser negativo.')
+
+        return precio
+
+    def clean(self):
+        cleaned = super().clean()
+
+        campos_obligatorios = [
+            'marca_texto',
+            'nombre',
+            'precio',
+            'descripcion',
+            'linea',
+            'presentacion',
+            'unidad_medida',
+            'estado',
+        ]
+
+        for campo in campos_obligatorios:
+            if not cleaned.get(campo):
+                self.add_error(campo, 'Este campo es obligatorio.')
+
+        return cleaned
+
+    # ===============================
+    # SAVE
+    # ===============================
+
+    def save(self, commit=True):
+        producto = super().save(commit=False)
+
+        nombre_marca = self.cleaned_data['marca_texto'].strip().title()
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 
         marca, _ = Marca.objects.get_or_create(
             nombre__iexact=nombre_marca,
@@ -110,6 +208,7 @@ class ProductoForm(forms.ModelForm):
             producto.save()
 
         return producto
+<<<<<<< HEAD
 def clean(self):
     cleaned = super().clean()
 
@@ -124,3 +223,5 @@ def clean(self):
             self.add_error(campo, 'Este campo es obligatorio.')
 
     return cleaned
+=======
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0

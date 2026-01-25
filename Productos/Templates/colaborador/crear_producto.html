@@ -135,7 +135,22 @@
     </div>
 
 </div>
+<<<<<<< HEAD
 {% endblock %}
+=======
+
+
+</div>
+{% endblock %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".errorlist").forEach(e => {
+        e.closest("input, select, textarea")?.classList.add("is-invalid");
+    });
+});
+</script>
+
+>>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 
 {% block extra_js %}
 <script src="{% static 'Productos/js/crear_producto.js' %}"></script>
