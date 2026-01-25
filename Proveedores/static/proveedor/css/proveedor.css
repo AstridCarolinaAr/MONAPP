@@ -237,8 +237,6 @@
     position: relative;
     z-index: 10;
 }
-<<<<<<< HEAD
-=======
 .acciones-proveedor {
     display: flex;
     justify-content: center;
@@ -255,4 +253,3 @@
     justify-content: center;
     border-radius: 50%;
 }
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0

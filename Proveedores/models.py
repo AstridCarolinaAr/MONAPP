@@ -1,9 +1,6 @@
 from django.db import models
-<<<<<<< HEAD
-=======
 from django.core.exceptions import ValidationError
 
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 
 class Proveedor(models.Model):
 
@@ -12,30 +9,6 @@ class Proveedor(models.Model):
         ('inactivo', 'Inactivo'),
     ]
 
-<<<<<<< HEAD
-    # Información comercial
-    nit = models.CharField(max_length=20)
-    id_venta = models.CharField(max_length=50)
-    codigo_marca = models.CharField(max_length=50)
-
-    # Información del proveedor
-    nombre_proveedor = models.CharField(max_length=150)
-    fecha_entrega = models.DateField()
-
-    # Responsable
-    cc_encargado = models.CharField(max_length=20)
-    nombre_encargado = models.CharField(max_length=150)
-
-    # Transporte
-    tipo_vehiculo = models.CharField(max_length=100)
-    placa_vehiculo = models.CharField(max_length=20)
-
-    # Contacto
-    telefono_proveedor = models.CharField(max_length=20)
-    correo_proveedor = models.EmailField()
-
-    # Estado
-=======
     # ===============================
     # INFORMACIÓN COMERCIAL
     # ===============================
@@ -109,15 +82,12 @@ class Proveedor(models.Model):
     # ===============================
     # ESTADO
     # ===============================
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
     estado = models.CharField(
         max_length=10,
         choices=ESTADO_CHOICES,
         default='activo'
     )
 
-<<<<<<< HEAD
-=======
     # ===============================
     # META
     # ===============================
@@ -155,6 +125,5 @@ class Proveedor(models.Model):
         self.full_clean()  # fuerza clean()
         super().save(*args, **kwargs)
 
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
     def __str__(self):
         return f"{self.nombre_proveedor} ({self.nit})"

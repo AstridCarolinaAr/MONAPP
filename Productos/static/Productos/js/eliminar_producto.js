@@ -1,18 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const modal = document.getElementById("modalConfirmarEliminacion");
-<<<<<<< HEAD
-    const texto = document.getElementById("textoConfirmacionProducto");
-    const checkbox = document.getElementById("confirmacionCheckboxProducto");
-    const boton = document.getElementById("btnConfirmarEliminarProducto");
-
-    modal?.addEventListener("show.bs.modal", event => {
-        const button = event.relatedTarget;
-        const nombre = button.getAttribute("data-producto");
-
-        texto.innerHTML = `
-            ¿Deseas eliminar permanentemente el producto
-=======
     if (!modal) return;
 
     const checkbox = document.getElementById("confirmacionCheckboxProducto");
@@ -29,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         texto.innerHTML = `
             ¿Estás seguro de que deseas eliminar el producto
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
             <strong class="text-danger">${nombre}</strong>?
         `;
 
@@ -37,12 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
         boton.disabled = true;
     });
 
-<<<<<<< HEAD
-    checkbox?.addEventListener("change", () => {
-        boton.disabled = !checkbox.checked;
-    });
-
-=======
     /* ===============================
        CHECKBOX CONTROLA BOTÓN
     =============================== */
@@ -61,5 +42,4 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 });

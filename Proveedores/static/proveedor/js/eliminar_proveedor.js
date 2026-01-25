@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-document.addEventListener('DOMContentLoaded', () => {
-    const checkbox = document.getElementById('checkConfirmar');
-    const btnEliminar = document.getElementById('btnEliminarFinal');
-
-    if (checkbox && btnEliminar) {
-        checkbox.addEventListener('change', () => {
-            btnEliminar.disabled = !checkbox.checked;
-        });
-    }
-=======
 document.addEventListener("DOMContentLoaded", () => {
 
     const modal = document.getElementById("modalConfirmarEliminacion");
@@ -47,5 +36,4 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 });

@@ -22,59 +22,6 @@
             <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
         </a>
     </div>
-<<<<<<< HEAD
-
-    <!-- FILTRO + BUSCADOR -->
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-
-        <!-- FILTRO -->
-        <div class="dropdown">
-            <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-1"
-                    type="button"
-                    data-bs-toggle="dropdown">
-                <i class="bi bi-funnel"></i> Filtrar
-            </button>
-
-            <ul class="dropdown-menu shadow-sm">
-                <li>
-                    <a class="dropdown-item" href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Nombre A–Z
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Nombre Z–A
-                    </a>
-                </li>
-
-                <li><hr class="dropdown-divider"></li>
-
-                <li>
-                    <a class="dropdown-item text-danger" href="?">
-                        Quitar filtros
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- BUSCADOR -->
-        <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
-            {% if request.GET.orden %}
-                <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-            {% endif %}
-
-            <input type="text"
-                   name="q"
-                   class="form-control form-control-sm"
-                   placeholder="Buscar producto…"
-                   value="{{ request.GET.q }}">
-
-            <button class="btn btn-outline-secondary btn-sm" type="submit">
-                <i class="bi bi-search"></i>
-            </button>
-        </form>
-    </div>
-=======
 <div class="dropdown">
     <button
         class="btn btn-filter dropdown-toggle d-flex align-items-center gap-1"
@@ -148,7 +95,6 @@
 </div>
 {% endif %}
 
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 
     <!-- TABLA -->
     <div class="table-responsive">
@@ -192,16 +138,6 @@
                                class="btn btn-primary btn-sm">
                                 <i class="bi bi-pencil"></i>
                             </a>
-<<<<<<< HEAD
-
-                            <!-- ELIMINAR -->
-                            <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
-                               class="btn btn-danger btn-sm btn-eliminar"
-                               data-permitido="{{ request.user.is_superuser|yesno:'true,false' }}">
-                                <i class="bi bi-trash"></i>
-                            </a>
-
-=======
                             <!-- ELIMINAR -->
                             <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
                             class="btn btn-danger btn-sm btn-eliminar">
@@ -210,7 +146,6 @@
 
 
 
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
                         </div>
                     </td>
                 </tr>
