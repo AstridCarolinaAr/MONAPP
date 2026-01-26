@@ -132,3 +132,75 @@ if (modalPermiso) {
         }, 3500);
     });
 }
+/* ======================================================
+   CANVAS BOLAS LOGIN 
+====================================================== */
+const loginModal = document.getElementById('loginModal');
+
+if (loginModal) {
+    loginModal.addEventListener('shown.bs.modal', () => {
+
+        const canvas = document.getElementById('bolaCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        let balls = [];
+        let animationId;
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        function createBalls() {
+            balls = [];
+            const total = 50; // 👈 cantidad de bolas
+
+            for (let i = 0; i < total; i++) {
+                balls.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 10 + 10,        // tamaño pequeño
+                    dx: (Math.random() - 0.5) * 0.5, // velocidad suave
+                    dy: (Math.random() - 0.5) * 0.3,
+                    alpha: Math.random() * 0.15 + 0.05
+                });
+            }
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            balls.forEach(b => {
+                b.x += b.dx;
+                b.y += b.dy;
+
+                // rebote suave en bordes
+                if (b.x <= b.r || b.x >= canvas.width - b.r) b.dx *= -1;
+                if (b.y <= b.r || b.y >= canvas.height - b.r) b.dy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${b.alpha})`;
+                ctx.fill();
+            });
+
+            animationId = requestAnimationFrame(update);
+        }
+
+        function start() {
+            cancelAnimationFrame(animationId);
+            resizeCanvas();
+            createBalls();
+            update();
+        }
+
+        start();
+        window.addEventListener('resize', start);
+
+        // detener animación al cerrar modal
+        loginModal.addEventListener('hidden.bs.modal', () => {
+            cancelAnimationFrame(animationId);
+        }, { once: true });
+    });
+}

@@ -136,6 +136,7 @@ body {
 .login-modal-content {
     border: none;
     border-radius: 15px;
+    min-height: 520px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,.3);
 }
@@ -172,6 +173,7 @@ body {
 /* Body del Modal */
 .login-modal-content .card-body {
     padding: 35px;
+    padding-bottom: 55px;
     background: var(--color-blanco);
 }
 
@@ -212,15 +214,7 @@ body {
     opacity: 0.7;
 }
 
-/* Link de olvidó contraseña */
-.login-modal-content .forgot-password {
-    display: block;
-    text-align: right;
-    margin-bottom: 15px;
-    color: var(--color-cafe-principal);
-    text-decoration: none;
-    font-size: 14px;
-}
+
 
 .login-modal-content .forgot-password:hover {
     text-decoration: underline;
@@ -230,6 +224,7 @@ body {
 .login-modal-content .btn-primary {
     background: var(--color-cafe-principal);
     border: none;
+    margin-top: 25px;
     padding: 12px;
     border-radius: 8px;
     font-weight: 500;
@@ -299,3 +294,7 @@ body {
 .modal-backdrop.show {
     opacity: 0.7;
 } 
+/* Desplaza modal  hacia abajo */
+.modal-dialog-centered {
+    transform: translateY(60px);
+}

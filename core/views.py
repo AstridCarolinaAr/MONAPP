@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import redirect
+from core.funciones import admin_o_aux_required
+
 
 
 def index(request):
@@ -12,20 +14,17 @@ def index(request):
 
 
 @login_required
+@admin_o_aux_required()
 def dashboard_view(request):
     """
     Vista principal del panel de administración
     Solo Administrador y Auxiliar
     """
 
-    # 🔐 CONTROL DE ACCESO POR GRUPOS
+    #  CONTROL DE ACCESO POR GRUPOS
     grupos = list(request.user.groups.values_list('name', flat=True))
 
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
-        messages.error(request, 'No tienes acceso al panel.')
-        return redirect('usuarios:login')
-
-    # 📊 Estadísticas
+    #  Estadísticas
     total_usuarios = User.objects.count()
     usuarios_activos = User.objects.filter(is_active=True).count()
     usuarios_staff = User.objects.filter(is_staff=True).count()
