@@ -15,15 +15,18 @@ def index(request):
 def dashboard_view(request):
     """
     Vista principal del panel de administración
-    Solo Administrador y Auxiliar
+    Solo Administrador y Auxiliar (y Superusuario)
     """
 
-    # 🔐 CONTROL DE ACCESO POR GRUPOS
     grupos = list(request.user.groups.values_list('name', flat=True))
 
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
+    if (
+        not request.user.is_superuser
+        and 'Administrador' not in grupos
+        and 'Auxiliar' not in grupos
+    ):
         messages.error(request, 'No tienes acceso al panel.')
-        return redirect('usuarios:login')
+        return redirect('core:index')
 
     # 📊 Estadísticas
     total_usuarios = User.objects.count()
@@ -52,6 +55,7 @@ def dashboard_view(request):
     }
 
     return render(request, 'core/dashboard.html', context)
+
 
 def solo_admin(view_func):
     def wrapper(request, *args, **kwargs):

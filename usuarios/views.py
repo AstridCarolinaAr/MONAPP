@@ -7,7 +7,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
-from .models import PerfilUsuario
+
 
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
@@ -24,7 +24,8 @@ def login_view(request):
             login(request, user)
 
             grupos = list(user.groups.values_list('name', flat=True))
-
+            if user.is_superuser:
+                return redirect('core:dashboard')
             # Administrador / Auxiliar
             if 'Administrador' in grupos or 'Auxiliar' in grupos:
                 return redirect('core:dashboard')
