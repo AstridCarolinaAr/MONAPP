@@ -1,3 +1,5 @@
+document.addEventListener('DOMContentLoaded', () => {
+
 console.log("✅ main.js cargado");
 
 /* ======================================================
@@ -5,7 +7,9 @@ console.log("✅ main.js cargado");
 ====================================================== */
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* LOGIN MODAL (NO TOCAR) */
+    /* ======================================================
+       LOGIN MODAL (NO TOCAR)
+    ====================================================== */
     try {
         const loginModalEl = document.getElementById('loginModal');
         if (loginModalEl && window.showLoginModal === true) {
@@ -15,15 +19,71 @@ document.addEventListener('DOMContentLoaded', function () {
         console.warn('Login modal no disponible:', e);
     }
 
-    /* UI GENERAL */
+    /* ======================================================
+       UI GENERAL
+    ====================================================== */
     const header = document.querySelector('.header');
     const footer = document.querySelector('.footer');
     const navItems = document.querySelectorAll('.nav-item');
     const logo = document.querySelector('.logo svg');
     const infiniteSection = document.getElementById('infinite');
 
+    /* ======================================================
+       FUNCIONES AUXILIARES
+    ====================================================== */
+
+    function isLightColor(rgb) {
+        const result = rgb.match(/\d+/g);
+        if (!result) return false;
+
+        const r = parseInt(result[0]);
+        const g = parseInt(result[1]);
+        const b = parseInt(result[2]);
+
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness > 160;
+    }
+
+    function updateLogoColor() {
+        if (!header || !logo) return;
+
+        const headerRect = header.getBoundingClientRect();
+        const x = window.innerWidth / 2;
+        const y = headerRect.bottom + 1;
+
+        const elementBehind = document.elementFromPoint(x, y);
+        if (!elementBehind) return;
+
+        const bg = window.getComputedStyle(elementBehind).backgroundColor;
+
+        if (isLightColor(bg)) {
+            logo.style.color = '#000';
+        } else {
+            logo.style.color = '#fff';
+        }
+    }
+
+    /* ======================================================
+       HEADER SCROLL + FOOTER VISIBLE
+    ====================================================== */
     function updateHeaderFooter() {
-        if (header) header.classList.toggle('scrolled', window.scrollY > 50);
+        if (header) {
+            header.classList.toggle('scrolled', window.scrollY > 50);
+
+            const rect = header.getBoundingClientRect();
+            const el = document.elementFromPoint(
+                window.innerWidth / 2,
+                rect.bottom + 1
+            );
+
+            if (el && logo) {
+                logo.style.color =
+                    isLightColor(getComputedStyle(el).backgroundColor)
+                        ? '#000'
+                        : '#fff';
+            }
+        }
+
         if (footer) {
             footer.classList.toggle(
                 'visible',
@@ -32,42 +92,83 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function isLightColor(rgb) {
-        const result = rgb.match(/\d+/g);
-        if (!result) return false;
-        const [r, g, b] = result.map(Number);
-        return (r * 299 + g * 587 + b * 114) / 1000 > 160;
-    }
-
-    function updateLogoColor() {
-        if (!header || !logo) return;
-        const rect = header.getBoundingClientRect();
-        const el = document.elementFromPoint(window.innerWidth / 2, rect.bottom + 1);
-        if (!el) return;
-        logo.style.color =
-            isLightColor(getComputedStyle(el).backgroundColor) ? '#000' : '#fff';
-    }
-
+    /* ======================================================
+       NAVBAR OSCURO FORZADO EN SECCIÓN "INFINITE"
+    ====================================================== */
     function updateNavbarInfiniteMode() {
         if (!header || !infiniteSection) return;
+
         const mid = window.scrollY + window.innerHeight / 2;
         const top = infiniteSection.offsetTop;
         const bottom = top + infiniteSection.offsetHeight;
 
-        if (mid >= top && mid <= bottom) {
+        const sectionTop = infiniteSection.offsetTop;
+        const sectionBottom = sectionTop + infiniteSection.offsetHeight;
+        const scrollPos = window.scrollY + window.innerHeight / 2;
+
+        if (scrollPos >= sectionTop && scrollPos <= sectionBottom) {
             header.classList.add('navbar-dark');
-            if (logo) logo.style.color = '#000';
+
+            if (logo) {
+                logo.style.color = '#000';
+            }
+
+            if (mid >= top && mid <= bottom) {
+                header.classList.add('navbar-dark');
+            }
         } else {
             header.classList.remove('navbar-dark');
             updateLogoColor();
         }
     }
 
+    /* ======================================================
+       EFECTO HOVER SUAVE EN NAV ITEMS
+    ====================================================== */
     navItems.forEach(item => {
-        item.addEventListener('mouseenter', () => item.style.transform = 'translateY(-2px)');
-        item.addEventListener('mouseleave', () => item.style.transform = 'translateY(0)');
+        item.addEventListener('mouseenter', () => {
+            item.style.transform = 'translateY(-2px)';
+        });
+
+        item.addEventListener('mouseleave', () => {
+            item.style.transform = 'translateY(0)';
+        });
     });
 
+    /* ======================================================
+       MODAL DE PERMISOS (ELIMINAR)
+    ====================================================== */
+    document.querySelectorAll('.btn-eliminar').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            const permitido = btn.dataset.permitido === "true";
+
+            if (!permitido) {
+                e.preventDefault();
+                const modalEl = document.getElementById('permisoModal');
+                if (modalEl) {
+                    new bootstrap.Modal(modalEl).show();
+                }
+            }
+        });
+    });
+
+    /* ======================================================
+       MODAL ERROR DE PERMISOS (BACKEND)
+    ====================================================== */
+    if (window.tieneErrorPermiso === true) {
+        const modalEl = document.getElementById("modalAccionNoPermitida");
+
+        if (modalEl) {
+            document.getElementById("modalPermisoMensaje").textContent =
+                window.mensajePermiso ||
+                "No tienes permiso para realizar esta acción.";
+            new bootstrap.Modal(modalEl).show();
+        }
+    }
+
+    /* ======================================================
+       EVENTOS OPTIMIZADOS
+    ====================================================== */
     function onScroll() {
         updateHeaderFooter();
         updateNavbarInfiniteMode();
@@ -77,8 +178,10 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('scroll', onScroll);
     window.addEventListener('load', onScroll);
     window.addEventListener('resize', onScroll);
-    
-});
+
+}); // FIN DOMContentLoaded INTERNO
+
+}); // FIN DOMContentLoaded EXTERNO
 
 
 /* ======================================================
@@ -89,10 +192,8 @@ document.addEventListener('click', function (e) {
     const btn = e.target.closest('.btn-eliminar');
     if (!btn) return;
 
-    // ✅ ADMIN → deja seguir normal (POST)
     if (window.ES_ADMIN === true) return;
 
-    // ❌ NO ADMIN → bloquear
     e.preventDefault();
     e.stopPropagation();
 
@@ -124,7 +225,6 @@ if (modalPermiso) {
             const instancia = bootstrap.Modal.getInstance(modalPermiso);
             if (instancia) instancia.hide();
 
-            //  elimina backdrop residual
             document.querySelectorAll('.modal-backdrop')
                 .forEach(b => b.remove());
 
@@ -132,8 +232,10 @@ if (modalPermiso) {
         }, 3500);
     });
 }
+
+
 /* ======================================================
-   CANVAS BOLAS LOGIN 
+   CANVAS BOLAS LOGIN
 ====================================================== */
 const loginModal = document.getElementById('loginModal');
 
@@ -154,14 +256,14 @@ if (loginModal) {
 
         function createBalls() {
             balls = [];
-            const total = 50; //  cantidad de bolas
+            const total = 50;
 
             for (let i = 0; i < total; i++) {
                 balls.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    r: Math.random() * 10 + 10,        // tamaño pequeño
-                    dx: (Math.random() - 0.5) * 0.5, // velocidad suave
+                    r: Math.random() * 10 + 10,
+                    dx: (Math.random() - 0.5) * 0.5,
                     dy: (Math.random() - 0.5) * 0.3,
                     alpha: Math.random() * 0.15 + 0.05
                 });
@@ -175,7 +277,6 @@ if (loginModal) {
                 b.x += b.dx;
                 b.y += b.dy;
 
-                // rebote suave en bordes
                 if (b.x <= b.r || b.x >= canvas.width - b.r) b.dx *= -1;
                 if (b.y <= b.r || b.y >= canvas.height - b.r) b.dy *= -1;
 
@@ -198,9 +299,10 @@ if (loginModal) {
         start();
         window.addEventListener('resize', start);
 
-        // detener animación al cerrar modal
-        loginModal.addEventListener('hidden.bs.modal', () => {
-            cancelAnimationFrame(animationId);
-        }, { once: true });
+        loginModal.addEventListener(
+            'hidden.bs.modal',
+            () => cancelAnimationFrame(animationId),
+            { once: true }
+        );
     });
 }
