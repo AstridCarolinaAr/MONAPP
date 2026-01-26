@@ -154,7 +154,7 @@ if (loginModal) {
 
         function createBalls() {
             balls = [];
-            const total = 50; // 👈 cantidad de bolas
+            const total = 50; //  cantidad de bolas
 
             for (let i = 0; i < total; i++) {
                 balls.push({
