@@ -6,12 +6,29 @@ from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import redirect
 from core.funciones import admin_o_aux_required
+from usuarios.forms import LoginForm
+from django.contrib.auth import login
+
 
 
 
 def index(request):
-    return render(request, 'core/index.html')
+    show_login_modal = False
 
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('core:dashboard')
+
+        messages.error(request, 'Usuario o contraseña incorrectos.')
+        show_login_modal = True
+
+    return render(request, 'core/index.html', {
+        'show_login_modal': show_login_modal
+    })
 
 @login_required
 @admin_o_aux_required()

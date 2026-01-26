@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
 
 console.log("✅ main.js cargado");
+document.addEventListener('DOMContentLoaded', () => {
 
 /* ======================================================
    DOM READY – UI GENERAL
