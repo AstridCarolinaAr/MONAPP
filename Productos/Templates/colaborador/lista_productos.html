@@ -6,12 +6,13 @@
 <li class="breadcrumb-item active">Productos</li>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/lista_producto.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'productos/css/lista_producto.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- ENCABEZADO -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -22,145 +23,184 @@
             <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
         </a>
     </div>
-<div class="dropdown">
-    <button
-        class="btn btn-filter dropdown-toggle d-flex align-items-center gap-1"
-        type="button"
-        data-bs-toggle="dropdown">
-        <i class="bi bi-funnel"></i> Filtrar
-    </button>
 
-    <ul class="dropdown-menu shadow-sm">
+    <!-- TOTAL PRODUCTOS -->
+    <div class="mb-3">
+        <h5>
+            Total de productos:
+            <span class="badge bg-dark">
+                {{ total_productos }}
+            </span>
+        </h5>
+    </div>
+    <td>
+    <strong>{{ producto.nombre }}</strong>
+    <div class="producto-stock">
+        Stock: {{ producto.cantidad }}
+    </div>
+</td>
 
-        <li>
-            <a class="dropdown-item"
-               href="?orden=codigo{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                Código
+
+    <!-- FILTROS Y BUSCADOR -->
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
+        <!-- FILTRO DROPDOWN -->
+        <div class="dropdown">
+            <button
+                class="btn btn-filter dropdown-toggle d-flex align-items-center gap-1"
+                type="button"
+                data-bs-toggle="dropdown">
+                <i class="bi bi-funnel"></i> Filtrar
+            </button>
+
+            <ul class="dropdown-menu shadow-sm">
+                <li>
+                    <a class="dropdown-item"
+                       href="?orden=codigo{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                        Código
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                        Nombre
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="?orden=marca{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                        Marca
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="?orden=presentacion{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                        Presentación
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="?">
+                        Quitar filtros
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="buscador-productos">
+            <form method="get" class="d-flex gap-2">
+                {% if request.GET.orden %}
+                    <input type="hidden" name="orden" value="{{ request.GET.orden }}">
+                {% endif %}
+
+                <input type="text"
+                       name="q"
+                       class="form-control"
+                       placeholder="Buscar producto…"
+                       value="{{ request.GET.q }}">
+
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FILTRO POR LÍNEA -->
+    <div class="filtro-lineas mb-4">
+        <strong>Filtrar por línea:</strong>
+
+        <div class="d-flex flex-wrap gap-2 mt-2">
+            <a href="{% url 'productos:lista_productos_admin' %}"
+               class="btn btn-sm {% if not linea_seleccionada %}btn-dark{% else %}btn-outline-dark{% endif %}">
+                Todos
             </a>
-        </li>
 
-        <li>
-            <a class="dropdown-item"
-               href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                Nombre
+            {% for item in productos_por_linea %}
+            <a href="?linea={{ item.linea }}"
+               class="btn btn-sm {% if linea_seleccionada == item.linea %}btn-dark{% else %}btn-outline-dark{% endif %}">
+                {{ item.linea }}
+                <span class="badge bg-secondary">{{ item.total }}</span>
             </a>
-        </li>
+            {% endfor %}
+        </div>
+    </div>
 
-        <li>
-            <a class="dropdown-item"
-               href="?orden=marca{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                Marca
-            </a>
-        </li>
-
-        <li>
-            <a class="dropdown-item"
-               href="?orden=presentacion{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                Presentación
-            </a>
-        </li>
-
-        <li><hr class="dropdown-divider"></li>
-
-        <li>
-            <a class="dropdown-item text-danger" href="?">
-                Quitar filtros
-            </a>
-        </li>
-
-    </ul>
-</div>
-
-
-                <!-- BUSCADOR -->
-                <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
-                    {% if request.GET.orden %}
-                        <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-                    {% endif %}
-
-                    <input type="text"
-                        name="q"
-                        class="form-control form-control-sm"
-                        placeholder="Buscar producto…"
-                        value="{{ request.GET.q }}">
-
-                    <button class="btn btn-outline-secondary btn-sm" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-            </div>
-            {% if request.GET.q %}
-<div class="alert alert-info py-2 mb-3">
-    Resultados para: <strong>{{ request.GET.q }}</strong>
-</div>
-{% endif %}
-
+    {% if request.GET.q %}
+    <div class="alert alert-info py-2 mb-3">
+        Resultados para: <strong>{{ request.GET.q }}</strong>
+    </div>
+    {% endif %}
 
     <!-- TABLA -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th style="width:120px;">Código</th>
-                    <th>Nombre</th>
-                    <th class="text-center" style="width:220px;">Acciones</th>
-                </tr>
-            </thead>
+    <div class="tabla-productos">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:120px;">Código</th>
+                        <th>Nombre</th>
+                        <th class="text-center" style="width:220px;">Acciones</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-            {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.codigo }}</td>
-                    <td>{{ producto.nombre }}</td>
+                <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.codigo }}</td>
+                        <td>{{ producto.nombre }}</td>
 
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
 
-                            <!-- VER DETALLES -->
-                            <button type="button"
-                                    class="btn btn-info btn-sm btn-ver-detalle"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalDetalleProducto"
-                                    data-codigo="{{ producto.codigo }}"
-                                    data-nombre="{{ producto.nombre }}"
-                                    data-marca="{{ producto.id_marca.nombre }}"
-                                    data-precio="{{ producto.get_precio_formateado }}"
-                                    data-descripcion="{{ producto.descripcion|default:'Sin descripción' }}"
-                                    data-linea="{{ producto.linea|default:'—' }}"
-                                    data-presentacion="{{ producto.presentacion|default:'—' }}"
-                                    data-unidad="{{ producto.get_unidad_medida_display }}"
-                                    data-estado="{{ producto.get_estado_display }}">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                                <!-- VER DETALLE -->
+                                <button type="button"
+                                        class="btn btn-info btn-sm btn-ver-detalle"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalDetalleProducto"
+                                        data-codigo="{{ producto.codigo }}"
+                                        data-nombre="{{ producto.nombre }}"
+                                        data-marca="{{ producto.id_marca.nombre }}"
+                                        data-precio="{{ producto.get_precio_formateado }}"
+                                        data-descripcion="{{ producto.descripcion|default:'Sin descripción' }}"
+                                        data-cantidad="{{ producto.cantidad }}"
+                                        data-linea="{{ producto.linea|default:'—' }}"
+                                        data-presentacion="{{ producto.presentacion|default:'—' }}"
+                                        data-unidad="{{ producto.get_unidad_medida_display }}"
+                                        data-estado="{{ producto.get_estado_display }}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
 
-                            <!-- EDITAR -->
-                            <a href="{% url 'productos:editar_producto' producto.codigo %}"
-                               class="btn btn-primary btn-sm">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <!-- ELIMINAR -->
-                            <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
-                            class="btn btn-danger btn-sm btn-eliminar">
-                                <i class="bi bi-trash"></i>
-                            </a>
+                                <!-- EDITAR -->
+                                <a href="{% url 'productos:editar_producto' producto.codigo %}"
+                                   class="btn btn-primary btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
 
+                                <!-- ELIMINAR -->
+                                <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
+                                   class="btn btn-danger btn-sm btn-eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
 
-
-                        </div>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="3" class="text-center text-muted py-4">
-                        No hay productos registrados.
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-4">
+                            No hay productos registrados.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
+
 <!-- MODAL DETALLE PRODUCTO -->
 <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -182,6 +222,7 @@
                     <div class="col-md-6"><strong>Marca:</strong> <span id="d-marca"></span></div>
                     <div class="col-md-6"><strong>Precio:</strong> <span id="d-precio"></span></div>
                     <div class="col-md-6"><strong>Línea:</strong> <span id="d-linea"></span></div>
+                    <div class="col-md-6"><strong>Cantidad disponible:</strong> <span id="d-cantidad"></span></div>
                     <div class="col-md-6"><strong>Presentación:</strong> <span id="d-presentacion"></span></div>
                     <div class="col-md-6"><strong>Unidad:</strong> <span id="d-unidad"></span></div>
                     <div class="col-md-6"><strong>Estado:</strong> <span id="d-estado"></span></div>
@@ -202,10 +243,13 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
+<script>
+document.querySelectorAll('.table tbody tr').forEach((row, i) => {
+    row.style.animationDelay = `${i * 0.06}s`;
+});
+</script>
 
 {% block extra_js %}
 <script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
 {% endblock %}
-

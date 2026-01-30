@@ -22,6 +22,7 @@ class ProductoForm(forms.ModelForm):
             'descripcion',
             'linea',
             'presentacion',
+            'cantidad',
             'unidad_medida',
             'estado',
         ]
@@ -48,6 +49,8 @@ class ProductoForm(forms.ModelForm):
             'presentacion': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ej: 500ml, caja x12'
+            }),
+            'cantidad': forms.NumberInput(attrs={
             }),
             'unidad_medida': forms.Select(attrs={
                 'class': 'form-select'
@@ -84,43 +87,43 @@ class ProductoForm(forms.ModelForm):
 
         return precio
 
-    def clean(self):
-        cleaned = super().clean()
+def clean(self):
+    cleaned = super().clean()
 
-        campos_obligatorios = [
-            'marca_texto',
-            'nombre',
-            'precio',
-            'descripcion',
-            'linea',
-            'presentacion',
-            'unidad_medida',
-            'estado',
-        ]
+    campos_obligatorios = [
+        'nombre',
+        'precio',
+        'descripcion',
+        'linea',
+        'presentacion',
+        'unidad_medida',
+        'estado',
+    ]
 
-        for campo in campos_obligatorios:
-            if not cleaned.get(campo):
-                self.add_error(campo, 'Este campo es obligatorio.')
+    # SOLO exigir marca_texto al CREAR
+    if not self.instance.pk:
+        campos_obligatorios.append('marca_texto')
 
-        return cleaned
+    for campo in campos_obligatorios:
+        if not cleaned.get(campo):
+            self.add_error(campo, 'Este campo es obligatorio.')
 
+    return cleaned
     # ===============================
     # SAVE
     # ===============================
+def save(self, commit=True):
+    producto = super().save(commit=False)
 
-    def save(self, commit=True):
-        producto = super().save(commit=False)
-
+    if 'marca_texto' in self.cleaned_data:
         nombre_marca = self.cleaned_data['marca_texto'].strip().title()
-
         marca, _ = Marca.objects.get_or_create(
             nombre__iexact=nombre_marca,
             defaults={'nombre': nombre_marca}
         )
-
         producto.id_marca = marca
 
-        if commit:
-            producto.save()
+    if commit:
+        producto.save()
 
-        return producto
+    return producto
