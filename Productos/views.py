@@ -163,7 +163,6 @@ def crear_producto(request):
 
 @login_required
 def editar_producto(request, codigo):
-    
     grupos = list(request.user.groups.values_list('name', flat=True))
     if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
         messages.error(request, 'No tienes permisos para editar productos.')
@@ -171,17 +170,21 @@ def editar_producto(request, codigo):
 
     producto = get_object_or_404(Producto, codigo=codigo)
 
+    form = ProductoForm(instance=producto)
+
     if request.method == 'POST':
+        if request.method == 'POST':
+            print(" POST LLEGÓ")
+            print(request.POST)
+
         form = ProductoForm(request.POST, request.FILES, instance=producto)
+
         if form.is_valid():
             form.save()
-            messages.success(
-                request,
-                f'Producto "{producto.nombre}" actualizado.'
-            )
+            messages.success(request, f'Producto "{producto.nombre}" actualizado.')
             return redirect('productos:lista_productos_admin')
-    else:
-        form = ProductoForm(instance=producto)
+        else:
+            print(form.errors)      
 
     return render(
         request,

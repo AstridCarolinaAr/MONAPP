@@ -1,318 +1,86 @@
 :root {
     --mona-bg: #fdf6f8;
     --mona-card: #ffffff;
-    --mona-primary: #d97b93;
-    --mona-secondary: #f3c6d4;
-    --mona-accent: #c8a2b8;
     --mona-text: #3a3a3a;
-    --mona-muted: #8b8b8b;
-    --mona-success: #7fc8a9;
-    --mona-danger: #e07a7a;
+    --mona-dark: #3b2f2f;
 }
 
-/* =============================
-   FONDO GENERAL
-============================= */
+/* FONDO */
 body {
     background: var(--mona-bg);
     color: var(--mona-text);
 }
 
-/* =============================
-   TÍTULO
-============================= */
+/* TÍTULO */
 h2 {
     font-weight: 700;
-    letter-spacing: .4px;
 }
 
-/* =============================
-   BOTÓN NUEVO PRODUCTO
-============================= */
+/* BOTÓN NUEVO */
 .btn-success {
     background: linear-gradient(135deg, #3b2f2f, #6d5c5c);
     border: none;
     border-radius: 999px;
     padding: 10px 26px;
     font-weight: 600;
-    box-shadow: 0 10px 26px rgba(0,0,0,.25);
 }
 
-.btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgba(0,0,0,.35);
-}
-
-/* =============================
-   CONTENEDOR TABLA
-============================= */
+/* TABLA */
 .tabla-productos {
     background: var(--mona-card);
     border-radius: 16px;
     box-shadow: 0 8px 22px rgba(0,0,0,.08);
-    overflow: hidden;
-}
-
-/* =============================
-   TABLA
-============================= */
-.table {
-    margin: 0;
-}
-
-.table thead {
-    background: #f2ece8;
 }
 
 .table thead th {
-    border: none;
     font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: .08em;
     color: #5a4a4a;
-    padding: 14px;
-}
-
-.table tbody tr {
-    transition: all .25s ease;
 }
 
 .table tbody tr:hover {
     background: #fbf7f5;
 }
 
-.table td {
-    border: none;
-    padding: 14px;
-    vertical-align: middle;
-}
-
-/* =============================
-   ACCIONES
-============================= */
-.table td .d-flex {
-    gap: 8px;
-}
-
-/* BOTONES PEQUEÑOS */
+/* BOTONES */
 .btn-sm {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all .2s ease;
 }
 
-.btn-sm i {
-    font-size: 0.9rem;
-    color: #fff;
+/* FILTRO POR LÍNEA */
+.filtro-lineas-wrapper {
+    margin: 16px 0 24px;
 }
 
-/* =============================
-   VER DETALLE
-============================= */
-.btn-ver-detalle,
-.btn-info {
-    background: linear-gradient(135deg, #4fc3f7, #039be5);
-    border: none;
-}
-
-.btn-ver-detalle:hover {
-    transform: translateY(-1px);
-}
-
-/* =============================
-   EDITAR
-============================= */
-.btn-primary {
-    background: linear-gradient(135deg, #b39ddb, #9575cd);
-    border: none;
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-}
-
-/* =============================
-   ELIMINAR
-============================= */
-.btn-danger {
-    background: rgba(224,122,122,.15);
-    border: 1px solid rgba(224,122,122,.35);
-}
-
-.btn-danger i {
-    color: #c85c5c;
-}
-
-.btn-danger:hover {
-    background: rgba(224,122,122,.28);
-}
-
-/* =============================
-   FILTRO POR LÍNEA
-============================= */
 .filtro-lineas {
-    margin-bottom: 20px;
-}
-
-.filtro-lineas a {
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 13px;
-}
-
-.filtro-lineas .badge {
-    margin-left: 6px;
-    font-size: 11px;
-}
-
-/* =============================
-   BUSCADOR
-============================= */
-.buscador-productos {
-    max-width: 360px;
-}
-
-.buscador-productos input {
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-}
-
-.buscador-productos button {
-    border-radius: 10px;
-    background: #3b2f2f;
-    color: white;
-    border: none;
-}
-
-/* =============================
-   DROPDOWN FILTRO
-============================= */
-.dropdown-menu {
-    border-radius: 10px;
-    font-size: 14px;
-}
-
-/* =============================
-   TOTAL PRODUCTOS
-============================= */
-.total-productos,
-.badge.bg-dark {
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 13px;
-}
-
-/* =============================
-   RESPONSIVE
-============================= */
-@media (max-width: 768px) {
-
-    .buscador-productos {
-        width: 100%;
-    }
-
-    .tabla-productos {
-        overflow-x: auto;
-    }
-
-}
-/* ===============================
-   FILTRO POR LÍNEA (MEJORADO)
-================================ */
-.filtro_lineas {
-    margin: 18px 0 26px;
-}
-
-.filtro_lineas strong {
-    font-size: 14px;
-    color: #3b2f2f;
-}
-
-.filtro_lineas a {
-    display: inline-flex;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
+}
+
+.linea-chip {
+    padding: 8px 16px;
     border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all .25s ease;
+    background: #f1ece9;
+    color: var(--mona-dark);
+    text-decoration: none;
+    border: 1px solid #ddd;
 }
 
-.filtro_lineas a.btn-outline-dark {
-    border-color: #3b2f2f;
-    color: #3b2f2f;
-}
-
-.filtro_lineas a.btn-outline-dark:hover {
-    background: #3b2f2f;
+.linea-chip.active {
+    background: var(--mona-dark);
     color: #fff;
 }
 
-.filtro_lineas .badge {
-    background: #3b2f2f;
-    color: #fff;
-    font-size: 11px;
-    padding: 3px 7px;
-    border-radius: 999px;
-}
-
-/* ===============================
-   STOCK PRODUCTO
-================================ */
-.producto-stock {
-    margin-top: 4px;
+.linea-chip .badge {
+    background: rgba(0,0,0,.15);
     font-size: 12px;
-    color: #6d5c5c;
-}
-
-.producto-stock::before {
-    content: "●";
-    color: #7fc8a9;
-    margin-right: 6px;
-}
-/* ===============================
-   ANIMACIÓN FILAS
-================================ */
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.table tbody tr {
-    animation: fadeUp .45s ease forwards;
-}
-/* ===============================
-   COLORES MONA SIDEBAR
-================================ */
-.btn-success,
-.badge.bg-dark {
-    background: #3b2f2f !important;
-}
-
-.btn-success:hover {
-    background: #6d5c5c !important;
-}
-
-.btn-outline-secondary,
-.btn-outline-dark {
-    border-color: #3b2f2f;
-    color: #3b2f2f;
-}
-
-.btn-outline-secondary:hover {
-    background: #3b2f2f;
-    color: #fff;
+    padding: 3px 8px;
+    border-radius: 999px;
 }

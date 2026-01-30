@@ -306,3 +306,24 @@ if (loginModal) {
         );
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const btnFiltroLineas = document.getElementById('btnFiltroLineas');
+    const panelFiltroLineas = document.getElementById('panelFiltroLineas');
+
+    if (btnFiltroLineas && panelFiltroLineas) {
+        btnFiltroLineas.addEventListener('click', (e) => {
+            e.preventDefault();
+            panelFiltroLineas.classList.toggle('d-none');
+        });
+    }
+
+    // Si se hace click en "Quitar filtros", ocultar panel
+    document.querySelectorAll('a[href="?"]').forEach(link => {
+        link.addEventListener('click', () => {
+            panelFiltroLineas?.classList.add('d-none');
+        });
+    });
+
+});

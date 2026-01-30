@@ -14,6 +14,8 @@
         <div class="card-body">
 
 <form method="post">
+    <input type="hidden" name="marca_texto" value="{{ producto.id_marca.nombre }}">
+
     {% csrf_token %}
 
     {{ form.non_field_errors }}
@@ -44,6 +46,11 @@
             <label class="form-label">Cantidad disponible</label>
             {{ form.cantidad }}
         </div>
+        <div class="col-md-6">
+        <label class="form-label">Unidad de medida</label>
+            {{ form.unidad_medida }}
+            {{ form.unidad_medida.errors }}
+        </div>
 
         <div class="col-md-6">
             <label class="form-label">Estado</label>
@@ -73,7 +80,7 @@
         </button>
     </div>
 
-    <!-- ✅ MODAL DENTRO DEL FORM -->
+    <!--  MODAL DENTRO DEL FORM -->
     <div class="modal fade" id="confirmarGuardado" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -96,7 +103,6 @@
                         Cancelar
                     </button>
 
-                    <!-- 🔥 ESTE AHORA SÍ ENVÍA -->
                     <button type="submit"
                             class="btn btn-warning">
                         Sí, guardar cambios

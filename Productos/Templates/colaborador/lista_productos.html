@@ -18,8 +18,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Gestión de Productos</h2>
 
-        <a href="{% url 'productos:crear_producto' %}"
-           class="btn btn-success shadow-sm">
+        <a href="{% url 'productos:crear_producto' %}" class="btn btn-success shadow-sm">
             <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
         </a>
     </div>
@@ -28,61 +27,32 @@
     <div class="mb-3">
         <h5>
             Total de productos:
-            <span class="badge bg-dark">
-                {{ total_productos }}
-            </span>
+            <span class="badge bg-dark">{{ total_productos }}</span>
         </h5>
     </div>
-    <td>
-    <strong>{{ producto.nombre }}</strong>
-    <div class="producto-stock">
-        Stock: {{ producto.cantidad }}
-    </div>
-</td>
-
 
     <!-- FILTROS Y BUSCADOR -->
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
 
-        <!-- FILTRO DROPDOWN -->
+        <!-- DROPDOWN FILTROS -->
         <div class="dropdown">
-            <button
-                class="btn btn-filter dropdown-toggle d-flex align-items-center gap-1"
-                type="button"
-                data-bs-toggle="dropdown">
+            <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
                 <i class="bi bi-funnel"></i> Filtrar
             </button>
 
             <ul class="dropdown-menu shadow-sm">
+                <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
+                <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
+                <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
+                <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
                 <li>
-                    <a class="dropdown-item"
-                       href="?orden=codigo{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Código
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item"
-                       href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Nombre
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item"
-                       href="?orden=marca{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Marca
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item"
-                       href="?orden=presentacion{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                        Presentación
-                    </a>
+                    <button class="dropdown-item" type="button" id="btnFiltroLineas">
+                        Filtrar por línea
+                    </button>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a class="dropdown-item text-danger" href="?">
-                        Quitar filtros
-                    </a>
+                    <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
                 </li>
             </ul>
         </div>
@@ -90,16 +60,7 @@
         <!-- BUSCADOR -->
         <div class="buscador-productos">
             <form method="get" class="d-flex gap-2">
-                {% if request.GET.orden %}
-                    <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-                {% endif %}
-
-                <input type="text"
-                       name="q"
-                       class="form-control"
-                       placeholder="Buscar producto…"
-                       value="{{ request.GET.q }}">
-
+                <input type="text" name="q" class="form-control" placeholder="Buscar producto…" value="{{ request.GET.q }}">
                 <button class="btn btn-outline-secondary" type="submit">
                     <i class="bi bi-search"></i>
                 </button>
@@ -107,21 +68,21 @@
         </div>
     </div>
 
-    <!-- FILTRO POR LÍNEA -->
-    <div class="filtro-lineas mb-4">
-        <strong>Filtrar por línea:</strong>
+    <!-- PANEL FILTRO POR LÍNEA (OCULTO) -->
+    <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none">
+        <div class="filtro-lineas">
+            <strong>Filtrar por línea:</strong>
 
-        <div class="d-flex flex-wrap gap-2 mt-2">
             <a href="{% url 'productos:lista_productos_admin' %}"
-               class="btn btn-sm {% if not linea_seleccionada %}btn-dark{% else %}btn-outline-dark{% endif %}">
+               class="linea-chip {% if not linea_seleccionada %}active{% endif %}">
                 Todos
             </a>
 
             {% for item in productos_por_linea %}
             <a href="?linea={{ item.linea }}"
-               class="btn btn-sm {% if linea_seleccionada == item.linea %}btn-dark{% else %}btn-outline-dark{% endif %}">
+               class="linea-chip {% if linea_seleccionada == item.linea %}active{% endif %}">
                 {{ item.linea }}
-                <span class="badge bg-secondary">{{ item.total }}</span>
+                <span class="badge">{{ item.total }}</span>
             </a>
             {% endfor %}
         </div>
@@ -144,13 +105,11 @@
                         <th class="text-center" style="width:220px;">Acciones</th>
                     </tr>
                 </thead>
-
                 <tbody>
                 {% for producto in productos %}
                     <tr>
                         <td>{{ producto.codigo }}</td>
                         <td>{{ producto.nombre }}</td>
-
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
 
@@ -173,14 +132,12 @@
                                 </button>
 
                                 <!-- EDITAR -->
-                                <a href="{% url 'productos:editar_producto' producto.codigo %}"
-                                   class="btn btn-primary btn-sm">
+                                <a href="{% url 'productos:editar_producto' producto.codigo %}" class="btn btn-primary btn-sm">
                                     <i class="bi bi-pencil"></i>
                                 </a>
 
                                 <!-- ELIMINAR -->
-                                <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
-                                   class="btn btn-danger btn-sm btn-eliminar">
+                                <a href="{% url 'productos:eliminar_producto' producto.codigo %}" class="btn btn-danger btn-sm btn-eliminar">
                                     <i class="bi bi-trash"></i>
                                 </a>
 
@@ -205,16 +162,10 @@
 <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg">
-
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-box-seam"></i> Detalles del producto
-                </h5>
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
+                <h5 class="modal-title"><i class="bi bi-box-seam"></i> Detalles del producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-6"><strong>Código:</strong> <span id="d-codigo"></span></div>
@@ -222,34 +173,29 @@
                     <div class="col-md-6"><strong>Marca:</strong> <span id="d-marca"></span></div>
                     <div class="col-md-6"><strong>Precio:</strong> <span id="d-precio"></span></div>
                     <div class="col-md-6"><strong>Línea:</strong> <span id="d-linea"></span></div>
-                    <div class="col-md-6"><strong>Cantidad disponible:</strong> <span id="d-cantidad"></span></div>
+                    <div class="col-md-6"><strong>Cantidad:</strong> <span id="d-cantidad"></span></div>
                     <div class="col-md-6"><strong>Presentación:</strong> <span id="d-presentacion"></span></div>
                     <div class="col-md-6"><strong>Unidad:</strong> <span id="d-unidad"></span></div>
                     <div class="col-md-6"><strong>Estado:</strong> <span id="d-estado"></span></div>
-
                     <div class="col-12">
                         <strong>Descripción:</strong>
-                        <p id="d-descripcion" class="mt-1 mb-0 text-muted"></p>
+                        <p id="d-descripcion" class="text-muted mb-0"></p>
                     </div>
                 </div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cerrar
-                </button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
-
         </div>
     </div>
 </div>
 {% endblock %}
-<script>
-document.querySelectorAll('.table tbody tr').forEach((row, i) => {
-    row.style.animationDelay = `${i * 0.06}s`;
-});
-</script>
 
 {% block extra_js %}
 <script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
+<script>
+document.getElementById('btnFiltroLineas')?.addEventListener('click', () => {
+    document.getElementById('panelFiltroLineas').classList.toggle('d-none');
+});
+</script>
 {% endblock %}
