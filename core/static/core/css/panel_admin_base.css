@@ -962,3 +962,8 @@ small.text-muted {
     from { transform: scaleX(1); }
     to   { transform: scaleX(0); }
 }
+/*card clientes*/
+.card-clientes {
+    background: #ffffff;
+    color: #030303;
+}

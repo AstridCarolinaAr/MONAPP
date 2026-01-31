@@ -7,14 +7,17 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
-
-
+from .models import PerfilUsuario
+from core.funciones import admin_o_aux_required
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
 @csrf_protect
 @never_cache
 def login_view(request):
+
+    # 🔹 DEFINIR next_url SIEMPRE, antes de cualquier if
+    next_url = request.GET.get('next')
 
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -23,24 +26,15 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
 
-            grupos = list(user.groups.values_list('name', flat=True))
-            if user.is_superuser:
-                return redirect('core:dashboard')
-            # Administrador / Auxiliar
-            if 'Administrador' in grupos or 'Auxiliar' in grupos:
-                return redirect('core:dashboard')
+            if next_url:
+                return redirect(next_url)
 
-            # Usuario sin permisos
-            messages.error(
-                request,
-                'No tienes permisos para acceder al panel.'
-            )
-            logout(request)
-            return redirect('core:index')
+            return redirect('core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
 
     return redirect('core:index')
+
 
 
 @login_required
@@ -53,11 +47,9 @@ def logout_view(request):
 # ==================== PANEL DE USUARIOS (ADMIN / AUX) ====================
 
 @login_required
+@admin_o_aux_required()
 def lista_usuarios_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
-        messages.error(request, 'No tienes permisos para acceder a Usuarios.')
-        return redirect('core:index')
 
     busqueda = request.GET.get('buscar', '')
 
@@ -86,11 +78,9 @@ def lista_usuarios_view(request):
 
 
 @login_required
+@admin_o_aux_required()
 def crear_usuario_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos:
-        messages.error(request, 'Solo el administrador puede crear usuarios.')
-        return redirect('core:index')
 
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -115,11 +105,10 @@ def crear_usuario_view(request):
 
 
 @login_required
+@admin_o_aux_required()
 def editar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
-        messages.error(request, 'No tienes permisos para editar usuarios.')
-        return redirect('core:index')
+
 
     usuario = get_object_or_404(User, id=user_id)
 
@@ -157,14 +146,10 @@ def editar_usuario_view(request, user_id):
 
 
 @login_required
+@admin_o_aux_required()
 def eliminar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos:
-        messages.error(
-            request,
-            'Solo el administrador puede eliminar usuarios.'
-        )
-        return redirect('core:lista_usuarios')
+
 
     usuario = get_object_or_404(User, id=user_id)
 
@@ -192,6 +177,7 @@ def eliminar_usuario_view(request, user_id):
 
 
 @login_required
+@admin_o_aux_required()
 def perfil_view(request):
     usuario = request.user
 

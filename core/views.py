@@ -2,9 +2,10 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from datetime import datetime
-from django.contrib import messages
-from django.shortcuts import redirect
+from datetime import datetime,date
+from core.funciones import admin_o_aux_required
+from clientes.models import Cliente
+
 
 
 def index(request):
@@ -12,6 +13,7 @@ def index(request):
 
 
 @login_required
+@admin_o_aux_required()
 def dashboard_view(request):
     """
     Vista principal del panel de administración
@@ -44,7 +46,21 @@ def dashboard_view(request):
     ultimos_usuarios = User.objects.select_related(
         'perfil'
     ).order_by('-date_joined')[:5]
+        #  Clientes que cumplen años
+    hoy = date.today()
 
+    clientes_cumple_hoy = Cliente.objects.filter(
+        fecha_nacimiento__day=hoy.day,
+        fecha_nacimiento__month=hoy.month
+    )
+    
+    clientes_cumple_info = []
+    for cliente in clientes_cumple_hoy:
+        edad = hoy.year - cliente.fecha_nacimiento.year
+        clientes_cumple_info.append({
+            'cliente': cliente,
+            'edad': edad
+        })
     context = {
         'titulo': 'Panel de Administración',
         'total_usuarios': total_usuarios,
@@ -52,6 +68,7 @@ def dashboard_view(request):
         'usuarios_staff': usuarios_staff,
         'nuevos_usuarios_mes': nuevos_usuarios_mes,
         'ultimos_usuarios': ultimos_usuarios,
+        'clientes_cumple_hoy': clientes_cumple_info
     }
 
     return render(request, 'core/dashboard.html', context)

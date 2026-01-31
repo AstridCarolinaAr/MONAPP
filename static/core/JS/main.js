@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ======================================================
-       ELEMENTOS PRINCIPALES DEL DOM
-    ====================================================== */
-=======
 console.log("✅ main.js cargado");
 
 /* ======================================================
@@ -12,7 +7,9 @@ console.log("✅ main.js cargado");
 ====================================================== */
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* LOGIN MODAL (NO TOCAR) */
+    /* ======================================================
+       LOGIN MODAL (NO TOCAR) 
+    ====================================================== */
     try {
         const loginModalEl = document.getElementById('loginModal');
         if (loginModalEl && window.showLoginModal === true) {
@@ -22,74 +19,35 @@ document.addEventListener('DOMContentLoaded', function () {
         console.warn('Login modal no disponible:', e);
     }
 
-    /* UI GENERAL */
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
+    /* ======================================================
+       UI GENERAL
+    ====================================================== */
     const header = document.querySelector('.header');
     const footer = document.querySelector('.footer');
     const navItems = document.querySelectorAll('.nav-item');
     const logo = document.querySelector('.logo svg');
     const infiniteSection = document.getElementById('infinite');
-<<<<<<< HEAD
-=======
-
-    function updateHeaderFooter() {
-        if (header) header.classList.toggle('scrolled', window.scrollY > 50);
-        if (footer) {
-            footer.classList.toggle(
-                'visible',
-                window.scrollY + window.innerHeight >= document.body.scrollHeight - 50
-            );
-        }
-    }
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
-
-    /* ======================================================
-       LOGIN MODAL (NO TOCAR)
-       Muestra el modal de login si viene forzado desde backend
-    ====================================================== */
-    try {
-        const loginModalEl = document.getElementById('loginModal');
-        if (loginModalEl && window.showLoginModal === true) {
-            new bootstrap.Modal(loginModalEl).show();
-        }
-    } catch (e) {
-        console.warn('Login modal no disponible:', e);
-    }
 
     /* ======================================================
        FUNCIONES AUXILIARES
     ====================================================== */
 
-    // Determina si un color RGB es claro u oscuro
     function isLightColor(rgb) {
         const result = rgb.match(/\d+/g);
         if (!result) return false;
-<<<<<<< HEAD
 
         const r = parseInt(result[0]);
         const g = parseInt(result[1]);
         const b = parseInt(result[2]);
 
-        // Fórmula de luminancia
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
         return brightness > 160;
-=======
-        const [r, g, b] = result.map(Number);
-        return (r * 299 + g * 587 + b * 114) / 1000 > 160;
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
     }
 
-    /* ======================================================
-       CAMBIO DINÁMICO DEL COLOR DEL LOGO
-       Según el fondo que esté detrás del header
-    ====================================================== */
     function updateLogoColor() {
         if (!header || !logo) return;
-<<<<<<< HEAD
 
         const headerRect = header.getBoundingClientRect();
-
-        // Punto justo debajo del header
         const x = window.innerWidth / 2;
         const y = headerRect.bottom + 1;
 
@@ -105,21 +63,37 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+        // Inicializar tooltips Bootstrap
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltipTriggerList = [].slice.call(
+            document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+
     /* ======================================================
-       HEADER SCROLL + FOOTER VISIBLE AL FINAL
+       HEADER SCROLL + FOOTER VISIBLE
     ====================================================== */
     function updateHeaderFooter() {
         if (header) {
             header.classList.toggle('scrolled', window.scrollY > 50);
+
+            const rect = header.getBoundingClientRect();
+            const el = document.elementFromPoint(
+                window.innerWidth / 2,
+                rect.bottom + 1
+            );
+
+            if (el && logo) {
+                logo.style.color =
+                    isLightColor(getComputedStyle(el).backgroundColor)
+                        ? '#000'
+                        : '#fff';
+            }
         }
-=======
-        const rect = header.getBoundingClientRect();
-        const el = document.elementFromPoint(window.innerWidth / 2, rect.bottom + 1);
-        if (!el) return;
-        logo.style.color =
-            isLightColor(getComputedStyle(el).backgroundColor) ? '#000' : '#fff';
-    }
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
 
         if (footer) {
             footer.classList.toggle(
@@ -134,34 +108,31 @@ document.addEventListener('DOMContentLoaded', function () {
     ====================================================== */
     function updateNavbarInfiniteMode() {
         if (!header || !infiniteSection) return;
+
         const mid = window.scrollY + window.innerHeight / 2;
         const top = infiniteSection.offsetTop;
         const bottom = top + infiniteSection.offsetHeight;
 
-<<<<<<< HEAD
         const sectionTop = infiniteSection.offsetTop;
         const sectionBottom = sectionTop + infiniteSection.offsetHeight;
         const scrollPos = window.scrollY + window.innerHeight / 2;
 
         if (scrollPos >= sectionTop && scrollPos <= sectionBottom) {
-            // Dentro de infinite
             header.classList.add('navbar-dark');
 
             if (logo) {
                 logo.style.color = '#000';
             }
-=======
-        if (mid >= top && mid <= bottom) {
-            header.classList.add('navbar-dark');
-            if (logo) logo.style.color = '#000';
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
+
+            if (mid >= top && mid <= bottom) {
+                header.classList.add('navbar-dark');
+            }
         } else {
             header.classList.remove('navbar-dark');
             updateLogoColor();
         }
     }
 
-<<<<<<< HEAD
     /* ======================================================
        EFECTO HOVER SUAVE EN NAV ITEMS
     ====================================================== */
@@ -200,7 +171,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (modalEl) {
             document.getElementById("modalPermisoMensaje").textContent =
-                window.mensajePermiso || "No tienes permiso para realizar esta acción.";
+                window.mensajePermiso ||
+                "No tienes permiso para realizar esta acción.";
             new bootstrap.Modal(modalEl).show();
         }
     }
@@ -208,13 +180,6 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ======================================================
        EVENTOS OPTIMIZADOS
     ====================================================== */
-=======
-    navItems.forEach(item => {
-        item.addEventListener('mouseenter', () => item.style.transform = 'translateY(-2px)');
-        item.addEventListener('mouseleave', () => item.style.transform = 'translateY(0)');
-    });
-
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
     function onScroll() {
         updateHeaderFooter();
         updateNavbarInfiniteMode();
@@ -224,25 +189,22 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('scroll', onScroll);
     window.addEventListener('load', onScroll);
     window.addEventListener('resize', onScroll);
-<<<<<<< HEAD
-});
-=======
-    
-});
+
+}); // FIN DOMContentLoaded INTERNO
+
+}); // FIN DOMContentLoaded EXTERNO
 
 
 /* ======================================================
-   🚫 BLOQUE ÚNICO – ELIMINAR (ADMIN vs NO ADMIN)
+    BLOQUE ÚNICO – ELIMINAR (ADMIN vs NO ADMIN)
 ====================================================== */
 document.addEventListener('click', function (e) {
 
     const btn = e.target.closest('.btn-eliminar');
     if (!btn) return;
 
-    // ✅ ADMIN → deja seguir normal (POST)
     if (window.ES_ADMIN === true) return;
 
-    // ❌ NO ADMIN → bloquear
     e.preventDefault();
     e.stopPropagation();
 
@@ -274,7 +236,6 @@ if (modalPermiso) {
             const instancia = bootstrap.Modal.getInstance(modalPermiso);
             if (instancia) instancia.hide();
 
-            //  elimina backdrop residual
             document.querySelectorAll('.modal-backdrop')
                 .forEach(b => b.remove());
 
@@ -282,4 +243,77 @@ if (modalPermiso) {
         }, 3500);
     });
 }
->>>>>>> 06e72bdde3f106e63fc137f0d7ccb9d952511fe0
+
+
+/* ======================================================
+   CANVAS BOLAS LOGIN
+====================================================== */
+const loginModal = document.getElementById('loginModal');
+
+if (loginModal) {
+    loginModal.addEventListener('shown.bs.modal', () => {
+
+        const canvas = document.getElementById('bolaCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        let balls = [];
+        let animationId;
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        function createBalls() {
+            balls = [];
+            const total = 50;
+
+            for (let i = 0; i < total; i++) {
+                balls.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 10 + 10,
+                    dx: (Math.random() - 0.5) * 0.5,
+                    dy: (Math.random() - 0.5) * 0.3,
+                    alpha: Math.random() * 0.15 + 0.05
+                });
+            }
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            balls.forEach(b => {
+                b.x += b.dx;
+                b.y += b.dy;
+
+                if (b.x <= b.r || b.x >= canvas.width - b.r) b.dx *= -1;
+                if (b.y <= b.r || b.y >= canvas.height - b.r) b.dy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${b.alpha})`;
+                ctx.fill();
+            });
+
+            animationId = requestAnimationFrame(update);
+        }
+
+        function start() {
+            cancelAnimationFrame(animationId);
+            resizeCanvas();
+            createBalls();
+            update();
+        }
+
+        start();
+        window.addEventListener('resize', start);
+
+        loginModal.addEventListener(
+            'hidden.bs.modal',
+            () => cancelAnimationFrame(animationId),
+            { once: true }
+        );
+    });
+}
