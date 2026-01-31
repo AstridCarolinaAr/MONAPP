@@ -73,42 +73,76 @@ class ProveedorForm(forms.ModelForm):
                 'class': 'form-select'
             }),
         }
+    # ===============================
+    # VALIDACIONES INDIVIDUALES
+    # ===============================
 
-    # ===============================
-    # VALIDACIONES PRO (FORM)
-    # ===============================
     def clean_nit(self):
-        nit = self.cleaned_data['nit']
+        nit = self.cleaned_data.get('nit', '').strip()
+
         if not nit.isdigit():
-            raise ValidationError("El NIT solo debe contener números.")
+            raise forms.ValidationError('El NIT solo debe contener números.')
+
         return nit
 
-    def clean_cc_encargado(self):
-        cc = self.cleaned_data['cc_encargado']
-        if not cc.isdigit():
-            raise ValidationError("La cédula solo debe contener números.")
-        return cc
-
     def clean_telefono_proveedor(self):
-        telefono = self.cleaned_data['telefono_proveedor']
+        telefono = self.cleaned_data.get('telefono_proveedor', '').strip()
+
         if not telefono.isdigit():
-            raise ValidationError("El teléfono solo debe contener números.")
+            raise forms.ValidationError('El teléfono solo debe contener números.')
+
+        if len(telefono) < 7:
+            raise forms.ValidationError('El teléfono es demasiado corto.')
+
         return telefono
 
+    def clean_id_venta(self):
+        id_venta = self.cleaned_data.get('id_venta', '').strip()
+
+        if not id_venta.isdigit():
+            raise forms.ValidationError('El ID de venta solo debe contener números.')
+
+        return id_venta
+
+    def clean_codigo_marca(self):
+        codigo = self.cleaned_data.get('codigo_marca', '').strip()
+
+        if not codigo.isdigit():
+            raise forms.ValidationError('El código de marca solo debe contener números.')
+
+        return codigo
+
+    def clean_cc_encargado(self):
+        cc = self.cleaned_data.get('cc_encargado', '').strip()
+
+        if not cc.isdigit():
+             raise forms.ValidationError(
+            'La cédula del encargado solo debe contener números.'
+        )
+
+        return cc
+
+    # ===============================
+    # VALIDACIONES DE TEXTO
+    # ===============================
+
     def clean_nombre_proveedor(self):
-        nombre = self.cleaned_data['nombre_proveedor'].strip().title()
-        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', nombre):
-            raise ValidationError("El nombre del proveedor solo debe contener letras.")
-        return nombre
+        nombre = self.cleaned_data.get('nombre_proveedor', '').strip()
+
+        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$', nombre):
+            raise forms.ValidationError(
+                'El nombre del proveedor solo debe contener letras.'
+            )
+
+        return nombre.title()
 
     def clean_nombre_encargado(self):
-        nombre = self.cleaned_data['nombre_encargado'].strip().title()
-        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', nombre):
-            raise ValidationError("El nombre del encargado solo debe contener letras.")
-        return nombre
+        nombre = self.cleaned_data.get('nombre_encargado', '').strip()
 
-    def clean_correo_proveedor(self):
-        correo = self.cleaned_data['correo_proveedor']
-        if not correo.endswith(('.com', '.co')):
-            raise ValidationError("El correo debe terminar en .com o .co")
-        return correo
+        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$', nombre):
+            raise forms.ValidationError(
+                'El nombre del encargado solo debe contener letras.'
+            )
+
+        return nombre.title()
+    

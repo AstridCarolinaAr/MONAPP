@@ -44,6 +44,11 @@ class ProductoForm(forms.ModelForm):
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre', '').strip().title()
+        
+        if nombre.isdigit():
+            raise forms.ValidationError('El nombre no puede ser solo números.')
+        if not any(c.isalpha() for c in nombre):
+            raise forms.ValidationError('El nombre debe contener al menos una letra.')
 
         if Producto.objects.exclude(pk=self.instance.pk).filter(
             nombre__iexact=nombre
@@ -65,7 +70,6 @@ class ProductoForm(forms.ModelForm):
             'estado',
         ]
 
-        # 👉 SOLO pedir marca al CREAR
         if not self.instance.pk:
             if not cleaned.get('marca_texto'):
                 self.add_error('marca_texto', 'Este campo es obligatorio.')
