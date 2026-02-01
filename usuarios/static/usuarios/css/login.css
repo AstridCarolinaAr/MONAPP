@@ -135,15 +135,16 @@ body {
 /* Modal Personalizado */
 .login-modal-content {
     border: none;
-    border-radius: 15px;
-    min-height: 520px;
+    border-radius: 18px;
+    min-height: 420px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,.3);
+    min-height: 800px;
 }
 
 .login-modal-content .card-header {
     position: relative;
-    height: 140px;
+    height: 180px;
     background: var(--color-cafe-principal);
     display: flex;
     justify-content: center;
@@ -170,19 +171,45 @@ body {
     z-index: 2;
 }
 
-/* Body del Modal */
+/* Body del Modal */    
 .login-modal-content .card-body {
-    padding: 35px;
-    padding-bottom: 55px;
+    min-height: 480px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /*  centra vertical */
+    padding: 35px; 
+    padding-top: 55px;
+    padding-bottom: 70px;
     background: var(--color-blanco);
+    animation: fadeInUpLogin 0.6s ease-out;
 }
+@keyframes fadeInUpLogin {  
+    from{
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
 
 .login-modal-content .form-control {
-    padding: 12px;
-    border-radius: 8px;
+    padding: 16px 14px;
+    border-radius: 10px;
     border: 1px solid #ccc;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    font-size: 15px;
+    height: 48px;
 }
+
+.login-form-wrapper {
+    width: 100%;
+    margin-top: 10px;
+    transform: translateY(10px);
+}
+
+
 
 .login-modal-content .form-control:focus {
     border-color: var(--color-cafe-principal);
@@ -192,9 +219,9 @@ body {
 /* Wrapper de contraseña en el modal */
 .login-modal-content .password-wrapper {
     position: relative;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    height: 48px;
 }
-
 .login-modal-content .password-wrapper input {
     padding-right: 45px;
 }
@@ -202,10 +229,10 @@ body {
 .login-modal-content #togglePassword {
     position: absolute;
     top: 50%;
-    right: 12px;
+    right: 14px;
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--color-cafe-principal);
     z-index: 5;
 }
@@ -224,10 +251,11 @@ body {
 .login-modal-content .btn-primary {
     background: var(--color-cafe-principal);
     border: none;
-    margin-top: 25px;
-    padding: 12px;
-    border-radius: 8px;
+    margin-top: 10px;
+    padding: 16px;
+    border-radius: 10px;
     font-weight: 500;
+    font-size: 16px;
     transition: all 0.3s ease;
     width: 100%;
 }
@@ -242,8 +270,15 @@ body {
 .login-modal-content .messages-container {
     margin-bottom: 20px;
 }
+.login-modal-content .mb-3 {
+    margin-bottom: 14px; 
+}
+
 
 .login-modal-content .alert {
+    background:rgba(220,53,69,0.12);
+    border: none;
+    color: #842029;
     padding: 10px 15px;
     font-size: 14px;
     border-radius: 8px;
@@ -253,7 +288,11 @@ body {
 .login-modal-content .form-check {
     margin-bottom: 15px;
 }
-
+/* formulario hacia el centro visual */
+.login-modal-content form {
+    width: 100%;
+    margin-top: 20px;
+}
 .login-modal-content .form-check-input:checked {
     background-color: var(--color-cafe-principal);
     border-color: var(--color-cafe-principal);
@@ -297,4 +336,17 @@ body {
 /* Desplaza modal  hacia abajo */
 .modal-dialog-centered {
     transform: translateY(60px);
+}
+.login-modal-content button {
+    transition: all 0.3s ease;
+}
+
+.login-modal-content button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 47, 47, 0.4);
+}
+
+.login-modal-content button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(59, 47, 47, 0.3);
 }

@@ -9,158 +9,155 @@
 {% block extra_js %}
 <script src="{% static 'proveedor/js/crear_proveedor.js' %}"></script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
 
-    const form = document.querySelector('form');
 
-    form.addEventListener('submit', function (e) {
-
-        const inputs = form.querySelectorAll('input, select, textarea');
-        let hasValue = false;
-
-        inputs.forEach(el => {
-            if (
-                el.type !== 'hidden' &&
-                el.type !== 'submit' &&
-                el.value.trim() !== ''
-            ) {
-                hasValue = true;
-            }
-        });
-
-        if (!hasValue) {
-            e.preventDefault();
-            alert('Debes completar al menos un campo antes de guardar.');
-        }
-    });
-
-});
-</script>
 {% endblock %}
 
 {% block title %}Nuevo proveedor{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<form method="post">
+    {% csrf_token %}
 
-    <div class="card shadow-sm">
-        <div class="proveedor-header">
-            Nuevo proveedor
+    {% if form.non_field_errors %}
+        <div class="form-error">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
         </div>
+    {% endif %}
 
-        <div class="card-body">
+    <!-- CARD 1 -->
+     <div class="container-fluid proveedor-from">
+        <form method="post">
+            {% csrf_token %}
+            <div class="proveedor-card">
+                <h5 class="card-title">Información general</h5>
 
-            {% if form.errors %}
-            <div class="alert alert-danger">
-                Revisa los campos marcados en rojo.
-            </div>
-            {% endif %}
-
-            <form method="post">
-                {% csrf_token %}
-
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger">
-                    {{ form.non_field_errors }}
-                </div>
+                <div class="form-grid">
+            <div>
+                <label>NIT</label>
+                {{ form.nit }}
+                {% if form.nit.errors %}
+                    <div class="form-error">{{ form.nit.errors.0 }}</div>
                 {% endif %}
+            </div>
 
-                <!-- ================= INFORMACIÓN GENERAL ================= -->
-                <div class="form-section">
-                    <h6>Información General del Proveedor</h6>
+            <div>
+                <label>ID Venta</label>
+                {{ form.id_venta }}
+                {% if form.id_venta.errors %}
+                    <div class="form-error">{{ form.id_venta.errors.0 }}</div>
+                {% endif %}
+            </div>
 
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">NIT</label>
-                            {{ form.nit }}
-                        </div>
+            <div>
+                <label>Código marca</label>
+                {{ form.codigo_marca }}
+                {% if form.codigo_marca.errors %}
+                    <div class="form-error">{{ form.codigo_marca.errors.0 }}</div>
+                {% endif %}
+            </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">ID Venta</label>
-                            {{ form.id_venta }}
-                        </div>
+            <div class="full">
+                <label>Nombre proveedor</label>
+                {{ form.nombre_proveedor }}
+                {% if form.nombre_proveedor.errors %}
+                    <div class="form-error">{{ form.nombre_proveedor.errors.0 }}</div>
+                {% endif %}
+            </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">Código Marca</label>
-                            {{ form.codigo_marca }}
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Nombre proveedor</label>
-                            {{ form.nombre_proveedor }}
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha entrega</label>
-                            {{ form.fecha_entrega }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ================= ENCARGADO ================= -->
-                <div class="form-section">
-                    <h6>Información del Encargado</h6>
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Documento</label>
-                            {{ form.cc_encargado }}
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Nombre</label>
-                            {{ form.nombre_encargado }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ================= VEHÍCULO Y CONTACTO ================= -->
-                <div class="form-section">
-                    <h6>Información del Vehículo y Contacto</h6>
-
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Tipo vehículo</label>
-                            {{ form.tipo_vehiculo }}
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Placa</label>
-                            {{ form.placa_vehiculo }}
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Estado</label>
-                            {{ form.estado }}
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Teléfono</label>
-                            {{ form.telefono_proveedor }}
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Correo</label>
-                            {{ form.correo_proveedor }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ================= ACCIONES ================= -->
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-success">
-                        Guardar proveedor
-                    </button>
-                    <a href="{% url 'proveedores:lista_proveedor' %}" class="btn btn-secondary">
-                        Cancelar
-                    </a>
-                </div>
-
-            </form>
-
+            <div>
+                <label>Fecha entrega</label>
+                {{ form.fecha_entrega }}
+                {% if form.fecha_entrega.errors %}
+                    <div class="form-error">{{ form.fecha_entrega.errors.0 }}</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
+    <!-- CARD RESPONSABLE -->
+    <div class="proveedor-card">
+        <h5 class="card-title">Responsable</h5>
+
+        <div class="form-grid">
+            <div>
+                <label>Cédula encargado</label>
+                {{ form.cc_encargado }}
+                {% if form.cc_encargado.errors %}
+                    <div class="form-error">{{ form.cc_encargado.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Nombre encargado</label>
+                {{ form.nombre_encargado }}
+                {% if form.nombre_encargado.errors %}
+                    <div class="form-error">{{ form.nombre_encargado.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD VEHÍCULO -->
+    <div class="proveedor-card">
+        <h5 class="card-title">Vehículo y contacto</h5>
+
+        <div class="form-grid">
+            <div>
+                <label>Tipo vehículo</label>
+                {{ form.tipo_vehiculo }}
+                {% if form.tipo_vehiculo.errors %}
+                    <div class="form-error">{{ form.tipo_vehiculo.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Placa</label>
+                {{ form.placa_vehiculo }}
+                {% if form.placa_vehiculo.errors %}
+                    <div class="form-error">{{ form.placa_vehiculo.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Estado</label>
+                {{ form.estado }}
+                {% if form.estado.errors %}
+                    <div class="form-error">{{ form.estado.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Teléfono</label>
+                {{ form.telefono_proveedor }}
+                {% if form.telefono_proveedor.errors %}
+                    <div class="form-error">{{ form.telefono_proveedor.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Correo</label>
+                {{ form.correo_proveedor }}
+                {% if form.correo_proveedor.errors %}
+                    <div class="form-error">{{ form.correo_proveedor.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="proveedor-actions">
+        <a href="{% url 'proveedores:lista_proveedor' %}" class="btn-cancelar">
+            Cancelar
+        </a>
+        <button type="submit" class="btn-guardar">
+            Guardar proveedor
+        </button>
+    </div>
+
+</form>
+</div>
 </div>
 {% endblock %}

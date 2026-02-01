@@ -1,255 +1,202 @@
-/* =========================
-   PROVEEDORES - ADMIN
-========================= */
-
-.proveedores-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+/* =============================
+   CONTENEDOR GENERAL
+============================= */
+.container-fluid {
+    padding-top: 10px;
 }
 
-.proveedores-header h4 {
-    font-weight: 600;
+/* =============================
+   TARJETA PRINCIPAL
+============================= */
+.card,
+.tabla-proveedores {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.08);
+    padding: 20px;
 }
 
-.table-proveedores th {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    color: #6c757d;
-}
-
-.table-proveedores td {
-    vertical-align: middle;
-}
-
-.badge-estado {
-    font-size: 0.8rem;
-    padding: 0.4em 0.7em;
-}
-
-.btn-icon {
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-icon i {
-    font-size: 0.9rem;
-}
-
-.btn-icon.btn-primary {
-    background-color: #0d6efd;
-}
-
-.btn-icon.btn-danger {
-    background-color: #dc3545;
-}
-
-.btn-icon:hover {
-    opacity: 0.9;
-}
-
-.card-proveedores {
-    border-radius: 10px;
-}
- 
-
-
-/* =========================
-   PROVEEDORES - ADMIN
-========================= */
-
-.proveedores-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.proveedores-header h4 {
-    font-weight: 600;
-}
-
-.table-proveedores th {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    color: #6c757d;
-}
-
-.table-proveedores td {
-    vertical-align: middle;
-}
-
-.badge-estado {
-    font-size: 0.8rem;
-    padding: 0.4em 0.7em;
-}
-
-.btn-icon {
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-icon i {
-    font-size: 0.9rem;
-}
-
-.btn-icon.btn-primary {
-    background-color: #0d6efd;
-}
-
-.btn-icon.btn-danger {
-    background-color: #dc3545;
-}
-
-.btn-icon:hover {
-    opacity: 0.9;
-}
-
-.card-proveedores {
-    border-radius: 10px;
-}
-
-
-@media (max-width: 768px) {
-    .table-proveedores th:nth-child(2), /* NIT */
-    .table-proveedores td:nth-child(2),
-    .table-proveedores th:nth-child(4), /* Teléfono */
-    .table-proveedores td:nth-child(4) {
-        display: none;
-    }
-}
-
-.proveedores-count {
-    font-size: 0.9rem;
-    color: #6c757d;
-    margin-top: 0.5rem; 
-}
-
-.proveedores-search {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-/* ===== FORMULARIO PROVEEDOR ===== */
-
-.form-section {
-    border: 1px solid #e1e1e1;
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-bottom: 25px;
-    background-color: #fff;
-}
-
-.form-section h6 {
-    font-weight: 600;
-    margin-bottom: 18px;
-    color: #333;
-}
-
-/* Inputs uniformes */
-.form-control,
-.form-select {
-    width: 100%;
-    height: 42px;
-    font-size: 0.95rem;
-}
-
-/* Labels */
-.form-label {
-    font-weight: 500;
+/* =============================
+   TÍTULO
+============================= */
+h2 {
+    font-weight: 700;
+    letter-spacing: .4px;
     margin-bottom: 4px;
 }
 
-/* Botones */
-.form-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 30px;
+/* =============================
+   TOTAL
+============================= */
+.total-proveedores,
+.badge {
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
 }
 
-.form-actions .btn {
-    min-width: 160px;
-}
-
-/* Header */
-.proveedor-header {
-    background-color: #a68975;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 6px 6px 0 0;
+/* =============================
+   BOTÓN NUEVO
+============================= */
+.btn-success {
+    background: linear-gradient(135deg, #3b2f2f, #6d5c5c);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 26px;
     font-weight: 600;
-}
-.proveedores-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.25);
 }
 
-.acciones-proveedor {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: center;
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(0,0,0,.35);
 }
 
-.btn-accion {
-    width: 38px;
-    height: 38px;
-    padding: 0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* =============================
+   BUSCADOR
+============================= */
+.buscador-proveedores input {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
 }
 
-.dropdown-menu {
-    min-width: 220px;
+.buscador-proveedores button {
+    border-radius: 10px;
+    background: #3b2f2f;
+    color: white;
+    border: none;
 }
 
-.dropdown-item {
-    font-size: 0.9rem;
+/* =============================
+   TABLA
+============================= */
+.table {
+    margin: 0;
 }
 
-#btnFiltro {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-/* ====== FIX DROPDOWN FILTROS ====== */
-.dropdown {
-    position: relative;
+.table thead {
+    background: #f2ece8;
 }
 
-.dropdown-menu {
-    z-index: 9999 !important;
+.table thead th {
+    border: none;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #5a4a4a;
+    padding: 14px;
 }
-.filtros-barra {
-    position: relative;
-    z-index: 10;
+
+.table td {
+    border: none;
+    padding: 14px;
+    vertical-align: middle;
 }
-.acciones-proveedor {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+.table tbody tr {
+    transition: all .25s ease;
+}
+
+.table tbody tr:hover {
+    background: #fbf7f5;
+}
+
+/* =============================
+   ACCIONES
+============================= */
+.table td .d-flex {
     gap: 8px;
 }
 
-.acciones-proveedor .btn {
-    width: 36px;
-    height: 36px;
+/* BOTONES DE ACCIÓN */
+.btn-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
     padding: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+}
+
+.btn-sm i {
+    font-size: .9rem;
+    color: #fff;
+}
+
+/* VER */
+.btn-info {
+    background: linear-gradient(135deg, #4fc3f7, #039be5);
+    border: none;
+}
+
+/* EDITAR */
+.btn-primary {
+    background: linear-gradient(135deg, #b39ddb, #9575cd);
+    border: none;
+}
+
+/* ELIMINAR */
+.btn-danger {
+    background: rgba(224,122,122,.15);
+    border: 1px solid rgba(224,122,122,.35);
+}
+
+.btn-danger i {
+    color: #c85c5c;
+}
+
+/* =============================
+   BOTÓN FILTRAR – ESTILO MONA
+============================= */
+.btn-filter {
+    background: #ffffff;
+    border: 1px solid #3b2f2f;
+    color: #3b2f2f;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .25s ease;
+}
+
+/* Hover */
+.btn-filter:hover {
+    background: #3b2f2f;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Ícono */
+.btn-filter i {
+    font-size: 14px;
+}
+
+/* Quitar azul de Bootstrap */
+.btn-filter:focus,
+.btn-filter:active {
+    box-shadow: none !important;
+}
+
+
+/* =============================
+   ANIMACIÓN FILAS
+============================= */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table tbody tr {
+    animation: fadeUp .4s ease forwards;
 }

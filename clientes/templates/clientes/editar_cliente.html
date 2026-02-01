@@ -56,8 +56,10 @@
       </div>
 
       <div class="col-12 mt-4">
-        <button class="btn btn-dark">Guardar cambios</button>
+        <button class="btn btn-dark" type="submit" id="btnGuardarCliente" >Guardar cambios</button>
+        <input type="hidden" id="cliente_id" value="{{ cliente.id }}">
         <a href="{% url 'clientes:lista' %}" class="btn btn-outline-secondary ms-2">
+
           Cancelar
         </a>
       </div>

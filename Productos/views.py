@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Producto, Marca
+from .models import Producto
 from .forms import ProductoForm
 from core.funciones import bloquear_eliminar
+from django.db.models import Count
+
 # ==================== VISTAS PÚBLICAS ====================
 
 def lista_productos_publica(request):
@@ -61,23 +63,28 @@ def detalle_producto_publico(request, codigo):
     )
 
 
-# ==================== PANEL ADMIN ====================
 @login_required
 def lista_productos_admin(request):
 
     productos = Producto.objects.select_related("id_marca")
 
     # =========================
+    # FILTRO POR LÍNEA
+    # =========================
+    linea = request.GET.get("linea")
+    if linea:
+        productos = productos.filter(linea=linea)
+
+    # =========================
     # BUSCADOR
     # =========================
     q = request.GET.get("q")
-
     if q:
         productos = productos.filter(
             Q(nombre__icontains=q) |
             Q(codigo__icontains=q) |
             Q(id_marca__nombre__icontains=q) |
-            Q(presentacion__icontains=q)|
+            Q(presentacion__icontains=q) |
             Q(estado__icontains=q)
         )
 
@@ -85,30 +92,37 @@ def lista_productos_admin(request):
     # ORDENAMIENTO
     # =========================
     orden = request.GET.get("orden")
-
     if orden == "nombre":
         productos = productos.order_by("nombre")
-
     elif orden == "nombre_desc":
         productos = productos.order_by("-nombre")
-
     elif orden == "codigo":
         productos = productos.order_by("codigo")
-
     elif orden == "marca":
         productos = productos.order_by("id_marca__nombre")
-
     elif orden == "presentacion":
         productos = productos.order_by("presentacion")
-
     else:
         productos = productos.order_by("nombre")
+
+
+    total_productos = productos.count()
+
+    productos_por_linea = (
+        Producto.objects
+        .values("linea")
+        .annotate(total=Count("codigo"))
+        .order_by("linea")
+    )
 
     return render(
         request,
         "colaborador/lista_productos.html",
         {
             "productos": productos,
+            "total_productos": total_productos,
+            "productos_por_linea": productos_por_linea,
+            "linea_seleccionada": linea,
         }
     )
 
@@ -156,17 +170,21 @@ def editar_producto(request, codigo):
 
     producto = get_object_or_404(Producto, codigo=codigo)
 
+    form = ProductoForm(instance=producto)
+
     if request.method == 'POST':
+        if request.method == 'POST':
+            print(" POST LLEGÓ")
+            print(request.POST)
+
         form = ProductoForm(request.POST, request.FILES, instance=producto)
+
         if form.is_valid():
             form.save()
-            messages.success(
-                request,
-                f'Producto "{producto.nombre}" actualizado.'
-            )
+            messages.success(request, f'Producto "{producto.nombre}" actualizado.')
             return redirect('productos:lista_productos_admin')
-    else:
-        form = ProductoForm(instance=producto)
+        else:
+            print(form.errors)      
 
     return render(
         request,

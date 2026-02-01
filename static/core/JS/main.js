@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
 console.log("✅ main.js cargado");
 
 /* ======================================================
@@ -8,7 +7,7 @@ console.log("✅ main.js cargado");
 document.addEventListener('DOMContentLoaded', function () {
 
     /* ======================================================
-       LOGIN MODAL (NO TOCAR) 
+       LOGIN MODAL (NO TOCAR)
     ====================================================== */
     try {
         const loginModalEl = document.getElementById('loginModal');
@@ -245,75 +244,96 @@ if (modalPermiso) {
 }
 
 
-/* ======================================================
-   CANVAS BOLAS LOGIN
-====================================================== */
-const loginModal = document.getElementById('loginModal');
+    /* ======================================================
+    CANVAS BOLAS LOGIN
+    ====================================================== */
+    const loginModal = document.getElementById('loginModal');
 
-if (loginModal) {
-    loginModal.addEventListener('shown.bs.modal', () => {
+    if (loginModal) {
+        loginModal.addEventListener('shown.bs.modal', () => {
 
-        const canvas = document.getElementById('bolaCanvas');
-        if (!canvas) return;
+            const canvas = document.getElementById('bolaCanvas');
+            if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-        let balls = [];
-        let animationId;
+            const ctx = canvas.getContext('2d');
+            let balls = [];
+            let animationId;
 
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-        }
-
-        function createBalls() {
-            balls = [];
-            const total = 50;
-
-            for (let i = 0; i < total; i++) {
-                balls.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    r: Math.random() * 10 + 10,
-                    dx: (Math.random() - 0.5) * 0.5,
-                    dy: (Math.random() - 0.5) * 0.3,
-                    alpha: Math.random() * 0.15 + 0.05
-                });
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
             }
-        }
 
-        function update() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            function createBalls() {
+                balls = [];
+                const total = 50;
 
-            balls.forEach(b => {
-                b.x += b.dx;
-                b.y += b.dy;
+                for (let i = 0; i < total; i++) {
+                    balls.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: Math.random() * 10 + 10,
+                        dx: (Math.random() - 0.5) * 0.5,
+                        dy: (Math.random() - 0.5) * 0.3,
+                        alpha: Math.random() * 0.15 + 0.05
+                    });
+                }
+            }
 
-                if (b.x <= b.r || b.x >= canvas.width - b.r) b.dx *= -1;
-                if (b.y <= b.r || b.y >= canvas.height - b.r) b.dy *= -1;
+            function update() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255,255,255,${b.alpha})`;
-                ctx.fill();
-            });
+                balls.forEach(b => {
+                    b.x += b.dx;
+                    b.y += b.dy;
 
-            animationId = requestAnimationFrame(update);
-        }
+                    if (b.x <= b.r || b.x >= canvas.width - b.r) b.dx *= -1;
+                    if (b.y <= b.r || b.y >= canvas.height - b.r) b.dy *= -1;
 
-        function start() {
-            cancelAnimationFrame(animationId);
-            resizeCanvas();
-            createBalls();
-            update();
-        }
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${b.alpha})`;
+                    ctx.fill();
+                });
 
-        start();
-        window.addEventListener('resize', start);
+                animationId = requestAnimationFrame(update);
+            }
 
-        loginModal.addEventListener(
-            'hidden.bs.modal',
-            () => cancelAnimationFrame(animationId),
-            { once: true }
-        );
+            function start() {
+                cancelAnimationFrame(animationId);
+                resizeCanvas();
+                createBalls();
+                update();
+            }
+
+            start();
+            window.addEventListener('resize', start);
+
+            loginModal.addEventListener(
+                'hidden.bs.modal',
+                () => cancelAnimationFrame(animationId),
+                { once: true }
+            );
+        });
+    }
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const btnFiltroLineas = document.getElementById('btnFiltroLineas');
+    const panelFiltroLineas = document.getElementById('panelFiltroLineas');
+
+    if (btnFiltroLineas && panelFiltroLineas) {
+        btnFiltroLineas.addEventListener('click', (e) => {
+            e.preventDefault();
+            panelFiltroLineas.classList.toggle('d-none');
+        });
+    }
+
+    // Si se hace click en "Quitar filtros", ocultar panel
+    document.querySelectorAll('a[href="?"]').forEach(link => {
+        link.addEventListener('click', () => {
+            panelFiltroLineas?.classList.add('d-none');
+        });
     });
-}
+
+});

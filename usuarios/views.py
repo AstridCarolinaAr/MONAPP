@@ -16,9 +16,6 @@ from core.funciones import admin_o_aux_required
 @never_cache
 def login_view(request):
 
-    # 🔹 DEFINIR next_url SIEMPRE, antes de cualquier if
-    next_url = request.GET.get('next')
-
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
 
@@ -26,12 +23,13 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
 
-            if next_url:
-                return redirect(next_url)
-
             return redirect('core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
+
+        return render(request, 'core/index.html', {
+            'show_login_modal': True
+        })
 
     return redirect('core:index')
 

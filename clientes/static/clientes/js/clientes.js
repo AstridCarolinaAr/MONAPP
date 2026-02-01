@@ -1,28 +1,214 @@
-
 document.addEventListener('DOMContentLoaded', function () {
 
-    const modalEl = document.getElementById('modalCrearCliente');
-    if (!modalEl) return;
+    const modal = document.getElementById('modalCrearCliente');
+    const btnGuardar = document.getElementById('btnGuardarCliente');
 
-    const form = modalEl.querySelector('form');
-    const btnNuevo = document.getElementById('btnNuevoCliente');
+    if (!modal || !btnGuardar) return;
 
-    //  Abrir modal SOLO al hacer click en el botón
-    if (btnNuevo) {
-        btnNuevo.addEventListener('click', function () {
-            window.ABRIR_MODAL_CLIENTE = true;
-            new bootstrap.Modal(modalEl).show();
+    const form = modal.querySelector('form');
+
+    /* ===============================
+       FUNCIÓN: ESTADO DEL BOTÓN
+    =============================== */
+    function actualizarEstadoBoton() {
+
+        // Campos obligatorios
+        const obligatorios = [
+            'tipo_documento',
+            'numero_documento',
+            'nombre',
+            'apellido',
+            'fecha_nacimiento'
+        ];
+
+        let hayError = false;
+        let hayVacios = false;
+        let noValidos = false;
+
+        obligatorios.forEach(id => {
+            const campo = document.getElementById(id);
+            if (!campo) return;
+
+            if (campo.value.trim() === '') {
+                hayVacios = true;
+            }
+
+            if (campo.classList.contains('is-invalid')) {
+                hayError = true;
+            }
+
+            if (
+                campo.value.trim() !== '' &&
+                !campo.classList.contains('is-valid')
+            ) {
+                noValidos = true;
+            }
         });
+
+        if (hayError || hayVacios || noValidos) {
+            btnGuardar.disabled = true;
+            btnGuardar.classList.remove('btn-dark');
+            btnGuardar.classList.add('btn-secondary');
+        } else {
+            btnGuardar.disabled = false;
+            btnGuardar.classList.remove('btn-secondary');
+            btnGuardar.classList.add('btn-dark');
+        }
     }
 
-    //  Abrir modal SOLO si backend lo indica (errores)
-    if (window.ABRIR_MODAL_CLIENTE === true && !performance.getEntriesByType("navigation")[0].type.includes("reload")) {
-         new bootstrap.Modal(modalEl).show();
-    }
+    /* ===============================
+       VALIDACIONES EN TIEMPO REAL
+    =============================== */
+    document.addEventListener('input', async function (e) {
 
+        const input = e.target;
+        const feedback = input.nextElementSibling;
+        if (!feedback) return;
 
-    //  LIMPIAR TODO al cerrar modal
-    modalEl.addEventListener('hidden.bs.modal', function () {
+        const valor = input.value.trim();
+
+        /* ===== NÚMERO DOCUMENTO ===== */
+        if (input.id === 'numero_documento') {
+
+            if (valor === '') {
+                limpiar(input, feedback);
+                actualizarEstadoBoton();
+                return;
+            }
+
+            if (!/^\d+$/.test(valor)) {
+                invalido(input, feedback, 'Solo se permiten números.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            if (valor.length < 6 || valor.length > 12) {
+                invalido(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            try {
+                const clienteId = document.getElementById('cliente_id');
+
+                let url = `/clientes/validar-documento/?numero=${valor}`;
+                if (clienteId) {
+                    url += `&cliente_id=${clienteId.value}`;
+                }
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.valido) {
+                    invalido(input, feedback, data.mensaje);
+                } else {
+                    valido(input, feedback);
+                }
+            } catch {
+                invalido(input, feedback, 'Error validando el documento.');
+            }
+
+            actualizarEstadoBoton();
+        }
+
+        /* ===== NOMBRE / APELLIDO ===== */
+        if (input.id === 'nombre' || input.id === 'apellido') {
+
+            if (valor === '') {
+                limpiar(input, feedback);
+                actualizarEstadoBoton();
+                return;
+            }
+
+            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!soloLetras.test(valor)) {
+                invalido(
+                    input,
+                    feedback,
+                    input.id === 'nombre'
+                        ? 'El nombre solo puede contener letras.'
+                        : 'El apellido solo puede contener letras.'
+                );
+            } else {
+                valido(input, feedback);
+            }
+
+            actualizarEstadoBoton();
+        }
+
+        /* ===== TELÉFONO ===== */
+        if (input.id === 'telefono') {
+
+            if (valor === '') {
+                limpiar(input, feedback);
+                actualizarEstadoBoton();
+                return;
+            }
+
+            if (!/^\d+$/.test(valor)) {
+                invalido(input, feedback, 'Solo se permiten números.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            if (valor.length !== 10) {
+                invalido(input, feedback, 'Debe tener exactamente 10 dígitos.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            valido(input, feedback);
+            actualizarEstadoBoton();
+        }
+
+        /* ===== CORREO ===== */
+        if (input.id === 'correo') {
+
+            if (valor === '') {
+                limpiar(input, feedback);
+                actualizarEstadoBoton();
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(valor)) {
+                invalido(input, feedback, 'Correo electrónico inválido.');
+            } else {
+                valido(input, feedback);
+            }
+
+            actualizarEstadoBoton();
+        }
+
+        /* ===== FECHA NACIMIENTO ===== */
+        if (input.id === 'fecha_nacimiento') {
+
+            if (valor === '') {
+                limpiar(input, feedback);
+                actualizarEstadoBoton();
+                return;
+            }
+
+            const fecha = new Date(valor);
+            const hoy = new Date();
+
+            if (fecha > hoy) {
+                invalido(input, feedback, 'La fecha no puede ser futura.');
+            } else {
+                valido(input, feedback);
+            }
+
+            actualizarEstadoBoton();
+        }
+
+    });
+
+    /* ===============================
+       LIMPIAR TODO AL CERRAR MODAL
+    =============================== */
+    modal.addEventListener('hidden.bs.modal', function () {
 
         if (!form) return;
 
@@ -30,47 +216,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
         form.querySelectorAll('input, select, textarea').forEach(el => {
             el.value = '';
-            el.removeAttribute('value');
-            el.classList.remove('is-invalid');
+            el.defaultValue = '';
+            el.classList.remove('is-valid', 'is-invalid');
         });
 
-        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        form.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.textContent = '';
+        });
 
-        //  Evitar reapertura al refrescar
-        window.ABRIR_MODAL_CLIENTE = false;
+        btnGuardar.disabled = true;
+        btnGuardar.classList.remove('btn-dark');
+        btnGuardar.classList.add('btn-secondary');
+    });
+
+    /* ===============================
+       AL ABRIR MODAL → BOTÓN BLOQUEADO
+    =============================== */
+    modal.addEventListener('shown.bs.modal', function () {
+        actualizarEstadoBoton();
     });
 
 });
 
-// LIMPIEZA FORZADA AL MOSTRAR LA PÁGINA
-// (EVITA CACHE DEL NAVEGADOR)
+/* ===============================
+   FUNCIONES REUTILIZABLES
+=============================== */
+function invalido(input, feedback, mensaje) {
+    input.classList.add('is-invalid');
+    input.classList.remove('is-valid');
+    feedback.textContent = mensaje;
+}
 
-window.addEventListener('pageshow', function () {
+function valido(input, feedback) {
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    feedback.textContent = '';
+}
 
-    const modalEl = document.getElementById('modalCrearCliente');
-    if (!modalEl) return;
-
-    const form = modalEl.querySelector('form');
-    if (!form) return;
-
-    //  Limpiar SIEMPRE (no solo cuando persisted)
-    form.reset();
-
-    form.querySelectorAll('input, select, textarea').forEach(el => {
-        el.value = '';
-        el.defaultValue = '';
-        el.classList.remove('is-invalid');
-    });
-
-    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-
-    //  Forzar que el modal quede cerrado
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    if (modalInstance) {
-        modalInstance.hide();
-    }
-
-    // Evitar reapertura
-    window.ABRIR_MODAL_CLIENTE = false;
-});
-
+function limpiar(input, feedback) {
+    input.classList.remove('is-invalid', 'is-valid');
+    feedback.textContent = '';
+}

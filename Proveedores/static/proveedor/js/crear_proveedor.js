@@ -41,3 +41,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+document.addEventListener('DOMContentLoaded', () => {
+
+    // SOLO NÚMEROS
+    const soloNumeros = document.querySelectorAll(
+        'input[name="nit"], input[name="telefono_proveedor"], input[name="id_venta"], input[name="codigo_marca"]'
+    );
+
+    soloNumeros.forEach(input => {
+        input.addEventListener('input', () => {
+            input.value = input.value.replace(/\D/g, '');
+        });
+    });
+
+    // SOLO LETRAS
+    const soloLetras = document.querySelectorAll(
+        'input[name="nombre_proveedor"], input[name="nombre_encargado"]'
+    );
+
+    soloLetras.forEach(input => {
+        input.addEventListener('input', () => {
+            input.value = input.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, '');
+        });
+    });
+
+});
+const ccEncargado = document.querySelector('input[name="cc_encargado"]');
+
+if (ccEncargado) {
+    ccEncargado.addEventListener('input', () => {
+        ccEncargado.value = ccEncargado.value.replace(/\D/g, '');
+    });
+}

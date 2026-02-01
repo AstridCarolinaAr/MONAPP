@@ -68,7 +68,8 @@ class Producto(models.Model):
         verbose_name='Precio',
         help_text='Precio del producto en pesos colombianos'
     )
-
+    cantidad = models.PositiveIntegerField()
+    
     descripcion = models.TextField(
         blank=True,
         verbose_name='Descripción'
@@ -102,10 +103,8 @@ class Producto(models.Model):
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
 
-    # ===============================
-    # META
-    # ===============================
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
@@ -117,7 +116,7 @@ class Producto(models.Model):
         ]
 
     # ===============================
-    # VALIDACIONES PRO
+    # VALIDACIONES
     # ===============================
     def clean(self):
         # Normalizar nombre
