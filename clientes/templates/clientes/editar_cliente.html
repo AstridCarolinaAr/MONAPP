@@ -1,0 +1,69 @@
+{% extends "core/panel_admin_base.html" %}
+{% block title %}Editar Cliente{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <h4 class="mb-4">
+    <i class="bi bi-pencil"></i> Editar cliente
+  </h4>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="row g-3">
+
+      <div class="col-md-6">
+        <label class="form-label">Tipo documento</label>
+        <select name="tipo_documento" class="form-select">
+          <option value="CC" {% if cliente.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
+          <option value="TI" {% if cliente.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta</option>
+          <option value="CE" {% if cliente.tipo_documento == 'CE' %}selected{% endif %}>Extranjería</option>
+          <option value="PP" {% if cliente.tipo_documento == 'PP' %}selected{% endif %}>Pasaporte</option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Número documento</label>
+        <input type="text" name="numero_documento" class="form-control"
+               value="{{ cliente.numero_documento }}">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" class="form-control"
+               value="{{ cliente.nombre }}">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Apellido</label>
+        <input type="text" name="apellido" class="form-control"
+               value="{{ cliente.apellido }}">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Fecha nacimiento</label>
+        <input type="date" name="fecha_nacimiento" class="form-control"
+               value="{{ cliente.fecha_nacimiento|date:'Y-m-d' }}">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-select">
+          <option value="activo" {% if cliente.estado == 'activo' %}selected{% endif %}>Activo</option>
+          <option value="inactivo" {% if cliente.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+        </select>
+      </div>
+
+      <div class="col-12 mt-4">
+        <button class="btn btn-dark">Guardar cambios</button>
+        <a href="{% url 'clientes:lista' %}" class="btn btn-outline-secondary ms-2">
+          Cancelar
+        </a>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+{% endblock %}

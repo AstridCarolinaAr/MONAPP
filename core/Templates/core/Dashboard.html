@@ -51,6 +51,14 @@
                 <h3>—</h3>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="stats-card card-clientes" onclick="location.href='{% url 'clientes:lista' %}'" style="cursor:pointer;">
+                <i class="bi bi-person-vcard icon"></i>
+                <p class="mb-0">Clientes</p>
+                <h3>—</h3>
+            </div>
+        </div>
+
     </div>
 
     <!-- Zona de acciones rápidas genéricas -->
@@ -61,6 +69,9 @@
                     <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
                 </div>
                 <div class="card-body">
+                    <a href="{% url 'clientes:lista' %}" class="btn btn-outline-dark me-2">
+                        <i class="bi bi-person-vcard me-1"></i> Clientes
+                    </a>
                     <a href="{% url 'productos:lista_productos_admin' %}" class="btn btn-success me-2">
                         <i class="bi bi-box-seam me-1"></i> Productos
                     </a>
@@ -77,6 +88,40 @@
         </div>
     </div>
 
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-warning text-dark fw-semibold">
+                <i class="bi bi-balloon-fill me-2"></i>
+                Cumpleaños de hoy
+            </div>
+
+            <div class="card-body">
+                {% if clientes_cumple_hoy %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in clientes_cumple_hoy %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    {{ item.cliente.nombre }} {{ item.cliente.apellido }}
+                                </span>
+                                <span class="badge bg-success">
+                                    🎉 {{ item.edad }} años
+                                </span>
+                            </li>
+
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">
+                        No hay clientes cumpliendo años hoy 🎈
+                    </p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
     <!-- Espacio para contenido dinámico (gráficos, tablas, etc.) -->
     <div class="row mt-4">
         <div class="col-12">

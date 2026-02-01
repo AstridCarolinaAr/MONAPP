@@ -2,13 +2,15 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from datetime import datetime
-from django.contrib import messages
-from django.shortcuts import redirect
+from datetime import datetime,date
 from core.funciones import admin_o_aux_required
+<<<<<<< HEAD
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
+=======
+from clientes.models import Cliente
+>>>>>>> 2f35f9ac97f7439b88df7357d26389e5ed9af4f2
 
 
 
@@ -35,13 +37,20 @@ def index(request):
 def dashboard_view(request):
     """
     Vista principal del panel de administración
-    Solo Administrador y Auxiliar
+    Solo Administrador y Auxiliar (y Superusuario)
     """
 
-    #  CONTROL DE ACCESO POR GRUPOS
     grupos = list(request.user.groups.values_list('name', flat=True))
 
-    #  Estadísticas
+    if (
+        not request.user.is_superuser
+        and 'Administrador' not in grupos
+        and 'Auxiliar' not in grupos
+    ):
+        messages.error(request, 'No tienes acceso al panel.')
+        return redirect('core:index')
+
+    # 📊 Estadísticas
     total_usuarios = User.objects.count()
     usuarios_activos = User.objects.filter(is_active=True).count()
     usuarios_staff = User.objects.filter(is_staff=True).count()
@@ -57,7 +66,21 @@ def dashboard_view(request):
     ultimos_usuarios = User.objects.select_related(
         'perfil'
     ).order_by('-date_joined')[:5]
+        #  Clientes que cumplen años
+    hoy = date.today()
 
+    clientes_cumple_hoy = Cliente.objects.filter(
+        fecha_nacimiento__day=hoy.day,
+        fecha_nacimiento__month=hoy.month
+    )
+    
+    clientes_cumple_info = []
+    for cliente in clientes_cumple_hoy:
+        edad = hoy.year - cliente.fecha_nacimiento.year
+        clientes_cumple_info.append({
+            'cliente': cliente,
+            'edad': edad
+        })
     context = {
         'titulo': 'Panel de Administración',
         'total_usuarios': total_usuarios,
@@ -65,9 +88,11 @@ def dashboard_view(request):
         'usuarios_staff': usuarios_staff,
         'nuevos_usuarios_mes': nuevos_usuarios_mes,
         'ultimos_usuarios': ultimos_usuarios,
+        'clientes_cumple_hoy': clientes_cumple_info
     }
 
     return render(request, 'core/dashboard.html', context)
+
 
 def solo_admin(view_func):
     def wrapper(request, *args, **kwargs):

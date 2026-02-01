@@ -1,0 +1,341 @@
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0 fw-semibold">Clientes</h3>
+            <small class="text-muted">Gestión de clientes registrados</small>
+        </div>
+            <button class="btn btn-dark btn-sm" id="btnNuevoCliente">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo cliente
+            </button>
+
+
+    </div>
+
+
+    <form method="get" class="row g-2 align-items-center mb-4">
+
+        <!-- BÚSQUEDA GENERAL -->
+        <div class="col-md-3">
+            <input type="text" name="q" class="form-control"
+                  placeholder="Buscar nombre o documento"
+                  value="{{ q|default:'' }}">
+        </div>
+
+        <!-- CÓDIGO -->
+        <div class="col-md-2">
+            <input type="text" name="codigo" class="form-control"
+                  placeholder="Código cliente"
+                  value="{{ codigo|default:'' }}">
+        </div>
+
+        <!-- ESTADO -->
+        <div class="col-md-2">
+            <select name="estado" class="form-select">
+                <option value="">Estado</option>
+                <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+
+        <!-- EDAD -->
+        <div class="col-md-2">
+            <select name="edad" class="form-select">
+                <option value="">Edad</option>
+                <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
+                <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
+            </select>
+        </div>
+
+        <!-- ORDEN -->
+        <div class="col-md-2">
+            <select name="orden" class="form-select">
+                <option value="">Ordenar</option>
+                <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
+                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
+                <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A–Z</option>
+                <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z–A</option>
+                <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
+                <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
+            </select>
+        </div>
+
+        <!-- APLICAR -->
+        <div class="col-md-1">
+            <button class="btn btn-outline-secondary w-100" title="Aplicar filtros">
+                <i class="bi bi-filter"></i>
+            </button>
+        </div>
+
+        <!--  LIMPIAR -->
+        {% if q or estado or codigo or edad or orden %}
+        <div class="col-md-1">
+            <a href="{% url 'clientes:lista' %}"
+              class="btn btn-outline-danger w-100"
+              title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+        {% endif %}
+
+    </form>
+
+
+
+    <!-- Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Documento</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}|
+                    <tr>
+                        <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
+                        <td>
+                            {{ cliente.nombre }} {{ cliente.apellido }}<br>
+                            <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
+                        </td>
+                        <td>
+                            {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
+                        </td>
+                        <td>{{ cliente.telefono|default:"—" }}</td>
+                        <td>
+                            {% if cliente.estado == 'activo' %}
+                                <span class="badge bg-success-subtle text-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'clientes:editar' cliente.id %}"
+                                class="btn btn-outline-secondary btn-sm"
+                                title="Editar cliente">
+                                    <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEliminarCliente{{ cliente.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <!-- MODAL ELIMINAR CLIENTE -->
+                            <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow">
+
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Confirmar eliminación
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <form method="post" action="{% url 'clientes:eliminar' cliente.id %}">
+                                    {% csrf_token %}
+
+                                    <div class="modal-body text-center">
+                                    <p class="fw-semibold">
+                                        ¿Deseas eliminar al cliente:
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
+                                    </p>
+                                    </div>
+
+                                    <div class="modal-footer justify-content-center">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-danger">
+                                        Eliminar
+                                    </button>
+                                    </div>
+
+                                </form>
+
+                                </div>
+                            </div>
+                            </div>
+
+
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No hay clientes registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+<!-- MODAL CREAR CLIENTE -->
+<div class="modal fade" id="modalCrearCliente" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+
+      <form method="post" action="{% url 'clientes:crear' %}"autocomplete="off">
+        {% csrf_token %}
+
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-person-plus me-2"></i> Nuevo cliente
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-3">
+
+            <!-- TIPO DOCUMENTO -->
+            <div class="col-md-6">
+              <label class="form-label">Tipo documento</label>
+              <select name="tipo_documento"
+                      class="form-select {% if errores.tipo_documento %}is-invalid{% endif %}">
+                <option value="">Seleccione</option>
+                <option value="CC" {% if datos.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
+                <option value="TI" {% if datos.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta</option>
+                <option value="CE" {% if datos.tipo_documento == 'CE' %}selected{% endif %}>Extranjería</option>
+                <option value="PP" {% if datos.tipo_documento == 'PP' %}selected{% endif %}>Pasaporte</option>
+              </select>
+              {% if errores.tipo_documento %}
+                <div class="invalid-feedback">{{ errores.tipo_documento }}</div>
+              {% endif %}
+            </div>
+
+            <!-- NÚMERO DOCUMENTO -->
+            <div class="col-md-6">
+              <label class="form-label">Número documento</label>
+              <input type="text"
+                     name="numero_documento"
+                     class="form-control {% if errores.numero_documento %}is-invalid{% endif %}"
+                     value="{{ datos.numero_documento|default:'' }}"
+                     maxlength="12"
+                     minlength="6"
+                     pattern="[0-9]+"
+                     title="Debe contener entre 6 y 12 números"
+                     autocomplete="off"
+                     required>
+              {% if errores.numero_documento %}
+                <div class="invalid-feedback">
+                  {{ errores.numero_documento }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- NOMBRE -->
+            <div class="col-md-6">
+              <label class="form-label">Nombre</label>
+              <input type="text"
+                     name="nombre"
+                     class="form-control {% if errores.nombre %}is-invalid{% endif %}"
+                     value="{{ datos.nombre|default:'' }}"
+                     autocomplete="off">
+              {% if errores.nombre %}
+                <div class="invalid-feedback">{{ errores.nombre }}</div>
+              {% endif %}
+            </div>
+
+            <!-- APELLIDO -->
+            <div class="col-md-6">
+              <label class="form-label">Apellido</label>
+              <input type="text"
+                     name="apellido"
+                     class="form-control {% if errores.apellido %}is-invalid{% endif %}"
+                     value="{{ datos.apellido|default:'' }}"
+                     autocomplete="off">
+              {% if errores.apellido %}
+                <div class="invalid-feedback">{{ errores.apellido }}</div>
+              {% endif %}
+            </div>
+
+            <!-- FECHA NACIMIENTO -->
+            <div class="col-md-6">
+              <label class="form-label">Fecha nacimiento</label>
+              <input type="date"
+                     name="fecha_nacimiento"
+                     class="form-control {% if errores.fecha_nacimiento %}is-invalid{% endif %}"
+                     value="{{ datos.fecha_nacimiento|default:'' }}"
+                     autocomplete="off">
+              {% if errores.fecha_nacimiento %}
+                <div class="invalid-feedback">{{ errores.fecha_nacimiento }}</div>
+              {% endif %}
+            </div>
+
+            <!-- TELÉFONO -->
+            <div class="col-md-6">
+              <label class="form-label">Teléfono</label>
+              <input type="text"
+                     name="telefono"
+                     autocomplete="new-password"
+                     class="form-control {% if errores.telefono %}is-invalid{% endif %}"
+                     value="{{ datos.telefono|default:'' }}"
+                     maxlength="10">
+              {% if errores.telefono %}
+                <div class="invalid-feedback">{{ errores.telefono }}</div>
+              {% endif %}
+            </div>
+
+            <!-- CORREO -->
+            <div class="col-12">
+              <label class="form-label">Correo</label>
+              <input type="email"
+                     name="correo"
+                     autocomplete="new-email"
+                     class="form-control {% if errores.correo %}is-invalid{% endif %}"
+                     value="{{ datos.correo|default:'' }}">
+              {% if errores.correo %}
+                <div class="invalid-feedback">{{ errores.correo }}</div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-dark">
+            Guardar cliente
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+    window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|yesno:"true,false" }};
+</script>
+
+
+<script src="{% static 'clientes/js/clientes.js' %}"></script>
+{% endblock %}

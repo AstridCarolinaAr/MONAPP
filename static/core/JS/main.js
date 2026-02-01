@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', () => {
 
 console.log("✅ main.js cargado");
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* ======================================================
        LOGIN MODAL (NO TOCAR)
+       LOGIN MODAL (NO TOCAR) 
     ====================================================== */
     try {
         const loginModalEl = document.getElementById('loginModal');
@@ -62,6 +64,17 @@ document.addEventListener('DOMContentLoaded', function () {
             logo.style.color = '#fff';
         }
     }
+
+        // Inicializar tooltips Bootstrap
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltipTriggerList = [].slice.call(
+            document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
 
     /* ======================================================
        HEADER SCROLL + FOOTER VISIBLE
@@ -185,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 /* ======================================================
-   🚫 BLOQUE ÚNICO – ELIMINAR (ADMIN vs NO ADMIN)
+    BLOQUE ÚNICO – ELIMINAR (ADMIN vs NO ADMIN)
 ====================================================== */
 document.addEventListener('click', function (e) {
 
@@ -325,5 +338,5 @@ document.addEventListener('DOMContentLoaded', () => {
             panelFiltroLineas?.classList.add('d-none');
         });
     });
-
+});
 });
