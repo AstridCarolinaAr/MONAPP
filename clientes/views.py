@@ -7,6 +7,7 @@ from datetime import date
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import re
+from django.http import JsonResponse
 
 
 def lista_clientes(request):
@@ -64,6 +65,34 @@ def lista_clientes(request):
         'errores': {},
         'datos': {},
     })
+    
+def validar_documento(request):
+    numero = request.GET.get('numero', '').strip()
+    cliente_id = request.GET.get('cliente_id')
+
+    if not numero.isdigit():
+        return JsonResponse({'valido': False, 'mensaje': 'Solo números'})
+
+    if not (6 <= len(numero) <= 12):
+        return JsonResponse({'valido': False, 'mensaje': 'Debe tener entre 6 y 12 dígitos'})
+    
+    qs = Cliente.objects.filter(numero_documento=numero)
+
+    if cliente_id:
+        qs = qs.exclude(id=cliente_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Ya existe otro cliente con este documento.'
+        })
+
+    return JsonResponse({'valido': True})
+
+    if Cliente.objects.filter(numero_documento=numero).exists():
+        return JsonResponse({'valido': False, 'mensaje': 'Documento ya registrado'})
+
+    return JsonResponse({'valido': True})
 
 def crear_cliente(request):
     if request.method != 'POST':
@@ -147,6 +176,7 @@ def crear_cliente(request):
     # SI HAY ERRORES → NO REDIRECT
     # ===============================
     if errores:
+        messages.error(request, '❌ No se pudo registrar el cliente. Revisa los campos.')
         return render(request, 'clientes/lista_clientes.html', {
             'clientes': Cliente.objects.all(),
             'abrir_modal_cliente': True,
@@ -171,9 +201,6 @@ def crear_cliente(request):
 
     messages.success(request, 'Cliente registrado correctamente.')
     return redirect('clientes:lista')
-
-
-
 
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)

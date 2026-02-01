@@ -4,13 +4,15 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from datetime import datetime,date
 from core.funciones import admin_o_aux_required
-<<<<<<< HEAD
+
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
-=======
 from clientes.models import Cliente
->>>>>>> 2f35f9ac97f7439b88df7357d26389e5ed9af4f2
+from clientes.models import Cliente
+from usuarios.forms import LoginForm
+from django.contrib.auth import login
+
 
 
 

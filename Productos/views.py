@@ -63,7 +63,7 @@ def detalle_producto_publico(request, codigo):
     )
 
 
-@login_required
+#login_required
 def lista_productos_admin(request):
 
     productos = Producto.objects.select_related("id_marca")
@@ -126,13 +126,13 @@ def lista_productos_admin(request):
         }
     )
 
-@login_required
+#login_required
 def crear_producto(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
-        messages.error(request, 'No tienes permisos para crear productos.')
-        return redirect('core:index')
+    # if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
+    #     messages.error(request, 'No tienes permisos para crear productos.')
+    #     return redirect('productos:lista_productos_admin')
 
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
@@ -161,7 +161,7 @@ def crear_producto(request):
 
 
 
-@login_required
+# @login_required
 def editar_producto(request, codigo):
     grupos = list(request.user.groups.values_list('name', flat=True))
     if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
