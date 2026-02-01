@@ -1,0 +1,77 @@
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+
+{% block title %}Nueva venta{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+    <div class="mb-4">
+        <h3>Nueva venta</h3>
+        <small class="text-muted">Registrar una nueva venta</small>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <!-- CLIENTE -->
+                    <div class="col-md-6">
+                        <label class="form-label">Cliente</label>
+                        {{ form.cliente }}
+                    </div>
+
+                    <!-- PRODUCTO -->
+                    <div class="col-md-6">
+                        <label class="form-label">Producto / servicio</label>
+                        <select name="producto" id="producto" class="form-select">
+                            <option value="">Seleccione</option>
+                            {% for p in productos %}
+                                <option value="{{ p.id }}" data-precio="{{ p.precio }}">
+                                    {{ p.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- PRECIO -->
+                    <div class="col-md-4">
+                        <label class="form-label">Precio unitario</label>
+                        <input type="number" id="id_precio_unitario" name="precio_unitario" readonly>
+                    </div>
+
+                    <!-- CANTIDAD -->
+                    <div class="col-md-4">
+                        <label class="form-label">Cantidad</label>
+                        <input type="number" id="id_cantidad" name="cantidad">
+                        {{ form.cantidad }}
+                    </div>
+
+                    <!-- SUBTOTAL -->
+                    <div class="col-md-4">
+                        <label class="form-label">Subtotal</label>
+                        <input type="number" id="id_subtotal" name="subtotal" readonly>
+                    </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'ventas:lista' %}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                    <button id="btnGuardarVenta" type="submit">
+                        Guardar venta
+                    </button>
+                </div>
+            </form>
+
+
+        </div>
+    </div>  
+    {% endblock %}
+</div>
+{% block extra_js %}
+<script src="{% static 'ventas/js/ventas.js' %}"></script>
+{% endblock %}
