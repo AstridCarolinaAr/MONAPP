@@ -1,0 +1,73 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="bi bi-tag"></i> Gestión de Promociones</h1>
+        <a href="{% url 'crear_promocion' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle"></i> Nueva Promoción
+        </a>
+    </div>
+</div>
+
+{% if promociones %}
+    <div class="row">
+        {% for promo in promociones %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 {% if promo.esta_activa %}border-success border-3{% else %}border-secondary border-2 opacity-75{% endif %}">
+                <div class="card-header bg-{% if promo.esta_activa %}success{% else %}secondary{% endif %} text-white">
+                    <h5 class="mb-0">
+                        {% if promo.esta_activa %}
+                            <i class="bi bi-check-circle"></i> Activa
+                        {% else %}
+                            <i class="bi bi-clock-history"></i> Inactiva
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ promo.titulo }}</h5>
+                    <div class="mb-3">
+                        <div class="badge bg-warning text-dark p-2" style="font-size: 1.2rem;">
+                            <i class="bi bi-lightning"></i> {{ promo.descuento }}% OFF
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">{{ promo.descripcion|truncatechars:80 }}</p>
+                    <div class="border-top pt-3">
+                        <p class="mb-1">
+                            <strong><i class="bi bi-calendar"></i> Vigencia:</strong>
+                        </p>
+                        <small class="text-muted">
+                            Desde: {{ promo.fecha_inicio|date:"d/m/Y" }}<br>
+                            Hasta: {{ promo.fecha_fin|date:"d/m/Y" }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'editar_promocion' promo.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <form method="post" action="{% url 'eliminar_promocion' promo.id %}" style="display: block;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100" 
+                                    onclick="return confirm('¿Seguro de eliminar esta promoción?');">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info text-center py-5">
+        <i class="bi bi-gift" style="font-size: 3rem; display: block; margin-bottom: 1rem;"></i>
+        <h4>No hay promociones registradas</h4>
+        <p class="mb-0">Crea tu primera promoción para atraer más clientes.</p>
+        <a href="{% url 'crear_promocion' %}" class="btn btn-primary mt-3">
+            <i class="bi bi-plus-circle"></i> Crear Primera Promoción
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
