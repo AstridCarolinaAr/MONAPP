@@ -9,26 +9,26 @@ class PersonalForm(forms.ModelForm):
         fields = ['numero_documento', 'nombres', 'telefono', 'correo', 'rol', 'activo']
         widgets = {
             'numero_documento': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'personal-form-control',
                 'placeholder': 'Ingrese número de documento'
             }),
             'nombres': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'personal-form-control',
                 'placeholder': 'Ingrese nombres completos'
             }),
             'telefono': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'personal-form-control',
                 'placeholder': 'Ingrese teléfono'
             }),
             'correo': forms.EmailInput(attrs={
-                'class': 'form-control',
+                'class': 'personal-form-control',
                 'placeholder': 'Ingrese correo electrónico'
             }),
             'rol': forms.Select(attrs={
-                'class': 'form-control'
+                'class': 'personal-form-control'
             }),
             'activo': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
+                'style': 'width: 20px; height: 20px; cursor: pointer;'
             })
         }
 
@@ -38,7 +38,7 @@ class PersonalBusquedaForm(forms.Form):
         required=False,
         label='Buscar por ID, documento, nombres o contacto',
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'personal-form-control',
             'placeholder': 'Ingrese término de búsqueda'
         })
     )
@@ -47,6 +47,6 @@ class PersonalBusquedaForm(forms.Form):
         label='Filtrar por rol',
         choices=[('', 'Todos los roles')] + list(Personal.ROLES),
         widget=forms.Select(attrs={
-            'class': 'form-control'
+            'class': 'personal-form-control'
         })
     )

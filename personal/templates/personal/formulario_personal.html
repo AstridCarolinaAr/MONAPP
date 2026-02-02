@@ -3,117 +3,120 @@
 
 {% block title %}{{ titulo }} - Monapp{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus{% endif %}"></i> {{ titulo }}
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                <strong>Errores:</strong>
-                                <ul class="mb-0">
-                                    {% for error in form.non_field_errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
+<div class="personal-wrapper">
+    <div class="personal-container" style="max-width: 900px;">
+        <div class="personal-card">
+            <div class="personal-card-header">
+                <h4>
+                    <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus{% endif %}"></i> {{ titulo }}
+                </h4>
+            </div>
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="personal-alert danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Errores:</strong>
+                            <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <!-- Número de Documento -->
+                    <div class="personal-form-group">
+                        <label class="personal-form-label">Número de Documento</label>
+                        {{ form.numero_documento }}
+                        {% if form.numero_documento.errors %}
+                            <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
+                                {{ form.numero_documento.errors|join:", " }}
                             </div>
                         {% endif %}
+                    </div>
 
-                        <div class="row">
-                            <!-- Número de Documento -->
-                            <div class="col-md-6 mb-3">
-                                <label for="id_numero_documento" class="form-label">Número de Documento</label>
-                                {{ form.numero_documento }}
-                                {% if form.numero_documento.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.numero_documento.errors|join:", " }}
-                                    </div>
-                                {% endif %}
+                    <!-- Rol -->
+                    <div class="personal-form-group">
+                        <label class="personal-form-label">Rol</label>
+                        {{ form.rol }}
+                        {% if form.rol.errors %}
+                            <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
+                                {{ form.rol.errors|join:", " }}
                             </div>
-
-                            <!-- Rol -->
-                            <div class="col-md-6 mb-3">
-                                <label for="id_rol" class="form-label">Rol</label>
-                                {{ form.rol }}
-                                {% if form.rol.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.rol.errors|join:", " }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Nombres -->
-                        <div class="mb-3">
-                            <label for="id_nombres" class="form-label">Nombres Completos</label>
-                            {{ form.nombres }}
-                            {% if form.nombres.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.nombres.errors|join:", " }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="row">
-                            <!-- Teléfono -->
-                            <div class="col-md-6 mb-3">
-                                <label for="id_telefono" class="form-label">Teléfono</label>
-                                {{ form.telefono }}
-                                {% if form.telefono.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.telefono.errors|join:", " }}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Correo -->
-                            <div class="col-md-6 mb-3">
-                                <label for="id_correo" class="form-label">Correo Electrónico</label>
-                                {{ form.correo }}
-                                {% if form.correo.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.correo.errors|join:", " }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Estado -->
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ form.activo }}
-                                <label class="form-check-label" for="id_activo">
-                                    Personal Activo (con acceso a la plataforma)
-                                </label>
-                                {% if form.activo.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.activo.errors|join:", " }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Botones -->
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save"></i> Guardar
-                            </button>
-                            <a href="{% url 'personal:lista_personal' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Cancelar
-                            </a>
-                        </div>
-                    </form>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+
+                <!-- Nombres -->
+                <div class="personal-form-group">
+                    <label class="personal-form-label">Nombres Completos</label>
+                    {{ form.nombres }}
+                    {% if form.nombres.errors %}
+                        <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
+                            {{ form.nombres.errors|join:", " }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <!-- Teléfono -->
+                    <div class="personal-form-group">
+                        <label class="personal-form-label">Teléfono</label>
+                        {{ form.telefono }}
+                        {% if form.telefono.errors %}
+                            <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
+                                {{ form.telefono.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Correo -->
+                    <div class="personal-form-group">
+                        <label class="personal-form-label">Correo Electrónico</label>
+                        {{ form.correo }}
+                        {% if form.correo.errors %}
+                            <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
+                                {{ form.correo.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Estado -->
+                <div class="personal-form-check">
+                    {{ form.activo }}
+                    <label>
+                        Personal Activo (con acceso a la plataforma)
+                    </label>
+                </div>
+                {% if form.activo.errors %}
+                    <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
+                        {{ form.activo.errors|join:", " }}
+                    </div>
+                {% endif %}
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 12px; margin-top: 32px;">
+                    <button type="submit" class="personal-btn success">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <a href="{% url 'personal:lista_personal' %}" class="personal-btn secondary">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
