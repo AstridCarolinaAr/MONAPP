@@ -31,7 +31,7 @@
 
     <!-- FILTRO -->
     <div class="dropdown">
-        <button class="btn btn-filter dropdown-toggle"
+        <button class="btn btn-filter dropdown-toggle"  
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -120,7 +120,8 @@
                                     <!-- VER DETALLES -->
                                 <button
                                     type="button"
-                                    class="btn btn-info btn-sm btn-ver-proveedor"
+                                    class="btn btn-icon btn-ver"
+                                    title="Ver detalles proveedor"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalDetalleProveedor"
                                     data-nombre="{{ proveedor.nombre_proveedor }}"
@@ -134,21 +135,22 @@
                                     data-placa="{{ proveedor.placa_vehiculo }}"
                                     data-telefono="{{ proveedor.telefono_proveedor }}"
                                     data-correo="{{ proveedor.correo_proveedor }}"
-                                    data-estado="{{ proveedor.get_estado_display }}"
-                                >
-                                    <i class="bi bi-eye"></i>
+                                    data-estado="{{ proveedor.get_estado_display }}">
+                                    <i class="bi bi-eye-fill"></i>
                                 </button>
 
                                     <!-- EDITAR -->
                                     <a href="{% url 'proveedores:editar_proveedor' proveedor.id %}"
-                                       class="btn btn-primary btn-sm">
-                                        <i class="bi bi-pencil"></i>
+                                       class="btn-icon btn-editar"
+                                       title="Editar proveedor">
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
 
                                     <!-- ELIMINAR -->
                                     <a href="{% url 'proveedores:eliminar_proveedor' proveedor.id %}"
-                                    class="btn btn-danger btn-sm btn-eliminar">
-                                        <i class="bi bi-trash"></i>
+                                    class="btn-icon btn-eliminar"
+                                    title="Eliminar proveedor">
+                                        <i class="bi bi-trash3-fill"></i>   
                                     </a>
 
 
