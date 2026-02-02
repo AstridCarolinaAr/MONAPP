@@ -13,6 +13,9 @@ from clientes.models import Cliente
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
+from usuarios.forms import LoginForm
+from django.contrib.auth import login
+from clientes.models import Cliente
 
 
 

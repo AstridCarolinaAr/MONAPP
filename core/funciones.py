@@ -26,9 +26,19 @@ def bloquear_eliminar(mensaje="No tienes permiso para eliminar."):
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
+
             if not request.user.is_staff:
+                # 🔥 limpiar mensajes anteriores
+                list(messages.get_messages(request))
+
+                # 🔴 SOLO mensaje global
                 messages.error(request, mensaje)
-                return redirect("core:dashboard")  
+
+                return redirect(
+                    request.META.get('HTTP_REFERER', 'core:dashboard')
+                )
+
             return view_func(request, *args, **kwargs)
+
         return wrapper
     return decorator

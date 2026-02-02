@@ -257,3 +257,98 @@ function limpiar(input, feedback) {
     input.classList.remove('is-invalid', 'is-valid');
     feedback.textContent = '';
 }
+document.addEventListener('DOMContentLoaded', () => {
+
+  const numero = document.getElementById('numero_documento');
+  const nombre = document.getElementById('nombre');
+  const apellido = document.getElementById('apellido');
+  const fecha = document.getElementById('fecha_nacimiento');
+  const clienteId = document.getElementById('cliente_id')?.value;
+
+  /* ===============================
+     FUNCIONES AUX
+  =============================== */
+  function setError(input, mensaje) {
+    input.classList.add('is-invalid');
+    input.nextElementSibling.textContent = mensaje;
+  }
+
+  function setOk(input) {
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    input.nextElementSibling.textContent = '';
+  }
+
+  /* ===============================
+     VALIDAR DOCUMENTO (AJAX)
+  =============================== */
+  if (numero) {
+    numero.addEventListener('blur', () => {
+
+      const valor = numero.value.trim();
+      if (!valor) {
+        setError(numero, 'El documento es obligatorio.');
+        return;
+      }
+
+      fetch(`/clientes/validar-documento/?numero=${valor}&cliente_id=${clienteId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.valido) {
+            setError(numero, data.mensaje);
+          } else {
+            setOk(numero);
+          }
+        });
+    });
+  }
+
+  /* ===============================
+     VALIDAR NOMBRE
+  =============================== */
+  if (nombre) {
+    nombre.addEventListener('input', () => {
+      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+      if (!nombre.value.trim()) {
+        setError(nombre, 'El nombre es obligatorio.');
+      } else if (!regex.test(nombre.value)) {
+        setError(nombre, 'Solo letras.');
+      } else {
+        setOk(nombre);
+      }
+    });
+  }
+
+  /* ===============================
+     VALIDAR APELLIDO
+  =============================== */
+  if (apellido) {
+    apellido.addEventListener('input', () => {
+      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+      if (!apellido.value.trim()) {
+        setError(apellido, 'El apellido es obligatorio.');
+      } else if (!regex.test(apellido.value)) {
+        setError(apellido, 'Solo letras.');
+      } else {
+        setOk(apellido);
+      }
+    });
+  }
+
+  /* ===============================
+     VALIDAR FECHA
+  =============================== */
+  if (fecha) {
+    fecha.addEventListener('change', () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      if (!fecha.value) {
+        setError(fecha, 'La fecha es obligatoria.');
+      } else if (fecha.value > hoy) {
+        setError(fecha, 'No puede ser futura.');
+      } else {
+        setOk(fecha);
+      }
+    });
+  }
+
+});

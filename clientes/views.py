@@ -8,8 +8,71 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import re
 from django.http import JsonResponse
+from core.funciones import bloquear_eliminar
+from .validaciones import validar_datos_cliente
 
 
+def crear_cliente(request):
+    if request.method != 'POST':
+        return redirect('clientes:lista')
+
+    datos = request.POST
+    errores = validar_datos_cliente(datos)
+
+    if errores:
+        messages.error(request, '❌ No se pudo registrar el cliente.')
+        return render(request, 'clientes/lista_clientes.html', {
+            'clientes': Cliente.objects.all(),
+            'abrir_modal_cliente': True,
+            'errores': errores,
+            'datos': datos,
+        })
+
+    Cliente.objects.create(
+        tipo_documento=datos['tipo_documento'],
+        numero_documento=datos['numero_documento'],
+        nombre=datos['nombre'],
+        apellido=datos['apellido'],
+        fecha_nacimiento=datos['fecha_nacimiento'],
+        telefono=datos.get('telefono', ''),
+        correo=datos.get('correo', ''),
+        estado='activo'
+    )
+
+    messages.success(request, 'Cliente registrado correctamente.')
+    return redirect('clientes:lista')
+
+def editar_cliente(request, cliente_id):
+    cliente = get_object_or_404(Cliente, id=cliente_id)
+
+    if request.method == 'POST':
+        datos = request.POST
+        errores = validar_datos_cliente(datos, cliente_id=cliente.id)
+
+        if errores:
+            messages.error(request, '❌ No se pudieron guardar los cambios.')
+            return render(request, 'clientes/editar_cliente.html', {
+                'cliente': cliente,
+                'errores': errores,
+            })
+
+        cliente.tipo_documento = datos['tipo_documento']
+        cliente.numero_documento = datos['numero_documento']
+        cliente.nombre = datos['nombre']
+        cliente.apellido = datos['apellido']
+        cliente.fecha_nacimiento = datos['fecha_nacimiento']
+        cliente.telefono = datos.get('telefono', '')
+        cliente.correo = datos.get('correo', '')
+        cliente.estado = datos['estado']
+
+        cliente.save()
+
+        messages.success(request, 'Cliente actualizado correctamente.')
+        return redirect('clientes:lista')
+
+    return render(request, 'clientes/editar_cliente.html', {
+        'cliente': cliente
+    })
 def lista_clientes(request):
     q = request.GET.get('q')
     estado = request.GET.get('estado')
@@ -94,144 +157,18 @@ def validar_documento(request):
 
     return JsonResponse({'valido': True})
 
-def crear_cliente(request):
-    if request.method != 'POST':
-        return redirect('clientes:lista')
 
-    # ===============================
-    # DATOS DEL FORMULARIO
-    # ===============================
-    tipo_documento = request.POST.get('tipo_documento', '').strip()
-    numero_documento = request.POST.get('numero_documento', '').strip()
-    nombre = request.POST.get('nombre', '').strip()
-    apellido = request.POST.get('apellido', '').strip()
-    fecha_nacimiento_str = request.POST.get('fecha_nacimiento', '').strip()
-    telefono = request.POST.get('telefono', '').strip()
-    correo = request.POST.get('correo', '').strip()
 
-    clientes = Cliente.objects.all()
 
-    # Para mantener datos en el modal
-    datos = {
-        'tipo_documento': tipo_documento,
-        'numero_documento': numero_documento,
-        'nombre': nombre,
-        'apellido': apellido,
-        'fecha_nacimiento': fecha_nacimiento_str,
-        'telefono': telefono,
-        'correo': correo,
-    }
 
-    errores = {}
-
-    # ===============================
-    # VALIDACIONES
-    # ===============================
-
-    if not tipo_documento:
-        errores['tipo_documento'] = 'El tipo de documento es obligatorio.'
-
-    if not numero_documento:
-        errores['numero_documento'] = 'El número de documento es obligatorio.'
-    elif not numero_documento.isdigit():
-        errores['numero_documento'] = 'Solo se permiten números.'
-    elif not (6 <= len(numero_documento) <= 12):
-        errores['numero_documento'] = 'Debe tener entre 6 y 12 dígitos.'
-    elif Cliente.objects.filter(numero_documento=numero_documento).exists():
-        errores['numero_documento'] = 'Ya existe un cliente con ese número de documento.'
-
-    if not nombre:
-        errores['nombre'] = 'El nombre es obligatorio.'
-    elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', nombre):
-        errores['nombre'] = 'El nombre solo puede contener letras.'
-
-    if not apellido:
-        errores['apellido'] = 'El apellido es obligatorio.'
-    elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', apellido):
-        errores['apellido'] = 'El apellido solo puede contener letras.'
-
-    if not fecha_nacimiento_str:
-        errores['fecha_nacimiento'] = 'La fecha de nacimiento es obligatoria.'
-    else:
-        try:
-            fecha_nacimiento = date.fromisoformat(fecha_nacimiento_str)
-            if fecha_nacimiento > date.today():
-                errores['fecha_nacimiento'] = 'La fecha no puede ser futura.'
-        except ValueError:
-            errores['fecha_nacimiento'] = 'Fecha inválida.'
-
-    if telefono:
-        if not telefono.isdigit():
-            errores['telefono'] = 'El teléfono solo puede contener números.'
-        elif len(telefono) != 10:
-            errores['telefono'] = 'Debe tener exactamente 10 dígitos.'
-
-    if correo:
-        try:
-            validate_email(correo)
-        except ValidationError:
-            errores['correo'] = 'Correo electrónico inválido.'
-
-    # ===============================
-    # SI HAY ERRORES → NO REDIRECT
-    # ===============================
-    if errores:
-        messages.error(request, '❌ No se pudo registrar el cliente. Revisa los campos.')
-        return render(request, 'clientes/lista_clientes.html', {
-            'clientes': Cliente.objects.all(),
-            'abrir_modal_cliente': True,
-            'registro_fallido': True,
-            'errores': errores,
-            'datos': datos,
-        })
-
-    # ===============================
-    # GUARDAR (SOLO SI TODO ESTÁ BIEN)
-    # ===============================
-    Cliente.objects.create(
-        tipo_documento=tipo_documento,
-        numero_documento=numero_documento,
-        nombre=nombre,
-        apellido=apellido,
-        fecha_nacimiento=fecha_nacimiento,
-        telefono=telefono,
-        correo=correo,
-        estado='activo'
-    )
-
-    messages.success(request, 'Cliente registrado correctamente.')
-    return redirect('clientes:lista')
-
-def editar_cliente(request, cliente_id):
-    cliente = get_object_or_404(Cliente, id=cliente_id)
-
-    if request.method == 'POST':
-        cliente.tipo_documento = request.POST.get('tipo_documento')
-        cliente.numero_documento = request.POST.get('numero_documento')
-        cliente.nombre = request.POST.get('nombre')
-        cliente.apellido = request.POST.get('apellido')
-        cliente.fecha_nacimiento = request.POST.get('fecha_nacimiento')
-        cliente.telefono = request.POST.get('telefono')
-        cliente.correo = request.POST.get('correo')
-        cliente.estado = request.POST.get('estado')
-
-        cliente.save()
-        return redirect('clientes:lista')
-
-    return render(request, 'clientes/editar_cliente.html', {
-        'cliente': cliente
-    })
-@login_required
+@bloquear_eliminar("No tienes permiso para eliminar clientes.")
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
-    #  Permiso: solo admin
-    if not request.user.is_staff:
-        messages.error(request, 'No tienes permiso para eliminar clientes.')
-        return redirect('clientes:lista')
-
     if request.method == 'POST':
         cliente.delete()
-        messages.success(request, 'Cliente eliminado correctamente.')
+
+
+        messages.success(request, "Cliente eliminado correctamente.")
 
     return redirect('clientes:lista')
