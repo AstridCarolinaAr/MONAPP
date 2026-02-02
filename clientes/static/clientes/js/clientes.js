@@ -352,3 +352,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+document.addEventListener("DOMContentLoaded", () => {
+
+    document
+        .querySelectorAll(".btn-eliminar[data-control-eliminar]")
+        .forEach(btn => {
+
+            btn.addEventListener("click", function (e) {
+
+                const esAdmin = this.dataset.esAdmin === "true";
+                const modalId = this.dataset.modalId;
+
+                if (esAdmin) {
+                    const modalEl = document.getElementById(modalId);
+                    if (!modalEl) return;
+                    new bootstrap.Modal(modalEl).show();
+                } else {
+                    e.preventDefault();
+
+                    const modal = document.getElementById("modalAccionNoPermitida");
+                    if (!modal) return;
+
+                    const bsModal = new bootstrap.Modal(modal);
+                    bsModal.show();
+
+                    setTimeout(() => {
+                        bsModal.hide();
+                        document.querySelectorAll(".modal-backdrop").forEach(b => b.remove());
+                        document.body.classList.remove("modal-open");
+                    }, 3500);
+                }
+            });
+
+        });
+});

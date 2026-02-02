@@ -20,7 +20,7 @@ def crear_cliente(request):
     errores = validar_datos_cliente(datos)
 
     if errores:
-        messages.error(request, '❌ No se pudo registrar el cliente.')
+        messages.error(request, ' No se pudo registrar el cliente.')
         return render(request, 'clientes/lista_clientes.html', {
             'clientes': Cliente.objects.all(),
             'abrir_modal_cliente': True,
@@ -50,7 +50,7 @@ def editar_cliente(request, cliente_id):
         errores = validar_datos_cliente(datos, cliente_id=cliente.id)
 
         if errores:
-            messages.error(request, '❌ No se pudieron guardar los cambios.')
+            messages.error(request, ' No se pudieron guardar los cambios.')
             return render(request, 'clientes/editar_cliente.html', {
                 'cliente': cliente,
                 'errores': errores,

@@ -5,7 +5,7 @@ let animationId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    console.log("✅ main.js cargado");
+    console.log(" main.js cargado");
 
     /* ======================================================
        LOGIN MODAL (NO TOCAR)
@@ -18,51 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {
         console.warn("Login modal no disponible");
     }
-
-    /* ======================================================
-       ELIMINAR CLIENTE (ADMIN vs NO ADMIN)
-    ====================================================== */
-    document.querySelectorAll(".btn-eliminar").forEach(btn => {
-
-        btn.addEventListener("click", function (e) {
-
-            const esAdmin = this.dataset.esAdmin === "true";
-            const modalId = this.dataset.modalId;
-
-            if (esAdmin) {
-                // 👑 ADMIN → abrir modal de confirmación
-                const modalEl = document.getElementById(modalId);
-                if (!modalEl) return;
-
-                new bootstrap.Modal(modalEl).show();
-
-            } else {
-                // 🚫 NO ADMIN → modal global
-                e.preventDefault();
-
-                const modalPermiso = document.getElementById("modalAccionNoPermitida");
-                if (!modalPermiso) return;
-
-                const modal = new bootstrap.Modal(modalPermiso);
-                modal.show();
-
-                const barra = document.getElementById("barraTiempoPermiso");
-                if (barra) {
-                    barra.style.animation = "none";
-                    barra.offsetHeight;
-                    barra.style.animation = "cerrarModal 3.5s linear forwards";
-                }
-
-                setTimeout(() => {
-                    modal.hide();
-                    document.querySelectorAll(".modal-backdrop").forEach(b => b.remove());
-                    document.body.classList.remove("modal-open");
-                }, 3500);
-            }
-        });
-
-    });
-
     /* ======================================================
        CANVAS LOGIN (BOLAS)
     ====================================================== */
@@ -132,5 +87,25 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         });
     }
+
+});
+document.addEventListener('DOMContentLoaded', () => {
+
+    const btnFiltroLineas = document.getElementById('btnFiltroLineas');
+    const panelFiltroLineas = document.getElementById('panelFiltroLineas');
+
+    if (btnFiltroLineas && panelFiltroLineas) {
+        btnFiltroLineas.addEventListener('click', (e) => {
+            e.preventDefault();
+            panelFiltroLineas.classList.toggle('d-none');
+        });
+    }
+
+    // Si se hace click en "Quitar filtros", ocultar panel
+    document.querySelectorAll('a[href="?"]').forEach(link => {
+        link.addEventListener('click', () => {
+            panelFiltroLineas?.classList.add('d-none');
+        });
+    });
 
 });

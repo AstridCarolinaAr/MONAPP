@@ -37,3 +37,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+/* barra tiempo real*/

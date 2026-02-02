@@ -1,10 +1,11 @@
+console.log("JS PROVEEDOR CARGADO");
 document.addEventListener("DOMContentLoaded", () => {
 
-    console.log("JS PROVEEDOR CARGADO");
+
 
     const modal = document.getElementById("modalDetalleProveedor");
     if (!modal) {
-        console.error("❌ Modal no encontrado");
+        console.error(" Modal no encontrado");
         return;
     }
 
@@ -12,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const button = event.relatedTarget;
         if (!button) {
-            console.error("❌ Botón no encontrado");
+            console.error("Botón no encontrado");
             return;
         }
 

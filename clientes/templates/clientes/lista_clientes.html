@@ -17,11 +17,6 @@
                     data-bs-target="#modalCrearCliente">
                 <i class="bi bi-plus-lg me-1"></i> Nuevo cliente
             </button>
-
-
-
-
-
     </div>
 
 
@@ -181,12 +176,14 @@
                                 </div>
                             </div>
                             </div>
-                        <button class="btn btn-outline-danger btn-sm btn-eliminar"
-                                type="button"
-                                data-es-admin="{{ user.is_staff|yesno:'true,false' }}"
-                                data-modal-id="modalEliminarCliente{{ cliente.id }}">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm btn-eliminar-cliente"
+                            data-es-admin="{{ user.is_staff|yesno:'true,false' }}"
+                            data-modal-id="modalEliminarCliente{{ cliente.id }}">
                             <i class="bi bi-trash"></i>
                         </button>
+
 
                       {% if user.is_staff %}
 <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1">
@@ -384,6 +381,6 @@
 
 
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
-<script src="{% static 'core/js/main.js' %}"></script>
+<script src="{% static 'clientes/js/eliminar_clientes.js' %}"></script>
 
 {% endblock %} 
