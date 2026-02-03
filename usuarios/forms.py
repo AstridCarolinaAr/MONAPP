@@ -67,8 +67,11 @@ class RegistroForm(UserCreationForm):
         required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Número de documento'
-        })
+            'placeholder': 'Número de documento',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números'
+        }),
+        label='Documento'
     )
     
     email = forms.EmailField(
@@ -85,7 +88,9 @@ class RegistroForm(UserCreationForm):
         label='Nombre',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Nombre'
+            'placeholder': 'Nombre',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios'
         })
     )
     
@@ -95,7 +100,9 @@ class RegistroForm(UserCreationForm):
         label='Apellido',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Apellido'
+            'placeholder': 'Apellido',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios'
         })
     )
     
@@ -104,24 +111,36 @@ class RegistroForm(UserCreationForm):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Teléfono (opcional)'
-        })
+            'placeholder': 'Teléfono (opcional)',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números'
+        }),
+        label='Teléfono'
     )
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        fields = ['email', 'first_name', 'last_name', 'password1', 'password2']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control d-none'}),  # Oculto, usamos documento
             'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'}),
         }
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Reordenar campos para que aparezcan en el orden deseado
+        self.order_fields(['documento', 'email', 'first_name', 'last_name', 'password1', 'password2', 'rol', 'telefono'])
+    
     def clean_documento(self):
         """Valida que el documento no exista en la base de datos"""
         documento = self.cleaned_data.get('documento')
-        if PerfilUsuario.objects.filter(documento=documento).exists():
-            raise forms.ValidationError('Este documento ya está registrado.')
+        if documento:
+            # Validar que solo contenga números
+            if not documento.isdigit():
+                raise forms.ValidationError('El documento solo puede contener números.')
+            # Validar que no exista
+            if PerfilUsuario.objects.filter(documento=documento).exists():
+                raise forms.ValidationError('Este documento ya está registrado.')
         return documento
     
     def clean_email(self):
@@ -131,36 +150,61 @@ class RegistroForm(UserCreationForm):
             raise forms.ValidationError('Este correo electrónico ya está registrado.')
         return email
     
-def save(self, commit=True):
-    user = super().save(commit=False)
+    def clean_first_name(self):
+        """Validar que el nombre solo contenga letras y espacios"""
+        first_name = self.cleaned_data.get('first_name')
+        if first_name:
+            import re
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', first_name):
+                raise forms.ValidationError('El nombre solo puede contener letras y espacios.')
+        return first_name
+    
+    def clean_last_name(self):
+        """Validar que el apellido solo contenga letras y espacios"""
+        last_name = self.cleaned_data.get('last_name')
+        if last_name:
+            import re
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', last_name):
+                raise forms.ValidationError('El apellido solo puede contener letras y espacios.')
+        return last_name
+    
+    def clean_telefono(self):
+        """Validar que el teléfono solo contenga números"""
+        telefono = self.cleaned_data.get('telefono')
+        if telefono and not telefono.isdigit():
+            raise forms.ValidationError('El teléfono solo puede contener números.')
+        return telefono
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
 
-    # Documento como username
-    user.username = self.cleaned_data['documento']
-    user.email = self.cleaned_data['email']
+        # Documento como username
+        user.username = self.cleaned_data['documento']
+        user.email = self.cleaned_data['email']
 
-    rol = self.cleaned_data['rol']
+        rol = self.cleaned_data['rol']
 
-    # Configurar is_staff según rol
-    if rol in ['Administrador', 'Auxiliar']:
-        user.is_staff = True
-    else:
-        user.is_staff = False
+        # Configurar is_staff según rol
+        if rol in ['Administrador', 'Auxiliar']:
+            user.is_staff = True
+        else:
+            user.is_staff = False
 
-    if commit:
-        user.save()
+        if commit:
+            user.save()
 
-        # Perfil (ya existe por la señal)
-        perfil = user.perfil
-        perfil.documento = self.cleaned_data['documento']
-        perfil.telefono = self.cleaned_data.get('telefono', '')
-        perfil.save()
+            # Perfil (ya existe por la señal)
+            perfil = user.perfil
+            perfil.documento = self.cleaned_data['documento']
+            perfil.telefono = self.cleaned_data.get('telefono', '')
+            perfil.save()
 
-        # Asignar grupo
-        user.groups.clear()
-        grupo = Group.objects.get(name=rol)
-        user.groups.add(grupo)
+            # Asignar grupo (crear si no existe)
+            user.groups.clear()
+            grupo, created = Group.objects.get_or_create(name=rol)
+            user.groups.add(grupo)
 
-    return user
+        return user
 
 
 

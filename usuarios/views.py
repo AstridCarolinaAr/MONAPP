@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
-from core.funciones import admin_o_aux_required
+from core.funciones import admin_o_aux_required, solo_admin_required, no_colaborador_required
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -45,9 +45,14 @@ def logout_view(request):
 # ==================== PANEL DE USUARIOS (ADMIN / AUX) ====================
 
 @login_required
-@admin_o_aux_required()
 def lista_usuarios_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
+    
+    # Verificar si el usuario actual es Administrador (puede eliminar)
+    es_administrador = request.user.is_superuser or 'Administrador' in grupos
+    
+    # Verificar si puede crear/editar (no colaborador)
+    puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
 
     busqueda = request.GET.get('buscar', '')
 
@@ -71,12 +76,14 @@ def lista_usuarios_view(request):
             'titulo': 'Gestión de Usuarios',
             'usuarios': usuarios,
             'busqueda': busqueda,
+            'es_administrador': es_administrador,
+            'puede_modificar': puede_modificar,
         }
     )
 
 
 @login_required
-@admin_o_aux_required()
+@no_colaborador_required()
 def crear_usuario_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -94,7 +101,7 @@ def crear_usuario_view(request):
 
     return render(
         request,
-        'usuarios/panel_admin/crear_usuario.html',
+        'crear_usuario.html',
         {
             'titulo': 'Crear Usuario',
             'form': form,
@@ -103,7 +110,7 @@ def crear_usuario_view(request):
 
 
 @login_required
-@admin_o_aux_required()
+@no_colaborador_required()
 def editar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -133,7 +140,7 @@ def editar_usuario_view(request, user_id):
 
     return render(
         request,
-        'usuarios/panel_admin/editar_usuario.html',
+        'usuarios/editar_usuario.html',
         {
             'titulo': f'Editar Usuario: {usuario.get_full_name()}',
             'form_usuario': form_usuario,
@@ -144,7 +151,7 @@ def editar_usuario_view(request, user_id):
 
 
 @login_required
-@admin_o_aux_required()
+@solo_admin_required()
 def eliminar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -153,7 +160,7 @@ def eliminar_usuario_view(request, user_id):
 
     if usuario == request.user:
         messages.error(request, 'No puedes eliminarte a ti mismo.')
-        return redirect('usuarios:lista_usuarios_admin')
+        return redirect('usuarios:lista_usuarios')
 
     if request.method == 'POST':
         usuario.is_active = False
@@ -166,7 +173,7 @@ def eliminar_usuario_view(request, user_id):
 
     return render(
         request,
-        'usuarios/panel_admin/eliminar_usuario.html',
+        'usuarios/eliminar_usuario.html',
         {
             'titulo': 'Eliminar Usuario',
             'usuario': usuario,
