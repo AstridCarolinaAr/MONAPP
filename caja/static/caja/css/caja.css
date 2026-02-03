@@ -1,0 +1,117 @@
+/* Estilos para el módulo de Caja */
+
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 10px;
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: bold;
+}
+
+.table {
+    font-size: 0.95rem;
+}
+
+.table thead {
+    background-color: #343a40;
+    color: white;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+/* Animaciones para los mensajes */
+.alert {
+    animation: slideDown 0.5s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scroll personalizado */
+.card-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Efectos para las tarjetas de balance */
+.bg-success, .bg-danger, .bg-primary, .bg-warning {
+    background: linear-gradient(135deg, var(--bs-bg-opacity, 1), rgba(0,0,0,0.1));
+}
+
+/* Formulario */
+form .form-control {
+    border-radius: 5px;
+    border: 2px solid #dee2e6;
+    transition: border-color 0.3s;
+}
+
+form .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Badges */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+}
