@@ -43,45 +43,50 @@ def crear_venta(request):
     productos = Producto.objects.all()
 
     if request.method == 'POST':
-        form = VentaForm(request.POST)
+        # 🔍 DEBUG (puedes quitarlo luego)
+        print("ITEMS RAW:", request.POST.get('items'))
+
         items_json = request.POST.get('items')
 
-        if form.is_valid() and items_json:
-            items = json.loads(items_json)
+        # ❌ No hay productos agregados
+        if not items_json:
+            messages.error(request, 'Debes agregar al menos un producto o servicio.')
+            return redirect('ventas:crear')
 
-            venta = form.save(commit=False)
+        items = json.loads(items_json)
 
-            # Placeholder colaborador
-            venta.codigo_colaborador = 'PENDIENTE'
-            venta.nombre_colaborador = 'Pendiente'
-            venta.save()
+        # ✅ Crear la venta MANUALMENTE (NO con form.save)
+        venta = Venta.objects.create(
+            cliente_id=request.POST.get('cliente'),
+            codigo_colaborador='PENDIENTE',
+            nombre_colaborador='Pendiente'
+        )
 
-            for item in items:
-                producto = Producto.objects.select_for_update().get(
-                    codigo=item['codigo']
-                )
+        # 🔁 Crear detalles y descontar stock
+        for item in items:
+            producto = Producto.objects.select_for_update().get(
+                id=item['codigo']   # ⚠️ aquí usamos ID, no código textual
+            )
 
-                if item['cantidad'] > producto.cantidad:
-                    raise ValueError("Stock insuficiente")
+            if item['cantidad'] > producto.cantidad:
+                raise ValueError("Stock insuficiente")
 
-                DetalleVenta.objects.create(
-                    venta=venta,
-                    producto=producto,
-                    precio_unitario=item['precio'],
-                    cantidad=item['cantidad'],
-                    subtotal=item['subtotal']
-                )
+            DetalleVenta.objects.create(
+                venta=venta,
+                producto=producto,
+                precio_unitario=item['precio'],
+                cantidad=item['cantidad'],
+                subtotal=item['subtotal']
+            )
 
-                producto.cantidad -= item['cantidad']
-                producto.save()
+            producto.cantidad -= item['cantidad']
+            producto.save()
 
-            messages.success(request, 'Venta registrada correctamente.')
-            return redirect('ventas:lista')
+        messages.success(request, 'Venta registrada correctamente.')
+        return redirect('ventas:lista')
 
-        messages.error(request, 'No se pudo registrar la venta.')
-
-    else:
-        form = VentaForm()
+    # GET
+    form = VentaForm()
 
     return render(request, 'ventas/crear_venta.html', {
         'form': form,
@@ -89,13 +94,34 @@ def crear_venta(request):
     })
 
 
-
 def editar_venta(request, pk):
     return render(request, "ventas/editar_venta.html")
 
 
-def detalle_venta(request, pk):
-    return render(request, "ventas/detalle_venta.html")
+def detalle_venta(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+    detalles = venta.detalles.all()  # related_name del DetalleVenta
+
+    total = sum(d.subtotal for d in detalles)
+
+    return render(request, 'ventas/detalle_venta.html', {
+        'venta': venta,
+        'detalles': detalles,
+        'total': total,
+    })
+    
+def detalle_venta_modal(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+    detalles = venta.detalles.all()
+    total = sum(d.subtotal for d in detalles)
+
+    return render(request, 'ventas/partials/detalle_venta_modal.html', {
+        'venta': venta,
+        'detalles': detalles,
+        'total': total
+    })
+
+
 
 
 def clean(self):

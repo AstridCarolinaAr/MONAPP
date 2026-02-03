@@ -19,11 +19,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const tablaItems = document.querySelector("#tablaItems tbody");
     const totalVentaEl = document.getElementById("totalVenta");
 
+    const tipoProducto = document.getElementById("tipo_producto");
+    const tipoServicio = document.getElementById("tipo_servicio");
+
+    const selectProducto = document.getElementById("id_producto");
+    const selectServicio = document.getElementById("id_servicio");
+    const selectPersonal = document.getElementById("id_personal");
+        // Estado inicial
+    selectProducto.disabled = true;
+    selectServicio.disabled = true;
+    selectPersonal.disabled = true;
+
+
+
     // ===============================
     // ESTADO
     // ===============================
     let stockDisponible = null;
     let itemsVenta = [];
+
+
+    function resetCampos() {
+    selectProducto.value = "";
+    selectServicio.value = "";
+    selectPersonal.value = "";
+}
+
 
     // ===============================
     // UTILIDADES
@@ -108,6 +129,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         validarItem();
     });
+
+    // ===============================
+    // CAMBIO TIPO DE ITEM
+    // ===============================
+    tipoProducto.addEventListener("change", () => {
+        selectProducto.disabled = false;
+
+        selectServicio.disabled = true;
+        selectPersonal.disabled = true;
+
+        selectServicio.value = "";
+        selectPersonal.value = "";
+    });
+
+    tipoServicio.addEventListener("change", () => {
+        selectProducto.disabled = true;
+        selectServicio.disabled = false;
+        selectPersonal.disabled = false;
+
+        selectProducto.value = "";
+    });
+
 
     // ===============================
     // CAMBIO DE CANTIDAD
@@ -200,3 +243,19 @@ document.addEventListener("DOMContentLoaded", () => {
     btnGuardar.disabled = true;
     btnAgregarItem.disabled = true;
 });
+
+document.querySelectorAll(".btn-ver-detalle").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const ventaId = btn.dataset.id;
+        const contenedor = document.getElementById("contenidoDetalleVenta");
+
+        contenedor.innerHTML = "Cargando detalle...";
+
+        fetch(`/ventas/${ventaId}/detalle-modal/`)
+            .then(res => res.text())
+            .then(html => {
+                contenedor.innerHTML = html;
+            });
+    });
+});
+

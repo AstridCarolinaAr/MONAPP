@@ -14,7 +14,6 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <form method="post" novalidate>
-                <input type="hidden" name="items" id="itemsInput">
                 {% csrf_token %}
 
                 <div class="row g-3">
@@ -25,25 +24,21 @@
                         {{ form.cliente }}
                     </div>
 
-                    <!-- PRODUCTO -->
-                    <div class="col-md-6">
-                        <label class="form-label">Producto / servicio</label>
-                        <select
-                            name="codigo_producto"
-                            id="id_producto"
-                            class="form-select"
-                        >
-                            <option value="">Seleccione</option>
-                            {% for p in productos %}
-                                <option
-                                    value="{{ p.codigo }}"
-                                    data-precio="{{ p.precio }}"
-                                    data-stock="{{ p.cantidad }}"
-                                >
-                                    {{ p.nombre }}
-                                </option>
-                            {% endfor %}
-                        </select>
+                   <label class="form-label">Tipo</label>
+
+                   
+                    <!-- Producto-->
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo_item" id="tipo_producto" value="producto">
+                            <label class="form-check-label">Producto</label>
+                        </div>
+
+                        <!-- SERVICIO -->
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo_item" id="tipo_servicio" value="servicio">
+                            <label class="form-check-label">Servicio</label>
+                        </div>
                     </div>
 
                     <!-- STOCK INFO -->
@@ -110,6 +105,7 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                <input type="hidden" name="items" id="itemsInput">
 
                 <div class="text-end fw-bold">
                     Total: $<span id="totalVenta">0.00</span>
