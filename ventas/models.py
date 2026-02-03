@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 from clientes.models import Cliente
+from Productos.models import Producto
 
 
 class Venta(models.Model):
@@ -93,5 +94,22 @@ class Venta(models.Model):
 
     def __str__(self):
         return f"{self.codigo_venta} - {self.cliente}"
+    
+class DetalleVenta(models.Model):
+    venta = models.ForeignKey(
+        'Venta',
+        on_delete=models.CASCADE,
+        related_name='detalles'
+    )
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT
+    )
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+    cantidad = models.PositiveIntegerField()
+    subtotal = models.DecimalField(max_digits=14, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.producto} x {self.cantidad}"
 
 

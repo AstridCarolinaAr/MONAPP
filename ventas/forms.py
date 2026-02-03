@@ -22,7 +22,8 @@ class VentaForm(forms.ModelForm):
             'precio_unitario': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'id': 'id_precio_unitario',
-                'readonly': True
+                'readonly': True,
+                'tabindex': '-1'   # 👈 evita focus
             }),
             'cantidad': forms.NumberInput(attrs={
                 'class': 'form-control',
