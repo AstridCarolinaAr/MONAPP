@@ -9,13 +9,7 @@ from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
 from clientes.models import Cliente
-from clientes.models import Cliente
-from usuarios.forms import LoginForm
-from django.contrib.auth import login
-
-from usuarios.forms import LoginForm
-from django.contrib.auth import login
-from clientes.models import Cliente
+from servicios.models import Servicio
 
 
 
@@ -33,27 +27,22 @@ def index(request):
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
 
+    # Obtener servicios activos
+    servicios = Servicio.objects.filter(activo=True)
+
     return render(request, 'core/index.html', {
-        'show_login_modal': show_login_modal
+        'show_login_modal': show_login_modal,
+        'servicios': servicios
     })
 
 @login_required
-@admin_o_aux_required()
 def dashboard_view(request):
     """
     Vista principal del panel de administración
-    Solo Administrador y Auxiliar (y Superusuario)
+    Todos los usuarios autenticados pueden acceder
     """
 
     grupos = list(request.user.groups.values_list('name', flat=True))
-
-    if (
-        not request.user.is_superuser
-        and 'Administrador' not in grupos
-        and 'Auxiliar' not in grupos
-    ):
-        messages.error(request, 'No tienes acceso al panel.')
-        return redirect('core:index')
 
     # 📊 Estadísticas
     total_usuarios = User.objects.count()

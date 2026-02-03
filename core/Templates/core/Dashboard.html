@@ -27,6 +27,8 @@
                 <h3>—</h3>
             </div>
         </div>
+    
+    
 
         <div class="col-md-3">
             <div class="stats-card card-ventas">
@@ -51,11 +53,22 @@
                 <h3>—</h3>
             </div>
         </div>
+    </div>
+
+    <div class="row mt-3">
         <div class="col-md-3">
             <div class="stats-card card-clientes" onclick="location.href='{% url 'clientes:lista' %}'" style="cursor:pointer;">
                 <i class="bi bi-person-vcard icon"></i>
                 <p class="mb-0">Clientes</p>
                 <h3>—</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stats-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; cursor: pointer;" onclick="location.href='{% url 'inventario:caja_vista' %}'">
+                <i class="bi bi-cash-coin icon"></i>
+                <p class="mb-0">Inventario</p>
+                <h3>💰</h3>
             </div>
         </div>
 
@@ -78,6 +91,10 @@
 
                     <a href="#" class="btn btn-outline-primary me-2">
                         <i class="bi bi-cart3 me-1"></i> Ventas
+                    </a>
+
+                    <a href="{% url 'inventario:caja_vista' %}" class="btn btn-warning me-2">
+                        <i class="bi bi-gear"></i> Inventario
                     </a>
 
                     <a href="#" class="btn btn-outline-secondary">
@@ -127,7 +144,7 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <!-- Aquí puedes renderizar gráficas, widgets o listados sin referencia a usuarios -->
+                    
                     <p class="text-muted mb-0">Área de widgets: agrega aquí información relevante del sistema (ventas, inventario, productos, etc.).</p>
                 </div>
             </div>

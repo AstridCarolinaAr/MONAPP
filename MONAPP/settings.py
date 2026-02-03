@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'Proveedores',
     'ventas.apps.VentasConfig',
     'personal',
+    'inventario',
+    'servicios',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +140,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# MEDIA FILES (para imágenes subidas)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # LOGIN/LOGOUT SETTINGS
 

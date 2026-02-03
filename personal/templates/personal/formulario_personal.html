@@ -40,6 +40,9 @@
                     <div class="personal-form-group">
                         <label class="personal-form-label">Número de Documento</label>
                         {{ form.numero_documento }}
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
+                            Aquí solo se pueden ingresar números
+                        </small>
                         {% if form.numero_documento.errors %}
                             <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
                                 {{ form.numero_documento.errors|join:", " }}
@@ -63,6 +66,9 @@
                 <div class="personal-form-group">
                     <label class="personal-form-label">Nombres Completos</label>
                     {{ form.nombres }}
+                    <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
+                        Aquí no se pueden ingresar números
+                    </small>
                     {% if form.nombres.errors %}
                         <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
                             {{ form.nombres.errors|join:", " }}
@@ -75,6 +81,9 @@
                     <div class="personal-form-group">
                         <label class="personal-form-label">Teléfono</label>
                         {{ form.telefono }}
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
+                            Aquí no se pueden ingresar letras
+                        </small>
                         {% if form.telefono.errors %}
                             <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
                                 {{ form.telefono.errors|join:", " }}
@@ -120,4 +129,59 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación para número de documento - solo números
+        const numeroDocumento = document.querySelector('input[name="numero_documento"]');
+        if (numeroDocumento) {
+            numeroDocumento.addEventListener('input', function(e) {
+                // Reemplazar cualquier carácter que no sea número
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            numeroDocumento.addEventListener('keypress', function(e) {
+                // Prevenir la entrada de caracteres no numéricos
+                if (e.which < 48 || e.which > 57) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Validación para nombres - solo letras y espacios
+        const nombres = document.querySelector('input[name="nombres"]');
+        if (nombres) {
+            nombres.addEventListener('input', function(e) {
+                // Reemplazar cualquier carácter que no sea letra, espacio o acentos
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+            
+            nombres.addEventListener('keypress', function(e) {
+                const char = String.fromCharCode(e.which);
+                // Permitir solo letras, espacios y caracteres con acento
+                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Validación para teléfono - solo números
+        const telefono = document.querySelector('input[name="telefono"]');
+        if (telefono) {
+            telefono.addEventListener('input', function(e) {
+                // Reemplazar cualquier carácter que no sea número
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            telefono.addEventListener('keypress', function(e) {
+                // Prevenir la entrada de caracteres no numéricos
+                if (e.which < 48 || e.which > 57) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
