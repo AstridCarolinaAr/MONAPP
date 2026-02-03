@@ -1,0 +1,94 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Lista de Servicios{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-gear-fill"></i> Gestión de Servicios
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .service-card {
+        transition: transform 0.2s;
+    }
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .service-image {
+        height: 200px;
+        object-fit: cover;
+    }
+    .badge-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Botón Crear -->
+    <div class="mb-4">
+        <a href="{% url 'servicios:crear_servicio' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Crear Nuevo Servicio
+        </a>
+    </div>
+
+    <!-- Lista de Servicios -->
+    {% if servicios %}
+        <div class="row">
+            {% for servicio in servicios %}
+                <div class="col-md-4 mb-4">
+                    <div class="card service-card">
+                        <div class="position-relative">
+                            {% if servicio.imagen %}
+                                <img src="{{ servicio.imagen.url }}" class="card-img-top service-image" alt="{{ servicio.nombre }}">
+                            {% else %}
+                                <div class="card-img-top service-image bg-light d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge badge-status {% if servicio.activo %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if servicio.activo %}Activo{% else %}Inactivo{% endif %}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ servicio.nombre }}</h5>
+                            <p class="card-text text-muted">{{ servicio.descripcion|truncatechars:100 }}</p>
+                            <p class="h4 text-primary">${{ servicio.precio|floatformat:2 }}</p>
+                            <small class="text-muted">Creado: {{ servicio.fecha_creacion|date:"d/m/Y" }}</small>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'servicios:editar_servicio' servicio.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <a href="{% url 'servicios:eliminar_servicio' servicio.pk %}" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No hay servicios registrados. 
+            <a href="{% url 'servicios:crear_servicio' %}">Crear el primero</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

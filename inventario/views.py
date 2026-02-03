@@ -16,7 +16,7 @@ def caja_vista(request):
             transaccion.usuario = request.user
             transaccion.save()
             messages.success(request, f'{transaccion.tipo.capitalize()} registrado exitosamente.')
-            return redirect('caja:caja_vista')
+            return redirect('inventario:caja_vista')
     else:
         form = TransaccionForm()
     
@@ -36,7 +36,7 @@ def caja_vista(request):
         'balance_total': balance_total,
     }
     
-    return render(request, 'caja/caja.html', context)
+    return render(request, 'inventario/caja.html', context)
 
 @login_required
 def exportar_txt(request):
@@ -49,7 +49,7 @@ def exportar_txt(request):
     
     # Crear el contenido del archivo
     contenido = "=" * 80 + "\n"
-    contenido += "REPORTE DE CAJA - INGRESOS Y EGRESOS\n"
+    contenido += "REPORTE DE INVENTARIO - INGRESOS Y EGRESOS\n"
     contenido += "=" * 80 + "\n"
     contenido += f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n"
     contenido += f"Usuario: {request.user.username}\n"
@@ -79,6 +79,6 @@ def exportar_txt(request):
     
     # Crear respuesta HTTP
     response = HttpResponse(contenido, content_type='text/plain; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="caja_reporte_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt"'
+    response['Content-Disposition'] = f'attachment; filename="inventario_reporte_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt"'
     
     return response

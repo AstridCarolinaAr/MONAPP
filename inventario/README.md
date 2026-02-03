@@ -1,4 +1,4 @@
-# Módulo de Gestión de Caja
+# Módulo de Gestión de Inventario
 
 ## Descripción
 Módulo para registrar y gestionar ingresos y egresos de dinero con seguimiento completo de transacciones.
@@ -33,25 +33,25 @@ El módulo ya está instalado y configurado. Los pasos realizados fueron:
 
 1. **Creación de la app:**
    ```bash
-   python manage.py startapp caja
+   python manage.py startapp inventario
    ```
 
 2. **Registro en INSTALLED_APPS** (settings.py):
    ```python
    INSTALLED_APPS = [
        ...
-       'caja',
+       'inventario',
    ]
    ```
 
 3. **Configuración de URLs** (MONAPP/urls.py):
    ```python
-   path('caja/', include('caja.urls')),
+   path('inventario/', include('inventario.urls')),
    ```
 
 4. **Migraciones:**
    ```bash
-   python manage.py makemigrations caja
+   python manage.py makemigrations inventario
    python manage.py migrate
    ```
 
@@ -59,7 +59,7 @@ El módulo ya está instalado y configurado. Los pasos realizados fueron:
 
 ### Acceder al Módulo
 1. Inicia el servidor: `python manage.py runserver`
-2. Ve a: `http://127.0.0.1:8000/caja/`
+2. Ve a: `http://127.0.0.1:8000/inventario/`
 3. Debes estar autenticado para usar el módulo
 
 ### Registrar una Transacción
@@ -77,22 +77,22 @@ El módulo ya está instalado y configurado. Los pasos realizados fueron:
 
 ### Exportar a TXT
 1. Haz clic en el botón "Exportar TXT" en la parte superior de la tabla
-2. Se descargará un archivo con formato: `caja_reporte_YYYYMMDD_HHMMSS.txt`
+2. Se descargará un archivo con formato: `inventario_reporte_YYYYMMDD_HHMMSS.txt`
 
 ## Estructura de Archivos
 
 ```
-caja/
+inventario/
 ├── models.py              # Modelo Transaccion
 ├── forms.py               # Formulario TransaccionForm
 ├── views.py               # Vistas caja_vista y exportar_txt
 ├── urls.py                # URLs del módulo
 ├── admin.py               # Configuración del admin
 ├── templates/
-│   └── caja/
+│   └── inventario/
 │       └── caja.html      # Plantilla principal
 └── static/
-    └── caja/
+    └── inventario/
         ├── css/
         │   └── caja.css   # Estilos personalizados
         └── js/
@@ -150,3 +150,4 @@ El modelo también está disponible en el admin de Django:
 - [ ] Categorías de transacciones
 - [ ] Paginación para grandes volúmenes de datos
 - [ ] Dashboard con estadísticas
+

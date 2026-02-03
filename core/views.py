@@ -9,13 +9,7 @@ from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
 from clientes.models import Cliente
-from clientes.models import Cliente
-from usuarios.forms import LoginForm
-from django.contrib.auth import login
-
-from usuarios.forms import LoginForm
-from django.contrib.auth import login
-from clientes.models import Cliente
+from servicios.models import Servicio
 
 
 
@@ -33,8 +27,12 @@ def index(request):
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
 
+    # Obtener servicios activos
+    servicios = Servicio.objects.filter(activo=True)
+
     return render(request, 'core/index.html', {
-        'show_login_modal': show_login_modal
+        'show_login_modal': show_login_modal,
+        'servicios': servicios
     })
 
 @login_required
