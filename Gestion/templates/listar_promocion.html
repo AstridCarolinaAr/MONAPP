@@ -1,73 +1,78 @@
 {% extends 'gestion/base.html' %}
 
 {% block content %}
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1><i class="bi bi-tag"></i> Gestión de Promociones</h1>
-        <a href="{% url 'crear_promocion' %}" class="btn btn-success btn-lg">
-            <i class="bi bi-plus-circle"></i> Nueva Promoción
-        </a>
-    </div>
-</div>
-
-{% if promociones %}
-    <div class="row">
-        {% for promo in promociones %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm border-0 {% if promo.esta_activa %}border-success border-3{% else %}border-secondary border-2 opacity-75{% endif %}">
-                <div class="card-header bg-{% if promo.esta_activa %}success{% else %}secondary{% endif %} text-white">
-                    <h5 class="mb-0">
-                        {% if promo.esta_activa %}
-                            <i class="bi bi-check-circle"></i> Activa
-                        {% else %}
-                            <i class="bi bi-clock-history"></i> Inactiva
-                        {% endif %}
-                    </h5>
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h1 class="h4 mb-0"><i class="bi bi-tag"></i> Promociones</h1>
+    <small class="text-muted">Ofertas activas e históricas</small>
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    <form method="get" class="d-flex" style="min-width:260px;">
+      <input name="q" value="{{ request.GET.q }}" class="form-control form-control-sm" placeholder="Buscar promoción...">
+      <button class="btn btn-sm btn-primary ms-2" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+    {% if es_administrador %}
+    <a href="{% url 'crear_promocion' %}" class="btn btn-success btn-sm"> <i class="bi bi-plus-circle"></i> Nueva Promoción</a>
+    {% endif %}
+  </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5 class="mb-1">{{ promo.titulo }}</h5>
+                <p class="small text-muted mb-2">{{ promo.descripcion|truncatechars:100 }}</p>
+                <div class="mb-2">
+                  <span class="badge bg-warning text-dark">{{ promo.descuento }}% OFF</span>
+                  {% if promo.esta_activa %}
+                    <span class="badge bg-success ms-1">Activa</span>
+                  {% else %}
+                    <span class="badge bg-secondary ms-1">Inactiva</span>
+                  {% endif %}
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ promo.titulo }}</h5>
-                    <div class="mb-3">
-                        <div class="badge bg-warning text-dark p-2" style="font-size: 1.2rem;">
-                            <i class="bi bi-lightning"></i> {{ promo.descuento }}% OFF
-                        </div>
-                    </div>
-                    <p class="card-text text-muted">{{ promo.descripcion|truncatechars:80 }}</p>
-                    <div class="border-top pt-3">
-                        <p class="mb-1">
-                            <strong><i class="bi bi-calendar"></i> Vigencia:</strong>
-                        </p>
-                        <small class="text-muted">
-                            Desde: {{ promo.fecha_inicio|date:"d/m/Y" }}<br>
-                            Hasta: {{ promo.fecha_fin|date:"d/m/Y" }}
-                        </small>
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent border-top-0">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'editar_promocion' promo.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i> Editar
-                        </a>
-                        <form method="post" action="{% url 'eliminar_promocion' promo.id %}" style="display: block;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger w-100" 
-                                    onclick="return confirm('¿Seguro de eliminar esta promoción?');">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </div>
+              </div>
+              <div class="text-end small text-muted">
+                <div>Vigencia</div>
+                <div>{{ promo.fecha_inicio|date:"d/m/Y" }} - {{ promo.fecha_fin|date:"d/m/Y" }}</div>
+              </div>
             </div>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 d-flex gap-2">
+            {% if es_administrador %}
+            <a href="{% url 'editar_promocion' promo.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Editar</a>
+            <form method="post" action="{% url 'eliminar_promocion' promo.id %}" style="display:inline-block">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger btn-confirm" type="button" data-confirm="¿Eliminar promoción?"><i class="bi bi-trash"></i></button>
+            </form>
+            {% else %}
+            <a class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-lock"></i> Sin permisos</a>
+            {% endif %}
+          </div>
         </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="alert alert-info text-center py-5">
-        <i class="bi bi-gift" style="font-size: 3rem; display: block; margin-bottom: 1rem;"></i>
-        <h4>No hay promociones registradas</h4>
-        <p class="mb-0">Crea tu primera promoción para atraer más clientes.</p>
-        <a href="{% url 'crear_promocion' %}" class="btn btn-primary mt-3">
-            <i class="bi bi-plus-circle"></i> Crear Primera Promoción
-        </a>
-    </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav aria-label="Paginación" class="mt-3">
+      <ul class="pagination pagination-sm justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.next_page_number }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
+{% else %} 
+  <div class="alert alert-info text-center mt-4">
+    <i class="bi bi-gift fs-1"></i>
+    <h5 class="mt-2">No hay promociones</h5>
+    <p class="mb-2">Crea promociones para impulsar las ventas.</p>
+    <a class="btn btn-primary" href="{% url 'crear_promocion' %}">Crear Promoción</a>
+  </div>
 {% endif %}
 {% endblock %}

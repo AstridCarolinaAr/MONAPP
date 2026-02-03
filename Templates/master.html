@@ -1,28 +1,45 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monakeratina</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'core/css/master.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
 <!-- HEADER -->
 <header class="header">
-    <div class="logo">MI SITIO</div>
-
-    <nav class="nav">
-            <a href="#" class="btn-header">Inicio</a>
-            <a href="#"class="btn-header">Nosotros</a>
-            <a href="#"class ="btn-header">Servicios</a>
-            <a href="#"class ="btn-header">Productos</a>
-            <a href="#"class ="btn-header">Contactenos</a>
-        </div>
+   <div class="logo">
+    {% include "core/partials/logo_monakeratina.svg" %}
+    </div> 
+    <nav class="nav nav-glass">
+        <a href="#inicio" class="nav-item">Inicio</a>
+        <a href="#intro" class="nav-item">Nosotros</a>
+        <a href="#promociones" class="nav-item">Promociones</a>
+        <a href="#infinite" class="nav-item">Servicios</a>
+        <a href="#testimonials" class="nav-item">Productos</a>
+        <a href="#cta" class="nav-item">Contactenos</a>
     </nav>
 
-    <div class="header-actions">
-        <a href="{% url 'usuarios:login' %}" class="login">Iniciar sesión</a>
-        <a href="" class="btn-header">Empezar</a>
+    <div class="nav-glass">
+        <a href="{% url 'usuarios:login' %}" class="nav-item btn-login">Iniciar sesión</a>
     </div>
 </header>
+<main>
+    {% block content %}
+    <!-- Aquí se inyecta index.html, servicios.html, etc -->
+    {% endblock %}
+</main>
 
 <!-- FOOTER -->
 <footer class="footer">
     <div class="footer-content">
-        <p>&copy; 2025 Mi Sitio. Todos los derechos reservados.</p>
+        <p>&copy; 2025 MONA KERATINA. Todos los derechos reservados.</p>
         <div class="footer-links">
             <a href="#">Política de privacidad</a>
             <a href="#">Términos de uso</a>
@@ -30,3 +47,9 @@
         </div>
     </div>
 </footer>
+
+<!-- JS -->
+<script src="{% static 'core/js/main.js' %}"></script>
+
+</body>
+</html>

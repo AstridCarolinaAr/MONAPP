@@ -2,148 +2,49 @@
 
 {% block content %}
 <div class="row justify-content-center mt-3">
-    <div class="col-md-8 col-lg-7">
-        <div class="card border-danger shadow-lg">
-            <div class="card-header bg-danger text-white d-flex align-items-center">
-                <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.5rem;"></i>
-                <h4 class="mb-0">⚠️ Zona de Peligro: Restauración de Base de Datos</h4>
-            </div>
-
-            <div class="card-body p-4">
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <h5 class="alert-heading"><i class="bi bi-exclamation-circle"></i> ⚠️ Advertencia Importante</h5>
-                    <hr>
-                    <p class="mb-0">
-                        <strong>Esta acción es irreversible.</strong> Al restaurar desde un archivo de respaldo, 
-                        <strong>TODOS los datos actuales de la base de datos serán reemplazados</strong> con la información 
-                        del archivo que cargas. Asegúrate de tener un respaldo de los datos actuales antes de proceder.
-                    </p>
-                    <hr>
-                    <p class="mb-0">
-                        <strong>Solo disponible para:</strong>
-                        <br>
-                        👤 <span class="badge bg-primary">Administradora Cristina</span>
-                        <br>
-                        👤 <span class="badge bg-info">Auxiliar Olga</span>
-                    </p>
-                </div>
-
-                <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    <i class="bi bi-info-circle"></i>
-                    <strong>Información del proceso:</strong>
-                    <ul class="mb-0 mt-2">
-                        <li>Formatos soportados: <code>.json</code> o <code>.sql</code></li>
-                        <li>Tamaño máximo: 10 MB</li>
-                        <li>El proceso puede tomar algunos minutos</li>
-                    </ul>
-                </div>
-
-                <form method="post" enctype="multipart/form-data" id="restore-form" novalidate>
-                    {% csrf_token %}
-                    
-                    <div class="mb-4">
-                        <label for="id_archivo_backup" class="form-label fw-bold d-flex align-items-center">
-                            <i class="bi bi-cloud-arrow-down me-2"></i>
-                            Seleccionar archivo de respaldo:
-                            <span class="text-danger ms-1">*</span>
-                        </label>
-                        
-                        <div class="input-group mb-2">
-                            <input type="file" 
-                                   class="form-control {% if form.archivo_backup.errors %}is-invalid{% endif %}"
-                                   id="id_archivo_backup"
-                                   name="archivo_backup"
-                                   accept=".json,.sql"
-                                   required>
-                            <label class="input-group-text" for="id_archivo_backup">
-                                <i class="bi bi-folder-open"></i> Examinar
-                            </label>
-                        </div>
-
-                        <small class="form-text text-muted d-block">
-                            <i class="bi bi-info-circle"></i>
-                            {{ form.archivo_backup.help_text|safe }}
-                        </small>
-
-                        {% for error in form.archivo_backup.errors %}
-                            <div class="invalid-feedback d-block">
-                                <i class="bi bi-x-circle"></i>
-                                <strong>Error:</strong> {{ error }}
-                            </div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="alert alert-light p-3 mb-4">
-                        <strong><i class="bi bi-bookmark-check"></i> Pasos recomendados:</strong>
-                        <ol class="mb-0 mt-2" style="font-size: 0.9rem;">
-                            <li>Realiza una copia de seguridad de los datos actuales</li>
-                            <li>Verifica que el archivo de respaldo sea correcto</li>
-                            <li>Confirma la restauración en el siguiente paso</li>
-                            <li>Espera a que se complete el proceso sin cerrar la página</li>
-                        </ol>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" 
-                                class="btn btn-danger btn-lg fw-bold"
-                                id="restore-btn"
-                                onclick="return confirm('⚠️ ÚLTIMA OPORTUNIDAD DE CAMBIAR DE IDEA\\n\\n¿Estás COMPLETAMENTE seguro de que deseas restaurar la base de datos? Esta acción NO SE PUEDE DESHACER.\\n\\nTodos los datos actuales serán reemplazados permanentemente.');">
-                            <i class="bi bi-cloud-arrow-down"></i> RESTAURAR BASE DE DATOS
-                        </button>
-                        <a href="{% url 'listar_productos' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            <div class="card-footer bg-light">
-                <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                    <i class="bi bi-clock-history"></i>
-                    Última actualización: {{ now|date:"d/m/Y H:i" }}
-                </p>
-            </div>
+  <div class="col-md-8 col-lg-7">
+    <div class="card border-danger mt-3">
+      <div class="card-header bg-danger text-white d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <h5 class="mb-0">Restaurar Base de Datos</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning">
+          <strong>⚠️ Atención:</strong> Esta acción es <strong>irreversible</strong>. Al restaurar, se reemplazarán todos los datos actuales.
         </div>
 
-        <div class="alert alert-light mt-4 p-3 border border-info">
-            <strong><i class="bi bi-lightbulb text-info"></i> Alternativa segura:</strong>
-            <p class="mb-0 mt-2">
-                Si deseas probar cambios sin riesgo, considera crear un respaldo de tu base de datos actual 
-                antes de realizar esta operación. Así podrás revertir si algo no sale como esperado.
-            </p>
+        <div class="mb-3">
+          <small class="text-muted">Formatos: <code>.json</code>, <code>.sql</code>. Tamaño máximo: 10 MB.</small>
         </div>
+
+        <form method="post" enctype="multipart/form-data" id="restore-form">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Seleccionar archivo de respaldo <span class="text-danger">*</span></label>
+            <input type="file" name="archivo_backup" accept=".json,.sql" class="form-control">
+            {% if form.archivo_backup.help_text %}
+              <div class="form-text">{{ form.archivo_backup.help_text|safe }}</div>
+            {% endif %}
+            {% for error in form.archivo_backup.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-danger btn-confirm" data-confirm="¿Confirma restaurar la base de datos? Esta acción no se puede deshacer."><i class="bi bi-cloud-arrow-down"></i> Restaurar</button>
+            <a href="{% url 'listar_productos' %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+
+      </div>
+      <div class="card-footer text-muted small">
+        Última actualización: {{ now|date:"d/m/Y H:i" }}
+      </div>
     </div>
+
+    <div class="alert alert-light mt-3">
+      <strong>Consejo:</strong> Haz un respaldo antes de restaurar para poder volver atrás si es necesario.
+    </div>
+  </div>
 </div>
-
-<style>
-    .input-group .form-control {
-        border-radius: 0.375rem 0 0 0.375rem;
-    }
-    
-    .input-group-text {
-        cursor: pointer;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 0 0.375rem 0.375rem 0;
-    }
-
-    #restore-btn {
-        transition: all 0.3s ease;
-    }
-
-    #restore-btn:hover {
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
-    }
-
-    .card {
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
-
-    .invalid-feedback {
-        color: #dc3545;
-        font-size: 0.85rem;
-    }
-</style>
 {% endblock %}

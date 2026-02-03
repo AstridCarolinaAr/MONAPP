@@ -65,6 +65,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Context processor to make management permissions available in templates
+                # Use full package path to avoid ModuleNotFound errors when project root differs
+                # Apunta a la app `core` (no dentro de `MONAPP`):
+                'core.context_processors.gestion_permissions',
             ],
         },
     },

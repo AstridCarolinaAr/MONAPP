@@ -19,4 +19,6 @@ urlpatterns = [
     path('usuarios/crear/', views.crear_usuario_view, name='crear_usuario'),
     path('usuarios/<int:user_id>/editar/', views.editar_usuario_view, name='editar_usuario'),
     path('usuarios/<int:user_id>/eliminar/', views.eliminar_usuario_view, name='eliminar_usuario'),
+    # Restablecer contraseña (envío de email) desde la página de login (inline)
+    path('password-reset/', views.password_reset_inline, name='password_reset'),
 ]

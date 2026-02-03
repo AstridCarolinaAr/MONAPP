@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Índice del módulo Gestión
+    path('', views.index, name='gestion_index'),
+
     # Productos
     path('productos/', views.listar_productos, name='listar_productos'),
     path('productos/nuevo/', views.crear_producto, name='crear_producto'),
@@ -22,4 +25,7 @@ urlpatterns = [
 
     # Backup (Cristina y Olga)
     path('backup/restaurar/', views.restaurar_bd, name='restaurar_bd'),
+
+    # Debug / diagnóstico (temporal)
+    path('debug/', views.debug_session, name='gestion_debug'),
 ]

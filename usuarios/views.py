@@ -29,20 +29,20 @@ def login_view(request):
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             remember_me = form.cleaned_data.get('remember_me')
-            
+
             # Autenticar usuario
             user = authenticate(request, username=username, password=password)
-            
+
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    
+
                     # Configurar duración de la sesión
                     if not remember_me:
                         request.session.set_expiry(0)  # Expira al cerrar navegador
-                    
+
                     messages.success(request, f'¡Bienvenido {user.get_full_name() or user.username}!')
-                    
+
                     # Redirigir según el tipo de usuario
                     next_url = request.GET.get('next')
                     if next_url:
@@ -56,7 +56,48 @@ def login_view(request):
             else:
                 messages.error(request, 'Documento o contraseña incorrectos.')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            # Mostrar errores de validación del formulario para facilitar debugging
+            errs = form.errors.as_text()
+            messages.error(request, f'Por favor corrige los errores en el formulario. {errs}')
+            # Intento de fallback manual: comprobar credenciales manualmente por si fallan validaciones
+            fallback_username = request.POST.get('username')
+            fallback_password = request.POST.get('password')
+            if fallback_username and fallback_password:
+                # 1) Buscar por username
+                try:
+                    user_obj = User.objects.get(username=fallback_username)
+                except User.DoesNotExist:
+                    user_obj = None
+
+                # 2) Si no existe, intentar buscar por documento en PerfilUsuario
+                if user_obj is None:
+                    try:
+                        perfil = PerfilUsuario.objects.get(documento=fallback_username)
+                        user_obj = perfil.user
+                    except PerfilUsuario.DoesNotExist:
+                        user_obj = None
+
+                # 3) Si encontramos usuario, verificar contraseña manualmente
+                if user_obj is not None and user_obj.check_password(fallback_password):
+                    if user_obj.is_active:
+                        login(request, user_obj)
+                        messages.success(request, f'¡Bienvenido {user_obj.get_full_name() or user_obj.username}! (autenticación manual)')
+                        if not request.POST.get('remember_me'):
+                            request.session.set_expiry(0)
+                        # redirigir como en el flujo normal
+                        next_url = request.GET.get('next')
+                        if next_url:
+                            return redirect(next_url)
+                        elif user_obj.is_staff:
+                            return redirect('core:dashboard')
+                        else:
+                            return redirect('core:index')
+                    else:
+                        messages.error(request, 'Esta cuenta ha sido desactivada.')
+                else:
+                    # si el usuario no existe o la contraseña es incorrecta, dejar el mensaje de error original
+                    pass
+
     else:
         form = LoginForm()
     
@@ -65,6 +106,30 @@ def login_view(request):
         'titulo': 'Iniciar Sesión'
     }
     return render(request, 'usuarios/login.html', context)
+
+
+from django.contrib.auth.forms import PasswordResetForm
+from django.conf import settings
+
+@csrf_protect
+def password_reset_inline(request):
+    """Procesa un formulario de restablecimiento de contraseña enviado desde el login.
+    Redirige al login mostrando un mensaje de éxito (si el email existe se envía el correo).
+    """
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                email_template_name='usuarios/password_reset_email.html',
+                subject_template_name='usuarios/password_reset_subject.txt'
+            )
+            messages.success(request, 'Si existe una cuenta con ese correo, se ha enviado un email con instrucciones para restablecer la contraseña.')
+        else:
+            messages.error(request, 'Por favor ingresa un correo válido.')
+    return redirect('usuarios:login')
 
 
 @csrf_protect

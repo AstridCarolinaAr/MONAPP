@@ -16,16 +16,66 @@ def es_admin_o_auxiliar(user):
     """Verifica si el usuario es administrador o auxiliar"""
     return user.is_authenticated and (user.is_superuser or user.groups.filter(name__in=['Administradores', 'Auxiliares']).exists())
 
-# --- GESTIÓN DE PRODUCTOS ---
+# --- Índice del Módulo Gestión ---
 
+@login_required
+def index(request):
+    """Página de inicio del módulo Gestión con accesos y contadores"""
+    total_productos = Producto.objects.count()
+    total_promociones = Promocion.objects.count()
+    total_servicios = Servicio.objects.count()
+
+    context = {
+        'total_productos': total_productos,
+        'total_promociones': total_promociones,
+        'total_servicios': total_servicios,
+        'es_admin_o_auxiliar': es_admin_o_auxiliar(request.user),
+        'titulo_pagina': 'Módulo Gestión'
+    }
+    return render(request, 'gestion/index.html', context)
+
+
+@login_required
+def debug_session(request):
+    """Página de diagnóstico para ver estado de sesión y permisos (temporal)."""
+    user = request.user
+    from django.http import JsonResponse
+
+    data = {
+        'is_authenticated': user.is_authenticated,
+        'username': user.username if user.is_authenticated else None,
+        'is_superuser': user.is_superuser if user.is_authenticated else None,
+        'is_staff': user.is_staff if user.is_authenticated else None,
+        'es_administrador_fn': es_administrador(user) if user.is_authenticated else None,
+        'es_admin_o_auxiliar_fn': es_admin_o_auxiliar(user) if user.is_authenticated else None,
+    }
+    return JsonResponse(data)
+
+
+# --- GESTIÓN DE PRODUCTOS ---
 @user_passes_test(es_administrador)
 def listar_productos(request):
-    """Muestra el listado de todos los productos"""
-    productos = Producto.objects.all()
+    """Muestra el listado de todos los productos con búsqueda y paginación"""
+    q = request.GET.get('q', '').strip()
+    qs = Producto.objects.all()
+    if q:
+        from django.db.models import Q
+        qs = qs.filter(Q(nombre__icontains=q) | Q(descripcion__icontains=q))
+
+    total = qs.count()
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 10)  # 10 items por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    productos = page_obj.object_list
     context = {
         'productos': productos,
-        'total_productos': productos.count(),
-        'titulo_pagina': 'Gestión de Productos'
+        'total_productos': total,
+        'titulo_pagina': 'Gestión de Productos',
+        'is_paginated': paginator.num_pages > 1,
+        'page_obj': page_obj,
+        'paginator': paginator,
     }
     return render(request, 'gestion/listar_productos.html', context)
 
@@ -92,14 +142,28 @@ def eliminar_producto(request, id):
 
 @user_passes_test(es_administrador)
 def listar_promociones(request):
-    """Muestra el listado de todas las promociones"""
-    promociones = Promocion.objects.all()
+    """Muestra el listado de todas las promociones con búsqueda y paginación"""
+    q = request.GET.get('q', '').strip()
+    qs = Promocion.objects.all()
+    if q:
+        from django.db.models import Q
+        qs = qs.filter(Q(titulo__icontains=q) | Q(descripcion__icontains=q))
+
+    total = qs.count()
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    promociones = page_obj.object_list
+
     context = {
         'promociones': promociones,
-        'total_promociones': promociones.count(),
-        'titulo_pagina': 'Gestión de Promociones'
+        'total_promociones': total,
+        'titulo_pagina': 'Gestión de Promociones',
+        'is_paginated': paginator.num_pages > 1,
+        'page_obj': page_obj,
+        'paginator': paginator,
     }
-    return render(request, 'gestion/listar_promocion.html', context)
+    return render(request, 'gestion/listar_promocion.html', context) 
 
 @user_passes_test(es_administrador)
 def crear_promocion(request):
@@ -164,14 +228,28 @@ def eliminar_promocion(request, id):
 
 @user_passes_test(es_administrador)
 def listar_servicios(request):
-    """Muestra el listado de todos los servicios"""
-    servicios = Servicio.objects.all()
+    """Muestra el listado de todos los servicios con búsqueda y paginación"""
+    q = request.GET.get('q', '').strip()
+    qs = Servicio.objects.all()
+    if q:
+        from django.db.models import Q
+        qs = qs.filter(Q(nombre__icontains=q) | Q(descripcion__icontains=q))
+
+    total = qs.count()
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    servicios = page_obj.object_list
+
     context = {
         'servicios': servicios,
-        'total_servicios': servicios.count(),
-        'titulo_pagina': 'Catálogo de Servicios'
+        'total_servicios': total,
+        'titulo_pagina': 'Catálogo de Servicios',
+        'is_paginated': paginator.num_pages > 1,
+        'page_obj': page_obj,
+        'paginator': paginator,
     }
-    return render(request, 'gestion/listar_servicios.html', context)
+    return render(request, 'gestion/listar_servicios.html', context) 
 
 @user_passes_test(es_administrador)
 def crear_servicio(request):

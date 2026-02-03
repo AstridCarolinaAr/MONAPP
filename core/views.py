@@ -9,6 +9,10 @@ def index(request):
 def PanelAdmin_base(request):
     return render(request, 'core/panel_admin_base.html')
 
+from Gestion.models import Producto, Promocion, Servicio
+from Gestion.views import es_administrador, es_admin_o_auxiliar
+
+
 def dashboard_view(request):
     """
     Vista principal del panel de administración
@@ -21,6 +25,11 @@ def dashboard_view(request):
         date_joined__month=request.user.date_joined.month
     ).count()
     
+    # Conteos desde módulo Gestión
+    total_productos = Producto.objects.count()
+    total_promociones = Promocion.objects.count()
+    total_servicios = Servicio.objects.count()
+
     # Últimos usuarios registrados
     ultimos_usuarios = User.objects.select_related('perfil').order_by('-date_joined')[:5]
     
@@ -31,5 +40,10 @@ def dashboard_view(request):
         'usuarios_staff': usuarios_staff,
         'nuevos_usuarios_mes': nuevos_usuarios_mes,
         'ultimos_usuarios': ultimos_usuarios,
+        'total_productos': total_productos,
+        'total_promociones': total_promociones,
+        'total_servicios': total_servicios,
+        'es_administrador': es_administrador(request.user),
+        'es_admin_o_auxiliar': es_admin_o_auxiliar(request.user),
     }
     return render(request, 'core/dashboard.html', context)

@@ -1,178 +1,260 @@
-/* RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* =====================================================
+   HEADER BASE
+===================================================== */
 
-html, body {
-    height: 100%;
-}
-
-body {
-    font-family: 'Inter', sans-serif;
-    background: #fff;
-    color: #8C5A32;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ---------------- HEADER ---------------- */
 .header {
+    position: fixed;
+    top: 0;
     width: 100%;
-    padding: 20px 64px;
-    display: flex;
-    align-items: center;
+    z-index: 1000;
+
+     display: flex;
     justify-content: space-between;
-    z-index: 100;
-    background: #2e1d13;
-    flex-shrink: 0; /* No se encoge */
+    align-items: center;
+
+    padding: 1rem 2rem;
+
+    /* 🔥 ESTO ES EL FADE */
+    transition:
+        background-color 0.6s ease,
+        padding 0.4s ease,
+        box-shadow 0.6s ease;
+}
+
+/* Logo SVG */
+.logo svg {
+    height: 150px;
+    width: auto;
+    display: block;
+    color: #ffffff; 
+    transition: color 0.6s ease;
 }
 
 .logo {
-    font-weight: 700;
-    letter-spacing: 1.5px;
+    isolation: isolate; /* el contenedor, no el svg */
 }
 
-.nav {
-    display: flex;
-    gap: 32px;
-}
 
-.nav a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    opacity: 0.85;
-    transition: opacity 0.3s;
-}
+/* =====================================================
+   NAV GLASS (CÁPSULA BORROSA)
+===================================================== */
 
-.nav a:hover {
-    opacity: 1;
-}
-
-.header-actions {
-    display: flex;
+.nav-glass {
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    gap: 20px;
+    gap: 4px;
+
+    padding: 6px;
+    border-radius: 999px;
+
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+
+    overflow: hidden;
 }
 
-.login {
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    opacity: 0.85;
+/* Overlay que oculta el texto del fondo */
+.nav-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transition: background 0.6s ease;
+    background: rgba(20, 20, 20, 0.5);
+    border-radius: inherit;
+
+    pointer-events: none;
+    z-index: 0;
 }
 
-.btn-header {
-    background: #fff;
-    color: #2e1d13;
-    padding: 10px 18px;
-    border-radius: 4px;
+/* =====================================================
+   NAV ITEMS (BOTONES)
+===================================================== */
+
+.nav-item {
+    position: relative;
+    z-index: 1;
+
+    padding:  0.65rem 1.4rem;
+    font-size: 1.05rem;
+    font-weight: 400;
+
+    color: #ffffff;
     text-decoration: none;
+
+    background: transparent;
+    border-radius: 6px;
+
+     transition:
+        color 0.4s ease,
+        background 0.4s ease,
+        transform 0.25s ease;
+}
+
+/* Hover → píldora */
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #000;
+    border-radius: 999px;
+}
+
+/* CTA */
+.nav-primary {
     font-weight: 600;
-    transition: transform 0.3s;
 }
 
-.btn-header:hover {
-    transform: translateY(-2px);
+/* =====================================================
+   HEADER AL HACER SCROLL (MIGRADO DESDE btn-header)
+===================================================== */
+
+.header.scrolled {
+    padding: 0.5rem 2rem;
 }
 
-/* ---------------- FOOTER ---------------- */
+/* La cápsula se aclara */
+.header.scrolled .nav-glass {
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+/* Overlay claro al scroll */
+.header.scrolled .nav-glass::before {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+/* Texto oscuro al scroll */
+.header.scrolled .nav-item {
+    color: #111;
+}
+
+/* Hover al scroll */
+.header.scrolled .nav-item:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #000;
+}
+
+/* CTA al scroll */
+.header.scrolled .nav-primary {
+    font-weight: 600;
+}
+/* =====================================================
+   RESPONSIVE BÁSICO (opcional)
+===================================================== */
+
+@media (max-width: 900px) {
+    .nav-glass {
+        gap: 2px;
+        padding: 4px;
+    }
+
+    .nav-item {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* ===== FOOTER ===== */
 .footer {
     width: 100%;
-    padding: 20px 64px;
-    background: #1f1309;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto; /* Esto empuja el footer hacia abajo */
+    text-align: center;
+    padding: 1rem 0;
+    position: relative;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.5s ease;
+    background: #0f0f0f;
+    box-shadow: 0 -40px 80px rgba(0,0,0,0.6);
+    color: #ffffff;
 }
 
-.footer-content p {
-    font-size: 14px;
-    opacity: 0.8;
+.footer.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
+/* Footer Links */
 .footer-links {
     display: flex;
-    gap: 20px;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 0.5rem;
 }
 
 .footer-links a {
-    color: #fff;
     text-decoration: none;
-    font-size: 14px;
-    opacity: 0.85;
+    color: #000;
+    font-size: 0.9rem;
 }
 
 .footer-links a:hover {
-    opacity: 1;
+    color: #000000;
+}
+/* boton login */
+
+.login-section {
+    margin-left: 1rem;
 }
 
-/* ---------------- RESPONSIVE ---------------- */
-@media (max-width: 900px) {
-    .nav {
-        display: none;
-    }
-    
-    .header {
-        padding: 20px 32px;
-    }
-
-    .footer {
-        padding: 20px 32px;
-    }
-}
-/* ---------------- BOTONES HEADER ---------------- */
-/* ---------------- BOTONES HEADER (efecto vidrio permanente) ---------------- */
-.btn-header, .login {
-    padding: 10px 20px;
-    border-radius: 50px; /* forma de pastilla */
-    font-weight: 600;
-    font-size: 14px;
+.btn-login {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px; /* estilo píldora */
+    border: 1px solid rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.01); /* transparente inicial */
+    color: #fff;
+    font-weight: 500;
     text-decoration: none;
-    display: inline-block;
-    text-align: center;
-    border: 2px solid rgba(255, 255, 255, 0.6); /* borde semitransparente */
-    background: rgba(255, 255, 255, 0.1); /* fondo semi-transparente */
-    backdrop-filter: blur(8px); /* efecto vidrio */
-    -webkit-backdrop-filter: blur(8px); /* soporte Safari */
-    color: #fff;
     transition: all 0.3s ease;
-    cursor: pointer;
+    backdrop-filter: blur(20px);
 }
 
-/* Hover opcional: solo resalta un poco */
-.btn-header:hover, .login:hover {
-    background: rgba(255, 255, 255, 0.15); /* un poco más visible */
-    border-color: rgba(255, 255, 255, 0.8);
+.btn-login:hover {
+    background: rgba(255,255,255,0.3);
+    color: #000;
     transform: translateY(-2px);
 }
-
-
-
-/* Botón principal */
-.btn-header {
-    background: #2e1d13; /* fondo oscuro */
-    color: #fff; /* texto blanco */
-    border: 2px solid #fff; /* borde blanco */
-}
-
-
-
-/* Botón login secundario */
-.login {
-    background: transparent;
-    color: #fff;
-    border: 2px solid #fff;
-    opacity: 0.85;
-}
-
-.login:hover {
+.main-content {
     background: #fff;
-    color: #2e1d13;
-    opacity: 1;
-    transform: translateY(-2px);
+    backdrop-filter: blur(3px); /* efecto vidrio opcional */
+    padding: 2rem;
+    min-height: calc(100vh - 160px); /* altura mínima considerando header + footer */
+}
+/* =====================================================
+   NAVBAR OSCURO EN SECCIÓN INFINITE (FIX REAL)
+===================================================== */
+
+.header.navbar-dark .nav-glass::before {
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+/* Texto blanco */
+.header.navbar-dark .nav-item {
+    color: #ffffff !important;
+}
+
+/* Hover */
+.header.navbar-dark .nav-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+/* Logo negro */
+.header.navbar-dark .logo svg {
+    color: #000000 !important;
+}
+/* 🔥 LOGIN: quitar fondo negro */
+.header.navbar-dark .nav-glass:last-child::before {
+    background: rgba(71, 71, 71, 0.356);
+}
+
+/* Login como vidrio claro */
+.header.navbar-dark .nav-glass:last-child .nav-item {
+    color: #ffffff;
+}
+
+/* Hover del login */
+.header.navbar-dark .nav-glass:last-child .nav-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
 }
