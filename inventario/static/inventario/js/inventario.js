@@ -1,4 +1,4 @@
-// Script para el módulo de Caja
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Validación del formulario

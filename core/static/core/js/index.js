@@ -207,4 +207,3 @@ document.addEventListener('DOMContentLoaded', () => {
     animatedSections.forEach(el => observer.observe(el));
 
 });
-    

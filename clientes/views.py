@@ -8,7 +8,6 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import re
 from django.http import JsonResponse
-from core.funciones import bloquear_eliminar
 from .validaciones import validar_datos_cliente
 
 
@@ -161,7 +160,6 @@ def validar_documento(request):
 
 
 
-@bloquear_eliminar("No tienes permiso para eliminar clientes.")
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 

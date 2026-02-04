@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from datetime import datetime,date
-from core.funciones import admin_o_aux_required
 
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
