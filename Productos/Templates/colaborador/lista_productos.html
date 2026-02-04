@@ -117,7 +117,6 @@
                                         data-marca="{{ producto.id_marca.nombre }}"
                                         data-precio="{{ producto.get_precio_formateado }}"
                                         data-descripcion="{{ producto.descripcion|default:'Sin descripción' }}"
-                                        data-cantidad="{{ producto.cantidad }}"
                                         data-linea="{{ producto.linea|default:'—' }}"
                                         data-presentacion="{{ producto.presentacion|default:'—' }}"
                                         data-unidad="{{ producto.get_unidad_medida_display }}"
@@ -167,7 +166,6 @@
                     <div class="col-md-6"><strong>Marca:</strong> <span id="d-marca"></span></div>
                     <div class="col-md-6"><strong>Precio:</strong> <span id="d-precio"></span></div>
                     <div class="col-md-6"><strong>Línea:</strong> <span id="d-linea"></span></div>
-                    <div class="col-md-6"><strong>Cantidad:</strong> <span id="d-cantidad"></span></div>
                     <div class="col-md-6"><strong>Presentación:</strong> <span id="d-presentacion"></span></div>
                     <div class="col-md-6"><strong>Unidad:</strong> <span id="d-unidad"></span></div>
                     <div class="col-md-6"><strong>Estado:</strong> <span id="d-estado"></span></div>

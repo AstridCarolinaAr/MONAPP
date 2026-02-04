@@ -1,96 +1,68 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponse
-from django.db.models import Sum
-from .models import Transaccion
-from .forms import TransaccionForm
-from datetime import datetime
+from .models import MovimientoInventario, DetalleMovimiento
+from Proveedores.models import Proveedor
+from Productos.models import Producto
+from django.db import transaction
+
 
 @login_required
-def caja_vista(request):
-    abrir_modal = False
+def inventario_vista(request):
+
+    proveedores = Proveedor.objects.all()
+    productos = Producto.objects.all()
+    movimientos = MovimientoInventario.objects.all().order_by('-fecha')
 
     if request.method == 'POST':
-        form = TransaccionForm(request.POST)
-        if form.is_valid():
-            transaccion = form.save(commit=False)
-            transaccion.usuario = request.user
-            transaccion.save()
-            messages.success(
-                request,
-                f'{transaccion.tipo.capitalize()} registrado exitosamente.'
-            )
-            return redirect('inventario:caja_vista')
-        else:
-            #  mantener modal abierto si hay errores
-            abrir_modal = True
-    else:
-        form = TransaccionForm()
+        try:
+            with transaction.atomic():
 
-    transacciones = Transaccion.objects.all()
+                proveedor = Proveedor.objects.get(id=request.POST['proveedor'])
+                fecha = request.POST['fecha']
+                precio_total = request.POST['precio_total']
 
-    total_ingresos = transacciones.filter(
-        tipo='ingreso'
-    ).aggregate(Sum('monto'))['monto__sum'] or 0
+                movimiento = MovimientoInventario.objects.create(
+                    proveedor=proveedor,
+                    fecha=fecha,
+                    precio_total=precio_total,
+                    usuario=request.user
+                )
 
-    total_egresos = transacciones.filter(
-        tipo='egreso'
-    ).aggregate(Sum('monto'))['monto__sum'] or 0
+                productos_ids = request.POST.getlist('producto[]')
+                cantidades = request.POST.getlist('cantidad[]')
 
-    balance_total = total_ingresos - total_egresos
+                for prod_id, cant in zip(productos_ids, cantidades):
+                    producto = Producto.objects.get(codigo=prod_id)
 
-    context = {
-        'form': form,
-        'transacciones': transacciones,
-        'total_ingresos': total_ingresos,
-        'total_egresos': total_egresos,
-        'balance_total': balance_total,
-        'abrir_modal_movimiento': abrir_modal,
-    }
+                    DetalleMovimiento.objects.create(
+                        movimiento=movimiento,
+                        producto=producto,
+                        cantidad=int(cant)
+                    )
 
-    return render(request, 'inventario/inventario.html', context)
+                    #  SUMAR STOCK AUTOMÁTICAMENTE
+                    producto.cantidad += int(cant)
+                    producto.save()
 
-@login_required
-def exportar_txt(request):
-    transacciones = Transaccion.objects.all()
-    
-    # Calcular totales
-    total_ingresos = transacciones.filter(tipo='ingreso').aggregate(Sum('monto'))['monto__sum'] or 0
-    total_egresos = transacciones.filter(tipo='egreso').aggregate(Sum('monto'))['monto__sum'] or 0
-    balance_total = total_ingresos - total_egresos
-    
-    # Crear el contenido del archivo
-    contenido = "=" * 80 + "\n"
-    contenido += "REPORTE DE INVENTARIO - INGRESOS Y EGRESOS\n"
-    contenido += "=" * 80 + "\n"
-    contenido += f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n"
-    contenido += f"Usuario: {request.user.username}\n"
-    contenido += "=" * 80 + "\n\n"
-    
-    contenido += f"RESUMEN:\n"
-    contenido += f"Total Ingresos: ${total_ingresos:,.2f}\n"
-    contenido += f"Total Egresos:  ${total_egresos:,.2f}\n"
-    contenido += f"Balance Total:  ${balance_total:,.2f}\n"
-    contenido += "\n" + "=" * 80 + "\n\n"
-    
-    contenido += "DETALLE DE TRANSACCIONES:\n\n"
-    
-    for trans in transacciones:
-        contenido += "-" * 80 + "\n"
-        contenido += f"ID: {trans.id_transaccion}\n"
-        contenido += f"Tipo: {trans.tipo.upper()}\n"
-        contenido += f"Monto: ${trans.monto:,.2f}\n"
-        contenido += f"Fecha: {trans.fecha_creacion.strftime('%d/%m/%Y %H:%M:%S')}\n"
-        contenido += f"Motivo: {trans.motivo}\n"
-        if trans.usuario:
-            contenido += f"Registrado por: {trans.usuario.username}\n"
-        contenido += "\n"
-    
-    contenido += "=" * 80 + "\n"
-    contenido += f"Total de transacciones: {transacciones.count()}\n"
-  
-    response = HttpResponse(contenido, content_type='text/plain; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="inventario_reporte_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt"'
-    
-    return response
+                # DATOS REPARTIDOR + VEHÍCULO
+                movimiento.nombre_repartidor = request.POST['nombre_repartidor']
+                movimiento.apellido_repartidor = request.POST['apellido_repartidor']
+                movimiento.cedula_repartidor = request.POST['cedula_repartidor']
+                movimiento.telefono_repartidor = request.POST['telefono_repartidor']
+                movimiento.placa_vehiculo = request.POST['placa_vehiculo']
+                movimiento.tipo_vehiculo = request.POST['tipo_vehiculo']
+                movimiento.save()
+
+                messages.success(request, "Inventario registrado correctamente.")
+
+                return redirect('inventario:inventario_vista')
+
+        except Exception as e:
+            messages.error(request, f"Error al guardar inventario: {e}")
+
+    return render(request, 'inventario/inventario.html', {
+        'proveedores': proveedores,
+        'productos': productos,
+        'movimientos': movimientos
+    })

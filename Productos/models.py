@@ -68,7 +68,7 @@ class Producto(models.Model):
         verbose_name='Precio',
         help_text='Precio del producto en pesos colombianos'
     )
-    cantidad = models.PositiveIntegerField()
+
     
     descripcion = models.TextField(
         blank=True,

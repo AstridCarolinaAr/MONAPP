@@ -1,17 +1,27 @@
 from django import forms
-from .models import Transaccion
+from .models import MovimientoInventario, DetalleMovimiento
+from django.forms import inlineformset_factory
 
-class TransaccionForm(forms.ModelForm):
+
+class MovimientoInventarioForm(forms.ModelForm):
     class Meta:
-        model = Transaccion
-        fields = ['tipo', 'monto', 'motivo']
-        widgets = {
-            'tipo': forms.Select(attrs={'class': 'form-control'}),
-            'monto': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': 'Monto'}),
-            'motivo': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Motivo de la transacción'}),
-        }
-        labels = {
-            'tipo': 'Tipo de Transacción',
-            'monto': 'Monto ($)',
-            'motivo': 'Motivo',
-        }
+        model = MovimientoInventario
+        fields = [
+            'proveedor',
+            'nombre_repartidor',
+            'apellido_repartidor',
+            'cedula_repartidor',
+            'telefono_repartidor',
+            'precio_total',
+            'tipo_vehiculo',
+            'placa_vehiculo',
+            
+        ]
+
+DetalleMovimientoFormSet = inlineformset_factory(
+    MovimientoInventario,
+    DetalleMovimiento,
+    fields=['producto', 'cantidad'],
+    extra=1,
+    can_delete=True
+)
