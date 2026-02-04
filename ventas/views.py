@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
-from .models import Venta
+from .models import Venta, DetalleVenta
 from django.contrib import messages
 from .forms import VentaForm
 from Productos.models import Producto  
@@ -8,7 +8,8 @@ from django.core.exceptions import ValidationError
 import json
 from django.db import transaction
 
-from .models import  DetalleVenta
+from servicios.models import Servicio  
+from personal.models import Personal 
 
 
 def lista_ventas(request):
@@ -41,56 +42,85 @@ def lista_ventas(request):
 @transaction.atomic
 def crear_venta(request):
     productos = Producto.objects.all()
+    servicios = Servicio.objects.all()
+    personal = Personal.objects.all()
 
     if request.method == 'POST':
-        # 🔍 DEBUG (puedes quitarlo luego)
-        print("ITEMS RAW:", request.POST.get('items'))
-
+        form = VentaForm(request.POST)
         items_json = request.POST.get('items')
 
-        # ❌ No hay productos agregados
-        if not items_json:
-            messages.error(request, 'Debes agregar al menos un producto o servicio.')
-            return redirect('ventas:crear')
+        if form.is_valid() and items_json:
+            items = json.loads(items_json)
 
-        items = json.loads(items_json)
+            # ===============================
+            # CREAR VENTA
+            # ===============================
+            venta = form.save(commit=False)
+            venta.codigo_colaborador = 'PENDIENTE'
+            venta.nombre_colaborador = 'Pendiente'
+            venta.save()
 
-        # ✅ Crear la venta MANUALMENTE (NO con form.save)
-        venta = Venta.objects.create(
-            cliente_id=request.POST.get('cliente'),
-            codigo_colaborador='PENDIENTE',
-            nombre_colaborador='Pendiente'
-        )
+            # ===============================
+            # DETALLES
+            # ===============================
+            for item in items:
 
-        # 🔁 Crear detalles y descontar stock
-        for item in items:
-            producto = Producto.objects.select_for_update().get(
-                id=item['codigo']   # ⚠️ aquí usamos ID, no código textual
-            )
+                # ===== PRODUCTO =====
+                if item['tipo'] == 'producto':
 
-            if item['cantidad'] > producto.cantidad:
-                raise ValueError("Stock insuficiente")
+                    producto = Producto.objects.select_for_update().get(
+                        id=item['id']
+                    )
 
-            DetalleVenta.objects.create(
-                venta=venta,
-                producto=producto,
-                precio_unitario=item['precio'],
-                cantidad=item['cantidad'],
-                subtotal=item['subtotal']
-            )
+                    if item['cantidad'] > producto.cantidad:
+                        raise ValueError(
+                            f"Stock insuficiente para {producto.nombre}"
+                        )
 
-            producto.cantidad -= item['cantidad']
-            producto.save()
+                    DetalleVenta.objects.create(
+                        venta=venta,
+                        producto=producto,
+                        precio_unitario=item['precio'],
+                        cantidad=item['cantidad'],
+                        subtotal=item['subtotal']
+                    )
 
-        messages.success(request, 'Venta registrada correctamente.')
-        return redirect('ventas:lista')
+                    producto.cantidad -= item['cantidad']
+                    producto.save()
 
-    # GET
-    form = VentaForm()
+                # ===== SERVICIO =====
+                elif item['tipo'] == 'servicio':
+
+                    servicio = Servicio.objects.get(
+                        id_servicio=item['id_servicio']
+                    )
+
+                    colaborador = Personal.objects.get(
+                        id=item['id_personal']
+                    )
+
+                    DetalleVenta.objects.create(
+                        venta=venta,
+                        servicio=servicio,
+                        colaborador_servicio=colaborador,
+                        precio_unitario=item['precio'],
+                        cantidad=1,
+                        subtotal=item['precio']
+                    )
+
+            messages.success(request, 'Venta registrada correctamente.')
+            return redirect('ventas:lista')
+
+        messages.error(request, 'No se pudo registrar la venta.')
+
+    else:
+        form = VentaForm()
 
     return render(request, 'ventas/crear_venta.html', {
         'form': form,
-        'productos': productos
+        'productos': productos,
+        'servicios': servicios,
+        'personal': personal,
     })
 
 

@@ -1,261 +1,209 @@
-console.log("JS ventas cargado");
+console.log("🚀 JS ventas iniciando...");
 
-document.addEventListener("DOMContentLoaded", () => {
-    // ===============================
-    // ELEMENTOS
-    // ===============================
-    const cliente = document.getElementById("id_cliente");
-    const producto = document.getElementById("id_producto");
-    const precio = document.getElementById("id_precio_unitario");
-    const cantidad = document.getElementById("id_cantidad");
-    const subtotal = document.getElementById("id_subtotal");
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("✅ DOM cargado");
 
-    const btnGuardar = document.getElementById("btnGuardarVenta");
-    const btnAgregarItem = document.getElementById("btnAgregarItem");
+  // Elementos
+  const btnAgregarItem = document.getElementById("btnAgregarItem");
+  const btnGuardarVenta = document.getElementById("btnGuardarVenta");
+  const tipoProducto = document.getElementById("tipo_producto");
+  const tipoServicio = document.getElementById("tipo_servicio");
+  const selectCliente = document.getElementById("id_cliente");
+  const selectProducto = document.getElementById("id_producto");
+  const selectServicio = document.getElementById("id_servicio");
+  const selectPersonal = document.getElementById("id_personal");
+  const inputCantidad = document.getElementById("id_cantidad");
+  const inputPrecio = document.getElementById("id_precio_unitario");
+  const inputSubtotal = document.getElementById("id_subtotal");
+  const grupoProducto = document.getElementById("grupoProducto");
+  const grupoServicio = document.getElementById("grupoServicio");
+  const grupoPersonal = document.getElementById("grupoPersonal");
+  const stockInfo = document.getElementById("stockInfo");
+  const tablaItems = document.querySelector("#tablaItems tbody");
+  const totalVenta = document.getElementById("totalVenta");
+  const itemsInput = document.getElementById("itemsInput");
 
-    const stockInfo = document.getElementById("stockInfo");
-    const cantidadError = document.getElementById("cantidadError");
+  let items = [];
+  let stock = 0;
 
-    const tablaItems = document.querySelector("#tablaItems tbody");
-    const totalVentaEl = document.getElementById("totalVenta");
+  // Función simple para habilitar/deshabilitar botón
+  function actualizarBotones() {
+    const tieneProducto = tipoProducto.checked;
+    const tieneServicio = tipoServicio.checked;
+    
+    let puedeAgregar = false;
 
-    const tipoProducto = document.getElementById("tipo_producto");
-    const tipoServicio = document.getElementById("tipo_servicio");
+    if (tieneProducto) {
+      const selecciono = selectProducto.selectedIndex > 0;  // Cambié a selectedIndex
+      const tieneCantidad = inputCantidad.value > 0;
+      const tienePrecio = inputPrecio.value > 0;
+      puedeAgregar = selecciono && tieneCantidad && tienePrecio;
+      console.log(`PRODUCTO: producto=${selecciono} (idx=${selectProducto.selectedIndex}), cantidad=${tieneCantidad}, precio=${tienePrecio} => ${puedeAgregar}`);
+    }
 
-    const selectProducto = document.getElementById("id_producto");
-    const selectServicio = document.getElementById("id_servicio");
-    const selectPersonal = document.getElementById("id_personal");
-        // Estado inicial
-    selectProducto.disabled = true;
+    if (tieneServicio) {
+      const selecciono = selectServicio.selectedIndex > 0;  // Cambié a selectedIndex
+      const personal = selectPersonal.selectedIndex > 0;  // Cambié a selectedIndex
+      const tienePrecio = inputPrecio.value > 0;
+      puedeAgregar = selecciono && personal && tienePrecio;
+      console.log(`SERVICIO: servicio=${selecciono}, personal=${personal}, precio=${tienePrecio} => ${puedeAgregar}`);
+    }
+
+    btnAgregarItem.disabled = !puedeAgregar;
+    btnGuardarVenta.disabled = !(selectCliente.value && items.length > 0);
+    console.log(`BOTONES: agregar=${!btnAgregarItem.disabled}, guardar=${!btnGuardarVenta.disabled}`);
+  }
+
+  // Tipo Producto
+  tipoProducto.addEventListener("change", () => {
+    console.log("✓ Tipo: PRODUCTO");
+    grupoProducto.classList.remove("d-none");
+    grupoServicio.classList.add("d-none");
+    grupoPersonal.classList.add("d-none");
+    selectProducto.disabled = false;
     selectServicio.disabled = true;
     selectPersonal.disabled = true;
+    selectServicio.value = "";
+    selectPersonal.value = "";
+    inputPrecio.value = "";
+    inputCantidad.value = "";
+    inputSubtotal.value = "";
+    actualizarBotones();
+  });
 
+  // Tipo Servicio
+  tipoServicio.addEventListener("change", () => {
+    console.log("✓ Tipo: SERVICIO");
+    grupoProducto.classList.add("d-none");
+    grupoServicio.classList.remove("d-none");
+    grupoPersonal.classList.remove("d-none");
+    selectProducto.disabled = true;
+    selectServicio.disabled = false;
+    selectPersonal.disabled = false;
+    selectProducto.value = "";
+    inputPrecio.value = "";
+    inputCantidad.value = "1";
+    inputSubtotal.value = "";
+    actualizarBotones();
+  });
 
+  // Producto
+  selectProducto.addEventListener("change", () => {
+    const opt = selectProducto.options[selectProducto.selectedIndex];
+    const precio = parseFloat(opt.dataset.precio) || 0;
+    stock = parseInt(opt.dataset.stock) || 0;
+    inputPrecio.value = precio.toFixed(2);
+    inputCantidad.value = "";
+    inputSubtotal.value = "";
+    stockInfo.textContent = stock > 0 ? `📊 Stock: ${stock}` : "❌ Sin stock";
+    stockInfo.classList.toggle("d-none", stock === 0);
+    inputCantidad.disabled = stock === 0;
+    console.log(`Producto: precio=${precio}, stock=${stock}`);
+    actualizarBotones();
+  });
 
-    // ===============================
-    // ESTADO
-    // ===============================
-    let stockDisponible = null;
-    let itemsVenta = [];
+  // Servicio
+  selectServicio.addEventListener("change", () => {
+    const opt = selectServicio.options[selectServicio.selectedIndex];
+    const precio = parseFloat(opt.dataset.precio) || 0;
+    inputPrecio.value = precio.toFixed(2);
+    inputSubtotal.value = precio.toFixed(2);
+    console.log(`Servicio: precio=${precio}`);
+    actualizarBotones();
+  });
 
+  // Personal
+  selectPersonal.addEventListener("change", actualizarBotones);
 
-    function resetCampos() {
+  // Cantidad
+  inputCantidad.addEventListener("input", () => {
+    const precio = parseFloat(inputPrecio.value) || 0;
+    const cantidad = parseInt(inputCantidad.value) || 0;
+    inputSubtotal.value = (precio * cantidad).toFixed(2);
+    actualizarBotones();
+  });
+
+  // Cliente
+  selectCliente.addEventListener("change", actualizarBotones);
+
+  // Botón Agregar
+  btnAgregarItem.addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log("➕ AGREGAR");
+
+    if (tipoProducto.checked) {
+      const idx = selectProducto.selectedIndex;
+      items.push({
+        tipo: "producto",
+        id: selectProducto.options[idx].value,
+        nombre: selectProducto.options[idx].textContent.trim(),
+        precio: parseFloat(inputPrecio.value),
+        cantidad: parseInt(inputCantidad.value),
+        subtotal: parseFloat(inputSubtotal.value)
+      });
+    }
+
+    if (tipoServicio.checked) {
+      const idx = selectServicio.selectedIndex;
+      items.push({
+        tipo: "servicio",
+        id_servicio: selectServicio.options[idx].value,
+        id_personal: selectPersonal.options[selectPersonal.selectedIndex].value,
+        nombre: selectServicio.options[idx].textContent.trim(),
+        precio: parseFloat(inputPrecio.value),
+        cantidad: 1,
+        subtotal: parseFloat(inputPrecio.value)
+      });
+    }
+
+    renderTabla();
+    syncInput();
+    limpiar();
+  });
+
+  function renderTabla() {
+    tablaItems.innerHTML = "";
+    let total = 0;
+    items.forEach((item, i) => {
+      total += item.subtotal;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.nombre}</td>
+        <td class="text-end">$${item.precio.toFixed(2)}</td>
+        <td class="text-center">${item.cantidad}</td>
+        <td class="text-end">$${item.subtotal.toFixed(2)}</td>
+        <td class="text-center">
+          <button type="button" class="btn btn-sm btn-danger" onclick="eliminarItem(${i})">✖</button>
+        </td>
+      `;
+      tablaItems.appendChild(tr);
+    });
+    totalVenta.textContent = total.toFixed(2);
+  }
+
+  window.eliminarItem = (i) => {
+    items.splice(i, 1);
+    renderTabla();
+    syncInput();
+    actualizarBotones();
+  };
+
+  function syncInput() {
+    itemsInput.value = JSON.stringify(items);
+  }
+
+  function limpiar() {
     selectProducto.value = "";
     selectServicio.value = "";
     selectPersonal.value = "";
-}
+    inputPrecio.value = "";
+    inputCantidad.value = "";
+    inputSubtotal.value = "";
+    stockInfo.classList.add("d-none");
+    actualizarBotones();
+  }
 
-
-    // ===============================
-    // UTILIDADES
-    // ===============================
-    function esNumeroValido(valor) {
-        return !isNaN(valor) && Number(valor) > 0;
-    }
-
-    function calcularSubtotal() {
-        const p = parseFloat(precio.value) || 0;
-        const c = parseInt(cantidad.value) || 0;
-        subtotal.value = (p * c).toFixed(2);
-    }
-
-    // ===============================
-    // VALIDACIÓN FORMULARIO (GUARDAR)
-    // ===============================
-    function validarFormulario() {
-        let valido = true;
-
-        // reset visual
-        cantidad.classList.remove("is-invalid");
-        cantidadError.classList.add("d-none");
-
-        if (!cliente.value) valido = false;
-        if (!itemsVenta.length) valido = false;
-
-        btnGuardar.disabled = !valido;
-    }
-
-    // ===============================
-    // VALIDACIÓN ITEM (AGREGAR)
-    // ===============================
-    function validarItem() {
-        let valido = true;
-
-        if (!producto.value) valido = false;
-        if (!esNumeroValido(precio.value)) valido = false;
-
-        const cant = parseInt(cantidad.value || "0", 10);
-
-        if (!esNumeroValido(cant)) valido = false;
-
-        if (stockDisponible === null || cant > stockDisponible) {
-            valido = false;
-            if (cant > stockDisponible) {
-                cantidad.classList.add("is-invalid");
-                cantidadError.classList.remove("d-none");
-            }
-        }
-
-        btnAgregarItem.disabled = !valido;
-    }
-
-    // ===============================
-    // CAMBIO DE PRODUCTO
-    // ===============================
-    producto.addEventListener("change", function () {
-        const option = this.options[this.selectedIndex];
-
-        stockDisponible = option.dataset.stock
-            ? parseInt(option.dataset.stock, 10)
-            : null;
-
-        precio.value = option.dataset.precio || "";
-        cantidad.value = "";
-        subtotal.value = "";
-
-        if (stockDisponible !== null) {
-            stockInfo.classList.remove("d-none");
-            stockInfo.textContent = `Stock disponible: ${stockDisponible}`;
-
-            if (stockDisponible <= 0) {
-                stockInfo.classList.add("text-danger");
-                cantidad.disabled = true;
-            } else {
-                stockInfo.classList.remove("text-danger");
-                cantidad.disabled = false;
-                cantidad.max = stockDisponible;
-            }
-        }
-
-        validarItem();
-    });
-
-    // ===============================
-    // CAMBIO TIPO DE ITEM
-    // ===============================
-    tipoProducto.addEventListener("change", () => {
-        selectProducto.disabled = false;
-
-        selectServicio.disabled = true;
-        selectPersonal.disabled = true;
-
-        selectServicio.value = "";
-        selectPersonal.value = "";
-    });
-
-    tipoServicio.addEventListener("change", () => {
-        selectProducto.disabled = true;
-        selectServicio.disabled = false;
-        selectPersonal.disabled = false;
-
-        selectProducto.value = "";
-    });
-
-
-    // ===============================
-    // CAMBIO DE CANTIDAD
-    // ===============================
-    cantidad.addEventListener("input", () => {
-        calcularSubtotal();
-        validarItem();
-    });
-
-    // ===============================
-    // AGREGAR ITEM
-    // ===============================
-    btnAgregarItem.addEventListener("click", () => {
-        const option = producto.options[producto.selectedIndex];
-        const cant = parseInt(cantidad.value, 10);
-
-        const item = {
-            codigo: producto.value,
-            nombre: option.textContent.trim(),
-            precio: parseFloat(precio.value),
-            cantidad: cant,
-            subtotal: parseFloat(subtotal.value)
-        };
-
-        itemsVenta.push(item);
-
-        // descontar stock temporal
-        stockDisponible -= cant;
-        option.dataset.stock = stockDisponible;
-
-        renderItems();
-        limpiarInputsItem();
-        validarFormulario();
-    });
-
-    // ===============================
-    // RENDER TABLA
-    // ===============================
-    function renderItems() {
-        tablaItems.innerHTML = "";
-        let total = 0;
-
-        itemsVenta.forEach((item, index) => {
-            total += item.subtotal;
-
-            tablaItems.innerHTML += `
-                <tr>
-                    <td>${item.nombre}</td>
-                    <td class="text-end">$${item.precio.toFixed(2)}</td>
-                    <td class="text-center">${item.cantidad}</td>
-                    <td class="text-end">$${item.subtotal.toFixed(2)}</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-danger" onclick="eliminarItem(${index})">
-                            ✖
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        totalVentaEl.textContent = total.toFixed(2);
-        document.getElementById("itemsInput").value = JSON.stringify(itemsVenta);
-
-    }
-
-    // ===============================
-    // ELIMINAR ITEM
-    // ===============================
-    window.eliminarItem = function (index) {
-        itemsVenta.splice(index, 1);
-        renderItems();
-        validarFormulario();
-    };
-
-    // ===============================
-    // LIMPIAR INPUTS
-    // ===============================
-    function limpiarInputsItem() {
-        producto.value = "";
-        precio.value = "";
-        cantidad.value = "";
-        subtotal.value = "";
-        stockInfo.classList.add("d-none");
-        validarItem();
-    }
-
-    // ===============================
-    // ESTADO INICIAL
-    // ===============================
-    btnGuardar.disabled = true;
-    btnAgregarItem.disabled = true;
+  console.log("🎯 Listo");
+  btnAgregarItem.disabled = true;
+  btnGuardarVenta.disabled = true;
 });
-
-document.querySelectorAll(".btn-ver-detalle").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const ventaId = btn.dataset.id;
-        const contenedor = document.getElementById("contenidoDetalleVenta");
-
-        contenedor.innerHTML = "Cargando detalle...";
-
-        fetch(`/ventas/${ventaId}/detalle-modal/`)
-            .then(res => res.text())
-            .then(html => {
-                contenedor.innerHTML = html;
-            });
-    });
-});
-

@@ -2,7 +2,9 @@ from django.db import models
 from django.db.models import Sum
 from django.utils.timezone import now
 from clientes.models import Cliente
-from Productos.models import Producto, Personal
+from Productos.models import Producto
+from personal.models import Personal
+from servicios.models import Servicio
 class Venta(models.Model):
     # ===============================
     # IDENTIFICACIÓN
@@ -95,12 +97,12 @@ class DetalleVenta(models.Model):
         blank=True
     )
 
-    # servicio = models.ForeignKey(
-    #     Servicio,
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    #     blank=True
-    # )
+    servicio = models.ForeignKey(
+        Servicio,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
 
     colaborador_servicio = models.ForeignKey(
         Personal,

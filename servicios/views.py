@@ -16,22 +16,30 @@ def lista_servicios(request):
     }
     return render(request, 'servicios/lista_servicios.html', context)
 
+
 @login_required
 @user_passes_test(es_staff)
 def crear_servicio(request):
+
     if request.method == 'POST':
         form = ServicioForm(request.POST, request.FILES)
+
         if form.is_valid():
             servicio = form.save()
-            messages.success(request, f'Servicio "{servicio.nombre}" creado exitosamente.')
+            messages.success(
+                request,
+                f'Servicio "{servicio.nombre}" creado exitosamente.'
+            )
             return redirect('servicios:lista_servicios')
+
     else:
         form = ServicioForm()
-    
+
     context = {
         'form': form,
         'titulo': 'Crear Servicio'
     }
+
     return render(request, 'servicios/form_servicio.html', context)
 
 @login_required
