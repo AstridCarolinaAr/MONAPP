@@ -28,31 +28,6 @@
             </div>
         {% endfor %}
     {% endif %}
-
-    <!-- BALANCES -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="balance-card ingreso">
-                <span>Total ingresos</span>
-                <strong>${{ total_ingresos|floatformat:2 }}</strong>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="balance-card egreso">
-                <span>Total egresos</span>
-                <strong>${{ total_egresos|floatformat:2 }}</strong>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="balance-card balance {% if balance_total < 0 %}negativo{% endif %}">
-                <span>Balance total</span>
-                <strong>${{ balance_total|floatformat:2 }}</strong>
-            </div>
-        </div>
-    </div>
-
     <!-- ACCIONES -->
     <div class="mb-4">
         <button
@@ -63,6 +38,16 @@
             Registrar movimiento
         </button>
     </div>
+
+
+        <!-- BALANCES -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="balance-card ingreso">
+                <span>Total ingresos</span>
+                <strong>${{ total_ingresos|floatformat:2 }}</strong>
+            </div>
+        </div>
 
     <!-- HISTORIAL -->
     <div class="card caja-card">
