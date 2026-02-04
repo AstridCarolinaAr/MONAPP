@@ -26,7 +26,7 @@
     <div class="sidebar-header">
         <div class="user-avatar">
             {% if user.perfil.foto_perfil %}
-                <img src="{{ user.perfil.foto_perfil.url }}" class="avatar-img">
+                <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.username }}" class="avatar-img">
             {% else %}
                 <div class="avatar-placeholder">
                     <i class="bi bi-person-circle"></i>
@@ -39,9 +39,19 @@
         </h6>
 
         <p class="user-role text-muted">
-            {% if user.is_superuser %}Superadministrador
-            {% elif user.is_staff %}Administrador
-            {% else %}Usuario{% endif %}
+            {% if user.is_superuser %}
+                Superadministrador
+            {% else %}
+                {% with grupos=user.groups.all %}
+                    {% if grupos %}
+                        {% for grupo in grupos %}
+                            {{ grupo.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Usuario
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
         </p>
 
         <div class="divider"></div>
