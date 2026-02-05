@@ -88,6 +88,17 @@ def dashboard_view(request):
     return render(request, 'core/dashboard.html', context)
 
 
+@login_required
+def gestion_datos_view(request):
+    """
+    Vista para gestión de datos
+    """
+    context = {
+        'titulo': 'Gestión de Datos',
+    }
+    return render(request, 'core/gestion_datos.html', context)
+
+
 def solo_admin(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_staff:
