@@ -57,7 +57,7 @@ def crear_proveedor(request):
             messages.success(request, 'Proveedor creado correctamente.')
             return redirect('proveedores:lista_proveedor')
     else:
-        form = ProveedorForm()
+        print(form.errors)
 
     return render(
         request,

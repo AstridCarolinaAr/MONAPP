@@ -126,16 +126,9 @@
                                     data-bs-target="#modalDetalleProveedor"
                                     data-nombre="{{ proveedor.nombre_proveedor }}"
                                     data-nit="{{ proveedor.nit }}"
-                                    data-idventa="{{ proveedor.id_venta }}"
-                                    data-codigomarca="{{ proveedor.codigo_marca }}"
-                                    data-fecha="{{ proveedor.fecha_entrega }}"
-                                    data-cc="{{ proveedor.cc_encargado }}"
-                                    data-encargado="{{ proveedor.nombre_encargado }}"
-                                    data-vehiculo="{{ proveedor.tipo_vehiculo }}"
-                                    data-placa="{{ proveedor.placa_vehiculo }}"
-                                    data-telefono="{{ proveedor.telefono_proveedor }}"
                                     data-correo="{{ proveedor.correo_proveedor }}"
-                                    data-estado="{{ proveedor.get_estado_display }}">
+                                    data-estado="{{ proveedor.get_estado_display }}"
+                                    data-telefono="{{ proveedor.telefono_proveedor }}">
                                     <i class="bi bi-eye-fill"></i>
                                 </button>
 
@@ -189,19 +182,6 @@
 
                 <p><strong>Proveedor:</strong> <span id="p-nombre"></span></p>
                 <p><strong>NIT:</strong> <span id="p-nit"></span></p>
-                <p><strong>ID Venta:</strong> <span id="p-idventa"></span></p>
-                <p><strong>Código Marca:</strong> <span id="p-codigomarca"></span></p>
-                <p><strong>Fecha Entrega:</strong> <span id="p-fecha"></span></p>
-
-                <hr>
-
-                <p><strong>C.C Encargado:</strong> <span id="p-cc"></span></p>
-                <p><strong>Encargado:</strong> <span id="p-encargado"></span></p>
-                <p><strong>Vehículo:</strong> <span id="p-vehiculo"></span></p>
-                <p><strong>Placa:</strong> <span id="p-placa"></span></p>
-
-                <hr>
-
                 <p><strong>Teléfono:</strong> <span id="p-telefono"></span></p>
                 <p><strong>Correo:</strong> <span id="p-correo"></span></p>
                 <p><strong>Estado:</strong> <span id="p-estado"></span></p>

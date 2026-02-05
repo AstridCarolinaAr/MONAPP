@@ -7,7 +7,7 @@ class ProductoForm(forms.ModelForm):
     marca_texto = forms.CharField(
         label='Marca',
         max_length=100,
-        required=False,  # 👈 importante
+        required=False,  #  importante
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Escribe la marca (Ej: Mona Keratina)'
@@ -22,7 +22,6 @@ class ProductoForm(forms.ModelForm):
             'descripcion',
             'linea',
             'presentacion',
-            'cantidad',
             'unidad_medida',
             'estado',
         ]
@@ -33,7 +32,6 @@ class ProductoForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'linea': forms.TextInput(attrs={'class': 'form-control'}),
             'presentacion': forms.TextInput(attrs={'class': 'form-control'}),
-            'cantidad': forms.NumberInput(attrs={'class': 'form-control'}),
             'unidad_medida': forms.Select(attrs={'class': 'form-select'}),
             'estado': forms.Select(attrs={'class': 'form-select'}),
         }
@@ -65,7 +63,6 @@ class ProductoForm(forms.ModelForm):
             'precio',
             'linea',
             'presentacion',
-            'cantidad',
             'unidad_medida',
             'estado',
         ]
