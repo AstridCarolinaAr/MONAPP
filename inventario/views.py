@@ -137,3 +137,5 @@ def editar_movimiento(request, id_movimiento):
         'proveedores': proveedores,
         'productos': productos
     })
+
+# def exportar_txt(request):
