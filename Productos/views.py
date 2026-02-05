@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Producto
 from .forms import ProductoForm
-from core.funciones import bloquear_eliminar
+
 from django.db.models import Count
 
 # ==================== VISTAS PÚBLICAS ====================
@@ -196,7 +196,6 @@ def editar_producto(request, codigo):
         }
     )
 
-@bloquear_eliminar("No tienes permiso para eliminar productos.")
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 

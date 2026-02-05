@@ -1,0 +1,167 @@
+:root {
+    --mona-dark: #3b2f2f;
+    --mona-light: #f6f2ef;
+    --mona-card: #ffffff;
+    --mona-border: #e2dcd7;
+    --mona-success: #6fa88d;
+    --mona-danger: #c56b6b;
+}
+
+/* BASE */
+body {
+    background: var(--mona-light);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #2f2f2f;
+}
+
+/* CONTENEDOR */
+.caja-container {
+    padding: 28px 32px 40px;
+}
+
+/* HEADER */
+.caja-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.caja-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--mona-dark);
+    margin: 0;
+}
+
+/* BOTÓN VOLVER */
+.btn-back {
+    background: transparent;
+    border: 1px solid var(--mona-border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--mona-dark);
+}
+
+.btn-back:hover {
+    background: var(--mona-dark);
+    color: #fff;
+}
+
+/* BALANCE */
+.balance-card {
+    background: var(--mona-card);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.balance-card span {
+    font-size: 13px;
+    color: #777;
+}
+
+.balance-card strong {
+    font-size: 22px;
+}
+
+.balance-card.ingreso strong {
+    color: var(--mona-success);
+}
+
+.balance-card.egreso strong {
+    color: var(--mona-danger);
+}
+
+.balance-card.balance.negativo strong {
+    color: var(--mona-danger);
+}
+
+/* CARDS */
+.caja-card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 8px 26px rgba(0,0,0,.08);
+}
+
+.caja-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--mona-border);
+    font-weight: 600;
+    padding: 16px 20px;
+}
+
+.caja-card .card-body {
+    padding: 20px;
+}
+
+/* FORM */
+.form-control, select {
+    border-radius: 10px;
+    border: 1px solid var(--mona-border);
+}
+
+.btn-guardar {
+    background: var(--mona-dark);
+    color: #fff;
+    border-radius: 999px;
+    padding: 10px;
+    font-weight: 600;
+}
+
+.btn-guardar:hover {
+    background: #5a4a4a;
+}
+
+/* HISTORIAL */
+.historial-body {
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+.tabla-caja thead {
+    background: #f1ece9;
+}
+
+.tabla-caja th {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.tabla-caja td {
+    vertical-align: middle;
+}
+
+/* TIPO */
+.tipo {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tipo.ingreso {
+    background: rgba(111,168,141,.15);
+    color: var(--mona-success);
+}
+
+.tipo.egreso {
+    background: rgba(197,107,107,.15);
+    color: var(--mona-danger);
+}
+
+/* EXPORTAR */
+.btn-exportar {
+    font-size: 13px;
+    border-radius: 999px;
+    border: 1px solid var(--mona-border);
+    padding: 6px 14px;
+    color: var(--mona-dark);
+}
+
+.btn-exportar:hover {
+    background: var(--mona-dark);
+    color: #fff;
+}

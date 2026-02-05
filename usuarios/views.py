@@ -8,7 +8,6 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
-from core.funciones import admin_o_aux_required, solo_admin_required, no_colaborador_required
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -83,7 +82,6 @@ def lista_usuarios_view(request):
 
 
 @login_required
-@no_colaborador_required()
 def crear_usuario_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -110,7 +108,6 @@ def crear_usuario_view(request):
 
 
 @login_required
-@no_colaborador_required()
 def editar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -151,7 +148,6 @@ def editar_usuario_view(request, user_id):
 
 
 @login_required
-@solo_admin_required()
 def eliminar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -182,7 +178,6 @@ def eliminar_usuario_view(request, user_id):
 
 
 @login_required
-@admin_o_aux_required()
 def perfil_view(request):
     usuario = request.user
 
