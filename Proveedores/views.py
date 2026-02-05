@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Proveedor
-from .forms import ProveedorForm
-from django.shortcuts import render
 from django.db.models import Q, Count
+
 from .models import Proveedor
+from .forms import ProveedorcrearForm
+from .forms import ProveedoreditarForm
+
 
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
@@ -20,51 +21,54 @@ def lista_proveedores(request):
             Q(correo_proveedor__icontains=q)
         )
 
-    #  ANOTAR ENTREGAS (ajusta cuando tengas relación real)
+    #  CONTADOR 
     proveedores = proveedores.annotate(
-        total_entregas=Count("id")  # placeholder
+        total_entregas=Count("id")  # por ahora decorativo
     )
 
     #  ORDENAMIENTO
-    if orden == "nombre":
-        proveedores = proveedores.order_by("nombre_proveedor")
+    ordenamientos = {
+        "nombre": "nombre_proveedor",
+        "nombre_desc": "-nombre_proveedor",
+        "entregas": "-total_entregas",
+    }
 
-    elif orden == "nombre_desc":
-        proveedores = proveedores.order_by("-nombre_proveedor")
-
-    elif orden == "entregas":
-        proveedores = proveedores.order_by("-total_entregas")
-
-    else:
-        proveedores = proveedores.order_by("nombre_proveedor")
+    proveedores = proveedores.order_by(
+        ordenamientos.get(orden, "nombre_proveedor")
+    )
 
     return render(
         request,
         "colaborador/lista_proveedor.html",
-        {
-            "proveedores": proveedores,
-        }
+        {"proveedores": proveedores}
     )
 
 
-
-
 def crear_proveedor(request):
+    print("METODO:", request.method)
+    print("POST:", request.POST)
+
     if request.method == 'POST':
-        form = ProveedorForm(request.POST)
+        form = ProveedorcrearForm(request.POST)
+
+        print("VALIDO:", form.is_valid())
+        print("ERRORES:", form.errors)
+
+    if request.method == "POST":
+        form = ProveedorcrearForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Proveedor creado correctamente.')
-            return redirect('proveedores:lista_proveedor')
+            messages.success(request, "Proveedor creado correctamente.")
+            return redirect("proveedores:lista_proveedor")
     else:
-        print(form.errors)
+        form = ProveedorcrearForm()
 
     return render(
         request,
-        'colaborador/crear_proveedor.html',
+        "colaborador/crear_proveedor.html",
         {
-            'form': form,
-            'titulo': 'Nuevo proveedor'
+            "form": form,
+            "titulo": "Nuevo proveedor"
         }
     )
 
@@ -72,22 +76,22 @@ def crear_proveedor(request):
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
-    if request.method == 'POST':
-        form = ProveedorForm(request.POST, instance=proveedor)
+    if request.method == "POST":
+        form = ProveedoreditarForm(request.POST, instance=proveedor)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Proveedor actualizado correctamente.')
-            return redirect('proveedores:lista_proveedor')
+            messages.success(request, "Proveedor actualizado correctamente.")
+            return redirect("proveedores:lista_proveedor")
     else:
-        form = ProveedorForm(instance=proveedor)
+        form = ProveedoreditarForm(instance=proveedor)
 
     return render(
         request,
-        'colaborador/editar_proveedor.html',  
+        "colaborador/editar_proveedor.html",
         {
-            'form': form,
-            'proveedor': proveedor,
-            'titulo': 'Editar proveedor'
+            "form": form,
+            "proveedor": proveedor,
+            "titulo": "Editar proveedor"
         }
     )
 

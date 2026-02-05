@@ -47,7 +47,7 @@ class Proveedor(models.Model):
     # ===============================
     estado = models.CharField(
         max_length=10,
-        choices=ESTADO_CHOICES,
+        choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')],
         default='activo'
     )
 

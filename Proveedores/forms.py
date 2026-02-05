@@ -4,8 +4,42 @@ from .models import Proveedor
 import re
 
 
-class ProveedorForm(forms.ModelForm):
+class ProveedorcrearForm(forms.ModelForm):
 
+    class Meta:
+        model = Proveedor
+        fields = [
+            'nit',
+            'nombre_proveedor',
+            'telefono_proveedor',
+            'correo_proveedor',
+        ]
+
+        widgets = {
+            'nit': forms.TextInput(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+
+            'nombre_proveedor': forms.TextInput(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+    
+            'telefono_proveedor': forms.TextInput(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+            'correo_proveedor': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
+class ProveedoreditarForm(forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = [
