@@ -4,6 +4,6 @@ from . import views
 app_name = 'inventario'
 
 urlpatterns = [
-    path('', views.caja_vista, name='mo'),
+    path('', views.inventario_vista, name='mo'),
     path('exportar/', views.exportar_txt, name='exportar_txt'),
 ]
