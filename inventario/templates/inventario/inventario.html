@@ -60,6 +60,7 @@
                     <th>Total</th>
                     <th>Vehículo</th>
                     <th>Usuario</th>
+                    <th acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,6 +74,14 @@
                     <td>{{ m.usuario.username|default:"—" }}</td>
                 </tr>
                 {% endfor %}
+                <td>
+    <a href="{% url 'inventario:editar_movimiento' movimiento.id %}"
+      class="btn btn-sm btn-primary">
+        <i class="bi bi-pencil"></i>
+    </a>
+
+</td>
+
             </tbody>
         </table>
     </div>
@@ -82,7 +91,8 @@
         </div>
     {% endif %}
 
-</div>
+</div>  
+
 
 
 {% comment %} 

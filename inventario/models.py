@@ -9,7 +9,6 @@ from django.conf import settings
 class MovimientoInventario(models.Model):
 
     fecha = models.DateField(auto_now_add=True)
-
     proveedor = models.ForeignKey(
         Proveedor,
         on_delete=models.PROTECT,
