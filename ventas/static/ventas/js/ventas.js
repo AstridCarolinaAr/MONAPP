@@ -88,15 +88,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Producto
   selectProducto.addEventListener("change", () => {
+
     const opt = selectProducto.options[selectProducto.selectedIndex];
     const precio = parseFloat(opt.dataset.precio) || 0;
     stock = parseInt(opt.dataset.stock) || 0;
+    inputCantidad.value = "";
+    inputCantidad.disabled = false;
     inputPrecio.value = precio.toFixed(2);
     inputCantidad.value = "";
     inputSubtotal.value = "";
-    stockInfo.textContent = stock > 0 ? `📊 Stock: ${stock}` : "❌ Sin stock";
-    stockInfo.classList.toggle("d-none", stock === 0);
-    inputCantidad.disabled = stock === 0;
+    if (stock > 0) {
+      stockInfo.textContent = `📦 Stock disponible: ${stock}`;
+      stockInfo.classList.remove("d-none");
+      inputCantidad.disabled = false;
+    } else {
+      stockInfo.textContent = "❌ Sin stock disponible";
+      stockInfo.classList.remove("d-none");
+      inputCantidad.disabled = true;
+    }
+
     console.log(`Producto: precio=${precio}, stock=${stock}`);
     actualizarBotones();
   });

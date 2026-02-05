@@ -57,7 +57,7 @@ def inventario_vista(request):
                     )
 
                     # sumar stock
-                    producto_stock += int(cant)
+                    # producto_stock += int(cant)
                     producto.save()
 
                 messages.success(request, "Inventario registrado correctamente.")
