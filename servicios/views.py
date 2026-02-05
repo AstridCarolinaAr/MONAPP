@@ -11,7 +11,6 @@ def es_staff(user):
     return user.is_staff
 
 @login_required
-@user_passes_test(es_staff)
 def lista_servicios(request):
     servicios = Servicio.objects.all()
     context = {
@@ -20,7 +19,6 @@ def lista_servicios(request):
     return render(request, 'servicios/lista_servicios.html', context)
 
 @login_required
-@user_passes_test(es_staff)
 def crear_servicio(request):
     if request.method == 'POST':
         form = ServicioForm(request.POST, request.FILES)
@@ -38,7 +36,6 @@ def crear_servicio(request):
     return render(request, 'servicios/form_servicio.html', context)
 
 @login_required
-@user_passes_test(es_staff)
 def editar_servicio(request, pk):
     servicio = get_object_or_404(Servicio, pk=pk)
     
@@ -59,7 +56,6 @@ def editar_servicio(request, pk):
     return render(request, 'servicios/form_servicio.html', context)
 
 @login_required
-@user_passes_test(es_staff)
 def eliminar_servicio(request, pk):
     servicio = get_object_or_404(Servicio, pk=pk)
     
@@ -85,7 +81,6 @@ def servicios_publicos(request):
 
 # Vistas para Gestión de Alisados
 @login_required
-@user_passes_test(es_staff)
 def lista_gestion_alisados(request):
     """Lista todas las gestiones de alisados registradas"""
     gestiones = GestionAlisado.objects.all()
@@ -96,7 +91,6 @@ def lista_gestion_alisados(request):
 
 
 @login_required
-@user_passes_test(es_staff)
 def crear_gestion_alisado(request):
     """Crea un nuevo registro de gestión de alisado"""
     if request.method == 'POST':
@@ -127,7 +121,6 @@ def ver_gestion_alisado(request, pk):
 
 
 @login_required
-@user_passes_test(es_staff)
 def editar_gestion_alisado(request, pk):
     """Edita una gestión de alisado existente"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
@@ -150,7 +143,6 @@ def editar_gestion_alisado(request, pk):
 
 
 @login_required
-@user_passes_test(es_staff)
 def eliminar_gestion_alisado(request, pk):
     """Elimina una gestión de alisado"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
@@ -167,7 +159,6 @@ def eliminar_gestion_alisado(request, pk):
 
 
 @login_required
-@user_passes_test(es_staff)
 def crear_cliente_ajax(request):
     """Crea un cliente mediante AJAX desde el formulario de gestión de alisado"""
     if request.method == 'POST':
