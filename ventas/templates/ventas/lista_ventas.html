@@ -43,6 +43,8 @@
         </div>
     </form>
 
+
+
     <!-- TABLA -->
     <div class="card shadow-sm">
          <div class="card-body p-0">
@@ -110,6 +112,13 @@
                                 data-bs-target="#modalDetalleVenta" > 
                                 <i class="bi bi-eye"></i> 
                             </button>
+                                <form method="post" action="{% url 'ventas:anular' venta.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('¿Anular esta venta?')">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
                         </td>
                     </tr>
                     <!-- MODAL DETALLE VENTA -->
@@ -120,14 +129,6 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title">Detalle de venta</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-
-                                <div class="modal-body">
-                                    <div id="contenidoDetalleVenta">
-                                        <div class="text-center text-muted">
-                                            Cargando detalle...
-                                        </div>
-                                    </div>
                                 </div>
 
                             </div>

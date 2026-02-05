@@ -1,7 +1,6 @@
-console.log("🚀 JS ventas iniciando...");
+
 
 document.addEventListener("DOMContentLoaded", function() {
-  console.log("✅ DOM cargado");
 
   // Elementos
   const btnAgregarItem = document.getElementById("btnAgregarItem");
@@ -34,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let puedeAgregar = false;
 
     if (tieneProducto) {
-      const selecciono = selectProducto.selectedIndex > 0;  // Cambié a selectedIndex
+      const selecciono = selectProducto.selectedIndex > 0;  
       const tieneCantidad = inputCantidad.value > 0;
       const tienePrecio = inputPrecio.value > 0;
       puedeAgregar = selecciono && tieneCantidad && tienePrecio;
@@ -42,8 +41,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (tieneServicio) {
-      const selecciono = selectServicio.selectedIndex > 0;  // Cambié a selectedIndex
-      const personal = selectPersonal.selectedIndex > 0;  // Cambié a selectedIndex
+      const selecciono = selectServicio.selectedIndex > 0; 
+      const personal = selectPersonal.selectedIndex > 0;  
       const tienePrecio = inputPrecio.value > 0;
       puedeAgregar = selecciono && personal && tienePrecio;
       console.log(`SERVICIO: servicio=${selecciono}, personal=${personal}, precio=${tienePrecio} => ${puedeAgregar}`);
@@ -203,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function() {
     actualizarBotones();
   }
 
-  console.log("🎯 Listo");
+  console.log(" Listo");
   btnAgregarItem.disabled = true;
   btnGuardarVenta.disabled = true;
 });

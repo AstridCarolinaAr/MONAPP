@@ -7,7 +7,6 @@ from Productos.models import Producto
 from django.core.exceptions import ValidationError
 import json
 from django.db import transaction
-
 from servicios.models import Servicio  
 from personal.models import Personal 
 
@@ -16,7 +15,7 @@ def lista_ventas(request):
     q = request.GET.get("q", "").strip()
     estado = request.GET.get("estado")
 
-    ventas = Venta.objects.select_related("cliente")
+    ventas = Venta.objects.select_related("cliente").filter(estado="activa")
 
     if q:
         ventas = ventas.filter(
@@ -150,6 +149,29 @@ def detalle_venta_modal(request, venta_id):
         'detalles': detalles,
         'total': total
     })
+
+@transaction.atomic
+def anular_venta(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    if venta.estado == 'anulada':
+        return redirect('ventas:lista')
+
+    # devolver stock
+    for detalle in venta.detalles.all():
+
+        if detalle.producto:
+            producto = detalle.producto
+            producto.cantidad += detalle.cantidad
+            producto.save()
+    
+    if request.method == "POST":
+
+        venta.estado = 'anulada'
+        venta.save()
+
+    return redirect('ventas:lista')
+
 
 
 

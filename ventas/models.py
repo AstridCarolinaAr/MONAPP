@@ -48,6 +48,17 @@ class Venta(models.Model):
     # FECHA
     # ===============================
     fecha = models.DateTimeField(default=now)
+    
+    ESTADOS = [
+            ('activa', 'Activa'),
+            ('anulada', 'Anulada'),
+    ]
+
+    estado = models.CharField(
+            max_length=10,
+            choices=ESTADOS,
+            default='activa'
+     )
 
     # ===============================
     # META
@@ -74,6 +85,8 @@ class Venta(models.Model):
         # self.subtotal = self.precio_unitario * self.cantidad
 
         super().save(*args, **kwargs)
+
+
 
     @property
     def total(self):
@@ -110,6 +123,7 @@ class DetalleVenta(models.Model):
         null=True,
         blank=True
     )
+
 
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     cantidad = models.PositiveIntegerField(default=1)
