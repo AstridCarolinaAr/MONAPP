@@ -55,7 +55,6 @@ def inventario_vista(request):
                         producto=producto,
                         cantidad=cantidad
                     )
-
                     # sumar stock
                     # producto_stock += int(cant)
                     producto.save()
