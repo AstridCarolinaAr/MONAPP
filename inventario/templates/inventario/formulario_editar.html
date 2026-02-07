@@ -1,0 +1,107 @@
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- PROVEEDOR + FECHA -->
+        <div class="section-box mb-4">
+            <h6 class="section-title">Proveedor</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <select name="proveedor" class="form-select" required>
+                        {% for p in proveedores %}
+                        <option value="{{ p.id }}" 
+                            {% if movimiento.proveedor.id == p.id %}selected{% endif %}>
+                            {{ p.nombre_proveedor }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <input type="date" name="fecha" class="form-control"
+                           value="{{ movimiento.fecha|date:'Y-m-d' }}" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTOS -->
+        <div class="section-box mb-4">
+            <h6 class="section-title">Productos recibidos</h6>
+
+            {% for d in detalles %}
+            <div class="row g-3 mb-2">
+                <div class="col-md-5">
+                    <select name="producto[]" class="form-select" required>
+                        {% for prod in productos %}
+                        <option value="{{ prod.codigo }}"
+                            {% if d.producto.codigo == prod.codigo %}selected{% endif %}>
+                            {{ prod.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <input type="number"
+                           name="cantidad[]"
+                           class="form-control"
+                           min="1"
+                           value="{{ d.cantidad }}"
+                           required>
+                </div>
+
+                <div class="col-md-4">
+                    {% if forloop.first %}
+                    <input type="number"
+                           name="precio_total"
+                           class="form-control"
+                           value="{{ movimiento.precio_total }}"
+                           required>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- REPARTIDOR -->
+        <div class="section-box mb-4">
+            <h6 class="section-title">Datos del repartidor</h6>
+            <div class="row g-3">
+                <input class="form-control col" name="nombre_repartidor"
+                       value="{{ movimiento.nombre_repartidor }}" required>
+                <input class="form-control col" name="apellido_repartidor"
+                       value="{{ movimiento.apellido_repartidor }}" required>
+                <input class="form-control col" name="cedula_repartidor"
+                       value="{{ movimiento.cedula_repartidor }}" required>
+                <input class="form-control col" name="telefono_repartidor"
+                       value="{{ movimiento.telefono_repartidor }}" required>
+            </div>
+        </div>
+
+        <!-- VEHÍCULO -->
+        <div class="section-box mb-4">
+            <h6 class="section-title">Vehículo</h6>
+            <div class="row g-3">
+                <input class="form-control col-md-6"
+                       name="placa_vehiculo"
+                       value="{{ movimiento.placa_vehiculo }}" required>
+                <input class="form-control col-md-6"
+                       name="tipo_vehiculo"
+                       value="{{ movimiento.tipo_vehiculo }}" required>
+            </div>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="d-flex justify-content-end gap-3">
+            <a href="{% url 'inventario:inventario_vista' %}" class="btn btn-outline-secondary">
+                Cancelar
+            </a>
+            <button class="btn btn-dark px-4">
+                Guardar cambios
+            </button>
+        </div>
+
+    </form>
+</div>
+
+</div>

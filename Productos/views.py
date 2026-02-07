@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Producto
 from .forms import ProductoForm
-
 from django.db.models import Count
 
 # ==================== VISTAS PÚBLICAS ====================
@@ -108,6 +107,7 @@ def lista_productos_admin(request):
 
     total_productos = productos.count()
 
+
     productos_por_linea = (
         Producto.objects
         .values("linea")
@@ -125,6 +125,7 @@ def lista_productos_admin(request):
             "linea_seleccionada": linea,
         }
     )
+    
 
 #login_required
 def crear_producto(request):
@@ -163,10 +164,10 @@ def crear_producto(request):
 
 # @login_required
 def editar_producto(request, codigo):
-    grupos = list(request.user.groups.values_list('name', flat=True))
-    if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
-        messages.error(request, 'No tienes permisos para editar productos.')
-        return redirect('core:index')
+    # grupos = list(request.user.groups.values_list('name', flat=True))
+    # if 'Administrador' not in grupos and 'Auxiliar' not in grupos:
+    #     messages.error(request, 'No tienes permisos para editar productos.')
+    #     return redirect('core:index')
 
     producto = get_object_or_404(Producto, codigo=codigo)
 

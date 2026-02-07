@@ -6,14 +6,37 @@ from django.db import transaction
 from .models import MovimientoInventario, DetalleMovimiento
 from Proveedores.models import Proveedor
 from Productos.models import Producto
+from django.db.models import Sum
 
 
 @login_required
-def inventario_vista(request):
+def inventario_lista(request):
+
+    movimientos = MovimientoInventario.objects.all().order_by('-fecha')
+
+    total_ingresos = movimientos.aggregate(
+        total=Sum('precio_total')
+    )['total'] or 0
 
     proveedores = Proveedor.objects.all()
     productos = Producto.objects.all()
-    movimientos = MovimientoInventario.objects.all().order_by('-fecha')
+
+    return render(
+        request,
+        'inventario/inventario.html',
+        {
+            'movimientos': movimientos,
+            'total_ingresos': total_ingresos,
+            'proveedores': proveedores,
+            'productos': productos,
+        }
+    )
+
+@login_required
+def crear_movimiento_inventario(request):
+
+    proveedores = Proveedor.objects.all()
+    productos = Producto.objects.all()
 
     if request.method == 'POST':
         try:
@@ -24,13 +47,10 @@ def inventario_vista(request):
                     id=request.POST.get('proveedor')
                 )
 
-                fecha = request.POST.get('fecha')
-                precio_total = request.POST.get('precio_total')
-
                 movimiento = MovimientoInventario.objects.create(
                     proveedor=proveedor,
-                    fecha=fecha,
-                    precio_total=precio_total,
+                    fecha=request.POST.get('fecha'),
+                    precio_total=request.POST.get('precio_total'),
                     usuario=request.user,
                     nombre_repartidor=request.POST.get('nombre_repartidor'),
                     apellido_repartidor=request.POST.get('apellido_repartidor'),
@@ -48,29 +68,29 @@ def inventario_vista(request):
 
                 for prod_id, cant in zip(productos_ids, cantidades):
                     producto = get_object_or_404(Producto, codigo=prod_id)
-                    cantidad = int(cant)
 
                     DetalleMovimiento.objects.create(
                         movimiento=movimiento,
                         producto=producto,
-                        cantidad=cantidad
+                        cantidad=int(cant)
                     )
 
-                    # sumar stock
-                    producto_stock += int(cant)
-                    producto.save()
-
                 messages.success(request, "Inventario registrado correctamente.")
-                return redirect('inventario:inventario_vista')
+                return redirect('inventario:lista')
 
         except Exception as e:
             messages.error(request, f"Error al guardar inventario: {e}")
 
-    return render(request, 'inventario/inventario.html', {
-        'proveedores': proveedores,
-        'productos': productos,
-        'movimientos': movimientos
-    })
+    return render(
+        request,
+        'inventario/crear_inventario.html',
+        {
+            'proveedores': proveedores,
+            'productos': productos
+        }
+    )
+
+    
 
 
 @login_required

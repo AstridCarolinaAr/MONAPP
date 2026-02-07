@@ -19,15 +19,14 @@
         <h2 class="mb-0">Gestión de Productos</h2>
 
         <a href="{% url 'productos:crear_producto' %}" class="btn btn-success shadow-sm">
-            <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
+            <i class="bi bi-plus-circle me-1"></i> Nuevo producto
         </a>
     </div>
 
+    <!-- FILTROS + BUSCADOR -->
+    <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
 
-    <!-- FILTROS Y BUSCADOR -->
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
-
-        <!-- DROPDOWN FILTROS -->
+        <!-- FILTRO -->
         <div class="dropdown">
             <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
                 <i class="bi bi-funnel"></i> Filtrar
@@ -38,7 +37,6 @@
                 <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
                 <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
                 <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
-                
                 <li>
                     <button class="dropdown-item" type="button" id="btnFiltroLineas">
                         Filtrar por línea
@@ -51,21 +49,22 @@
             </ul>
         </div>
 
-        <!-- BUSCADOR -->
-        <div class="buscador-productos">
-            <form method="get" class="d-flex gap-2">
-                <input type="text" name="q" class="form-control" placeholder="Buscar producto…" value="{{ request.GET.q }}">
-                <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
-        </div>
+        <!-- BUSCADOR (FORM BIEN CERRADO) -->
+        <form method="get" class="d-flex gap-2">
+            <input type="text"
+                   name="q"
+                   class="form-control"
+                   placeholder="Buscar producto..."
+                   value="{{ request.GET.q }}">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
     </div>
 
-    <!-- PANEL FILTRO POR LÍNEA (OCULTO) -->
-    <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none">
+    <!-- FILTRO POR LÍNEA -->
+    <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none mb-3">
         <div class="filtro-lineas">
-            <strong>Filtrar por línea:</strong>
 
             <a href="{% url 'productos:lista_productos_admin' %}"
                class="linea-chip {% if not linea_seleccionada %}active{% endif %}">
@@ -95,91 +94,117 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width:120px;">Código</th>
-                        <th>Nombre</th>
+                        <th>Producto</th>
+                        <th class="text-center" style="width:140px;">Stock</th>
                         <th class="text-center" style="width:220px;">Acciones</th>
                     </tr>
                 </thead>
+
                 <tbody>
                 {% for producto in productos %}
-                    <tr>
-                        <td>{{ producto.codigo }}</td>
-                        <td>{{ producto.nombre }}</td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
+                <tr>
+                    <td>{{ producto.codigo }}</td>
 
-                                <!-- VER DETALLE -->
-                                <button type="button"
-                                        class="btn btn-info btn-sm btn-ver-detalle"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetalleProducto"
-                                        data-codigo="{{ producto.codigo }}"
-                                        data-nombre="{{ producto.nombre }}"
-                                        data-marca="{{ producto.id_marca.nombre }}"
-                                        data-precio="{{ producto.get_precio_formateado }}"
-                                        data-descripcion="{{ producto.descripcion|default:'Sin descripción' }}"
-                                        data-linea="{{ producto.linea|default:'—' }}"
-                                        data-presentacion="{{ producto.presentacion|default:'—' }}"
-                                        data-unidad="{{ producto.get_unidad_medida_display }}"
-                                        data-estado="{{ producto.get_estado_display }}">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                    <!-- PRODUCTO + STOCK VISUAL -->
+                    <td>
+                        <div class="fw-semibold">{{ producto.nombre }}</div>
 
-                                <!-- EDITAR -->
-                                <a href="{% url 'productos:editar_producto' producto.codigo %}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <!-- ELIMINAR -->
-                                <a href="{% url 'productos:eliminar_producto' producto.codigo %}" class="btn btn-danger btn-sm btn-eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-
+                        {% if producto.stock_actual <= 1 %}
+                            <div class="stock-chip stock-critico">
+                                🔴 {{ producto.stock_actual }} unidades — crítico
                             </div>
-                        </td>
-                    </tr>
+                        {% elif producto.stock_actual <= 15 %}
+                            <div class="stock-chip stock-bajo">
+                                🟠 {{ producto.stock_actual }} unidades — bajo
+                            </div>
+                        {% else %}
+                            <div class="stock-chip stock-ok">
+                                🟢 {{ producto.stock_actual }} unidades disponibles
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- COLUMNA STOCK SIMBÓLICA -->
+                    <td class="text-center text-muted">—</td>
+
+                    <!-- ACCIONES -->
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+
+                            <button type="button"
+                                    class="btn btn-info btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDetalleProducto"
+                                    data-codigo="{{ producto.codigo }}"
+                                    data-nombre="{{ producto.nombre }}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <a href="{% url 'productos:editar_producto' producto.codigo %}"
+                               class="btn btn-primary btn-sm"
+                               role="button">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
+                               class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="3" class="text-center text-muted py-4">
-                            No hay productos registrados.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        No hay productos registrados.
+                    </td>
+                </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
-</div>
+    <!-- MODAL DETALLE -->
+    <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg">
 
-<!-- MODAL DETALLE PRODUCTO -->
-<div class="modal fade" id="modalDetalleProducto" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="bi bi-box-seam"></i> Detalles del producto</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row g-3">
-                    <div class="col-md-6"><strong>Código:</strong> <span id="d-codigo"></span></div>
-                    <div class="col-md-6"><strong>Nombre:</strong> <span id="d-nombre"></span></div>
-                    <div class="col-md-6"><strong>Marca:</strong> <span id="d-marca"></span></div>
-                    <div class="col-md-6"><strong>Precio:</strong> <span id="d-precio"></span></div>
-                    <div class="col-md-6"><strong>Línea:</strong> <span id="d-linea"></span></div>
-                    <div class="col-md-6"><strong>Presentación:</strong> <span id="d-presentacion"></span></div>
-                    <div class="col-md-6"><strong>Unidad:</strong> <span id="d-unidad"></span></div>
-                    <div class="col-md-6"><strong>Estado:</strong> <span id="d-estado"></span></div>
-                    <div class="col-12">
-                        <strong>Descripción:</strong>
-                        <p id="d-descripcion" class="text-muted mb-0"></p>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-seam"></i> Detalles del producto
+                    </h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6"><strong>Código:</strong> <span id="d-codigo"></span></div>
+                        <div class="col-md-6"><strong>Nombre:</strong> <span id="d-nombre"></span></div>
+                        <div class="col-md-6"><strong>Marca:</strong> <span id="d-marca"></span></div>
+                        <div class="col-md-6"><strong>Precio:</strong> <span id="d-precio"></span></div>
+                        <div class="col-md-6"><strong>Línea:</strong> <span id="d-linea"></span></div>
+                        <div class="col-md-6"><strong>Presentación:</strong> <span id="d-presentacion"></span></div>
+                        <div class="col-md-6"><strong>Unidad:</strong> <span id="d-unidad"></span></div>
+                        <div class="col-md-6"><strong>Estado:</strong> <span id="d-estado"></span></div>
+                        <div class="col-12">
+                            <strong>Descripción:</strong>
+                            <p id="d-descripcion" class="text-muted mb-0"></p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}
 

@@ -5,18 +5,19 @@
 
 {% block content %}
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'inventario/css/inventariocss' %}">
 
 <div class="container-fluid caja-container">
 
     <!-- HEADER -->
-    <div class="caja-header mb-4">
-        <h1 class="caja-title">
-            <i class="fas fa-cash-register me-2"></i>
-            Inventario
-        </h1>
+    <div class="caja-header mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="caja-title">Inventario</h1>
+
+        <button class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCrearInventario">
+            <i class="bi bi-plus-circle me-1"></i> Registrar movimiento
+        </button>
     </div>
 
     <!-- MENSAJES -->
@@ -24,30 +25,15 @@
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
     {% endif %}
-    <!-- ACCIONES -->
+
+    <!-- BALANCE -->
     <div class="mb-4">
-        <button
-            class="btn btn-dark"
-            data-bs-toggle="modal"
-            data-bs-target="#modalMovimientoInventario">
-            <i class="bi bi-plus-circle me-1"></i>
-            Registrar movimiento
-        </button>
+        <strong>Total ingresos:</strong> ${{ total_ingresos|floatformat:2 }}
     </div>
-
-
-        <!-- BALANCES -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="balance-card ingreso">
-                <span>Total ingresos</span>
-                <strong>${{ total_ingresos|floatformat:2 }}</strong>
-            </div>
-        </div>
 
     {% if movimientos %}
     <div class="table-responsive">
@@ -60,11 +46,12 @@
                     <th>Total</th>
                     <th>Vehículo</th>
                     <th>Usuario</th>
-                    <th acciones</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
-                {% for m in movimientos %}
+            {% for m in movimientos %}
                 <tr>
                     <td>{{ m.fecha }}</td>
                     <td>{{ m.proveedor }}</td>
@@ -72,16 +59,39 @@
                     <td>${{ m.precio_total }}</td>
                     <td>{{ m.placa_vehiculo }} ({{ m.tipo_vehiculo }})</td>
                     <td>{{ m.usuario.username|default:"—" }}</td>
+
+                    <td class="text-center align-middle">
+                        <div class="d-flex justify-content-center">
+
+                            <button type="button"
+                                    class="btn btn-outline-primary btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditar{{ m.id }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                        </div>
+                    </td>
                 </tr>
-                {% endfor %}
-                <td>
-    <a href="{% url 'inventario:editar_movimiento' movimiento.id %}"
-      class="btn btn-sm btn-primary">
-        <i class="bi bi-pencil"></i>
-    </a>
 
-</td>
+                <!-- MODAL EDITAR -->
+                <div class="modal fade" id="modalEditar{{ m.id }}" tabindex="-1">
+                  <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content p-4">
 
+                      <h5 class="mb-3">Editar inventario</h5>
+
+                      {% include 'inventario/formulario_editar.html'
+                          with movimiento=m
+                          detalles=m.detalles
+                          proveedores=proveedores
+                          productos=productos %}
+
+                    </div>
+                  </div>
+                </div>
+
+            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -91,143 +101,19 @@
         </div>
     {% endif %}
 
-</div>  
+</div>
 
+<!-- MODAL CREAR -->
+<div class="modal fade" id="modalCrearInventario" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content p-4">
 
+      <h5 class="mb-3">Registrar inventario</h5>
 
-{% comment %} 
-            <a href="{% url 'inventario:exportar_txt' %}" class="btn btn-exportar btn-sm">
-                <i class="fas fa-download me-1"></i>
-                Exportar
-            </a>
-        </div> {% endcomment %}
-  
-<!-- MODAL REGISTRAR MOVIMIENTO INVENTARIO -->
-<div class="modal fade" id="modalMovimientoInventario" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content shadow-lg border-0 rounded-4">
+      {% include 'inventario/formulario_inventario.html' %}
 
-      <!-- HEADER -->
-      <div class="modal-header bg-dark text-white rounded-top-4">
-        <h5 class="modal-title fw-semibold">
-          <i class="bi bi-truck me-2"></i> Registrar ingreso de inventario
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-
-      <form method="post">
-        {% csrf_token %}
-
-        <div class="modal-body px-4 py-3">
-
-          <!-- PROVEEDOR -->
-          <div class="section-box">
-            <h6 class="section-title">Proveedor</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Proveedor</label>
-                <select name="proveedor" class="form-select" required>
-                  {% for p in proveedores %}
-                  <option value="{{ p.id }}">{{ p.nombre_proveedor }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Fecha</label>
-                <input type="date" name="fecha" class="form-control" required>
-              </div>
-            </div>
-          </div>
-
-          <!-- PRODUCTOS -->
-          <div class="section-box">
-            <h6 class="section-title">Productos recibidos</h6>
-            <div class="row g-3 align-items-end">
-              <div class="col-md-5">
-                <label class="form-label">Producto</label>
-                <select name="producto[]" class="form-select" required>
-                  {% for prod in productos %}
-                  <option value="{{ prod.codigo }}">{{ prod.nombre }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-
-              <div class="col-md-3">
-                <label class="form-label">Cantidad</label>
-                <input type="number" name="cantidad[]" class="form-control" min="1" required>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label">Precio total</label>
-                <input type="number" name="precio_total" class="form-control" required>
-              </div>
-            </div>
-          </div>
-
-          <!-- REPARTIDOR -->
-          <div class="section-box">
-            <h6 class="section-title">Datos del repartidor</h6>
-            <div class="row g-3">
-              <div class="col-md-3">
-                <input type="text" name="nombre_repartidor" class="form-control" placeholder="Nombre" required>
-              </div>
-              <div class="col-md-3">
-                <input type="text" name="apellido_repartidor" class="form-control" placeholder="Apellido" required>
-              </div>
-              <div class="col-md-3">
-                <input type="text" name="cedula_repartidor" class="form-control" placeholder="Cédula" required>
-              </div>
-              <div class="col-md-3">
-                <input type="text" name="telefono_repartidor" class="form-control" placeholder="Teléfono" required>
-              </div>
-            </div>
-          </div>
-
-          <!-- VEHÍCULO -->
-          <div class="section-box">
-            <h6 class="section-title">Vehículo</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <input type="text" name="placa_vehiculo" class="form-control" placeholder="Placa del vehículo" required>
-              </div>
-              <div class="col-md-6">
-                <input type="text" name="tipo_vehiculo" class="form-control" placeholder="Tipo de vehículo" required>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- FOOTER -->
-        <div class="modal-footer border-0 px-4 pb-4">
-          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-dark rounded-pill px-5 fw-semibold">
-            Guardar inventario
-          </button>
-        </div>
-
-      </form>
     </div>
   </div>
 </div>
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'inventario/js/inventario.js' %}"></script>
-{% if abrir_modal_movimiento %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = new bootstrap.Modal(
-        document.getElementById('modalMovimientoInventario')
-    );
-    modal.show();
-});
-</script>
-{% endif %}
 
 {% endblock %}
