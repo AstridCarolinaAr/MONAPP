@@ -9,6 +9,7 @@ from Productos.models import Producto
 from django.db.models import Sum
 
 
+
 @login_required
 def inventario_lista(request):
 
@@ -76,7 +77,7 @@ def crear_movimiento_inventario(request):
                     )
 
                 messages.success(request, "Inventario registrado correctamente.")
-                return redirect('inventario:lista')
+                return redirect('inventario:inventario_vista')
 
         except Exception as e:
             messages.error(request, f"Error al guardar inventario: {e}")
@@ -92,35 +93,21 @@ def crear_movimiento_inventario(request):
 
     
 
-
 @login_required
 def editar_movimiento(request, id_movimiento):
 
     movimiento = get_object_or_404(MovimientoInventario, id=id_movimiento)
     detalles = DetalleMovimiento.objects.filter(movimiento=movimiento)
 
-    proveedores = Proveedor.objects.all()
-    productos = Producto.objects.all()
-
     if request.method == 'POST':
         try:
             with transaction.atomic():
 
-                # DEVOLVER STOCK ANTERIOR
-                for d in detalles:
-                    producto = d.producto
-                    producto.cantidad -= d.cantidad
-                    producto.save()
-
                 detalles.delete()
 
-                movimiento.proveedor = get_object_or_404(
-                    Proveedor,
-                    id=request.POST.get('proveedor')
-                )
+                movimiento.proveedor_id = request.POST.get('proveedor')
                 movimiento.fecha = request.POST.get('fecha')
                 movimiento.precio_total = request.POST.get('precio_total')
-
                 movimiento.nombre_repartidor = request.POST.get('nombre_repartidor')
                 movimiento.apellido_repartidor = request.POST.get('apellido_repartidor')
                 movimiento.cedula_repartidor = request.POST.get('cedula_repartidor')
@@ -133,29 +120,39 @@ def editar_movimiento(request, id_movimiento):
                 cantidades = request.POST.getlist('cantidad[]')
 
                 for prod_id, cant in zip(productos_ids, cantidades):
-                    producto = get_object_or_404(Producto, codigo=prod_id)
-                    cantidad = int(cant)
+                    if not cant:
+                        continue
 
                     DetalleMovimiento.objects.create(
                         movimiento=movimiento,
-                        producto=producto,
-                        cantidad=cantidad
+                        producto_id=prod_id,
+                        cantidad=int(cant)
                     )
-
-                    producto.cantidad += cantidad
-                    producto.save()
 
                 messages.success(request, "Inventario actualizado correctamente.")
                 return redirect('inventario:inventario_vista')
 
         except Exception as e:
-            messages.error(request, f"Error al actualizar inventario: {e}")
+            messages.error(request, f"Error: {e}")
+            return redirect('inventario:inventario_vista')   # ← importante
 
-    return render(request, 'inventario/editar_inventario.html', {
-        'movimiento': movimiento,
-        'detalles': detalles,
-        'proveedores': proveedores,
-        'productos': productos
-    })
+    
+    return redirect('inventario:inventario_vista')
+
+
+    
+@login_required
+def eliminar_movimiento(request, id_movimiento):
+
+    movimiento = get_object_or_404(MovimientoInventario, id=id_movimiento)
+
+    if request.method == 'POST':
+        DetalleMovimiento.objects.filter(movimiento=movimiento).delete()
+        movimiento.delete()
+
+        messages.success(request, "Movimiento eliminado.")
+        return redirect('inventario:inventario_vista')
+
+
 
 # def exportar_txt(request):

@@ -1,73 +1,68 @@
- <form method="post">
+<form method="post" action="{% url 'inventario:crear_inventario' %}">
     {% csrf_token %}
 
-        <!-- PROVEEDOR -->
-        <div class="section-box mb-4">
-            <h6 class="section-title">Proveedor</h6>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <select name="proveedor" class="form-select" required>
-                        {% for p in proveedores %}
-                        <option value="{{ p.id }}">{{ p.nombre_proveedor }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+<div class="row g-3 mb-3">
 
-                <div class="col-md-6">
-                    <input type="date" name="fecha" class="form-control" required>
-                </div>
-            </div>
-        </div>
+<div class="col-md-6">
+    <label>Proveedor</label>
+    <select name="proveedor" class="form-select" required>
+        {% for p in proveedores %}
+            <option value="{{ p.id }}">{{ p.nombre_proveedor }}</option>
+        {% endfor %}
+    </select>
+</div>
 
-        <!-- PRODUCTOS -->
-        <div class="section-box mb-4">
-            <h6 class="section-title">Productos recibidos</h6>
-            <div class="row g-3">
-                <div class="col-md-5">
-                    <select name="producto[]" class="form-select" required>
-                        {% for prod in productos %}
-                        <option value="{{ prod.codigo }}">{{ prod.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+<div class="col-md-6">
+    <label>Fecha</label>
+    <input type="date" name="fecha" class="form-control" required>
+</div>
 
-                <div class="col-md-3">
-                    <input type="number" name="cantidad[]" class="form-control" min="1" required>
-                </div>
+</div>
 
-                <div class="col-md-4">
-                    <input type="number" name="precio_total" class="form-control" required>
-                </div>
-            </div>
-        </div>
+<hr>
 
-        <!-- REPARTIDOR -->
-        <div class="section-box mb-4">
-            <h6 class="section-title">Datos del repartidor</h6>
-            <div class="row g-3">
-                <input class="form-control col" name="nombre_repartidor" placeholder="Nombre" required>
-                <input class="form-control col" name="apellido_repartidor" placeholder="Apellido" required>
-                <input class="form-control col" name="cedula_repartidor" placeholder="Cédula" required>
-                <input class="form-control col" name="telefono_repartidor" placeholder="Teléfono" required>
-            </div>
-        </div>
+<h6>Productos recibidos</h6>
 
-        <!-- VEHÍCULO -->
-        <div class="section-box mb-4">
-            <h6 class="section-title">Vehículo</h6>
-            <div class="row g-3">
-                <input class="form-control col-md-6" name="placa_vehiculo" placeholder="Placa" required>
-                <input class="form-control col-md-6" name="tipo_vehiculo" placeholder="Tipo" required>
-            </div>
-        </div>
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <select name="producto[]" class="form-select" required>
+            {% for prod in productos %}
+                <option value="{{ prod.codigo }}">{{ prod.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-        <div class="d-flex justify-content-end gap-3">
-            <a href="{% url 'inventario:inventario_vista' %}" class="btn btn-outline-secondary">
-                Cancelar
-            </a>
-            <button class="btn btn-dark px-4">
-                Guardar inventario
-            </button>
-        </div>
+    <div class="col-md-3">
+        <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" required>
+    </div>
 
-    </form>
+    <div class="col-md-3">
+        <input type="number" name="precio_total" class="form-control" placeholder="Total $" required>
+    </div>
+</div>
+
+<hr>
+
+<h6>Datos del repartidor</h6>
+
+<div class="row g-3">
+    <input class="form-control" name="nombre_repartidor" placeholder="Nombre">
+    <input class="form-control" name="apellido_repartidor" placeholder="Apellido">
+    <input class="form-control" name="cedula_repartidor" placeholder="Cédula">
+    <input class="form-control" name="telefono_repartidor" placeholder="Teléfono">
+</div>
+
+<hr>
+
+<h6>Vehículo</h6>
+
+<input class="form-control mb-2" name="placa_vehiculo" placeholder="Placa">
+<input class="form-control mb-3" name="tipo_vehiculo" placeholder="Tipo">
+
+<div class="text-end mt-3">
+    <button type="submit" class="btn btn-dark">
+        Guardar inventario
+    </button>
+</div>
+
+</form>
