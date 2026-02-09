@@ -2,6 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from datetime import datetime,date
 from core.funciones import admin_o_aux_required
 
@@ -93,6 +94,35 @@ def gestion_datos_view(request):
     """
     Vista para gestión de datos
     """
+    if request.method == 'POST':
+        # Procesar el formulario enviado desde el modal
+        try:
+            nombre = request.POST.get('nombre')
+            categoria = request.POST.get('categoria')
+            descripcion = request.POST.get('descripcion')
+            fecha = request.POST.get('fecha')
+            estado = request.POST.get('estado')
+            
+            # Aquí puedes guardar los datos en la base de datos
+            # Por ejemplo:
+            # DatoModel.objects.create(
+            #     nombre=nombre,
+            #     categoria=categoria,
+            #     descripcion=descripcion,
+            #     fecha=fecha,
+            #     estado=estado
+            # )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Datos guardados correctamente'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
     context = {
         'titulo': 'Gestión de Datos',
     }

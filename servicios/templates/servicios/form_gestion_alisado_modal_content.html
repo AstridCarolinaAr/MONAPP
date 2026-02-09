@@ -1,13 +1,5 @@
-{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}{{ titulo }}{% endblock %}
-
-{% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> {{ titulo }}
-{% endblock %}
-
-{% block extra_css %}
 <style>
     .section-title {
         background-color: #f8f9fa;
@@ -164,30 +156,20 @@
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     }
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-12 col-xl-10">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">{{ titulo }}</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Indicador de progreso -->
-                    <div class="progress-steps">
-                        <div class="step-item active" data-step="1">
-                            <div class="step-circle">1</div>
-                            <div class="step-label">Información General</div>
-                        </div>
-                        <div class="step-item" data-step="2">
-                            <div class="step-circle">2</div>
-                            <div class="step-label">Características y Cuidados</div>
-                        </div>
-                    </div>
-                    
-                    <form method="post" enctype="multipart/form-data" id="gestionAlisadoForm">
+<!-- Indicador de progreso -->
+<div class="progress-steps">
+    <div class="step-item active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Información General</div>
+    </div>
+    <div class="step-item" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Características y Cuidados</div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'servicios:crear_gestion_alisado' %}" novalidate>
                         {% csrf_token %}
                         
                         <!-- PASO 1: Información General -->
@@ -796,13 +778,13 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     let currentStep = 1;
     const totalSteps = 2;
+    
+    // Obtener referencia al formulario principal
+    const formulario = document.getElementById('gestionAlisadoForm');
     
     // Inicializar información del cliente en consentimiento
     const selectCliente = document.getElementById('selectCliente');
@@ -1561,7 +1543,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkboxAceptacion = document.getElementById('checkboxAceptacion');
     const btnConfirmarConsentimiento = document.getElementById('btnConfirmarConsentimiento');
     const btnCerrarModal = document.getElementById('btnCerrarModal');
-    const formulario = document.getElementById('gestionAlisadoForm');
     
     // Mostrar fecha actual en el consentimiento
     const fechaActual = new Date().toLocaleDateString('es-CO', { 
@@ -1598,6 +1579,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Agregar validación cuando se sube una firma
     if (inputFirma) {
         inputFirma.addEventListener('change', function() {
+            console.log('Firma cargada:', this.files.length > 0 ? this.files[0].name : 'ninguna');
             validarConsentimiento();
         });
     }
@@ -1606,13 +1588,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnGuardar').addEventListener('click', function(e) {
         e.preventDefault();
         
+        console.log('Botón Guardar clickeado');
+        
         // Validar el paso actual antes de mostrar el modal
         if (validateStep(currentStep)) {
+            console.log('Validación del paso exitosa');
             // Verificar que haya un cliente seleccionado
             if (!selectCliente.value) {
+                console.log('No hay cliente seleccionado');
                 alert('Por favor seleccione un cliente antes de continuar');
                 return;
             }
+            
+            console.log('Cliente seleccionado:', selectCliente.value);
             
             // Limpiar estado del modal
             checkboxAceptacion.checked = false;
@@ -1622,7 +1610,10 @@ document.addEventListener('DOMContentLoaded', function() {
             actualizarInfoCliente();
             
             // Mostrar el modal
+            console.log('Mostrando modal de consentimiento');
             modalConsentimiento.show();
+        } else {
+            console.log('La validación del paso falló');
         }
     });
     
@@ -1633,10 +1624,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Confirmar y guardar
     btnConfirmarConsentimiento.addEventListener('click', function() {
+        console.log('Botón Confirmar Consentimiento clickeado');
+        
         // Obtener datos del cliente seleccionado
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         const nombreCompleto = selectedOption.text;
         const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
+        
+        console.log('Datos del cliente:', { nombreCompleto, numeroDocumento });
         
         // Agregar los datos de consentimiento al formulario como campos ocultos
         const inputNombre = document.createElement('input');
@@ -1663,12 +1658,66 @@ document.addEventListener('DOMContentLoaded', function() {
         inputAceptado.value = 'true';
         formulario.appendChild(inputAceptado);
         
+        console.log('Cerrando modal de consentimiento y enviando formulario...');
+        
         // Cerrar modal
         modalConsentimiento.hide();
         
-        // Enviar el formulario
-        formulario.submit();
+        // Pequeño delay para asegurar que el modal se cierre antes de enviar
+        setTimeout(function() {
+            console.log('Disparando submit del formulario');
+            
+            // Enviar directamente por AJAX en lugar de usar requestSubmit
+            const formData = new FormData(formulario);
+            const submitUrl = formulario.action;
+            
+            console.log('URL de envío:', submitUrl);
+            console.log('Datos del formulario:', Array.from(formData.entries()));
+            
+            fetch(submitUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('Respuesta recibida:', response.status);
+                if (!response.ok && response.status !== 400) {
+                    throw new Error('Error del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos de respuesta:', data);
+                if (data.success) {
+                    // Cerrar modal principal y recargar página
+                    const modalElement = document.getElementById('modalFormGestion');
+                    if (modalElement) {
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    }
+                    alert('Gestión de alisado guardada exitosamente');
+                    window.location.reload();
+                } else {
+                    // Mostrar errores
+                    let errorMsg = data.message || 'Error al guardar';
+                    if (data.errors) {
+                        errorMsg += ':\n';
+                        for (let field in data.errors) {
+                            errorMsg += `\n- ${field}: ${data.errors[field].join(', ')}`;
+                        }
+                    }
+                    alert(errorMsg);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al guardar. Por favor, intenta nuevamente.');
+            });
+        }, 300);
     });
-});
+})();
 </script>
-{% endblock %}

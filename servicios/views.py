@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
+from django.urls import reverse
 from .models import Servicio, GestionAlisado
 from .forms import ServicioForm, GestionAlisadoForm
 from clientes.models import Cliente
@@ -93,19 +94,53 @@ def lista_gestion_alisados(request):
 @login_required
 def crear_gestion_alisado(request):
     """Crea un nuevo registro de gestión de alisado"""
+    is_modal = request.GET.get('modal') == '1'
+    
     if request.method == 'POST':
-        form = GestionAlisadoForm(request.POST)
+        print(f"=== CREAR GESTION ALISADO - POST recibido ===")
+        print(f"is_modal: {is_modal}")
+        print(f"X-Requested-With: {request.headers.get('X-Requested-With')}")
+        print(f"POST data keys: {list(request.POST.keys())}")
+        print(f"FILES: {list(request.FILES.keys())}")
+        
+        form = GestionAlisadoForm(request.POST, request.FILES)
         if form.is_valid():
+            print("=== FORMULARIO VÁLIDO ===")
             gestion = form.save()
+            print(f"=== GESTIÓN GUARDADA con ID: {gestion.pk} ===")
+            
+            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Retornar respuesta JSON para AJAX
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Gestión de alisado registrada exitosamente.'
+                })
+            
             messages.success(request, 'Gestión de alisado registrada exitosamente.')
             return redirect('servicios:lista_gestion_alisados')
+        else:
+            print("=== FORMULARIO INVÁLIDO ===")
+            print(f"Errores: {form.errors}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Si hay errores y es AJAX, devolver JSON con los errores
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrija los errores en el formulario.',
+                    'errors': form.errors
+                }, status=400)
     else:
         form = GestionAlisadoForm()
     
     context = {
         'form': form,
-        'titulo': 'Nueva Gestión de Alisado'
+        'titulo': 'Nueva Gestión de Alisado',
+        'is_modal': is_modal
     }
+    
+    # Si es modal, usar template simplificado
+    if is_modal:
+        return render(request, 'servicios/form_gestion_alisado_modal_content.html', context)
+    
     return render(request, 'servicios/form_gestion_alisado.html', context)
 
 
@@ -126,7 +161,7 @@ def editar_gestion_alisado(request, pk):
     gestion = get_object_or_404(GestionAlisado, pk=pk)
     
     if request.method == 'POST':
-        form = GestionAlisadoForm(request.POST, instance=gestion)
+        form = GestionAlisadoForm(request.POST, request.FILES, instance=gestion)
         if form.is_valid():
             gestion = form.save()
             messages.success(request, 'Gestión de alisado actualizada exitosamente.')
