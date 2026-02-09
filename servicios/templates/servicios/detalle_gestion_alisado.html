@@ -323,6 +323,18 @@
                 </div>
             </div>
             
+            <!-- Firma del Consentimiento -->
+            {% if gestion.firma_consentimiento %}
+            <div class="detail-section">
+                <h5><i class="bi bi-pen"></i> Firma del Consentimiento Informado</h5>
+                <div class="detail-row">
+                    <div class="text-center">
+                        <img src="{{ gestion.firma_consentimiento.url }}" alt="Firma del cliente" class="img-fluid border rounded" style="max-width: 400px; max-height: 200px;">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             <div class="d-flex justify-content-between mt-4">
                 <a href="{% url 'servicios:lista_gestion_alisados' %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Volver a la Lista

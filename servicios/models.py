@@ -317,6 +317,14 @@ class GestionAlisado(models.Model):
         verbose_name='Recomendaciones o anotaciones sobre post cuidados'
     )
     
+    # Firma del consentimiento
+    firma_consentimiento = models.ImageField(
+        upload_to='firmas_consentimiento/',
+        blank=True,
+        null=True,
+        verbose_name='Firma del consentimiento informado'
+    )
+    
     class Meta:
         ordering = ['-fecha_hora']
         verbose_name = 'Gestión de Alisado'

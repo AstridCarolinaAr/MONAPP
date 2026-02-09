@@ -55,7 +55,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'realiza_ejercicio', 'frecuencia_ejercicio', 'usa_casco',
             'productos_capilares', 'se_bana_agua_caliente', 'requiere_refuerzo_15dias',
             'sufre_tiroides', 'medicamento_tiroides', 'despunte_hoy',
-            'recomendaciones_post_cuidados'
+            'recomendaciones_post_cuidados', 'firma_consentimiento'
         ]
         widgets = {
             'cliente': forms.Select(attrs={
@@ -230,6 +230,10 @@ class GestionAlisadoForm(forms.ModelForm):
                 'rows': 4,
                 'placeholder': 'Recomendaciones o anotaciones sobre post cuidados',
                 'required': 'required'
+            }),
+            'firma_consentimiento': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
             }),
         }
     

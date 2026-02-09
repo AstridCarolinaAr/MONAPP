@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
+from django.urls import reverse
 from .models import Servicio, GestionAlisado
 from .forms import ServicioForm, GestionAlisadoForm
 from clientes.models import Cliente
@@ -11,7 +12,6 @@ def es_staff(user):
     return user.is_staff
 
 @login_required
-@user_passes_test(es_staff)
 def lista_servicios(request):
     servicios = Servicio.objects.all()
     context = {
@@ -21,7 +21,6 @@ def lista_servicios(request):
 
 
 @login_required
-@user_passes_test(es_staff)
 def crear_servicio(request):
 
     if request.method == 'POST':
@@ -46,7 +45,6 @@ def crear_servicio(request):
     return render(request, 'servicios/form_servicio.html', context)
 
 @login_required
-@user_passes_test(es_staff)
 def editar_servicio(request, pk):
     servicio = get_object_or_404(Servicio, pk=pk)
     
@@ -67,7 +65,6 @@ def editar_servicio(request, pk):
     return render(request, 'servicios/form_servicio.html', context)
 
 @login_required
-@user_passes_test(es_staff)
 def eliminar_servicio(request, pk):
     servicio = get_object_or_404(Servicio, pk=pk)
     
@@ -93,7 +90,6 @@ def servicios_publicos(request):
 
 # Vistas para Gestión de Alisados
 @login_required
-@user_passes_test(es_staff)
 def lista_gestion_alisados(request):
     """Lista todas las gestiones de alisados registradas"""
     gestiones = GestionAlisado.objects.all()
@@ -104,22 +100,55 @@ def lista_gestion_alisados(request):
 
 
 @login_required
-@user_passes_test(es_staff)
 def crear_gestion_alisado(request):
     """Crea un nuevo registro de gestión de alisado"""
+    is_modal = request.GET.get('modal') == '1'
+    
     if request.method == 'POST':
-        form = GestionAlisadoForm(request.POST)
+        print(f"=== CREAR GESTION ALISADO - POST recibido ===")
+        print(f"is_modal: {is_modal}")
+        print(f"X-Requested-With: {request.headers.get('X-Requested-With')}")
+        print(f"POST data keys: {list(request.POST.keys())}")
+        print(f"FILES: {list(request.FILES.keys())}")
+        
+        form = GestionAlisadoForm(request.POST, request.FILES)
         if form.is_valid():
+            print("=== FORMULARIO VÁLIDO ===")
             gestion = form.save()
+            print(f"=== GESTIÓN GUARDADA con ID: {gestion.pk} ===")
+            
+            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Retornar respuesta JSON para AJAX
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Gestión de alisado registrada exitosamente.'
+                })
+            
             messages.success(request, 'Gestión de alisado registrada exitosamente.')
             return redirect('servicios:lista_gestion_alisados')
+        else:
+            print("=== FORMULARIO INVÁLIDO ===")
+            print(f"Errores: {form.errors}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Si hay errores y es AJAX, devolver JSON con los errores
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrija los errores en el formulario.',
+                    'errors': form.errors
+                }, status=400)
     else:
         form = GestionAlisadoForm()
     
     context = {
         'form': form,
-        'titulo': 'Nueva Gestión de Alisado'
+        'titulo': 'Nueva Gestión de Alisado',
+        'is_modal': is_modal
     }
+    
+    # Si es modal, usar template simplificado
+    if is_modal:
+        return render(request, 'servicios/form_gestion_alisado_modal_content.html', context)
+    
     return render(request, 'servicios/form_gestion_alisado.html', context)
 
 
@@ -135,13 +164,12 @@ def ver_gestion_alisado(request, pk):
 
 
 @login_required
-@user_passes_test(es_staff)
 def editar_gestion_alisado(request, pk):
     """Edita una gestión de alisado existente"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
     
     if request.method == 'POST':
-        form = GestionAlisadoForm(request.POST, instance=gestion)
+        form = GestionAlisadoForm(request.POST, request.FILES, instance=gestion)
         if form.is_valid():
             gestion = form.save()
             messages.success(request, 'Gestión de alisado actualizada exitosamente.')
@@ -158,7 +186,6 @@ def editar_gestion_alisado(request, pk):
 
 
 @login_required
-@user_passes_test(es_staff)
 def eliminar_gestion_alisado(request, pk):
     """Elimina una gestión de alisado"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
@@ -175,7 +202,6 @@ def eliminar_gestion_alisado(request, pk):
 
 
 @login_required
-@user_passes_test(es_staff)
 def crear_cliente_ajax(request):
     """Crea un cliente mediante AJAX desde el formulario de gestión de alisado"""
     if request.method == 'POST':
