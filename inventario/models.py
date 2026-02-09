@@ -58,19 +58,14 @@ class MovimientoInventario(models.Model):
 # ======================================================
 
 class DetalleMovimiento(models.Model):
-
     movimiento = models.ForeignKey(
         MovimientoInventario,
         on_delete=models.CASCADE,
-        related_name='detalles'
+        related_name="detalles"
     )
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.IntegerField()
 
-    producto = models.ForeignKey(
-        Producto,
-        on_delete=models.PROTECT
-    )
-
-    cantidad = models.PositiveIntegerField()
 
     def clean(self):
         if self.cantidad <= 0:

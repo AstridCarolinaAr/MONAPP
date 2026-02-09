@@ -48,6 +48,47 @@
                 <td>{{ m.placa_vehiculo }} ({{ m.tipo_vehiculo }})</td>
                 <td>{{ m.usuario.username }}</td>
                <td class="text-center">
+                <div class="d-none" id="detalle-data-{{ m.id }}">
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6"><strong>Proveedor:</strong> {{ m.proveedor }}</div>
+        <div class="col-md-6"><strong>Fecha:</strong> {{ m.fecha }}</div>
+
+        <div class="col-md-6"><strong>Repartidor:</strong>
+            {{ m.nombre_repartidor }} {{ m.apellido_repartidor }}
+        </div>
+
+        <div class="col-md-6"><strong>Vehículo:</strong>
+            {{ m.placa_vehiculo }} ({{ m.tipo_vehiculo }})
+        </div>
+
+        <div class="col-md-6"><strong>Usuario:</strong> {{ m.usuario.username }}</div>
+        <div class="col-md-6"><strong>Total:</strong> ${{ m.precio_total }}</div>
+    </div>
+
+    <hr>
+
+    <h6>Productos recibidos</h6>
+
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for d in m.detalles.all %}
+            <tr>
+                <td>{{ d.producto.nombre }}</td>
+                <td>{{ d.cantidad }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
     <button class="btn btn-outline-primary btn-sm"
             data-bs-toggle="modal"
             data-bs-target="#modalEditar{{ m.id }}">
@@ -58,19 +99,13 @@
         data-bs-target="#modalEliminar{{ m.id }}">
     <i class="bi bi-trash"></i>
 </button>
-<button type="button"
-        class="btn btn-outline-info btn-sm"
+<button class="btn btn-outline-info btn-sm"
         data-bs-toggle="modal"
         data-bs-target="#modalDetalleMovimiento"
-
-        data-fecha="{{ m.fecha }}"
-        data-proveedor="{{ m.proveedor }}"
-        data-repartidor="{{ m.nombre_repartidor }} {{ m.apellido_repartidor }}"
-        data-total="{{ m.precio_total }}"
-        data-vehiculo="{{ m.placa_vehiculo }} ({{ m.tipo_vehiculo }})"
-        data-usuario="{{ m.usuario.username }}">
+        onclick="verDetalle({{ m.id }})">
     <i class="bi bi-eye"></i>
 </button>
+
 
 </td>
 </tr>
@@ -140,23 +175,14 @@
   </div>
 </div>
 <div class="modal fade" id="modalDetalleMovimiento" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content shadow p-4">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content p-4">
 
       <h5 class="mb-3">Detalle del movimiento</h5>
 
-      <div class="row g-3">
-        <div class="col-md-6"><strong>Fecha:</strong> <span id="d-fecha"></span></div>
-        <div class="col-md-6"><strong>Proveedor:</strong> <span id="d-proveedor"></span></div>
+      <div id="contenidoDetalle"></div>
 
-        <div class="col-md-6"><strong>Repartidor:</strong> <span id="d-repartidor"></span></div>
-        <div class="col-md-6"><strong>Usuario:</strong> <span id="d-usuario"></span></div>
-
-        <div class="col-md-6"><strong>Total:</strong> $<span id="d-total"></span></div>
-        <div class="col-md-6"><strong>Vehículo:</strong> <span id="d-vehiculo"></span></div>
-      </div>
-
-      <div class="text-end mt-4">
+      <div class="text-end mt-3">
         <button class="btn btn-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
@@ -165,21 +191,11 @@
     </div>
   </div>
 </div>
+
 <script>
-const modalDetalle = document.getElementById('modalDetalleMovimiento')
-
-modalDetalle.addEventListener('show.bs.modal', function (event) {
-
-    const btn = event.relatedTarget
-
-    document.getElementById('d-fecha').textContent = btn.dataset.fecha
-    document.getElementById('d-proveedor').textContent = btn.dataset.proveedor
-    document.getElementById('d-repartidor').textContent = btn.dataset.repartidor
-    document.getElementById('d-total').textContent = btn.dataset.total
-    document.getElementById('d-vehiculo').textContent = btn.dataset.vehiculo
-    document.getElementById('d-usuario').textContent = btn.dataset.usuario
-})
+function verDetalle(id) {
+    const contenido = document.getElementById("detalle-data-" + id).innerHTML
+    document.getElementById("contenidoDetalle").innerHTML = contenido
+}
 </script>
-
-
 {% endblock %}
