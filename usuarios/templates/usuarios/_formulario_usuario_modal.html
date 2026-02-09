@@ -1,0 +1,187 @@
+{% load static %}
+
+<form method="post" id="form-crear-usuario" novalidate>
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Errores:</strong>
+            <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="row g-3">
+        <!-- Tipo de Documento -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.tipo_documento.label }} <span class="text-danger">*</span></label>
+            {{ form.tipo_documento }}
+            {% if form.tipo_documento.errors %}
+                <div class="invalid-feedback d-block">{{ form.tipo_documento.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Documento -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.documento.label }} <span class="text-danger">*</span></label>
+            {{ form.documento }}
+            <small class="text-muted d-block mt-1">
+                Aquí solo se pueden ingresar números
+            </small>
+            {% if form.documento.errors %}
+                <div class="invalid-feedback d-block">{{ form.documento.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.email.label }} <span class="text-danger">*</span></label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Nombre -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.first_name.label }} <span class="text-danger">*</span></label>
+            {{ form.first_name }}
+            <small class="text-muted d-block mt-1">
+                Aquí no se pueden ingresar números
+            </small>
+            {% if form.first_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.first_name.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Apellido -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.last_name.label }} <span class="text-danger">*</span></label>
+            {{ form.last_name }}
+            <small class="text-muted d-block mt-1">
+                Aquí no se pueden ingresar números
+            </small>
+            {% if form.last_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.last_name.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Contraseña -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.password1.label }} <span class="text-danger">*</span></label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+                <div class="invalid-feedback d-block">{{ form.password1.errors|join:", " }}</div>
+            {% endif %}
+            {% if form.password1.help_text %}
+                <small class="text-muted d-block mt-1">{{ form.password1.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <!-- Confirmar Contraseña -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.password2.label }} <span class="text-danger">*</span></label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+                <div class="invalid-feedback d-block">{{ form.password2.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Rol -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.rol.label }} <span class="text-danger">*</span></label>
+            {{ form.rol }}
+            {% if form.rol.errors %}
+                <div class="invalid-feedback d-block">{{ form.rol.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Teléfono -->
+        <div class="col-md-6">
+            <label class="form-label">{{ form.telefono.label }}</label>
+            {{ form.telefono }}
+            <small class="text-muted d-block mt-1">
+                Aquí no se pueden ingresar letras
+            </small>
+            {% if form.telefono.errors %}
+                <div class="invalid-feedback d-block">{{ form.telefono.errors|join:", " }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-4 text-end">
+        <button type="button" class="btn btn-secondary me-2" onclick="cerrarModalUsuario()">
+            <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <button type="submit" class="btn" style="background-color: #634c40; color: white; border: none;">
+            <i class="bi bi-save"></i> Guardar
+        </button>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación para documento - solo números
+        const documento = document.querySelector('#form-crear-usuario input[name="documento"]');
+        if (documento) {
+            documento.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            documento.addEventListener('keypress', function(e) {
+                if (e.which < 48 || e.which > 57) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Validación para nombre - solo letras y espacios
+        const firstName = document.querySelector('#form-crear-usuario input[name="first_name"]');
+        if (firstName) {
+            firstName.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+            
+            firstName.addEventListener('keypress', function(e) {
+                const char = String.fromCharCode(e.which);
+                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Validación para apellido - solo letras y espacios
+        const lastName = document.querySelector('#form-crear-usuario input[name="last_name"]');
+        if (lastName) {
+            lastName.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+            
+            lastName.addEventListener('keypress', function(e) {
+                const char = String.fromCharCode(e.which);
+                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Validación para teléfono - solo números
+        const telefono = document.querySelector('#form-crear-usuario input[name="telefono"]');
+        if (telefono) {
+            telefono.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            telefono.addEventListener('keypress', function(e) {
+                if (e.which < 48 || e.which > 57) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>

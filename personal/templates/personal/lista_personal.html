@@ -6,6 +6,124 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    /* Estilos para el modal */
+    .modal-personal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-personal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal-personal-content {
+        position: relative;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 900px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-personal-header {
+        padding: 24px 32px;
+        background: linear-gradient(135deg, #634c40 0%, #7d5e4f 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px solid #d4a574;
+    }
+    
+    .modal-personal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .modal-personal-close {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-personal-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+    
+    .modal-personal-body {
+        padding: 32px;
+        overflow-y: auto;
+        max-height: calc(90vh - 100px);
+    }
+    
+    /* Scrollbar personalizada para el modal */
+    .modal-personal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .modal-personal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .modal-personal-body::-webkit-scrollbar-thumb {
+        background: #634c40;
+        border-radius: 4px;
+    }
+    
+    .modal-personal-body::-webkit-scrollbar-thumb:hover {
+        background: #7d5e4f;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -17,9 +135,9 @@
                 <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
             </h1>
             {% if puede_modificar %}
-            <a href="{% url 'personal:crear_personal' %}" class="personal-btn primary">
+            <button type="button" class="personal-btn primary" onclick="abrirModalPersonal()">
                 <i class="fas fa-plus"></i> Agregar Personal
-            </a>
+            </button>
             {% endif %}
         </div>
 
@@ -122,11 +240,159 @@
                 <div style="padding: 40px; text-align: center;">
                     <div class="personal-alert info" style="display: inline-flex;">
                         <i class="fas fa-info-circle"></i> 
-                        <span>No hay personal registrado. <a href="{% url 'personal:crear_personal' %}" style="color: inherit; font-weight: 600;">Crear nuevo personal</a></span>
+                        <span>No hay personal registrado. <a href="#" onclick="abrirModalPersonal(); return false;" style="color: inherit; font-weight: 600;">Crear nuevo personal</a></span>
                     </div>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Modal para agregar personal -->
+<div id="modalPersonal" class="modal-personal" style="display: none;">
+    <div class="modal-personal-overlay" onclick="cerrarModalPersonal()"></div>
+    <div class="modal-personal-content">
+        <div class="modal-personal-header">
+            <h3><i class="fas fa-plus-circle"></i> Agregar Personal</h3>
+            <button type="button" class="modal-personal-close" onclick="cerrarModalPersonal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-personal-body" id="modalPersonalBody">
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #634c40;"></i>
+                <p style="margin-top: 16px; color: #634c40;">Cargando formulario...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Funciones para manejar el modal
+    function abrirModalPersonal() {
+        const modal = document.getElementById('modalPersonal');
+        const modalBody = document.getElementById('modalPersonalBody');
+        
+        // Mostrar el modal
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Evitar scroll del body
+        
+        // Cargar el formulario vía AJAX
+        fetch("{% url 'personal:crear_personal' %}", {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            modalBody.innerHTML = data.html_form;
+            
+            // Configurar el envío del formulario
+            const form = document.getElementById('form-crear-personal');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    enviarFormularioPersonal(form);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="personal-alert danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Error al cargar el formulario. Por favor, intenta nuevamente.</span>
+                </div>
+            `;
+        });
+    }
+    
+    function cerrarModalPersonal() {
+        const modal = document.getElementById('modalPersonal');
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restaurar scroll del body
+    }
+    
+    function enviarFormularioPersonal(form) {
+        const formData = new FormData(form);
+        const modalBody = document.getElementById('modalPersonalBody');
+        
+        fetch("{% url 'personal:crear_personal' %}", {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Éxito - cerrar modal y recargar la página
+                cerrarModalPersonal();
+                
+                // Mostrar mensaje de éxito temporal
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'personal-alert success';
+                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <span>${data.message}</span>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Recargar la página después de 1.5 segundos
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                // Error - actualizar el formulario con los errores
+                modalBody.innerHTML = data.html_form;
+                
+                // Volver a configurar el envío del formulario
+                const newForm = document.getElementById('form-crear-personal');
+                if (newForm) {
+                    newForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        enviarFormularioPersonal(newForm);
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="personal-alert danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Error al guardar. Por favor, intenta nuevamente.</span>
+                </div>
+            `;
+        });
+    }
+    
+    // Cerrar el modal con la tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            cerrarModalPersonal();
+        }
+    });
+    
+    // Animación para el mensaje de éxito
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 {% endblock %}
