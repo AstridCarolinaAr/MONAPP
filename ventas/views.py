@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from .models import Venta, DetalleVenta
+from inventario.models import DetalleMovimiento
 from django.contrib import messages
 from .forms import VentaForm
 from Productos.models import Producto  
@@ -9,6 +10,7 @@ import json
 from django.db import transaction
 from servicios.models import Servicio  
 from personal.models import Personal 
+from django.db.models import Sum
 
 
 def lista_ventas(request):
@@ -41,6 +43,25 @@ def lista_ventas(request):
 @transaction.atomic
 def crear_venta(request):
     productos = Producto.objects.all()
+    productos_stock = []
+
+    for p in productos:
+        entradas = DetalleMovimiento.objects.filter(
+            producto=p
+        ).aggregate(total=Sum("cantidad"))["total"] or 0
+
+        salidas = DetalleVenta.objects.filter(
+            producto=p,
+            venta__estado='activa'
+        ).aggregate(total=Sum("cantidad"))["total"] or 0
+
+        stock_real = entradas - salidas
+
+        productos_stock.append({
+            "producto": p,
+            "stock": stock_real
+        })
+
     servicios = Servicio.objects.all()
     personal = Personal.objects.all()
 
@@ -67,12 +88,29 @@ def crear_venta(request):
                 # ===== PRODUCTO =====
                 if item['tipo'] == 'producto':
 
+                    codigo = item.get('id')
+
+                    # 🔒 Último seguro: si viene vacío o None, lo ignoramos
+                    if not codigo:
+                        continue
+
                     producto = Producto.objects.select_for_update().get(
-                        id=item['id']
+                        codigo=codigo
                     )
 
-                    if item['cantidad'] > producto.cantidad:
-                        raise ValueError(
+                    entradas = DetalleMovimiento.objects.filter(
+                        producto=producto
+                    ).aggregate(total=Sum("cantidad"))["total"] or 0
+
+                    salidas = DetalleVenta.objects.filter(
+                        producto=producto,
+                        venta__estado='activa'
+                    ).aggregate(total=Sum("cantidad"))["total"] or 0
+
+                    stock_real = entradas - salidas
+
+                    if item['cantidad'] > stock_real:
+                        raise ValidationError(
                             f"Stock insuficiente para {producto.nombre}"
                         )
 
@@ -84,8 +122,6 @@ def crear_venta(request):
                         subtotal=item['subtotal']
                     )
 
-                    producto.cantidad -= item['cantidad']
-                    producto.save()
 
                 # ===== SERVICIO =====
                 elif item['tipo'] == 'servicio':
@@ -117,7 +153,7 @@ def crear_venta(request):
 
     return render(request, 'ventas/crear_venta.html', {
         'form': form,
-        'productos': productos,
+        'productos_stock': productos_stock,
         'servicios': servicios,
         'personal': personal,
     })
@@ -157,22 +193,11 @@ def anular_venta(request, venta_id):
     if venta.estado == 'anulada':
         return redirect('ventas:lista')
 
-    # devolver stock
-    for detalle in venta.detalles.all():
-
-        if detalle.producto:
-            producto = detalle.producto
-            producto.cantidad += detalle.cantidad
-            producto.save()
-    
     if request.method == "POST":
-
         venta.estado = 'anulada'
         venta.save()
 
     return redirect('ventas:lista')
-
-
 
 
 

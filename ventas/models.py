@@ -24,15 +24,7 @@ class Venta(models.Model):
     codigo_producto = models.CharField(
         max_length=50, verbose_name="Código producto / servicio"
     )
-
-    precio_unitario = models.DecimalField(
-        max_digits=12, decimal_places=2, verbose_name="Precio unitario"
-    )
-
-    cantidad = models.PositiveIntegerField(verbose_name="Cantidad")
-
-    subtotal = models.DecimalField(max_digits=14, decimal_places=2, editable=False)
-
+    
     # ===============================
     # COLABORADOR
     # ===============================

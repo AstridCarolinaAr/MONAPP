@@ -49,14 +49,15 @@
                             class="form-select"
                         >
                             <option value="">Seleccione un producto</option>
-                            {% for p in productos %}
-                                <option
-                                    value="{{ p.id }}"
-                                    data-precio="{{ p.precio }}"
-                                    data-stock="{{ p.cantidad }}"
+                            {% for item in productos_stock %}
+                                <option 
+                                    value="{{ item.producto.codigo }}"
+                                    data-precio="{{ item.producto.precio }}"
+                                    data-stock="{{ item.stock }}"
                                 >
-                                    {{ p.codigo }} - {{ p.nombre }}
+                                    {{ item.producto.codigo }} - {{ item.producto.nombre }}
                                 </option>
+
                             {% endfor %}
                         </select>
                     </div>
