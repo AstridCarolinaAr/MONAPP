@@ -150,3 +150,14 @@ class Producto(models.Model):
         if self.presentacion:
             return f"{self.nombre} - {self.presentacion}"
         return self.nombre
+    
+@property
+def stock_actual(self):
+    ingresos = self.detallemovimiento_set.filter(
+        movimiento__tipo='ingreso'
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+
+    egresos = self.detallemovimiento_set.filter(
+        movimiento__tipo='egreso'
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    return ingresos - egresos
