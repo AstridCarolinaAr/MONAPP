@@ -9,7 +9,6 @@ from django.core.exceptions import ValidationError
 import re
 from django.http import JsonResponse
 from .validaciones import validar_datos_cliente
-from django.urls import reverse
 
 
 def crear_cliente(request):
@@ -28,7 +27,7 @@ def crear_cliente(request):
             'datos': datos,
         })
 
-    cliente = Cliente.objects.create(
+    Cliente.objects.create(
         tipo_documento=datos['tipo_documento'],
         numero_documento=datos['numero_documento'],
         nombre=datos['nombre'],
@@ -40,10 +39,7 @@ def crear_cliente(request):
     )
 
     messages.success(request, 'Cliente registrado correctamente.')
-    
-    return redirect(f"{reverse('servicios:crear_gestion_alisado')}?cliente={cliente.id}")
-
-
+    return redirect('clientes:lista')
 
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)

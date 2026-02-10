@@ -198,7 +198,7 @@
                         
                         <div class="row">
                             <div class="col-md-10 mb-3">
-                                <label class="form-label">Cliente *</label>
+                                <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }} *</label>
                                 <select name="cliente" id="selectCliente" class="form-select" required>
                                     <option value="">Seleccione un cliente...</option>
                                     {% for cliente in form.fields.cliente.queryset %}
@@ -1669,78 +1669,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Enviar el formulario
         formulario.submit();
     });
-    // ========= AGREGAR CLIENTE POR AJAX Y ACTUALIZAR SELECT =========
-
-    const selectCliente = document.getElementById("selectCliente");
-    const btnGuardarCliente = document.getElementById("btnGuardarCliente");
-    const formNuevoCliente = document.getElementById("formNuevoCliente");
-
-    btnGuardarCliente.addEventListener("click", () => {
-
-        const formData = new FormData(formNuevoCliente);
-        const csrf = formNuevoCliente.querySelector('[name=csrfmiddlewaretoken]').value;
-
-        fetch("{% url 'servicios:crear_cliente_ajax' %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrf,
-                "X-Requested-With": "XMLHttpRequest"
-            },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-
-            if (!data.success) return;
-
-            const option = document.createElement("option");
-            option.value = data.cliente.id;
-            option.textContent =
-                data.cliente.nombre_completo + " - " + data.cliente.numero_documento;
-
-            option.dataset.documento = data.cliente.numero_documento;
-
-            selectCliente.appendChild(option);
-            selectCliente.value = data.cliente.id;
-
-            bootstrap.Modal.getInstance(
-                document.getElementById("modalNuevoCliente")
-            ).hide();
-        });
-    });
 });
-// ===== MODO DESDE CLIENTES (limpio y seguro) =====
-(function () {
-
-    const params = new URLSearchParams(window.location.search);
-    const clienteId = params.get("cliente");
-
-    const selectCliente = document.getElementById("selectCliente");
-    const btnNuevoCliente = document.getElementById("btnNuevoCliente");
-
-    if (!selectCliente) return;
-
-    // 🔥 limpiar cualquier selección vieja primero
-    selectCliente.value = "";
-
-    if (!clienteId) return; // modo normal
-
-    // seleccionar cliente nuevo
-    selectCliente.value = clienteId;
-
-    // bloquear cambio (pero se envía al backend)
-    selectCliente.style.pointerEvents = "none";
-    selectCliente.style.backgroundColor = "#f2f2f2";
-
-    // ocultar botón nuevo
-    if (btnNuevoCliente) {
-        btnNuevoCliente.style.display = "none";
-    }
-
-    // notificar a todo tu JS existente
-    selectCliente.dispatchEvent(new Event("change", { bubbles: true }));
-
-})();
-
 </script>
 {% endblock %}
