@@ -27,7 +27,7 @@ def crear_cliente(request):
             'datos': datos,
         })
 
-    Cliente.objects.create(
+    cliente = Cliente.objects.create(
         tipo_documento=datos['tipo_documento'],
         numero_documento=datos['numero_documento'],
         nombre=datos['nombre'],
