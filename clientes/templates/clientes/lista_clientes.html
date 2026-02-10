@@ -362,6 +362,10 @@
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                 Cancelar
               </button>
+              <a href="{% url 'servicios:crear_gestion_alisado' %}?cliente={{ cliente.id }}"
+                class="btn btn-outline-success">
+                + Gestión de datos
+              </a>
               <button type="submit" class="btn btn-dark"  id="btnGuardarCliente">
                 Guardar cliente
               </button>
