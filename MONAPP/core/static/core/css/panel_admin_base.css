@@ -1,48 +1,40 @@
 :root {
-    /* 🎨 PALETA MONA KERATINA */
-    --mona-brown: rgba(141, 96, 74, 0.95);
-    --mona-brown-soft: rgba(141, 96, 74, 0.18);
-    --mona-brown-light: rgba(180, 140, 110, 0.25);
-    --mona-brown-dark: rgba(108, 72, 55, 0.95);
-
-    --mona-rose: rgba(205, 168, 155, 0.85);
-    --mona-bg: #f7f4f2;
-
-    /* Layout */
+    /* Colores principales */
+    --sidebar-bg: #2c3e50;
+    --sidebar-hover: #34495e;
+    --sidebar-active: #3498db;
+    --topbar-bg: #ffffff;
+    --content-bg: #f4f6f9;
+    
+    /* Colores de acento */
+    --primary-color: #3498db;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #16a085;
+    
+    /* Dimensiones */
     --sidebar-width: 260px;
     --sidebar-collapsed-width: 70px;
     --topbar-height: 70px;
-
-    /* Colores base */
-    --sidebar-bg: linear-gradient(180deg, #3a2a24, #2a1d18);
-    --sidebar-hover: rgba(255, 255, 255, 0.08);
-    --sidebar-active: rgba(205, 168, 155, 0.35);
-
-    --topbar-bg: rgba(255,255,255,0.9);
-    --content-bg: var(--mona-bg);
-
-    --primary-color: var(--mona-brown);
-    --success-color: rgba(145, 110, 90, 0.9);
-    --danger-color: rgba(180, 90, 90, 0.9);
-    --warning-color: rgba(210, 170, 120, 0.9);
-    --info-color: rgba(170, 130, 110, 0.9);
-
+    
     /* Sombras */
-    --shadow-sm: 0 4px 10px rgba(0,0,0,.08);
-    --shadow-md: 0 8px 20px rgba(0,0,0,.12);
-    --shadow-lg: 0 16px 40px rgba(0,0,0,.18);
-
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.15);
+    
+    /* Transiciones */
     --transition-speed: 0.3s;
 }
 
-
 /* ==================== LAYOUT GENERAL ==================== */
 .dashboard-body {
-    display: flex;
-    min-height: 100vh;
-    background: var(--content-bg);
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--content-bg);
+    overflow-x: hidden;
 }
-
 
 /* ==================== SIDEBAR ==================== */
 .sidebar {
@@ -51,6 +43,7 @@
     left: 0;
     width: var(--sidebar-width);
     height: 100vh;
+<<<<<<< HEAD
     background: var(--sidebar-bg);
     z-index: 1000;
 }
@@ -77,6 +70,16 @@
 }
 
 
+=======
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: #ffffff;
+    transition: all var(--transition-speed) ease;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
 .sidebar::-webkit-scrollbar {
     width: 6px;
 }
@@ -229,16 +232,24 @@
 /* ==================== MAIN CONTENT ==================== */
 .main-content {
     margin-left: var(--sidebar-width);
+<<<<<<< HEAD
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+=======
+    min-height: 100vh;
+    transition: all var(--transition-speed) ease;
+    display: flex;
+    flex-direction: column;
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
 }
 
 /* ==================== TOP BAR ==================== */
 .topbar {
     position: sticky;
     top: 0;
+<<<<<<< HEAD
     z-index: 900;
 }
 
@@ -249,6 +260,19 @@
 }
 
 
+=======
+    height: var(--topbar-height);
+    background-color: var(--topbar-bg);
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    z-index: 999;
+    box-shadow: var(--shadow-sm);
+}
+
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
 .topbar-left {
     display: flex;
     align-items: center;
@@ -470,6 +494,7 @@
     background-color: #f8f9fa;
     border-color: var(--primary-color);
 }
+<<<<<<< HEAD
 .btn {
     border-radius: 999px;
     font-weight: 600;
@@ -490,6 +515,8 @@
     border: 1px solid rgba(180,90,90,.5);
 }
 
+=======
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
 
 .user-avatar-sm {
     width: 32px;
@@ -562,7 +589,11 @@
     padding: 25px;
     color: white;
     position: relative;
+<<<<<<< HEAD
     overflow: visible !important;
+=======
+    overflow: hidden;
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
     margin-bottom: 25px;
 }
 
@@ -824,6 +855,7 @@
     to {
         transform: rotate(360deg);
     }
+<<<<<<< HEAD
 }
 /* ===============================
    FORMULARIO PRODUCTOS - PRO
@@ -966,4 +998,6 @@ small.text-muted {
 .card-clientes {
     background: #ffffff;
     color: #030303;
+=======
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
 }
