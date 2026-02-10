@@ -1,0 +1,254 @@
+/* =============================
+   CONTENEDOR GENERAL
+============================= */
+.container-fluid {
+    padding-top: 10px;
+}
+
+/* =============================
+   TARJETA PRINCIPAL
+============================= */
+.card,
+.tabla-proveedores {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.08);
+    padding: 20px;
+}
+
+/* =============================
+   TÍTULO
+============================= */
+h2 {
+    font-weight: 700;
+    letter-spacing: .4px;
+    margin-bottom: 4px;
+}
+
+/* =============================
+   TOTAL
+============================= */
+.total-proveedores,
+.badge {
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* =============================
+   BOTÓN NUEVO
+============================= */
+.btn-success {
+    background: linear-gradient(135deg, #3b2f2f, #6d5c5c);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 26px;
+    font-weight: 600;
+    box-shadow: 0 10px 26px rgba(0,0,0,.25);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(0,0,0,.35);
+}
+
+/* =============================
+   BUSCADOR
+============================= */
+.buscador-proveedores input {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+}
+
+.buscador-proveedores button {
+    border-radius: 10px;
+    background: #3b2f2f;
+    color: white;
+    border: none;
+}
+
+/* =============================
+   TABLA
+============================= */
+.table {
+    margin: 0;
+}
+
+.table thead {
+    background: #f2ece8;
+}
+
+.table thead th {
+    border: none;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #5a4a4a;
+    padding: 14px;
+}
+
+.table td {
+    border: none;
+    padding: 14px;
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: all .25s ease;
+}
+
+.table tbody tr:hover {
+    background: #fbf7f5;
+}
+
+/* =============================
+   ACCIONES
+============================= */
+.table td .d-flex {
+    gap: 8px;
+}
+
+/* BOTONES DE ACCIÓN */
+.btn-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-sm i {
+    font-size: .9rem;
+    color: #fff;
+}
+
+/* VER */
+.btn-info {
+    background: linear-gradient(135deg, #4fc3f7, #039be5);
+    border: none;
+}
+
+/* EDITAR */
+.btn-primary {
+    background: linear-gradient(135deg, #b39ddb, #9575cd);
+    border: none;
+}
+
+/* ELIMINAR */
+.btn-danger {
+    background: rgba(224,122,122,.15);
+    border: 1px solid rgba(224,122,122,.35);
+}
+
+.btn-danger i {
+    color: #c85c5c;
+}
+
+/* =============================
+   BOTÓN FILTRAR – ESTILO MONA
+============================= */
+.btn-filter {
+    background: #ffffff;
+    border: 1px solid #3b2f2f;
+    color: #3b2f2f;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .25s ease;
+}
+
+/* Hover */
+.btn-filter:hover {
+    background: #3b2f2f;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Ícono */
+.btn-filter i {
+    font-size: 14px;
+}
+
+/* Quitar azul de Bootstrap */
+.btn-filter:focus,
+.btn-filter:active {
+    box-shadow: none !important;
+}
+
+
+/* =============================
+   ANIMACIÓN FILAS
+============================= */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table tbody tr {
+    animation: fadeUp .4s ease forwards;
+}
+/* ===============================
+   ACCIONES PROVEEDOR – MONA STYLE
+================================ */
+.acciones-proveedor {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .25s ease;
+    box-shadow: 0 6px 14px rgba(0,0,0,.12);
+}
+
+.btn-icon i {
+    font-size: 16px;
+    color: #fff;
+}
+
+/* VER */
+.btn-ver {
+    background: linear-gradient(135deg, #4fc3f7);
+}
+
+.btn-ver:hover {
+    transform: translateY(-2px);
+}
+
+/* EDITAR */
+.btn-editar {
+    background: linear-gradient(135deg, #9575cd);
+}
+
+.btn-editar:hover {
+    transform: translateY(-2px);
+}
+
+/* ELIMINAR */
+.btn-eliminar {
+    background: linear-gradient(135deg, #c85c5c);
+}
+
+.btn-eliminar:hover {
+    transform: translateY(-2px);
+}

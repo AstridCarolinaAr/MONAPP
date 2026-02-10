@@ -61,6 +61,19 @@ class RegistroForm(UserCreationForm):
         label='Rol del usuario'
     )
 
+    tipo_documento = forms.ChoiceField(
+        choices=[
+            ('tarjeta_identidad', 'Tarjeta de Identidad'),
+            ('cedula', 'Cédula'),
+            ('pasaporte', 'Pasaporte'),
+            ('otro', 'Otro'),
+        ],
+        required=True,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
+        label='Tipo de Documento'
+    )
     
     documento = forms.CharField(
         max_length=20,
@@ -128,8 +141,8 @@ class RegistroForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Reordenar campos para que aparezcan en el orden deseado
-        self.order_fields(['documento', 'email', 'first_name', 'last_name', 'password1', 'password2', 'rol', 'telefono'])
+        # Reordenar campos para que aparezcan in el orden deseado
+        self.order_fields(['tipo_documento', 'documento', 'email', 'first_name', 'last_name', 'password1', 'password2', 'rol', 'telefono'])
     
     def clean_documento(self):
         """Valida que el documento no exista en la base de datos"""
@@ -196,6 +209,7 @@ class RegistroForm(UserCreationForm):
             # Perfil (ya existe por la señal)
             perfil = user.perfil
             perfil.documento = self.cleaned_data['documento']
+            perfil.tipo_documento = self.cleaned_data['tipo_documento']
             perfil.telefono = self.cleaned_data.get('telefono', '')
             perfil.save()
 
@@ -242,6 +256,7 @@ class EditarPerfilForm(forms.ModelForm):
     class Meta:
         model = PerfilUsuario
         fields = [
+            'tipo_documento',
             'documento',
             'telefono',
             'direccion',
@@ -249,6 +264,7 @@ class EditarPerfilForm(forms.ModelForm):
             'fecha_nacimiento'
         ]
         widgets = {
+            'tipo_documento': forms.Select(attrs={'class': 'form-control'}),
             'documento': forms.TextInput(attrs={
                 'class': 'form-control',
                 'readonly': 'readonly'

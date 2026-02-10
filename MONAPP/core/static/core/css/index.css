@@ -776,7 +776,10 @@ body.bg-black {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
+<<<<<<< HEAD
     filter: grayscale(100%) contrast(1.1) brightness(0.9);
+=======
+>>>>>>> e1c7f78feb27a5d1cf7eab1efaca817079e61ffe
     box-shadow: 0 40px 80px rgba(0,0,0,0.6);
 }
 

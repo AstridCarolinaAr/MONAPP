@@ -8,7 +8,7 @@ from .models import Personal
 class PersonalForm(forms.ModelForm):
     class Meta:
         model = Personal
-        fields = ['numero_documento', 'nombres', 'telefono', 'correo', 'rol', 'activo']
+        fields = ['numero_documento', 'nombres', 'apellidos', 'telefono', 'correo', 'rol', 'activo']
         widgets = {
             'numero_documento': forms.TextInput(attrs={
                 'class': 'personal-form-control',
@@ -18,7 +18,13 @@ class PersonalForm(forms.ModelForm):
             }),
             'nombres': forms.TextInput(attrs={
                 'class': 'personal-form-control',
-                'placeholder': 'Ingrese nombres completos',
+                'placeholder': 'Ingrese nombres',
+                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'title': 'Solo se permiten letras y espacios'
+            }),
+            'apellidos': forms.TextInput(attrs={
+                'class': 'personal-form-control',
+                'placeholder': 'Ingrese apellidos',
                 'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
                 'title': 'Solo se permiten letras y espacios'
             }),
@@ -56,6 +62,15 @@ class PersonalForm(forms.ModelForm):
             if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombres):
                 raise ValidationError('El nombre solo puede contener letras y espacios.')
         return nombres
+    
+    def clean_apellidos(self):
+        """Validar que los apellidos solo contengan letras y espacios"""
+        apellidos = self.cleaned_data.get('apellidos')
+        if apellidos:
+            # Permite letras (incluyendo acentos y ñ) y espacios
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', apellidos):
+                raise ValidationError('Los apellidos solo pueden contener letras y espacios.')
+        return apellidos
     
     def clean_telefono(self):
         """Validar que el teléfono solo contenga números"""
