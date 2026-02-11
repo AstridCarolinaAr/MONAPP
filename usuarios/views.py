@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.utils.crypto import get_random_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
 
@@ -15,187 +16,47 @@ from .models import PerfilUsuario
 @csrf_protect
 @never_cache
 def login_view(request):
-    """
-    Vista para el inicio de sesión de usuarios
-    """
-    # Si el usuario ya está autenticado, redirigir al dashboard
-    if request.user.is_authenticated:
-        return redirect('core:dashboard')
-    
+
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
-        
+
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            remember_me = form.cleaned_data.get('remember_me')
+            user = form.get_user()
+            login(request, user)
 
-            # Autenticar usuario
-            user = authenticate(request, username=username, password=password)
+            return redirect('core:dashboard')
 
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
+        messages.error(request, 'Usuario o contraseña incorrectos.')
 
-                    # Configurar duración de la sesión
-                    if not remember_me:
-                        request.session.set_expiry(0)  # Expira al cerrar navegador
+        return render(request, 'usuarios/login.html')
 
-                    messages.success(request, f'¡Bienvenido {user.get_full_name() or user.username}!')
+    return render(request, 'usuarios/login.html')
 
-                    # Redirigir según el tipo de usuario
-                    next_url = request.GET.get('next')
-                    if next_url:
-                        return redirect(next_url)
-                    elif user.is_staff:
-                        return redirect('core:dashboard')
-                    else:
-                        return redirect('core:index')
-                else:
-                    messages.error(request, 'Esta cuenta ha sido desactivada.')
-            else:
-                messages.error(request, 'Documento o contraseña incorrectos.')
-        else:
-            # Mostrar errores de validación del formulario para facilitar debugging
-            errs = form.errors.as_text()
-            messages.error(request, f'Por favor corrige los errores en el formulario. {errs}')
-            # Intento de fallback manual: comprobar credenciales manualmente por si fallan validaciones
-            fallback_username = request.POST.get('username')
-            fallback_password = request.POST.get('password')
-            if fallback_username and fallback_password:
-                # 1) Buscar por username
-                try:
-                    user_obj = User.objects.get(username=fallback_username)
-                except User.DoesNotExist:
-                    user_obj = None
-
-                # 2) Si no existe, intentar buscar por documento en PerfilUsuario
-                if user_obj is None:
-                    try:
-                        perfil = PerfilUsuario.objects.get(documento=fallback_username)
-                        user_obj = perfil.user
-                    except PerfilUsuario.DoesNotExist:
-                        user_obj = None
-
-                # 3) Si encontramos usuario, verificar contraseña manualmente
-                if user_obj is not None and user_obj.check_password(fallback_password):
-                    if user_obj.is_active:
-                        login(request, user_obj)
-                        messages.success(request, f'¡Bienvenido {user_obj.get_full_name() or user_obj.username}! (autenticación manual)')
-                        if not request.POST.get('remember_me'):
-                            request.session.set_expiry(0)
-                        # redirigir como en el flujo normal
-                        next_url = request.GET.get('next')
-                        if next_url:
-                            return redirect(next_url)
-                        elif user_obj.is_staff:
-                            return redirect('core:dashboard')
-                        else:
-                            return redirect('core:index')
-                    else:
-                        messages.error(request, 'Esta cuenta ha sido desactivada.')
-                else:
-                    # si el usuario no existe o la contraseña es incorrecta, dejar el mensaje de error original
-                    pass
-
-    else:
-        form = LoginForm()
-    
-    context = {
-        'form': form,
-        'titulo': 'Iniciar Sesión'
-    }
-    return render(request, 'usuarios/login.html', context)
-
-
-from django.contrib.auth.forms import PasswordResetForm
-from django.conf import settings
-
-@csrf_protect
-def password_reset_inline(request):
-    """Procesa un formulario de restablecimiento de contraseña enviado desde el login.
-    Redirige al login mostrando un mensaje de éxito (si el email existe se envía el correo).
-    """
-    if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            form.save(
-                request=request,
-                use_https=request.is_secure(),
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-                email_template_name='usuarios/password_reset_email.html',
-                subject_template_name='usuarios/password_reset_subject.txt'
-            )
-            messages.success(request, 'Si existe una cuenta con ese correo, se ha enviado un email con instrucciones para restablecer la contraseña.')
-        else:
-            messages.error(request, 'Por favor ingresa un correo válido.')
-    return redirect('usuarios:login')
-
-
-@csrf_protect
-def registro_view(request):
-    """
-    Vista para el registro de nuevos usuarios
-    """
-    if request.user.is_authenticated:
-        return redirect('core:dashboard')
-    
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        
-        if form.is_valid():
-            user = form.save()
-            messages.success(
-                request, 
-                f'Cuenta creada exitosamente para {user.get_full_name()}. '
-                'Ya puedes iniciar sesión.'
-            )
-            return redirect('usuarios:login')
-        else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
-    else:
-        form = RegistroForm()
-    
-    context = {
-        'form': form,
-        'titulo': 'Registro de Usuario'
-    }
-    return render(request, 'usuarios/registro.html', context)
 
 
 @login_required
 def logout_view(request):
-    """
-    Vista para cerrar sesión
-    """
     logout(request)
     messages.info(request, 'Has cerrado sesión exitosamente.')
     return redirect('core:index')
 
 
-# ==================== PANEL DE ADMINISTRACIÓN ====================
-
-def es_staff(user):
-    """Función auxiliar para verificar si el usuario es staff"""
-    return user.is_staff
-
-
+# ==================== PANEL DE USUARIOS (ADMIN / AUX) ====================
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def lista_usuarios_view(request):
-    """
-    Vista para listar todos los usuarios
-    """
-    # Obtener parámetros de búsqueda y filtrado
+    grupos = list(request.user.groups.values_list('name', flat=True))
+    
+    # Verificar si el usuario actual es Administrador (puede eliminar)
+    es_administrador = request.user.is_superuser or 'Administrador' in grupos
+    
+    # Verificar si puede crear/editar (no colaborador)
+    puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
+
     busqueda = request.GET.get('buscar', '')
-    filtro_activo = request.GET.get('activo', '')
-    filtro_staff = request.GET.get('staff', '')
-    
-    # Query base
+
     usuarios = User.objects.select_related('perfil').all()
-    
-    # Aplicar filtros
+
     if busqueda:
         usuarios = usuarios.filter(
             Q(username__icontains=busqueda) |
@@ -204,139 +65,224 @@ def lista_usuarios_view(request):
             Q(email__icontains=busqueda) |
             Q(perfil__documento__icontains=busqueda)
         )
-    
-    if filtro_activo:
-        usuarios = usuarios.filter(is_active=filtro_activo == 'true')
-    
-    if filtro_staff:
-        usuarios = usuarios.filter(is_staff=filtro_staff == 'true')
-    
-    # Ordenar
+
     usuarios = usuarios.order_by('-date_joined')
-    
-    context = {
-        'titulo': 'Gestión de Usuarios',
-        'usuarios': usuarios,
-        'busqueda': busqueda,
-        'filtro_activo': filtro_activo,
-        'filtro_staff': filtro_staff,
-    }
-    return render(request, 'usuarios/panel_admin/lista_usuarios.html', context)
+
+    return render(
+        request,
+        'usuarios/lista_usuarios.html',
+        {
+            'titulo': 'Gestión de Usuarios',
+            'usuarios': usuarios,
+            'busqueda': busqueda,
+            'es_administrador': es_administrador,
+            'puede_modificar': puede_modificar,
+        }
+    )
 
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def crear_usuario_view(request):
-    """
-    Vista para crear un nuevo usuario desde el panel admin
-    """
+    grupos = list(request.user.groups.values_list('name', flat=True))
+
     if request.method == 'POST':
         form = RegistroForm(request.POST)
-        
         if form.is_valid():
             user = form.save()
-            messages.success(request, f'Usuario {user.get_full_name()} creado exitosamente.')
+            messages.success(
+                request,
+                f'Usuario {user.get_full_name()} creado exitosamente.'
+            )
             return redirect('usuarios:lista_usuarios')
-        else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = RegistroForm()
-    
-    context = {
-        'titulo': 'Crear Nuevo Usuario',
-        'form': form,
-        'accion': 'Crear'
-    }
-    return render(request, 'usuarios/panel_admin/crear_usuario.html', context)
+
+    return render(
+        request,
+        'crear_usuario.html',
+        {
+            'titulo': 'Crear Usuario',
+            'form': form,
+        }
+    )
 
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def editar_usuario_view(request, user_id):
-    """
-    Vista para editar un usuario existente
-    """
+    grupos = list(request.user.groups.values_list('name', flat=True))
+
+
     usuario = get_object_or_404(User, id=user_id)
-    
+
     if request.method == 'POST':
         form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
-        form_perfil = EditarPerfilForm(request.POST, request.FILES, instance=usuario.perfil)
-        
+        form_perfil = EditarPerfilForm(
+            request.POST,
+            request.FILES,
+            instance=usuario.perfil
+        )
+
         if form_usuario.is_valid() and form_perfil.is_valid():
             form_usuario.save()
             form_perfil.save()
-            messages.success(request, f'Usuario {usuario.get_full_name()} actualizado exitosamente.')
+            messages.success(
+                request,
+                f'Usuario {usuario.get_full_name()} actualizado.'
+            )
             return redirect('usuarios:lista_usuarios')
-        else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+
     else:
         form_usuario = EditarUsuarioForm(instance=usuario)
         form_perfil = EditarPerfilForm(instance=usuario.perfil)
-    
-    context = {
-        'titulo': f'Editar Usuario: {usuario.get_full_name()}',
-        'form_usuario': form_usuario,
-        'form_perfil': form_perfil,
-        'usuario': usuario,
-        'accion': 'Actualizar'
-    }
-    return render(request, 'usuarios/panel_admin/editar_usuario.html', context)
+
+    return render(
+        request,
+        'usuarios/editar_usuario.html',
+        {
+            'titulo': f'Editar Usuario: {usuario.get_full_name()}',
+            'form_usuario': form_usuario,
+            'form_perfil': form_perfil,
+            'usuario': usuario,
+        }
+    )
 
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def eliminar_usuario_view(request, user_id):
-    """
-    Vista para eliminar (desactivar) un usuario
-    """
+    grupos = list(request.user.groups.values_list('name', flat=True))
+
+
     usuario = get_object_or_404(User, id=user_id)
-    
-    # No permitir eliminar al superusuario
-    if usuario.is_superuser:
-        messages.error(request, 'No se puede eliminar un superusuario.')
-        return redirect('usuarios:lista_usuarios')
-    
-    # No permitir que se elimine a sí mismo
+
     if usuario == request.user:
         messages.error(request, 'No puedes eliminarte a ti mismo.')
         return redirect('usuarios:lista_usuarios')
-    
+
     if request.method == 'POST':
         usuario.is_active = False
         usuario.save()
-        messages.success(request, f'Usuario {usuario.get_full_name()} desactivado exitosamente.')
+        messages.success(
+            request,
+            f'Usuario {usuario.get_full_name()} desactivado.'
+        )
         return redirect('usuarios:lista_usuarios')
-    
-    context = {
-        'titulo': 'Eliminar Usuario',
-        'usuario': usuario
-    }
-    return render(request, 'usuarios/panel_admin/eliminar_usuario.html', context)
+
+    return render(
+        request,
+        'usuarios/eliminar_usuario.html',
+        {
+            'titulo': 'Eliminar Usuario',
+            'usuario': usuario,
+        }
+    )
 
 
 @login_required
 def perfil_view(request):
-    """
-    Vista para que el usuario vea/edite su propio perfil
-    """
     usuario = request.user
-    
+
     if request.method == 'POST':
         form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
-        form_perfil = EditarPerfilForm(request.POST, request.FILES, instance=usuario.perfil)
-        
+        form_perfil = EditarPerfilForm(
+            request.POST,
+            request.FILES,
+            instance=usuario.perfil
+        )
+
         if form_usuario.is_valid() and form_perfil.is_valid():
             form_usuario.save()
             form_perfil.save()
-            messages.success(request, 'Perfil actualizado exitosamente.')
+            messages.success(request, 'Perfil actualizado.')
             return redirect('usuarios:perfil')
+
     else:
         form_usuario = EditarUsuarioForm(instance=usuario)
         form_perfil = EditarPerfilForm(instance=usuario.perfil)
-    
-    context = {
-        'titulo': 'Mi Perfil',
-        'form_usuario': form_usuario,
-        'form_perfil': form_perfil,
-    }
-    return render(request, 'usuarios/perfil.html', context)
+
+    return render(
+        request,
+        'usuarios/perfil.html',
+        {
+            'titulo': 'Mi Perfil',
+            'form_usuario': form_usuario,
+            'form_perfil': form_perfil,
+        }
+    )
+
+
+# ==================== RECUPERACIÓN DE CONTRASEÑA ====================
+
+@csrf_protect
+@never_cache
+def password_reset_view(request):
+    """
+    Recibe un correo, busca al usuario y genera una contraseña temporal.
+    Muestra la nueva contraseña en pantalla (sin enviar email real).
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        if not email:
+            messages.error(request, 'Por favor ingresa tu correo electrónico.')
+            return redirect('usuarios:login')
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            # Mensaje genérico por seguridad
+            messages.info(
+                request,
+                'Si el correo está registrado, se procesó la solicitud. '
+                'Revisa tu bandeja de entrada.'
+            )
+            return redirect('usuarios:login')
+
+        # Generar contraseña temporal
+        nueva_pass = get_random_string(length=10, allowed_chars='abcdefghjkmnpqrstuvwxyz23456789')
+        user.set_password(nueva_pass)
+        user.save()
+
+        # Mostrar la nueva contraseña al usuario (en desarrollo)
+        messages.success(
+            request,
+            f'¡Listo! Se generó una contraseña temporal para {user.get_full_name() or user.username}. '
+            f'Tu nueva contraseña es: {nueva_pass} — Cámbiala al iniciar sesión.'
+        )
+        return redirect('usuarios:login')
+
+    return redirect('usuarios:login')
+
+
+# ==================== RECUPERACIÓN DE USUARIO ====================
+
+@csrf_protect
+@never_cache
+def username_recovery_view(request):
+    """
+    Recibe un correo y muestra el nombre de usuario asociado.
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        if not email:
+            messages.error(request, 'Por favor ingresa tu correo electrónico.')
+            return redirect('usuarios:login')
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            messages.info(
+                request,
+                'Si el correo está registrado, se procesó la solicitud. '
+                'Revisa tu bandeja de entrada.'
+            )
+            return redirect('usuarios:login')
+
+        messages.success(
+            request,
+            f'¡Encontrado! Tu usuario es: {user.username} '
+            f'({user.get_full_name()}).'
+        )
+        return redirect('usuarios:login')
+
+    return redirect('usuarios:login')

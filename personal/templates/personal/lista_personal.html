@@ -1,0 +1,119 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Lista de Personal - Monapp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="personal-wrapper">
+    <div class="personal-container">
+        <!-- Header -->
+        <div class="personal-header">
+            <h1>
+                <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
+            </h1>
+            <a href="{% url 'personal:crear_personal' %}" class="personal-btn primary">
+                <i class="fas fa-plus"></i> Agregar Personal
+            </a>
+        </div>
+
+        <!-- Formulario de búsqueda -->
+        <div class="personal-search-card">
+            <form method="get" class="personal-search-form">
+                <div class="personal-form-group" style="margin-bottom: 0;">
+                    <label class="personal-form-label">Buscar</label>
+                    {{ form.busqueda }}
+                </div>
+                <div class="personal-form-group" style="margin-bottom: 0;">
+                    <label class="personal-form-label">Filtrar por rol</label>
+                    {{ form.rol }}
+                </div>
+                <div>
+                    <button type="submit" class="personal-btn info" style="width: 100%;">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de personal -->
+        <div class="personal-table-wrapper">
+            {% if personal_list %}
+                <table class="personal-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Documento</th>
+                            <th>Nombres</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for persona in personal_list %}
+                            <tr>
+                                <td><strong>{{ persona.id }}</strong></td>
+                                <td>{{ persona.numero_documento }}</td>
+                                <td>{{ persona.nombres }}</td>
+                                <td>
+                                    <a href="tel:{{ persona.telefono }}" style="color: #634c40; text-decoration: none;">
+                                        <i class="fas fa-phone"></i> {{ persona.telefono }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{ persona.correo }}" style="color: #634c40; text-decoration: none;">
+                                        <i class="fas fa-envelope"></i> {{ persona.correo }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="personal-badge {% if persona.rol == 'AUX' %}warning{% else %}success{% endif %}">
+                                        {{ persona.get_rol_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if persona.activo %}
+                                        <span class="personal-badge success">Activo</span>
+                                    {% else %}
+                                        <span class="personal-badge danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="personal-action-group">
+                                        <a href="{% url 'personal:detalle_personal' persona.id %}" class="personal-action-btn info" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'personal:editar_personal' persona.id %}" class="personal-action-btn warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'personal:eliminar_personal' persona.id %}" class="personal-action-btn danger" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div class="personal-stats">
+                    <strong>Total:</strong> <span>{{ personal_list|length }} registros</span>
+                </div>
+            {% else %}
+                <div style="padding: 40px; text-align: center;">
+                    <div class="personal-alert info" style="display: inline-flex;">
+                        <i class="fas fa-info-circle"></i> 
+                        <span>No hay personal registrado. <a href="{% url 'personal:crear_personal' %}" style="color: inherit; font-weight: 600;">Crear nuevo personal</a></span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

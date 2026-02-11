@@ -1,0 +1,251 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Gestión de Alisados{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-file-earmark-text"></i> Gestión de Alisados
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos para el modal grande */
+    .modal-fullscreen-custom {
+        max-width: 95%;
+        width: 95%;
+        margin: 1.75rem auto;
+    }
+    
+    .section-title {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #0d6efd;
+        font-weight: bold;
+    }
+    
+    .conditional-field {
+        display: none;
+        margin-top: 10px;
+    }
+    
+    .conditional-field.show {
+        display: block;
+    }
+    
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    /* Estilos para navegación por pasos */
+    .form-step {
+        display: none;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #dee2e6;
+        z-index: 0;
+    }
+    
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .step-item.active .step-circle {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .step-item.completed .step-circle {
+        background-color: #198754;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .step-item.active .step-label {
+        color: #0d6efd;
+        font-weight: bold;
+    }
+    
+    .modal-body-scrollable {
+        max-height: calc(100vh - 250px);
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Lista de Gestiones de Alisados</h4>
+            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalGestionAlisado">
+                <i class="bi bi-plus-circle"></i> Nueva Gestión
+            </button>
+        </div>
+        <div class="card-body">
+            {% if gestiones %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Cliente</th>
+                                <th>Profesional</th>
+                                <th>Tipo de Alisado</th>
+                                <th>Precio</th>
+                                <th>Saldo Pendiente</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gestion in gestiones %}
+                            <tr>
+                                <td>{{ gestion.fecha_hora|date:"d/m/Y H:i" }}</td>
+                                <td>{{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</td>
+                                <td>{{ gestion.procedimiento_realizado_por }}</td>
+                                <td>{{ gestion.tipo_alisado }}</td>
+                                <td>${{ gestion.precio_alisado|intcomma }} COP</td>
+                                <td>
+                                    {% if gestion.saldo_pendiente > 0 %}
+                                        <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Pagado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-info" title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No hay gestiones de alisados registradas.
+                    <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal" data-bs-target="#modalGestionAlisado">
+                        Crear la primera gestión
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PRINCIPAL: Formulario de Gestión de Alisado -->
+<div class="modal fade" id="modalGestionAlisado" tabindex="-1" aria-labelledby="modalGestionAlisadoLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen-custom modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalGestionAlisadoLabel">
+                    <i class="bi bi-file-earmark-plus"></i> Nueva Gestión de Alisado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <!-- Indicador de progreso -->
+                <div class="progress-steps">
+                    <div class="step-item active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Información General</div>
+                    </div>
+                    <div class="step-item" data-step="2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Características y Cuidados</div>
+                    </div>
+                </div>
+                
+                <form method="post" action="{% url 'servicios:crear_gestion_alisado' %}" id="gestionAlisadoForm">
+                    {% csrf_token %}
+                    
+                    <!-- PASO 1: Información General -->
+                    <div class="form-step active" id="step1">
+                        {% include 'servicios/partials/form_alisado_paso1.html' %}
+                    </div>
+                    
+                    <!-- PASO 2: Características y Cuidados -->
+                    <div class="form-step" id="step2">
+                        {% include 'servicios/partials/form_alisado_paso2.html' %}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-primary" id="btn Siguiente">
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+                <button type="button" class="btn btn-success" id="btnGuardarModal" style="display: none;">
+                    <i class="bi bi-save"></i> Guardar Gestión
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Consentimiento (incluido aquí también) -->
+{% include 'servicios/partials/modal_consentimiento.html' %}
+
+<!-- Modal de Nuevo Cliente -->
+{% include 'servicios/partials/modal_nuevo_cliente.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'servicios/js/form_alisado_modal.js' %}"></script>
+{% endblock %}

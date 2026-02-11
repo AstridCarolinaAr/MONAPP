@@ -1,0 +1,1674 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-file-earmark-text"></i> {{ titulo }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-title {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #0d6efd;
+        font-weight: bold;
+    }
+    
+    .form-group-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .percentage-suffix {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    
+    .conditional-field {
+        display: none;
+        margin-top: 10px;
+    }
+    
+    .conditional-field.show {
+        display: block;
+    }
+    
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    /* Estilos para navegación por pasos */
+    .form-step {
+        display: none;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #dee2e6;
+        z-index: 0;
+    }
+    
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .step-item.active .step-circle {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .step-item.completed .step-circle {
+        background-color: #198754;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .step-item.active .step-label {
+        color: #0d6efd;
+        font-weight: bold;
+    }
+    
+    /* Estilos para validación en tiempo real */
+    .form-control.is-valid,
+    .form-select.is-valid {
+        border-color: #198754;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+        padding-right: calc(1.5em + .75rem);
+    }
+    
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+        padding-right: calc(1.5em + .75rem);
+    }
+    
+    .invalid-feedback {
+        display: block;
+        margin-top: .25rem;
+        font-size: .875em;
+        color: #dc3545;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-control:focus.is-valid,
+    .form-select:focus.is-valid {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .form-control:focus.is-invalid,
+    .form-select:focus.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ titulo }}</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Indicador de progreso -->
+                    <div class="progress-steps">
+                        <div class="step-item active" data-step="1">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">Información General</div>
+                        </div>
+                        <div class="step-item" data-step="2">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">Características y Cuidados</div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data" id="gestionAlisadoForm">
+                        {% csrf_token %}
+                        
+                        <!-- PASO 1: Información General -->
+                        <div class="form-step active" id="step1">
+                        
+                        <!-- Sección: Selección de Cliente -->
+                        <div class="section-title">Selección de Cliente</div>
+                        
+                        <div class="row">
+                            <div class="col-md-10 mb-3">
+                                <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }} *</label>
+                                <select name="cliente" id="selectCliente" class="form-select" required>
+                                    <option value="">Seleccione un cliente...</option>
+                                    {% for cliente in form.fields.cliente.queryset %}
+                                        <option value="{{ cliente.id }}" data-documento="{{ cliente.numero_documento }}">
+                                            {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.numero_documento }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.cliente.errors %}
+                                    <div class="text-danger">{{ form.cliente.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2 mb-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary w-100" id="btnNuevoCliente">
+                                    <i class="bi bi-person-plus"></i> Nuevo
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección: Información del Servicio y Pago -->
+                        <div class="section-title">Información del Servicio y Pago</div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.precio_alisado.id_for_label }}" class="form-label">{{ form.precio_alisado.label }}</label>
+                                {{ form.precio_alisado }}
+                                {% if form.precio_alisado.errors %}
+                                    <div class="text-danger">{{ form.precio_alisado.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.es_oferta_especial.id_for_label }}" class="form-label">{{ form.es_oferta_especial.label }}</label>
+                                {{ form.es_oferta_especial }}
+                                {% if form.es_oferta_especial.errors %}
+                                    <div class="text-danger">{{ form.es_oferta_especial.errors }}</div>
+                                {% endif %}
+                                
+                                <div id="descripcion_oferta_container" class="conditional-field">
+                                    <label for="{{ form.descripcion_oferta.id_for_label }}" class="form-label">{{ form.descripcion_oferta.label }}</label>
+                                    {{ form.descripcion_oferta }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.anticipo_cliente.id_for_label }}" class="form-label">{{ form.anticipo_cliente.label }}</label>
+                                {{ form.anticipo_cliente }}
+                                {% if form.anticipo_cliente.errors %}
+                                    <div class="text-danger">{{ form.anticipo_cliente.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.medio_pago.id_for_label }}" class="form-label">{{ form.medio_pago.label }}</label>
+                                {{ form.medio_pago }}
+                                {% if form.medio_pago.errors %}
+                                    <div class="text-danger">{{ form.medio_pago.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.saldo_pendiente.id_for_label }}" class="form-label">{{ form.saldo_pendiente.label }}</label>
+                                {{ form.saldo_pendiente }}
+                                {% if form.saldo_pendiente.errors %}
+                                    <div class="text-danger">{{ form.saldo_pendiente.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Sección: Información del Procedimiento -->
+                        <div class="section-title">Información del Procedimiento</div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.procedimiento_realizado_por.id_for_label }}" class="form-label">{{ form.procedimiento_realizado_por.label }}</label>
+                                {{ form.procedimiento_realizado_por }}
+                                {% if form.procedimiento_realizado_por.errors %}
+                                    <div class="text-danger">{{ form.procedimiento_realizado_por.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.tipo_alisado.id_for_label }}" class="form-label">{{ form.tipo_alisado.label }}</label>
+                                {{ form.tipo_alisado }}
+                                {% if form.tipo_alisado.errors %}
+                                    <div class="text-danger">{{ form.tipo_alisado.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.requiere_resellado.id_for_label }}" class="form-label">{{ form.requiere_resellado.label }}</label>
+                                {{ form.requiere_resellado }}
+                                {% if form.requiere_resellado.errors %}
+                                    <div class="text-danger">{{ form.requiere_resellado.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.porcentaje_alisado.id_for_label }}" class="form-label">{{ form.porcentaje_alisado.label }}</label>
+                                <div class="input-group">
+                                    {{ form.porcentaje_alisado }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% if form.porcentaje_alisado.errors %}
+                                    <div class="text-danger">{{ form.porcentaje_alisado.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Sección: Características del Cabello -->
+                        <div class="section-title">Características del Cabello</div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.porosidad.id_for_label }}" class="form-label">{{ form.porosidad.label }}</label>
+                                {{ form.porosidad }}
+                                {% if form.porosidad.errors %}
+                                    <div class="text-danger">{{ form.porosidad.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.textura.id_for_label }}" class="form-label">{{ form.textura.label }}</label>
+                                {{ form.textura }}
+                                {% if form.textura.errors %}
+                                    <div class="text-danger">{{ form.textura.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.forma_natural.id_for_label }}" class="form-label">{{ form.forma_natural.label }}</label>
+                                {{ form.forma_natural }}
+                                {% if form.forma_natural.errors %}
+                                    <div class="text-danger">{{ form.forma_natural.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.elasticidad.id_for_label }}" class="form-label">{{ form.elasticidad.label }}</label>
+                                {{ form.elasticidad }}
+                                {% if form.elasticidad.errors %}
+                                    <div class="text-danger">{{ form.elasticidad.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.longitud.id_for_label }}" class="form-label">{{ form.longitud.label }}</label>
+                                {{ form.longitud }}
+                                {% if form.longitud.errors %}
+                                    <div class="text-danger">{{ form.longitud.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.densidad.id_for_label }}" class="form-label">{{ form.densidad.label }}</label>
+                                {{ form.densidad }}
+                                {% if form.densidad.errors %}
+                                    <div class="text-danger">{{ form.densidad.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.piel_cabelludo.id_for_label }}" class="form-label">{{ form.piel_cabelludo.label }}</label>
+                                {{ form.piel_cabelludo }}
+                                {% if form.piel_cabelludo.errors %}
+                                    <div class="text-danger">{{ form.piel_cabelludo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.alopecia.id_for_label }}" class="form-label">{{ form.alopecia.label }}</label>
+                                {{ form.alopecia }}
+                                {% if form.alopecia.errors %}
+                                    <div class="text-danger">{{ form.alopecia.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.caida_cabello.id_for_label }}" class="form-label">{{ form.caida_cabello.label }}</label>
+                                {{ form.caida_cabello }}
+                                {% if form.caida_cabello.errors %}
+                                    <div class="text-danger">{{ form.caida_cabello.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.caspa.id_for_label }}" class="form-label">{{ form.caspa.label }}</label>
+                                {{ form.caspa }}
+                                {% if form.caspa.errors %}
+                                    <div class="text-danger">{{ form.caspa.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        </div><!-- Fin del Paso 1 -->
+                        
+                        <!-- PASO 2: Características y Cuidados -->
+                        <div class="form-step" id="step2">
+                        
+                        <!-- Sección: Estado de Salud -->
+                        <div class="section-title">Estado de Salud y Condiciones Especiales</div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.lactante.id_for_label }}" class="form-label">{{ form.lactante.label }}</label>
+                                {{ form.lactante }}
+                                {% if form.lactante.errors %}
+                                    <div class="text-danger">{{ form.lactante.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.gestante.id_for_label }}" class="form-label">{{ form.gestante.label }}</label>
+                                {{ form.gestante }}
+                                {% if form.gestante.errors %}
+                                    <div class="text-danger">{{ form.gestante.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sufre_tiroides.id_for_label }}" class="form-label">{{ form.sufre_tiroides.label }}</label>
+                                {{ form.sufre_tiroides }}
+                                {% if form.sufre_tiroides.errors %}
+                                    <div class="text-danger">{{ form.sufre_tiroides.errors }}</div>
+                                {% endif %}
+                                
+                                <div id="medicamento_tiroides_container" class="conditional-field">
+                                    <label for="{{ form.medicamento_tiroides.id_for_label }}" class="form-label">{{ form.medicamento_tiroides.label }}</label>
+                                    {{ form.medicamento_tiroides }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.despunte_hoy.id_for_label }}" class="form-label">{{ form.despunte_hoy.label }}</label>
+                                {{ form.despunte_hoy }}
+                                {% if form.despunte_hoy.errors %}
+                                    <div class="text-danger">{{ form.despunte_hoy.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Sección: Procesos Químicos -->
+                        <div class="section-title">Procesos Químicos Previos</div>
+                        
+                        <div class="checkbox-group mb-3">
+                            <div class="form-check">
+                                {{ form.procesos_tintura }}
+                                <label class="form-check-label" for="{{ form.procesos_tintura.id_for_label }}">
+                                    {{ form.procesos_tintura.label }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.procesos_decoloracion }}
+                                <label class="form-check-label" for="{{ form.procesos_decoloracion.id_for_label }}">
+                                    {{ form.procesos_decoloracion.label }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.procesos_ondulados }}
+                                <label class="form-check-label" for="{{ form.procesos_ondulados.id_for_label }}">
+                                    {{ form.procesos_ondulados.label }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.procesos_extracciones }}
+                                <label class="form-check-label" for="{{ form.procesos_extracciones.id_for_label }}">
+                                    {{ form.procesos_extracciones.label }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.procesos_alisados }}
+                                <label class="form-check-label" for="{{ form.procesos_alisados.id_for_label }}">
+                                    {{ form.procesos_alisados.label }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.procesos_super_aclarante }}
+                                <label class="form-check-label" for="{{ form.procesos_super_aclarante.id_for_label }}">
+                                    {{ form.procesos_super_aclarante.label }}
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.procesos_otro.id_for_label }}" class="form-label">{{ form.procesos_otro.label }}</label>
+                            {{ form.procesos_otro }}
+                            {% if form.procesos_otro.errors %}
+                                <div class="text-danger">{{ form.procesos_otro.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Sección: Hábitos y Cuidados -->
+                        <div class="section-title">Hábitos y Cuidados</div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.cuenta_con_secador.id_for_label }}" class="form-label">{{ form.cuenta_con_secador.label }}</label>
+                                {{ form.cuenta_con_secador }}
+                                {% if form.cuenta_con_secador.errors %}
+                                    <div class="text-danger">{{ form.cuenta_con_secador.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.usa_casco.id_for_label }}" class="form-label">{{ form.usa_casco.label }}</label>
+                                {{ form.usa_casco }}
+                                {% if form.usa_casco.errors %}
+                                    <div class="text-danger">{{ form.usa_casco.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.se_bana_agua_caliente.id_for_label }}" class="form-label">{{ form.se_bana_agua_caliente.label }}</label>
+                                {{ form.se_bana_agua_caliente }}
+                                {% if form.se_bana_agua_caliente.errors %}
+                                    <div class="text-danger">{{ form.se_bana_agua_caliente.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.requiere_refuerzo_15dias.id_for_label }}" class="form-label">{{ form.requiere_refuerzo_15dias.label }}</label>
+                                {{ form.requiere_refuerzo_15dias }}
+                                {% if form.requiere_refuerzo_15dias.errors %}
+                                    <div class="text-danger">{{ form.requiere_refuerzo_15dias.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.frecuencia_recoge_cabello.id_for_label }}" class="form-label">{{ form.frecuencia_recoge_cabello.label }}</label>
+                            {{ form.frecuencia_recoge_cabello }}
+                            {% if form.frecuencia_recoge_cabello.errors %}
+                                <div class="text-danger">{{ form.frecuencia_recoge_cabello.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.realiza_ejercicio.id_for_label }}" class="form-label">{{ form.realiza_ejercicio.label }}</label>
+                            {{ form.realiza_ejercicio }}
+                            {% if form.realiza_ejercicio.errors %}
+                                <div class="text-danger">{{ form.realiza_ejercicio.errors }}</div>
+                            {% endif %}
+                            
+                            <div id="frecuencia_ejercicio_container" class="conditional-field">
+                                <label for="{{ form.frecuencia_ejercicio.id_for_label }}" class="form-label">{{ form.frecuencia_ejercicio.label }}</label>
+                                {{ form.frecuencia_ejercicio }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.productos_capilares.id_for_label }}" class="form-label">{{ form.productos_capilares.label }}</label>
+                            {{ form.productos_capilares }}
+                            {% if form.productos_capilares.errors %}
+                                <div class="text-danger">{{ form.productos_capilares.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Sección: Recomendaciones -->
+                        <div class="section-title">Recomendaciones y Anotaciones</div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.recomendaciones_post_cuidados.id_for_label }}" class="form-label">{{ form.recomendaciones_post_cuidados.label }}</label>
+                            {{ form.recomendaciones_post_cuidados }}
+                            {% if form.recomendaciones_post_cuidados.errors %}
+                                <div class="text-danger">{{ form.recomendaciones_post_cuidados.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        </div><!-- Fin del Paso 2 -->
+                        
+                        <!-- Botones de navegación -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'servicios:lista_gestion_alisados' %}" class="btn btn-secondary" id="btnCancelar">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            
+                            <div>
+                                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
+                                    <i class="bi bi-arrow-left"></i> Anterior
+                                </button>
+                                <button type="button" class="btn btn-primary" id="btnSiguiente">
+                                    Siguiente <i class="bi bi-arrow-right"></i>
+                                </button>
+                                <button type="button" class="btn btn-success" id="btnGuardar" style="display: none;">
+                                    <i class="bi bi-save"></i> Guardar Gestión de Alisado
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Consentimiento Informado -->
+<div class="modal fade" id="modalConsentimiento" tabindex="-1" aria-labelledby="modalConsentimientoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalConsentimientoLabel">
+                    <i class="bi bi-file-earmark-text"></i> Consentimiento Informado - Términos y Condiciones
+                </h5>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Por favor leer primariamente la información de la página 02</strong>
+                </div>
+                
+                <h5 class="text-primary mt-4">SISTEMA ÚNICO DE HABILITACIÓN/SERVICIOS Y PÁGINA 02</h5>
+                <p>El procedimiento puede generar molestias, casos ocasionales y/o reacciones alérgicas.</p>
+                
+                <h5 class="text-primary mt-4">RECOMENDACIONES Y ADVERTENCIAS</h5>
+                <ol>
+                    <li>El tratamiento es un PROCEDIMIENTO que tiene limitada duración y en su estancia no reja necesariamente de manera permanente.</li>
+                    <li>El tratamiento puede producir daños si no se siguen las recomendaciones indicadas (uso de acondicionador, shampoo sin sal, etc.)</li>
+                    <li>El tratamiento puede generar enrojecimiento del cuero cabelludo, irritación, ardor de los ojos, sensación de quemazón, resequedad del cabello y otros efectos temporales.</li>
+                    <li>No existe garantía, excepción de nuestros términos y condiciones. En caso de no cumplir las recomendaciones no se acepta ningún reclamo.</li>
+                    <li>La sesión de retoque únicamente procede cuando el procedimiento se efectúa de manera adecuada.</li>
+                    <li>He sido informado adecuadamente sobre cómo actúa el tratamiento, los posibles efectos secundarios que se pueden presentar y los resultados esperados.</li>
+                    <li>Nuestros productos tienen lixivia.</li>
+                    <li>El anticipo no hace parte fundamental en el resultado del tratamiento realizado. El cliente es responsable.</li>
+                    <li>Algunos tratamientos tienen como contraindicación el alisado, en este caso, el cliente deberá asumir las consecuencias de su decisión.</li>
+                    <li>Entiendo que para obtener los mejores resultados posibles, las intervenciones necesarias pueden ser realizadas en diferentes etapas.</li>
+                    <li>También se han informado de las ventajas de no someterse al procedimiento.</li>
+                    <li><strong>ADVERTENCIA: ALGUNOS DE NUESTROS PROCEDIMIENTOS PUEDEN SUBIR DE TONO O ACLARAR DEL CABELLO SOBRE TODO EN CABELLOS CON DECOLORACIÓN.</strong></li>
+                </ol>
+                
+                <h5 class="text-primary mt-4">CUIDADOS</h5>
+                <ol>
+                    <li>Lavar el cabello con shampoo sin sal o cualquier producto capilar sin sal, el USO DE ACONDICIONADOR es obligatorio.</li>
+                    <li>SECAR EL CABELLO CON SECADOR INDICADO NO LO LAVES.</li>
+                    <li>SI TE ACUESTAS O VAS A DORMIR: EL LEVANTARTE DEBERÁS SECAR EL CABELLO MARCAS MARCADAS O FRIZZ, ES TOTALMENTE NORMAL.</li>
+                    <li>Peinar justo después de aplicar el producto el cabello mojado, no será conveniente que la persona realice peinados ajustados.</li>
+                    <li>Si el cabello se dejará secar al aire libre peinar constantemente hasta que se encuentre completamente seco.</li>
+                    <li>No exponer cualquiera de nuestros tratamientos a componentes marinos del cloro.</li>
+                    <li>Mantener el tratamiento indicado por la persona que aplicó el tratamiento.</li>
+                    <li>Avisar oportunamente de cualquier cambio o reacción desfavorable que no haya sido explicada.</li>
+                    <li>Podrá aplicar tinte 15 días después del tratamiento. Después del procedimiento de reconexión molecular se podrá decolorar en 4 meses.</li>
+                    <li>Debes traer a la cita todas las indicaciones del asesor (shampoo, secador, plancha, etc.) para ser instruida en el uso correcto del tratamiento de alisado, para esto LAVADA la clienta podrá recibir de venir a nuestras instalaciones por SEGUNDA sesión: NO COBRO, algunos casos el día del procedimiento sin excepción de tratamiento igual 15ml pesos sin algunos casos viene incluido.</li>
+                </ol>
+                
+                <h5 class="text-primary mt-4">COMPROMISOS DEL TRATAMIENTO - PORCENTAJES DE TRATADO O ELIMINACIÓN DE ONDA</h5>
+                <ol>
+                    <li>El resultado del procedimiento de alisado progresivo depende de los postis cuidados y sus respectivos:
+                        <ul>
+                            <li><strong>ALISADO FOTÓNICO:</strong> duración de 4a 5 a 6 meses y elimina hasta 80% de la onda.</li>
+                            <li><strong>CIRUGIA CAPILAR:</strong> duración de hasta 3 meses y elimina el 70% de la onda.</li>
+                            <li><strong>RECONEXIÓN MOLECULAR:</strong> duración de hasta 6 meses y elimina hasta el 80% de la onda.</li>
+                            <li><strong>AMINOÁCIDOS CANNABIS:</strong> duración de 4 hasta 6 meses y elimina hasta el 85% de la onda.</li>
+                        </ul>
+                    </li>
+                    <li>El procedimiento de retoque puede requerir de sesiones adicionales para lograr el efecto deseado. SEGÚN EL PROCEDIMIENTO aplicado (puede durar de 4 a 6 meses), en este caso, el cliente deberá asumir los gastos del REFUERZO DE ALISADO que se realizará de 10 a 15 días después de la primera copia con o sin medicamentos, exámenes médicos.</li>
+                    <li>Acepto que en caso de presentarse cualquier complicación, mantencion y similares estarán en su totalidad a cargo del paciente.</li>
+                    <li>Tengo conocimiento que realizado el procedimiento NO HAY LUGAR a devolución de dinero.</li>
+                </ol>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <strong>¡PUEDES TOMARLE FOTO A ESTA INFORMACIÓN!</strong><br>
+                    Después de pagado y REALIZADO el procedimiento adicional. La línea de atención al cliente está para resolver cualquier inquietud o consulta relacionado con el servicio ofrecido.
+                </div>
+                
+                <div class="card bg-light mt-4 p-3">
+                    <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
+                    <p class="mb-2">He leído y comprendido toda la información anterior y acepto los términos y condiciones del tratamiento de alisado.</p>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
+                        <label class="form-check-label fw-bold" for="checkboxAceptacion">
+                            Acepto todos los términos, condiciones, recomendaciones y compromisos descritos anteriormente
+                        </label>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.firma_consentimiento.id_for_label }}" class="form-label fw-bold text-danger">
+                            <i class="bi bi-pen"></i> Cargar firma del cliente *
+                        </label>
+                        {{ form.firma_consentimiento }}
+                        <div class="form-text">Suba una imagen con la firma del cliente (formatos: JPG, PNG, etc.) - <strong>Campo obligatorio</strong></div>
+                        <div id="errorFirma" class="text-danger" style="display: none;">
+                            <i class="bi bi-exclamation-triangle"></i> Debe cargar la firma del cliente para continuar
+                        </div>
+                        {% if form.firma_consentimiento.errors %}
+                            <div class="text-danger">{{ form.firma_consentimiento.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Información del cliente seleccionado:</strong><br>
+                        <span id="infoClienteConsentimiento">Seleccione un cliente en el formulario</span>
+                    </div>
+                    
+                    <div class="text-muted small">
+                        <i class="bi bi-calendar"></i> Fecha: <span id="fechaConsentimiento"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btnCerrarModal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="btnConfirmarConsentimiento" disabled>
+                    <i class="bi bi-check-circle"></i> Aceptar y Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Registro Rápido de Cliente -->
+<div class="modal fade" id="modalNuevoCliente" tabindex="-1" aria-labelledby="modalNuevoClienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalNuevoClienteLabel">
+                    <i class="bi bi-person-plus"></i> Registrar Nuevo Cliente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevoCliente">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de Documento *</label>
+                            <select class="form-select" name="tipo_documento" required>
+                                <option value="">Seleccione...</option>
+                                <option value="CC">Cédula de ciudadanía</option>
+                                <option value="TI">Tarjeta de identidad</option>
+                                <option value="CE">Cédula de extranjería</option>
+                                <option value="PP">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Número de Documento *</label>
+                            <input type="text" class="form-control" name="numero_documento" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" name="nombre" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" class="form-control" name="apellido" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Fecha de Nacimiento *</label>
+                            <input type="date" class="form-control" name="fecha_nacimiento" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" name="telefono">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Correo</label>
+                            <input type="email" class="form-control" name="correo">
+                        </div>
+                    </div>
+                    <div id="erroresCliente" class="alert alert-danger" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnGuardarCliente">
+                    <i class="bi bi-save"></i> Guardar Cliente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStep = 1;
+    const totalSteps = 2;
+    
+    // Inicializar información del cliente en consentimiento
+    const selectCliente = document.getElementById('selectCliente');
+    const infoClienteConsentimiento = document.getElementById('infoClienteConsentimiento');
+    
+    function actualizarInfoCliente() {
+        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
+        if (selectCliente.value) {
+            const nombreCompleto = selectedOption.text;
+            const numeroDocumento = selectedOption.getAttribute('data-documento') || 'N/A';
+            infoClienteConsentimiento.innerHTML = `
+                <strong>Nombre:</strong> ${nombreCompleto}<br>
+                <strong>Documento:</strong> ${numeroDocumento}
+            `;
+        } else {
+            infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
+        }
+    }
+    
+    // Actualizar info cuando cambia el cliente
+    selectCliente.addEventListener('change', actualizarInfoCliente);
+    
+    // Actualizar al cargar
+    actualizarInfoCliente();
+    
+    // Modal de Nuevo Cliente
+    const btnNuevoCliente = document.getElementById('btnNuevoCliente');
+    const modalNuevoCliente = new bootstrap.Modal(document.getElementById('modalNuevoCliente'));
+    const formNuevoCliente = document.getElementById('formNuevoCliente');
+    const btnGuardarCliente = document.getElementById('btnGuardarCliente');
+    const erroresCliente = document.getElementById('erroresCliente');
+    
+    btnNuevoCliente.addEventListener('click', function() {
+        formNuevoCliente.reset();
+        erroresCliente.style.display = 'none';
+        modalNuevoCliente.show();
+    });
+    
+    btnGuardarCliente.addEventListener('click', function() {
+        if (!formNuevoCliente.checkValidity()) {
+            formNuevoCliente.reportValidity();
+            return;
+        }
+        
+        const formData = new FormData(formNuevoCliente);
+        
+        btnGuardarCliente.disabled = true;
+        btnGuardarCliente.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+        
+        // Obtener el token CSRF
+        const csrftoken = formNuevoCliente.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch('{% url "servicios:crear_cliente_ajax" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Respuesta del servidor:', data);
+            if (data.success) {
+                console.log('✅ Cliente creado con éxito');
+                console.log('ID del cliente:', data.cliente.id);
+                console.log('Nombre completo:', data.cliente.nombre_completo);
+                
+                // Agregar nuevo cliente al select
+                const option = new Option(
+                    data.cliente.nombre_completo,
+                    data.cliente.id,
+                    true,
+                    true
+                );
+                option.setAttribute('data-documento', data.cliente.numero_documento);
+                
+                console.log('➕ Agregando opción al select:', option);
+                selectCliente.add(option);
+                selectCliente.value = data.cliente.id;
+                
+                console.log('✏️ Select actualizado. Valor seleccionado:', selectCliente.value);
+                console.log('📋 Opciones en el select:', selectCliente.options.length);
+                
+                // Disparar evento change para actualizar listeners
+                const changeEvent = new Event('change', { bubbles: true });
+                selectCliente.dispatchEvent(changeEvent);
+                console.log('🔄 Evento change disparado');
+                
+                // Validar el campo en tiempo real para mostrar feedback visual
+                if (typeof validarCampoTiempoReal === 'function') {
+                    validarCampoTiempoReal(selectCliente);
+                    console.log('✅ Validación en tiempo real ejecutada');
+                } else {
+                    console.warn('⚠️ Función validarCampoTiempoReal no encontrada');
+                }
+                
+                // Validar consentimiento para habilitar botón si corresponde
+                if (typeof validarConsentimiento === 'function') {
+                    validarConsentimiento();
+                    console.log('✅ Validación de consentimiento ejecutada');
+                } else {
+                    console.warn('⚠️ Función validarConsentimiento no encontrada');
+                }
+                
+                // Cerrar modal
+                modalNuevoCliente.hide();
+                console.log('❌ Modal cerrado');
+                
+                // Limpiar formulario
+                formNuevoCliente.reset();
+                erroresCliente.style.display = 'none';
+                
+                // Mostrar mensaje de éxito
+                alert('Cliente registrado exitosamente');
+                console.log('✅ Proceso completado');
+            } else {
+                // Mostrar errores
+                let erroresHtml = '<strong>Por favor corrija los siguientes errores:</strong><ul>';
+                for (let campo in data.errores) {
+                    const error = data.errores[campo];
+                    // Manejar tanto strings como arrays
+                    if (Array.isArray(error)) {
+                        error.forEach(e => {
+                            erroresHtml += `<li>${e}</li>`;
+                        });
+                    } else {
+                        erroresHtml += `<li>${error}</li>`;
+                    }
+                }
+                erroresHtml += '</ul>';
+                erroresCliente.innerHTML = erroresHtml;
+                erroresCliente.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error completo:', error);
+            erroresCliente.innerHTML = '<strong>Error:</strong> ' + error.message;
+            erroresCliente.style.display = 'block';
+        })
+        .finally(() => {
+            btnGuardarCliente.disabled = false;
+            btnGuardarCliente.innerHTML = '<i class="bi bi-save"></i> Guardar Cliente';
+        });
+    });
+    
+    // ========== VALIDACIONES DEL MODAL DE NUEVO CLIENTE ==========
+    
+    // Funciones auxiliares para validaciones del cliente
+    function invalidoCliente(input, feedback, mensaje) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        feedback.textContent = mensaje;
+    }
+    
+    function validoCliente(input, feedback) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        feedback.textContent = '';
+    }
+    
+    function limpiarCliente(input, feedback) {
+        input.classList.remove('is-invalid', 'is-valid');
+        feedback.textContent = '';
+    }
+    
+    // Actualizar estado del botón de guardar cliente
+    function actualizarEstadoBotonCliente() {
+        const obligatorios = [
+            'cliente_tipo_documento',
+            'cliente_numero_documento',
+            'cliente_nombre',
+            'cliente_apellido',
+            'cliente_fecha_nacimiento'
+        ];
+        
+        let todoCompleto = true;
+        
+        obligatorios.forEach(id => {
+            const campo = document.getElementById(id);
+            if (!campo) {
+                todoCompleto = false;
+                return;
+            }
+            
+            const valor = campo.value.trim();
+            const esValido = campo.classList.contains('is-valid');
+            const esInvalido = campo.classList.contains('is-invalid');
+            
+            // Si está vacío o es inválido, no está completo
+            if (valor === '' || esInvalido) {
+                todoCompleto = false;
+            }
+            
+            // Si tiene valor pero no es válido, no está completo  
+            if (valor !== '' && !esValido) {
+                todoCompleto = false;
+            }
+        });
+        
+        console.log(`🎯 Botón habilitado: ${todoCompleto}`);
+        
+        if (todoCompleto) {
+            btnGuardarCliente.disabled = false;
+            btnGuardarCliente.classList.remove('btn-secondary');
+            btnGuardarCliente.classList.add('btn-primary');
+        } else {
+            btnGuardarCliente.disabled = true;
+            btnGuardarCliente.classList.remove('btn-primary');
+            btnGuardarCliente.classList.add('btn-secondary');
+        }
+    }
+    
+    // Validaciones en tiempo real para el modal de cliente
+    document.addEventListener('input', async function(e) {
+        const input = e.target;
+        
+        // Solo procesar inputs del modal de nuevo cliente
+        if (!input.id || !input.id.startsWith('cliente_')) return;
+        
+        const feedback = input.nextElementSibling;
+        if (!feedback || !feedback.classList.contains('invalid-feedback')) return;
+        
+        const valor = input.value.trim();
+        
+        // TIPO DE DOCUMENTO (select)
+        if (input.id === 'cliente_tipo_documento') {
+            if (valor === '') {
+                limpiarCliente(input, feedback);
+            } else {
+                validoCliente(input, feedback);
+            }
+            actualizarEstadoBotonCliente();
+            return;
+        }
+        
+        // NÚMERO DE DOCUMENTO
+        if (input.id === 'cliente_numero_documento') {
+            if (valor === '') {
+                limpiarCliente(input, feedback);
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            if (!/^\\d+$/.test(valor)) {
+                invalidoCliente(input, feedback, 'Solo se permiten números.');
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            if (valor.length < 6 || valor.length > 12) {
+                invalidoCliente(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            // Validar si el documento ya existe
+            try {
+                const url = `/clientes/validar-documento/?numero=${valor}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (!data.valido) {
+                    invalidoCliente(input, feedback, data.mensaje);
+                } else {
+                    validoCliente(input, feedback);
+                }
+            } catch {
+                invalidoCliente(input, feedback, 'Error validando el documento.');
+            }
+            
+            actualizarEstadoBotonCliente();
+        }
+        
+        // NOMBRE / APELLIDO
+        if (input.id === 'cliente_nombre' || input.id === 'cliente_apellido') {
+            if (valor === '') {
+                limpiarCliente(input, feedback);
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+            
+            if (!soloLetras.test(valor)) {
+                invalidoCliente(
+                    input,
+                    feedback,
+                    input.id === 'cliente_nombre' 
+                        ? 'El nombre solo puede contener letras.'
+                        : 'El apellido solo puede contener letras.'
+                );
+            } else {
+                validoCliente(input, feedback);
+            }
+            
+            actualizarEstadoBotonCliente();
+        }
+        
+        // TELÉFONO
+        if (input.id === 'cliente_telefono') {
+            if (valor === '') {
+                limpiarCliente(input, feedback);
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            if (!/^\d+$/.test(valor)) {
+                invalidoCliente(input, feedback, 'Solo se permiten números.');
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            if (valor.length !== 10) {
+                invalidoCliente(input, feedback, 'Debe tener exactamente 10 dígitos.');
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            validoCliente(input, feedback);
+            actualizarEstadoBotonCliente();
+        }
+        
+        // CORREO
+        if (input.id === 'cliente_correo') {
+            if (valor === '') {
+                limpiarCliente(input, feedback);
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(valor)) {
+                invalidoCliente(input, feedback, 'Correo electrónico inválido.');
+            } else {
+                validoCliente(input, feedback);
+            }
+            
+            actualizarEstadoBotonCliente();
+        }
+        
+        // FECHA DE NACIMIENTO
+        if (input.id === 'cliente_fecha_nacimiento') {
+            if (valor === '') {
+                limpiarCliente(input, feedback);
+                actualizarEstadoBotonCliente();
+                return;
+            }
+            
+            const fecha = new Date(valor);
+            const hoy = new Date();
+            
+            if (fecha > hoy) {
+                invalidoCliente(input, feedback, 'La fecha no puede ser futura.');
+            } else {
+                validoCliente(input, feedback);
+            }
+            
+            actualizarEstadoBotonCliente();
+        }
+    });
+    
+    // Listener específico para el select de tipo de documento
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'cliente_tipo_documento') {
+            const select = e.target;
+            const feedback = select.nextElementSibling;
+            
+            if (select.value && select.value !== '') {
+                validoCliente(select, feedback);
+            } else {
+                limpiarCliente(select, feedback);
+            }
+            
+            actualizarEstadoBotonCliente();
+        }
+    });
+    
+    // Limpiar todo al cerrar el modal de cliente
+    document.getElementById('modalNuevoCliente').addEventListener('hidden.bs.modal', function() {
+        formNuevoCliente.reset();
+        
+        formNuevoCliente.querySelectorAll('input, select').forEach(el => {
+            el.classList.remove('is-valid', 'is-invalid');
+        });
+        
+        formNuevoCliente.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.textContent = '';
+        });
+        
+        erroresCliente.style.display = 'none';
+    });
+    
+    // ========== VALIDACIÓN EN TIEMPO REAL ==========
+    function validarCampoTiempoReal(campo) {
+        if (!campo) return;
+        
+        // Limpiar validaciones previas
+        campo.classList.remove('is-valid', 'is-invalid');
+        const errorExistente = campo.parentElement.querySelector('.invalid-feedback');
+        if (errorExistente) {
+            errorExistente.remove();
+        }
+        
+        let esValido = true;
+        let mensajeError = '';
+        
+        // Validar campos requeridos
+        if (campo.hasAttribute('required')) {
+            if (!campo.value || campo.value.trim() === '') {
+                esValido = false;
+                mensajeError = 'Este campo es obligatorio';
+            }
+        }
+        
+        // Si tiene valor, validar según el tipo
+        if (campo.value && campo.value.trim() !== '') {
+            // Validar números
+            if (campo.type === 'number') {
+                const valor = parseFloat(campo.value);
+                if (isNaN(valor)) {
+                    esValido = false;
+                    mensajeError = 'Debe ingresar un número válido';
+                } else if (campo.hasAttribute('min') && valor < parseFloat(campo.getAttribute('min'))) {
+                    esValido = false;
+                    mensajeError = `El valor mínimo es ${campo.getAttribute('min')}`;
+                } else if (campo.hasAttribute('max') && valor > parseFloat(campo.getAttribute('max'))) {
+                    esValido = false;
+                    mensajeError = `El valor máximo es ${campo.getAttribute('max')}`;
+                } else if (valor < 0) {
+                    esValido = false;
+                    mensajeError = 'No se permiten valores negativos';
+                }
+            }
+            
+            // Validar select
+            if (campo.tagName === 'SELECT' && campo.hasAttribute('required')) {
+                if (campo.value === '' || campo.value === 'None') {
+                    esValido = false;
+                    mensajeError = 'Debe seleccionar una opción';
+                }
+            }
+            
+            // Validar textarea mínimo de caracteres (si aplica)
+            if (campo.tagName === 'TEXTAREA' && campo.value.trim().length > 0) {
+                if (campo.value.trim().length < 3) {
+                    esValido = false;
+                    mensajeError = 'Debe ingresar al menos 3 caracteres';
+                }
+            }
+            
+            // Validar email (si el campo es de tipo email)
+            if (campo.type === 'email') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(campo.value)) {
+                    esValido = false;
+                    mensajeError = 'Ingrese un correo electrónico válido';
+                }
+            }
+        }
+        
+        // Aplicar clases de validación
+        if (campo.value && campo.value.trim() !== '') {
+            if (esValido) {
+                campo.classList.add('is-valid');
+            } else {
+                campo.classList.add('is-invalid');
+                
+                // Mostrar mensaje de error
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'invalid-feedback d-block';
+                feedbackDiv.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${mensajeError}`;
+                campo.parentElement.appendChild(feedbackDiv);
+            }
+        }
+        
+        return esValido;
+    }
+    
+    // Aplicar validación en tiempo real a todos los campos
+    function inicializarValidacionTiempoReal() {
+        // Obtener todos los campos del formulario
+        const camposValidar = document.querySelectorAll(
+            'input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea'
+        );
+        
+        camposValidar.forEach(function(campo) {
+            // Validar al perder el foco (blur)
+            campo.addEventListener('blur', function() {
+                validarCampoTiempoReal(this);
+            });
+            
+            // Validar mientras escribe (para campos de texto)
+            if (campo.tagName === 'INPUT' && campo.type === 'text') {
+                campo.addEventListener('input', function() {
+                    // Solo validar si ya ha perdido el foco al menos una vez
+                    if (this.classList.contains('is-valid') || this.classList.contains('is-invalid')) {
+                        validarCampoTiempoReal(this);
+                    }
+                });
+            }
+            
+            // Validar inmediatamente al cambiar (para select y number)
+            if (campo.tagName === 'SELECT' || campo.type === 'number') {
+                campo.addEventListener('change', function() {
+                    validarCampoTiempoReal(this);
+                });
+            }
+            
+            // Para campos numéricos, validar también al escribir
+            if (campo.type === 'number') {
+                campo.addEventListener('input', function() {
+                    if (this.classList.contains('is-valid') || this.classList.contains('is-invalid')) {
+                        validarCampoTiempoReal(this);
+                    }
+                });
+            }
+        });
+    }
+    
+    // Inicializar validación en tiempo real
+    inicializarValidacionTiempoReal();
+    
+    // Función para mostrar el paso actual
+    function showStep(step) {
+        // Ocultar todos los pasos
+        document.querySelectorAll('.form-step').forEach(function(stepEl) {
+            stepEl.classList.remove('active');
+        });
+        
+        // Mostrar el paso actual
+        document.getElementById('step' + step).classList.add('active');
+        
+        // Actualizar indicadores de progreso
+        document.querySelectorAll('.step-item').forEach(function(item) {
+            const stepNum = parseInt(item.getAttribute('data-step'));
+            item.classList.remove('active', 'completed');
+            
+            if (stepNum === step) {
+                item.classList.add('active');
+            } else if (stepNum < step) {
+                item.classList.add('completed');
+            }
+        });
+        
+        // Actualizar botones
+        const btnAnterior = document.getElementById('btnAnterior');
+        const btnSiguiente = document.getElementById('btnSiguiente');
+        const btnGuardar = document.getElementById('btnGuardar');
+        
+        if (step === 1) {
+            btnAnterior.style.display = 'none';
+            btnSiguiente.style.display = 'inline-block';
+            btnGuardar.style.display = 'none';
+        } else if (step === totalSteps) {
+            btnAnterior.style.display = 'inline-block';
+            btnSiguiente.style.display = 'none';
+            btnGuardar.style.display = 'inline-block';
+        } else {
+            btnAnterior.style.display = 'inline-block';
+            btnSiguiente.style.display = 'inline-block';
+            btnGuardar.style.display = 'none';
+        }
+        
+        // Scroll hacia arriba
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Función para validar los campos del paso actual
+    function validateStep(step) {
+        let isValid = true;
+        let firstInvalidField = null;
+        const currentStepEl = document.getElementById('step' + step);
+        
+        // Limpiar errores previos
+        currentStepEl.querySelectorAll('.validation-error').forEach(function(el) {
+            el.remove();
+        });
+        currentStepEl.querySelectorAll('.is-invalid').forEach(function(el) {
+            el.classList.remove('is-invalid');
+        });
+        
+        // Obtener todos los campos requeridos del paso actual
+        const requiredFields = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+        
+        requiredFields.forEach(function(field) {
+            // Verificar si el campo está vacío
+            if (!field.value || field.value.trim() === '') {
+                isValid = false;
+                field.classList.add('is-invalid');
+                
+                // Mostrar mensaje de error
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'validation-error text-danger mt-1';
+                errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Este campo es obligatorio';
+                field.parentElement.appendChild(errorDiv);
+                
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+            }
+        });
+        
+        // Si hay errores, hacer scroll al primer campo inválido
+        if (!isValid && firstInvalidField) {
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidField.focus();
+            
+            // Mostrar alerta general
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>¡Atención!</strong> Por favor, completa todos los campos obligatorios antes de continuar.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            currentStepEl.insertBefore(alertDiv, currentStepEl.firstChild);
+            
+            // Auto-cerrar la alerta después de 5 segundos
+            setTimeout(function() {
+                if (alertDiv && alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        return isValid;
+    }
+    
+    // Botón Siguiente
+    document.getElementById('btnSiguiente').addEventListener('click', function() {
+        if (validateStep(currentStep)) {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+    });
+    
+    // Botón Anterior
+    document.getElementById('btnAnterior').addEventListener('click', function() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+    
+    // Inicializar primer paso
+    showStep(1);
+    
+    // Calcular saldo pendiente automáticamente
+    const precioInput = document.getElementById('{{ form.precio_alisado.id_for_label }}');
+    const anticipoInput = document.getElementById('{{ form.anticipo_cliente.id_for_label }}');
+    const saldoInput = document.getElementById('{{ form.saldo_pendiente.id_for_label }}');
+    
+    function calcularSaldo() {
+        const precio = parseInt(precioInput.value) || 0;
+        const anticipo = parseInt(anticipoInput.value) || 0;
+        const saldo = precio - anticipo;
+        saldoInput.value = Math.max(0, saldo);
+    }
+    
+    precioInput.addEventListener('input', calcularSaldo);
+    anticipoInput.addEventListener('input', calcularSaldo);
+    
+    // Mostrar/ocultar campo de oferta especial
+    const ofertaSelect = document.getElementById('{{ form.es_oferta_especial.id_for_label }}');
+    const ofertaContainer = document.getElementById('descripcion_oferta_container');
+    
+    if (ofertaSelect && ofertaContainer) {
+        function toggleOferta() {
+            if (ofertaSelect.value === 'si') {
+                ofertaContainer.classList.add('show');
+            } else {
+                ofertaContainer.classList.remove('show');
+            }
+        }
+        
+        ofertaSelect.addEventListener('change', toggleOferta);
+        toggleOferta();
+    }
+    
+    // Mostrar/ocultar campo de medicamento tiroides
+    const tiroidesSelect = document.getElementById('{{ form.sufre_tiroides.id_for_label }}');
+    const tiroidesContainer = document.getElementById('medicamento_tiroides_container');
+    
+    if (tiroidesSelect && tiroidesContainer) {
+        function toggleTiroides() {
+            if (tiroidesSelect.value === 'si') {
+                tiroidesContainer.classList.add('show');
+            } else {
+                tiroidesContainer.classList.remove('show');
+            }
+        }
+        
+        tiroidesSelect.addEventListener('change', toggleTiroides);
+        toggleTiroides();
+    }
+    
+    // Mostrar/ocultar campo de frecuencia de ejercicio
+    const ejercicioSelect = document.getElementById('{{ form.realiza_ejercicio.id_for_label }}');
+    const ejercicioContainer = document.getElementById('frecuencia_ejercicio_container');
+    
+    if (ejercicioSelect && ejercicioContainer) {
+        function toggleEjercicio() {
+            if (ejercicioSelect.value === 'si') {
+                ejercicioContainer.classList.add('show');
+            } else {
+                ejercicioContainer.classList.remove('show');
+            }
+        }
+        
+        ejercicioSelect.addEventListener('change', toggleEjercicio);
+        toggleEjercicio();
+    }
+    
+    // Validar porcentaje de alisado (0-100)
+    const porcentajeInput = document.getElementById('{{ form.porcentaje_alisado.id_for_label }}');
+    
+    porcentajeInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        
+        if (isNaN(value)) {
+            return;
+        }
+        
+        if (value < 0) {
+            this.value = 0;
+        } else if (value > 100) {
+            this.value = 100;
+        }
+    });
+    
+    porcentajeInput.addEventListener('blur', function() {
+        if (this.value === '' || isNaN(parseInt(this.value))) {
+            return;
+        }
+        
+        let value = parseInt(this.value);
+        
+        if (value < 0) {
+            this.value = 0;
+        } else if (value > 100) {
+            this.value = 100;
+        }
+    });
+    
+    // Variables para el modal de consentimiento
+    const modalConsentimiento = new bootstrap.Modal(document.getElementById('modalConsentimiento'));
+    const checkboxAceptacion = document.getElementById('checkboxAceptacion');
+    const btnConfirmarConsentimiento = document.getElementById('btnConfirmarConsentimiento');
+    const btnCerrarModal = document.getElementById('btnCerrarModal');
+    const formulario = document.getElementById('gestionAlisadoForm');
+    
+    // Mostrar fecha actual en el consentimiento
+    const fechaActual = new Date().toLocaleDateString('es-CO', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    document.getElementById('fechaConsentimiento').textContent = fechaActual;
+    
+    // Habilitar/deshabilitar botón de confirmar según validación
+    const inputFirma = document.getElementById('{{ form.firma_consentimiento.id_for_label }}');
+    const errorFirma = document.getElementById('errorFirma');
+    
+    function validarConsentimiento() {
+        const clienteSeleccionado = selectCliente.value !== '';
+        const aceptacionMarcada = checkboxAceptacion.checked;
+        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
+        
+        // Mostrar/ocultar mensaje de error de firma
+        if (aceptacionMarcada && !firmaSubida) {
+            errorFirma.style.display = 'block';
+        } else {
+            errorFirma.style.display = 'none';
+        }
+        
+        btnConfirmarConsentimiento.disabled = !(clienteSeleccionado && aceptacionMarcada && firmaSubida);
+    }
+    
+    checkboxAceptacion.addEventListener('change', validarConsentimiento);
+    selectCliente.addEventListener('change', validarConsentimiento);
+    
+    // Agregar validación cuando se sube una firma
+    if (inputFirma) {
+        inputFirma.addEventListener('change', function() {
+            validarConsentimiento();
+        });
+    }
+    
+    // Interceptar el clic en el botón Guardar
+    document.getElementById('btnGuardar').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Validar el paso actual antes de mostrar el modal
+        if (validateStep(currentStep)) {
+            // Verificar que haya un cliente seleccionado
+            if (!selectCliente.value) {
+                alert('Por favor seleccione un cliente antes de continuar');
+                return;
+            }
+            
+            // Limpiar estado del modal
+            checkboxAceptacion.checked = false;
+            validarConsentimiento();
+            
+            // Actualizar información del cliente en el modal
+            actualizarInfoCliente();
+            
+            // Mostrar el modal
+            modalConsentimiento.show();
+        }
+    });
+    
+    // Cerrar modal sin guardar
+    btnCerrarModal.addEventListener('click', function() {
+        modalConsentimiento.hide();
+    });
+    
+    // Confirmar y guardar
+    btnConfirmarConsentimiento.addEventListener('click', function() {
+        // Obtener datos del cliente seleccionado
+        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
+        const nombreCompleto = selectedOption.text;
+        const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
+        
+        // Agregar los datos de consentimiento al formulario como campos ocultos
+        const inputNombre = document.createElement('input');
+        inputNombre.type = 'hidden';
+        inputNombre.name = 'consentimiento_nombre';
+        inputNombre.value = nombreCompleto;
+        formulario.appendChild(inputNombre);
+        
+        const inputCedula = document.createElement('input');
+        inputCedula.type = 'hidden';
+        inputCedula.name = 'consentimiento_cedula';
+        inputCedula.value = numeroDocumento;
+        formulario.appendChild(inputCedula);
+        
+        const inputFecha = document.createElement('input');
+        inputFecha.type = 'hidden';
+        inputFecha.name = 'consentimiento_fecha';
+        inputFecha.value = fechaActual;
+        formulario.appendChild(inputFecha);
+        
+        const inputAceptado = document.createElement('input');
+        inputAceptado.type = 'hidden';
+        inputAceptado.name = 'consentimiento_aceptado';
+        inputAceptado.value = 'true';
+        formulario.appendChild(inputAceptado);
+        
+        // Cerrar modal
+        modalConsentimiento.hide();
+        
+        // Enviar el formulario
+        formulario.submit();
+    });
+});
+</script>
+{% endblock %}

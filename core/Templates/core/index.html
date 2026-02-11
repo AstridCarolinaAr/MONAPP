@@ -407,6 +407,36 @@ Servicios
         </div>
     </section>
 </div>
+
+    <!-- ==================== SERVICIOS ADICIONALES (DINÁMICOS) ==================== -->
+    {% if servicios %}
+    <section class="sq-dynamic-services" style="padding: 60px 0; background: #f8f9fa;">
+        <div class="sq-container">
+            <h2 class="sq-products-title2" style="text-align: center; margin-bottom: 40px;">SERVICIOS ADICIONALES</h2>
+            
+            <div class="row justify-content-center">
+                {% for servicio in servicios %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s;">
+                        {% if servicio.imagen %}
+                            <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 250px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h3 class="card-title" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">{{ servicio.nombre }}</h3>
+                            <p class="card-text text-muted" style="font-size: 0.95rem;">{{ servicio.descripcion|truncatewords:20 }}</p>
+                            <p class="h4 text-primary" style="margin-top: 15px;">${{ servicio.precio|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
  
 
     <!-- ==================== TESTIMONIALS ==================== -->

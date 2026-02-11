@@ -1,0 +1,68 @@
+<form method="post" action="{% url 'inventario:crear_inventario' %}">
+    {% csrf_token %}
+
+<div class="row g-3 mb-3">
+
+<div class="col-md-6">
+    <label>Proveedor</label>
+    <select name="proveedor" class="form-select" required>
+        {% for p in proveedores %}
+            <option value="{{ p.id }}">{{ p.nombre_proveedor }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="col-md-6">
+    <label>Fecha</label>
+    <input type="date" name="fecha" class="form-control" required>
+</div>
+
+</div>
+
+<hr>
+
+<h6>Productos recibidos</h6>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <select name="producto[]" class="form-select" required>
+            {% for prod in productos %}
+                <option value="{{ prod.codigo }}">{{ prod.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" required>
+    </div>
+
+    <div class="col-md-3">
+        <input type="number" name="precio_total" class="form-control" placeholder="Total $" required>
+    </div>
+</div>
+
+<hr>
+
+<h6>Datos del repartidor</h6>
+
+<div class="row g-3">
+    <input class="form-control" name="nombre_repartidor" placeholder="Nombre">
+    <input class="form-control" name="apellido_repartidor" placeholder="Apellido">
+    <input class="form-control" name="cedula_repartidor" placeholder="Cédula">
+    <input class="form-control" name="telefono_repartidor" placeholder="Teléfono">
+</div>
+
+<hr>
+
+<h6>Vehículo</h6>
+
+<input class="form-control mb-2" name="placa_vehiculo" placeholder="Placa">
+<input class="form-control mb-3" name="tipo_vehiculo" placeholder="Tipo">
+
+<div class="text-end mt-3">
+    <button type="submit" class="btn btn-dark">
+        Guardar inventario
+    </button>
+</div>
+
+</form>

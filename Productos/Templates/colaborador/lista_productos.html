@@ -1,0 +1,218 @@
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Productos</li>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/lista_producto.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- ENCABEZADO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Gestión de Productos</h2>
+
+        <a href="{% url 'productos:crear_producto' %}" class="btn btn-success shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo producto
+        </a>
+    </div>
+
+    <!-- FILTROS + BUSCADOR -->
+    <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+
+        <!-- FILTRO -->
+        <div class="dropdown">
+            <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-funnel"></i> Filtrar
+            </button>
+
+            <ul class="dropdown-menu shadow-sm">
+                <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
+                <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
+                <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
+                <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
+                <li>
+                    <button class="dropdown-item" type="button" id="btnFiltroLineas">
+                        Filtrar por línea
+                    </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- BUSCADOR (FORM BIEN CERRADO) -->
+        <form method="get" class="d-flex gap-2">
+            <input type="text"
+                   name="q"
+                   class="form-control"
+                   placeholder="Buscar producto..."
+                   value="{{ request.GET.q }}">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- FILTRO POR LÍNEA -->
+    <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none mb-3">
+        <div class="filtro-lineas">
+
+            <a href="{% url 'productos:lista_productos_admin' %}"
+               class="linea-chip {% if not linea_seleccionada %}active{% endif %}">
+                Todos
+            </a>
+
+            {% for item in productos_por_linea %}
+            <a href="?linea={{ item.linea }}"
+               class="linea-chip {% if linea_seleccionada == item.linea %}active{% endif %}">
+                {{ item.linea }}
+                <span class="badge">{{ item.total }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if request.GET.q %}
+    <div class="alert alert-info py-2 mb-3">
+        Resultados para: <strong>{{ request.GET.q }}</strong>
+    </div>
+    {% endif %}
+
+    <!-- TABLA -->
+    <div class="tabla-productos">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:120px;">Código</th>
+                        <th>Producto</th>
+                        <th class="text-center" style="width:140px;">Stock</th>
+                        <th class="text-center" style="width:220px;">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.codigo }}</td>
+
+                    <!-- PRODUCTO + STOCK VISUAL -->
+                    <td>
+                        <div class="fw-semibold">{{ producto.nombre }}</div>
+
+                        {% if producto.stock_actual <= 1 %}
+                            <div class="stock-chip stock-critico">
+                                🔴 {{ producto.stock_actual }} unidades — crítico
+                            </div>
+                        {% elif producto.stock_actual <= 15 %}
+                            <div class="stock-chip stock-bajo">
+                                🟠 {{ producto.stock_actual }} unidades — bajo
+                            </div>
+                        {% else %}
+                            <div class="stock-chip stock-ok">
+                                🟢 {{ producto.stock_actual }} unidades disponibles
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- COLUMNA STOCK SIMBÓLICA -->
+                    <td class="text-center text-muted">—</td>
+
+                    <!-- ACCIONES -->
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+
+                            <button type="button"
+                                    class="btn btn-info btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDetalleProducto"
+                                    data-codigo="{{ producto.codigo }}"
+                                    data-nombre="{{ producto.nombre }}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <a href="{% url 'productos:editar_producto' producto.codigo %}"
+                               class="btn btn-primary btn-sm"
+                               role="button">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <a href="{% url 'productos:eliminar_producto' producto.codigo %}"
+                               class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        No hay productos registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE -->
+    <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-seam"></i> Detalles del producto
+                    </h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6"><strong>Código:</strong> <span id="d-codigo"></span></div>
+                        <div class="col-md-6"><strong>Nombre:</strong> <span id="d-nombre"></span></div>
+                        <div class="col-md-6"><strong>Marca:</strong> <span id="d-marca"></span></div>
+                        <div class="col-md-6"><strong>Precio:</strong> <span id="d-precio"></span></div>
+                        <div class="col-md-6"><strong>Línea:</strong> <span id="d-linea"></span></div>
+                        <div class="col-md-6"><strong>Presentación:</strong> <span id="d-presentacion"></span></div>
+                        <div class="col-md-6"><strong>Unidad:</strong> <span id="d-unidad"></span></div>
+                        <div class="col-md-6"><strong>Estado:</strong> <span id="d-estado"></span></div>
+                        <div class="col-12">
+                            <strong>Descripción:</strong>
+                            <p id="d-descripcion" class="text-muted mb-0"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
+<script>
+document.getElementById('btnFiltroLineas')?.addEventListener('click', () => {
+    document.getElementById('panelFiltroLineas').classList.toggle('d-none');
+});
+</script>
+{% endblock %}

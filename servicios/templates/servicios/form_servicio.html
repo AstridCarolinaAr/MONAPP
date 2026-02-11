@@ -1,0 +1,82 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-gear-fill"></i> {{ titulo }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ titulo }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.nombre.label_tag }}
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="text-danger">{{ form.nombre.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.precio.label_tag }}
+                            {{ form.precio }}
+                            {% if form.precio.errors %}
+                                <div class="text-danger">{{ form.precio.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.descripcion.label_tag }}
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="text-danger">{{ form.descripcion.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.imagen.label_tag }}
+                            {{ form.imagen }}
+                            {% if form.imagen.errors %}
+                                <div class="text-danger">{{ form.imagen.errors }}</div>
+                            {% endif %}
+                            {% if servicio.imagen %}
+                                <div class="mt-2">
+                                    <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="img-thumbnail" style="max-width: 200px;">
+                                    <p class="text-muted small">Imagen actual</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            {{ form.activo }}
+                            {{ form.activo.label_tag }}
+                            {% if form.activo.errors %}
+                                <div class="text-danger">{{ form.activo.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                            <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
