@@ -41,6 +41,199 @@ def logout_view(request):
     return redirect('core:index')
 
 
+# ==================== RECUPERACIÓN DE CONTRASEÑA ====================
+
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.conf import settings
+
+@csrf_protect
+def password_reset_view(request):
+    """Vista para solicitar recuperación de contraseña por email"""
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        
+        if not email:
+            messages.error(request, 'Por favor ingresa un correo electrónico.')
+            return render(request, 'usuarios/password_reset.html')
+        
+        try:
+            user = User.objects.get(email=email, is_active=True)
+            
+            # Generar token de recuperación
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Construir URL de recuperación
+            reset_url = request.build_absolute_uri(
+                f'/auth/password-reset-confirm/{uid}/{token}/'
+            )
+            
+            # Enviar email
+            subject = 'Recuperación de Contraseña - Mona Keratina'
+            message = render_to_string('usuarios/password_reset_email.html', {
+                'user': user,
+                'reset_url': reset_url,
+                'site_name': 'Mona Keratina',
+            })
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                html_message=message,
+                fail_silently=False,
+            )
+            
+            messages.success(
+                request,
+                'Se ha enviado un correo con instrucciones para recuperar tu contraseña.'
+            )
+            return redirect('usuarios:login')
+            
+        except User.DoesNotExist:
+            # Por seguridad, no revelar si el email existe o no
+            messages.success(
+                request,
+                'Si existe una cuenta con ese correo, recibirás instrucciones para recuperar tu contraseña.'
+            )
+            return redirect('usuarios:login')
+        except Exception as e:
+            messages.error(
+                request,
+                'Error al enviar el correo. Por favor intenta más tarde.'
+            )
+            return render(request, 'usuarios/password_reset.html')
+    
+    return render(request, 'usuarios/password_reset.html')
+
+
+@csrf_protect
+def password_reset_confirm_view(request, uidb64, token):
+    """Vista para confirmar y establecer nueva contraseña"""
+    
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+            
+            if not password1 or not password2:
+                messages.error(request, 'Debes ingresar ambas contraseñas.')
+                return render(request, 'usuarios/password_reset_confirm.html', {
+                    'validlink': True,
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            
+            if password1 != password2:
+                messages.error(request, 'Las contraseñas no coinciden.')
+                return render(request, 'usuarios/password_reset_confirm.html', {
+                    'validlink': True,
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            
+            if len(password1) < 8:
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+                return render(request, 'usuarios/password_reset_confirm.html', {
+                    'validlink': True,
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            
+            # Cambiar contraseña
+            user.set_password(password1)
+            user.save()
+            
+            messages.success(
+                request,
+                'Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión.'
+            )
+            return redirect('usuarios:login')
+        
+        return render(request, 'usuarios/password_reset_confirm.html', {
+            'validlink': True,
+            'uidb64': uidb64,
+            'token': token,
+        })
+    else:
+        messages.error(
+            request,
+            'El enlace de recuperación es inválido o ha expirado. Solicita uno nuevo.'
+        )
+        return render(request, 'usuarios/password_reset_confirm.html', {
+            'validlink': False,
+        })
+
+
+@csrf_protect
+def username_recovery_view(request):
+    """Vista para recuperar nombre de usuario por email"""
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        
+        if not email:
+            messages.error(request, 'Por favor ingresa un correo electrónico.')
+            return render(request, 'usuarios/username_recovery.html')
+        
+        try:
+            user = User.objects.get(email=email, is_active=True)
+            
+            # Enviar email con el username
+            subject = 'Recuperación de Usuario - Mona Keratina'
+            message = f"""
+            Hola {user.get_full_name()},
+            
+            Tu nombre de usuario es: {user.username}
+            
+            Si no solicitaste esta información, puedes ignorar este correo.
+            
+            Saludos,
+            Equipo Mona Keratina
+            """
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            
+            messages.success(
+                request,
+                'Se ha enviado tu nombre de usuario al correo registrado.'
+            )
+            return redirect('usuarios:login')
+            
+        except User.DoesNotExist:
+            messages.success(
+                request,
+                'Si existe una cuenta con ese correo, recibirás tu nombre de usuario.'
+            )
+            return redirect('usuarios:login')
+        except Exception as e:
+            messages.error(
+                request,
+                'Error al enviar el correo. Por favor intenta más tarde.'
+            )
+            return render(request, 'usuarios/username_recovery.html')
+    
+    return render(request, 'usuarios/username_recovery.html')
+
+
 # ==================== PANEL DE USUARIOS (ADMIN / AUX) ====================
 
 @login_required
