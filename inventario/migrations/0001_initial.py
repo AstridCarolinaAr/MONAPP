@@ -10,9 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('Proveedores', '0004_remove_proveedor_cc_encargado_and_more'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('Productos', '0006_remove_producto_cantidad'),
+    ('Productos', '0001_initial'),
     ]
 
     operations = [

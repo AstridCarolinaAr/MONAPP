@@ -13,6 +13,7 @@ class ProveedorcrearForm(forms.ModelForm):
             'nombre_proveedor',
             'telefono_proveedor',
             'correo_proveedor',
+            'direccion_proveedor',
         ]
 
         widgets = {
@@ -37,6 +38,10 @@ class ProveedorcrearForm(forms.ModelForm):
             'estado': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'direccion_proveedor': forms.TextInput(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
         }
 
 class ProveedoreditarForm(forms.ModelForm):
@@ -47,6 +52,7 @@ class ProveedoreditarForm(forms.ModelForm):
             'nombre_proveedor',
             'telefono_proveedor',
             'correo_proveedor',
+            'direccion_proveedor',
             'estado',
         ]
 
@@ -68,6 +74,9 @@ class ProveedoreditarForm(forms.ModelForm):
             'correo_proveedor': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'required': True
+            }),
+            'direccion_proveedor': forms.TextInput(attrs={
+                'class': 'form-control'
             }),
             'estado': forms.Select(attrs={
                 'class': 'form-select'
@@ -113,5 +122,11 @@ class ProveedoreditarForm(forms.ModelForm):
 
         return nombre.title()
 
+def clean_direccion_proveedor(self):
+        direccion = self.cleaned_data.get('direccion_proveedor', '').strip()
 
+        if not re.match(r'^[@ ]+$', direccion):
+            raise forms.ValidationError(
+                'La del proveedor debe contener un @ o un espacio.'
+            )
     

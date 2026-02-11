@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
             set('d-unidad', btn.dataset.unidad);
             set('d-estado', btn.dataset.estado);
             set('d-descripcion', btn.dataset.descripcion);
-            set('d-cantidad', btn.dataset.cantidad);
             document.getElementById('id-cantidad').textContent=this.dataset.cantidad;
         });
     });

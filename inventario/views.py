@@ -7,11 +7,14 @@ from .models import MovimientoInventario, DetalleMovimiento
 from Proveedores.models import Proveedor
 from Productos.models import Producto
 from django.db.models import Sum
+from .models import Stock
+
 
 
 # @login_required
 def inventario_lista(request):
-
+    
+    stock = Stock.objects.select_related('producto').order_by('producto__nombre')
     movimientos = MovimientoInventario.objects.all().order_by('-fecha')
 
     total_ingresos = movimientos.aggregate(
@@ -23,20 +26,18 @@ def inventario_lista(request):
 
     return render(
         request,
-        'inventario/inventario.html',
+        'inventario/compra.html',
         {
             'movimientos': movimientos,
             'total_ingresos': total_ingresos,
             'proveedores': proveedores,
             'productos': productos,
+            'stock': stock,
         }
     )
 
-# @login_required
+@login_required
 def crear_movimiento_inventario(request):
-
-    proveedores = Proveedor.objects.all()
-    productos = Producto.objects.all()
 
     if request.method == 'POST':
         try:
@@ -50,7 +51,7 @@ def crear_movimiento_inventario(request):
                 movimiento = MovimientoInventario.objects.create(
                     proveedor=proveedor,
                     fecha=request.POST.get('fecha'),
-                    precio_total=request.POST.get('precio_total'),
+                    precio_total=0,   
                     usuario=request.user,
                     nombre_repartidor=request.POST.get('nombre_repartidor'),
                     apellido_repartidor=request.POST.get('apellido_repartidor'),
@@ -60,37 +61,52 @@ def crear_movimiento_inventario(request):
                     tipo_vehiculo=request.POST.get('tipo_vehiculo'),
                 )
 
+
                 productos_ids = request.POST.getlist('producto[]')
                 cantidades = request.POST.getlist('cantidad[]')
+                precios = request.POST.getlist('precio_unitario[]')
 
                 if not productos_ids:
                     raise Exception("Debe agregar al menos un producto.")
 
-                for prod_id, cant in zip(productos_ids, cantidades):
+                total_general = 0
+
+                for prod_id, cant, precio in zip(productos_ids, cantidades, precios):
+
                     producto = get_object_or_404(Producto, codigo=prod_id)
 
+                    cant = int(cant)
+                    precio = float(precio)
+
+                    subtotal = cant * precio
+                    total_general += subtotal
+
+                    # crear detalle correcto
                     DetalleMovimiento.objects.create(
                         movimiento=movimiento,
                         producto=producto,
-                        cantidad=int(cant)
+                        cantidad=cant,
+                        precio_unitario=precio
                     )
+
+                    # actualizar stock correctamente
+                    stock, _ = Stock.objects.get_or_create(producto=producto)
+                    stock.cantidad_actual += cant
+                    stock.save()
+
+                # guardar total REAL (no el del frontend)
+                movimiento.precio_total = total_general
+                movimiento.save()
 
                 messages.success(request, "Inventario registrado correctamente.")
                 return redirect('inventario:inventario_vista')
 
         except Exception as e:
             messages.error(request, f"Error al guardar inventario: {e}")
-
-    return render(
-        request,
-        'inventario/crear_inventario.html',
-        {
-            'proveedores': proveedores,
-            'productos': productos
-        }
-    )
+            return redirect('inventario:inventario_vista')
 
     
+    return redirect('inventario:inventario_vista')
 
 
 # @login_required
@@ -134,7 +150,7 @@ def editar_movimiento(request, id_movimiento):
 
         except Exception as e:
             messages.error(request, f"Error: {e}")
-            return redirect('inventario:inventario_vista')   # ← importante
+            return redirect('inventario:inventario_vista')  
 
     
     return redirect('inventario:inventario_vista')

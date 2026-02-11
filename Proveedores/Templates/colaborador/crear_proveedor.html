@@ -67,6 +67,12 @@
                         <div class="form-error">{{ form.correo_proveedor.errors.0 }}</div>
                     {% endif %}
                 </div>
+                <div>
+                    <label>Dirección</label>
+                    {{ form.direccion_proveedor }}
+                    {% if form.direccion_proveedor.errors %}
+                        <div class="form-error">{{ form.direccion_proveedor.errors.0 }}</div>
+                    {% endif %}
         </div>
 
         <!-- BOTONES -->

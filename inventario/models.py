@@ -63,9 +63,12 @@ class DetalleMovimiento(models.Model):
         on_delete=models.CASCADE,
         related_name="detalles"
     )
+    
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
+    
 
     def clean(self):
         if self.cantidad <= 0:
@@ -73,3 +76,14 @@ class DetalleMovimiento(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} x {self.cantidad}"
+    
+    
+class Stock(models.Model):
+    producto=models.OneToOneField(Producto,on_delete=models.CASCADE,
+    related_name='stock'
+    )
+    cantidad_actual=models.IntegerField(default=0)
+    actualizado_en=models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+     return f"{self.producto.nombre} - {self.cantidad_actual}"
