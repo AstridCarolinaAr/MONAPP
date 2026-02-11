@@ -10,7 +10,7 @@ from .forms import ProveedoreditarForm
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
-    activo = request.models
+    activo = Proveedor.objects.all()
     proveedores = Proveedor.objects.all()
 
     #  BUSCADOR
@@ -23,7 +23,7 @@ def lista_proveedores(request):
 
     #  CONTADOR 
     proveedores = proveedores.annotate(
-        total_entregas=Count("id")  # por ahora decorativo
+        total_entregas=Count("id")  
     )
 
     #  ORDENAMIENTO

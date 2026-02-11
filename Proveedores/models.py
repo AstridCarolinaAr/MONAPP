@@ -41,7 +41,10 @@ class Proveedor(models.Model):
     correo_proveedor = models.EmailField(
         verbose_name="Correo"
     )
-
+    direccion_proveedor = models.CharField(
+        max_length=200,
+        verbose_name="Dirección"
+    )
     # ===============================
     # ESTADO
     # ===============================

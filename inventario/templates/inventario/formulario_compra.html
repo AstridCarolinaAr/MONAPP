@@ -22,24 +22,32 @@
 <hr>
 
 <h6>Productos recibidos</h6>
-
-<div class="row g-3 mb-3">
-    <div class="col-md-6">
-        <select name="producto[]" class="form-select" required>
-            {% for prod in productos %}
-                <option value="{{ prod.codigo }}">{{ prod.nombre }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" required>
-    </div>
-
-    <div class="col-md-3">
-        <input type="number" name="precio_total" class="form-control" placeholder="Total $" required>
-    </div>
+<div classs ="row g-2 align-items-center">
+<div class="col-md-4">
+    <select name="producto[]" class="form-select" required>
+        {% for prod in productos %}
+            <option value="{{ prod.codigo }}">{{ prod.nombre }}</option>
+        {% endfor %}
+    </select>
 </div>
+
+<div class="col-md-2">
+    <label class="form-label">Cantidad</label>
+    <input type="number" name="cantidad[]" class="form-control cantidad">
+</div>
+
+<div class="col-md-3">
+    <label class="form-label">Precio unitario</label>
+    <input type="number" name="precio_unitario[]" class="form-control precio-unitario">
+</div>
+
+<div class="col-md-3">
+    <label class="form-label">Subtotal</label>
+    <input type="number" id="precio_total" class="form-control" readonly>
+</div>
+
+</div>
+
 
 <hr>
 
@@ -55,7 +63,6 @@
 <hr>
 
 <h6>Vehículo</h6>
-
 <input class="form-control mb-2" name="placa_vehiculo" placeholder="Placa">
 <input class="form-control mb-3" name="tipo_vehiculo" placeholder="Tipo">
 
@@ -66,3 +73,18 @@
 </div>
 
 </form>
+<script>
+function calcularTotal() {
+    const cantidad = document.querySelector('.cantidad')?.value || 0;
+    const precio = document.querySelector('.precio-unitario')?.value || 0;
+
+    document.getElementById('precio_total').value = cantidad * precio;
+}
+
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('cantidad') || 
+        e.target.classList.contains('precio-unitario')) {
+        calcularTotal();
+    }
+});
+</script>
