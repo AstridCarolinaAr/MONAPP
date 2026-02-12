@@ -4,6 +4,10 @@
 {% block title %}Clientes{% endblock %}
 
 {% block content %}
+<p style="color:red">
+mostrar_modal_gestion = {{ mostrar_modal_gestion }}
+</p>
+
 <div class="container-fluid px-4 py-4">
 
     <!-- Header -->
@@ -373,14 +377,34 @@
   </div>
 </div>
 
-
-
 <script>
-    window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
+window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
 </script>
+    {% if mostrar_modal_gestion %}
+    <div class="modal fade" id="modalGestionDatos" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirmación</h5>
+        </div>
 
+        <div class="modal-body">
+            ¿Deseas añadir un tratamiento de datos a
+            <strong>{{ cliente_creado_nombre }}</strong>?
+        </div>
 
+        <div class="modal-footer">
+            <a href="{% url 'clientes:lista' %}" class="btn btn-secondary">No</a>
+            <a href="{% url 'servicios:crear_gestion_alisado' %}?cliente={{ cliente_creado_id }}"
+            class="btn btn-primary">Sí</a>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endif %}
+    <script>
+        window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};
+    </script>
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 <script src="{% static 'clientes/js/eliminar_clientes.js' %}"></script>
-
 {% endblock %} 

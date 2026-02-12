@@ -352,6 +352,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+// document.addEventListener("DOMContentLoaded", () => {
+
+//     if (!window.mostrarModalGestion) return;
+
+//     const modalEl = document.getElementById("modalGestionDatos");
+//     if (!modalEl) return;
+
+//     new bootstrap.Modal(modalEl).show();
+
+// });
+document.addEventListener("DOMContentLoaded", function () {
+
+    if (window.mostrarModalGestion === true) {
+        const modalEl = document.getElementById("modalGestionDatos");
+
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    }
+
+});
+
 document.addEventListener("DOMContentLoaded", () => {
 
     document

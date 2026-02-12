@@ -136,9 +136,13 @@ def crear_gestion_alisado(request):
                     'message': 'Por favor corrija los errores en el formulario.',
                     'errors': form.errors
                 }, status=400)
-    else:
-        form = GestionAlisadoForm()
-    
+            else:
+                cliente_id = request.GET.get('cliente')
+
+                if cliente_id:
+                    form = GestionAlisadoForm(initial={'cliente': cliente_id})
+                else:
+                    form = GestionAlisadoForm()
     context = {
         'form': form,
         'titulo': 'Nueva Gestión de Alisado',

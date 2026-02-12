@@ -1,14 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from .models import Cliente
 from django.db.models import Q
 from datetime import date
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-import re
 from django.http import JsonResponse
 from .validaciones import validar_datos_cliente
+from django.urls import reverse
 
 
 def crear_cliente(request):
@@ -39,7 +36,8 @@ def crear_cliente(request):
     )
 
     messages.success(request, 'Cliente registrado correctamente.')
-    return redirect('clientes:lista')
+    return redirect(f"{reverse('clientes:lista')}?nuevo={cliente.id}")
+
 
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
@@ -73,6 +71,12 @@ def editar_cliente(request, cliente_id):
         'cliente': cliente
     })
 def lista_clientes(request):
+    nuevo_id = request.GET.get("nuevo")
+    cliente_creado = None
+
+    if nuevo_id:
+        cliente_creado = Cliente.objects.filter(id=nuevo_id).first()
+
     q = request.GET.get('q')
     estado = request.GET.get('estado')
     codigo = request.GET.get('codigo')
@@ -126,6 +130,9 @@ def lista_clientes(request):
         'registro_fallido': False,
         'errores': {},
         'datos': {},
+        'mostrar_modal_gestion': bool(cliente_creado),
+        'cliente_creado_id': cliente_creado.id if cliente_creado else None,
+        'cliente_creado_nombre': f"{cliente_creado.nombre} {cliente_creado.apellido}" if cliente_creado else "",
     })
     
 def validar_documento(request):
