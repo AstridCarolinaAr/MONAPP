@@ -100,60 +100,27 @@ def lista_gestion_alisados(request):
 
 
 @login_required
+@login_required
 def crear_gestion_alisado(request):
-    """Crea un nuevo registro de gestión de alisado"""
-    is_modal = request.GET.get('modal') == '1'
-    
+    cliente_id = request.GET.get('cliente')
+
     if request.method == 'POST':
-        print(f"=== CREAR GESTION ALISADO - POST recibido ===")
-        print(f"is_modal: {is_modal}")
-        print(f"X-Requested-With: {request.headers.get('X-Requested-With')}")
-        print(f"POST data keys: {list(request.POST.keys())}")
-        print(f"FILES: {list(request.FILES.keys())}")
-        
         form = GestionAlisadoForm(request.POST, request.FILES)
         if form.is_valid():
-            print("=== FORMULARIO VÁLIDO ===")
-            gestion = form.save()
-            print(f"=== GESTIÓN GUARDADA con ID: {gestion.pk} ===")
-            
-            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Retornar respuesta JSON para AJAX
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Gestión de alisado registrada exitosamente.'
-                })
-            
+            form.save()
             messages.success(request, 'Gestión de alisado registrada exitosamente.')
             return redirect('servicios:lista_gestion_alisados')
+    else:
+        if cliente_id:
+            form = GestionAlisadoForm(initial={'cliente': cliente_id})
         else:
-            print("=== FORMULARIO INVÁLIDO ===")
-            print(f"Errores: {form.errors}")
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Si hay errores y es AJAX, devolver JSON con los errores
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Por favor corrija los errores en el formulario.',
-                    'errors': form.errors
-                }, status=400)
-            else:
-                cliente_id = request.GET.get('cliente')
+            form = GestionAlisadoForm()
 
-                if cliente_id:
-                    form = GestionAlisadoForm(initial={'cliente': cliente_id})
-                else:
-                    form = GestionAlisadoForm()
-    context = {
+    return render(request, 'servicios/form_gestion_alisado.html', {
         'form': form,
-        'titulo': 'Nueva Gestión de Alisado',
-        'is_modal': is_modal
-    }
-    
-    # Si es modal, usar template simplificado
-    if is_modal:
-        return render(request, 'servicios/form_gestion_alisado_modal_content.html', context)
-    
-    return render(request, 'servicios/form_gestion_alisado.html', context)
+        'titulo': 'Nueva Gestión de Alisado'
+    })
+
 
 
 @login_required

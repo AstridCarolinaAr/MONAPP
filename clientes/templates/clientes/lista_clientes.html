@@ -247,7 +247,7 @@ mostrar_modal_gestion = {{ mostrar_modal_gestion }}
 </div>
 <!-- MODAL CREAR CLIENTE -->
 
-<div class="modal fade" id="modalCrearCliente" tabindex="-1">
+<div class="modal " id="modalCrearCliente" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow">
 
@@ -402,9 +402,10 @@ window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,fa
     </div>
     </div>
     {% endif %}
-    <script>
-        window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};
-    </script>
+<script>
+window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};
+window.clienteCreadoId = "{{ cliente_creado_id|default:'' }}";
+</script>
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 <script src="{% static 'clientes/js/eliminar_clientes.js' %}"></script>
 {% endblock %} 

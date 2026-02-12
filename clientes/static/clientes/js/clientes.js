@@ -352,28 +352,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
-// document.addEventListener("DOMContentLoaded", () => {
-
-//     if (!window.mostrarModalGestion) return;
-
-//     const modalEl = document.getElementById("modalGestionDatos");
-//     if (!modalEl) return;
-
-//     new bootstrap.Modal(modalEl).show();
-
-// });
 document.addEventListener("DOMContentLoaded", function () {
 
-    if (window.mostrarModalGestion === true) {
-        const modalEl = document.getElementById("modalGestionDatos");
+    if (!window.mostrarModalGestion) return;
 
-        if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
+    const confirmar = confirm(
+        "¿Deseas añadir un tratamiento de datos a este cliente recién creado?"
+    );
+
+    if (confirmar) {
+        window.location.href = `/servicios/gestion-alisados/crear/?cliente=${window.clienteCreadoId}`;
     }
 
 });
+
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
