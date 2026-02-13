@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q, Count
+from collections import Counter
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db.models.deletion import ProtectedError
@@ -121,26 +122,29 @@ def editar_producto(request, codigo):
 @require_POST
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
+
+    action = request.POST.get("action", "delete").lower()
+
+    if action == "activate":
+        producto.activo = True
+        producto.save(update_fields=["activo"])
+        return JsonResponse({"status": "activated"})
+
+    if action == "deactivate":
+        producto.activo = False
+        producto.save(update_fields=["activo"])
+        return JsonResponse({"status": "inactivated"})
+
     try:
         producto.delete()
         return JsonResponse({"status": "deleted"})
-    except ProtectedError:
-        relacionados = DetalleMovimiento.objects.filter(producto=producto).count()
+    except ProtectedError as e:
+        labels = [obj._meta.verbose_name_plural for obj in e.protected_objects]
+        counts = Counter(labels)
+
+        detalles = [{"nombre": k, "cantidad": v} for k, v in counts.items()]
+
         return JsonResponse({
             "status": "protected",
-            "cantidad": relacionados,
-            "detalle": "movimientos de inventario",
+            "detalles": detalles,
         })
-
-@require_POST
-def toggle_estado_producto(request, codigo):
-    producto = get_object_or_404(Producto, codigo=codigo)
-
-    if producto.estado == "descontinuado":
-        producto.estado = "disponible"
-        producto.save(update_fields=["estado"])
-        return JsonResponse({"status": "activated", "nuevo_estado": producto.estado})
-
-    producto.estado = "descontinuado"
-    producto.save(update_fields=["estado"])
-    return JsonResponse({"status": "inactivated", "nuevo_estado": producto.estado})

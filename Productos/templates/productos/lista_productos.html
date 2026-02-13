@@ -93,95 +93,100 @@
     </div>
     {% endif %}
 
-    <!-- TABLA -->
-    <div class="tabla-productos">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width:120px;">Código</th>
-                        <th>Producto</th>
-                        <th class="text-center" style="width:140px;">Stock</th>
-                        <th class="text-center" style="width:220px;">Acciones</th>
-                    </tr>
-                </thead>
+ <!-- TABLA -->
+<div class="tabla-productos">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th class="col-codigo">CÓDIGO</th>
+          <th class="col-producto">PRODUCTO</th>
+          <th class="col-linea">LÍNEA</th>
+          <th class="col-acciones text-center">ACCIONES</th>
+        </tr>
+      </thead>
 
-                <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.codigo }}</td>
+      <tbody>
+        {% for producto in productos %}
+        <tr>
+          <td class="col-codigo">{{ producto.codigo }}</td>
 
-                    <td>
-                        <div class="fw-semibold">{{ producto.nombre }}</div>
+          <td class="col-producto">
+            <div class="fw-semibold">{{ producto.nombre }}</div>
 
-                          {% if producto.stock_actual <= 1 %}
-                            <div class="stock-chip stock-critico">
-                              {{ producto.stock_actual }} unidades — crítico
-                            </div>
-                          {% elif producto.stock_actual <= 15 %}
-                            <div class="stock-chip stock-bajo">
-                              {{ producto.stock_actual }} unidades — bajo
-                            </div>
-                          {% else %}
-                            <div class="stock-chip stock-ok">
-                              {{ producto.stock_actual }} unidades disponibles
-                            </div>
-                          {% endif %}
-                    </td>
+            {% if producto.stock_actual <= 1 %}
+              <div class="stock-chip stock-critico">
+                {{ producto.stock_actual }} unidades — crítico
+              </div>
+            {% elif producto.stock_actual <= 15 %}
+              <div class="stock-chip stock-bajo">
+                {{ producto.stock_actual }} unidades — bajo
+              </div>
+            {% else %}
+              <div class="stock-chip stock-ok">
+                {{ producto.stock_actual }} unidades disponibles
+              </div>
+            {% endif %}
+          </td>
 
-                    <td class="text-center text-muted">—</td>
+          <td class="col-linea">
+            {% if producto.linea %}
+              {{ producto.linea }}
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
 
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
+          <td class="col-acciones text-center">
+            <div class="acciones-wrap">
+              <button type="button"
+                      class="btn btn-info btn-sm btn-ver-detalle"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalDetalleProducto"
+                      data-codigo="{{ producto.codigo }}"
+                      data-nombre="{{ producto.nombre }}"
+                      data-marca="{{ producto.marca }}"
+                      data-precio="{{ producto.precio|intcomma }}"
+                      data-linea="{{ producto.linea }}"
+                      data-presentacion="{{ producto.presentacion }}"
+                      data-unidad="{{ producto.unidad_medida }}"
+                      data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
+                      data-descripcion="{{ producto.descripcion|default:'' }}">
+                <i class="bi bi-eye"></i>
+              </button>
 
-                        <button type="button"
-                                class="btn btn-info btn-sm btn-ver-detalle"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalDetalleProducto"
-                                data-codigo="{{ producto.codigo }}"
-                                data-nombre="{{ producto.nombre }}"
-                                data-marca="{{ producto.marca }}"
-                                data-precio="{{ producto.precio|intcomma }}"
-                                data-linea="{{ producto.linea }}"
-                                data-presentacion="{{ producto.presentacion }}"
-                                data-unidad="{{ producto.unidad_medida }}"
-                                data-estado="{{ producto.get_estado_display|default:producto.estado }}"
-                                data-descripcion="{{ producto.descripcion|default:'' }}">
-                            <i class="bi bi-eye"></i>
-                        </button>
+              <a href="{% url 'productos:editar_producto' producto.codigo %}"
+                 class="btn btn-sm btn-outline-secondary"
+                 data-modal-url="{% url 'productos:editar_producto' producto.codigo %}"
+                 data-modal-title="Editar producto">
+                Editar
+              </a>
 
-                            <!-- EDITAR (MODAL AJAX) -->
-                            <a href="{% url 'productos:editar_producto' producto.codigo %}"
-                               class="btn btn-sm btn-outline-secondary"
-                               data-modal-url="{% url 'productos:editar_producto' producto.codigo %}"
-                               data-modal-title="Editar producto">
-                                Editar
-                            </a>
-                          <button type="button"
-                                  class="btn btn-sm btn-toggle-estado {% if producto.estado == 'descontinuado' %}btn-danger{% else %}btn-success{% endif %}"
-                                  data-url="{% url 'productos:toggle_estado_producto' producto.codigo %}"
-                                  data-nombre="{{ producto.nombre|escapejs }}"
-                                  data-estado="{{ producto.estado }}">
-                            {% if producto.estado == 'descontinuado' %}
-                              <i class="bi bi-x-circle"></i> Inactivo
-                            {% else %}
-                              <i class="bi bi-check-circle"></i> Activo
-                            {% endif %}
-                          </button>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted py-4">
-                        No hay productos registrados.
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+              <button type="button"
+                      class="btn btn-sm btn-toggle-activo {% if producto.activo %}btn-danger{% else %}btn-success{% endif %}"
+                      data-url="{% url 'productos:eliminar_producto' producto.codigo %}"
+                      data-nombre="{{ producto.nombre|escapejs }}"
+                      data-activo="{% if producto.activo %}1{% else %}0{% endif %}">
+                {% if producto.activo %}
+                  <i class="bi bi-trash"></i>
+                {% else %}
+                  <i class="bi bi-arrow-clockwise"></i>
+                {% endif %}
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">
+            No hay productos registrados.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
    <!-- MODAL DETALLE -->
 <div class="modal fade ultra-modal" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">

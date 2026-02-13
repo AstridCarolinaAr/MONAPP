@@ -1,130 +1,141 @@
 function getCSRFToken() {
   const el = document.querySelector('[name=csrfmiddlewaretoken]');
-  if (el) return el.value;
-
-  const m = document.cookie.split("; ").find(r => r.startsWith("csrftoken="));
-  return m ? m.split("=")[1] : "";
+  return el ? el.value : '';
 }
 
-async function postJson(url) {
+async function postAction(url, action) {
+  const formData = new FormData();
+  formData.append("action", action);
+
   const res = await fetch(url, {
     method: "POST",
+    credentials: "same-origin",
     headers: {
       "X-CSRFToken": getCSRFToken(),
       "X-Requested-With": "XMLHttpRequest",
     },
-    credentials: "same-origin",
+    body: formData,
   });
 
-  const data = await res.json().catch(() => ({}));
-  return { ok: res.ok, status: res.status, data };
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+
+  if (!res.ok) {
+    throw new Error("Error HTTP");
+  }
+  return data;
 }
 
 document.addEventListener("click", async (e) => {
-  const btn = e.target.closest(".btn-eliminar");
+  const btn = e.target.closest(".btn-toggle-activo");
   if (!btn) return;
 
+  const url = btn.dataset.url;
   const nombre = btn.dataset.nombre || "este producto";
-  const urlEliminar = btn.dataset.url;
-  const urlToggle = btn.dataset.toggleUrl;
-
-  const confirm1 = await Swal.fire({
-    title: "Confirmar",
-    html: `Vas a eliminar <strong>${nombre}</strong>.`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Eliminar",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#6c757d",
-  });
-
-  if (!confirm1.isConfirmed) return;
+  const activo = btn.dataset.activo === "1";
 
   try {
-    const r = await postJson(urlEliminar);
-
-    if (r.data.status === "deleted") {
-      await Swal.fire({
-        title: "Listo",
-        text: "Producto eliminado.",
-        icon: "success",
+    // Si está inactivo -> preguntar activar
+    if (!activo) {
+      const r = await Swal.fire({
+        title: "Activar producto",
+        text: `¿Deseas activar "${nombre}"?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, activar",
+        cancelButtonText: "Cancelar",
         confirmButtonColor: "#198754",
       });
-      location.reload();
-      return;
-    }
 
-    if (r.data.status === "protected") {
-      const confirm2 = await Swal.fire({
-        title: "No se puede eliminar",
-        html: `Está vinculado a <strong>${r.data.cantidad}</strong> ${r.data.detalle}.<br>¿Deseas inactivarlo?`,
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonText: "Inactivar",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#0d6efd",
-        cancelButtonColor: "#6c757d",
-      });
+      if (!r.isConfirmed) return;
 
-      if (!confirm2.isConfirmed) return;
-
-      const t = await postJson(urlToggle);
-
-      if (t.data.status === "inactivated") {
+      const data = await postAction(url, "activate");
+      if (data?.status === "activated") {
         await Swal.fire({
-          title: "Listo",
-          text: "Producto inactivado.",
+          title: "Activado",
+          text: "El producto fue activado correctamente.",
           icon: "success",
           confirmButtonColor: "#198754",
         });
-        location.reload();
-        return;
+        window.location.reload();
       }
-
-      await Swal.fire("Error", "No se pudo inactivar.", "error");
       return;
     }
 
-    await Swal.fire("Error", "Respuesta inesperada del servidor.", "error");
-  } catch (err) {
-    console.error(err);
-    Swal.fire("Error", "Ocurrió un error.", "error");
-  }
-});
+    // Si está activo -> preguntar eliminar
+    const rDel = await Swal.fire({
+      title: "Eliminar producto",
+      html: `Vas a eliminar <strong>"${nombre}"</strong>.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc3545",
+    });
 
-document.addEventListener("click", async (e) => {
-  const btn = e.target.closest(".btn-toggle-estado");
-  if (!btn) return;
+    if (!rDel.isConfirmed) return;
 
-  const nombre = btn.dataset.nombre || "este producto";
-  const url = btn.dataset.url;
-  const estado = btn.dataset.estado;
+    const data = await postAction(url, "delete");
 
-  const accion = estado === "descontinuado" ? "activar" : "inactivar";
-
-  const ok = await Swal.fire({
-    title: "Confirmar",
-    html: `¿Deseas ${accion} <strong>${nombre}</strong>?`,
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Sí",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#198754",
-    cancelButtonColor: "#6c757d",
-  });
-
-  if (!ok.isConfirmed) return;
-
-  try {
-    const r = await postJson(url);
-    if (r.data.status === "activated" || r.data.status === "inactivated") {
-      location.reload();
+    if (data?.status === "deleted") {
+      await Swal.fire({
+        title: "Eliminado",
+        text: "El producto fue eliminado correctamente.",
+        icon: "success",
+        confirmButtonColor: "#198754",
+      });
+      window.location.reload();
       return;
     }
-    Swal.fire("Error", "No se pudo cambiar el estado.", "error");
+
+    if (data?.status === "protected") {
+      const detalles = (data.detalles || [])
+        .map(d => `• ${d.cantidad} ${d.nombre}`)
+        .join("<br>");
+
+      const rOff = await Swal.fire({
+        title: "No se puede eliminar",
+        html: `
+          Este producto está relacionado con:<br><br>
+          ${detalles || "Registros relacionados"}<br><br>
+          ¿Deseas desactivarlo en su lugar?
+        `,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Sí, desactivar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#0d6efd",
+      });
+
+      if (!rOff.isConfirmed) return;
+
+      const data2 = await postAction(url, "deactivate");
+      if (data2?.status === "inactivated") {
+        await Swal.fire({
+          title: "Desactivado",
+          text: "El producto fue desactivado correctamente.",
+          icon: "success",
+          confirmButtonColor: "#198754",
+        });
+        window.location.reload();
+      }
+      return;
+    }
+
+    await Swal.fire({
+      title: "Error",
+      text: "Ocurrió un error procesando la solicitud.",
+      icon: "error",
+      confirmButtonColor: "#dc3545",
+    });
+
   } catch (err) {
     console.error(err);
-    Swal.fire("Error", "Ocurrió un error.", "error");
+    await Swal.fire({
+      title: "Error",
+      text: "Ocurrió un error procesando la solicitud.",
+      icon: "error",
+      confirmButtonColor: "#dc3545",
+    });
   }
 });

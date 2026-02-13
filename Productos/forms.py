@@ -14,7 +14,7 @@ class ProductoForm(forms.ModelForm):
             "linea": forms.TextInput(attrs={"class": "form-control"}),
             "presentacion": forms.TextInput(attrs={"class": "form-control"}),
             "unidad": forms.Select(attrs={"class": "form-select"}),
-            "estado": forms.Select(attrs={"class": "form-select"}),
+            "activo": forms.CheckboxInput(attrs={"class": "switch-input"}),
             "marca": forms.TextInput(attrs={"class": "form-control", "placeholder": "Escribe la marca (Ej: Mona Keratina)"}),
         }
 def __init__(self, *args, **kwargs):
@@ -44,7 +44,6 @@ def __init__(self, *args, **kwargs):
             'linea',
             'presentacion',
             'unidad_medida',
-            'estado',
         ]
 
 
@@ -77,7 +76,6 @@ def __init__(self, *args, **kwargs):
             'linea',
             'presentacion',
             'unidad_medida',
-            'estado',
         ]
 
         if not self.instance.pk:
@@ -105,3 +103,13 @@ def __init__(self, *args, **kwargs):
             producto.save()
 
         return producto
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    for name, field in self.fields.items():
+        if name == "activo":
+            continue
+        if not field.widget.attrs.get("class"):
+            if field.widget.__class__.__name__ in ["Select", "SelectMultiple"]:
+                field.widget.attrs["class"] = "form-select"
+            else:
+                field.widget.attrs["class"] = "form-control"

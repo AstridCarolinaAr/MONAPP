@@ -1,14 +1,7 @@
 <form method="post" action="{{ action_url }}" enctype="multipart/form-data" class="producto-form">
   {% csrf_token %}
 
-  {# ERRORES GENERALES DEL FORM #}
-  {% if form.non_field_errors %}
-    <div class="alert alert-danger">
-      {{ form.non_field_errors }}
-    </div>
-  {% endif %}
 
- 
 
   <div class="row g-4 mt-1">
 
@@ -20,21 +13,14 @@
         </div>
 
         <div class="row g-3 mt-2">
-
           <div class="col-12">
             <label class="form-label">Marca</label>
             {{ form.marca }}
-            {% if form.marca.errors %}
-              <div class="text-danger small mt-1">{{ form.marca.errors|striptags }}</div>
-            {% endif %}
           </div>
 
           <div class="col-12">
             <label class="form-label">Nombre del producto</label>
             {{ form.nombre }}
-            {% if form.nombre.errors %}
-              <div class="text-danger small mt-1">{{ form.nombre.errors|striptags }}</div>
-            {% endif %}
           </div>
 
           <div class="col-md-6">
@@ -43,27 +29,12 @@
               <span class="input-group-text">$</span>
               {{ form.precio }}
             </div>
-            {% if form.precio.errors %}
-              <div class="text-danger small mt-1">{{ form.precio.errors|striptags }}</div>
-            {% endif %}
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Estado</label>
-            {{ form.estado }}
-            {% if form.estado.errors %}
-              <div class="text-danger small mt-1">{{ form.estado.errors|striptags }}</div>
-            {% endif %}
           </div>
 
           <div class="col-12">
             <label class="form-label">Descripción</label>
             {{ form.descripcion }}
-            {% if form.descripcion.errors %}
-              <div class="text-danger small mt-1">{{ form.descripcion.errors|striptags }}</div>
-            {% endif %}
           </div>
-
         </div>
       </div>
     </div>
@@ -76,42 +47,29 @@
         </div>
 
         <div class="row g-3 mt-2">
-
           <div class="col-md-6">
             <label class="form-label">Línea</label>
             {{ form.linea }}
-            {% if form.linea.errors %}
-              <div class="text-danger small mt-1">{{ form.linea.errors|striptags }}</div>
-            {% endif %}
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Presentación</label>
             {{ form.presentacion }}
-            {% if form.presentacion.errors %}
-              <div class="text-danger small mt-1">{{ form.presentacion.errors|striptags }}</div>
-            {% endif %}
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Unidad de medida</label>
-            {{ form.unidad }}
-            {% if form.unidad.errors %}
-              <div class="text-danger small mt-1">{{ form.unidad.errors|striptags }}</div>
-            {% endif %}
+            {{ form.unidad_medida }}
           </div>
-
-          {% for field in form %}
-            {% if field.name not in "id_marca nombre precio estado descripcion linea presentacion unidad" %}
-              <div class="col-md-6">
-                <label class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-                {% endif %}
+            <div class="col-md-6">
+              <label class="form-label d-block">Activo</label>
+              <div class="switch-wrap">
+                {{ form.activo }}
+                <span class="switch-label left">Inactivo</span>
+                <span class="switch-label right">Activo</span>
               </div>
-            {% endif %}
-          {% endfor %}
+            </div>
+          </div>
 
         </div>
       </div>
@@ -120,11 +78,7 @@
   </div>
 
   <div class="mt-4 d-flex justify-content-end gap-2">
-    <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">
-      Cancelar
-    </button>
-    <button type="submit" class="btn btn-primary px-4">
-      {{ submit_label }}
-    </button>
+    <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Cancelar</button>
+    <button type="submit" class="btn btn-primary px-4">{{ submit_label }}</button>
   </div>
 </form>
