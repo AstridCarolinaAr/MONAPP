@@ -111,3 +111,255 @@ h2 {
 }
 
 
+/* ===== FORMULARIO MODAL PROFESIONAL ===== */
+
+.producto-form {
+    font-size: 14px;
+}
+
+.form-header {
+    background: linear-gradient(135deg, #8b5e3c, #b07a50);
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+}
+
+.badge-section {
+    background: #e9ecef;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.producto-form .form-control,
+.producto-form .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: none !important;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: all .2s ease;
+}
+
+.producto-form .form-control:focus,
+.producto-form .form-select:focus {
+    border-color: #b07a50;
+    box-shadow: 0 0 0 2px rgba(176, 122, 80, 0.15);
+}
+
+.modal-content {
+    border-radius: 14px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.btn-primary {
+    background-color: #8b5e3c;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #704a2f;
+}
+/* =========================
+   ULTRA PREMIUM MODALS
+========================= */
+
+.ultra-modal .modal-dialog { transform: translateY(8px); }
+.ultra-modal.show .modal-dialog { transform: translateY(0); }
+
+.ultra-card {
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,.25);
+}
+
+.ultra-header {
+  border: 0;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #7a4f35, #b07a50);
+  color: #fff;
+}
+
+.ultra-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.15);
+}
+
+.ultra-title {
+  font-weight: 700;
+  letter-spacing: .2px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.ultra-subtitle {
+  font-size: 12px;
+  opacity: .85;
+}
+
+.info-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.info-item {
+  padding: 12px 14px;
+  border: 1px solid #eef0f2;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.info-label {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #212529;
+  word-break: break-word;
+}
+
+.desc-box {
+  border: 1px solid #eef0f2;
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+}
+
+.desc-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6c757d;
+  margin-bottom: 6px;
+}
+
+.desc-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+  white-space: pre-wrap;
+}
+
+/* estado con colores */
+#d-estado.badge { font-weight: 700; padding: 7px 10px; }
+.badge-estado-activo { background: rgba(25,135,84,.12); color: #198754; border: 1px solid rgba(25,135,84,.25); }
+.badge-estado-inactivo { background: rgba(220,53,69,.12); color: #dc3545; border: 1px solid rgba(220,53,69,.25); }
+.badge-estado-default { background: rgba(13,110,253,.10); color: #0d6efd; border: 1px solid rgba(13,110,253,.20); }
+
+/* inputs suaves (para formularios también) */
+.producto-form .form-control,
+.producto-form .form-select {
+  border-radius: 10px;
+  border: 1px solid #e6e8eb;
+  box-shadow: none !important;
+  padding: 10px 12px;
+  font-size: 14px;
+  transition: all .18s ease;
+}
+
+.producto-form .form-control:focus,
+.producto-form .form-select:focus {
+  border-color: #b07a50;
+  box-shadow: 0 0 0 3px rgba(176,122,80,.15);
+}
+
+/* animación suave (no mareo) */
+.modal.fade .modal-dialog {
+  transition: transform .18s ease-out, opacity .18s ease-out;
+}
+.modal.fade:not(.show) .modal-dialog {
+  transform: translateY(10px);
+  opacity: 0;
+}
+/* ===== ULTRA FORM LAYOUT (ancho y suave) ===== */
+
+.form-topbar{
+  background: linear-gradient(135deg, #7a4f35, #b07a50);
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: #fff;
+  margin-bottom: 18px;
+}
+
+.form-bigtitle{ font-weight: 800; font-size: 15px; line-height: 1.2; }
+.form-subtitle{ font-size: 12px; opacity: .85; }
+
+.soft-card{
+  border: 1px solid #eef0f2;
+  border-radius: 14px;
+  padding: 16px;
+  background: #fff;
+}
+
+.soft-card-title{
+  font-weight: 800;
+  font-size: 13px;
+  color: #2b2f33;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-section{
+  background: rgba(176,122,80,.14);
+  color: #7a4f35;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* inputs suaves */
+.producto-form .form-control,
+.producto-form .form-select{
+  border-radius: 10px;
+  border: 1px solid #e7eaee;
+  box-shadow: none !important;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.producto-form .form-control:focus,
+.producto-form .form-select:focus{
+  border-color: #b07a50;
+  box-shadow: 0 0 0 3px rgba(176,122,80,.14) !important;
+}
+
+.producto-form textarea.form-control{
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* quita sensación de "líneas" */
+.producto-form hr{ display:none !important; }

@@ -1,52 +1,36 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modalDetalleProducto");
+  if (!modal) return;
 
-    const botones = document.querySelectorAll('.btn-ver-detalle');
+  modal.addEventListener("show.bs.modal", (event) => {
+    const btn = event.relatedTarget;
+    if (!btn) return;
 
-    botones.forEach(btn => {
-        btn.addEventListener('click', () => {
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value || "—";
+    };
 
-            const set = (id, value) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = value || '—';
-            };
+    const data = btn.dataset;
 
-            set('d-codigo', btn.dataset.codigo);
-            set('d-nombre', btn.dataset.nombre);
-            set('d-marca', btn.dataset.marca);
-            set('d-precio', btn.dataset.precio);
-            set('d-linea', btn.dataset.linea);
-            set('d-presentacion', btn.dataset.presentacion);
-            set('d-unidad', btn.dataset.unidad);
-            set('d-estado', btn.dataset.estado);
-            set('d-descripcion', btn.dataset.descripcion);
-            set('d-cantidad', btn.dataset.cantidad);
-            document.getElementById('id-cantidad').textContent=this.dataset.cantidad;
-        });
-    });
-    
+    set("d-codigo", data.codigo);
+    set("d-nombre", data.nombre);
+    set("d-marca", data.marca);
+    set("d-precio", data.precio ? `$${data.precio}` : "—");
+    set("d-linea", data.linea);
+    set("d-presentacion", data.presentacion);
+    set("d-unidad", data.unidad);
+    set("d-descripcion", data.descripcion);
 
-});
-document.addEventListener('DOMContentLoaded', () => {
-    const btnLinea = document.getElementById('btnFiltrarLinea');
-    const panel = document.getElementById('panelFiltroLinea');
+    const estadoEl = document.getElementById("d-estado");
+    if (estadoEl) {
+      estadoEl.textContent = data.estado || "—";
+      estadoEl.classList.remove("badge-estado-activo", "badge-estado-inactivo", "badge-estado-default");
 
-    if (!btnLinea || !panel) return;
-
-    btnLinea.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        panel.classList.toggle('visible');
-        panel.classList.toggle('oculto');
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('btnFiltroLineas');
-    const panel = document.getElementById('panelFiltroLineas');
-
-    if (btn && panel) {
-        btn.addEventListener('click', () => {
-            panel.classList.toggle('d-none');
-        });
+      const estadoTxt = (data.estado || "").toLowerCase();
+      if (estadoTxt.includes("disponible")) estadoEl.classList.add("badge-estado-activo");
+      else if (estadoTxt.includes("agotado") || estadoTxt.includes("descontinuado")) estadoEl.classList.add("badge-estado-inactivo");
+      else estadoEl.classList.add("badge-estado-default");
     }
+  });
 });

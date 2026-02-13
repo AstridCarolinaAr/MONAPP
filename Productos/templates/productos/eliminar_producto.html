@@ -86,69 +86,52 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIRMACIÓN (MISMO ESTILO QUE PROVEEDORES) -->
-    <div class="modal fade"
-         id="modalConfirmarEliminacion"
-         tabindex="-1"
-         aria-labelledby="modalConfirmarLabel"
-         aria-hidden="true">
+   <!-- MODAL CONFIRMAR ELIMINACIÓN -->
+<div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger rounded-3 shadow-lg">
 
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-danger rounded-3 shadow-lg">
+      <div class="modal-header bg-danger text-white rounded-top-3">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Confirmar eliminación
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
 
-                <div class="modal-header bg-danger text-white rounded-top-3">
-                    <h5 class="modal-title fw-bold" id="modalConfirmarLabel">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        Confirmar Eliminación Definitiva
-                    </h5>
-                    <button type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"></button>
-                </div>
+      <div class="modal-body p-4">
+        <p class="fs-6 mb-2" id="textoConfirmacionProducto">
+          ¿Seguro que deseas eliminar este producto?
+        </p>
 
-                <div class="modal-body p-4 text-center">
-                    <i class="bi bi-trash-fill text-danger mb-3"
-                       style="font-size: 3rem;"></i>
-
-                    <p class="fs-5 mb-3" id="textoConfirmacionProducto">
-                        ¿Estás seguro de que deseas eliminar este producto?
-                    </p>
-
-                    <p class="text-muted">
-                        Esta acción es irreversible.
-                    </p>
-
-                    <div class="form-check mt-4 text-start">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               id="confirmacionCheckboxProducto">
-                        <label class="form-check-label fw-bold"
-                               for="confirmacionCheckboxProducto">
-                            Confirmo que deseo eliminar este producto definitivamente.
-                        </label>
-                    </div>
-                </div>
-
-                <div class="modal-footer justify-content-between">
-                    <button type="button"
-                            class="btn btn-outline-secondary btn-lg px-4 rounded-pill"
-                            data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button type="submit"
-                            form="formEliminarProducto"
-                            class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm"
-                            id="btnConfirmarEliminarProducto"
-                            disabled>
-                        Sí, eliminar definitivamente
-                    </button>
-                </div>
-
-            </div>
+        <div class="alert alert-warning border-warning rounded-3 mt-3 mb-3">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          Esta acción es irreversible.
         </div>
-    </div>
 
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" id="confirmacionCheckboxProducto">
+          <label class="form-check-label fw-bold" for="confirmacionCheckboxProducto">
+            Confirmo que deseo eliminar definitivamente.
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <button type="button"
+                class="btn btn-danger px-4 rounded-pill shadow-sm"
+                id="btnConfirmarEliminarProducto"
+                disabled>
+          Sí, eliminar
+        </button>
+      </div>
+
+    </div>
+  </div>
 </div>
 {% endblock %}
 

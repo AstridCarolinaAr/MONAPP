@@ -4,6 +4,27 @@ from .models import Producto, Marca
 
 class ProductoForm(forms.ModelForm):
 
+    class Meta:
+        model = Producto
+        fields = "__all__"
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: Shampoo 500ml"}),
+            "precio": forms.NumberInput(attrs={"class": "form-control", "placeholder": "0"}),
+            "descripcion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "linea": forms.TextInput(attrs={"class": "form-control"}),
+            "presentacion": forms.TextInput(attrs={"class": "form-control"}),
+            "unidad": forms.Select(attrs={"class": "form-select"}),
+            "estado": forms.Select(attrs={"class": "form-select"}),
+            "marca": forms.TextInput(attrs={"class": "form-control", "placeholder": "Escribe la marca (Ej: Mona Keratina)"}),
+        }
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    for name, field in self.fields.items():
+        if not field.widget.attrs.get("class"):
+            if field.widget.__class__.__name__ in ["Select", "SelectMultiple"]:
+                field.widget.attrs["class"] = "form-select"
+            else:
+                field.widget.attrs["class"] = "form-control"
     marca_texto = forms.CharField(
         label='Marca',
         max_length=100,
@@ -26,15 +47,7 @@ class ProductoForm(forms.ModelForm):
             'estado',
         ]
 
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'linea': forms.TextInput(attrs={'class': 'form-control'}),
-            'presentacion': forms.TextInput(attrs={'class': 'form-control'}),
-            'unidad_medida': forms.Select(attrs={'class': 'form-select'}),
-            'estado': forms.Select(attrs={'class': 'form-select'}),
-        }
+
 
     # ===============================
     # VALIDACIONES
