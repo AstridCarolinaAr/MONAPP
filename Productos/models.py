@@ -29,24 +29,24 @@ class Producto(models.Model):
     # ===============================
     # CHOICES
     # ===============================
-    ESTADO_CHOICES = [
-        ('disponible', 'Disponible'),
-        ('agotado', 'Agotado'),
-        ('descontinuado', 'Descontinuado'),
-        ('en_transito', 'En Tránsito'),
-    ]
+    ESTADO_CHOICES = (
+        ("disponible", "Disponible"),
+        ("agotado", "Agotado"),
+        ("descontinuado", "Descontinuado"),
+        ("en_transito", "En Tránsito"),
+        ("inactivo", "Inactivo"),
+    )
 
-    UNIDAD_MEDIDA_CHOICES = [
-        ('unidad', 'Unidad'),
-        ('kg', 'Kilogramo'),
-        ('g', 'Gramo'),
-        ('litro', 'Litro'),
-        ('ml', 'Mililitro'),
-        ('caja', 'Caja'),
-        ('paquete', 'Paquete'),
-        ('metro', 'Metro'),
-    ]
-
+    UNIDAD_MEDIDA_CHOICES = (
+        ("unidad", "Unidad"),
+        ("kg", "Kilogramo"),
+        ("g", "Gramo"),
+        ("litro", "Litro"),
+        ("ml", "Mililitro"),
+        ("caja", "Caja"),
+        ("paquete", "Paquete"),
+        ("metro", "Metro"),
+    )
     # ===============================
     # CAMPOS
     # ===============================
@@ -92,8 +92,8 @@ class Producto(models.Model):
     estado = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
-        default='disponible',
-        verbose_name='Estado'
+        default="disponible",
+        verbose_name="Estado",
     )
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)
