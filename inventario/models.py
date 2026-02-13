@@ -57,22 +57,26 @@ class MovimientoInventario(models.Model):
 # DETALLE DE PRODUCTOS POR MOVIMIENTO
 # ======================================================
 
+
 class DetalleMovimiento(models.Model):
     movimiento = models.ForeignKey(
-        MovimientoInventario,
+        "inventario.MovimientoInventario",
         on_delete=models.CASCADE,
         related_name="detalles"
     )
-    
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+
+    producto = models.ForeignKey(
+        "Productos.Producto",
+        on_delete=models.PROTECT,
+        related_name="detalles_movimiento"
+    )
+
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
-    
-
     def clean(self):
         if self.cantidad <= 0:
-            raise ValidationError({'cantidad': 'Debe ser mayor que cero'})
+            raise ValidationError({"cantidad": "Debe ser mayor que cero"})
 
     def __str__(self):
         return f"{self.producto.nombre} x {self.cantidad}"

@@ -8,8 +8,9 @@
 {% endblock %}
 
 {% block content %}
-
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 <div class="container-fluid">
+
     <div class="card shadow-sm card-proveedores">
         <div class="card-body">
 
@@ -27,76 +28,81 @@
                     <i class="bi bi-plus-circle"></i> Nuevo proveedor
                 </a>
             </div>
+
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-    <!-- FILTRO -->
-    <div class="dropdown">
-        <button class="btn btn-filter dropdown-toggle"  
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-            <i class="bi bi-funnel"></i>
-            {% if request.GET.orden == 'nombre' %}
-                Nombre A–Z
-            {% elif request.GET.orden == 'nombre_desc' %}
-                Nombre Z–A
-            {% elif request.GET.orden == 'marca' %}
-                Marca A–Z
-            {% else %}
-                Filtrar
-            {% endif %}
-        </button>
+                <!-- FILTRO -->
+                <div class="dropdown">
+                    <button class="btn btn-filter dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown">
+                        <i class="bi bi-funnel"></i>
 
-        <ul class="dropdown-menu shadow-sm">
-            <li>
-                <a class="dropdown-item"
-                   href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                    Nombre A–Z
-                </a>
-            </li>
+                        {% if request.GET.orden == 'nombre' %}
+                            Nombre A–Z
+                        {% elif request.GET.orden == 'nombre_desc' %}
+                            Nombre Z–A
+                        {% else %}
+                            Filtrar
+                        {% endif %}
+                    </button>
 
-            <li>
-                <a class="dropdown-item"
-                   href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                    Nombre Z–A
-                </a>
-            </li>
+                    <ul class="dropdown-menu shadow-sm">
+                        <li>
+                            <a class="dropdown-item"
+                               href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                                Nombre A–Z
+                            </a>
+                        </li>
 
-            <li>
-                <a class="dropdown-item"
-                   href="?orden=marca{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-                    Marca A–Z
-                </a>
-            </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                                Nombre Z–A
+                            </a>
+                        </li>
 
-            <li><hr class="dropdown-divider"></li>
+                        <li><hr class="dropdown-divider"></li>
 
-            <li>
-                <a class="dropdown-item text-danger" href="?">
-                    Quitar filtros
-                </a>
-            </li>
-        </ul>
-    </div>
-    </div>  
-    <!-- BUSCADOR -->
-    <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
-        {% if request.GET.orden %}
-            <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-        {% endif %}
+                        <li class="px-3 pb-2">
+                            <a href="?estado=activo" class="btn btn-success btn-sm w-100 mb-1">
+                                Activos
+                            </a>
+                            <a href="?estado=inactivo" class="btn btn-secondary btn-sm w-100">
+                                Inactivos
+                            </a>
+                        </li>
 
-        <input type="text"
-               name="q"
-               class="form-control form-control-sm"
-               placeholder="Buscar…"
-               value="{{ request.GET.q }}">
+                        <li>
+                            <a class="dropdown-item text-danger" href="?">
+                                Quitar filtros
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-        <button class="btn btn-outline-secondary btn-sm" type="submit">
-            <i class="bi bi-search"></i>
-        </button>
-    </form>
+                <!-- BUSCADOR -->
+                <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
+                    {% if request.GET.orden %}
+                        <input type="hidden" name="orden" value="{{ request.GET.orden }}">
+                    {% endif %}
 
-</div>
+                    {% if estado_actual %}
+                        <input type="hidden" name="estado" value="{{ estado_actual }}">
+                    {% endif %}
+
+                    <input type="text"
+                           name="q"
+                           class="form-control form-control-sm"
+                           placeholder="Buscar…"
+                           value="{{ request.GET.q }}">
+
+                    <button class="btn btn-outline-secondary btn-sm" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+
+            </div>
 
             <!-- TABLA -->
             {% if proveedores %}
@@ -106,7 +112,7 @@
                         <tr>
                             <th>NIT</th>
                             <th>Proveedor</th>
-
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,39 +121,46 @@
                         <tr>
                             <td>{{ proveedor.nit }}</td>
                             <td>{{ proveedor.nombre_proveedor }}</td>
+
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
 
                                     <!-- VER DETALLES -->
-                                <button
-                                    type="button"
-                                    class="btn btn-icon btn-ver"
-                                    title="Ver detalles proveedor"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalDetalleProveedor"
-                                    data-nombre="{{ proveedor.nombre_proveedor }}"
-                                    data-nit="{{ proveedor.nit }}"
-                                    data-correo="{{ proveedor.correo_proveedor }}"
-                                    data-estado="{{ proveedor.get_estado_display }}"
-                                    data-telefono="{{ proveedor.telefono_proveedor }}"
-                                    data-direccion="{{ proveedor.direccion_proveedor }}">
-                                    <i class="bi bi-eye-fill"></i>
-                                </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-ver"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalDetalleProveedor"
+                                        data-nombre="{{ proveedor.nombre_proveedor }}"
+                                        data-nit="{{ proveedor.nit }}"
+                                        data-correo="{{ proveedor.correo_proveedor }}"
+                                        data-estado="{{ proveedor.get_estado_display }}"
+                                        data-telefono="{{ proveedor.telefono_proveedor }}"
+                                        data-direccion="{{ proveedor.direccion_proveedor }}">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
 
                                     <!-- EDITAR -->
                                     <a href="{% url 'proveedores:editar_proveedor' proveedor.id %}"
-                                       class="btn-icon btn-editar"
-                                       title="Editar proveedor">
+                                       class="btn-icon btn-editar">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
 
-                                    <!-- ELIMINAR -->
-                                    <a href="{% url 'proveedores:eliminar_proveedor' proveedor.id %}"
-                                    class="btn-icon btn-eliminar"
-                                    title="Eliminar proveedor">
-                                        <i class="bi bi-trash3-fill"></i>   
-                                    </a>
+                                    {% if proveedor.estado == 'activo' %}
+                                        <!-- DESACTIVAR -->
+                                    <button 
+                                        class="btn-icon btn-eliminar"
+                                        onclick="eliminarProveedor({{ proveedor.id }})">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
 
+                                    {% else %}
+                                        <!-- REACTIVAR (desactivar boton -->
+                                        <button class="btn btn-sm btn-primary"
+                                                onclick="reactivarProveedor({{ proveedor.id }})">
+                                            Reactivar
+                                        </button>
+                                    {% endif %}
 
                                 </div>
                             </td>
@@ -157,6 +170,7 @@
                     </tbody>
                 </table>
             </div>
+
             {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted">No hay proveedores registrados.</p>
@@ -167,7 +181,7 @@
     </div>
 </div>
 
-<!-- ================= MODAL DETALLE PROVEEDOR ================= -->
+<!-- MODAL DETALLE -->
 <div class="modal fade" id="modalDetalleProveedor" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg">
@@ -181,14 +195,12 @@
             </div>
 
             <div class="modal-body">
-
                 <p><strong>Proveedor:</strong> <span id="p-nombre"></span></p>
                 <p><strong>NIT:</strong> <span id="p-nit"></span></p>
                 <p><strong>Teléfono:</strong> <span id="p-telefono"></span></p>
                 <p><strong>Correo:</strong> <span id="p-correo"></span></p>
                 <p><strong>Estado:</strong> <span id="p-estado"></span></p>
                 <p><strong>Dirección:</strong> <span id="p-direccion"></span></p>
-
             </div>
 
             <div class="modal-footer">
@@ -200,9 +212,9 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
-
 {% block extra_js %}
 <script src="{% static 'proveedor/js/detalle_proveedor.js' %}"></script>
+<script src="{% static 'proveedor/js/eliminar_proveedor.js' %}"></script>
 {% endblock %}

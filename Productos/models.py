@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
 
 
 class Marca(models.Model):
@@ -50,13 +51,7 @@ class Producto(models.Model):
     # CAMPOS
     # ===============================
     codigo = models.AutoField(primary_key=True)
-
-    id_marca = models.ForeignKey(
-        Marca,
-        on_delete=models.PROTECT,
-        related_name='productos',
-        verbose_name='Marca'
-    )
+    marca=models.CharField(max_length=100)
     nombre = models.CharField(
         max_length=60,
         verbose_name='Nombre del Producto',
@@ -150,14 +145,7 @@ class Producto(models.Model):
         if self.presentacion:
             return f"{self.nombre} - {self.presentacion}"
         return self.nombre
-    
-@property
-def stock_actual(self):
-    ingresos = self.detallemovimiento_set.filter(
-        movimiento__tipo='ingreso'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-
-    egresos = self.detallemovimiento_set.filter(
-        movimiento__tipo='egreso'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-    return ingresos - egresos
+    @property
+    def stock_actual(self):
+        stock_obj = getattr(self, "stock", None)  
+        return stock_obj.cantidad_actual if stock_obj else 0

@@ -1,45 +1,67 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const modalEl = document.getElementById("modalConfirmarEliminacion");
+  if (!modalEl) return;
 
-    const modal = document.getElementById("modalConfirmarEliminacion");
-    if (!modal) return;
+  const checkbox = document.getElementById("confirmacionCheckboxProducto");
+  const btnConfirm = document.getElementById("btnConfirmarEliminarProducto");
+  const texto = document.getElementById("textoConfirmacionProducto");
 
-    const checkbox = document.getElementById("confirmacionCheckboxProducto");
-    const boton = document.getElementById("btnConfirmarEliminarProducto");
-    const texto = document.getElementById("textoConfirmacionProducto");
-    const form = document.getElementById("formEliminarProducto");
+  let deleteUrl = null; 
+  function getCSRF() {
+    return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+  }
 
-    /* ===============================
-       CUANDO SE ABRE EL MODAL
-    =============================== */
-    modal.addEventListener("show.bs.modal", event => {
-        const btn = event.relatedTarget;
-        const nombre = btn?.getAttribute("data-producto") || "";
+  modalEl.addEventListener("show.bs.modal", (event) => {
+    const trigger = event.relatedTarget; 
+    deleteUrl = trigger?.dataset?.url || null;
+    const nombre = trigger?.dataset?.nombre || "";
 
-        texto.innerHTML = `
-            ¿Estás seguro de que deseas eliminar el producto
-            <strong class="text-danger">${nombre}</strong>?
-        `;
+    texto.innerHTML = `¿Estás seguro de que deseas eliminar <strong class="text-danger">${nombre}</strong>?`;
 
-        checkbox.checked = false;
-        boton.disabled = true;
-    });
+    checkbox.checked = false;
+    btnConfirm.disabled = true;
+  });
 
-    /* ===============================
-       CHECKBOX CONTROLA BOTÓN
-    =============================== */
-    checkbox.addEventListener("change", () => {
-        boton.disabled = !checkbox.checked;
-    });
+  checkbox.addEventListener("change", () => {
+    btnConfirm.disabled = !checkbox.checked;
+  });
 
-    /* ===============================
-       BLOQUEO FINAL (SEGURIDAD REAL)
-    =============================== */
-    form.addEventListener("submit", (e) => {
-        if (!checkbox.checked) {
-            e.preventDefault();
-            e.stopPropagation();
-            alert("Debes confirmar la eliminación marcando la casilla.");
+  btnConfirm.addEventListener("click", async () => {
+    if (!checkbox.checked || !deleteUrl) return;
+
+    btnConfirm.disabled = true;
+
+    try {
+      const res = await fetch(deleteUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "X-CSRFToken": getCSRF(),
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      const data = await res.json();
+
+        if (data.status === "deleted") {
+        alert("Producto eliminado correctamente.");
+        window.location.reload();
+        return;
         }
-    });
 
+        if (data.status === "inactivated") {
+        alert("No se pudo eliminar porque está relacionado. Se inactivó/descontinuó.");
+        window.location.reload();
+        return;
+        }
+
+      alert("Error eliminando.");
+      btnConfirm.disabled = false;
+
+    } catch (err) {
+      console.error(err);
+      alert("Error eliminando (revisa consola).");
+      btnConfirm.disabled = false;
+    }
+  });
 });
