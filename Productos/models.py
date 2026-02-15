@@ -29,24 +29,18 @@ class Producto(models.Model):
     # ===============================
     # CHOICES
     # ===============================
-    ESTADO_CHOICES = [
-        ('disponible', 'Disponible'),
-        ('agotado', 'Agotado'),
-        ('descontinuado', 'Descontinuado'),
-        ('en_transito', 'En Tránsito'),
-    ]
+class Producto(models.Model):
 
-    UNIDAD_MEDIDA_CHOICES = [
-        ('unidad', 'Unidad'),
-        ('kg', 'Kilogramo'),
-        ('g', 'Gramo'),
-        ('litro', 'Litro'),
-        ('ml', 'Mililitro'),
-        ('caja', 'Caja'),
-        ('paquete', 'Paquete'),
-        ('metro', 'Metro'),
-    ]
-
+    UNIDAD_MEDIDA_CHOICES = (
+        ("unidad", "Unidad"),
+        ("kg", "Kilogramo"),
+        ("g", "Gramo"),
+        ("litro", "Litro"),
+        ("ml", "Mililitro"),
+        ("caja", "Caja"),
+        ("paquete", "Paquete"),
+        ("metro", "Metro"),
+    )
     # ===============================
     # CAMPOS
     # ===============================
@@ -89,12 +83,8 @@ class Producto(models.Model):
         verbose_name='Unidad de Medida'
     )
 
-    estado = models.CharField(
-        max_length=20,
-        choices=ESTADO_CHOICES,
-        default='disponible',
-        verbose_name='Estado'
-    )
+    activo = models.BooleanField(default=True)
+
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
@@ -106,7 +96,6 @@ class Producto(models.Model):
         ordering = ['nombre']
         indexes = [
             models.Index(fields=['nombre']),
-            models.Index(fields=['estado']),
             models.Index(fields=['linea']),
         ]
 

@@ -28,12 +28,10 @@ class ProductoAdmin(admin.ModelAdmin):
         'linea',
         'presentacion',
         'unidad_medida',
-        'estado',
         'fecha_creacion'
     ]
 
     list_filter = [
-        'estado',
         'linea',
         'unidad_medida',
         'marca',
@@ -48,7 +46,7 @@ class ProductoAdmin(admin.ModelAdmin):
         'marca',
     ]
 
-    list_editable = ['estado', 'precio']
+    list_editable = [ 'precio']
 
     readonly_fields = ['codigo', 'fecha_creacion', 'fecha_actualizacion']
 
@@ -74,7 +72,6 @@ class ProductoAdmin(admin.ModelAdmin):
         }),
         ('Estado y Fechas', {
             'fields': (
-                'estado',
                 'fecha_creacion',
                 'fecha_actualizacion'
             )

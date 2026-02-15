@@ -21,16 +21,19 @@ document.addEventListener("DOMContentLoaded", () => {
     set("d-presentacion", data.presentacion);
     set("d-unidad", data.unidad);
     set("d-descripcion", data.descripcion);
-
+    
     const estadoEl = document.getElementById("d-estado");
-    if (estadoEl) {
-      estadoEl.textContent = data.estado || "—";
-      estadoEl.classList.remove("badge-estado-activo", "badge-estado-inactivo", "badge-estado-default");
+    const activo = (data.activo === "1" || data.activo === "true" || data.activo === true);
 
-      const estadoTxt = (data.estado || "").toLowerCase();
-      if (estadoTxt.includes("disponible")) estadoEl.classList.add("badge-estado-activo");
-      else if (estadoTxt.includes("agotado") || estadoTxt.includes("descontinuado")) estadoEl.classList.add("badge-estado-inactivo");
-      else estadoEl.classList.add("badge-estado-default");
+    estadoEl.classList.remove("bg-success", "bg-danger", "bg-secondary");
+    estadoEl.classList.add("badge");
+
+    if (activo) {
+      estadoEl.classList.add("bg-success");
+      estadoEl.textContent = "Activo";
+    } else {
+      estadoEl.classList.add("bg-danger");
+      estadoEl.textContent = "Inactivo";
     }
   });
 });
