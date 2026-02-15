@@ -432,6 +432,24 @@
     flex: 1;
 }
 
+/* Botón flotante para acceder rápidamente al módulo Gestión */
+.fab-gestion {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1050;
+    border-radius: 10px;
+    padding: 12px 18px;
+    box-shadow: 0 8px 24px rgba(16,24,40,0.12);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fab-gestion i { font-size: 1.05rem; }
+
+}
+
 .notification-title {
     margin: 0 0 5px;
     font-size: 14px;

@@ -11,6 +11,10 @@ urlpatterns = [
     path('registro/', views.registro_view, name='registro'),
     path('logout/', views.logout_view, name='logout'),
     
+    # Recuperación de cuenta
+    path('password-reset/', views.password_reset_view, name='password_reset'),
+    path('username-recovery/', views.username_recovery_view, name='username_recovery'),
+    
     # Perfil de usuario
     path('perfil/', views.perfil_view, name='perfil'),
     

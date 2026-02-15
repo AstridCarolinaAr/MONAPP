@@ -7,6 +7,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
 from django.db.models import Q
+from django.utils.crypto import get_random_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
 
@@ -275,3 +276,81 @@ def perfil_view(request):
         'form_perfil': form_perfil,
     }
     return render(request, 'usuarios/perfil.html', context)
+
+
+# ==================== RECUPERACIÓN DE CONTRASEÑA ====================
+
+@csrf_protect
+@never_cache
+def password_reset_view(request):
+    """
+    Recibe un correo, busca al usuario y genera una contraseña temporal.
+    Muestra la nueva contraseña en pantalla (sin enviar email real).
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        if not email:
+            messages.error(request, 'Por favor ingresa tu correo electrónico.')
+            return redirect('usuarios:login')
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            # Mensaje genérico por seguridad
+            messages.info(
+                request,
+                'Si el correo está registrado, se procesó la solicitud. '
+                'Revisa tu bandeja de entrada.'
+            )
+            return redirect('usuarios:login')
+
+        # Generar contraseña temporal
+        nueva_pass = get_random_string(length=10, allowed_chars='abcdefghjkmnpqrstuvwxyz23456789')
+        user.set_password(nueva_pass)
+        user.save()
+
+        # Mostrar la nueva contraseña al usuario (en desarrollo)
+        messages.success(
+            request,
+            f'¡Listo! Se generó una contraseña temporal para {user.get_full_name() or user.username}. '
+            f'Tu nueva contraseña es: {nueva_pass} — Cámbiala al iniciar sesión.'
+        )
+        return redirect('usuarios:login')
+
+    return redirect('usuarios:login')
+
+
+# ==================== RECUPERACIÓN DE USUARIO ====================
+
+@csrf_protect
+@never_cache
+def username_recovery_view(request):
+    """
+    Recibe un correo y muestra el nombre de usuario asociado.
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        if not email:
+            messages.error(request, 'Por favor ingresa tu correo electrónico.')
+            return redirect('usuarios:login')
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            messages.info(
+                request,
+                'Si el correo está registrado, se procesó la solicitud. '
+                'Revisa tu bandeja de entrada.'
+            )
+            return redirect('usuarios:login')
+
+        messages.success(
+            request,
+            f'¡Encontrado! Tu usuario es: {user.username} '
+            f'({user.get_full_name()}).'
+        )
+        return redirect('usuarios:login')
+
+    return redirect('usuarios:login')

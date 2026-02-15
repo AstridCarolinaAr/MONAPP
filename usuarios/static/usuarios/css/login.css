@@ -9,7 +9,6 @@ body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
   min-height: 100vh;
-
   background: linear-gradient(
     to bottom,
     #0e0806 0%,
@@ -18,44 +17,71 @@ body {
     #3b2f2f 85%,
     #120b08 100%
   );
+  overflow-x: hidden;
 }
 
+/* ═══════════════════════════════
+   PARTÍCULAS FLOTANTES DE FONDO
+   ═══════════════════════════════ */
+.login-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  bottom: -10px;
+  background: rgba(205, 168, 155, 0.35);
+  border-radius: 50%;
+  animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(1);   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-110vh) scale(.4); opacity: 0; }
+}
 
-
-
-/* CONTENEDOR */
+/* ═══════════════════════
+   CONTENEDOR PRINCIPAL
+   ═══════════════════════ */
 #loginContainer {
+  position: relative;
+  z-index: 1;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background: transparent;
 }
 
-
-/* TARJETA */
+/* ═══════════════
+   TARJETA LOGIN
+   ═══════════════ */
 .login-card {
-  width: 380px;
-  min-height: 500px;
+  width: 400px;
   background: var(--color-blanco);
-  border-radius: 15px;
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  animation: cardEntry .6s ease-out;
+}
+@keyframes cardEntry {
+  from { opacity: 0; transform: translateY(40px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* HEADER CAFÉ */
 .card-header {
   position: relative;
-  height: 140px;
+  height: 150px;
   background: var(--color-cafe-principal);
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
 }
-
-/* CANVAS */
 #bolaCanvas {
   position: absolute;
   inset: 0;
@@ -64,289 +90,375 @@ body {
   z-index: 1;
   pointer-events: none;
 }
-
-/* LOGO */
 .card-header img {
   position: relative;
   z-index: 2;
+  border-radius: 50%;
 }
 
 /* BODY */
 .card-body {
-  padding: 35px;
+  padding: 32px 35px 28px;
 }
 
-.card-body input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.card-body button {
-  width: 100%;
-  padding: 12px;
-  background: var(--color-cafe-principal);
-  color: white;
-  border: none;
-  border-radius: 8px;
-}
-
-/* PASSWORD */
-.password-wrapper {
+/* ═══════════════════════
+   INPUTS CON ICONO
+   ═══════════════════════ */
+.input-icon-wrapper {
   position: relative;
+  margin-bottom: 16px;
+}
+.input-icon-wrapper > i:first-child {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-cafe-claro);
+  font-size: 1.1rem;
+  z-index: 2;
+  pointer-events: none;
+}
+.input-icon-wrapper input {
+  width: 100%;
+  padding: 13px 14px 13px 42px;
+  border-radius: 10px;
+  border: 1.5px solid #ddd;
+  font-size: 15px;
+  transition: border-color .25s, box-shadow .25s;
+  background: #fafafa;
+}
+.input-icon-wrapper input:focus {
+  outline: none;
+  border-color: var(--color-cafe-principal);
+  box-shadow: 0 0 0 3px rgba(59,47,47,.12);
+  background: #fff;
 }
 
+/* Toggle ojo */
+.toggle-eye {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.15rem;
+  color: var(--color-cafe-principal);
+  z-index: 3;
+}
+.toggle-eye:hover { opacity: .65; }
+
+/* Wrapper password necesita padding-right extra */
 .password-wrapper input {
-  width: 100%;
   padding-right: 45px;
 }
 
-#togglePassword {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
+/* ═══════════════════
+   BOTÓN PRINCIPAL
+   ═══════════════════ */
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--color-cafe-principal);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 1.3rem;     /* CLAVE */
-  color: #3B2F2F;        /* CLAVE */
-  z-index: 5;
+  transition: all .25s;
+  margin-top: 4px;
+}
+.btn-login:hover {
+  background: var(--color-cafe-claro);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(59,47,47,.35);
+}
+.btn-login:active {
+  transform: translateY(0);
 }
 
-
-#togglePassword:hover {
-    opacity: 1;
+/* Botón de recuperación mantiene el mismo color que el login */
+.btn-recovery {
+  background: var(--color-cafe-principal) !important;
+  color: #fff !important;
+}
+.btn-recovery:hover {
+  background: var(--color-cafe-claro) !important;
 }
 
+/* ═══════════════════════
+   LINKS DE RECUPERACIÓN
+   ═══════════════════════ */
+.recovery-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 18px;
+  text-align: center;
+}
+.recovery-links a {
+  color: var(--color-cafe-claro);
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: color .2s;
+}
+.recovery-links a:hover {
+  color: var(--color-cafe-principal);
+  text-decoration: underline;
+}
 
-/* LINK */
-.forgot-password {
+/* ═══════════════════════════
+   PANELES DE RECUPERACIÓN
+   ═══════════════════════════ */
+.recovery-panel {
+  animation: slideIn .35s ease-out;
+}
+.recovery-panel.slide-in {
+  animation: slideIn .35s ease-out;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.recovery-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.recovery-header > i {
+  font-size: 2.2rem;
+  color: var(--color-cafe-principal);
   display: block;
-  text-align: right;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
+}
+.recovery-header h6 {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-cafe-principal);
+  margin-bottom: 4px;
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--color-cafe-claro);
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: color .2s;
+}
+.back-link:hover {
   color: var(--color-cafe-principal);
 }
 
-/* ========================================
-   ESTILOS ADICIONALES PARA MODAL DE LOGIN
-   ======================================== */
+/* ═══════════════════════════════
+   ALERTAS CON BARRA DE PROGRESO
+   ═══════════════════════════════ */
+.login-alert {
+  border-radius: 10px;
+  padding: .7rem 1rem;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  overflow: hidden;
+  position: relative;
+  animation: alertPop .4s ease-out;
+}
+@keyframes alertPop {
+  from { opacity: 0; transform: translateY(-10px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.alert-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.alert-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: currentColor;
+  opacity: .3;
+  border-radius: 0 0 10px 10px;
+}
+.login-alert .btn-close-sm {
+  font-size: .6rem;
+  padding: .45rem;
+}
 
-/* Modal Personalizado */
+/* ═══════════════════════════════════════
+   ESTILOS PARA EL MODAL LOGIN (master.html)
+   ═══════════════════════════════════════ */
 .login-modal-content {
-    border: none;
-    border-radius: 18px;
-    min-height: 420px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,.3);
-    min-height: 800px;
+  border: none;
+  border-radius: 18px;
+  min-height: 420px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,.3);
 }
-
 .login-modal-content .card-header {
-    position: relative;
-    height: 180px;
-    background: var(--color-cafe-principal);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    border: none;
-    margin: 0;
-    border-radius: 15px 15px 0 0;
+  position: relative;
+  height: 180px;
+  background: var(--color-cafe-principal);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border: none;
+  margin: 0;
+  border-radius: 15px 15px 0 0;
 }
-
-/* Canvas para animación de bolas - IMPORTANTE */
-#bolaCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    pointer-events: none;
-}
-
 .login-modal-content .card-header img {
-    position: relative;
-    z-index: 2;
+  position: relative;
+  z-index: 2;
 }
-
-/* Body del Modal */    
 .login-modal-content .card-body {
-    min-height: 480px; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /*  centra vertical */
-    padding: 35px; 
-    padding-top: 55px;
-    padding-bottom: 70px;
-    background: var(--color-blanco);
-    animation: fadeInUpLogin 0.6s ease-out;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 35px;
+  padding-top: 40px;
+  padding-bottom: 50px;
+  background: var(--color-blanco);
+  animation: fadeInUpLogin 0.6s ease-out;
 }
-@keyframes fadeInUpLogin {  
-    from{
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to{
-        opacity: 1;
-        transform: translateY(0);
-    }
-    }
-
+@keyframes fadeInUpLogin {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .login-modal-content .form-control {
-    padding: 16px 14px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    margin-bottom: 18px;
-    font-size: 15px;
-    height: 48px;
+  padding: 16px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 18px;
+  font-size: 15px;
+  height: 48px;
 }
-
 .login-form-wrapper {
-    width: 100%;
-    margin-top: 10px;
-    transform: translateY(10px);
+  width: 100%;
+  margin-top: 10px;
+  transform: translateY(10px);
 }
-
-
-
 .login-modal-content .form-control:focus {
-    border-color: var(--color-cafe-principal);
-    box-shadow: 0 0 0 0.2rem rgba(59, 47, 47, 0.15);
+  border-color: var(--color-cafe-principal);
+  box-shadow: 0 0 0 0.2rem rgba(59, 47, 47, 0.15);
 }
-
-/* Wrapper de contraseña en el modal */
 .login-modal-content .password-wrapper {
-    position: relative;
-    margin-bottom: 18px;
-    height: 48px;
+  position: relative;
+  margin-bottom: 18px;
+  height: 48px;
 }
 .login-modal-content .password-wrapper input {
-    padding-right: 45px;
+  padding-right: 45px;
 }
-
 .login-modal-content #togglePassword {
-    position: absolute;
-    top: 50%;
-    right: 14px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 1.2rem;
-    color: var(--color-cafe-principal);
-    z-index: 5;
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--color-cafe-principal);
+  z-index: 5;
 }
-
 .login-modal-content #togglePassword:hover {
-    opacity: 0.7;
+  opacity: 0.7;
 }
-
-
-
-.login-modal-content .forgot-password:hover {
-    text-decoration: underline;
-}
-
-/* Botón de enviar */
 .login-modal-content .btn-primary {
-    background: var(--color-cafe-principal);
-    border: none;
-    margin-top: 10px;
-    padding: 16px;
-    border-radius: 10px;
-    font-weight: 500;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    width: 100%;
+  background: var(--color-cafe-principal);
+  border: none;
+  margin-top: 10px;
+  padding: 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  width: 100%;
 }
-
 .login-modal-content .btn-primary:hover {
-    background: var(--color-cafe-claro);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 47, 47, 0.3);
+  background: var(--color-cafe-claro);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 47, 47, 0.3);
 }
-
-/* Mensajes en el modal */
 .login-modal-content .messages-container {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 .login-modal-content .mb-3 {
-    margin-bottom: 14px; 
+  margin-bottom: 14px;
 }
-
-
 .login-modal-content .alert {
-    background:rgba(220,53,69,0.12);
-    border: none;
-    color: #842029;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 8px;
+  background: rgba(220,53,69,0.12);
+  border: none;
+  color: #842029;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 8px;
 }
-
-/* Checkbox recordarme */
 .login-modal-content .form-check {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
-/* formulario hacia el centro visual */
 .login-modal-content form {
-    width: 100%;
-    margin-top: 20px;
+  width: 100%;
+  margin-top: 20px;
 }
 .login-modal-content .form-check-input:checked {
-    background-color: var(--color-cafe-principal);
-    border-color: var(--color-cafe-principal);
-}
-
-/* Responsive para el modal */
-@media (max-width: 576px) {
-    .modal-dialog {
-        margin: 10px;
-    }
-    
-    .login-modal-content .card-body {
-        padding: 25px;
-    }
-    
-    .login-modal-content .card-header {
-        height: 120px;
-    }
-    
-    .login-modal-content .card-header img {
-        width: 100px;
-    }
-}
-
-/* Animación de apertura del modal */
-.modal.fade .modal-dialog {
-    transform: scale(0.8);
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
-}
-
-.modal.show .modal-dialog {
-    transform: scale(1);
-    opacity: 1;
-}
-
-/* Backdrop más oscuro */
-.modal-backdrop.show {
-    opacity: 0.7;
-} 
-/* Desplaza modal  hacia abajo */
-.modal-dialog-centered {
-    transform: translateY(60px);
+  background-color: var(--color-cafe-principal);
+  border-color: var(--color-cafe-principal);
 }
 .login-modal-content button {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
-
 .login-modal-content button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(59, 47, 47, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 47, 47, 0.4);
+}
+.login-modal-content button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(59, 47, 47, 0.3);
 }
 
-.login-modal-content button:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(59, 47, 47, 0.3);
+/* Forgot password link */
+.forgot-password-link {
+  color: var(--color-cafe-principal);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+.forgot-password-link:hover {
+  color: var(--color-cafe-claro);
+  text-decoration: underline;
+}
+
+/* Modal animations */
+.modal.fade .modal-dialog {
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+.modal.show .modal-dialog {
+  transform: scale(1);
+  opacity: 1;
+}
+.modal-backdrop.show {
+  opacity: 0.7;
+}
+.modal-dialog-centered {
+  transform: translateY(60px);
+}
+
+/* ═══════════════
+   RESPONSIVE
+   ═══════════════ */
+@media (max-width: 480px) {
+  .login-card { width: 92vw; }
+  .card-body  { padding: 24px 22px 22px; }
+  .card-header { height: 120px; }
+  .card-header img { width: 90px; }
+}
+@media (max-width: 576px) {
+  .modal-dialog { margin: 10px; }
+  .login-modal-content .card-body    { padding: 25px; }
+  .login-modal-content .card-header  { height: 120px; }
+  .login-modal-content .card-header img { width: 100px; }
 }

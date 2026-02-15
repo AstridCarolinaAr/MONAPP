@@ -74,57 +74,13 @@
         </form>
 
         <div class="recovery-links">
-          <a href="#" id="linkForgotPass">
+          <a href="{% url 'usuarios:password_reset' %}">
             <i class="bi bi-key me-1"></i>¿Olvidaste la contraseña?
           </a>
-          <a href="#" id="linkForgotUser">
+          <a href="{% url 'usuarios:username_recovery' %}">
             <i class="bi bi-person-exclamation me-1"></i>¿Olvidaste tu usuario?
           </a>
         </div>
-      </div>
-
-      <!-- ═══════ PANEL: RECUPERAR CONTRASEÑA ═══════ -->
-      <div id="panelResetPass" class="recovery-panel" style="display:none;">
-        <div class="recovery-header">
-          <i class="bi bi-shield-lock"></i>
-          <h6>Recuperar Contraseña</h6>
-          <p class="text-muted small mb-0">Ingresa tu correo y te generaremos una contraseña temporal.</p>
-        </div>
-        <form method="post" action="{% url 'usuarios:password_reset' %}">
-          {% csrf_token %}
-          <div class="input-icon-wrapper">
-            <i class="bi bi-envelope"></i>
-            <input type="email" name="email" placeholder="correo@ejemplo.com" required>
-          </div>
-          <button type="submit" class="btn-login btn-recovery">
-            <i class="bi bi-send me-2"></i>Restablecer Contraseña
-          </button>
-        </form>
-        <a href="#" class="back-link" id="backFromPass">
-          <i class="bi bi-arrow-left me-1"></i>Volver al login
-        </a>
-      </div>
-
-      <!-- ═══════ PANEL: RECUPERAR USUARIO ═══════ -->
-      <div id="panelResetUser" class="recovery-panel" style="display:none;">
-        <div class="recovery-header">
-          <i class="bi bi-person-badge"></i>
-          <h6>Recuperar Usuario</h6>
-          <p class="text-muted small mb-0">Ingresa tu correo y te mostraremos tu usuario asociado.</p>
-        </div>
-        <form method="post" action="{% url 'usuarios:username_recovery' %}">
-          {% csrf_token %}
-          <div class="input-icon-wrapper">
-            <i class="bi bi-envelope"></i>
-            <input type="email" name="email" placeholder="correo@ejemplo.com" required>
-          </div>
-          <button type="submit" class="btn-login btn-recovery">
-            <i class="bi bi-search me-2"></i>Buscar mi Usuario
-          </button>
-        </form>
-        <a href="#" class="back-link" id="backFromUser">
-          <i class="bi bi-arrow-left me-1"></i>Volver al login
-        </a>
       </div>
 
     </div><!-- /.card-body -->
@@ -135,25 +91,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-  /* ── Paneles ── */
-  const login = document.getElementById('panelLogin');
-  const resetPass = document.getElementById('panelResetPass');
-  const resetUser = document.getElementById('panelResetUser');
-
-  function showPanel(show) {
-    [login, resetPass, resetUser].forEach(p => {
-      p.style.display = 'none';
-      p.classList.remove('slide-in');
-    });
-    show.style.display = 'block';
-    requestAnimationFrame(() => show.classList.add('slide-in'));
-  }
-
-  document.getElementById('linkForgotPass').addEventListener('click', e => { e.preventDefault(); showPanel(resetPass); });
-  document.getElementById('linkForgotUser').addEventListener('click', e => { e.preventDefault(); showPanel(resetUser); });
-  document.getElementById('backFromPass').addEventListener('click', e => { e.preventDefault(); showPanel(login); });
-  document.getElementById('backFromUser').addEventListener('click', e => { e.preventDefault(); showPanel(login); });
 
   /* ── Toggle contraseña ── */
   const toggle = document.getElementById('togglePassword');
@@ -201,17 +138,5 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script src="{% static 'usuarios/js/login.js' %}"></script>
-<<<<<<< HEAD
-=======
-
->>>>>>> a5174bab2af22afcacf409dd9dad415414ac5dfb
-<script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof SiennaAccessibility !== 'undefined') {
-        SiennaAccessibility.init();
-    }
-});
-</script>
 </body>
 </html>
