@@ -204,7 +204,7 @@
   window.mensajePermiso = "";
 
   {% for message in messages %}
-    {% if 'error' in message.tags %}
+    {% if "error" in message.tags %}
       window.tieneErrorPermiso = true;
       window.mensajePermiso = "{{ message|escapejs }}";
     {% endif %}
