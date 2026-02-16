@@ -5,7 +5,7 @@ from .models import Promocion
 class PromocionForm(forms.ModelForm):
     class Meta:
         model = Promocion
-        fields = ['nombre', 'descripcion', 'etiqueta', 'porcentaje_descuento', 'fecha_inicio', 'fecha_fin', 'activa']
+        fields = ['nombre', 'descripcion', 'etiqueta', 'porcentaje_descuento', 'fecha_inicio', 'fecha_fin', 'imagen', 'activa']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -34,6 +34,10 @@ class PromocionForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'date',
             }),
+            'imagen': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+            }),
             'activa': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
             }),
@@ -45,6 +49,7 @@ class PromocionForm(forms.ModelForm):
             'porcentaje_descuento': 'Descuento (%)',
             'fecha_inicio': 'Fecha de Inicio',
             'fecha_fin': 'Fecha de Fin',
+            'imagen': 'Imagen de la Promoción',
             'activa': 'Activa',
         }
 

@@ -161,6 +161,77 @@
     font-size: .85rem;
 }
 
+/* Imagen miniatura */
+.promo-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.promo-thumb-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: #ede7e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b8a49a;
+    font-size: 1.4rem;
+}
+
+/* Dropzone imagen */
+.promo-dropzone {
+    background:linear-gradient(145deg, #fafafa, #f0f0f0);
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.promo-dropzone:hover,
+.promo-dropzone.dragover {
+    border-color: #8d604a;
+    background: linear-gradient(145deg, #fff, #f8f5f2);
+    box-shadow: 0 6px 20px rgba(141,96,74,.15);
+    transform: translateY(-2px);
+}
+.promo-dropzone i.bi-cloud-arrow-up { 
+    font-size: 3.5rem; 
+    color: #8d604a;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.promo-dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;
+}
+.promo-dropzone .upload-text {
+    font-size: 1.05rem;
+    color: #5c3d2e;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.promo-dropzone .upload-hint {
+    font-size: 0.85rem;
+    color: #999;
+}
+.promo-preview-img {
+    max-height: 200px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+}
+
 /* Búsqueda */
 .promo-search {
     max-width: 300px;
@@ -181,6 +252,8 @@
 /* Responsive */
 @media (max-width: 768px) {
     .promo-fab { bottom: 20px; right: 20px; }
+    .promo-thumb, .promo-thumb-placeholder { width: 42px; height: 42px; }
+    .promo-thumb-placeholder i { font-size: 1.1rem; }
 }
 </style>
 {% endblock %}
@@ -214,6 +287,7 @@
             <table class="promo-table" id="promo-tabla">
                 <thead>
                     <tr>
+                        <th>Imagen</th>
                         <th>Nombre</th>
                         <th>Etiqueta</th>
                         <th class="text-center">Descuento</th>
@@ -226,6 +300,15 @@
                 <tbody>
                     {% for p in promociones %}
                     <tr data-nombre="{{ p.nombre|lower }}">
+                        <td>
+                            {% if p.imagen %}
+                                <img src="{{ p.imagen.url }}" class="promo-thumb" alt="{{ p.nombre }}">
+                            {% else %}
+                                <div class="promo-thumb-placeholder">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            {% endif %}
+                        </td>
                         <td>
                             <span class="fw-semibold">{{ p.nombre }}</span>
                             {% if p.descripcion %}
@@ -289,7 +372,7 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Agregar Promoción</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" action="{% url 'promociones:crear' %}">
+            <form method="post" action="{% url 'promociones:crear' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row g-3">
@@ -316,6 +399,16 @@
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Fecha de Fin</label>
                             {{ form.fecha_fin }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold mb-3">Imagen de la Promoción</label>
+                            <div class="promo-dropzone" id="dropzonePromoModal">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <div class="upload-text">Arrastra tu imagen aquí</div>
+                                <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                                {{ form.imagen }}
+                                <img class="promo-preview-img d-none" id="previewPromoModal" alt="preview">
+                            </div>
                         </div>
                         <div class="col-12">
                             <div class="form-check form-switch">
@@ -393,6 +486,27 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('formEliminar').action = btn.dataset.url;
         });
     }
+
+    /* ── Preview imagen en modal Agregar ── */
+    const fileInputModal = document.querySelector('#dropzonePromoModal input[type="file"]');
+    const previewModal   = document.getElementById('previewPromoModal');
+    if (fileInputModal && previewModal) {
+        fileInputModal.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    previewModal.src = e.target.result;
+                    previewModal.classList.remove('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    document.querySelectorAll('.promo-dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
 
     /* ── Búsqueda en tabla ── */
     const input = document.getElementById('promo-buscar');

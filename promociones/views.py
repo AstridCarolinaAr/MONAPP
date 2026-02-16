@@ -22,7 +22,7 @@ def lista_promociones(request):
 @login_required
 def crear_promocion(request):
     if request.method == 'POST':
-        form = PromocionForm(request.POST)
+        form = PromocionForm(request.POST, request.FILES)
         if form.is_valid():
             promocion = form.save()
             messages.success(request, f'Promoción "{promocion.nombre}" creada exitosamente.')
@@ -44,7 +44,7 @@ def editar_promocion(request, pk):
     promocion = get_object_or_404(Promocion, pk=pk)
 
     if request.method == 'POST':
-        form = PromocionForm(request.POST, instance=promocion)
+        form = PromocionForm(request.POST, request.FILES, instance=promocion)
         if form.is_valid():
             form.save()
             messages.success(request, f'Promoción "{promocion.nombre}" actualizada.')

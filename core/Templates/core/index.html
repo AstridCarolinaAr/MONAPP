@@ -69,6 +69,11 @@ Servicios
 
                 {% for promo in promociones %}
                 <div class="sq-promo-card">
+                    {% if promo.imagen %}
+                        <div class="sq-promo-image">
+                            <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
+                        </div>
+                    {% endif %}
                     <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
                     <h3>{{ promo.nombre }}</h3>
                     <p>{{ promo.descripcion }}</p>

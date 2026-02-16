@@ -23,6 +23,55 @@
     padding: 18px 24px;
     font-weight: 600;
 }
+.promo-dropzone {
+    background: linear-gradient(145deg, #fafafa, #f0f0f0);
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.promo-dropzone:hover,
+.promo-dropzone.dragover {
+    border-color: #8d604a;
+    background: linear-gradient(145deg, #fff, #f8f5f2);
+    box-shadow: 0 6px 20px rgba(141,96,74,.15);
+    transform: translateY(-2px);
+}
+.promo-dropzone i.bi-cloud-arrow-up { 
+    font-size: 3.5rem; 
+    color: #8d604a;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.promo-dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;
+}
+.promo-dropzone .upload-text {
+    font-size: 1.05rem;
+    color: #5c3d2e;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.promo-dropzone .upload-hint {
+    font-size: 0.85rem;
+    color: #999;
+}
+.promo-preview-img {
+    max-height: 200px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+}
 </style>
 {% endblock %}
 
@@ -43,7 +92,7 @@
             <i class="bi bi-pencil-square me-2"></i>{{ titulo }}
         </div>
         <div class="card-body p-4">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -89,6 +138,20 @@
                         {% endif %}
                     </div>
                     <div class="col-12">
+                        <label class="form-label fw-semibold mb-3">Imagen de la Promoción</label>
+                        <div class="promo-dropzone" id="dropzonePromo">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                            <div class="upload-text">Arrastra tu imagen aquí</div>
+                            <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                            {{ form.imagen }}
+                            {% if promocion and promocion.imagen %}
+                                <img src="{{ promocion.imagen.url }}" class="promo-preview-img" id="previewPromo" alt="preview">
+                            {% else %}
+                                <img class="promo-preview-img d-none" id="previewPromo" alt="preview">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12">
                         <div class="form-check form-switch">
                             {{ form.activa }}
                             <label class="form-check-label" for="id_activa">Activa</label>
@@ -107,4 +170,30 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.querySelector('#dropzonePromo input[type="file"]');
+    const preview   = document.getElementById('previewPromo');
+    if (fileInput && preview) {
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    document.querySelectorAll('.promo-dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+});
+</script>
 {% endblock %}

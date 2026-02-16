@@ -1,5 +1,8 @@
 from django.db import models
 import uuid
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
 
 
 class Promocion(models.Model):
@@ -42,6 +45,12 @@ class Promocion(models.Model):
     fecha_fin = models.DateField(
         verbose_name='Fecha de Fin',
     )
+    imagen = models.ImageField(
+        upload_to='promociones/',
+        blank=True,
+        null=True,
+        verbose_name='Imagen',
+    )
     activa = models.BooleanField(
         default=True,
         verbose_name='Activa',
@@ -53,6 +62,42 @@ class Promocion(models.Model):
         ordering = ['-fecha_creacion']
         verbose_name = 'Promoción'
         verbose_name_plural = 'Promociones'
+
+    def resize_image(self):
+        """Redimensiona la imagen a un tamaño máximo de 400x300px manteniendo la proporción"""
+        if self.imagen:
+            try:
+                img = Image.open(self.imagen)
+                
+                # Convertir a RGB si es necesario (para PNGs con transparencia)
+                if img.mode in ("RGBA", "P"):
+                    img = img.convert("RGB")
+                
+                # Redimensionar manteniendo proporción (máximo 400x300)
+                max_size = (400, 300)
+                img.thumbnail(max_size, Image.Resampling.LANCZOS)
+                
+                # Guardar en memoria
+                output = BytesIO()
+                img.save(output, format='JPEG', quality=85, optimize=True)
+                output.seek(0)
+                
+                # Reemplazar el archivo original con el redimensionado
+                filename = self.imagen.name.split('.')[0] + '.jpg'
+                self.imagen.save(
+                    filename,
+                    ContentFile(output.read()),
+                    save=False
+                )
+            except Exception:
+                # Si hay error, mantener imagen original
+                pass
+
+    def save(self, *args, **kwargs):
+        # Si hay una imagen nueva, redimensionarla
+        if self.imagen:
+            self.resize_image()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.nombre} – {self.porcentaje_descuento}%"
