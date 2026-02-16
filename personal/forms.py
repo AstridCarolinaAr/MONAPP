@@ -90,10 +90,14 @@ class PersonalBusquedaForm(forms.Form):
             'placeholder': 'Ingrese término de búsqueda'
         })
     )
-    rol = forms.ChoiceField(
+    filtro = forms.ChoiceField(
         required=False,
-        label='Filtrar por rol',
-        choices=[('', 'Todos los roles')] + list(Personal.ROLES),
+        label='Filtrar por',
+        choices=[
+            ('', 'Todos'),
+            ('activo', 'Activos'),
+            ('inactivo', 'Inactivos'),
+        ] + [('rol_' + rol[0], rol[1]) for rol in Personal.ROLES],
         widget=forms.Select(attrs={
             'class': 'personal-form-control'
         })

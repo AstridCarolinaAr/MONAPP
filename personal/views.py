@@ -25,7 +25,7 @@ def lista_personal(request):
     
     if form.is_valid():
         busqueda = form.cleaned_data.get('busqueda')
-        rol = form.cleaned_data.get('rol')
+        filtro = form.cleaned_data.get('filtro')
         
         if busqueda:
             personal_list = personal_list.filter(
@@ -37,8 +37,14 @@ def lista_personal(request):
                 Q(id__icontains=busqueda)
             )
         
-        if rol:
-            personal_list = personal_list.filter(rol=rol)
+        if filtro:
+            if filtro == 'activo':
+                personal_list = personal_list.filter(activo=True)
+            elif filtro == 'inactivo':
+                personal_list = personal_list.filter(activo=False)
+            elif filtro.startswith('rol_'):
+                rol_valor = filtro.replace('rol_', '')
+                personal_list = personal_list.filter(rol=rol_valor)
     
     context = {
         'personal_list': personal_list,
