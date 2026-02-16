@@ -39,8 +39,8 @@ class ProductoWeb(models.Model):
 
     class Meta:
         ordering = ['-fecha_creacion']
-        verbose_name = 'Producto Web'
-        verbose_name_plural = 'Productos Web'
+        verbose_name = 'Catálogo Web'
+        verbose_name_plural = 'Catálogos Web'
 
     def resize_image(self):
         """Redimensiona la imagen a un tamaño máximo de 400x300px manteniendo la proporción"""
