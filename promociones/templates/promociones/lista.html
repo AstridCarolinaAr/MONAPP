@@ -1,0 +1,409 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Promociones{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-percent"></i> Gestión de Promociones
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============ TABLA ============ */
+.promo-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+.promo-table thead th {
+    background: linear-gradient(135deg, #3a2a24, #2a1d18);
+    color: #fff;
+    padding: 14px 18px;
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border: none;
+}
+.promo-table thead th:first-child { border-radius: 12px 0 0 0; }
+.promo-table thead th:last-child  { border-radius: 0 12px 0 0; }
+
+.promo-table tbody tr {
+    transition: background .2s;
+}
+.promo-table tbody tr:hover {
+    background: rgba(141,96,74,.07);
+}
+.promo-table tbody td {
+    padding: 12px 18px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    font-size: .92rem;
+}
+
+/* Toggle switch */
+.promo-switch {
+    position: relative;
+    width: 46px;
+    height: 24px;
+}
+.promo-switch input { opacity: 0; width: 0; height: 0; }
+.promo-switch .slider {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #ccc; border-radius: 24px;
+    transition: .3s;
+}
+.promo-switch .slider::before {
+    content: "";
+    position: absolute;
+    height: 18px; width: 18px;
+    left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%;
+    transition: .3s;
+}
+.promo-switch input:checked + .slider {
+    background: #6bb07a;
+}
+.promo-switch input:checked + .slider::before {
+    transform: translateX(22px);
+}
+
+/* Botón flotante */
+.promo-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3a2a24, #5c3d2e);
+    color: #fff;
+    border: none;
+    font-size: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    transition: transform .2s, box-shadow .2s;
+}
+.promo-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 28px rgba(0,0,0,.4);
+    color: #fff;
+}
+
+/* Acciones de fila */
+.promo-actions a,
+.promo-actions button {
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: .92rem;
+    transition: background .2s;
+}
+.promo-actions .btn-edit        { color: #8d604a; }
+.promo-actions .btn-edit:hover  { background: rgba(141,96,74,.12); }
+.promo-actions .btn-del         { color: #b45a5a; }
+.promo-actions .btn-del:hover   { background: rgba(180,90,90,.12); }
+
+/* Vista vacía */
+.promo-empty {
+    text-align: center;
+    padding: 60px 20px;
+}
+.promo-empty i {
+    font-size: 3.5rem;
+    color: #c9b8ae;
+}
+
+/* ============ MODAL ============ */
+.modal-header.promo-header {
+    background: linear-gradient(135deg, #3a2a24, #5c3d2e);
+    color: #fff;
+    border: none;
+    border-radius: 12px 12px 0 0;
+}
+.modal-header.promo-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 12px 40px rgba(0,0,0,.2);
+}
+
+/* Badges */
+.promo-badge-active {
+    background: rgba(107,176,122,.15);
+    color: #3d7a4e;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: .78rem;
+}
+.promo-badge-inactive {
+    background: rgba(180,90,90,.12);
+    color: #a04040;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: .78rem;
+}
+
+/* Descuento badge */
+.promo-discount {
+    background: rgba(141,96,74,.12);
+    color: #5c3d2e;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: .85rem;
+}
+
+/* Búsqueda */
+.promo-search {
+    max-width: 300px;
+}
+.promo-search .form-control {
+    border-radius: 20px;
+    border: 1px solid #d4c4ba;
+    padding-left: 38px;
+}
+.promo-search .bi-search {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9a8579;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .promo-fab { bottom: 20px; right: 20px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- ───── MENSAJES ───── -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- ───── BARRA SUPERIOR ───── -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div class="promo-search position-relative">
+            <i class="bi bi-search"></i>
+            <input type="text" id="promo-buscar" class="form-control" placeholder="Buscar promoción…">
+        </div>
+        <span class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }}</span>
+    </div>
+
+    <!-- ───── TABLA ───── -->
+    {% if promociones %}
+    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="promo-table" id="promo-tabla">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Etiqueta</th>
+                        <th class="text-center">Descuento</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in promociones %}
+                    <tr data-nombre="{{ p.nombre|lower }}">
+                        <td>
+                            <span class="fw-semibold">{{ p.nombre }}</span>
+                            {% if p.descripcion %}
+                                <br><small class="text-muted">{{ p.descripcion|truncatewords:10 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary text-uppercase" style="font-size:.75rem;">{{ p.get_etiqueta_display }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="promo-discount">{{ p.porcentaje_descuento }}%</span>
+                        </td>
+                        <td>{{ p.fecha_inicio|date:"d/m/Y" }}</td>
+                        <td>{{ p.fecha_fin|date:"d/m/Y" }}</td>
+                        <td class="text-center">
+                            <label class="promo-switch" title="Alternar estado">
+                                <input type="checkbox"
+                                       {% if p.activa %}checked{% endif %}
+                                       data-toggle-url="{% url 'promociones:toggle_activa' p.pk %}">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td class="text-center promo-actions">
+                            <a href="{% url 'promociones:editar' p.pk %}" class="btn-edit" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <button type="button" class="btn btn-link btn-del p-0 ms-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEliminar"
+                                    data-nombre="{{ p.nombre }}"
+                                    data-url="{% url 'promociones:eliminar' p.pk %}"
+                                    title="Eliminar">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="promo-empty">
+        <i class="bi bi-percent d-block mb-3"></i>
+        <h5 class="text-muted">Sin promociones registradas</h5>
+        <p class="text-muted mb-0">Pulsa <strong>+</strong> para crear la primera.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
+<button class="promo-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar" title="Agregar promoción">
+    <i class="bi bi-plus-lg"></i>
+</button>
+
+<!-- ═══════════════ MODAL AGREGAR ═══════════════ -->
+<div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header promo-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Agregar Promoción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'promociones:crear' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nombre</label>
+                            {{ form.nombre }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Etiqueta</label>
+                            {{ form.etiqueta }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Descuento (%)</label>
+                            {{ form.porcentaje_descuento }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Fecha de Inicio</label>
+                            {{ form.fecha_inicio }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Fecha de Fin</label>
+                            {{ form.fecha_fin }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                {{ form.activa }}
+                                <label class="form-check-label" for="id_activa">Activa</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background:#3a2a24;">
+                        <i class="bi bi-check-lg me-1"></i>Guardar Promoción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ MODAL ELIMINAR ═══════════════ -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white" style="border-radius:12px 12px 0 0;">
+                <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-0">¿Eliminar la promoción <strong id="delNombre"></strong>?</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <form id="formEliminar" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash3 me-1"></i>Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ── Toggle estado (AJAX) ── */
+    document.querySelectorAll('.promo-switch input[type="checkbox"]').forEach(toggle => {
+        toggle.addEventListener('change', function () {
+            const url = this.dataset.toggleUrl;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.ok) { this.checked = !this.checked; }
+            })
+            .catch(() => { this.checked = !this.checked; });
+        });
+    });
+
+    /* ── Modal Eliminar: rellenar datos ── */
+    const modalEl = document.getElementById('modalEliminar');
+    if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', function (e) {
+            const btn = e.relatedTarget;
+            document.getElementById('delNombre').textContent = btn.dataset.nombre;
+            document.getElementById('formEliminar').action = btn.dataset.url;
+        });
+    }
+
+    /* ── Búsqueda en tabla ── */
+    const input = document.getElementById('promo-buscar');
+    if (input) {
+        input.addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('#promo-tabla tbody tr').forEach(tr => {
+                tr.style.display = tr.dataset.nombre.includes(q) ? '' : 'none';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

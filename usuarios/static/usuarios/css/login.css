@@ -187,24 +187,40 @@ body {
 }
 
 /* ═══════════════════════
-   LINKS DE RECUPERACIÓN
+   BOTONES DE RECUPERACIÓN
    ═══════════════════════ */
 .recovery-links {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 14px;
   text-align: center;
 }
-.recovery-links a {
-  color: var(--color-cafe-claro);
-  font-size: 13.5px;
+.btn-recovery-link {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: var(--color-cafe-principal);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .25s;
   text-decoration: none;
-  transition: color .2s;
+  text-align: center;
 }
-.recovery-links a:hover {
-  color: var(--color-cafe-principal);
-  text-decoration: underline;
+.btn-recovery-link:hover {
+  background: var(--color-cafe-claro);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(59,47,47,.35);
+  text-decoration: none;
+}
+.btn-recovery-link:active {
+  transform: translateY(0);
+  color: #fff;
 }
 
 /* ═══════════════════════════

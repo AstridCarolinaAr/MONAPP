@@ -17,7 +17,9 @@ urlpatterns = [
     
     # Perfil de usuario
     path('perfil/', views.perfil_view, name='perfil'),
-    
+    path('recuperar/', views.solicitar_recuperacion, name='recuperar'),
+    path('verificar/', views.verificar_codigo, name='verificar_codigo'),
+    path('nueva-password/', views.nueva_password, name='nueva_password'),
     # Panel de administración
     path('usuarios/', views.lista_usuarios_view, name='lista_usuarios'),
     path('usuarios/crear/', views.crear_usuario_view, name='crear_usuario'),

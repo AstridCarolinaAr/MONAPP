@@ -74,10 +74,10 @@
         </form>
 
         <div class="recovery-links">
-          <a href="#" id="linkForgotPass">
+          <a href="{% url 'usuarios:recuperar' %}" id="linkForgotPass">
             <i class="bi bi-key me-1"></i>¿Olvidaste la contraseña?
           </a>
-          <a href="#" id="linkForgotUser">
+          <a href="" id="linkForgotUser">
             <i class="bi bi-person-exclamation me-1"></i>¿Olvidaste tu usuario?
           </a>
         </div>
@@ -97,7 +97,7 @@
             <input type="email" name="email" placeholder="correo@ejemplo.com" required>
           </div>
           <button type="submit" class="btn-login btn-recovery">
-            <i class="bi bi-send me-2"></i>Restablecer Contraseña
+            <a href="{% url 'usuarios:recuperar' %}"><i class="bi bi-send me-2"></i>Restablecer Contraseña</a>
           </button>
         </form>
         <a href="#" class="back-link" id="backFromPass">

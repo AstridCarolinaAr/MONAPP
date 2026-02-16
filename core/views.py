@@ -10,6 +10,8 @@ from django.contrib.auth import login
 
 from clientes.models import Cliente
 from servicios.models import Servicio
+from promociones.models import Promocion
+from productos_web.models import ProductoWeb
 
 
 
@@ -29,10 +31,14 @@ def index(request):
 
     # Obtener servicios activos
     servicios = Servicio.objects.filter(activo=True)
+    promociones = Promocion.objects.filter(activa=True)
+    productos_web = ProductoWeb.objects.filter(visible=True)
 
     return render(request, 'core/index.html', {
         'show_login_modal': show_login_modal,
-        'servicios': servicios
+        'servicios': servicios,
+        'promociones': promociones,
+        'productos_web': productos_web,
     })
 
 @login_required

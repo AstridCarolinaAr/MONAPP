@@ -49,6 +49,20 @@ class PerfilUsuario(models.Model):
     
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
+    # Campos para recuperación de contraseña
+    recovery_code = models.CharField(
+        max_length=6, 
+        blank=True, 
+        null=True,
+        help_text="Código de recuperación de contraseña"
+    )
+    
+    recovery_code_created = models.DateTimeField(
+        blank=True, 
+        null=True,
+        help_text="Fecha de creación del código de recuperación"
+    )
+    
     class Meta:
         verbose_name = "Perfil de Usuario"
         verbose_name_plural = "Perfiles de Usuarios"
