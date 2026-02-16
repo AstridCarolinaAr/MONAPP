@@ -42,7 +42,7 @@ class PersonalForm(forms.ModelForm):
                 'class': 'personal-form-control'
             }),
             'activo': forms.CheckboxInput(attrs={
-                'style': 'width: 20px; height: 20px; cursor: pointer;'
+                'class': 'personal-switch-input'
             })
         }
     
