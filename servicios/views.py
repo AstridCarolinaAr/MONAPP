@@ -80,10 +80,10 @@ def servicios_publicos(request):
     return render(request, 'servicios/servicios_publicos.html', context)
 
 
-# Vistas para Gestión de Alisados
+# Vistas para Gestion de datos
 @login_required
 def lista_gestion_alisados(request):
-    """Lista todas las gestiones de alisados registradas"""
+    """Lista todas las gestiones de datos registradas"""
     gestiones = GestionAlisado.objects.all()
     context = {
         'gestiones': gestiones
@@ -93,7 +93,7 @@ def lista_gestion_alisados(request):
 
 @login_required
 def crear_gestion_alisado(request):
-    """Crea un nuevo registro de gestión de alisado"""
+    """Crea un nuevo registro de gestion de datos"""
     is_modal = request.GET.get('modal') == '1'
     
     if request.method == 'POST':
@@ -113,10 +113,10 @@ def crear_gestion_alisado(request):
                 # Retornar respuesta JSON para AJAX
                 return JsonResponse({
                     'success': True,
-                    'message': 'Gestión de alisado registrada exitosamente.'
+                    'message': 'Gestion de datos registrada exitosamente.'
                 })
             
-            messages.success(request, 'Gestión de alisado registrada exitosamente.')
+            messages.success(request, 'Gestion de datos registrada exitosamente.')
             return redirect('servicios:lista_gestion_alisados')
         else:
             print("=== FORMULARIO INVÁLIDO ===")
@@ -133,7 +133,7 @@ def crear_gestion_alisado(request):
     
     context = {
         'form': form,
-        'titulo': 'Nueva Gestión de Alisado',
+        'titulo': 'Gestion de datos',
         'is_modal': is_modal
     }
     
@@ -147,7 +147,7 @@ def crear_gestion_alisado(request):
 @login_required
 @user_passes_test(es_staff)
 def ver_gestion_alisado(request, pk):
-    """Muestra los detalles de una gestión de alisado"""
+    """Muestra los detalles de una gestion de datos"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
     context = {
         'gestion': gestion
@@ -157,21 +157,21 @@ def ver_gestion_alisado(request, pk):
 
 @login_required
 def editar_gestion_alisado(request, pk):
-    """Edita una gestión de alisado existente"""
+    """Edita una gestion de datos existente"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
     
     if request.method == 'POST':
         form = GestionAlisadoForm(request.POST, request.FILES, instance=gestion)
         if form.is_valid():
             gestion = form.save()
-            messages.success(request, 'Gestión de alisado actualizada exitosamente.')
+            messages.success(request, 'Gestion de datos actualizada exitosamente.')
             return redirect('servicios:ver_gestion_alisado', pk=gestion.pk)
     else:
         form = GestionAlisadoForm(instance=gestion)
     
     context = {
         'form': form,
-        'titulo': 'Editar Gestión de Alisado',
+        'titulo': 'Gestion de datos',
         'gestion': gestion
     }
     return render(request, 'servicios/form_gestion_alisado.html', context)
@@ -179,12 +179,12 @@ def editar_gestion_alisado(request, pk):
 
 @login_required
 def eliminar_gestion_alisado(request, pk):
-    """Elimina una gestión de alisado"""
+    """Elimina una gestion de datos"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
     
     if request.method == 'POST':
         gestion.delete()
-        messages.success(request, 'Gestión de alisado eliminada exitosamente.')
+        messages.success(request, 'Gestion de datos eliminada exitosamente.')
         return redirect('servicios:lista_gestion_alisados')
     
     context = {
@@ -193,48 +193,50 @@ def eliminar_gestion_alisado(request, pk):
     return render(request, 'servicios/eliminar_gestion_alisado.html', context)
 
 
-@login_required
-def crear_cliente_ajax(request):
-    """Crea un cliente mediante AJAX desde el formulario de gestión de alisado"""
-    if request.method == 'POST':
-        datos = request.POST
-        print("Datos recibidos:", dict(datos))  # Debug
-        errores = validar_datos_cliente(datos)
-        
-        if errores:
-            print("Errores de validación:", errores)  # Debug
-            return JsonResponse({
-                'success': False,
-                'errores': errores
-            })
-        
-        try:
-            cliente = Cliente.objects.create(
-                tipo_documento=datos['tipo_documento'],
-                numero_documento=datos['numero_documento'],
-                nombre=datos['nombre'],
-                apellido=datos['apellido'],
-                fecha_nacimiento=datos['fecha_nacimiento'],
-                telefono=datos.get('telefono', ''),
-                correo=datos.get('correo', ''),
-                estado='activo'
-            )
-            print("Cliente creado exitosamente:", cliente.id)  # Debug
-            
-            return JsonResponse({
-                'success': True,
-                'cliente': {
-                    'id': cliente.id,
-                    'nombre_completo': f"{cliente.nombre} {cliente.apellido}",
-                    'numero_documento': cliente.numero_documento
-                }
-            })
-        except Exception as e:
-            print("Error al crear cliente:", str(e))  # Debug
-            return JsonResponse({
-                'success': False,
-                'errores': {'general': [str(e)]}
-            })
-    
-    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+# FUNCIÓN DESHABILITADA: El botón de crear cliente desde el modal fue eliminado
+# Si necesitas crear clientes, dirígete a Clientes → Crear Cliente
+# @login_required
+# def crear_cliente_ajax(request):
+#     """Crea un cliente mediante AJAX desde el formulario de gestion de datos"""
+#     if request.method == 'POST':
+#         datos = request.POST
+#         print("Datos recibidos:", dict(datos))  # Debug
+#         errores = validar_datos_cliente(datos)
+#         
+#         if errores:
+#             print("Errores de validación:", errores)  # Debug
+#             return JsonResponse({
+#                 'success': False,
+#                 'errores': errores
+#             })
+#         
+#         try:
+#             cliente = Cliente.objects.create(
+#                 tipo_documento=datos['tipo_documento'],
+#                 numero_documento=datos['numero_documento'],
+#                 nombre=datos['nombre'],
+#                 apellido=datos['apellido'],
+#                 fecha_nacimiento=datos['fecha_nacimiento'],
+#                 telefono=datos.get('telefono', ''),
+#                 correo=datos.get('correo', ''),
+#                 estado='activo'
+#             )
+#             print("Cliente creado exitosamente:", cliente.id)  # Debug
+#             
+#             return JsonResponse({
+#                 'success': True,
+#                 'cliente': {
+#                     'id': cliente.id,
+#                     'nombre_completo': f"{cliente.nombre} {cliente.apellido}",
+#                     'numero_documento': cliente.numero_documento
+#                 }
+#             })
+#         except Exception as e:
+#             print("Error al crear cliente:", str(e))  # Debug
+#             return JsonResponse({
+#                 'success': False,
+#                 'errores': {'general': [str(e)]}
+#             })
+#     
+#     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 

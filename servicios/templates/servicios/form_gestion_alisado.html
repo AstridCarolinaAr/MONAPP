@@ -14,7 +14,7 @@
         padding: 10px 15px;
         margin-top: 20px;
         margin-bottom: 15px;
-        border-left: 4px solid #0d6efd;
+        border-left: 4px solid #634c40;
         font-weight: bold;
     }
     
@@ -93,12 +93,12 @@
     }
     
     .step-item.active .step-circle {
-        background-color: #0d6efd;
+        background-color: #634c40;
         color: white;
     }
     
     .step-item.completed .step-circle {
-        background-color: #198754;
+        background-color: #382a23;
         color: white;
     }
     
@@ -108,15 +108,15 @@
     }
     
     .step-item.active .step-label {
-        color: #0d6efd;
+        color: #634c40;
         font-weight: bold;
     }
     
     /* Estilos para validación en tiempo real */
     .form-control.is-valid,
     .form-select.is-valid {
-        border-color: #198754;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        border-color: #382a23;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23382a23' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right calc(.375em + .1875rem) center;
         background-size: calc(.75em + .375rem) calc(.75em + .375rem);
@@ -154,8 +154,8 @@
     
     .form-control:focus.is-valid,
     .form-select:focus.is-valid {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        border-color: #382a23;
+        box-shadow: 0 0 0 0.25rem rgba(56, 42, 35, 0.25);
     }
     
     .form-control:focus.is-invalid,
@@ -171,7 +171,7 @@
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-white" style="background-color: #634c40;">
                     <h4 class="mb-0">{{ titulo }}</h4>
                 </div>
                 <div class="card-body">
@@ -210,11 +210,6 @@
                                 {% if form.cliente.errors %}
                                     <div class="text-danger">{{ form.cliente.errors }}</div>
                                 {% endif %}
-                            </div>
-                            <div class="col-md-2 mb-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary w-100" id="btnNuevoCliente">
-                                    <i class="bi bi-person-plus"></i> Nuevo
-                                </button>
                             </div>
                         </div>
                         
@@ -596,11 +591,11 @@
                                 <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
                                     <i class="bi bi-arrow-left"></i> Anterior
                                 </button>
-                                <button type="button" class="btn btn-primary" id="btnSiguiente">
+                                <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40;">
                                     Siguiente <i class="bi bi-arrow-right"></i>
                                 </button>
-                                <button type="button" class="btn btn-success" id="btnGuardar" style="display: none;">
-                                    <i class="bi bi-save"></i> Guardar Gestión de Alisado
+                                <button type="button" class="btn text-white" id="btnGuardar" style="display: none; background-color: #634c40; border-color: #634c40;">
+                                    <i class="bi bi-save"></i> Guardar
                                 </button>
                             </div>
                         </div>
@@ -615,7 +610,7 @@
 <div class="modal fade" id="modalConsentimiento" tabindex="-1" aria-labelledby="modalConsentimientoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header text-white" style="background-color: #634c40;">
                 <h5 class="modal-title" id="modalConsentimientoLabel">
                     <i class="bi bi-file-earmark-text"></i> Consentimiento Informado - Términos y Condiciones
                 </h5>
@@ -720,76 +715,8 @@
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <button type="button" class="btn btn-success" id="btnConfirmarConsentimiento" disabled>
+                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" disabled style="background-color: #634c40; border-color: #634c40;">
                     <i class="bi bi-check-circle"></i> Aceptar y Guardar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Registro Rápido de Cliente -->
-<div class="modal fade" id="modalNuevoCliente" tabindex="-1" aria-labelledby="modalNuevoClienteLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalNuevoClienteLabel">
-                    <i class="bi bi-person-plus"></i> Registrar Nuevo Cliente
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formNuevoCliente">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tipo de Documento *</label>
-                            <select class="form-select" name="tipo_documento" required>
-                                <option value="">Seleccione...</option>
-                                <option value="CC">Cédula de ciudadanía</option>
-                                <option value="TI">Tarjeta de identidad</option>
-                                <option value="CE">Cédula de extranjería</option>
-                                <option value="PP">Pasaporte</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Número de Documento *</label>
-                            <input type="text" class="form-control" name="numero_documento" required>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" name="nombre" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellido *</label>
-                            <input type="text" class="form-control" name="apellido" required>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Fecha de Nacimiento *</label>
-                            <input type="date" class="form-control" name="fecha_nacimiento" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" name="telefono">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Correo</label>
-                            <input type="email" class="form-control" name="correo">
-                        </div>
-                    </div>
-                    <div id="erroresCliente" class="alert alert-danger" style="display: none;"></div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" id="btnGuardarCliente">
-                    <i class="bi bi-save"></i> Guardar Cliente
                 </button>
             </div>
         </div>
@@ -827,380 +754,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Actualizar al cargar
     actualizarInfoCliente();
-    
-    // Modal de Nuevo Cliente
-    const btnNuevoCliente = document.getElementById('btnNuevoCliente');
-    const modalNuevoCliente = new bootstrap.Modal(document.getElementById('modalNuevoCliente'));
-    const formNuevoCliente = document.getElementById('formNuevoCliente');
-    const btnGuardarCliente = document.getElementById('btnGuardarCliente');
-    const erroresCliente = document.getElementById('erroresCliente');
-    
-    btnNuevoCliente.addEventListener('click', function() {
-        formNuevoCliente.reset();
-        erroresCliente.style.display = 'none';
-        modalNuevoCliente.show();
-    });
-    
-    btnGuardarCliente.addEventListener('click', function() {
-        if (!formNuevoCliente.checkValidity()) {
-            formNuevoCliente.reportValidity();
-            return;
-        }
-        
-        const formData = new FormData(formNuevoCliente);
-        
-        btnGuardarCliente.disabled = true;
-        btnGuardarCliente.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-        
-        // Obtener el token CSRF
-        const csrftoken = formNuevoCliente.querySelector('[name=csrfmiddlewaretoken]').value;
-        
-        fetch('{% url "servicios:crear_cliente_ajax" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': csrftoken
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Respuesta del servidor:', data);
-            if (data.success) {
-                console.log('✅ Cliente creado con éxito');
-                console.log('ID del cliente:', data.cliente.id);
-                console.log('Nombre completo:', data.cliente.nombre_completo);
-                
-                // Agregar nuevo cliente al select
-                const option = new Option(
-                    data.cliente.nombre_completo,
-                    data.cliente.id,
-                    true,
-                    true
-                );
-                option.setAttribute('data-documento', data.cliente.numero_documento);
-                
-                console.log('➕ Agregando opción al select:', option);
-                selectCliente.add(option);
-                selectCliente.value = data.cliente.id;
-                
-                console.log('✏️ Select actualizado. Valor seleccionado:', selectCliente.value);
-                console.log('📋 Opciones en el select:', selectCliente.options.length);
-                
-                // Disparar evento change para actualizar listeners
-                const changeEvent = new Event('change', { bubbles: true });
-                selectCliente.dispatchEvent(changeEvent);
-                console.log('🔄 Evento change disparado');
-                
-                // Validar el campo en tiempo real para mostrar feedback visual
-                if (typeof validarCampoTiempoReal === 'function') {
-                    validarCampoTiempoReal(selectCliente);
-                    console.log('✅ Validación en tiempo real ejecutada');
-                } else {
-                    console.warn('⚠️ Función validarCampoTiempoReal no encontrada');
-                }
-                
-                // Validar consentimiento para habilitar botón si corresponde
-                if (typeof validarConsentimiento === 'function') {
-                    validarConsentimiento();
-                    console.log('✅ Validación de consentimiento ejecutada');
-                } else {
-                    console.warn('⚠️ Función validarConsentimiento no encontrada');
-                }
-                
-                // Cerrar modal
-                modalNuevoCliente.hide();
-                console.log('❌ Modal cerrado');
-                
-                // Limpiar formulario
-                formNuevoCliente.reset();
-                erroresCliente.style.display = 'none';
-                
-                // Mostrar mensaje de éxito
-                alert('Cliente registrado exitosamente');
-                console.log('✅ Proceso completado');
-            } else {
-                // Mostrar errores
-                let erroresHtml = '<strong>Por favor corrija los siguientes errores:</strong><ul>';
-                for (let campo in data.errores) {
-                    const error = data.errores[campo];
-                    // Manejar tanto strings como arrays
-                    if (Array.isArray(error)) {
-                        error.forEach(e => {
-                            erroresHtml += `<li>${e}</li>`;
-                        });
-                    } else {
-                        erroresHtml += `<li>${error}</li>`;
-                    }
-                }
-                erroresHtml += '</ul>';
-                erroresCliente.innerHTML = erroresHtml;
-                erroresCliente.style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Error completo:', error);
-            erroresCliente.innerHTML = '<strong>Error:</strong> ' + error.message;
-            erroresCliente.style.display = 'block';
-        })
-        .finally(() => {
-            btnGuardarCliente.disabled = false;
-            btnGuardarCliente.innerHTML = '<i class="bi bi-save"></i> Guardar Cliente';
-        });
-    });
-    
-    // ========== VALIDACIONES DEL MODAL DE NUEVO CLIENTE ==========
-    
-    // Funciones auxiliares para validaciones del cliente
-    function invalidoCliente(input, feedback, mensaje) {
-        input.classList.add('is-invalid');
-        input.classList.remove('is-valid');
-        feedback.textContent = mensaje;
-    }
-    
-    function validoCliente(input, feedback) {
-        input.classList.remove('is-invalid');
-        input.classList.add('is-valid');
-        feedback.textContent = '';
-    }
-    
-    function limpiarCliente(input, feedback) {
-        input.classList.remove('is-invalid', 'is-valid');
-        feedback.textContent = '';
-    }
-    
-    // Actualizar estado del botón de guardar cliente
-    function actualizarEstadoBotonCliente() {
-        const obligatorios = [
-            'cliente_tipo_documento',
-            'cliente_numero_documento',
-            'cliente_nombre',
-            'cliente_apellido',
-            'cliente_fecha_nacimiento'
-        ];
-        
-        let todoCompleto = true;
-        
-        obligatorios.forEach(id => {
-            const campo = document.getElementById(id);
-            if (!campo) {
-                todoCompleto = false;
-                return;
-            }
-            
-            const valor = campo.value.trim();
-            const esValido = campo.classList.contains('is-valid');
-            const esInvalido = campo.classList.contains('is-invalid');
-            
-            // Si está vacío o es inválido, no está completo
-            if (valor === '' || esInvalido) {
-                todoCompleto = false;
-            }
-            
-            // Si tiene valor pero no es válido, no está completo  
-            if (valor !== '' && !esValido) {
-                todoCompleto = false;
-            }
-        });
-        
-        console.log(`🎯 Botón habilitado: ${todoCompleto}`);
-        
-        if (todoCompleto) {
-            btnGuardarCliente.disabled = false;
-            btnGuardarCliente.classList.remove('btn-secondary');
-            btnGuardarCliente.classList.add('btn-primary');
-        } else {
-            btnGuardarCliente.disabled = true;
-            btnGuardarCliente.classList.remove('btn-primary');
-            btnGuardarCliente.classList.add('btn-secondary');
-        }
-    }
-    
-    // Validaciones en tiempo real para el modal de cliente
-    document.addEventListener('input', async function(e) {
-        const input = e.target;
-        
-        // Solo procesar inputs del modal de nuevo cliente
-        if (!input.id || !input.id.startsWith('cliente_')) return;
-        
-        const feedback = input.nextElementSibling;
-        if (!feedback || !feedback.classList.contains('invalid-feedback')) return;
-        
-        const valor = input.value.trim();
-        
-        // TIPO DE DOCUMENTO (select)
-        if (input.id === 'cliente_tipo_documento') {
-            if (valor === '') {
-                limpiarCliente(input, feedback);
-            } else {
-                validoCliente(input, feedback);
-            }
-            actualizarEstadoBotonCliente();
-            return;
-        }
-        
-        // NÚMERO DE DOCUMENTO
-        if (input.id === 'cliente_numero_documento') {
-            if (valor === '') {
-                limpiarCliente(input, feedback);
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            if (!/^\\d+$/.test(valor)) {
-                invalidoCliente(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            if (valor.length < 6 || valor.length > 12) {
-                invalidoCliente(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            // Validar si el documento ya existe
-            try {
-                const url = `/clientes/validar-documento/?numero=${valor}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                if (!data.valido) {
-                    invalidoCliente(input, feedback, data.mensaje);
-                } else {
-                    validoCliente(input, feedback);
-                }
-            } catch {
-                invalidoCliente(input, feedback, 'Error validando el documento.');
-            }
-            
-            actualizarEstadoBotonCliente();
-        }
-        
-        // NOMBRE / APELLIDO
-        if (input.id === 'cliente_nombre' || input.id === 'cliente_apellido') {
-            if (valor === '') {
-                limpiarCliente(input, feedback);
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-            
-            if (!soloLetras.test(valor)) {
-                invalidoCliente(
-                    input,
-                    feedback,
-                    input.id === 'cliente_nombre' 
-                        ? 'El nombre solo puede contener letras.'
-                        : 'El apellido solo puede contener letras.'
-                );
-            } else {
-                validoCliente(input, feedback);
-            }
-            
-            actualizarEstadoBotonCliente();
-        }
-        
-        // TELÉFONO
-        if (input.id === 'cliente_telefono') {
-            if (valor === '') {
-                limpiarCliente(input, feedback);
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            if (!/^\d+$/.test(valor)) {
-                invalidoCliente(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            if (valor.length !== 10) {
-                invalidoCliente(input, feedback, 'Debe tener exactamente 10 dígitos.');
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            validoCliente(input, feedback);
-            actualizarEstadoBotonCliente();
-        }
-        
-        // CORREO
-        if (input.id === 'cliente_correo') {
-            if (valor === '') {
-                limpiarCliente(input, feedback);
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
-            if (!emailRegex.test(valor)) {
-                invalidoCliente(input, feedback, 'Correo electrónico inválido.');
-            } else {
-                validoCliente(input, feedback);
-            }
-            
-            actualizarEstadoBotonCliente();
-        }
-        
-        // FECHA DE NACIMIENTO
-        if (input.id === 'cliente_fecha_nacimiento') {
-            if (valor === '') {
-                limpiarCliente(input, feedback);
-                actualizarEstadoBotonCliente();
-                return;
-            }
-            
-            const fecha = new Date(valor);
-            const hoy = new Date();
-            
-            if (fecha > hoy) {
-                invalidoCliente(input, feedback, 'La fecha no puede ser futura.');
-            } else {
-                validoCliente(input, feedback);
-            }
-            
-            actualizarEstadoBotonCliente();
-        }
-    });
-    
-    // Listener específico para el select de tipo de documento
-    document.addEventListener('change', function(e) {
-        if (e.target.id === 'cliente_tipo_documento') {
-            const select = e.target;
-            const feedback = select.nextElementSibling;
-            
-            if (select.value && select.value !== '') {
-                validoCliente(select, feedback);
-            } else {
-                limpiarCliente(select, feedback);
-            }
-            
-            actualizarEstadoBotonCliente();
-        }
-    });
-    
-    // Limpiar todo al cerrar el modal de cliente
-    document.getElementById('modalNuevoCliente').addEventListener('hidden.bs.modal', function() {
-        formNuevoCliente.reset();
-        
-        formNuevoCliente.querySelectorAll('input, select').forEach(el => {
-            el.classList.remove('is-valid', 'is-invalid');
-        });
-        
-        formNuevoCliente.querySelectorAll('.invalid-feedback').forEach(el => {
-            el.textContent = '';
-        });
-        
-        erroresCliente.style.display = 'none';
-    });
     
     // ========== VALIDACIÓN EN TIEMPO REAL ==========
     function validarCampoTiempoReal(campo) {
@@ -1296,6 +849,11 @@ document.addEventListener('DOMContentLoaded', function() {
         );
         
         camposValidar.forEach(function(campo) {
+            // Excluir campos del modal de nuevo cliente (tienen su propia validación)
+            if (campo.id && campo.id.startsWith('modal_')) {
+                return;
+            }
+            
             // Validar al perder el foco (blur)
             campo.addEventListener('blur', function() {
                 validarCampoTiempoReal(this);

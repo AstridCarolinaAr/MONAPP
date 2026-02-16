@@ -153,7 +153,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (valor.length !== 10) {
-                invalido(input, feedback, 'Debe tener exactamente 10 dígitos.');
+                const digitosActuales = valor.length;
+                const faltanOSobran = digitosActuales < 10 
+                    ? `Faltan ${10 - digitosActuales} dígito${10 - digitosActuales > 1 ? 's' : ''}`
+                    : `Sobran ${digitosActuales - 10} dígito${digitosActuales - 10 > 1 ? 's' : ''}`;
+                invalido(input, feedback, `Debe tener exactamente 10 dígitos. ${faltanOSobran}.`);
                 actualizarEstadoBoton();
                 return;
             }
