@@ -8,6 +8,11 @@ from django.db.models.deletion import ProtectedError
 from inventario.models import MovimientoInventario
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
+from django.urls import reverse
+
+def is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
 
 def lista_proveedores(request):
@@ -48,7 +53,7 @@ def lista_proveedores(request):
 
     return render(
         request,
-        "colaborador/lista_proveedor.html",
+        "proveedor/lista_proveedor.html",
         {
             "proveedores": proveedores,
             "estado_actual": estado
@@ -57,57 +62,87 @@ def lista_proveedores(request):
 
 
 def crear_proveedor(request):
-    print("METODO:", request.method)
-    print("POST:", request.POST)
+    form = ProveedorcrearForm(request.POST or None, request.FILES or None)
 
-    if request.method == 'POST':
-        form = ProveedorcrearForm(request.POST)
+    if request.method == "POST" and form.is_valid():
+        proveedor = form.save()
+        messages.success(request, f'Proveedor "{proveedor.nombre_proveedor}" creado correctamente.')
 
-        print("VALIDO:", form.is_valid())
-        print("ERRORES:", form.errors)
+        if is_ajax(request):
+            return JsonResponse({
+                "success": True,
+                "redirect_url": reverse("proveedores:lista_proveedor")
+            })
 
-    if request.method == "POST":
-        form = ProveedorcrearForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Proveedor creado correctamente.")
-            return redirect("proveedores:lista_proveedor")
-    else:
-        form = ProveedorcrearForm()
+        return redirect("proveedores:lista_proveedor")
 
-    return render(
-        request,
-        "colaborador/crear_proveedor.html",
-        {
-            "form": form,
-            "titulo": "Nuevo proveedor"
-        }
-    )
+    context = {
+        "form": form,
+        "action_url": reverse("proveedores:crear_proveedor"),
+        "submit_label": "Crear",
+        "titulo": "Crear proveedor"
+    }
 
+    if is_ajax(request):
+        html = render_to_string(
+            "proveedor/formulario_crear_proveedor.html",
+            context,
+            request=request
+        )
+        return JsonResponse({
+            "success": False,
+            "html": html,
+            "title": context["titulo"],
+            "redirect_url": reverse("proveedores:lista_proveedor")
+        })
 
+    return render(request, "proveedor/crear_proveedor.html", context)
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
+    form = ProveedorcrearForm(request.POST or None, instance=proveedor)
 
     if request.method == "POST":
-        form = ProveedoreditarForm(request.POST, instance=proveedor)
         if form.is_valid():
             form.save()
-            messages.success(request, "Proveedor actualizado correctamente.")
+
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"success": True})
+
             return redirect("proveedores:lista_proveedor")
-    else:
-        form = ProveedoreditarForm(instance=proveedor)
 
-    return render(
-        request,
-        "colaborador/editar_proveedor.html",
-        {
-            "form": form,
-            "proveedor": proveedor,
-            "titulo": "Editar proveedor"
-        }
-    )
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "proveedor/_form_proveedor.html",
+                {
+                    "form": form,
+                    "action_url": reverse("proveedores:editar_proveedor", args=[pk]),
+                    "titulo": "Editar proveedor",
+                    "submit_label": "Actualizar"
+                },
+                request=request
+            )
+            return JsonResponse({
+                "success": False,
+                "html": html,
+                "title": "Editar proveedor"
+            })
 
+    context = {
+        "form": form,
+        "action_url": reverse("proveedores:editar_proveedor", args=[pk]),
+        "titulo": "Editar proveedor",
+        "submit_label": "Actualizar"
+    }
 
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = render_to_string("proveedor/formulario_editar_proveedor.html", context, request=request)
+        return JsonResponse({
+            "success": False,
+            "html": html,
+            "title": context["titulo"]
+        })
+
+    return render(request, "proveedor/editar_proveedor.html", context)
 
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)

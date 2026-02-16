@@ -23,10 +23,12 @@
                         proveedor{{ proveedores|length|pluralize:"es" }}
                     </small>
                 </div>
-
-                <a href="{% url 'proveedores:crear_proveedor' %}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Nuevo proveedor
-                </a>
+            <a href="{% url 'proveedores:crear_proveedor' %}"
+            class="btn btn-primary"
+            data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+            data-modal-title="Crear producto">
+            Crear producto
+            </a>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -140,11 +142,11 @@
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
 
-                                    <!-- EDITAR -->
-                                    <a href="{% url 'proveedores:editar_proveedor' proveedor.id %}"
-                                       class="btn-icon btn-editar">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                        <button class="btn btn-primary btn-sm"
+                                                data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
+                                                data-modal-title="Editar proveedor">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
 
                                     {% if proveedor.estado == 'activo' %}
                                         <!-- DESACTIVAR -->
@@ -212,9 +214,31 @@
         </div>
     </div>
 </div>
+<!-- Modal reutilizable -->
+<div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content ultra-card">
+
+      <div class="modal-header ultra-header">
+        <div class="d-flex align-items-center gap-2">
+          <span class="ultra-icon"><i class="bi bi-pencil-square"></i></span>
+          <div>
+            <div class="ultra-title" id="ajaxFormModalTitle">Formulario</div>
+            <div class="ultra-subtitle">Completa la información</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body p-4" id="ajaxFormModalBody"></div>
+
+    </div>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
 {% block extra_js %}
 <script src="{% static 'proveedor/js/detalle_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/eliminar_proveedor.js' %}"></script>
+<script src="{% static 'proveedor/js/proveedor_formulario.js' %}"></script>
 {% endblock %}

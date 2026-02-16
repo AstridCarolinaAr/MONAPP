@@ -14,6 +14,7 @@ class ProveedorcrearForm(forms.ModelForm):
             'telefono_proveedor',
             'correo_proveedor',
             'direccion_proveedor',
+            
         ]
 
         widgets = {
