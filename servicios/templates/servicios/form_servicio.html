@@ -7,6 +7,10 @@
     <i class="bi bi-gear-fill"></i> {{ titulo }}
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
@@ -57,9 +61,9 @@
                             {% endif %}
                         </div>
 
-                        <div class="mb-3 form-check">
-                            {{ form.activo }}
+                        <div class="mb-3">
                             {{ form.activo.label_tag }}
+                            {{ form.activo }}
                             {% if form.activo.errors %}
                                 <div class="text-danger">{{ form.activo.errors }}</div>
                             {% endif %}
