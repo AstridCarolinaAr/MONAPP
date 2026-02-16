@@ -502,9 +502,9 @@ def solicitar_recuperacion(request):
         })
 
         email_msg = EmailMultiAlternatives(
-            subject='🐟 Recuperación de contraseña - Pescadería Huina',
+            subject='✨ Recuperación de contraseña - MONAPP',
             body='Tu cliente de correo no soporta HTML',
-            from_email='Pescadería Huina <tucorreo@gmail.com>',
+            from_email='MONAPP <tucorreo@gmail.com>',
             to=[email],
         )
 
