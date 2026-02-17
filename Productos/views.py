@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 
 from .models import Producto
 from .forms import ProductoForm
-from inventario.models import DetalleMovimiento
+from compras.models import DetalleCompra
 
 
 

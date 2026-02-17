@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from .models import Venta, DetalleVenta
-from inventario.models import DetalleMovimiento
+from compras.models import DetalleCompra
 from django.contrib import messages
 from .forms import VentaForm
 from Productos.models import Producto  
@@ -46,7 +46,7 @@ def crear_venta(request):
     productos_stock = []
 
     for p in productos:
-        entradas = DetalleMovimiento.objects.filter(
+        entradas = DetalleCompra.objects.filter(
             producto=p
         ).aggregate(total=Sum("cantidad"))["total"] or 0
 
@@ -98,7 +98,7 @@ def crear_venta(request):
                         codigo=codigo
                     )
 
-                    entradas = DetalleMovimiento.objects.filter(
+                    entradas = DetalleCompra.objects.filter(
                         producto=producto
                     ).aggregate(total=Sum("cantidad"))["total"] or 0
 

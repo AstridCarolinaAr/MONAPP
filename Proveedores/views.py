@@ -5,7 +5,7 @@ from .models import Proveedor
 from .forms import ProveedorcrearForm
 from .forms import ProveedoreditarForm
 from django.db.models.deletion import ProtectedError
-from inventario.models import MovimientoInventario
+from compras.models import DetalleCompra
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
@@ -156,7 +156,7 @@ def eliminar_proveedor(request, pk):
 
         except ProtectedError:
 
-                movimientos = MovimientoInventario.objects.filter(proveedor=proveedor)
+                movimientos = DetalleCompra.objects.filter(proveedor=proveedor)
 
         return JsonResponse({
             "status": "protected",
