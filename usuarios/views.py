@@ -7,15 +7,18 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-<<<<<<< HEAD
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-=======
 from django.utils.crypto import get_random_string
->>>>>>> e1a8fb249c7a3ea60c4390fe75587a03b24d3f98
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.conf import settings
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
 @csrf_protect
@@ -48,12 +51,6 @@ def logout_view(request):
 
 # ==================== RECUPERACIÓN DE CONTRASEÑA ====================
 
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.template.loader import render_to_string
-from django.conf import settings
 
 @csrf_protect
 def password_reset_view(request):

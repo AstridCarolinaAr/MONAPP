@@ -1,4 +1,6 @@
-{% load static %}
+from django.template.loader import get_template
+t = get_template("core/dashboard.html")
+print(t.origin){% load static %}
 
 <!DOCTYPE html>
 <html lang="es">

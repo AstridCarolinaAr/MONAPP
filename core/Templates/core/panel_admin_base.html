@@ -16,8 +16,6 @@
     <!-- CSS BASE DEL PANEL -->
     <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}">
 
-
-
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -186,15 +184,30 @@
 <!-- CONTENIDO -->
 <div class="main-content">
 
-    <div class="topbar">
-        <h4 class="page-title">
-            {% block page_title %}{% endblock %}
-        </h4>
-    </div>
+  <div class="page-bg">
+    <div class="page-container">
+        
+        <div class="page-card">
 
-    <div class="content-wrapper">
-        {% block content %}{% endblock %}
+            <div class="page-header">
+                <div class="page-left">
+                <div class="page-title-row">
+                    {% block page_icon %}{% endblock %}
+                    <h2 class="page-title">{% block page_title %}{% endblock %}</h2>
+                </div>
+                <div class="page-subtitle">{% block page_subtitle %}{% endblock %}</div>
+                </div>
+
+                <div class="page-actions">
+                {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+
+                {% block content %}{% endblock %}
+
+        </div>
     </div>
+  </div>
 
 </div>
 <script>

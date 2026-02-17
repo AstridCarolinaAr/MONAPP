@@ -13,3 +13,71 @@ input:disabled {
 .is-invalid:focus {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
+.empty-state{
+  display: inline-block;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(58,42,36,.05);
+  color: #3a2a24;
+}
+
+.empty-state a{
+  color: #3a2a24;
+  font-weight: 700;
+  text-decoration: underline;
+}
+.table-card{
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+
+.styled-table thead th{
+  background: linear-gradient(90deg, #3a2a24, #1f1412);
+  color:#fff !important;
+  font-weight:700;
+  letter-spacing:.5px;
+  border:0 !important;
+  padding:14px 16px;
+  text-transform:uppercase;
+  font-size:12px;
+}
+
+.styled-table tbody td{
+  padding:14px 16px;
+  border-top:1px solid rgba(0,0,0,.06);
+  vertical-align:middle;
+}
+
+.styled-table tbody tr:hover{
+  background: rgba(58,42,36,.04);
+}
+.btn-pill-dark{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 18px;
+  border-radius:999px;
+  background: linear-gradient(90deg, #3a2a24, #1f1412);
+  color:#fff !important;
+  text-decoration:none !important;
+  font-weight:700;
+  box-shadow:0 10px 22px rgba(0,0,0,.18);
+  border:0;
+}
+
+.btn-pill-dark:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.btn-pill-dark .icon{
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.15);
+  font-weight:900;
+}
