@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'servicios',
     'productos_web',
     'promociones',
+    'Gestion',
 ]
 
 MIDDLEWARE = [

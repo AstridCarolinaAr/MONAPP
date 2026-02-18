@@ -53,6 +53,9 @@
     height: 100vh;
     background: var(--sidebar-bg);
     z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 
