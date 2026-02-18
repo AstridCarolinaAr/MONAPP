@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'core',
     'clientes',
     'usuarios',
-    'Productos',
+    'Productos.apps.ProductosConfig',
     'Proveedores',
     'ventas.apps.VentasConfig',
     'personal',

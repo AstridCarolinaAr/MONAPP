@@ -46,7 +46,7 @@ class Compra(models.Model):
 class DetalleCompra(models.Model):
     compra = models.ForeignKey(
         Compra,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="detalles"
     )
 

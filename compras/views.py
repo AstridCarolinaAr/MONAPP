@@ -7,7 +7,8 @@ from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum
-
+from django.db.models.deletion import ProtectedError
+from collections import Counter
 from .models import Compra
 from .forms import CompraForm, DetalleCompraFormSet
 
@@ -123,14 +124,26 @@ def crear_compra(request):
     return render(request, "compras/crear_compra.html", context)
 
 
-@login_required
+
 @require_POST
-def eliminar_compra(request, compra_id):
-    compra = get_object_or_404(Compra, id=compra_id)
-    compra.delete()
-    messages.success(request, "Compra eliminada correctamente.")
+def eliminar_compra(request, pk):
+    compra = get_object_or_404(Compra, pk=pk)
 
-    if is_ajax(request):
-        return JsonResponse({"success": True})
+    try:
+        compra.delete()
+        return JsonResponse({"status": "deleted"})
+    except ProtectedError as e:
+        objs = list(getattr(e, "protected_objects", []) or [])
+        counter = Counter(f"{o._meta.verbose_name_plural}" for o in objs)
 
-    return redirect("compras:lista_compras")
+        relacionados = [{"modelo": k, "cantidad": v} for k, v in counter.items()]
+        total = sum(counter.values())
+
+        detalle_txt = ", ".join([f'{r["cantidad"]} {r["modelo"]}' for r in relacionados]) or "registros relacionados"
+
+        return JsonResponse({
+            "status": "protected",
+            "total": total,
+            "relacionados": relacionados,
+            "detalle": detalle_txt,
+        }, status=409)

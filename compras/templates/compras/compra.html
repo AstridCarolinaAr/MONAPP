@@ -66,12 +66,13 @@
                         data-url="{% url 'compras:detalle_compra' c.id %}">
                 <i class="bi bi-eye"></i>
                 </button>
-                <button class="btn btn-outline-danger btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalEliminar{{ c.id }}">
-                  <i class="bi bi-trash"></i>
-                </button>
-
+                
+                    <button type="button"
+                            class="btn btn-danger js-eliminar-compra"
+                            data-url="{% url 'compras:eliminar_compra' c.id %}"
+                            data-id="{{ c.id }}">
+                      Eliminar
+                    </button>
               </div>
             </td>
           </tr>
@@ -87,11 +88,9 @@
 
                   <div class="d-flex justify-content-center gap-3">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-danger">Eliminar</button>
+
                   </div>
-
                 </form>
-
               </div>
             </div>
           </div>
@@ -137,5 +136,6 @@
 
 {% block extra_js %}
   {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'compras/js/compra.js' %}"></script>
 {% endblock %}

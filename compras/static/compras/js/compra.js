@@ -217,3 +217,110 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 });
+document.addEventListener("DOMContentLoaded", () => {
+  function getCSRFToken() {
+    return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || "";
+  }
+
+  document.body.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".js-eliminar-compra");
+    if (!btn) return;
+
+    const url = btn.dataset.url;
+    if (!url) return;
+
+    const modalEl = btn.closest(".modal");
+    const modal = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+
+    const confirm = await Swal.fire({
+      title: "Confirmar eliminación",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      btn.disabled = true;
+
+      const res = await fetch(url, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "X-CSRFToken": getCSRFToken(),
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      // si el backend devuelve HTML por error, esto falla, por eso validamos
+      const contentType = (res.headers.get("content-type") || "").toLowerCase();
+      if (!contentType.includes("application/json")) {
+        throw new Error("Respuesta no JSON");
+      }
+
+      const data = await res.json();
+
+      if (data.status === "deleted") {
+        if (modal) modal.hide();
+
+        await Swal.fire({
+          title: "Eliminada",
+          text: "La compra fue eliminada correctamente.",
+          icon: "success",
+          confirmButtonColor: "#198754",
+        });
+
+        window.location.reload();
+        return;
+      }
+
+      if (data.status === "protected") {
+        if (modal) modal.hide();
+
+        const lista = Array.isArray(data.relacionados) && data.relacionados.length
+          ? `<ul class="text-start mb-0">
+              ${data.relacionados.map(r => `<li><strong>${r.cantidad}</strong> ${r.modelo}</li>`).join("")}
+            </ul>`
+          : `<div>${data.detalle || "Tiene relaciones"}</div>`;
+
+        await Swal.fire({
+          title: "No se puede eliminar",
+          html: `
+            <div class="mb-2">Esta compra está relacionada con:</div>
+            ${lista}
+          `,
+          icon: "info",
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#0d6efd",
+        });
+
+        return;
+      }
+
+      if (modal) modal.hide();
+      await Swal.fire({
+        title: "No se pudo eliminar",
+        text: data.message || "Ocurrió un error.",
+        icon: "error",
+        confirmButtonColor: "#dc3545",
+      });
+    } catch (err) {
+      console.error(err);
+      if (modal) modal.hide();
+
+      Swal.fire({
+        title: "Error",
+        text: "No fue posible procesar la solicitud.",
+        icon: "error",
+        confirmButtonColor: "#dc3545",
+      });
+    } finally {
+      btn.disabled = false;
+    }
+  });
+});
