@@ -1,6 +1,6 @@
 {% load static %}
 
-<form method="post" id="form-crear-usuario" novalidate>
+<form method="post" id="form-crear-usuario" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     
     {% if form.non_field_errors %}
@@ -111,6 +111,26 @@
                 <div class="invalid-feedback d-block">{{ form.telefono.errors|join:", " }}</div>
             {% endif %}
         </div>
+
+        <!-- Foto de Perfil -->
+        <div class="col-12">
+            <label class="form-label">{{ form.foto_perfil.label }}</label>
+            <div class="d-flex align-items-center gap-3">
+                <div id="preview-foto-container" style="width: 100px; height: 100px; border: 2px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8f9fa;">
+                    <i class="bi bi-person-circle" style="font-size: 3rem; color: #adb5bd;"></i>
+                    <img id="preview-foto" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="flex-grow-1">
+                    {{ form.foto_perfil }}
+                    <small class="text-muted d-block mt-1">
+                        Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 5MB
+                    </small>
+                    {% if form.foto_perfil.errors %}
+                        <div class="invalid-feedback d-block">{{ form.foto_perfil.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Botones -->
@@ -180,6 +200,27 @@
             telefono.addEventListener('keypress', function(e) {
                 if (e.which < 48 || e.which > 57) {
                     e.preventDefault();
+                }
+            });
+        }
+
+        // Vista previa de la foto de perfil
+        const fotoPerfil = document.querySelector('#form-crear-usuario input[name="foto_perfil"]');
+        if (fotoPerfil) {
+            fotoPerfil.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('preview-foto');
+                        const container = document.getElementById('preview-foto-container');
+                        const icon = container.querySelector('i');
+                        
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        if (icon) icon.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
         }

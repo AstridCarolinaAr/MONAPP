@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
@@ -93,7 +93,7 @@ def crear_usuario_view(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
+        form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             
@@ -145,8 +145,8 @@ def crear_usuario_view(request):
 def editar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
-
     usuario = get_object_or_404(User, id=user_id)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
         form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
@@ -157,17 +157,63 @@ def editar_usuario_view(request, user_id):
         )
 
         if form_usuario.is_valid() and form_perfil.is_valid():
-            form_usuario.save()
+            user_updated = form_usuario.save(commit=False)
+            
+            # Actualizar grupos según el rol
+            rol = form_usuario.cleaned_data.get('rol')
+            if rol:
+                user_updated.groups.clear()
+                grupo, created = Group.objects.get_or_create(name=rol)
+                user_updated.groups.add(grupo)
+                
+                # Configurar is_staff según rol
+                if rol in ['Administrador', 'Auxiliar']:
+                    user_updated.is_staff = True
+                else:
+                    user_updated.is_staff = False
+            
+            user_updated.save()
             form_perfil.save()
-            messages.success(
-                request,
-                f'Usuario {usuario.get_full_name()} actualizado.'
-            )
-            return redirect('usuarios:lista_usuarios')
+            
+            if is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Usuario {usuario.get_full_name()} actualizado exitosamente.'
+                })
+            else:
+                messages.success(
+                    request,
+                    f'Usuario {usuario.get_full_name()} actualizado.'
+                )
+                return redirect('usuarios:lista_usuarios')
+        else:
+            if is_ajax:
+                html_form = render_to_string('usuarios/_formulario_editar_usuario_modal.html', 
+                                            {
+                                                'form_usuario': form_usuario,
+                                                'form_perfil': form_perfil,
+                                                'usuario': usuario
+                                            }, 
+                                            request=request)
+                return JsonResponse({
+                    'success': False,
+                    'html_form': html_form
+                })
 
     else:
         form_usuario = EditarUsuarioForm(instance=usuario)
         form_perfil = EditarPerfilForm(instance=usuario.perfil)
+    
+    # Si es AJAX y es GET, retornar el HTML del formulario para el modal
+    if is_ajax:
+        html_form = render_to_string('usuarios/_formulario_editar_usuario_modal.html', 
+                                     {
+                                         'form_usuario': form_usuario,
+                                         'form_perfil': form_perfil,
+                                         'usuario': usuario
+                                     }, 
+                                     request=request)
+        return JsonResponse({'html_form': html_form})
 
     return render(
         request,
@@ -186,22 +232,48 @@ def editar_usuario_view(request, user_id):
 def eliminar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
-
     usuario = get_object_or_404(User, id=user_id)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if usuario == request.user:
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': 'No puedes eliminarte a ti mismo.'
+            })
         messages.error(request, 'No puedes eliminarte a ti mismo.')
         return redirect('usuarios:lista_usuarios')
 
     if request.method == 'POST':
-        usuario.is_active = False
-        usuario.save()
-        messages.success(
-            request,
-            f'Usuario {usuario.get_full_name()} desactivado.'
-        )
-        return redirect('usuarios:lista_usuarios')
+        nombre_completo = usuario.get_full_name()
+        usuario.delete()
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': f'Usuario {nombre_completo} eliminado exitosamente.'
+            })
+        else:
+            messages.success(
+                request,
+                f'Usuario {nombre_completo} eliminado.'
+            )
+            return redirect('usuarios:lista_usuarios')
 
+    # Si es AJAX y es GET, retornar el HTML del modal de confirmación
+    if is_ajax:
+        try:
+            html_content = render_to_string('usuarios/_confirmar_eliminar_modal.html', 
+                                           {'usuario': usuario}, 
+                                           request=request)
+            return JsonResponse({'html_content': html_content})
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al cargar el contenido: {str(e)}'
+            }, status=500)
+
+    # Si no es AJAX, mostrar la página completa (comportamiento anterior)
     return render(
         request,
         'usuarios/eliminar_usuario.html',
@@ -244,3 +316,88 @@ def perfil_view(request):
             'form_perfil': form_perfil,
         }
     )
+
+
+# ==================== VALIDACIONES AJAX EN TIEMPO REAL ====================
+
+@login_required
+@no_colaborador_required()
+def validar_documento_ajax(request):
+    """
+    Endpoint AJAX para validar documento en tiempo real
+    """
+    if request.method == 'GET':
+        documento = request.GET.get('documento', '').strip()
+        
+        if not documento:
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'El documento es requerido'
+            })
+        
+        # Validar que solo contenga números
+        if not documento.isdigit():
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'El documento solo puede contener números'
+            })
+        
+        # Validar longitud mínima
+        if len(documento) < 6:
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'El documento debe tener al menos 6 dígitos'
+            })
+        
+        # Verificar si ya existe
+        if PerfilUsuario.objects.filter(documento=documento).exists():
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'Este documento ya está registrado'
+            })
+        
+        return JsonResponse({
+            'valido': True,
+            'mensaje': 'Documento válido'
+        })
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+@no_colaborador_required()
+def validar_email_ajax(request):
+    """
+    Endpoint AJAX para validar email en tiempo real
+    """
+    if request.method == 'GET':
+        email = request.GET.get('email', '').strip()
+        
+        if not email:
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'El correo electrónico es requerido'
+            })
+        
+        # Validar formato de email básico
+        import re
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'Ingrese un correo electrónico válido'
+            })
+        
+        # Verificar si ya existe
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({
+                'valido': False,
+                'mensaje': 'Este correo electrónico ya está registrado'
+            })
+        
+        return JsonResponse({
+            'valido': True,
+            'mensaje': 'Correo electrónico válido'
+        })
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
