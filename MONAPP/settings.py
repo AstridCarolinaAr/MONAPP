@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'personal',
     'inventario',
     'servicios',
-    'compras',
+    'compras.apps.ComprasConfig',
      'bootstrap5',
 ]
 

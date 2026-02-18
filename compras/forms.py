@@ -10,21 +10,10 @@ class CompraForm(forms.ModelForm):
         model = Compra
         fields = [
             "proveedor",
-            "nombre_repartidor",
-            "apellido_repartidor",
-            "cedula_repartidor",
-            "telefono_repartidor",
-            "tipo_vehiculo",
-            "placa_vehiculo",
+
         ]
         widgets = {
             "proveedor": forms.Select(attrs={"class": "form-select"}),
-            "nombre_repartidor": forms.TextInput(attrs={"class": "form-control"}),
-            "apellido_repartidor": forms.TextInput(attrs={"class": "form-control"}),
-            "cedula_repartidor": forms.TextInput(attrs={"class": "form-control"}),
-            "telefono_repartidor": forms.TextInput(attrs={"class": "form-control"}),
-            "tipo_vehiculo": forms.TextInput(attrs={"class": "form-control"}),
-            "placa_vehiculo": forms.TextInput(attrs={"class": "form-control"}),
         }
 
     def __init__(self, *args, **kwargs):

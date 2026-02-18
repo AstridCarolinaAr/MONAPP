@@ -38,12 +38,11 @@
       <table class="table table-hover align-middle tabla-compras">
         <thead>
           <tr>
-            <th>Fecha</th>
             <th>Proveedor</th>
-            <th>Repartidor</th>
-            <th>Total</th>
-            <th>Vehículo</th>
+            <th>Fecha</th>
             <th>Usuario</th>
+
+
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -51,12 +50,10 @@
         <tbody>
         {% for c in compras %}
           <tr>
-            <td>{{ c.fecha }}</td>
             <td>{{ c.proveedor }}</td>
-            <td>{{ c.nombre_repartidor }} {{ c.apellido_repartidor }}</td>
-            <td class="fw-semibold text-success">${{ c.precio_total }}</td>
-            <td>{{ c.placa_vehiculo }} ({{ c.tipo_vehiculo }})</td>
+            <td>{{ c.fecha }}</td>
             <td>{{ c.usuario.username }}</td>
+
 
             <td class="text-center">
 

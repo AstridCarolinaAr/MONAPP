@@ -2,11 +2,6 @@
   <div class="col-md-6"><strong>Fecha:</strong> {{ c.fecha }}</div>
   <div class="col-md-6"><strong>Proveedor:</strong> {{ c.proveedor }}</div>
 
-  <div class="col-md-6"><strong>Repartidor:</strong> {{ c.nombre_repartidor }} {{ c.apellido_repartidor }}</div>
-  <div class="col-md-6"><strong>Cédula:</strong> {{ c.cedula_repartidor }}</div>
-
-  <div class="col-md-6"><strong>Teléfono:</strong> {{ c.telefono_repartidor }}</div>
-  <div class="col-md-6"><strong>Vehículo:</strong> {{ c.placa_vehiculo }} ({{ c.tipo_vehiculo }})</div>
 
   <div class="col-md-6"><strong>Usuario:</strong> {{ c.usuario.username }}</div>
   <div class="col-md-6"><strong>Total:</strong> ${{ c.precio_total|floatformat:2 }}</div>
