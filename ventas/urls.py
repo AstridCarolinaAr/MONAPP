@@ -9,4 +9,6 @@ urlpatterns = [
     path("editar-modal/<int:pk>/", views.editar_venta_modal, name="editar_modal"),
     path("<int:pk>/detalle-json/", views.detalle_venta_json, name="detalle_json"),
     path('anular/<int:venta_id>/', views.anular_venta, name='anular'),
+    path("toggle-estado/<int:venta_id>/", views.toggle_estado_venta, name="toggle_estado"),
+
 ]

@@ -8,6 +8,8 @@ urlpatterns = [
     path('', include('core.urls')),
     path('auth/', include('usuarios.urls')),
     path('personal/', include('personal.urls')),
+    path('ventas/', include('ventas.urls')),
+
 ]
 
 # Servir archivos media en desarrollo

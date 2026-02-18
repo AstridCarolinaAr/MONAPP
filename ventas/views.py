@@ -13,12 +13,21 @@ from personal.models import Personal
 from django.db.models import Sum
 from django.http import JsonResponse
 from decimal import Decimal
+from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
+
+
 
 def lista_ventas(request):
     q = request.GET.get("q", "").strip()
-    estado = request.GET.get("estado")
+    estado = request.GET.get("estado", "activa").strip()
 
-    ventas = Venta.objects.select_related("cliente").filter(estado="activa")
+    ventas = (
+        Venta.objects
+        .select_related("cliente")
+        .prefetch_related("detalles__producto", "detalles__servicio")
+        .all()
+    )
 
     if q:
         ventas = ventas.filter(
@@ -29,6 +38,8 @@ def lista_ventas(request):
 
     if estado:
         ventas = ventas.filter(estado=estado)
+        
+    ventas = ventas.order_by("-fecha")
 
     return render(
         request,
@@ -39,23 +50,40 @@ def lista_ventas(request):
             "estado": estado,
         },
     )
+    
+@require_POST
+def toggle_estado_venta(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+    venta.estado = "anulada" if venta.estado == "activa" else "activa"
+    venta.save()
+    return redirect("ventas:lista")
+def es_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q, Sum
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.http import JsonResponse
-from django.db import transaction
-from decimal import Decimal
-import json
+def render_crear_venta(request, form, productos_stock, servicios, personal, status=200):
+    """
+    - Si es AJAX: retorna HTML parcial para meterlo dentro del modal.
+    - Si no es AJAX: retorna la página completa normal.
+    """
+    if es_ajax(request):
+        html = render_to_string(
+            "ventas/partials/crear_venta_form.html",
+            {
+                "form": form,
+                "productos_stock": productos_stock,
+                "servicios": servicios,
+                "personal": personal,
+            },
+            request=request
+        )
+        return JsonResponse({"success": False, "html": html}, status=status)
 
-from .models import Venta, DetalleVenta
-from .forms import VentaForm
-from inventario.models import DetalleMovimiento
-from Productos.models import Producto
-from servicios.models import Servicio
-from personal.models import Personal
-
+    return render(request, "ventas/crear_venta.html", {
+        "form": form,
+        "productos_stock": productos_stock,
+        "servicios": servicios,
+        "personal": personal,
+    }, status=status)
 
 @transaction.atomic
 def crear_venta(request):
@@ -71,7 +99,7 @@ def crear_venta(request):
         productos_stock.append({"producto": p, "stock": stock_real})
 
     servicios = Servicio.objects.all()
-    personal = Personal.objects.all()
+    personal = Personal.objects.filter(rol='COL', activo=True).order_by('nombres', 'apellidos')
 
     if request.method == "POST":
         print(">>> POST LLEGÓ")
@@ -184,10 +212,26 @@ def crear_venta(request):
                 )
 
         messages.success(request, "Venta registrada correctamente.")
+        if es_ajax(request):
+            return JsonResponse({"success": True})
+
         return redirect("ventas:lista")
 
     # GET
     form = VentaForm()
+    if es_ajax(request):
+        html = render_to_string(
+            "ventas/partials/crear_venta_form.html",
+            {
+                "form": form,
+                "productos_stock": productos_stock,
+                "servicios": servicios,
+                "personal": personal,
+            },
+            request=request
+        )
+        return JsonResponse({"success": True, "html": html})
+
     return render(request, "ventas/crear_venta.html", {
         "form": form,
         "productos_stock": productos_stock,
@@ -205,7 +249,7 @@ def editar_venta_modal(request, pk):
     detalles_servicios = venta.detalles.filter(servicio__isnull=False)
 
     servicios = Servicio.objects.all()
-    personal = Personal.objects.all()
+    personal = Personal.objects.filter(rol='COL', activo=True).order_by('nombres', 'apellidos')
 
     if request.method == "POST":
         # --- PRODUCTOS ---

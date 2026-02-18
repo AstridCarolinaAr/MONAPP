@@ -1,7 +1,12 @@
-console.log("✅ ventas.js cargado");
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
 {% load humanize %}
+
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
 
 {% block title %}Ventas{% endblock %}
 {% block page_icon %}<i class="bi bi-cart page-icon"></i>{% endblock %}
@@ -9,9 +14,12 @@ console.log("✅ ventas.js cargado");
 {% block page_subtitle %}Gestión de ventas registradas{% endblock %}
 
 {% block page_actions %}
-<a href="{% url 'ventas:crear' %}" class="btn-pill-dark">
+<button type="button"
+        class="btn-pill-dark"
+        id="btnNuevaVenta"
+        data-url="{% url 'ventas:crear' %}">
   <i class="bi bi-plus-circle"></i> Nueva venta
-</a>
+</button>
 {% endblock %}
 
 {% block content %}
@@ -19,16 +27,18 @@ console.log("✅ ventas.js cargado");
 <!-- FILTROS -->
 <form method="get" class="row g-2 mb-3">
   <div class="col-md-4">
-    <input type="text" name="q" class="form-control"
-           placeholder="Buscar venta o cliente" value="{{ q }}">
+    <input type="text"
+           name="q"
+           class="form-control"
+           placeholder="Buscar venta o cliente"
+           value="{{ q }}">
   </div>
 
   <div class="col-md-3">
     <select name="estado" class="form-select">
-      <option value="">Estado</option>
-      <option value="pendiente" {% if estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-      <option value="pagada" {% if estado == 'pagada' %}selected{% endif %}>Pagada</option>
-      <option value="cancelada" {% if estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+      <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
+      <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
+            <option value="">Todas</option>
     </select>
   </div>
 
@@ -44,11 +54,10 @@ console.log("✅ ventas.js cargado");
       <tr>
         <th>Código venta</th>
         <th>Cliente</th>
-        <th>Código producto / servicio</th>
+        <th>Productos / Servicios</th>
         <th>Fecha</th>
-        <th>Precio unitario</th>
-        <th>Cantidad</th>
-        <th>Subtotal</th>
+        <th>Total</th>
+        <th class="text-center">Estado</th>
         <th class="text-end">Acciones</th>
       </tr>
     </thead>
@@ -58,14 +67,45 @@ console.log("✅ ventas.js cargado");
       <tr>
         <td class="fw-semibold">{{ venta.codigo_venta }}</td>
         <td>{{ venta.cliente }}</td>
-        <td>{{ venta.codigo_producto }}</td>
-        <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-        <td>$ {{ venta.precio_unitario }}</td>
-        <td>{{ venta.cantidad }}</td>
-        <td class="fw-semibold">$ {{ venta.subtotal }}</td>
 
+        <td>
+          {% for d in venta.detalles.all %}
+            <div>
+              {% if d.producto %}{{ d.producto.nombre }}{% endif %}
+              {% if d.servicio %}{{ d.servicio.nombre }}{% endif %}
+              <span class="text-muted">x{{ d.cantidad }}</span>
+            </div>
+          {% empty %}
+            <span class="text-muted">Sin detalles</span>
+          {% endfor %}
+        </td>
+
+        <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+
+        <td class="fw-semibold">
+          $ {{ venta.total|intcomma }}
+        </td>
+
+        <!-- SWITCH ESTADO -->
+        <td class="text-center">
+          <form method="post"
+                action="{% url 'ventas:toggle_estado' venta.id %}"
+                class="d-inline form-toggle-estado">
+            {% csrf_token %}
+
+            <label class="sw">
+              <input type="checkbox"
+                     class="sw__input toggle-estado"
+                     {% if venta.estado == 'activa' %}checked{% endif %}
+                     data-estado="{{ venta.estado }}">
+              <span class="sw__slider"></span>
+            </label>
+          </form>
+        </td>
+
+        <!-- ACCIONES -->
         <td class="text-end">
-                  <!-- VER DETALLE -->
+
           <button type="button"
                   class="btn btn-outline-primary btn-sm btn-ver-detalle"
                   data-url="{% url 'ventas:detalle_json' venta.id %}"
@@ -75,7 +115,6 @@ console.log("✅ ventas.js cargado");
             <i class="bi bi-eye"></i>
           </button>
 
-          <!-- EDITAR -->
           <button type="button"
                   class="btn btn-outline-secondary btn-sm btn-editar"
                   data-url="{% url 'ventas:editar_modal' venta.id %}"
@@ -85,18 +124,11 @@ console.log("✅ ventas.js cargado");
             <i class="bi bi-pencil"></i>
           </button>
 
-          <!-- ANULAR -->
-          <form method="post" action="{% url 'ventas:anular' venta.id %}" class="d-inline form-anular-venta">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm" title="Anular venta">
-              <i class="bi bi-x-circle"></i>
-            </button>
-          </form>
-
         </td>
+      </tr>
       {% empty %}
       <tr>
-        <td colspan="8" class="text-center text-muted py-4">
+        <td colspan="7" class="text-center text-muted py-4">
           No hay ventas registradas
         </td>
       </tr>
@@ -105,24 +137,22 @@ console.log("✅ ventas.js cargado");
   </table>
 </div>
 
-<!-- MODAL DETALLE VENTA (UNA SOLA VEZ, FUERA DE LA TABLA) -->
+<!-- MODAL DETALLE -->
 <div class="modal fade" id="modalDetalleVenta" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title">Detalle de venta</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body" id="contenidoDetalleVenta">
         <div class="text-center text-muted py-4">Selecciona una venta…</div>
       </div>
-
     </div>
   </div>
 </div>
 
+<!-- MODAL EDITAR -->
 <div class="modal fade" id="modalEditarVenta" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -136,35 +166,25 @@ console.log("✅ ventas.js cargado");
     </div>
   </div>
 </div>
-<!-- MODAL ANULAR VENTA (REUTILIZABLE) -->
-<div class="modal fade" id="modalAnularVenta" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<!-- MODAL NUEVA VENTA -->
+<div class="modal fade" id="modalNuevaVenta" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
-        <h5 class="modal-title">Confirmar anulación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h5 class="modal-title">Nueva venta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body">
-        ¿Seguro que deseas <strong>anular</strong> esta venta?
-        <div class="text-muted mt-2" style="font-size: 0.9rem;">
-          Esta acción cambiará el estado a “anulada”.
-        </div>
+      <div class="modal-body" id="contenidoNuevaVenta">
+        <div class="text-center text-muted py-4">Cargando formulario…</div>
       </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="btnConfirmarAnular">Sí, anular</button>
-      </div>
-
     </div>
   </div>
 </div>
-{% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{% static 'ventas/js/ventas.js' %}"></script>
 
 {% endblock %}
 
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+<script src="{% static 'ventas/js/ventas.js' %}"></script>
 {% endblock %}
