@@ -4,7 +4,7 @@
 {% block title %}{{ titulo }}{% endblock %}
 
 {% block page_title %}
-    <i class="bi bi-percent"></i> {{ titulo }}
+    <i class="bi bi-percent" style="color: #8d604a;"></i> <span style="color: #5c3d2e;">{{ titulo }}</span>
 {% endblock %}
 
 {% block extra_css %}
@@ -71,6 +71,54 @@
     margin-top: 20px;
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
+}
+/* Estilos adicionales café para formulario */
+.form-label.fw-semibold {
+    color: #5c3d2e;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #8d604a;
+    box-shadow: 0 0 0 0.2rem rgba(141,96,74,.25);
+}
+.form-switch .form-check-input:checked {
+    background-color: #8d604a;
+    border-color: #8d604a;
+}
+.btn-outline-secondary {
+    color: #7a5c4a;
+    border-color: #7a5c4a;
+}
+.btn-outline-secondary:hover {
+    background-color: #7a5c4a;
+    border-color: #7a5c4a;
+    color: #fff;
+}
+.text-danger {
+    color: #a0715a !important;
+}
+/* Alertas con tema café */
+.alert-success {
+    background-color: rgba(141,96,74,.12);
+    border-color: #8d604a;
+    color: #5c3d2e;
+}
+.alert-danger, .alert-error {
+    background-color: rgba(122,92,74,.12);
+    border-color: #7a5c4a;
+    color: #5c3d2e;
+}
+.alert-warning {
+    background-color: rgba(165,129,102,.15);
+    border-color: #a58166;
+    color: #5c3d2e;
+}
+.alert-info {
+    background-color: rgba(180,156,138,.12);
+    border-color: #b49c8a;
+    color: #5c3d2e;
+}
+.form-control, .form-select {
+    border: 1px solid #d4c4ba;
 }
 </style>
 {% endblock %}
