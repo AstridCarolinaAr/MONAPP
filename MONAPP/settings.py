@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'inventario',
     'servicios',
     'compras',
+     'bootstrap5',
 ]
 
 MIDDLEWARE = [

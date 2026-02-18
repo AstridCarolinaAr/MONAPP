@@ -14,30 +14,44 @@
 {% endfor %}
 <h4 class="mt-4">Stock actual</h4>
 
-<div class="table-responsive">
-<table class="table table-bordered table-sm">
-    <thead class="table-light">
-        <tr>
-            <th>Producto</th>
-            <th>Cantidad en stock</th>
-            <th>Última actualización</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for s in stock %}
-        <tr>
-            <td>{{ s.producto.nombre }}</td>
-            <td>{{ s.cantidad_actual }}</td>
-            <td>{{ s.actualizado_en|date:"Y-m-d H:i" }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3" class="text-center text-muted">
-                No hay stock registrado
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+<thead class="table-light">
+  <tr>
+    <th>Producto</th>
+    <th>Unidad</th>
+    <th>Stock</th>
+    <th>Última llegada</th>
+    <th>Cant. última llegada</th>
+    <th>Proveedor</th>
+    <th>Actualizado</th>
+  </tr>
+</thead>
+<tbody>
+  {% for s in stock %}
+  <tr>
+    <td>{{ s.producto.nombre }}</td>
+    <td>{{ s.producto.unidad_medida }}</td>
+    <td>{{ s.cantidad_actual }}</td>
+    <td>
+      {% if s.ultima_entrada_fecha %}
+        {{ s.ultima_entrada_fecha|date:"Y-m-d" }}
+      {% else %}
+        <span class="text-muted">—</span>
+      {% endif %}
+    </td>
+    <td>{{ s.ultima_entrada_cantidad }}</td>
+    <td>
+      {% if s.ultimo_proveedor %}
+        {{ s.ultimo_proveedor.nombre_proveedor }}
+      {% else %}
+        <span class="text-muted">—</span>
+      {% endif %}
+    </td>
+    <td>{{ s.actualizado_en|date:"Y-m-d H:i" }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="7" class="text-center text-muted">No hay stock registrado</td></tr>
+  {% endfor %}
+</tbody>
 </table>
 </div>
 
