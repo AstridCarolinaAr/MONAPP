@@ -56,6 +56,11 @@ def toggle_estado_venta(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
     venta.estado = "anulada" if venta.estado == "activa" else "activa"
     venta.save()
+    messages.success(
+        request,
+        f"Estado actualizado correctamente: {venta.estado.upper()}"
+    )
+
     return redirect("ventas:lista")
 def es_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"

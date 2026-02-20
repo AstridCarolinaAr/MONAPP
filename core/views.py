@@ -4,12 +4,12 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from datetime import datetime,date
-
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
-
 from clientes.models import Cliente
 from servicios.models import Servicio
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
 
 
 
@@ -34,6 +34,8 @@ def index(request):
         'show_login_modal': show_login_modal,
         'servicios': servicios
     })
+    
+    
 
 @login_required
 def dashboard_view(request):
@@ -138,3 +140,4 @@ def solo_admin(view_func):
             return redirect("core:dashboard")
         return view_func(request, *args, **kwargs)
     return wrapper
+

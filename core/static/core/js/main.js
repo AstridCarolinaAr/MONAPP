@@ -57,9 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateLogoColor() {
+       // Si no existe header o logo en esta página, no hacemos nada
+        if (!header || !logo) return;
+
         const headerRect = header.getBoundingClientRect();
 
-        // Punto justo debajo del header
         const x = window.innerWidth / 2;
         const y = headerRect.bottom + 1;
 
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             logo.style.color = '#fff';
         }
-    };
+    }
 
     // ===============================
     // NAVBAR OSCURO FORZADO EN INFINITE

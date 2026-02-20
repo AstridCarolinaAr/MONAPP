@@ -68,7 +68,6 @@
                 </a>
             </li>
 
-
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'productos:lista_productos' %}">
                     <i class="bi bi-box-seam"></i>
@@ -89,6 +88,7 @@
                     <span>Clientes</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'ventas:lista' %}">
                     <i class="bi bi-cart"></i>
@@ -191,52 +191,75 @@
 
             <div class="page-header">
                 <div class="page-left">
-                <div class="page-title-row">
-                    {% block page_icon %}{% endblock %}
-                    <h2 class="page-title">{% block page_title %}{% endblock %}</h2>
-                </div>
-                <div class="page-subtitle">{% block page_subtitle %}{% endblock %}</div>
+                    <div class="page-title-row">
+                        {% block page_icon %}{% endblock %}
+                        <h2 class="page-title">{% block page_title %}{% endblock %}</h2>
+                    </div>
+                    <div class="page-subtitle">{% block page_subtitle %}{% endblock %}</div>
                 </div>
 
                 <div class="page-actions">
-                {% block page_actions %}{% endblock %}
+                    {% block page_actions %}{% endblock %}
                 </div>
             </div>
 
-                {% block content %}{% endblock %}
+            {# ========= MENSAJES + FLAGS (UN SOLO LOOP) ========= #}
+            <script>
+                window.tieneErrorPermiso = false;
+                window.mensajePermiso = "";
+            </script>
+
+            {# ====== SWEETALERT DESDE DJANGO MESSAGES ====== #}
+            {% if messages %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                {% for message in messages %}
+                    (function(){
+                    const tags = "{{ message.tags|escapejs }}";
+                    const text = "{{ message|escapejs }}";
+
+                    let icon = "info";
+                    if (tags.includes("success")) icon = "success";
+                    else if (tags.includes("error")) icon = "error";
+                    else if (tags.includes("warning")) icon = "warning";
+
+                    Swal.fire({
+                        icon: icon,
+                        title: "Mensaje",
+                        text: text,
+                        confirmButtonText: "OK"
+                    });
+                    })();
+                {% endfor %}
+                });
+            </script>
+            {% endif %}
+{# ============================================ #}
+            {# ================================================ #}
+
+            {% block content %}{% endblock %}
 
         </div>
     </div>
   </div>
 
 </div>
+
 <script>
     window.ES_ADMIN = {{ request.user.is_staff|yesno:"true,false" }};
 </script>
 
-
 <!-- BOOTSTRAP JS (ÚNICO Y CORRECTO) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- FLAGS DE PERMISOS -->
-<script>
-  window.tieneErrorPermiso = false;
-  window.mensajePermiso = "";
-
-  {% for message in messages %}
-    {% if "error" in message.tags %}
-      window.tieneErrorPermiso = true;
-      window.mensajePermiso = "{{ message|escapejs }}";
-    {% endif %}
-  {% endfor %}
-</script>
-
 
 <!-- JS GENERAL -->
 <script src="{% static 'core/js/main.js' %}"></script>
 
-{% block extra_js %}{% endblock %}
 <script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
+
+
+{% block extra_js %}{% endblock %}
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof SiennaAccessibility !== 'undefined') {
@@ -244,5 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 </body>
 </html>

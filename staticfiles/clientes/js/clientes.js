@@ -352,6 +352,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+document.addEventListener("DOMContentLoaded", function () {
+
+    if (!window.mostrarModalGestion) return;
+
+    const confirmar = confirm(
+        "¿Deseas añadir un tratamiento de datos a este cliente recién creado?"
+    );
+
+    if (confirmar) {
+        window.location.href = `/servicios/gestion-alisados/crear/?cliente=${window.clienteCreadoId}`;
+    }
+
+});
+
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     document
