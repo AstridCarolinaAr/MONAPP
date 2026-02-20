@@ -48,17 +48,14 @@ def editar_promocion(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'Promoción "{promocion.nombre}" actualizada.')
-            return redirect('promociones:lista')
         else:
-            messages.error(request, 'Corrige los errores del formulario.')
-    else:
-        form = PromocionForm(instance=promocion)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    label = form.fields[field].label if field in form.fields else field
+                    messages.error(request, f'{label}: {error}')
+        return redirect('promociones:lista')
 
-    return render(request, 'promociones/form.html', {
-        'form': form,
-        'titulo': 'Editar Promoción',
-        'promocion': promocion,
-    })
+    return redirect('promociones:lista')
 
 
 # ─────────────────────── ELIMINAR ────────────────────
