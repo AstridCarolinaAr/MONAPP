@@ -63,8 +63,13 @@
                         data-url="{% url 'compras:detalle_compra' c.id %}">
                 <i class="bi bi-eye"></i>
                 </button>
-                
-                    <button type="button"
+                <a href="#"
+                class="btn btn-sm btn-outline-primary"
+                data-modal-url="{% url 'compras:editar_compra' c.id %}"
+                data-modal-title="Editar compra">
+                editar
+                </a>
+                <button type="button"
                             class="btn btn-danger js-eliminar-compra"
                             data-url="{% url 'compras:eliminar_compra' c.id %}"
                             data-id="{{ c.id }}">

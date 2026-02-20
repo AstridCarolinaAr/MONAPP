@@ -17,7 +17,7 @@ def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
 
-@login_required
+# @login_required
 @require_http_methods(["GET"])
 def lista_compras(request):
     compras = (
@@ -30,7 +30,7 @@ def lista_compras(request):
     context = {"compras": compras, "total_compras": total_compras}
     return render(request, "compras/compra.html", context)
 
-@login_required
+# @login_required
 @require_http_methods(["GET"])
 def detalle_compra(request, compra_id):
     compra = get_object_or_404(
@@ -58,12 +58,12 @@ def detalle_compra(request, compra_id):
         request=request
     )
     return JsonResponse({"success": True, "html": html})
-@login_required
+# @login_required
 @require_http_methods(["GET", "POST"])
 def crear_compra(request):
     if request.method == "POST":
         form = CompraForm(request.POST)
-        formset = DetalleCompraFormSet(request.POST)
+        formset = DetalleCompraFormSet(request.POST or None)
 
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
@@ -124,6 +124,38 @@ def crear_compra(request):
     return render(request, "compras/crear_compra.html", context)
 
 
+# @login_required
+@require_http_methods(["GET", "POST"])
+def editar_compra(request, pk):
+    compra = get_object_or_404(Compra, pk=pk)
+
+    if request.method == "POST":
+        form = CompraForm(request.POST, instance=compra)
+        formset = DetalleCompraFormSet(request.POST or None, instance=compra)
+
+        if form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                compra = form.save()
+                formset.save()
+
+            return JsonResponse({"ok": True})
+
+        # si hay errores, devolvemos el HTML del form con errores
+        return render(
+            request,
+            "compras/formulario_editar_compra.html",
+            {"form": form, "formset": formset, "compra": compra},
+            status=400
+        )
+
+    # GET
+    form = CompraForm(instance=compra)
+    formset = DetalleCompraFormSet(instance=compra)
+    return render(
+        request,
+        "compras/formulario_editar_compra.html",
+        {"form": form, "formset": formset, "compra": compra},
+    )
 
 @require_POST
 def eliminar_compra(request, pk):

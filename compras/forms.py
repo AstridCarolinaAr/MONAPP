@@ -39,7 +39,7 @@ class DetalleCompraForm(forms.ModelForm):
 DetalleCompraFormSet = inlineformset_factory(
     Compra,
     DetalleCompra,
-    form=DetalleCompraForm,
-    extra=1,
+    fields=("producto", "cantidad", "precio_unitario"),
+    extra=0,
     can_delete=True,
 )
