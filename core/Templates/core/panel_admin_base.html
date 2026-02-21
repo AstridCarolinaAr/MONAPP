@@ -257,6 +257,23 @@
 <!-- BOOTSTRAP JS (ÚNICO Y CORRECTO) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<<<<<<< HEAD
+=======
+<!-- FLAGS DE PERMISOS -->
+<script>
+  window.tieneErrorPermiso = false;
+  window.mensajePermiso = "";
+
+  {% for message in messages %}
+    {% if 'error' in message.tags %}
+      window.tieneErrorPermiso = true;
+      window.mensajePermiso = "{{ message|escapejs }}";
+    {% endif %}
+  {% endfor %}
+</script>
+
+
+>>>>>>> 26d72603d982d0328a25dd74bfcd6013efdeebd9
 <!-- JS GENERAL -->
 <script src="{% static 'core/js/main.js' %}"></script>
 

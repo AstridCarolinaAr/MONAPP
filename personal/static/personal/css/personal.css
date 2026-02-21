@@ -1,0 +1,790 @@
+/* ==================== PERSONAL - ESTÉTICA MINIMALISTA ==================== */
+
+/* Reset y Base */
+.personal-wrapper {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111;
+    line-height: 1.6;
+    background: #ffffff;
+    min-height: 100vh;
+    padding-top: 40px;
+    padding-bottom: 80px;
+}
+
+/* ==================== CONTENEDOR ==================== */
+.personal-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* ==================== HEADER SECCIÓN ==================== */
+.personal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.personal-header h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.personal-header h1 i {
+    color: #634c40;
+}
+
+/* ==================== BOTONES ESTILO MINIMALISTA ==================== */
+.personal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 36px;
+    border-radius: 999px;
+    border: 1.5px solid #111;
+    text-decoration: none;
+    color: #111;
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    transition: all 0.35s ease;
+    cursor: pointer;
+    background: transparent;
+}
+
+.personal-btn:hover {
+    background: #111;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.15);
+}
+
+.personal-btn.primary {
+    background: #111;
+    color: #fff;
+}
+
+.personal-btn.primary:hover {
+    background: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.personal-btn.success {
+    background: #634c40;
+    border-color: #634c40;
+    color: #fff;
+}
+
+.personal-btn.success:hover {
+    background: #4b3a30;
+    border-color: #4b3a30;
+}
+
+.personal-btn.warning {
+    background: transparent;
+    border-color: #d4a574;
+    color: #634c40;
+}
+
+.personal-btn.warning:hover {
+    background: #d4a574;
+    border-color: #d4a574;
+    color: #fff;
+}
+
+.personal-btn.danger {
+    background: transparent;
+    border-color: #c7412b;
+    color: #c7412b;
+}
+
+.personal-btn.danger:hover {
+    background: #c7412b;
+    border-color: #c7412b;
+    color: #fff;
+}
+
+.personal-btn.info {
+    background: transparent;
+    border-color: #4a90a4;
+    color: #4a90a4;
+}
+
+.personal-btn.info:hover {
+    background: #4a90a4;
+    border-color: #4a90a4;
+    color: #fff;
+}
+
+.personal-btn.secondary {
+    background: transparent;
+    border-color: rgba(17, 17, 17, 0.3);
+    color: #666;
+}
+
+.personal-btn.secondary:hover {
+    background: rgba(17, 17, 17, 0.05);
+    border-color: rgba(17, 17, 17, 0.5);
+    color: #111;
+}
+
+/* Botones pequeños */
+.personal-btn.btn-sm {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+}
+
+/* ==================== TARJETAS ==================== */
+.personal-card {
+    background: #ffffff;
+    border: 1.5px solid rgba(17, 17, 17, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 30px;
+    transition: all 0.35s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.personal-card:hover {
+    border-color: rgba(17, 17, 17, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.personal-card-header {
+    background: #f8f8f8;
+    border-bottom: 1.5px solid rgba(17, 17, 17, 0.1);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 40px;
+    margin: -40px -40px 40px -40px;
+}
+
+.personal-card-header h4 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #111;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ==================== FORMULARIOS ==================== */
+.personal-form-group {
+    margin-bottom: 28px;
+}
+
+.personal-form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+}
+
+.personal-form-control {
+    width: 100%;
+    padding: 14px 20px;
+    border: 1.5px solid rgba(17, 17, 17, 0.15);
+    border-radius: 16px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #111;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.personal-form-control:focus {
+    outline: none;
+    border-color: #634c40;
+    box-shadow: 0 0 0 3px rgba(99, 76, 64, 0.1);
+}
+
+.personal-form-control::placeholder {
+    color: rgba(17, 17, 17, 0.4);
+}
+
+/* Select personalizado */
+.personal-form-control select {
+    cursor: pointer;
+}
+
+/* Checkbox personalizado */
+.personal-form-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #f8f8f8;
+    border-radius: 16px;
+    border: 1.5px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.personal-form-check:hover {
+    background: #f0f0f0;
+    border-color: rgba(17, 17, 17, 0.1);
+}
+
+.personal-form-check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.personal-form-check label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+/* ==================== SWITCH TOGGLE ==================== */
+.personal-switch {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #f8f8f8;
+    border-radius: 16px;
+    border: 1.5px solid transparent;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.personal-switch:hover {
+    background: #f0f0f0;
+    border-color: rgba(17, 17, 17, 0.1);
+}
+
+.personal-switch-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.personal-switch-wrapper input[type="checkbox"],
+input[type="checkbox"].personal-switch-input,
+#id_activo {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+}
+
+.personal-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.personal-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider,
+input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider,
+#id_activo:checked + .personal-switch-slider {
+    background-color: #634c40;
+}
+
+.personal-switch-wrapper input[type="checkbox"]:focus + .personal-switch-slider,
+input[type="checkbox"].personal-switch-input:focus + .personal-switch-slider,
+#id_activo:focus + .personal-switch-slider {
+    box-shadow: 0 0 0 3px rgba(99, 76, 64, 0.2);
+}
+
+.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider:before,
+input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:before,
+#id_activo:checked + .personal-switch-slider:before {
+    transform: translateX(26px);
+}
+
+.personal-switch-label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #111;
+    user-select: none;
+    flex-grow: 1;
+}
+
+/* ==================== BÚSQUEDA ==================== */
+.personal-search-card {
+    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+    border: 1.5px solid rgba(17, 17, 17, 0.08);
+    border-radius: 24px;
+    padding: 35px 40px;
+    margin-bottom: 40px;
+}
+
+.personal-search-form {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 0.8fr;
+    gap: 20px;
+    align-items: end;
+}
+
+/* ==================== TABLA ==================== */
+.personal-table-wrapper {
+    background: #ffffff;
+    border: 1.5px solid rgba(17, 17, 17, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.personal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.personal-table thead {
+    background: linear-gradient(135deg, #111 0%, #2a2a2a 100%);
+}
+
+.personal-table thead th {
+    padding: 20px 24px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.personal-table tbody tr {
+    border-bottom: 1px solid rgba(17, 17, 17, 0.06);
+    transition: background 0.25s ease;
+}
+
+.personal-table tbody tr:hover {
+    background: rgba(99, 76, 64, 0.03);
+}
+
+.personal-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.personal-table tbody td {
+    padding: 20px 24px;
+    font-size: 0.95rem;
+    color: #333;
+    vertical-align: middle;
+}
+
+.personal-table tbody td strong {
+    color: #111;
+    font-weight: 600;
+}
+
+/* ==================== BADGES ==================== */
+.personal-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.personal-badge.success {
+    background: rgba(99, 76, 64, 0.1);
+    color: #634c40;
+    border: 1px solid rgba(99, 76, 64, 0.3);
+}
+
+.personal-badge.warning {
+    background: rgba(212, 165, 116, 0.15);
+    color: #a67c52;
+    border: 1px solid rgba(212, 165, 116, 0.4);
+}
+
+.personal-badge.danger {
+    background: rgba(199, 65, 43, 0.1);
+    color: #c7412b;
+    border: 1px solid rgba(199, 65, 43, 0.3);
+}
+
+.personal-badge.info {
+    background: rgba(74, 144, 164, 0.1);
+    color: #4a90a4;
+    border: 1px solid rgba(74, 144, 164, 0.3);
+}
+
+/* ==================== BOTONES DE ACCIÓN ==================== */
+.personal-action-group {
+    display: flex;
+    gap: 8px;
+}
+
+.personal-action-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1.5px solid rgba(17, 17, 17, 0.15);
+    background: transparent;
+    color: #666;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.personal-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.personal-action-btn.info {
+    border-color: #4a90a4;
+    color: #4a90a4;
+}
+
+.personal-action-btn.info:hover {
+    background: #4a90a4;
+    color: #fff;
+}
+
+.personal-action-btn.warning {
+    border-color: #d4a574;
+    color: #d4a574;
+}
+
+.personal-action-btn.warning:hover {
+    background: #d4a574;
+    color: #fff;
+}
+
+.personal-action-btn.danger {
+    border-color: #c7412b;
+    color: #c7412b;
+}
+
+.personal-action-btn.danger:hover {
+    background: #c7412b;
+    color: #fff;
+}
+
+/* ==================== ALERTAS ==================== */
+.personal-alert {
+    padding: 20px 28px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1.5px solid;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.personal-alert.info {
+    background: rgba(74, 144, 164, 0.05);
+    border-color: rgba(74, 144, 164, 0.3);
+    color: #4a90a4;
+}
+
+.personal-alert.success {
+    background: rgba(99, 76, 64, 0.05);
+    border-color: rgba(99, 76, 64, 0.3);
+    color: #634c40;
+}
+
+.personal-alert.warning {
+    background: rgba(212, 165, 116, 0.08);
+    border-color: rgba(212, 165, 116, 0.4);
+    color: #a67c52;
+}
+
+.personal-alert.danger {
+    background: rgba(199, 65, 43, 0.05);
+    border-color: rgba(199, 65, 43, 0.3);
+    color: #c7412b;
+}
+
+/* ==================== DETALLES ==================== */
+.personal-detail-section {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.personal-detail-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.personal-detail-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(17, 17, 17, 0.5);
+    margin-bottom: 8px;
+}
+
+.personal-detail-value {
+    font-size: 1.15rem;
+    color: #111;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+.personal-detail-value a {
+    color: #634c40;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(99, 76, 64, 0.3);
+    transition: border-color 0.3s ease;
+}
+
+.personal-detail-value a:hover {
+    border-bottom-color: #634c40;
+}
+
+/* ==================== GRID DE DETALLES ==================== */
+.personal-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+
+/* ==================== MENSAJES ==================== */
+.personal-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+}
+
+.personal-message {
+    padding: 18px 24px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    border: 1.5px solid;
+    animation: slideIn 0.4s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ==================== ESTADÍSTICAS ==================== */
+.personal-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(17, 17, 17, 0.06);
+}
+
+.personal-stats strong {
+    color: #111;
+    font-weight: 600;
+}
+
+.personal-stats span {
+    color: #666;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+    .personal-search-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .personal-table {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .personal-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .personal-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .personal-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .personal-table {
+        min-width: 800px;
+    }
+
+    .personal-container {
+        padding: 0 20px;
+    }
+    
+    .personal-card {
+        padding: 30px 24px;
+    }
+    
+    .personal-card-header {
+        padding: 20px 24px;
+        margin: -30px -24px 30px -24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .personal-wrapper {
+        padding-top: 20px;
+        padding-bottom: 40px;
+    }
+    
+    .personal-header {
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+    }
+    
+    .personal-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .personal-btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .personal-search-card {
+        padding: 24px 20px;
+    }
+    
+    .personal-table thead th {
+        padding: 16px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .personal-table tbody td {
+        padding: 16px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .personal-detail-section {
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .personal-action-group {
+        gap: 6px;
+    }
+    
+    .personal-action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+    
+    .personal-container {
+        padding: 0 16px;
+    }
+    
+    .personal-card {
+        padding: 24px 16px;
+        border-radius: 16px;
+    }
+    
+    .personal-card-header {
+        padding: 16px;
+        margin: -24px -16px 24px -16px;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .personal-card-header h4 {
+        font-size: 1.2rem;
+    }
+    
+    .personal-form-control {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+    
+    .personal-messages {
+        left: 16px;
+        right: 16px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .personal-header h1 {
+        font-size: 1.5rem;
+        gap: 12px;
+    }
+    
+    .personal-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .personal-table {
+        font-size: 0.8rem;
+    }
+    
+    .personal-detail-value {
+        font-size: 1rem;
+    }
+    
+    .personal-badge {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+    }
+}
