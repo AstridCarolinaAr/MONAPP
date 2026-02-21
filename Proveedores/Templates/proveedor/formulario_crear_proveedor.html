@@ -1,0 +1,39 @@
+<form method="post" class="card shadow-sm p-4"
+action="{% url 'proveedores:crear_proveedor' %}">
+    {% csrf_token %}
+
+    <h5 class="mb-4">Información general</h5>
+
+    <div class="row g-3">
+
+        <div class="col-md-6">
+            <label class="form-label">NIT</label>
+            {{ form.nit }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Nombre proveedor</label>
+            {{ form.nombre_proveedor }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Teléfono</label>
+            {{ form.telefono_proveedor }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Correo</label>
+            {{ form.correo_proveedor }}
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Dirección</label>
+            {{ form.direccion_proveedor }}
+        </div>
+
+    </div>
+    <div class="text-end mt-3">
+        <button type="submit" class="btn btn-success">Guardar</button>
+    </div>
+
+</form>

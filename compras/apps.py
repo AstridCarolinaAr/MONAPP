@@ -1,8 +1,9 @@
 from django.apps import AppConfig
 
 
-class ProductosConfig(AppConfig):
+class ComprasConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'Productos'
+    name = 'compras'
+
 def ready(self):
-    import Productos.signals
+    import compras.signals

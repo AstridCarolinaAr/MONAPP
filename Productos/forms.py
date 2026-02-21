@@ -6,7 +6,18 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = "__all__"
+        fields = [
+            "marca",
+            "nombre",
+            "precio",
+            "descripcion",
+            "linea",
+            "presentacion",
+            "unidad_medida",
+            "activo",
+            "imagen",
+            "imagen_url",
+        ]
         widgets = {
             "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: Shampoo 500ml"}),
             "precio": forms.NumberInput(attrs={"class": "form-control", "placeholder": "0"}),
@@ -65,24 +76,31 @@ def __init__(self, *args, **kwargs):
         ).exists():
             raise forms.ValidationError('Ya existe un producto con este nombre.')
 
+
         return nombre
 
-    def clean(self):
-        cleaned = super().clean()
+def clean(self):
+    cleaned = super().clean()
 
-        campos_obligatorios = [
-            'nombre',
-            'precio',
-            'linea',
-            'presentacion',
-            'unidad_medida',
-        ]
+    campos_obligatorios = [
+        'nombre',
+        'precio',
+        'linea',
+        'presentacion',
+        'unidad_medida',
+        'activo',
+        "imagen",
+        "imagen_url",
+    ]
 
-        if not self.instance.pk:
-            if not cleaned.get('marca_texto'):
-                self.add_error('marca_texto', 'Este campo es obligatorio.')
-
-        return cleaned
+    if not self.instance.pk:
+        if not cleaned.get('marca_texto'):
+            self.add_error('marca_texto', 'Este campo es obligatorio.')
+            return cleaned
+    if imagen and imagen_url:
+        if not imagen.name:
+            self.add_error("imagen_url","Usa solo una imagen o url, no ambas")
+    return cleaned
 
     # ===============================
     # SAVE
@@ -113,3 +131,4 @@ def __init__(self, *args, **kwargs):
                 field.widget.attrs["class"] = "form-select"
             else:
                 field.widget.attrs["class"] = "form-control"
+

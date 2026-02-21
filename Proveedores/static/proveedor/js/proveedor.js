@@ -59,3 +59,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+fetch(form.action, {
+    method: "POST",
+    body: new FormData(form),
+    headers: {
+        "X-Requested-With": "XMLHttpRequest"
+    }
+})
+.then(res => res.json())
+.then(data => {
+
+    if (data.success) {
+        window.location.href = data.redirect_url;  // ← AQUÍ está la clave
+    } else {
+        modalBody.innerHTML = data.html;
+    }
+
+});

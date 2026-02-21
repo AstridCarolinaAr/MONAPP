@@ -102,6 +102,7 @@
           <th class="col-codigo">CÓDIGO</th>
           <th class="col-producto">PRODUCTO</th>
           <th class="col-linea">LÍNEA</th>
+          <th style="width: 100px;">Imagen</th>
           <th class="col-acciones text-center">ACCIONES</th>
         </tr>
       </thead>
@@ -136,7 +137,25 @@
               <span class="text-muted">—</span>
             {% endif %}
           </td>
-
+            <td class="text-center">
+              {% if producto.imagen %}
+                <img
+                  src="{{ producto.imagen.url }}"
+                  class="img-thumb js-img-zoom"
+                  data-src="{{ producto.imagen.url }}"
+                  alt="Imagen {{ producto.nombre }}"
+                >
+              {% elif producto.imagen_url %}
+                <img
+                  src="{{ producto.imagen_url }}"
+                  class="img-thumb js-img-zoom"
+                  data-src="{{ producto.imagen_url }}"
+                  alt="Imagen {{ producto.nombre }}"
+                >
+              {% else %}
+                <div class="img-placeholder">—</div>
+              {% endif %}
+            </td>
           <td class="col-acciones text-center">
             <div class="acciones-wrap">
               <button type="button"
@@ -151,7 +170,8 @@
                       data-presentacion="{{ producto.presentacion }}"
                       data-unidad="{{ producto.unidad_medida }}"
                       data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
-                      data-descripcion="{{ producto.descripcion|default:'' }}">
+                      data-descripcion="{{ producto.descripcion|default:'' }}"
+                      data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%else%}{%endif%}">
                 <i class="bi bi-eye"></i>
               </button>
 
@@ -264,7 +284,11 @@
 
         </div>
       </div>
-
+      <!-- Imagen -->
+        <div class="desc-box">
+          <div class="desc-title">Imagen</div>
+          <div class="desc-text text-center" id="d-imagen"></div>
+        </div>
       <div class="modal-footer px-4 py-3">
         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
           Cerrar
@@ -293,6 +317,15 @@
 
       <div class="modal-body p-4" id="ajaxFormModalBody"></div>
 
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalZoomImagen" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content p-2">
+      <div class="modal-body p-2 text-center">
+        <img id="zoomImg" src="" style="max-width:100%; max-height:80vh; object-fit:contain;">
+      </div>
     </div>
   </div>
 </div>

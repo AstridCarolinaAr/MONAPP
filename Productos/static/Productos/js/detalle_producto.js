@@ -21,6 +21,20 @@ document.addEventListener("DOMContentLoaded", () => {
     set("d-presentacion", data.presentacion);
     set("d-unidad", data.unidad);
     set("d-descripcion", data.descripcion);
+    const cont = document.getElementById("d-imagen");
+
+    if (data.imagen) {
+      cont.innerHTML = `
+        <img
+          src="${data.imagen}"
+          class="img-detalle js-img-zoom"
+          data-src="${data.imagen}"
+          alt="Imagen producto"
+        >
+      `;
+    } else {
+      cont.innerHTML = "—";
+    }
     
     const estadoEl = document.getElementById("d-estado");
     const activo = (data.activo === "1" || data.activo === "true" || data.activo === true);
@@ -35,5 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       estadoEl.classList.add("bg-danger");
       estadoEl.textContent = "Inactivo";
     }
+
   });
+
 });

@@ -42,13 +42,15 @@ INSTALLED_APPS = [
     'core',
     'clientes',
     'usuarios',
-    'Productos',
+    'Productos.apps.ProductosConfig',
     'Proveedores',
     'ventas.apps.VentasConfig',
     'personal',
     'inventario',
     'servicios',
     'productos_web',
+    'compras.apps.ComprasConfig',
+     'bootstrap5',
 ]
 
 MIDDLEWARE = [

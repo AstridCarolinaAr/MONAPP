@@ -440,3 +440,29 @@ h2 {
   color: #2b2f33;
   font-weight: 700;
 }
+.img-thumb{
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.img-detalle{
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.img-placeholder{
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: #eee;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#888;
+}
