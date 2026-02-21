@@ -69,11 +69,6 @@ Servicios
 
                 {% for promo in promociones %}
                 <div class="sq-promo-card">
-                    {% if promo.imagen %}
-                        <div class="sq-promo-image">
-                            <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
-                        </div>
-                    {% endif %}
                     <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
                     <h3>{{ promo.nombre }}</h3>
                     <p>{{ promo.descripcion }}</p>
@@ -408,36 +403,61 @@ Servicios
 </div>
  
 
-    <!-- ==================== CATÁLOGO WEB (DINÁMICO) ==================== -->
+    <!-- ==================== TESTIMONIALS ==================== -->
 <section class="sq-testimonials" id="testimonials">
-    <h2 class="sq-products-title">Nuestros Productos</h2>
+        <h2 class="sq-products-title">Nuestros Productos</h2>
 
-    {% if productos_web %}
     <div class="sq-products-grid">
-        {% for producto in productos_web %}
-        <div class="sq-product-card" data-aos="fade-up">
+
+        <div class="sq-product-card">
             <div class="sq-product-img">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
-                {% else %}
-                    <div class="sq-product-placeholder">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-                {% endif %}
+                <img src="static/core/IMG/imagen1.png" alt="Producto 1">
             </div>
-            <h3>{{ producto.nombre }}</h3>
-            {% if producto.descripcion %}
-                <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
-            {% endif %}
-            <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+            <h3>Keratina Mona</h3>
+            <span class="sq-product-price">$120.000</span>
         </div>
-        {% endfor %}
+
+        <div class="sq-product-card">
+            <div class="sq-product-img">
+                <img src="static/core/IMG/imagen2.png" alt="Producto 2">
+            </div>
+            <h3>Tratamiento Reparador</h3>
+            <span class="sq-product-price">$85.000</span>
+        </div>
+
+        <div class="sq-product-card">
+            <div class="sq-product-img">
+                <img src="static/core/IMG/imagen3.png" alt="Producto 3">
+            </div>
+            <h3>Shampoo Nutritivo</h3>
+            <span class="sq-product-price">$48.000</span>
+        </div>
+
+        <div class="sq-product-card">
+            <div class="sq-product-img">
+                <img src="static/core/img/imagen4.png" alt="Producto 4">
+            </div>
+            <h3>Mascarilla Hidratante</h3>
+            <span class="sq-product-price">$62.000</span>
+        </div>
+
+        <div class="sq-product-card">
+            <div class="sq-product-img">
+                <img src="static/core/img/imagen5.png" alt="Producto 5">
+            </div>
+            <h3>Serum Capilar</h3>
+            <span class="sq-product-price">$39.000</span>
+        </div>
+
+        <div class="sq-product-card">
+            <div class="sq-product-img">
+                <img src="static/core/IMG/imagen6.png" alt="Producto 6">
+            </div>
+            <h3>Protector Térmico</h3>
+            <span class="sq-product-price">$44.000</span>
+        </div>
+
     </div>
-    {% else %}
-    <div class="sq-products-empty">
-        <p>Próximamente nuevos productos. ¡Mantente atento!</p>
-    </div>
-    {% endif %}
 </section>
 <!-- ==================== IMAGEN ==================== -->
 

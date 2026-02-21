@@ -5,42 +5,63 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 
 
-class ProductoWeb(models.Model):
-    """
-    Modelo exclusivo para el catálogo público de la web.
-    Independiente del inventario interno.
-    """
+class Promocion(models.Model):
+    """Modelo para gestionar promociones con descuento y vigencia."""
+
+    ETIQUETA_CHOICES = [
+        ('nuevo', 'Nuevo'),
+        ('especial', 'Especial'),
+        ('limitado', 'Limitado'),
+        ('descuento', 'Descuento'),
+        ('exclusivo', 'Exclusivo'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre = models.CharField(
         max_length=200,
-        verbose_name='Nombre del Producto',
-    )
-    precio = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        verbose_name='Precio Público',
+        verbose_name='Nombre de la Promoción',
     )
     descripcion = models.TextField(
         blank=True,
         verbose_name='Descripción',
+        help_text='Texto que se muestra en la tarjeta pública',
+    )
+    etiqueta = models.CharField(
+        max_length=20,
+        choices=ETIQUETA_CHOICES,
+        default='nuevo',
+        verbose_name='Etiqueta',
+        help_text='Badge visible en la web pública',
+    )
+    porcentaje_descuento = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name='% de Descuento',
+        help_text='Valor entre 0 y 100',
+    )
+    fecha_inicio = models.DateField(
+        verbose_name='Fecha de Inicio',
+    )
+    fecha_fin = models.DateField(
+        verbose_name='Fecha de Fin',
     )
     imagen = models.ImageField(
-        upload_to='productos_web/',
+        upload_to='promociones/',
         blank=True,
         null=True,
         verbose_name='Imagen',
     )
-    visible = models.BooleanField(
+    activa = models.BooleanField(
         default=True,
-        verbose_name='Visible en la Web',
+        verbose_name='Activa',
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Creado')
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name='Modificado')
 
     class Meta:
         ordering = ['-fecha_creacion']
-        verbose_name = 'Catálogo Web'
-        verbose_name_plural = 'Catálogos Web'
+        verbose_name = 'Promoción'
+        verbose_name_plural = 'Promociones'
 
     def resize_image(self):
         """Redimensiona la imagen a un tamaño máximo de 400x300px manteniendo la proporción"""
@@ -79,4 +100,4 @@ class ProductoWeb(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.nombre} – ${self.precio}"
+        return f"{self.nombre} – {self.porcentaje_descuento}%"

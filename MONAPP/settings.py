@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'compras.apps.ComprasConfig',
      'bootstrap5',
     'gestion_datos',
+    'promociones',
+    'Gestion',
 ]
 
 MIDDLEWARE = [
@@ -154,7 +156,16 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # LOGIN/LOGOUT SETTINGS
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'monappadso@gmail.com'
+EMAIL_HOST_PASSWORD = 'odvd jycx ilml iggy'
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # URLs de redirección después de login/logout
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
 LOGIN_REDIRECT_URL = 'core:dashboard'  # A dónde ir después de login exitoso
@@ -186,14 +197,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # ==================== CONFIGURACIÓN DE EMAIL ====================
 
 # Para desarrollo: mostrar emails en consola
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # Para producción: usar un servidor SMTP real (descomenta y configura)
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # o tu servidor SMTP
+# EMAIL_HOST = 'tu-host-smtp'
 # EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
+# EMre_ZdYQwY39_6K2PqjMwuXNYVzy3d9mmuC5sAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'tucorreo@gmail.com'
-# EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicación'
-DEFAULT_FROM_EMAIL = 'noreply@monakeratina.com'
-EMAIL_SUBJECT_PREFIX = '[Mona Keratina] '
+# EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacióre_ZdYQwY39_6K2PqjMwuXNYVzy3d9mmuC5sn'
