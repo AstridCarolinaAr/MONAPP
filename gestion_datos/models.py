@@ -3,36 +3,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from clientes.models import Cliente
 import uuid
 
-class Servicio(models.Model):
-    id_servicio = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nombre = models.CharField(max_length=200, verbose_name='Nombre del Servicio')
-    precio = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        verbose_name='Precio'
-    )
-    descripcion = models.TextField(verbose_name='Descripción')
-    imagen = models.ImageField(
-        upload_to='servicios/',
-        null=True,
-        blank=True,
-        verbose_name='Imagen del Servicio'
-    )
-    activo = models.BooleanField(default=True, verbose_name='Activo')
-    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
-    fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name='Última Modificación')
-    
-    class Meta:
-        ordering = ['-fecha_creacion']
-        verbose_name = 'Servicio'
-        verbose_name_plural = 'Servicios'
-    
-    def __str__(self):
-        return f"{self.nombre} - ${self.precio}"
 
-
-class GestionAlisado(models.Model):
+class GestionDatos(models.Model):
+    """Modelo para gestionar los datos completos de tratamientos y servicios de clientes"""
+    
     OPCIONES_SI_NO = [
         ('si', 'Sí'),
         ('no', 'No'),
@@ -118,15 +92,15 @@ class GestionAlisado(models.Model):
         Cliente,
         on_delete=models.PROTECT,
         verbose_name='Cliente',
-        related_name='gestiones_alisado',
+        related_name='gestiones_datos',
         null=True,
         blank=True
     )
     
     # Información del servicio y pago
-    precio_alisado = models.IntegerField(
+    precio_servicio = models.IntegerField(
         validators=[MinValueValidator(0)],
-        verbose_name='Precio del Alisado'
+        verbose_name='Precio del Servicio'
     )
     es_oferta_especial = models.CharField(
         max_length=2,
@@ -164,8 +138,8 @@ class GestionAlisado(models.Model):
         auto_now_add=True,
         verbose_name='Fecha y Hora'
     )
-    tipo_alisado = models.TextField(
-        verbose_name='Tipo de alisado a realizar'
+    tipo_tratamiento = models.TextField(
+        verbose_name='Tipo de tratamiento a realizar'
     )
     requiere_resellado = models.CharField(
         max_length=2,
@@ -173,9 +147,9 @@ class GestionAlisado(models.Model):
         default='no',
         verbose_name='¿Requiere resellado?'
     )
-    porcentaje_alisado = models.IntegerField(
+    porcentaje_tratamiento = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(100)],
-        verbose_name='Porcentaje de alisado del tratamiento'
+        verbose_name='Porcentaje del tratamiento'
     )
     
     # Características del cabello
@@ -214,15 +188,20 @@ class GestionAlisado(models.Model):
         choices=PIEL_CABELLUDO,
         verbose_name='Piel Cabelludo'
     )
-    alopecia = models.CharField(
+    nivel_alopecia = models.CharField(
         max_length=15,
         choices=NIVEL_ALOPECIA,
         verbose_name='Alopecia'
     )
-    caida_cabello = models.CharField(
+    nivel_caida = models.CharField(
         max_length=15,
         choices=NIVEL_CAIDA,
         verbose_name='Caída de Cabello'
+    )
+    nivel_caspa = models.CharField(
+        max_length=15,
+        choices=NIVEL_CASPA,
+        verbose_name='Caspa'
     )
     
     # Estado de salud y condiciones especiales
@@ -236,10 +215,63 @@ class GestionAlisado(models.Model):
         choices=OPCIONES_SI_NO,
         verbose_name='¿Gestante?'
     )
-    caspa = models.CharField(
-        max_length=15,
-        choices=NIVEL_CASPA,
-        verbose_name='Caspa'
+    
+    # Historial de tratamientos químicos previos
+    tratamiento_quimico = models.CharField(
+        max_length=2,
+        choices=OPCIONES_SI_NO,
+        verbose_name='¿Ha tenido algún tratamiento químico?'
+    )
+    tipo_tratamiento_quimico = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='¿Qué tipo de tratamiento químico?'
+    )
+    tiempo_tratamiento_quimico = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='¿Hace cuánto tiempo?'
+    )
+    
+    # Uso de plancha
+    plancha_cabello = models.CharField(
+        max_length=2,
+        choices=OPCIONES_SI_NO,
+        verbose_name='¿Se plancha el cabello?'
+    )
+    uso_plancha = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Uso de plancha'
+    )
+    tiempo_uso_plancha = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='¿Hace cuánto usa plancha?'
+    )
+    
+    # Tintes
+    tinte_cabello = models.CharField(
+        max_length=2,
+        choices=OPCIONES_SI_NO,
+        verbose_name='¿Se tiñe el cabello?'
+    )
+    tipo_tinte = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Tipo de tinte'
+    )
+    tiempo_tinte = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='¿Hace cuánto se tiñe?'
+    )
+    
+    # Tratamiento actual
+    tratamiento_actual = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='¿Qué tratamiento capilar lleva actualmente en casa?'
     )
     
     # Procesos químicos
@@ -287,10 +319,10 @@ class GestionAlisado(models.Model):
         choices=OPCIONES_SI_NO,
         verbose_name='¿Se baña con agua caliente?'
     )
-    requiere_refuerzo_15dias = models.CharField(
+    requiere_refuerzo = models.CharField(
         max_length=2,
         choices=OPCIONES_SI_NO,
-        verbose_name='¿Requiere refuerzo de alisado de 15 días?'
+        verbose_name='¿Requiere refuerzo del tratamiento en 15 días?'
     )
     
     # Información médica
@@ -312,14 +344,33 @@ class GestionAlisado(models.Model):
         verbose_name='¿Se realizará el día de hoy despunte?'
     )
     
-    # Recomendaciones finales
+    # Fotos antes/después
+    foto_antes = models.ImageField(
+        upload_to='gestion_datos/fotos/',
+        blank=True,
+        null=True,
+        verbose_name='Foto antes del tratamiento'
+    )
+    foto_despues = models.ImageField(
+        upload_to='gestion_datos/fotos/',
+        blank=True,
+        null=True,
+        verbose_name='Foto después del tratamiento'
+    )
+    
+    # Observaciones y recomendaciones
+    observaciones = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Observaciones generales'
+    )
     recomendaciones_post_cuidados = models.TextField(
         verbose_name='Recomendaciones o anotaciones sobre post cuidados'
     )
     
     # Firma del consentimiento
     firma_consentimiento = models.ImageField(
-        upload_to='firmas_consentimiento/',
+        upload_to='gestion_datos/firmas/',
         blank=True,
         null=True,
         verbose_name='Firma del consentimiento informado'
@@ -327,8 +378,10 @@ class GestionAlisado(models.Model):
     
     class Meta:
         ordering = ['-fecha_hora']
-        verbose_name = 'Gestion de datos'
-        verbose_name_plural = 'Gestion de datos'
+        verbose_name = 'Gestión de Datos del Cliente'
+        verbose_name_plural = 'Gestión de Datos de Clientes'
     
     def __str__(self):
-        return f"Alisado - {self.procedimiento_realizado_por} - {self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
+        if self.cliente:
+            return f"Gestión {self.cliente.nombre} {self.cliente.apellido} - {self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
+        return f"Gestión {self.procedimiento_realizado_por} - {self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"

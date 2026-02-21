@@ -2,13 +2,14 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Gestión de Alisados{% endblock %}
+{% block title %}Gestion de datos{% endblock %}
 
 {% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> Gestión de Alisados
+    <i class="bi bi-file-earmark-text"></i> Gestion de datos
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>
     .modal-xl-custom {
         max-width: 95vw;
@@ -20,8 +21,8 @@
 {% block content %}
 <div class="container-fluid">
     <div class="card shadow">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Lista de Gestiones de Alisados</h4>
+        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
+            <h4 class="mb-0">Gestion de datos</h4>
             <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
                 <i class="bi bi-plus-circle"></i> Nueva Gestión
             </button>
@@ -57,10 +58,10 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-info" title="Ver detalles">
+                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-warning" title="Editar">
+                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
@@ -88,9 +89,9 @@
 <div class="modal fade" id="modalFormGestion" tabindex="-1" aria-labelledby="modalFormGestionLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl-custom modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header text-white" style="background-color: #634c40;">
                 <h5 class="modal-title" id="modalFormGestionLabel">
-                    <i class="bi bi-file-earmark-plus"></i> Nueva Gestión de Alisado
+                    <i class="bi bi-file-earmark-plus"></i> Gestion de datos
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

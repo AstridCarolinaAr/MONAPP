@@ -1,63 +1,29 @@
 from django import forms
-from .models import Servicio, GestionAlisado
+from .models import GestionDatos
 from clientes.models import Cliente
 
-class ServicioForm(forms.ModelForm):
-    class Meta:
-        model = Servicio
-        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'activo']
-        widgets = {
-            'nombre': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nombre del servicio'
-            }),
-            'precio': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0',
-                'placeholder': 'Precio'
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Descripción del servicio'
-            }),
-            'imagen': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'image/*'
-            }),
-            'activo': forms.Select(attrs={
-                'class': 'form-select'
-            }, choices=[
-                (True, 'Activo'),
-                (False, 'Inactivo')
-            ]),
-        }
-        labels = {
-            'nombre': 'Nombre del Servicio',
-            'precio': 'Precio ($)',
-            'descripcion': 'Descripción',
-            'imagen': 'Imagen del Servicio',
-            'activo': 'Estado del Servicio',
-        }
 
-
-class GestionAlisadoForm(forms.ModelForm):
+class GestionDatosForm(forms.ModelForm):
     class Meta:
-        model = GestionAlisado
+        model = GestionDatos
         fields = [
-            'cliente', 'precio_alisado', 'es_oferta_especial', 'descripcion_oferta',
+            'cliente', 'precio_servicio', 'es_oferta_especial', 'descripcion_oferta',
             'anticipo_cliente', 'medio_pago', 'saldo_pendiente',
-            'procedimiento_realizado_por', 'tipo_alisado', 'requiere_resellado',
-            'porcentaje_alisado', 'porosidad', 'textura', 'forma_natural',
+            'procedimiento_realizado_por', 'tipo_tratamiento', 'requiere_resellado',
+            'porcentaje_tratamiento', 'porosidad', 'textura', 'forma_natural',
             'elasticidad', 'longitud', 'densidad', 'piel_cabelludo',
-            'alopecia', 'caida_cabello', 'lactante', 'gestante', 'caspa',
+            'nivel_alopecia', 'nivel_caida', 'lactante', 'gestante', 'nivel_caspa',
+            'tratamiento_quimico', 'tipo_tratamiento_quimico', 'tiempo_tratamiento_quimico',
+            'plancha_cabello', 'uso_plancha', 'tiempo_uso_plancha',
+            'tinte_cabello', 'tipo_tinte', 'tiempo_tinte',
+            'tratamiento_actual',
             'procesos_tintura', 'procesos_decoloracion', 'procesos_ondulados',
             'procesos_extracciones', 'procesos_alisados', 'procesos_super_aclarante',
             'procesos_otro', 'cuenta_con_secador', 'frecuencia_recoge_cabello',
             'realiza_ejercicio', 'frecuencia_ejercicio', 'usa_casco',
-            'productos_capilares', 'se_bana_agua_caliente', 'requiere_refuerzo_15dias',
+            'productos_capilares', 'se_bana_agua_caliente', 'requiere_refuerzo',
             'sufre_tiroides', 'medicamento_tiroides', 'despunte_hoy',
+            'foto_antes', 'foto_despues', 'observaciones',
             'recomendaciones_post_cuidados', 'firma_consentimiento'
         ]
         widgets = {
@@ -66,10 +32,10 @@ class GestionAlisadoForm(forms.ModelForm):
                 'required': 'required',
                 'id': 'selectCliente'
             }),
-            'precio_alisado': forms.NumberInput(attrs={
+            'precio_servicio': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
-                'placeholder': 'Precio del alisado en COP',
+                'placeholder': 'Precio del servicio en COP',
                 'required': 'required'
             }),
             'es_oferta_especial': forms.Select(attrs={
@@ -102,17 +68,17 @@ class GestionAlisadoForm(forms.ModelForm):
                 'placeholder': 'Nombre del profesional',
                 'required': 'required'
             }),
-            'tipo_alisado': forms.Textarea(attrs={
+            'tipo_tratamiento': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Describe el tipo de alisado a realizar',
+                'placeholder': 'Describe el tipo de tratamiento a realizar',
                 'required': 'required'
             }),
             'requiere_resellado': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
             }),
-            'porcentaje_alisado': forms.NumberInput(attrs={
+            'porcentaje_tratamiento': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
                 'max': '100',
@@ -147,11 +113,11 @@ class GestionAlisadoForm(forms.ModelForm):
                 'class': 'form-select',
                 'required': 'required'
             }),
-            'alopecia': forms.Select(attrs={
+            'nivel_alopecia': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
             }),
-            'caida_cabello': forms.Select(attrs={
+            'nivel_caida': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
             }),
@@ -163,9 +129,56 @@ class GestionAlisadoForm(forms.ModelForm):
                 'class': 'form-select',
                 'required': 'required'
             }),
-            'caspa': forms.Select(attrs={
+            'nivel_caspa': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
+            }),
+            'tratamiento_quimico': forms.Select(attrs={
+                'class': 'form-select',
+                'required': 'required'
+            }),
+            'tipo_tratamiento_quimico': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Especifique el tipo de tratamiento químico'
+            }),
+            'tiempo_tratamiento_quimico': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Hace cuánto tiempo'
+            }),
+            'plancha_cabello': forms.Select(attrs={
+                'class': 'form-select',
+                'required': 'required'
+            }),
+            'uso_plancha': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Uso de plancha'
+            }),
+            'tiempo_uso_plancha': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Hace cuánto usa plancha'
+            }),
+            'tinte_cabello': forms.Select(attrs={
+                'class': 'form-select',
+                'required': 'required'
+            }),
+            'tipo_tinte': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Tipo de tinte'
+            }),
+            'tiempo_tinte': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Hace cuánto se tiñe'
+            }),
+            'tratamiento_actual': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Tratamiento capilar que lleva actualmente'
             }),
             'procesos_tintura': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'procesos_decoloracion': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -211,7 +224,7 @@ class GestionAlisadoForm(forms.ModelForm):
                 'class': 'form-select',
                 'required': 'required'
             }),
-            'requiere_refuerzo_15dias': forms.Select(attrs={
+            'requiere_refuerzo': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
             }),
@@ -227,6 +240,19 @@ class GestionAlisadoForm(forms.ModelForm):
             'despunte_hoy': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
+            }),
+            'foto_antes': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'foto_despues': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Observaciones generales'
             }),
             'recomendaciones_post_cuidados': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -249,7 +275,7 @@ class GestionAlisadoForm(forms.ModelForm):
     
     def clean(self):
         cleaned_data = super().clean()
-        precio = cleaned_data.get('precio_alisado')
+        precio = cleaned_data.get('precio_servicio')
         anticipo = cleaned_data.get('anticipo_cliente')
         
         # Calcular saldo pendiente automáticamente
