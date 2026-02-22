@@ -136,18 +136,29 @@ def lista_clientes(request):
     })
     
 def validar_documento(request):
-    numero = request.GET.get('numero', '').strip()
+    numero = (request.GET.get('numero') or '').strip()
     cliente_id = request.GET.get('cliente_id')
 
+    #  validar numero
     if not numero.isdigit():
         return JsonResponse({'valido': False, 'mensaje': 'Solo números'})
 
     if not (6 <= len(numero) <= 12):
         return JsonResponse({'valido': False, 'mensaje': 'Debe tener entre 6 y 12 dígitos'})
-    
+
+    # normalizar cliente_id
+    if not cliente_id or cliente_id in ('undefined', 'null', ''):
+        cliente_id = None
+    else:
+        try:
+            cliente_id = int(cliente_id)
+        except ValueError:
+            cliente_id = None
+
     qs = Cliente.objects.filter(numero_documento=numero)
 
-    if cliente_id:
+    # si es edición, excluye el mismo cliente
+    if cliente_id is not None:
         qs = qs.exclude(id=cliente_id)
 
     if qs.exists():
@@ -155,11 +166,6 @@ def validar_documento(request):
             'valido': False,
             'mensaje': 'Ya existe otro cliente con este documento.'
         })
-
-    return JsonResponse({'valido': True})
-
-    if Cliente.objects.filter(numero_documento=numero).exists():
-        return JsonResponse({'valido': False, 'mensaje': 'Documento ya registrado'})
 
     return JsonResponse({'valido': True})
 
