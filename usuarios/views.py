@@ -16,7 +16,11 @@ from django.core.mail import send_mail
 from datetime import timedelta
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -52,12 +56,6 @@ def logout_view(request):
 
 # ==================== RECUPERACIÓN DE CONTRASEÑA ====================
 
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.template.loader import render_to_string
-from django.conf import settings
 
 @csrf_protect
 @never_cache
@@ -601,29 +599,76 @@ def validar_email_ajax(request):
         )
         return redirect('usuarios:login')
 
-    user = User.objects.get(id=user_id)
-    perfil = user.perfil
+    user = User.objects.get(email__iexact=email)
 
-    if request.method == 'POST':
-        codigo = request.POST.get('codigo')
+
+    try:
+        perfil = user.perfil
+    except Exception:
+        messages.error(request, "Este usuario no tiene perfil asociado.")
+        return redirect("usuarios:login")
+
+    if not perfil.recovery_code or not perfil.recovery_code_created:
+        return render(request, "usuarios/verificar_codigo.html", {
+            "error": "No hay un código activo. Solicita uno nuevo."
+        })
+
+    if request.method == "POST":
+        codigo = (request.POST.get("codigo") or "").strip()
 
         if perfil.recovery_code != codigo:
-            return render(request, 'usuarios/verificar_codigo.html', {
-                'error': 'Código incorrecto'
+            return render(request, "usuarios/verificar_codigo.html", {
+                "error": "Código incorrecto"
             })
 
         if timezone.now() - perfil.recovery_code_created > timedelta(minutes=10):
-            return render(request, 'usuarios/verificar_codigo.html', {
-                'error': 'El código ha expirado'
+            return render(request, "usuarios/verificar_codigo.html", {
+                "error": "El código ha expirado"
             })
 
-        request.session['codigo_validado'] = True
-        return redirect('usuarios:nueva_password')
+        request.session["codigo_validado"] = True
+        request.session["user_id_reset"] = user.id  # para saber a quién cambiarle la clave luego
+        return redirect("usuarios:nueva_password")
 
-    return render(request, 'usuarios/verificar_codigo.html')
+    return render(request, "usuarios/verificar_codigo.html")
 def nueva_password(request):
+    #  Verificar que el código fue validado
     if not request.session.get('codigo_validado'):
         return redirect('usuarios:login')
+
+    user_id = request.session.get('user_id_reset')
+    if not user_id:
+        return redirect('usuarios:login')
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return redirect('usuarios:login')
+
+    if request.method == 'POST':
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if not password1 or not password2:
+            messages.error(request, "Debes completar ambos campos.")
+            return render(request, 'usuarios/nueva_password.html')
+
+        if password1 != password2:
+            messages.error(request, "Las contraseñas no coinciden.")
+            return render(request, 'usuarios/nueva_password.html')
+
+        #  Cambiar contraseña
+        user.set_password(password1)
+        user.save()
+
+        #  Limpiar sesión
+        request.session.pop('codigo_validado', None)
+        request.session.pop('user_id_reset', None)
+
+        messages.success(request, "Contraseña actualizada correctamente. Ahora puedes iniciar sesión.")
+        return redirect('usuarios:login')
+
+    return render(request, 'usuarios/nueva_password.html')
 
 
 # ==================== RECUPERACIÓN DE USUARIO ====================

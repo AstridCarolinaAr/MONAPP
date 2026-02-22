@@ -195,12 +195,12 @@ def crear_venta(request):
                 if not codigo:
                     continue
                     entradas = DetalleCompra.objects.filter(
-                        producto=producto
+                        producto=Producto
                     ).aggregate(total=Sum("cantidad"))["total"] or 0
 
                 producto = Producto.objects.select_for_update().get(codigo=codigo)
 
-                entradas = DetalleMovimiento.objects.filter(producto=producto).aggregate(total=Sum("cantidad"))["total"] or 0
+                entradas = DetalleCompra.objects.filter(producto=producto).aggregate(total=Sum("cantidad"))["total"] or 0
                 salidas = DetalleVenta.objects.filter(producto=producto, venta__estado="activa").aggregate(total=Sum("cantidad"))["total"] or 0
                 stock_real = entradas - salidas
 

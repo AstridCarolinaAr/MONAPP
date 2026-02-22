@@ -158,26 +158,25 @@ def lista_gestion_alisados(request):
 
 
 @login_required
-@login_required
 def crear_gestion_alisado(request):
     """Crea un nuevo registro de gestion de datos"""
     is_modal = request.GET.get('modal') == '1'
-    
+    cliente_id = request.GET.get('cliente_id')  # ✅ ahora existe
+
     if request.method == 'POST':
         form = GestionAlisadoForm(request.POST, request.FILES)
         if form.is_valid():
-            print("=== FORMULARIO VÁLIDO ===")
             gestion = form.save()
-            print(f"=== GESTIÓN GUARDADA con ID: {gestion.pk} ===")
-            
+
+            # ✅ Respuesta AJAX
             if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Retornar respuesta JSON para AJAX
                 return JsonResponse({
                     'success': True,
-                    'message': 'Gestion de datos registrada exitosamente.'
+                    'message': 'Gestión de datos registrada exitosamente.',
+                    'id': gestion.pk,
                 })
-            
-            messages.success(request, 'Gestion de datos registrada exitosamente.')
+
+            messages.success(request, 'Gestión de datos registrada exitosamente.')
             return redirect('servicios:lista_gestion_alisados')
     else:
         if cliente_id:
@@ -185,16 +184,18 @@ def crear_gestion_alisado(request):
         else:
             form = GestionAlisadoForm()
 
-    return render(request, 'servicios/form_gestion_alisado.html', {
+    # ✅ Contexto definido una sola vez
+    context = {
         'form': form,
-        'titulo': 'Gestion de datos',
+        'titulo': 'Gestión de datos',
         'is_modal': is_modal
-    })
-    
-    # Si es modal, usar template simplificado
+    }
+
+    # ✅ Si es modal, renderiza template modal
     if is_modal:
         return render(request, 'servicios/form_gestion_alisado_modal_content.html', context)
-    
+
+    # ✅ Si no es modal, render normal
     return render(request, 'servicios/form_gestion_alisado.html', context)
 
 
