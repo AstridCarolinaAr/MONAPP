@@ -1,0 +1,93 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h1 class="h4 mb-0"><i class="bi bi-box-seam"></i> Módulo de Gestión</h1>
+    <small class="text-muted">Accesos rápidos a Productos, Promociones y Servicios</small>
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    {% if es_admin_o_auxiliar %}
+    <a href="{% url 'crear_producto' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle"></i> Nuevo Producto</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">Productos</h5>
+          <p class="small text-muted mb-0">Gestión completa de inventario</p>
+        </div>
+        <div class="text-end">
+          <h3 class="mb-0">{{ total_productos }}</h3>
+          <small class="text-muted">items</small>
+        </div>
+      </div>
+      <div class="mt-3">
+        <a href="{% url 'listar_productos' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-list-ul"></i> Ver</a>
+        {% if es_admin_o_auxiliar %}
+        <a href="{% url 'crear_producto' %}" class="btn btn-sm btn-primary"><i class="bi bi-plus-circle"></i> Nuevo</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">Promociones</h5>
+          <p class="small text-muted mb-0">Crear y administrar ofertas</p>
+        </div>
+        <div class="text-end">
+          <h3 class="mb-0">{{ total_promociones }}</h3>
+          <small class="text-muted">ofertas</small>
+        </div>
+      </div>
+      <div class="mt-3">
+        <a href="{% url 'listar_promociones' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-tag"></i> Ver</a>
+        {% if es_admin_o_auxiliar %}
+        <a href="{% url 'crear_promocion' %}" class="btn btn-sm btn-primary"><i class="bi bi-plus-circle"></i> Nuevo</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">Servicios</h5>
+          <p class="small text-muted mb-0">Catalogo de servicios</p>
+        </div>
+        <div class="text-end">
+          <h3 class="mb-0">{{ total_servicios }}</h3>
+          <small class="text-muted">items</small>
+        </div>
+      </div>
+      <div class="mt-3">
+        <a href="{% url 'listar_servicios' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-tools"></i> Ver</a>
+        {% if es_admin_o_auxiliar %}
+        <a href="{% url 'crear_servicio' %}" class="btn btn-sm btn-primary"><i class="bi bi-plus-circle"></i> Nuevo</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-4">
+
+<div class="d-flex justify-content-between align-items-center">
+  <div class="text-muted small">Puedes ir directamente a cualquier sección con los botones "Ver" o crear nuevos registros.</div>
+  <div>
+    {% if es_admin_o_auxiliar %}
+    <a href="{% url 'restaurar_bd' %}" class="btn btn-danger btn-sm"><i class="bi bi-cloud-arrow-down"></i> Restaurar BD</a>
+    {% endif %}
+    <a href="{% url 'listar_productos' %}" class="btn btn-outline-secondary btn-sm ms-2">Ir a Productos</a>
+  </div>
+</div>
+
+{% endblock %}

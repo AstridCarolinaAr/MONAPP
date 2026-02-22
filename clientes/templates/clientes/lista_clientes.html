@@ -4,6 +4,10 @@
 {% block title %}Clientes{% endblock %}
 
 {% block content %}
+<p style="color:red">
+mostrar_modal_gestion = {{ mostrar_modal_gestion }}
+</p>
+
 <div class="container-fluid px-4 py-4">
 
     <!-- Header -->
@@ -243,7 +247,7 @@
 </div>
 <!-- MODAL CREAR CLIENTE -->
 
-<div class="modal fade" id="modalCrearCliente" tabindex="-1">
+<div class="modal " id="modalCrearCliente" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow">
 
@@ -257,22 +261,25 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
-       
-
-          <div class="px-4 pt-3">
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-              {% endfor %}
-              </div>
         <div class="modal-body">
+          {% if errores %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong><i class="bi bi-exclamation-triangle"></i> Por favor corrige los siguientes errores:</strong>
+            <ul class="mb-0 mt-2 small">
+              {% for campo, mensaje in errores.items %}
+              <li><strong>{{ campo|title }}:</strong> {{ mensaje }}</li>
+              {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          {% endif %}
+          
           <div class="row g-3">
             <!-- TIPO DOCUMENTO -->
             <div class="col-md-6">
-              <label class="form-label">Tipo documento</label>
+              <label class="form-label">Tipo documento <span class="text-danger">*</span></label>
               <select name="tipo_documento"
+                      id="tipo_documento"
                       class="form-select {% if errores.tipo_documento %}is-invalid{% endif %}">
                 <option value="">Seleccione</option>
                 <option value="CC" {% if datos.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
@@ -280,92 +287,111 @@
                 <option value="CE" {% if datos.tipo_documento == 'CE' %}selected{% endif %}>Extranjería</option>
                 <option value="PP" {% if datos.tipo_documento == 'PP' %}selected{% endif %}>Pasaporte</option>
               </select>
-              {% if errores.tipo_documento %}
-                <div class="invalid-feedback">{{ errores.tipo_documento }}</div>
-              {% endif %}
+              <div class="invalid-feedback">
+                {% if errores.tipo_documento %}{{ errores.tipo_documento }}{% endif %}
+              </div>
             </div>
+            
             <!-- NÚMERO DOCUMENTO -->
             <div class="col-md-6">
-            <label class="form-label">Número documento</label>
-            <input type="text"
-                    id="numero_documento"
-                    name="numero_documento"
-                    class="form-control"
-                    value="{{ cliente.numero_documento }}"
-                    maxlength="12"
-                    autocomplete="off">
-            <div class="invalid-feedback"></div>
+              <label class="form-label">Número documento <span class="text-danger">*</span></label>
+              <input type="text"
+                     id="numero_documento"
+                     name="numero_documento"
+                     class="form-control {% if errores.numero_documento %}is-invalid{% endif %}"
+                     value="{{ datos.numero_documento|default:'' }}"
+                     maxlength="12"
+                     placeholder="Ej: 1234567890"
+                     autocomplete="off">
+              <div class="invalid-feedback">
+                {% if errores.numero_documento %}{{ errores.numero_documento }}{% endif %}
+              </div>
             </div>
 
             <!-- NOMBRE -->
             <div class="col-md-6">
-            <label class="form-label">Nombre</label>
-            <input type="text"
-                    id="nombre"
-                    name="nombre"
-                    class="form-control"
-                    value="{{ cliente.nombre }}"
-                    autocomplete="off">
-            <div class="invalid-feedback"></div>
+              <label class="form-label">Nombre <span class="text-danger">*</span></label>
+              <input type="text"
+                     id="nombre"
+                     name="nombre"
+                     class="form-control {% if errores.nombre %}is-invalid{% endif %}"
+                     value="{{ datos.nombre|default:'' }}"
+                     placeholder="Ej: Juan"
+                     autocomplete="off">
+              <div class="invalid-feedback">
+                {% if errores.nombre %}{{ errores.nombre }}{% endif %}
+              </div>
             </div>
 
             <!-- APELLIDO -->
             <div class="col-md-6">
-            <label class="form-label">Apellido</label>
-            <input type="text"
-                    id="apellido"
-                    name="apellido"
-                    class="form-control"
-                    value="{{ cliente.apellido }}"
-                    autocomplete="off">
-            <div class="invalid-feedback"></div>
+              <label class="form-label">Apellido <span class="text-danger">*</span></label>
+              <input type="text"
+                     id="apellido"
+                     name="apellido"
+                     class="form-control {% if errores.apellido %}is-invalid{% endif %}"
+                     value="{{ datos.apellido|default:'' }}"
+                     placeholder="Ej: Pérez"
+                     autocomplete="off">
+              <div class="invalid-feedback">
+                {% if errores.apellido %}{{ errores.apellido }}{% endif %}
+              </div>
             </div>
 
             <!-- FECHA NACIMIENTO -->
             <div class="col-md-6">
-            <label class="form-label">Fecha nacimiento</label>
-            <input type="date"
-                    id="fecha_nacimiento"
-                    name="fecha_nacimiento"
-                    class="form-control"
-                    value="{{ cliente.fecha_nacimiento|date:'Y-m-d' }}">
-            <div class="invalid-feedback">
-
-            </div>
+              <label class="form-label">Fecha nacimiento <span class="text-danger">*</span></label>
+              <input type="date"
+                     id="fecha_nacimiento"
+                     name="fecha_nacimiento"
+                     class="form-control {% if errores.fecha_nacimiento %}is-invalid{% endif %}"
+                     value="{{ datos.fecha_nacimiento|default:'' }}">
+              <div class="invalid-feedback">
+                {% if errores.fecha_nacimiento %}{{ errores.fecha_nacimiento }}{% endif %}
+              </div>
             </div>
 
             <!-- TELÉFONO -->
             <div class="col-md-6">
-            <label class="form-label">Teléfono</label>
-            <input type="text"
-                    id="telefono"
-                    name="telefono"
-                    class="form-control"
-                    value="{{ cliente.telefono|default:'' }}"
-                    maxlength="10"
-                    autocomplete="off">
-            <div class="invalid-feedback"></div>
+              <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
+              <input type="text"
+                     id="telefono"
+                     name="telefono"
+                     class="form-control {% if errores.telefono %}is-invalid{% endif %}"
+                     value="{{ datos.telefono|default:'' }}"
+                     maxlength="10"
+                     placeholder="Ej: 3001234567"
+                     autocomplete="off">
+              <div class="invalid-feedback">
+                {% if errores.telefono %}{{ errores.telefono }}{% endif %}
+              </div>
             </div>
 
             <!-- CORREO -->
             <div class="col-12">
-            <label class="form-label">Correo</label>
-            <input type="email"
-                    id="correo"
-                    name="correo"
-                    class="form-control"
-                    value="{{ cliente.correo|default:'' }}"
-                    autocomplete="off">
-            <div class="invalid-feedback"></div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                Cancelar
-              </button>
-              <button type="submit" class="btn btn-dark"  id="btnGuardarCliente">
-                Guardar cliente
-              </button>
+              <label class="form-label">Correo electrónico <small class="text-muted">(opcional)</small></label>
+              <input type="email"
+                     id="correo"
+                     name="correo"
+                     class="form-control {% if errores.correo %}is-invalid{% endif %}"
+                     value="{{ datos.correo|default:'' }}"
+                     placeholder="ejemplo@correo.com"
+                     autocomplete="off">
+              <div class="invalid-feedback">
+                {% if errores.correo %}{{ errores.correo }}{% endif %}
+              </div>
             </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-dark" id="btnGuardarCliente">
+              Guardar cliente
+            </button>
+          </div>
+        </div>
 
       </form>
 
@@ -373,14 +399,66 @@
   </div>
 </div>
 
+<script>
+window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
+
+<style>
+  .invalid-feedback {
+    display: block !important;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+  }
+  
+  .form-control.is-invalid,
+  .form-select.is-invalid {
+    border-color: #dc3545 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  }
+</style>
 
 
 <script>
-    window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
+    // Abrir modal automáticamente si hay errores
+    document.addEventListener('DOMContentLoaded', function() {
+        const abrirModal = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
+        const hayErrores = {{ errores|length }} > 0;
+        
+        if (abrirModal || hayErrores) {
+            const modal = new bootstrap.Modal(document.getElementById('modalCrearCliente'));
+            modal.show();
+        }
+    });
 </script>
+    {% if mostrar_modal_gestion %}
+    <div class="modal fade" id="modalGestionDatos" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirmación</h5>
+        </div>
 
+        <div class="modal-body">
+            ¿Deseas añadir un tratamiento de datos a
+            <strong>{{ cliente_creado_nombre }}</strong>?
+        </div>
 
+        <div class="modal-footer">
+            <a href="{% url 'clientes:lista' %}" class="btn btn-secondary">No</a>
+            <a href="{% url 'servicios:crear_gestion_alisado' %}?cliente={{ cliente_creado_id }}"
+            class="btn btn-primary">Sí</a>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endif %}
+<script>
+window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};
+window.clienteCreadoId = "{{ cliente_creado_id|default:'' }}";
+</script>
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 <script src="{% static 'clientes/js/eliminar_clientes.js' %}"></script>
-
 {% endblock %} 

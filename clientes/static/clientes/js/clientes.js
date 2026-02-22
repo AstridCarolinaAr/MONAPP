@@ -8,11 +8,40 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = modal.querySelector('form');
 
     /* ===============================
-       FUNCIÓN: ESTADO DEL BOTÓN
+       INICIO: BOTÓN DESHABILITADO
+    =============================== */
+    btnGuardar.disabled = true;
+    btnGuardar.classList.remove('btn-dark');
+    btnGuardar.classList.add('btn-secondary');
+
+    /* ===============================
+       FUNCIONES VISUALES
+    =============================== */
+    function invalido(input, mensaje) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        const feedback = input.nextElementSibling;
+        if (feedback) feedback.textContent = mensaje;
+    }
+
+    function valido(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        const feedback = input.nextElementSibling;
+        if (feedback) feedback.textContent = '';
+    }
+
+    function limpiar(input) {
+        input.classList.remove('is-invalid', 'is-valid');
+        const feedback = input.nextElementSibling;
+        if (feedback) feedback.textContent = '';
+    }
+
+    /* ===============================
+       ESTADO DEL BOTÓN
     =============================== */
     function actualizarEstadoBoton() {
 
-        // Campos obligatorios
         const obligatorios = [
             'tipo_documento',
             'numero_documento',
@@ -21,341 +50,195 @@ document.addEventListener('DOMContentLoaded', function () {
             'fecha_nacimiento'
         ];
 
-        let hayError = false;
-        let hayVacios = false;
-        let noValidos = false;
+        let habilitar = true;
 
         obligatorios.forEach(id => {
             const campo = document.getElementById(id);
-            if (!campo) return;
+            if (!campo) habilitar = false;
 
-            if (campo.value.trim() === '') {
-                hayVacios = true;
-            }
+            const valor = (campo.value || '').trim();
 
-            if (campo.classList.contains('is-invalid')) {
-                hayError = true;
-            }
-
-            if (
-                campo.value.trim() !== '' &&
-                !campo.classList.contains('is-valid')
-            ) {
-                noValidos = true;
-            }
+            if (valor === '') habilitar = false;
+            if (!campo.classList.contains('is-valid')) habilitar = false;
+            if (campo.classList.contains('is-invalid')) habilitar = false;
         });
 
-        if (hayError || hayVacios || noValidos) {
-            btnGuardar.disabled = true;
+        btnGuardar.disabled = !habilitar;
+
+        if (btnGuardar.disabled) {
             btnGuardar.classList.remove('btn-dark');
             btnGuardar.classList.add('btn-secondary');
         } else {
-            btnGuardar.disabled = false;
             btnGuardar.classList.remove('btn-secondary');
             btnGuardar.classList.add('btn-dark');
         }
     }
 
     /* ===============================
-       VALIDACIONES EN TIEMPO REAL
+       VALIDACIÓN DOCUMENTO EN VIVO
     =============================== */
-    document.addEventListener('input', async function (e) {
+    let docTimer = null;
+    let docAbort = null;
 
-        const input = e.target;
-        const feedback = input.nextElementSibling;
-        if (!feedback) return;
+    function validarDocumentoEnVivo(valor, input) {
 
-        const valor = input.value.trim();
+        if (docTimer) clearTimeout(docTimer);
+        if (docAbort) docAbort.abort();
 
-        /* ===== NÚMERO DOCUMENTO ===== */
-        if (input.id === 'numero_documento') {
+        docAbort = new AbortController();
 
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
+        docTimer = setTimeout(async () => {
 
             if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
+                invalido(input, 'Solo números.');
                 actualizarEstadoBoton();
                 return;
             }
 
             if (valor.length < 6 || valor.length > 12) {
-                invalido(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
+                invalido(input, 'Debe tener entre 6 y 12 dígitos.');
                 actualizarEstadoBoton();
                 return;
+            }
+
+            const clienteIdEl = document.getElementById('cliente_id');
+            const clienteId = clienteIdEl ? clienteIdEl.value : '';
+
+            let url = `/clientes/validar-documento/?numero=${encodeURIComponent(valor)}`;
+            if (clienteId) {
+                url += `&cliente_id=${encodeURIComponent(clienteId)}`;
             }
 
             try {
-                const clienteId = document.getElementById('cliente_id');
-
-                let url = `/clientes/validar-documento/?numero=${valor}`;
-                if (clienteId) {
-                    url += `&cliente_id=${clienteId.value}`;
-                }
-
-                const res = await fetch(url);
+                const res = await fetch(url, { signal: docAbort.signal });
                 const data = await res.json();
 
-                if (!data.valido) {
-                    invalido(input, feedback, data.mensaje);
-                } else {
-                    valido(input, feedback);
+                if (!data.valido) invalido(input, data.mensaje);
+                else valido(input);
+
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    invalido(input, 'Error validando documento.');
                 }
-            } catch {
-                invalido(input, feedback, 'Error validando el documento.');
             }
 
             actualizarEstadoBoton();
+
+        }, 300);
+    }
+
+    /* ===============================
+       EVENTOS INPUT
+    =============================== */
+    form.addEventListener('input', function (e) {
+
+        const input = e.target;
+        const valor = (input.value || '').trim();
+
+        /* DOCUMENTO */
+        if (input.id === 'numero_documento') {
+            if (!valor) {
+                limpiar(input);
+                actualizarEstadoBoton();
+                return;
+            }
+            validarDocumentoEnVivo(valor, input);
+            return;
         }
 
-        /* ===== NOMBRE / APELLIDO ===== */
+        /* NOMBRE / APELLIDO */
         if (input.id === 'nombre' || input.id === 'apellido') {
 
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-            if (!soloLetras.test(valor)) {
-                invalido(
-                    input,
-                    feedback,
-                    input.id === 'nombre'
-                        ? 'El nombre solo puede contener letras.'
-                        : 'El apellido solo puede contener letras.'
-                );
-            } else {
-                valido(input, feedback);
-            }
+            if (!valor) invalido(input, 'Campo obligatorio.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras.');
+            else valido(input);
 
             actualizarEstadoBoton();
         }
 
-        /* ===== TELÉFONO ===== */
+        /* TELÉFONO */
         if (input.id === 'telefono') {
 
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
+            if (!valor) limpiar(input);
+            else if (!/^\d+$/.test(valor)) invalido(input, 'Solo números.');
+            else if (valor.length !== 10) invalido(input, 'Debe tener 10 dígitos.');
+            else valido(input);
 
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length !== 10) {
-                invalido(input, feedback, 'Debe tener exactamente 10 dígitos.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            valido(input, feedback);
             actualizarEstadoBoton();
         }
 
-        /* ===== CORREO ===== */
+        /* CORREO */
         if (input.id === 'correo') {
-
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!emailRegex.test(valor)) {
-                invalido(input, feedback, 'Correo electrónico inválido.');
-            } else {
-                valido(input, feedback);
-            }
+            if (!valor) limpiar(input);
+            else if (!emailRegex.test(valor)) invalido(input, 'Correo inválido.');
+            else valido(input);
 
             actualizarEstadoBoton();
         }
-
-        /* ===== FECHA NACIMIENTO ===== */
-        if (input.id === 'fecha_nacimiento') {
-
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const fecha = new Date(valor);
-            const hoy = new Date();
-
-            if (fecha > hoy) {
-                invalido(input, feedback, 'La fecha no puede ser futura.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
     });
 
-    /* ===============================
-       LIMPIAR TODO AL CERRAR MODAL
-    =============================== */
+    /* SELECT tipo documento */
+    const tipoDoc = document.getElementById('tipo_documento');
+    if (tipoDoc) {
+        tipoDoc.addEventListener('change', function () {
+            if (!this.value.trim()) limpiar(this);
+            else valido(this);
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* FECHA */
+    const fecha = document.getElementById('fecha_nacimiento');
+    if (fecha) {
+        fecha.addEventListener('change', function () {
+            const hoy = new Date().toISOString().split('T')[0];
+            if (!this.value) limpiar(this);
+            else if (this.value > hoy) invalido(this, 'No puede ser futura.');
+            else valido(this);
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* LIMPIAR MODAL */
     modal.addEventListener('hidden.bs.modal', function () {
-
-        if (!form) return;
-
         form.reset();
-
-        form.querySelectorAll('input, select, textarea').forEach(el => {
-            el.value = '';
-            el.defaultValue = '';
+        form.querySelectorAll('input, select').forEach(el => {
             el.classList.remove('is-valid', 'is-invalid');
         });
-
-        form.querySelectorAll('.invalid-feedback').forEach(el => {
-            el.textContent = '';
-        });
-
         btnGuardar.disabled = true;
         btnGuardar.classList.remove('btn-dark');
         btnGuardar.classList.add('btn-secondary');
     });
 
-    /* ===============================
-       AL ABRIR MODAL → BOTÓN BLOQUEADO
-    =============================== */
-    modal.addEventListener('shown.bs.modal', function () {
-        actualizarEstadoBoton();
-    });
-
 });
 
 /* ===============================
-   FUNCIONES REUTILIZABLES
+   CONFIRMAR GESTIÓN
 =============================== */
-function invalido(input, feedback, mensaje) {
-    input.classList.add('is-invalid');
-    input.classList.remove('is-valid');
-    feedback.textContent = mensaje;
-}
+document.addEventListener("DOMContentLoaded", function () {
+    if (!window.mostrarModalGestion) return;
 
-function valido(input, feedback) {
-    input.classList.remove('is-invalid');
-    input.classList.add('is-valid');
-    feedback.textContent = '';
-}
+    const confirmar = confirm(
+        "¿Deseas añadir un tratamiento de datos a este cliente recién creado?"
+    );
 
-function limpiar(input, feedback) {
-    input.classList.remove('is-invalid', 'is-valid');
-    feedback.textContent = '';
-}
-document.addEventListener('DOMContentLoaded', () => {
-
-  const numero = document.getElementById('numero_documento');
-  const nombre = document.getElementById('nombre');
-  const apellido = document.getElementById('apellido');
-  const fecha = document.getElementById('fecha_nacimiento');
-  const clienteId = document.getElementById('cliente_id')?.value;
-
-  /* ===============================
-     FUNCIONES AUX
-  =============================== */
-  function setError(input, mensaje) {
-    input.classList.add('is-invalid');
-    input.nextElementSibling.textContent = mensaje;
-  }
-
-  function setOk(input) {
-    input.classList.remove('is-invalid');
-    input.classList.add('is-valid');
-    input.nextElementSibling.textContent = '';
-  }
-
-  /* ===============================
-     VALIDAR DOCUMENTO (AJAX)
-  =============================== */
-  if (numero) {
-    numero.addEventListener('blur', () => {
-
-      const valor = numero.value.trim();
-      if (!valor) {
-        setError(numero, 'El documento es obligatorio.');
-        return;
-      }
-
-      fetch(`/clientes/validar-documento/?numero=${valor}&cliente_id=${clienteId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.valido) {
-            setError(numero, data.mensaje);
-          } else {
-            setOk(numero);
-          }
-        });
-    });
-  }
-
-  /* ===============================
-     VALIDAR NOMBRE
-  =============================== */
-  if (nombre) {
-    nombre.addEventListener('input', () => {
-      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-      if (!nombre.value.trim()) {
-        setError(nombre, 'El nombre es obligatorio.');
-      } else if (!regex.test(nombre.value)) {
-        setError(nombre, 'Solo letras.');
-      } else {
-        setOk(nombre);
-      }
-    });
-  }
-
-  /* ===============================
-     VALIDAR APELLIDO
-  =============================== */
-  if (apellido) {
-    apellido.addEventListener('input', () => {
-      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-      if (!apellido.value.trim()) {
-        setError(apellido, 'El apellido es obligatorio.');
-      } else if (!regex.test(apellido.value)) {
-        setError(apellido, 'Solo letras.');
-      } else {
-        setOk(apellido);
-      }
-    });
-  }
-
-  /* ===============================
-     VALIDAR FECHA
-  =============================== */
-  if (fecha) {
-    fecha.addEventListener('change', () => {
-      const hoy = new Date().toISOString().split('T')[0];
-      if (!fecha.value) {
-        setError(fecha, 'La fecha es obligatoria.');
-      } else if (fecha.value > hoy) {
-        setError(fecha, 'No puede ser futura.');
-      } else {
-        setOk(fecha);
-      }
-    });
-  }
-
+    if (confirmar) {
+        window.location.href =
+            `/servicios/gestion-alisados/crear/?cliente=${window.clienteCreadoId}`;
+    }
 });
-document.addEventListener("DOMContentLoaded", () => {
 
-    document
-        .querySelectorAll(".btn-eliminar[data-control-eliminar]")
+/* ===============================
+   CONTROL ELIMINAR
+=============================== */
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".btn-eliminar[data-control-eliminar]")
         .forEach(btn => {
 
             btn.addEventListener("click", function (e) {

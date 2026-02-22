@@ -1,0 +1,844 @@
+/* -------------------- RESET -------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Roboto, Helvetica, Arial, sans-serif;
+    color: #111;
+    background: #ffffff;
+    line-height: 1.6;
+}
+/* -------------------- GLOBAL -------------------- */
+
+.sq-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.sq-btn {
+    display: inline-block;
+    padding: 16px 52px;
+    border-radius: 999px;
+    border: 1px solid #111;
+    text-decoration: none;
+    color: #111;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    margin-bottom: 50px;
+    
+}
+
+.sq-btn:hover {
+    background: #111;
+    color: #fff;
+}
+
+.sq-btn.dark {
+    background: #111;
+    color: #fff;
+}
+
+.sq-btn.dark:hover {
+    background: #000;
+}
+
+/* -------------------- HERO -------------------- */
+.sq-hero-bg {
+    min-height: 120vh;
+    background-image: url("../img/fondo-.minimalista.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    min-height: 160vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: 220px;
+}
+.sq-hero-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 15, 15, 0.55);
+}
+
+.sq-hero,
+.sq-intro,
+.sq-services {
+    position: relative;
+    z-index: 2;
+}
+
+.sq-intro {
+    background: transparent;
+}
+
+.sq-hero h1,
+.sq-hero p,
+.sq-intro h2,
+.sq-intro p,
+.sq-card h3,
+.sq-card p {
+    color: #fff;
+}
+.sq-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 160px;
+    padding-bottom: 40px;
+    position: relative;
+    
+}
+
+.sq-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(15,15,15,0.65) 0%,
+            rgba(15,15,15,0.35) 30%,
+            rgba(15,15,15,0.15) 55%,
+            rgba(15,15,15,0) 75%
+        );
+    pointer-events: none;
+}
+
+.sq-hero-bg::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 220px;
+    background: linear-gradient(
+        to bottom,
+        rgba(15,15,15,0),
+        rgba(255,255,255,1)
+    );
+    pointer-events: none;
+    z-index: 3;
+}
+
+
+.sq-hero-inner {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    text-align: center;
+    margin-top: 20px;
+     
+    
+}
+.sq-hero h1 {
+    font-size: clamp(2.75rem, 5vw, 4rem);
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 100px;
+}
+
+.sq-hero h2 {
+    font: 2em sans-serif;
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 100px;
+    text-align: center;
+}
+
+.sq-hero p {
+    margin-top: 32px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sq-hero .sq-btn {
+    margin-top: 50px;
+    border-color: #fff;
+    color: #fff;
+}
+
+/* ==================== SOBRE NOSOTROS – 3 COLUMNAS ==================== */
+
+.sq-intro {
+    padding-top: 60px;   /* antes 140px */
+    padding-bottom: 140px;
+}
+
+/* Layout principal */
+.sq-intro-layout {
+    display: grid;
+    grid-template-columns: 2fr 2.2fr 0.4fr; /* imagen | texto | imagen */
+    align-items: center;
+    gap: 80px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* ---------- IMÁGENES ---------- */
+.sq-intro-img {
+    display: flex;
+    justify-content: center;
+}
+
+#intro {
+    scroll-margin-top: 100px; 
+}
+
+.sq-intro-img.left {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: -120px;
+    align-self: flex-start;
+    margin-top: 120px;
+}
+
+.sq-intro-img.right {
+    justify-content: flex-end;
+ 
+}
+
+.sq-intro-img img {
+    border-radius: 18px;
+}
+
+/* Tamaños distintos */
+.sq-intro-img.left img {
+    width: 100%;
+    max-width: 620px;  
+    height: auto;
+    border-radius: 18px;
+}
+
+.sq-intro-img.right img {
+    max-width: 200px;
+    margin-top: -180px;
+}
+
+/* ---------- TEXTO CENTRAL ---------- */
+.sq-intro-content {
+    text-align: center;
+    margin-left: -120px;
+    margin-top: -180px;
+}
+
+.sq-intro-content h2 {
+    font-size: 2.6rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.sq-intro-content p {
+    max-width: 1000px;
+    line-height: 1.7;
+    color: #e0e0e0;
+    font-weight: 400;
+    font-size: 1.5rem;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* ==================== PROMOTIONS ==================== */
+.sq-promotions {
+    min-height: 100vh;   /* o 130vh si quieres más imagen */
+    padding: 160px 0;
+    background: transparent; 
+    position: relative;
+}
+
+.sq-promotions::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(15,15,15,0.25),
+        rgba(15,15,15,0.45)
+    );
+    z-index: 1;
+}
+
+.sq-promotions > * {
+    position: relative;
+    z-index: 2;
+}
+
+.sq-promotions-title {
+    text-align: center;
+    font-size: clamp(2.6rem, 4vw, 3.2rem);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 110px;
+    color: #ffffff;
+}
+.sq-promotions-title::after {
+    content: "";
+    width: 120px;
+    height: 1px;
+    background: rgba(255,255,255,0.6);
+    display: block;
+    margin: 35px auto 0;
+}
+.sq-promotions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 50px;
+}
+
+/* CARD */
+.sq-promo-card {
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(6px);
+    padding: 50px 40px;
+    text-align: center;
+    transition: transform 0.35s ease, background 0.35s ease;
+}
+
+.sq-promo-card:hover {
+    transform: translateY(-10px);
+    background: rgba(0, 0, 0, 0.35);
+}
+
+/* IMAGE */
+.sq-promo-image {
+    margin-bottom: 20px;
+}
+
+.sq-promo-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.sq-promo-card:hover .sq-promo-image img {
+    transform: scale(1.05);
+}
+
+/* TAG */
+.sq-promo-tag {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    color: #382a23;
+    padding: 6px 18px;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+/* TEXT */
+.sq-promo-card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+    color: #ffffff;
+}
+
+.sq-promo-card p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    color: rgba(255,255,255,0.85);
+}
+.sq-promo-btn {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 10px 28px;
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 999px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.sq-promo-btn:hover {
+    background: #fff;
+    color: #111;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .sq-promotions-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+/* ==================== FONDOS POR ESTADO ==================== */
+body {
+    background-color: #ffffff;
+    transition: background-color 0.8s ease;
+}
+
+/* Infinite */
+body.bg-white {
+    background-color: #ffffff;
+}
+
+/* Testimonials */
+body.bg-brown {
+    background-color: #634c40;
+}
+
+/* CTA */
+body.bg-black {
+    background-color: #0f0f0f;
+}
+
+.sq-infinite,
+.sq-testimonials,
+.sq-contact {
+    background: transparent !important;
+}
+
+/* ==================== INFINITE SCROLL ==================== */
+
+#infinite,
+#testimonials {
+    scroll-margin-top: clamp(120px, 10vw, 180px);
+}
+
+.sq-infinite {
+    position: relative;
+    top: 80px;
+    z-index: 5;
+    height: 700px;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 24px;
+    overflow: hidden;
+}
+#infinite {
+    scroll-margin-top: 320px; 
+}
+
+.sq-products-title2 {
+    position: relative;  
+    z-index: 20;
+    text-align: center;
+    font-size: 2.6rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    color:#382a23;
+}
+
+.sq-products-title2::after {
+    content: "";
+    width: 80px;
+    height: 1.5px;
+    background: #3a2b24;
+    display: block;
+    margin: 25px auto 0;
+    opacity: 0.7;
+}
+
+/* ================= LOOP ================= */
+.sq-loop {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+/* ================= TRACK ================= */
+.sq-track {
+    position: absolute;
+    left: 0;
+    top: 0; 
+    display: flex;
+    will-change: transform;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* ================= CARD ================= */
+.sq-card {
+    min-width: 380px;
+    height: 500px;
+    border-radius: 60px;
+    margin-right: 40px;
+    flex-shrink: 0;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    color: white;
+    position: relative;
+    overflow: hidden;
+
+    transition: transform 0.45s ease, box-shadow 0.45s ease;
+}
+
+/* ================= OVERLAY OSCURO ================= */
+.sq-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none; 
+    transition: opacity 0.35s ease;
+}
+
+.sq-card.is-video::before {
+    opacity: 0;
+}
+
+/* ================= BLUR ================= */
+.sq-blur {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    backdrop-filter: blur(0px);
+    background: rgba(0,0,0,0.15);
+
+    mask-image: linear-gradient(to top, black 0%, transparent 0%);
+    transition: backdrop-filter 0.6s ease, background 0.4s ease;
+
+    pointer-events: none;
+}
+
+.sq-card.is-video .sq-blur {
+    backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.25);
+}
+
+
+/* ================= VIDEO ================= */
+.sq-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    opacity: 0;
+    transform: scale(1.04);
+    transition:
+        opacity 0.45s ease,
+        transform 0.6s ease;
+
+    z-index: 5;
+
+    pointer-events: none; 
+} 
+
+.sq-card.is-video .sq-video {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.sq-card.is-video::before {
+    opacity: 0;
+}
+
+/* ================= CARD ACTIVA ================= */
+.sq-card.is-video {
+    transform: scale(1.08);
+    z-index: 10;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.45);
+}
+
+/* ================= TEXTO ================= */
+.sq-card h3,
+.sq-card p {
+    position: relative;
+    z-index: 4;
+}
+
+.sq-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.sq-card p {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+/* -------------------- TESTIMONIALS -------------------- */
+/* ===================== PRODUCTS ===================== */
+#testimonials {
+    scroll-margin-top: 140px;
+}
+.sq-products {
+    background: #4b3a30;
+    padding: 120px 6%;
+    color: #fff;
+}
+
+
+/* TÍTULO */
+.sq-products-title {
+    text-align: center;
+    font-size: 2.6rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 110px;
+    position: relative;
+    color:#ffffff
+}
+
+.sq-products-title::after {
+    content: "";
+    width: 80px;
+    height: 1.5px;
+    background: #fff;
+    display: block;
+    margin: 25px auto 0;
+    opacity: 0.7;
+}
+
+/* GRID → 3 PRODUCTOS */
+.sq-products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 80px;
+    row-gap: 130px;
+    max-width: 1350px; /* ⬅️ más ancho */
+    margin: 0 auto;
+}
+
+/* TARJETA MÁS GRANDE */
+.sq-product-card {
+    background: transparent;
+    border: 1.3px solid transparent; /* ❌ invisible */
+    padding: 50px 38px 55px;
+    text-align: center;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: 
+        transform 0.35s ease,
+        background-color 0.35s ease,
+        border-color 0.35s ease;
+
+}
+/* HOVER EFECT */
+.sq-product-card:hover {
+    transform: scale(1.03); /* 🔍 se agranda un poco */
+    background: rgba(0, 0, 0, 0.25); /* 🟤 fondo más oscuro */
+    border-color: rgba(255, 255, 255, 0.85); /* 🤍 aparece el borde */
+}
+
+/* IMAGEN MÁS ALTA */
+.sq-product-card img {
+    width: 100%;
+    height: 340px;  
+    object-fit: cover;
+    margin-bottom: 30px;
+
+}
+
+/* NOMBRE */
+.sq-product-card h3 {
+    font-size: 1.1rem; /* ⬅️ apenas más grande */
+    margin-bottom: 22px;
+    color:#fff
+}
+
+/* BOTÓN PRECIO (se mantiene) */
+.sq-product-price {
+    display: inline-block;
+    padding: 14px 34px;
+    border: 1.3px solid rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sq-product-card:hover .sq-product-price {
+    background: rgba(255, 255, 255, 0.85);
+    color: #ffffff;
+}
+/* -------------------- CTA FINAL -------------------- */
+.sq-cta {
+    padding: 160px 40px;
+    text-align: center;
+}
+
+.sq-cta h2 {
+    font-size: 2.6rem;
+    font-weight: 500;
+    margin-bottom: 50px;
+}
+/* ==================== CONTACTO PREMIUM ==================== */
+
+.sq-contact {
+    padding: 180px 32px;
+    color: #ffffff;
+}
+
+.sq-contact-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Encabezado */
+.sq-contact-header {
+    max-width: 720px;
+    margin-bottom: 120px;
+}
+
+.sq-contact-eyebrow {
+    display: block;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 20px;
+}
+
+.sq-contact-header h2 {
+    font-size: 3rem;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-bottom: 28px;
+    color: rgba(255,255,255,0.5);
+}
+
+.sq-contact-header p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.7);
+}
+
+/* Layout */
+.sq-contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 120px;
+    align-items: start;
+}
+
+/* Info */
+.sq-contact-item {
+    margin-bottom: 48px;
+}
+
+.sq-contact-item h3 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: rgba(255,255,255,0.9);
+}
+
+.sq-contact-item p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.75);
+}
+
+/* Links */
+.sq-contact-link {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 1.05rem;
+    text-decoration: none;
+    color: #ffffff;
+    width: fit-content;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    transition: border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.sq-contact-link:hover {
+    border-color: #ffffff;
+    opacity: 0.85;
+}
+
+/* Mapa minimalista */
+.sq-contact-map {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    filter: grayscale(100%) contrast(1.1) brightness(0.9);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+
+.sq-contact-map iframe {
+    width: 100%;
+    height: 420px;
+    border: none;
+}
+
+
+
+/* Responsive */
+@media (max-width: 900px) {
+    .sq-contact-layout {
+        grid-template-columns: 1fr;
+        gap: 80px;
+    }
+
+    .sq-contact-header h2 {
+        font-size: 2.4rem;
+    }
+
+    .sq-contact-map iframe {
+        height: 320px;
+    }
+}
+
+
+
+/* -------------------- RESPONSIVE -------------------- */
+@media (max-width: 900px) {
+
+    .sq-split {
+        grid-template-columns: 1fr;
+    }
+
+    .sq-text {
+        padding: 80px 40px;
+    }
+
+    .sq-hero {
+        min-height: auto;
+        padding: 120px 40px;
+    }
+
+} 

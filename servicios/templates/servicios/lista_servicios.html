@@ -4,10 +4,10 @@
 {% block title %}Lista de Servicios{% endblock %}
 
 {% block page_title %}
-    <i class="bi bi-gear-fill"></i> Gestión de Servicios
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>
     .service-card {
         transition: transform 0.2s;
@@ -43,9 +43,9 @@
 
     <!-- Botón Crear -->
     <div class="mb-4">
-        <a href="{% url 'servicios:crear_servicio' %}" class="btn btn-primary">
+        <button type="button" class="btn text-white" style="background-color: #634c40; border-color: #634c40;" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
             <i class="bi bi-plus-circle"></i> Crear Nuevo Servicio
-        </a>
+        </button>
     </div>
 
     <!-- Lista de Servicios -->
@@ -73,12 +73,12 @@
                             <small class="text-muted">Creado: {{ servicio.fecha_creacion|date:"d/m/Y" }}</small>
                         </div>
                         <div class="card-footer bg-transparent">
-                            <a href="{% url 'servicios:editar_servicio' servicio.pk %}" class="btn btn-sm btn-warning">
+                            <button type="button" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" onclick="abrirModalEditar('{{ servicio.pk }}')">
                                 <i class="bi bi-pencil"></i> Editar
-                            </a>
-                            <a href="{% url 'servicios:eliminar_servicio' servicio.pk %}" class="btn btn-sm btn-danger">
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="abrirModalEliminar('{{ servicio.pk }}')">
                                 <i class="bi bi-trash"></i> Eliminar
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -87,8 +87,222 @@
     {% else %}
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i> No hay servicios registrados. 
-            <a href="{% url 'servicios:crear_servicio' %}">Crear el primero</a>
+            <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
+                Crear el primero
+            </button>
         </div>
     {% endif %}
 </div>
+
+<!-- Modal para Formulario de Servicio -->
+<div class="modal fade" id="modalFormServicio" tabindex="-1" aria-labelledby="modalFormServicioLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #634c40;">
+                <h5 class="modal-title" id="modalFormServicioLabel">
+                    <i class="bi bi-gear-fill"></i> Crear Nuevo Servicio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalFormContent" style="max-height: 70vh; overflow-y: auto;">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando formulario...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Servicio -->
+<div class="modal fade" id="modalEditarServicio" tabindex="-1" aria-labelledby="modalEditarServicioLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #634c40;">
+                <h5 class="modal-title" id="modalEditarServicioLabel">
+                    <i class="bi bi-pencil-fill"></i> Editar Servicio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalEditarContent" style="max-height: 70vh; overflow-y: auto;">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando formulario...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Servicio -->
+<div class="modal fade" id="modalEliminarServicio" tabindex="-1" aria-labelledby="modalEliminarServicioLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarServicioLabel">
+                    <i class="bi bi-trash-fill"></i> Eliminar Servicio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalEliminarContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('modalFormServicio');
+    const modalContent = document.getElementById('modalFormContent');
+    const bsModal = new bootstrap.Modal(modal);
+    
+    // Cargar el formulario cuando se abre el modal de crear
+    modal.addEventListener('show.bs.modal', function() {
+        modalContent.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3">Cargando formulario...</p>
+            </div>
+        `;
+        
+        // Cargar el formulario mediante fetch
+        fetch('{% url "servicios:crear_servicio" %}?modal=1')
+            .then(response => response.text())
+            .then(html => {
+                modalContent.innerHTML = html;
+                
+                // Ejecutar scripts del contenido cargado
+                const scripts = modalContent.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar el formulario:', error);
+                modalContent.innerHTML = `
+                    <div class="alert alert-danger m-3">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        Error al cargar el formulario. Por favor, intente nuevamente.
+                    </div>
+                `;
+            });
+    });
+});
+
+// Función para abrir el modal de editar
+function abrirModalEditar(servicioId) {
+    const modalEditar = document.getElementById('modalEditarServicio');
+    const modalEditarContent = document.getElementById('modalEditarContent');
+    const bsModalEditar = new bootstrap.Modal(modalEditar);
+    
+    modalEditarContent.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando formulario...</p>
+        </div>
+    `;
+    
+    bsModalEditar.show();
+    
+    // Construir la URL directamente
+    const url = '/servicios/editar/' + servicioId + '/?modal=1';
+    
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            modalEditarContent.innerHTML = html;
+            
+            // Ejecutar scripts del contenido cargado
+            const scripts = modalEditarContent.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar el formulario:', error);
+            modalEditarContent.innerHTML = `
+                <div class="alert alert-danger m-3">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    Error al cargar el formulario. Por favor, intente nuevamente.
+                </div>
+            `;
+        });
+}
+
+// Función para abrir el modal de eliminar
+function abrirModalEliminar(servicioId) {
+    const modalEliminar = document.getElementById('modalEliminarServicio');
+    const modalEliminarContent = document.getElementById('modalEliminarContent');
+    const bsModalEliminar = new bootstrap.Modal(modalEliminar);
+    
+    modalEliminarContent.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando...</p>
+        </div>
+    `;
+    
+    bsModalEliminar.show();
+    
+    // Construir la URL directamente
+    const url = '/servicios/eliminar/' + servicioId + '/?modal=1';
+    
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            modalEliminarContent.innerHTML = html;
+            
+            // Ejecutar scripts del contenido cargado
+            const scripts = modalEliminarContent.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar el contenido:', error);
+            modalEliminarContent.innerHTML = `
+                <div class="alert alert-danger m-3">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    Error al cargar. Por favor, intente nuevamente.
+                </div>
+            `;
+        });
+}
+</script>
 {% endblock %}

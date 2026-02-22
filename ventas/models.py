@@ -3,8 +3,8 @@ from django.db.models import Sum
 from django.utils.timezone import now
 from clientes.models import Cliente
 from Productos.models import Producto
-from personal.models import Personal
 from servicios.models import Servicio
+
 class Venta(models.Model):
     # ===============================
     # IDENTIFICACIÓN
@@ -96,10 +96,10 @@ class DetalleVenta(models.Model):
     )
 
     producto = models.ForeignKey(
-        Producto,
+        "Productos.Producto",
         on_delete=models.PROTECT,
         null=True,
-        blank=True
+        blank=True,
     )
 
     servicio = models.ForeignKey(
@@ -110,12 +110,12 @@ class DetalleVenta(models.Model):
     )
 
     colaborador_servicio = models.ForeignKey(
-        Personal,
-        on_delete=models.PROTECT,
+        "personal.Personal",
+        on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
+        related_name="detalles_ventas_servicio",
     )
-
 
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     cantidad = models.PositiveIntegerField(default=1)

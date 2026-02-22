@@ -57,9 +57,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateLogoColor() {
+<<<<<<< HEAD
         const headerRect = header.getBoundingClientRect();
 
         // Punto justo debajo del header
+=======
+       // Si no existe header o logo en esta página, no hacemos nada
+        if (!header || !logo) return;
+
+        const headerRect = header.getBoundingClientRect();
+
+>>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
         const x = window.innerWidth / 2;
         const y = headerRect.bottom + 1;
 
@@ -73,7 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             logo.style.color = '#fff';
         }
+<<<<<<< HEAD
     };
+=======
+    }
+>>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
 
     // ===============================
     // NAVBAR OSCURO FORZADO EN INFINITE

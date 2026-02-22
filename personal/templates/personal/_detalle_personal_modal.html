@@ -1,0 +1,124 @@
+{% load static %}
+
+<div style="padding: 0;">
+    <div class="personal-detail-grid" style="padding: 20px 0;">
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">ID</span>
+            <p class="personal-detail-value"><strong>{{ personal.id }}</strong></p>
+        </div>
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Estado</span>
+            <p class="personal-detail-value">
+                {% if personal.activo %}
+                    <span class="personal-badge success">Activo</span>
+                {% else %}
+                    <span class="personal-badge danger">Inactivo</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+
+    <div class="personal-detail-grid">
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Nombres</span>
+            <p class="personal-detail-value">{{ personal.nombres }}</p>
+        </div>
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Apellidos</span>
+            <p class="personal-detail-value">{{ personal.apellidos }}</p>
+        </div>
+    </div>
+
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+
+    <div class="personal-detail-grid">
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Número de Documento</span>
+            <p class="personal-detail-value">{{ personal.numero_documento }}</p>
+        </div>
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Rol</span>
+            <p class="personal-detail-value">
+                <span class="personal-badge {% if personal.rol == 'AUX' %}warning{% elif personal.rol == 'ADM' %}info{% else %}success{% endif %}">
+                    {{ personal.get_rol_display }}
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+
+    <div class="personal-detail-grid">
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Teléfono</span>
+            <p class="personal-detail-value">
+                <a href="tel:{{ personal.telefono }}" style="color: #634c40; text-decoration: none;">
+                    <i class="fas fa-phone"></i> {{ personal.telefono }}
+                </a>
+            </p>
+        </div>
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Correo Electrónico</span>
+            <p class="personal-detail-value">
+                <a href="mailto:{{ personal.correo }}" style="color: #634c40; text-decoration: none;">
+                    <i class="fas fa-envelope"></i> {{ personal.correo }}
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+
+    <div class="personal-detail-grid">
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Fecha de Creación</span>
+            <p class="personal-detail-value">
+                <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 6px;"></i>
+                {{ personal.fecha_creacion|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Última Actualización</span>
+            <p class="personal-detail-value">
+                <i class="fas fa-clock" style="color: #634c40; margin-right: 6px;"></i>
+                {{ personal.fecha_actualizacion|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+    </div>
+
+    {% if personal.usuario %}
+        <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+        <div class="personal-detail-section">
+            <span class="personal-detail-label">Usuario del Sistema</span>
+            <p class="personal-detail-value">
+                <i class="fas fa-user-shield" style="color: #634c40; margin-right: 6px;"></i>
+                {{ personal.usuario.username }} ({{ personal.usuario.first_name }})
+            </p>
+        </div>
+    {% endif %}
+
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+
+    <div style="display: flex; gap: 12px; margin-top: 32px;">
+        {% if puede_modificar %}
+        <button type="button" class="personal-btn warning" style="flex: 1;" onclick="cerrarModalDetallePersonal(); abrirModalEditarPersonal({{ personal.id }});">
+            <i class="fas fa-edit"></i> Editar
+        </button>
+        {% endif %}
+        {% if es_administrador %}
+        <button type="button" class="personal-btn" style="flex: 1; background: #d4a574; border-color: #d4a574; color: white;" onclick="cerrarModalDetallePersonal(); abrirModalEliminarPersonal({{ personal.id }});">
+            <i class="fas fa-trash"></i> Eliminar
+        </button>
+        {% endif %}
+    </div>
+    
+    {% if not puede_modificar and not es_administrador %}
+    <div style="text-align: center; margin-top: 20px;">
+        <button type="button" class="personal-btn secondary" onclick="cerrarModalDetallePersonal()">
+            <i class="fas fa-times"></i> Cerrar
+        </button>
+    </div>
+    {% endif %}
+</div>

@@ -80,15 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // ==================== CONFIRMACIÓN DE ELIMINACIÓN ====================
-    const deleteButtons = document.querySelectorAll('[data-confirm-delete]');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            if (!confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
-                e.preventDefault();
-            }
-        });
-    });
+    // Confirmaciones (delegadas al modal)
+    // Las acciones con atributo `data-confirm` abren el modal y ejecutan la acción al confirmar.
     
     // ==================== FUNCIÓN PARA CARGAR GRÁFICOS ====================
     window.initDashboardChart = function(canvasId, data, options) {
@@ -128,8 +121,9 @@ function showNotification(message, type = 'info') {
     }
 }
 
-// Función para confirmar acciones
+// Función para confirmar acciones (deprecated)
 function confirmAction(message) {
+    console.warn('confirmAction() is deprecated. Use data-confirm attributes. Falling back to window.confirm for legacy code.');
     return confirm(message || '¿Estás seguro de realizar esta acción?');
 }
 

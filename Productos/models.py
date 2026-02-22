@@ -23,14 +23,6 @@ class Marca(models.Model):
 
 
 class Producto(models.Model):
-    """
-    Modelo para productos
-    """
-
-    # ===============================
-    # CHOICES
-    # ===============================
-class Producto(models.Model):
 
     UNIDAD_MEDIDA_CHOICES = (
         ("unidad", "Unidad"),
