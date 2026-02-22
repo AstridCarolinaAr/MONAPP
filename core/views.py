@@ -8,13 +8,10 @@ from usuarios.forms import LoginForm
 from django.contrib.auth import login
 from clientes.models import Cliente
 from servicios.models import Servicio
-<<<<<<< HEAD
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
-=======
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
->>>>>>> d311f24f466d814b4452e3cbeb3ab49dbd709e92
 
 
 

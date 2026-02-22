@@ -13,6 +13,20 @@ class PerfilUsuario(models.Model):
         on_delete=models.CASCADE,
         related_name='perfil'
     )
+    TIPO_DOCUMENTO_CHOICES = [
+        ('tarjeta_identidad', 'Tarjeta de Identidad'),
+        ('cedula', 'Cédula'),
+        ('pasaporte', 'Pasaporte'),
+        ('otro', 'Otro'),
+    ]
+    tipo_documento = models.CharField(
+        max_length=30,
+        choices=TIPO_DOCUMENTO_CHOICES,
+        default='cedula',
+        blank=True,
+        null=True,
+        help_text="Tipo de documento de identidad"
+    )
     
     documento = models.CharField(
         max_length=20, 

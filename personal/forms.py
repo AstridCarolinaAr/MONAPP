@@ -19,13 +19,13 @@ class PersonalForm(forms.ModelForm):
             'nombres': forms.TextInput(attrs={
                 'class': 'personal-form-control',
                 'placeholder': 'Ingrese nombres',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
                 'title': 'Solo se permiten letras y espacios'
             }),
             'apellidos': forms.TextInput(attrs={
                 'class': 'personal-form-control',
                 'placeholder': 'Ingrese apellidos',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
                 'title': 'Solo se permiten letras y espacios'
             }),
             'telefono': forms.TextInput(attrs={

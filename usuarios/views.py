@@ -10,9 +10,6 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
-<<<<<<< HEAD
-from core.funciones import admin_o_aux_required, solo_admin_required, no_colaborador_required
-=======
 import random
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -20,7 +17,6 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
->>>>>>> d311f24f466d814b4452e3cbeb3ab49dbd709e92
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -54,8 +50,6 @@ def logout_view(request):
     return redirect('core:index')
 
 
-<<<<<<< HEAD
-=======
 # ==================== RECUPERACIÓN DE CONTRASEÑA ====================
 
 from django.core.mail import send_mail
@@ -250,7 +244,6 @@ def username_recovery_view(request):
     return render(request, 'usuarios/username_recovery.html')
 
 
->>>>>>> d311f24f466d814b4452e3cbeb3ab49dbd709e92
 # ==================== PANEL DE USUARIOS (ADMIN / AUX) ====================
 
 @login_required
@@ -292,7 +285,7 @@ def lista_usuarios_view(request):
 
 
 @login_required
-@no_colaborador_required()
+#@no_colaborador_required()
 def crear_usuario_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
     
@@ -348,7 +341,7 @@ def crear_usuario_view(request):
 
 
 @login_required
-@no_colaborador_required()
+# @no_colaborador_required()
 def editar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -435,7 +428,7 @@ def editar_usuario_view(request, user_id):
 
 
 @login_required
-@solo_admin_required()
+# @solo_admin_required()
 def eliminar_usuario_view(request, user_id):
     grupos = list(request.user.groups.values_list('name', flat=True))
 
@@ -492,7 +485,7 @@ def eliminar_usuario_view(request, user_id):
 
 
 @login_required
-@admin_o_aux_required()
+# @admin_o_aux_required()
 def perfil_view(request):
     usuario = request.user
 
@@ -528,7 +521,7 @@ def perfil_view(request):
 # ==================== VALIDACIONES AJAX EN TIEMPO REAL ====================
 
 @login_required
-@no_colaborador_required()
+# @no_colaborador_required()
 def validar_documento_ajax(request):
     """
     Endpoint AJAX para validar documento en tiempo real
@@ -572,7 +565,7 @@ def validar_documento_ajax(request):
 
 
 @login_required
-@no_colaborador_required()
+# @no_colaborador_required()
 def validar_email_ajax(request):
     """
     Endpoint AJAX para validar email en tiempo real
@@ -581,35 +574,6 @@ def validar_email_ajax(request):
         email = request.GET.get('email', '').strip()
         
         if not email:
-<<<<<<< HEAD
-            return JsonResponse({
-                'valido': False,
-                'mensaje': 'El correo electrónico es requerido'
-            })
-        
-        # Validar formato de email básico
-        import re
-        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_regex, email):
-            return JsonResponse({
-                'valido': False,
-                'mensaje': 'Ingrese un correo electrónico válido'
-            })
-        
-        # Verificar si ya existe
-        if User.objects.filter(email=email).exists():
-            return JsonResponse({
-                'valido': False,
-                'mensaje': 'Este correo electrónico ya está registrado'
-            })
-        
-        return JsonResponse({
-            'valido': True,
-            'mensaje': 'Correo electrónico válido'
-        })
-    
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
-=======
             messages.error(request, 'Por favor ingresa tu correo electrónico.')
             return redirect('usuarios:login')
 
@@ -749,4 +713,3 @@ def nueva_password(request):
         return redirect('usuarios:login')
 
     return render(request, 'usuarios/nueva_password.html')
->>>>>>> d311f24f466d814b4452e3cbeb3ab49dbd709e92

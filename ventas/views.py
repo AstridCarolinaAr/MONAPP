@@ -9,12 +9,14 @@ from django.core.exceptions import ValidationError
 import json
 from django.db import transaction
 from servicios.models import Servicio  
-from personal.models import Personal 
 from django.db.models import Sum
 from django.http import JsonResponse
 from decimal import Decimal
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
+from django.apps import apps
+Personal = apps.get_model("personal", "Personal")
+
 
 
 

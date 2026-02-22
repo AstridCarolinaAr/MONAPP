@@ -22,28 +22,13 @@ def lista_servicios(request):
 
 @login_required
 def crear_servicio(request):
-<<<<<<< HEAD
-
-=======
     is_modal = request.GET.get('modal') == '1'
     
->>>>>>> 63a6b224b2652da4c0c396c5ef3ab03f543ceeec
     if request.method == 'POST':
         form = ServicioForm(request.POST, request.FILES)
 
         if form.is_valid():
             servicio = form.save()
-<<<<<<< HEAD
-            messages.success(
-                request,
-                f'Servicio "{servicio.nombre}" creado exitosamente.'
-            )
-            return redirect('servicios:lista_servicios')
-
-    else:
-        form = ServicioForm()
-
-=======
             messages.success(request, f'Servicio "{servicio.nombre}" creado exitosamente.')
             
             # Si es una petición AJAX, devolver JSON
@@ -71,7 +56,6 @@ def crear_servicio(request):
         }
         return render(request, 'servicios/form_servicio_modal_content.html', context)
     
->>>>>>> 63a6b224b2652da4c0c396c5ef3ab03f543ceeec
     context = {
         'form': form,
         'titulo': 'Crear Servicio'
@@ -176,21 +160,12 @@ def lista_gestion_alisados(request):
 @login_required
 @login_required
 def crear_gestion_alisado(request):
-<<<<<<< HEAD
-    cliente_id = request.GET.get('cliente')
-
-=======
     """Crea un nuevo registro de gestion de datos"""
     is_modal = request.GET.get('modal') == '1'
     
->>>>>>> 63a6b224b2652da4c0c396c5ef3ab03f543ceeec
     if request.method == 'POST':
         form = GestionAlisadoForm(request.POST, request.FILES)
         if form.is_valid():
-<<<<<<< HEAD
-            form.save()
-            messages.success(request, 'Gestión de alisado registrada exitosamente.')
-=======
             print("=== FORMULARIO VÁLIDO ===")
             gestion = form.save()
             print(f"=== GESTIÓN GUARDADA con ID: {gestion.pk} ===")
@@ -203,7 +178,6 @@ def crear_gestion_alisado(request):
                 })
             
             messages.success(request, 'Gestion de datos registrada exitosamente.')
->>>>>>> 63a6b224b2652da4c0c396c5ef3ab03f543ceeec
             return redirect('servicios:lista_gestion_alisados')
     else:
         if cliente_id:
@@ -213,21 +187,15 @@ def crear_gestion_alisado(request):
 
     return render(request, 'servicios/form_gestion_alisado.html', {
         'form': form,
-<<<<<<< HEAD
-        'titulo': 'Nueva Gestión de Alisado'
-    })
-
-=======
         'titulo': 'Gestion de datos',
         'is_modal': is_modal
-    }
+    })
     
     # Si es modal, usar template simplificado
     if is_modal:
         return render(request, 'servicios/form_gestion_alisado_modal_content.html', context)
     
     return render(request, 'servicios/form_gestion_alisado.html', context)
->>>>>>> 63a6b224b2652da4c0c396c5ef3ab03f543ceeec
 
 
 @login_required
