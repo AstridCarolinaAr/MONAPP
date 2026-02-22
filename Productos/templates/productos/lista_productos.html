@@ -321,11 +321,18 @@
   </div>
 </div>
 <div class="modal fade" id="modalZoomImagen" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content p-2">
-      <div class="modal-body p-2 text-center">
-        <img id="zoomImg" src="" style="max-width:100%; max-height:80vh; object-fit:contain;">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+    <div class="modal-content bg-transparent border-0 shadow-none">
+
+      <button type="button"
+              class="btn-close btn-close-white zoom-close"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"></button>
+
+      <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+        <img id="zoomImg" src="" class="zoom-img" alt="Imagen">
       </div>
+
     </div>
   </div>
 </div>
@@ -343,6 +350,6 @@
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 
 <script>
-  console.log("✅ lista_productos: extra_js cargado");
+  console.log(" lista_productos: extra_js cargado");
 </script>
 {% endblock %}

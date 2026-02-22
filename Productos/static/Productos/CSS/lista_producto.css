@@ -466,3 +466,27 @@ h2 {
   justify-content:center;
   color:#888;
 }
+#modalZoomImagen .modal-content {
+  background: transparent !important;
+}
+
+#modalZoomImagen .modal-body {
+  background: rgba(0,0,0,.85);
+}
+
+.zoom-img{
+  max-width: 96vw;
+  max-height: 96vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 16px;
+}
+.zoom-close{
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 2000;
+  opacity: 0.9;
+}
+.zoom-close:hover{ opacity: 1; }
