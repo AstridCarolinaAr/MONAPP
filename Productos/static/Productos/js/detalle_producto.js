@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = btn.dataset;
 
+<<<<<<< HEAD
     set("d-codigo", data.codigo);
     set("d-nombre", data.nombre);
     set("d-marca", data.marca);
@@ -21,6 +22,20 @@ document.addEventListener("DOMContentLoaded", () => {
     set("d-presentacion", data.presentacion);
     set("d-unidad", data.unidad);
     set("d-descripcion", data.descripcion);
+=======
+            set('d-codigo', btn.dataset.codigo);
+            set('d-nombre', btn.dataset.nombre);
+            set('d-marca', btn.dataset.marca);
+            set('d-precio', btn.dataset.precio);
+            set('d-linea', btn.dataset.linea);
+            set('d-presentacion', btn.dataset.presentacion);
+            set('d-unidad', btn.dataset.unidad);
+            set('d-estado', btn.dataset.estado);
+            set('d-descripcion', btn.dataset.descripcion);
+            document.getElementById('id-cantidad').textContent=this.dataset.cantidad;
+        });
+    });
+>>>>>>> sergio
     
     const estadoEl = document.getElementById("d-estado");
     const activo = (data.activo === "1" || data.activo === "true" || data.activo === true);

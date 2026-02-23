@@ -18,6 +18,8 @@ def is_ajax(request):
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
+    activo = Proveedor.objects.all()
+    proveedores = Proveedor.objects.all()
 
     # estado activo por defecto
     estado = request.GET.get("estado", "activo")
@@ -38,6 +40,7 @@ def lista_proveedores(request):
     # CONTADOR (si luego lo usas)
     proveedores = proveedores.annotate(
         total_entregas=Count("id")
+        total_entregas=Count("id")  
     )
 
     # ORDENAMIENTO

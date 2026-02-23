@@ -1,0 +1,92 @@
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'proveedor/css/proveedor.css' %}">
+<link rel="stylesheet" href="{% static 'proveedor/css/crear_proveedor.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'proveedor/js/crear_proveedor.js' %}"></script>
+
+
+
+{% endblock %}
+
+{% block title %}Nuevo proveedor{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid proveedor-from">
+
+    <form method="post" action="{% url 'proveedores:crear_proveedor' %}">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-error">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- CARD -->
+        <div class="proveedor-card">
+            <h5 class="card-title">Información general</h5>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>NIT</label>
+                    {{ form.nit }}
+                    {% if form.nit.errors %}
+                        <div class="form-error">{{ form.nit.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="full">
+                    <label>Nombre proveedor</label>
+                    {{ form.nombre_proveedor }}
+                    {% if form.nombre_proveedor.errors %}
+                        <div class="form-error">{{ form.nombre_proveedor.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label>Teléfono</label>
+                    {{ form.telefono_proveedor }}
+                    {% if form.telefono_proveedor.errors %}
+                        <div class="form-error">{{ form.telefono_proveedor.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label>Correo</label>
+                    {{ form.correo_proveedor }}
+                    {% if form.correo_proveedor.errors %}
+                        <div class="form-error">{{ form.correo_proveedor.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label>Dirección</label>
+                    {{ form.direccion_proveedor }}
+                    {% if form.direccion_proveedor.errors %}
+                        <div class="form-error">{{ form.direccion_proveedor.errors.0 }}</div>
+                    {% endif %}
+        </div>
+
+        <!-- BOTONES -->
+        <div class="proveedor-actions">
+            <a href="{% url 'proveedores:lista_proveedor' %}" class="btn-cancelar">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-guardar">
+                Guardar proveedor
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

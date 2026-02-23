@@ -33,4 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     });
+<<<<<<< HEAD
 });
+=======
+    document.getElementById('detalleDireccion').textContent =
+    this.dataset.direccion;
+
+
+});
+>>>>>>> sergio

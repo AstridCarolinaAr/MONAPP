@@ -6,10 +6,12 @@ class Personal(models.Model):
     ROLES = [
         ('AUX', 'Auxiliar'),
         ('COL', 'Colaborador'),
+        ('ADM', 'Administrador'),
     ]
 
     numero_documento = models.CharField(max_length=20, unique=True, verbose_name='Número de Documento')
     nombres = models.CharField(max_length=100, verbose_name='Nombres')
+    apellidos = models.CharField(max_length=100, verbose_name='Apellidos')
     telefono = models.CharField(max_length=15, verbose_name='Teléfono')
     correo = models.EmailField(max_length=254, unique=True, verbose_name='Correo Electrónico')
     rol = models.CharField(max_length=3, choices=ROLES, verbose_name='Rol')
@@ -24,4 +26,4 @@ class Personal(models.Model):
         ordering = ['-fecha_creacion']
 
     def __str__(self):
-        return f"{self.nombres} ({self.get_rol_display()})"
+        return f"{self.nombres} {self.apellidos} ({self.get_rol_display()})"

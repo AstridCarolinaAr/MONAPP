@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 from .models import PerfilUsuario
 
@@ -84,19 +86,48 @@ def lista_usuarios_view(request):
 @login_required
 def crear_usuario_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
+    
+    # Verificar si es una petición AJAX para cargar el modal
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(
-                request,
-                f'Usuario {user.get_full_name()} creado exitosamente.'
-            )
-            return redirect('usuarios:lista_usuarios')
+            
+            if is_ajax:
+                # Respuesta JSON para AJAX
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Usuario {user.get_full_name()} creado exitosamente.'
+                })
+            else:
+                messages.success(
+                    request,
+                    f'Usuario {user.get_full_name()} creado exitosamente.'
+                )
+                return redirect('usuarios:lista_usuarios')
+        else:
+            if is_ajax:
+                # Renderizar el formulario con errores para el modal
+                html_form = render_to_string('usuarios/_formulario_usuario_modal.html', 
+                                            {'form': form}, 
+                                            request=request)
+                return JsonResponse({
+                    'success': False,
+                    'html_form': html_form
+                })
     else:
         form = RegistroForm()
+    
+    # Si es AJAX y es GET, retornar el HTML del formulario para el modal
+    if is_ajax:
+        html_form = render_to_string('usuarios/_formulario_usuario_modal.html', 
+                                     {'form': form}, 
+                                     request=request)
+        return JsonResponse({'html_form': html_form})
 
+    # Si no es AJAX, mostrar la página completa (comportamiento anterior)
     return render(
         request,
         'crear_usuario.html',

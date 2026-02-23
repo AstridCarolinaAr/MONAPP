@@ -51,5 +51,15 @@
 <!-- JS -->
 <script src="{% static 'core/js/main.js' %}"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof SiennaAccessibility !== 'undefined') {
+        SiennaAccessibility.init();
+    }
+});
+</script>
+
+
 </body>
 </html>
