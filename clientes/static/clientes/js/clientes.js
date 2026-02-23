@@ -210,6 +210,25 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* ===============================
+       VALIDACIÓN TIPO DOCUMENTO (SELECT)
+    =============================== */
+    const tipoDocumentoSelect = document.getElementById('tipo_documento');
+    
+    if (tipoDocumentoSelect) {
+        tipoDocumentoSelect.addEventListener('change', function() {
+            const feedback = this.nextElementSibling;
+            
+            if (this.value.trim() === '') {
+                limpiar(this, feedback);
+            } else {
+                valido(this, feedback);
+            }
+            
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* ===============================
        LIMPIAR TODO AL CERRAR MODAL
     =============================== */
     modal.addEventListener('hidden.bs.modal', function () {

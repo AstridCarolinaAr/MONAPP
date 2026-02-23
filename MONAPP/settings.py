@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'personal',
     'inventario',
     'servicios',
-    'gestion_datos',
+    'gestion_alisados',
 ]
 
 MIDDLEWARE = [
