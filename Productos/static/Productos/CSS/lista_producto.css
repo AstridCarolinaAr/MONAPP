@@ -440,3 +440,53 @@ h2 {
   color: #2b2f33;
   font-weight: 700;
 }
+.img-thumb{
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.img-detalle{
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.img-placeholder{
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: #eee;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#888;
+}
+#modalZoomImagen .modal-content {
+  background: transparent !important;
+}
+
+#modalZoomImagen .modal-body {
+  background: rgba(0,0,0,.85);
+}
+
+.zoom-img{
+  max-width: 96vw;
+  max-height: 96vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 16px;
+}
+.zoom-close{
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 2000;
+  opacity: 0.9;
+}
+.zoom-close:hover{ opacity: 1; }

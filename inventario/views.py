@@ -9,7 +9,7 @@ from django.db.models import Sum
 from .models import Stock
 
 def inventario_lista(request):
-    stock = Stock.objects.select_related('producto').all().order_by('producto__nombre')
+    stock = Stock.objects.select_related('producto').all()
 
     return render(request, 'inventario/inventario.html', {
         'stock': stock,

@@ -86,3 +86,95 @@ document.addEventListener("DOMContentLoaded", () => {
     modalBodyEl.innerHTML = result.data;
   });
 });
+window.initProductoImagenPreview = function (root) {
+  const scope = root || document;
+
+  const inputFile = scope.querySelector("#id_imagen");
+  const inputUrl = scope.querySelector("#id_imagen_url");
+  const img = scope.querySelector("#previewProductoImagen");
+  const msg = scope.querySelector("#previewProductoImagenMsg");
+
+  if (!img) return;
+
+  function showMsg(text) {
+    if (msg) msg.textContent = text || "";
+  }
+
+  function showPreview(src) {
+    img.src = src;
+    img.style.display = "block";
+  }
+
+  function hidePreview() {
+    img.removeAttribute("src");
+    img.style.display = "none";
+  }
+
+  function isLikelyImageUrl(url) {
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url.split("?")[0]);
+  }
+
+  function previewFile(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      hidePreview();
+      showMsg("El archivo seleccionado no es una imagen.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      showPreview(e.target.result);
+      showMsg("");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function previewUrl(url) {
+    const clean = (url || "").trim();
+    if (!clean) {
+      if (!inputFile || !inputFile.files || inputFile.files.length === 0) {
+        hidePreview();
+        showMsg("");
+      }
+      return;
+    }
+
+    if (!isLikelyImageUrl(clean)) {
+      showMsg("La URL no parece una imagen directa.");
+    } else {
+      showMsg("");
+    }
+
+    img.onerror = () => {
+      hidePreview();
+      showMsg("No se pudo cargar la imagen desde la URL.");
+    };
+
+    img.onload = () => showMsg("");
+
+    showPreview(clean);
+  }
+
+  if (inputFile) {
+    inputFile.addEventListener("change", () => {
+      const file = inputFile.files && inputFile.files[0];
+      if (file) {
+        previewFile(file);
+        return;
+      }
+      if (inputUrl) previewUrl(inputUrl.value);
+    });
+  }
+
+  if (inputUrl) {
+    const handler = () => {
+      if (inputFile && inputFile.files && inputFile.files.length > 0) return;
+      previewUrl(inputUrl.value);
+    };
+
+    inputUrl.addEventListener("input", handler);
+    inputUrl.addEventListener("change", handler);
+  }
+};

@@ -14,7 +14,6 @@ class Stock(models.Model):
     cantidad_actual = models.IntegerField(default=0)
     actualizado_en = models.DateTimeField(auto_now=True)
     
-    
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad_actual}"
         return f"Entrada #{self.id} - {self.proveedor.nombre_proveedor}"

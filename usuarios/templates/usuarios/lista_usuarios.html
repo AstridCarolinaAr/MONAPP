@@ -189,21 +189,23 @@
                         <!-- Acciones -->
                         <td class="text-end">
                             {% if puede_modificar %}
-                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
-                               class="btn btn-sm btn-primary"
-                               data-bs-toggle="tooltip"
-                               title="Editar usuario">
+                            <button type="button"
+                                    class="btn btn-sm btn-primary"
+                                    data-bs-toggle="tooltip"
+                                    title="Editar usuario"
+                                    onclick="abrirModalEditarUsuario({{ usuario.id }})">
                                 <i class="bi bi-pencil-square"></i>
-                            </a>
+                            </button>
                             {% endif %}
 
                             {% if es_administrador %}
-                            <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}"
-                               class="btn btn-sm btn-danger"
-                               data-bs-toggle="tooltip"
-                               title="Eliminar usuario">
+                            <button type="button" 
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="tooltip"
+                                    title="Eliminar usuario"
+                                    onclick="abrirModalEliminarUsuario({{ usuario.id }})">
                                 <i class="bi bi-trash-fill"></i>
-                            </a>
+                            </button>
                             {% endif %}
                             
                             {% if not puede_modificar %}
@@ -245,11 +247,65 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para editar usuario -->
+<div id="modalEditarUsuario" class="modal-usuario" style="display: none;">
+    <div class="modal-usuario-overlay" onclick="cerrarModalEditarUsuario()"></div>
+    <div class="modal-usuario-content">
+        <div class="modal-usuario-header">
+            <h3><i class="bi bi-pencil-square"></i> Editar Usuario</h3>
+            <button type="button" class="modal-usuario-close" onclick="cerrarModalEditarUsuario()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-usuario-body" id="modalEditarUsuarioBody">
+            <div style="text-align: center; padding: 40px;">
+                <i class="bi bi-arrow-clockwise" style="font-size: 2rem; color: #634c40; animation: spin 1s linear infinite;"></i>
+                <p class="mt-3 text-muted">Cargando formulario...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar usuario -->
+<div id="modalEliminarUsuario" class="modal-usuario" style="display: none;">
+    <div class="modal-usuario-overlay" onclick="cerrarModalEliminarUsuario()"></div>
+    <div class="modal-usuario-content" style="max-width: 550px;">
+        <div class="modal-usuario-header" style="background: linear-gradient(135deg, #634c40 0%, #7d5e4f 100%);">
+            <h3><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h3>
+            <button type="button" class="modal-usuario-close" onclick="cerrarModalEliminarUsuario()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-usuario-body" id="modalEliminarUsuarioBody">
+            <div style="text-align: center; padding: 40px;">
+                <i class="bi bi-arrow-clockwise" style="font-size: 2rem; color: #634c40; animation: spin 1s linear infinite;"></i>
+                <p class="mt-3 text-muted">Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Funciones para manejar el modal
+    // Función para obtener el token CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Funciones para manejar el modal de crear usuario
     function abrirModalUsuario() {
         const modal = document.getElementById('modalUsuario');
         const modalBody = document.getElementById('modalUsuarioBody');
@@ -351,13 +407,252 @@
             `;
         });
     }
+
+    // Funciones para el modal de eliminar usuario
+    function abrirModalEliminarUsuario(usuarioId) {
+        const modal = document.getElementById('modalEliminarUsuario');
+        const modalBody = document.getElementById('modalEliminarUsuarioBody');
+        
+        // Mostrar el modal
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Cargar el contenido de confirmación vía AJAX
+        fetch(`/auth/usuarios/${usuarioId}/eliminar/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.html_content) {
+                modalBody.innerHTML = data.html_content;
+            } else if (data.message) {
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            } else {
+                throw new Error('Respuesta inválida del servidor');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span>Error al cargar la información. Por favor, intenta nuevamente.</span>
+                    <div style="margin-top: 8px; font-size: 0.85rem; opacity: 0.8;">
+                        ${error.message}
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    function cerrarModalEliminarUsuario() {
+        const modal = document.getElementById('modalEliminarUsuario');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    function confirmarEliminarUsuario(usuarioId) {
+        const modalBody = document.getElementById('modalEliminarUsuarioBody');
+        
+        // Obtener el token CSRF
+        const csrftoken = getCookie('csrftoken');
+        
+        // Deshabilitar botones mientras se procesa
+        const botones = modalBody.querySelectorAll('button');
+        botones.forEach(btn => btn.disabled = true);
+        
+        // Mostrar mensaje de procesando
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <i class="bi bi-arrow-clockwise" style="font-size: 2rem; color: #634c40; animation: spin 1s linear infinite;"></i>
+                <p class="mt-3 text-muted">Eliminando...</p>
+            </div>
+        `;
+        
+        fetch(`/auth/usuarios/${usuarioId}/eliminar/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Éxito - cerrar modal y recargar la página
+                cerrarModalEliminarUsuario();
+                
+                // Mostrar mensaje de éxito temporal
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-dismissible fade show';
+                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease; min-width: 300px; background-color: #d4a574; color: #634c40; border: 2px solid #634c40; border-radius: 12px;';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>${data.message}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Recargar la página después de 1.5 segundos
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                // Error
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span>${data.message || 'Error al eliminar. Intenta nuevamente.'}</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button type="button" class="btn btn-outline-secondary" onclick="cerrarModalEliminarUsuario()">
+                            Cerrar
+                        </button>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span>Error de conexión. Intenta nuevamente.</span>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="button" class="btn btn-outline-secondary" onclick="cerrarModalEliminarUsuario()">
+                        Cerrar
+                    </button>
+                </div>
+            `;
+        });
+    }
     
     // Cerrar el modal con la tecla ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             cerrarModalUsuario();
+            cerrarModalEditarUsuario();
+            cerrarModalEliminarUsuario();
         }
     });
+
+    // Funciones para el modal de editar usuario
+    function abrirModalEditarUsuario(usuarioId) {
+        const modal = document.getElementById('modalEditarUsuario');
+        const modalBody = document.getElementById('modalEditarUsuarioBody');
+        
+        // Mostrar el modal
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Cargar el formulario vía AJAX
+        fetch(`/auth/usuarios/${usuarioId}/editar/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            modalBody.innerHTML = data.html_form;
+            
+            // Configurar el envío del formulario
+            const form = document.getElementById('form-editar-usuario');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    enviarFormularioEditarUsuario(form, usuarioId);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Error al cargar el formulario. Por favor, intenta nuevamente.
+                </div>
+            `;
+        });
+    }
+    
+    function cerrarModalEditarUsuario() {
+        const modal = document.getElementById('modalEditarUsuario');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    function enviarFormularioEditarUsuario(form, usuarioId) {
+        const formData = new FormData(form);
+        const modalBody = document.getElementById('modalEditarUsuarioBody');
+        
+        fetch(`/auth/usuarios/${usuarioId}/editar/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Éxito - cerrar modal y recargar la página
+                cerrarModalEditarUsuario();
+                
+                // Mostrar mensaje de éxito temporal
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-dismissible fade show';
+                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease; min-width: 300px; background-color: #d4a574; color: #634c40; border: 2px solid #634c40; border-radius: 12px;';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>${data.message}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Recargar la página después de 1.5 segundos
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                // Error - actualizar el formulario con los errores
+                modalBody.innerHTML = data.html_form;
+                
+                // Volver a configurar el envío del formulario
+                const newForm = document.getElementById('form-editar-usuario');
+                if (newForm) {
+                    newForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        enviarFormularioEditarUsuario(newForm, usuarioId);
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Error al guardar. Por favor, intenta nuevamente.
+                </div>
+            `;
+        });
+    }
     
     // Animación para el mensaje de éxito
     const style = document.createElement('style');

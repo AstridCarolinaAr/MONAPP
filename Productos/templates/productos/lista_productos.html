@@ -102,6 +102,7 @@
           <th class="col-codigo">CÓDIGO</th>
           <th class="col-producto">PRODUCTO</th>
           <th class="col-linea">LÍNEA</th>
+          <th style="width: 100px;">Imagen</th>
           <th class="col-acciones text-center">ACCIONES</th>
         </tr>
       </thead>
@@ -136,7 +137,25 @@
               <span class="text-muted">—</span>
             {% endif %}
           </td>
-
+            <td class="text-center">
+              {% if producto.imagen %}
+                <img
+                  src="{{ producto.imagen.url }}"
+                  class="img-thumb js-img-zoom"
+                  data-src="{{ producto.imagen.url }}"
+                  alt="Imagen {{ producto.nombre }}"
+                >
+              {% elif producto.imagen_url %}
+                <img
+                  src="{{ producto.imagen_url }}"
+                  class="img-thumb js-img-zoom"
+                  data-src="{{ producto.imagen_url }}"
+                  alt="Imagen {{ producto.nombre }}"
+                >
+              {% else %}
+                <div class="img-placeholder">—</div>
+              {% endif %}
+            </td>
           <td class="col-acciones text-center">
             <div class="acciones-wrap">
               <button type="button"
@@ -151,7 +170,8 @@
                       data-presentacion="{{ producto.presentacion }}"
                       data-unidad="{{ producto.unidad_medida }}"
                       data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
-                      data-descripcion="{{ producto.descripcion|default:'' }}">
+                      data-descripcion="{{ producto.descripcion|default:'' }}"
+                      data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%else%}{%endif%}">
                 <i class="bi bi-eye"></i>
               </button>
 
@@ -264,7 +284,11 @@
 
         </div>
       </div>
-
+      <!-- Imagen -->
+        <div class="desc-box">
+          <div class="desc-title">Imagen</div>
+          <div class="desc-text text-center" id="d-imagen"></div>
+        </div>
       <div class="modal-footer px-4 py-3">
         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
           Cerrar
@@ -296,6 +320,22 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="modalZoomImagen" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+    <div class="modal-content bg-transparent border-0 shadow-none">
+
+      <button type="button"
+              class="btn-close btn-close-white zoom-close"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"></button>
+
+      <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+        <img id="zoomImg" src="" class="zoom-img" alt="Imagen">
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -310,6 +350,6 @@
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 
 <script>
-  console.log("✅ lista_productos: extra_js cargado");
+  console.log(" lista_productos: extra_js cargado");
 </script>
 {% endblock %}

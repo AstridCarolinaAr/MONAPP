@@ -24,7 +24,7 @@ def lista_personal(request):
     
     if form.is_valid():
         busqueda = form.cleaned_data.get('busqueda')
-        rol = form.cleaned_data.get('rol')
+        filtro = form.cleaned_data.get('filtro')
         
         if busqueda:
             personal_list = personal_list.filter(
@@ -36,8 +36,14 @@ def lista_personal(request):
                 Q(id__icontains=busqueda)
             )
         
-        if rol:
-            personal_list = personal_list.filter(rol=rol)
+        if filtro:
+            if filtro == 'activo':
+                personal_list = personal_list.filter(activo=True)
+            elif filtro == 'inactivo':
+                personal_list = personal_list.filter(activo=False)
+            elif filtro.startswith('rol_'):
+                rol_valor = filtro.replace('rol_', '')
+                personal_list = personal_list.filter(rol=rol_valor)
     
     context = {
         'personal_list': personal_list,
@@ -49,6 +55,10 @@ def lista_personal(request):
 
 
 @login_required
+<<<<<<< HEAD
+=======
+@no_colaborador_required
+>>>>>>> sergioo
 def crear_personal(request):
     """Crear nuevo personal"""
     # Verificar si es una petición AJAX para cargar el modal
@@ -94,19 +104,50 @@ def crear_personal(request):
 
 
 @login_required
+<<<<<<< HEAD
+=======
+@no_colaborador_required
+>>>>>>> sergioo
 def editar_personal(request, pk):
     """Editar información del personal"""
     personal = get_object_or_404(Personal, pk=pk)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     if request.method == 'POST':
         form = PersonalForm(request.POST, instance=personal)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Personal {personal.nombres} {personal.apellidos} actualizado exitosamente.')
-            return redirect('personal:lista_personal')
+            
+            if is_ajax:
+                # Respuesta JSON para AJAX
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Personal {personal.nombres} {personal.apellidos} actualizado exitosamente.'
+                })
+            else:
+                messages.success(request, f'Personal {personal.nombres} {personal.apellidos} actualizado exitosamente.')
+                return redirect('personal:lista_personal')
+        else:
+            if is_ajax:
+                # Renderizar el formulario con errores para el modal
+                html_form = render_to_string('personal/_formulario_personal_modal.html', 
+                                            {'form': form, 'personal': personal, 'editando': True}, 
+                                            request=request)
+                return JsonResponse({
+                    'success': False,
+                    'html_form': html_form
+                })
     else:
         form = PersonalForm(instance=personal)
     
+    # Si es AJAX y es GET, retornar el HTML del formulario para el modal
+    if is_ajax:
+        html_form = render_to_string('personal/_formulario_personal_modal.html', 
+                                     {'form': form, 'personal': personal, 'editando': True}, 
+                                     request=request)
+        return JsonResponse({'html_form': html_form})
+    
+    # Si no es AJAX, mostrar la página completa (comportamiento anterior)
     context = {
         'form': form,
         'personal': personal,
@@ -116,16 +157,36 @@ def editar_personal(request, pk):
 
 
 @login_required
+<<<<<<< HEAD
+=======
+@solo_admin_required
+>>>>>>> sergioo
 def eliminar_personal(request, pk):
     """Eliminar personal"""
     personal = get_object_or_404(Personal, pk=pk)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     if request.method == 'POST':
         nombre_completo = f"{personal.nombres} {personal.apellidos}"
         personal.delete()
-        messages.success(request, f'Personal {nombre_completo} eliminado exitosamente.')
-        return redirect('personal:lista_personal')
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': f'Personal {nombre_completo} eliminado exitosamente.'
+            })
+        else:
+            messages.success(request, f'Personal {nombre_completo} eliminado exitosamente.')
+            return redirect('personal:lista_personal')
     
+    # Si es AJAX y es GET, retornar el HTML del modal de confirmación
+    if is_ajax:
+        html_content = render_to_string('personal/_confirmar_eliminar_modal.html', 
+                                       {'personal': personal}, 
+                                       request=request)
+        return JsonResponse({'html_content': html_content})
+    
+    # Si no es AJAX, mostrar la página completa (comportamiento anterior)
     context = {'personal': personal}
     return render(request, 'personal/confirmar_eliminar_personal.html', context)
 
@@ -134,6 +195,7 @@ def eliminar_personal(request, pk):
 def detalle_personal(request, pk):
     """Ver detalles del personal"""
     grupos = list(request.user.groups.values_list('name', flat=True))
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     # Verificar si el usuario actual es Administrador (puede eliminar)
     es_administrador = request.user.is_superuser or 'Administrador' in grupos
@@ -142,9 +204,40 @@ def detalle_personal(request, pk):
     puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
     
     personal = get_object_or_404(Personal, pk=pk)
+    
+    # Si es AJAX, retornar el HTML del modal de detalles
+    if is_ajax:
+        html_content = render_to_string('personal/_detalle_personal_modal.html', 
+                                       {
+                                           'personal': personal,
+                                           'es_administrador': es_administrador,
+                                           'puede_modificar': puede_modificar,
+                                       }, 
+                                       request=request)
+        return JsonResponse({'html_content': html_content})
+    
+    # Si no es AJAX, mostrar la página completa (comportamiento anterior)
     context = {
         'personal': personal,
         'es_administrador': es_administrador,
         'puede_modificar': puede_modificar,
     }
     return render(request, 'personal/detalle_personal.html', context)
+
+
+@login_required
+@no_colaborador_required
+def toggle_activo_personal(request, pk):
+    """Cambiar el estado activo/inactivo del personal mediante AJAX"""
+    if request.method == 'POST':
+        personal = get_object_or_404(Personal, pk=pk)
+        personal.activo = not personal.activo
+        personal.save()
+        
+        return JsonResponse({
+            'success': True,
+            'activo': personal.activo,
+            'mensaje': f'Personal {personal.nombres} {personal.apellidos} marcado como {"activo" if personal.activo else "inactivo"}.'
+        })
+    
+    return JsonResponse({'success': False, 'mensaje': 'Método no permitido.'}, status=405)

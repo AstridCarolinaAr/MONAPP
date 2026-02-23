@@ -13,18 +13,18 @@ class PerfilUsuario(models.Model):
         on_delete=models.CASCADE,
         related_name='perfil'
     )
-    
     TIPO_DOCUMENTO_CHOICES = [
         ('tarjeta_identidad', 'Tarjeta de Identidad'),
         ('cedula', 'Cédula'),
         ('pasaporte', 'Pasaporte'),
         ('otro', 'Otro'),
     ]
-    
     tipo_documento = models.CharField(
-        max_length=20,
+        max_length=30,
         choices=TIPO_DOCUMENTO_CHOICES,
         default='cedula',
+        blank=True,
+        null=True,
         help_text="Tipo de documento de identidad"
     )
     
@@ -62,6 +62,20 @@ class PerfilUsuario(models.Model):
     )
     
     fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    # Campos para recuperación de contraseña
+    recovery_code = models.CharField(
+        max_length=6, 
+        blank=True, 
+        null=True,
+        help_text="Código de recuperación de contraseña"
+    )
+    
+    recovery_code_created = models.DateTimeField(
+        blank=True, 
+        null=True,
+        help_text="Fecha de creación del código de recuperación"
+    )
     
     class Meta:
         verbose_name = "Perfil de Usuario"

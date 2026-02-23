@@ -2,25 +2,26 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Detalle de Gestión de Alisado{% endblock %}
+{% block title %}Gestion de datos{% endblock %}
 
 {% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> Detalle de Gestión de Alisado
+    <i class="bi bi-file-earmark-text"></i> Gestion de datos
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>
     .detail-section {
         background-color: #f8f9fa;
         padding: 15px;
         margin-bottom: 20px;
-        border-left: 4px solid #0d6efd;
+        border-left: 4px solid #634c40;
     }
     
     .detail-section h5 {
         font-weight: bold;
         margin-bottom: 15px;
-        color: #0d6efd;
+        color: #634c40;
     }
     
     .detail-row {
@@ -53,8 +54,8 @@
 {% block content %}
 <div class="container-fluid">
     <div class="card shadow">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Detalle de Gestión de Alisado</h4>
+        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
+            <h4 class="mb-0">Gestion de datos</h4>
             <div>
                 <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-warning">
                     <i class="bi bi-pencil"></i> Editar

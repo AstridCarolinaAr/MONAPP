@@ -37,11 +37,11 @@ def lista_proveedores(request):
             Q(correo_proveedor__icontains=q)
         )
 
-    # CONTADOR (si luego lo usas)
-    proveedores = proveedores.annotate(
-        total_entregas=Count("id")
-        total_entregas=Count("id")  
-    )
+    # # CONTADOR (si luego lo usas)
+    # proveedores = proveedores.annotate(
+    #     total_entregas=Count("id")
+    #     total_entregas=Count("id")  
+    # )
 
     # ORDENAMIENTO
     ordenamientos = {

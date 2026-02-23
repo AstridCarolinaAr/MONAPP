@@ -327,8 +327,8 @@ class GestionAlisado(models.Model):
     
     class Meta:
         ordering = ['-fecha_hora']
-        verbose_name = 'Gestión de Alisado'
-        verbose_name_plural = 'Gestión de Alisados'
+        verbose_name = 'Gestion de datos'
+        verbose_name_plural = 'Gestion de datos'
     
     def __str__(self):
         return f"Alisado - {self.procedimiento_realizado_por} - {self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"

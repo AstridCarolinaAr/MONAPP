@@ -12,6 +12,7 @@ class Marca(models.Model):
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         verbose_name = "Marca"
         verbose_name_plural = "Marcas"
@@ -21,14 +22,6 @@ class Marca(models.Model):
         return self.nombre
 
 
-class Producto(models.Model):
-    """
-    Modelo para productos
-    """
-
-    # ===============================
-    # CHOICES
-    # ===============================
 class Producto(models.Model):
 
     UNIDAD_MEDIDA_CHOICES = (
@@ -88,7 +81,8 @@ class Producto(models.Model):
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-    
+    imagen =models.ImageField(upload_to="productos/",blank=True,null=True)
+    imagen_url =models.URLField(blank=True,null=True)
 
     class Meta:
         verbose_name = "Producto"
@@ -138,3 +132,10 @@ class Producto(models.Model):
     def stock_actual(self):
         stock_obj = getattr(self, "stock", None)  
         return stock_obj.cantidad_actual if stock_obj else 0
+    @property
+    def imagen_crud(self):
+        if self.image:
+            return self.imagen.url
+        if self.imagen_url:
+            return ""
+        

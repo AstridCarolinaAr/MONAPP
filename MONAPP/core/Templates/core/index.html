@@ -67,26 +67,20 @@ Servicios
 
             <div class="sq-promotions-grid">
 
+                {% for promo in promociones %}
                 <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Nuevo</span>
-                    <h3>20% OFF Primer Servicio</h3>
-                    <p>Válido para nuevos clientes. Aprovecha y transforma tu cabello.</p>
-                    <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
-
-                </div>
-                <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Especial</span>
-                    <h3>Combo Keratina + Hidratación</h3>
-                    <p>Ahorra más combinando nuestros tratamientos más pedidos.</p>
+                    <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
+                    <h3>{{ promo.nombre }}</h3>
+                    <p>{{ promo.descripcion }}</p>
                     <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
                 </div>
-
+                {% empty %}
                 <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Limitado</span>
-                    <h3>Descuento entre semana</h3>
-                    <p>Obtén precio especial reservando de lunes a jueves.</p>
-                    <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
+                    <span class="sq-promo-tag">Pronto</span>
+                    <h3>Nuevas promociones en camino</h3>
+                    <p>Estamos preparando ofertas especiales para ti. ¡Vuelve pronto!</p>
                 </div>
+                {% endfor %}
 
             </div>
         </div>
@@ -526,9 +520,13 @@ Servicios
             <!-- Mapa -->
             <div class="sq-contact-map">
                 <iframe
+<<<<<<< HEAD
 
                     src="https://www.google.com/maps?q=Duitama%20Boyac%C3%A1&output=embed"
                     src="https://www.google.com/maps?q=5.8267157,-73.032943&output=embed&z=18"
+=======
+                    src="https://www.google.com/maps?q=Duitama%20Boyac%C3%A1&output=embed"
+>>>>>>> sergioo
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade">
                 </iframe>

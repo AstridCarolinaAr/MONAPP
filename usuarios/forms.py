@@ -102,7 +102,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Nombre',
-            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
             'title': 'Solo se permiten letras y espacios'
         })
     )
@@ -114,7 +114,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Apellido',
-            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
             'title': 'Solo se permiten letras y espacios'
         })
     )
@@ -131,6 +131,15 @@ class RegistroForm(UserCreationForm):
         label='Teléfono'
     )
     
+    foto_perfil = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        }),
+        label='Foto de Perfil'
+    )
+    
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'password1', 'password2']
@@ -142,7 +151,7 @@ class RegistroForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Reordenar campos para que aparezcan in el orden deseado
-        self.order_fields(['tipo_documento', 'documento', 'email', 'first_name', 'last_name', 'password1', 'password2', 'rol', 'telefono'])
+        self.order_fields(['tipo_documento', 'documento', 'email', 'first_name', 'last_name', 'password1', 'password2', 'rol', 'telefono', 'foto_perfil'])
     
     def clean_documento(self):
         """Valida que el documento no exista en la base de datos"""
@@ -211,6 +220,11 @@ class RegistroForm(UserCreationForm):
             perfil.documento = self.cleaned_data['documento']
             perfil.tipo_documento = self.cleaned_data['tipo_documento']
             perfil.telefono = self.cleaned_data.get('telefono', '')
+            
+            # Guardar foto de perfil si se proporcionó
+            if self.cleaned_data.get('foto_perfil'):
+                perfil.foto_perfil = self.cleaned_data['foto_perfil']
+            
             perfil.save()
 
             # Asignar grupo (crear si no existe)
@@ -240,12 +254,19 @@ class EditarUsuarioForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'is_active']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        
     def __init__(self, *args, **kwargs):
-     super().__init__(*args, **kwargs)
-     if self.instance.pk:
-        grupos = self.instance.groups.values_list('name', flat=True)
-        if grupos:
-            self.fields['rol'].initial = grupos[0]
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            grupos = self.instance.groups.values_list('name', flat=True)
+            if grupos:
+                self.fields['rol'].initial = grupos[0]
 
 
 
@@ -259,9 +280,7 @@ class EditarPerfilForm(forms.ModelForm):
             'tipo_documento',
             'documento',
             'telefono',
-            'direccion',
-            'foto_perfil',
-            'fecha_nacimiento'
+            'foto_perfil'
         ]
         widgets = {
             'tipo_documento': forms.Select(attrs={'class': 'form-control'}),
@@ -270,11 +289,6 @@ class EditarPerfilForm(forms.ModelForm):
                 'readonly': 'readonly'
             }),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
-            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'foto_perfil': forms.FileInput(attrs={'class': 'form-control'}),
-            'fecha_nacimiento': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
         }
 

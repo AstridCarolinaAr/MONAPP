@@ -11,8 +11,8 @@
 {% block content %}
 <div class="personal-wrapper">
     <div class="personal-container" style="max-width: 650px;">
-        <div class="personal-card" style="border-color: rgba(199, 65, 43, 0.3);">
-            <div class="personal-card-header" style="background: linear-gradient(135deg, #c7412b 0%, #a03323 100%); color: white;">
+        <div class="personal-card" style="border-color: rgba(99, 76, 64, 0.2);">
+            <div class="personal-card-header" style="background: linear-gradient(135deg, #634c40 0%, #7d5e4f 100%); color: white;">
                 <h4 style="color: white;">
                     <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
                 </h4>
@@ -41,7 +41,7 @@
             <div style="display: flex; gap: 12px; margin-top: 32px;">
                 <form method="post" style="flex: 1;">
                     {% csrf_token %}
-                    <button type="submit" class="personal-btn danger" style="width: 100%;">
+                    <button type="submit" class="personal-btn" style="width: 100%; background: #d4a574; border-color: #d4a574; color: white;">
                         <i class="fas fa-trash"></i> Sí, Eliminar
                     </button>
                 </form>

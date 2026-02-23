@@ -59,4 +59,4 @@ class Cliente(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.codigo_cliente} - {self.nombre} {self.apellido}"
+        return f"{self.nombre} {self.apellido}"

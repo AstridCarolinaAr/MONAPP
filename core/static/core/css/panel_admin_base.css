@@ -53,6 +53,9 @@
     height: 100vh;
     background: var(--sidebar-bg);
     z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 
@@ -432,6 +435,23 @@
     flex: 1;
 }
 
+/* Botón flotante para acceder rápidamente al módulo Gestión */
+.fab-gestion {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1050;
+    border-radius: 10px;
+    padding: 12px 18px;
+    box-shadow: 0 8px 24px rgba(16,24,40,0.12);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fab-gestion i { font-size: 1.05rem; }
+
+
 .notification-title {
     margin: 0 0 5px;
     font-size: 14px;
@@ -631,13 +651,92 @@
 }
 
 /* ==================== TABLAS ==================== */
-.table-dashboard {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
+.table-card{ 
+background:#fff;
+    border-radius:14px;
+    box-shadow: var(--shadow-sm);
+    overflow:hidden;
+}
+
+/* Tabla estilo header oscuro (para Ventas: .styled-table) */
+.styled-table thead th{
+    background: linear-gradient(90deg, #3a2a24, #1f1412) !important;
+    color:#fff !important;
+    font-weight:700;
+    letter-spacing:.5px;
+    border:0 !important;
+    padding:14px 16px;
+    text-transform:uppercase;
+    font-size:12px;
+}
+
+.styled-table tbody td{
+    padding:14px 16px;
+    border-top:1px solid rgba(0,0,0,.06);
+    vertical-align:middle;
+}
+
+.styled-table tbody tr:hover{
+    background: rgba(58,42,36,.04);
+}
+
+/* Si tú usas .table-dashboard en otros módulos, también queda igual */
+.table-dashboard{
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
     box-shadow: var(--shadow-sm);
 }
 
+.table-dashboard thead th{
+    background: linear-gradient(90deg, #3a2a24, #1f1412) !important;
+    color:#fff !important;
+    font-weight:700;
+    letter-spacing:.5px;
+    border:0 !important;
+    padding:14px 16px;
+    text-transform:uppercase;
+    font-size:12px;
+}
+
+.table-dashboard td{
+    padding:14px 16px;
+    vertical-align:middle;
+}
+
+.table-dashboard tbody tr:hover{
+    background: rgba(58,42,36,.04);
+}
+
+/* ==================== BOTONES (píldora oscuro tipo “Nuevo proveedor”) ==================== */
+.btn-pill-dark{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:12px 18px !important;
+  border-radius:999px !important;
+  background: linear-gradient(90deg, #3a2a24, #1f1412) !important;
+  color:#fff !important;
+  text-decoration:none !important;
+  font-weight:700 !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.18) !important;
+  border:0 !important;
+}
+
+.btn-pill-dark:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.btn-pill-dark .icon{
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.15);
+  font-weight:900;
+}
 .table-dashboard thead {
     background-color: #f8f9fa;
 }
@@ -973,4 +1072,114 @@ small.text-muted {
 .card-clientes {
     background: #ffffff;
     color: #030303;
+}
+/* ===== Contenedor y header de página ===== */
+.page-container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 26px 18px;
+}
+
+.page-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.page-title-row{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+
+.page-icon{
+  font-size: 28px;
+  line-height: 1;
+  color: #3a2a24;
+}
+
+.page-title{
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.page-subtitle{
+  margin-top: 4px;
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.page-actions{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+/* ===== Fondo + contenedor + card blanco ===== */
+.page-bg{
+  background: #f6f3f2; /* fondo suave */
+  min-height: 100vh;
+}
+
+.page-container{
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 40px 36px;
+  
+}
+
+.page-card{
+  background:#fff;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  padding: 34px 34px;
+  min-height: calc(100vh - 140px);
+  margin-bottom: 18px;
+}
+
+/* ===== Header ===== */
+.page-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom: 14px;
+}
+/* Separación del divisor */
+.page-divider{
+  margin: 18px 0 22px;
+}
+
+.page-title-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.page-title{
+  margin:0;
+  font-size: 36px;
+  font-weight: 800;
+  color:#111 !important;   /* ✅ negro */
+}
+
+.page-icon{
+  font-size: 30px;
+  color:#3a2a24;
+  line-height:1;
+}
+
+.page-subtitle{
+  margin-top:6px;
+  color:#6c757d;
+  font-size: 13px;
+}
+
+.page-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
 }
