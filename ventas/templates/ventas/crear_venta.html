@@ -1,145 +1,16 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
 
-{% block title %}Nueva venta{% endblock %}
-
-{% block content %}
-<div class="container-fluid px-4 py-4">
-
-    <div class="mb-4">
-        <h3>Nueva venta</h3>
-        <small class="text-muted">Registrar una nueva venta</small>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="post" novalidate>
-                <input type="hidden" name="items" id="itemsInput">
-                {% csrf_token %}
-
-                <div class="row g-3">
-
-                    <!-- CLIENTE -->
-                    <div class="col-md-6">
-                        <label class="form-label">Cliente</label>
-                        {{ form.cliente }}
-                    </div>
-
-                    <!-- PRODUCTO -->
-                    <div class="col-md-6">
-                        <label class="form-label">Producto / servicio</label>
-                        <select
-                            name="codigo_producto"
-                            id="id_producto"
-                            class="form-select"
-                        >
-                            <option value="">Seleccione</option>
-                            {% for p in productos %}
-                                <option
-                                    value="{{ p.codigo }}"
-                                    data-precio="{{ p.precio }}"
-                                    data-stock="{{ p.cantidad }}"
-                                >
-                                    {{ p.nombre }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- STOCK INFO -->
-                    <div class="col-12">
-                        <small id="stockInfo" class="text-muted d-none"></small>
-                    </div>
-
-
-                    <!-- CANTIDAD -->
-                    <div class="col-md-4">
-                        <label class="form-label">Cantidad</label>
-                        {{ form.cantidad }}
-                        <small id="cantidadError" class="text-danger d-none">
-                            No hay suficientes unidades en stock
-                        </small>
-                    </div>
-
-                     <!-- BOTÓN AGREGAR ITEM -->
-                    <div class="col-12">
-                        <button
-                            type="button"
-                            id="btnAgregarItem"
-                            class="btn btn-outline-primary btn-sm mt-2"
-                            disabled
-                        >
-                            ➕ Agregar producto / servicio
-                        </button>
-                    </div>
-
-
-                    <!-- PRECIO UNITARIO -->
-                    <div class="col-md-4">
-                        <label class="form-label">Precio unitario</label>
-                        {{ form.precio_unitario }}
-                    </div>
-
-                    <!-- SUBTOTAL -->
-                    <div class="col-md-4">
-                        <label class="form-label">Subtotal</label>
-                        <input
-                            type="number"
-                            id="id_subtotal"
-                            class="form-control"
-                            readonly
-                            tabindex="-1"
-                        >
-                    </div>
-
-                </div>
-
-                <hr>
-
-                <h6>Detalle de la venta</h6>
-
-                <table class="table table-sm table-bordered" id="tablaItems">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Producto / Servicio</th>
-                            <th class="text-end">Precio</th>
-                            <th class="text-center">Cantidad</th>
-                            <th class="text-end">Subtotal</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
-                <div class="text-end fw-bold">
-                    Total: $<span id="totalVenta">0.00</span>
-                </div>
-
-
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{% url 'ventas:lista' %}" class="btn btn-outline-secondary">
-                        Cancelar
-                    </a>
-                    <button
-                        id="btnGuardarVenta"
-                        type="submit"
-                        class="btn btn-dark"
-                        disabled
-                    >
-                        Guardar venta
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-
-</div>
+{% block title %}
+Nueva venta
 {% endblock %}
 
-{% block extra_css %}
+{% block content %}
+
+{% include "ventas/partials/crear_venta_form.html" %}
+
 <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+
 {% endblock %}
 
 {% block extra_js %}

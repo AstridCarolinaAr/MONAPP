@@ -4,10 +4,42 @@ from .models import Producto, Marca
 
 class ProductoForm(forms.ModelForm):
 
+    class Meta:
+        model = Producto
+        fields = [
+            "marca",
+            "nombre",
+            "precio",
+            "descripcion",
+            "linea",
+            "presentacion",
+            "unidad_medida",
+            "activo",
+            "imagen",
+            "imagen_url",
+        ]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: Shampoo 500ml"}),
+            "precio": forms.NumberInput(attrs={"class": "form-control", "placeholder": "0"}),
+            "descripcion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "linea": forms.TextInput(attrs={"class": "form-control"}),
+            "presentacion": forms.TextInput(attrs={"class": "form-control"}),
+            "unidad": forms.Select(attrs={"class": "form-select"}),
+            "activo": forms.CheckboxInput(attrs={"class": "switch-input"}),
+            "marca": forms.TextInput(attrs={"class": "form-control", "placeholder": "Escribe la marca (Ej: Mona Keratina)"}),
+        }
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    for name, field in self.fields.items():
+        if not field.widget.attrs.get("class"):
+            if field.widget.__class__.__name__ in ["Select", "SelectMultiple"]:
+                field.widget.attrs["class"] = "form-select"
+            else:
+                field.widget.attrs["class"] = "form-control"
     marca_texto = forms.CharField(
         label='Marca',
         max_length=100,
-        required=False,  # 👈 importante
+        required=False,  #  importante
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Escribe la marca (Ej: Mona Keratina)'
@@ -22,21 +54,10 @@ class ProductoForm(forms.ModelForm):
             'descripcion',
             'linea',
             'presentacion',
-            'cantidad',
             'unidad_medida',
-            'estado',
         ]
 
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'linea': forms.TextInput(attrs={'class': 'form-control'}),
-            'presentacion': forms.TextInput(attrs={'class': 'form-control'}),
-            'cantidad': forms.NumberInput(attrs={'class': 'form-control'}),
-            'unidad_medida': forms.Select(attrs={'class': 'form-select'}),
-            'estado': forms.Select(attrs={'class': 'form-select'}),
-        }
+
 
     # ===============================
     # VALIDACIONES
@@ -55,26 +76,31 @@ class ProductoForm(forms.ModelForm):
         ).exists():
             raise forms.ValidationError('Ya existe un producto con este nombre.')
 
+
         return nombre
 
-    def clean(self):
-        cleaned = super().clean()
+def clean(self):
+    cleaned = super().clean()
 
-        campos_obligatorios = [
-            'nombre',
-            'precio',
-            'linea',
-            'presentacion',
-            'cantidad',
-            'unidad_medida',
-            'estado',
-        ]
+    campos_obligatorios = [
+        'nombre',
+        'precio',
+        'linea',
+        'presentacion',
+        'unidad_medida',
+        'activo',
+        "imagen",
+        "imagen_url",
+    ]
 
-        if not self.instance.pk:
-            if not cleaned.get('marca_texto'):
-                self.add_error('marca_texto', 'Este campo es obligatorio.')
-
-        return cleaned
+    if not self.instance.pk:
+        if not cleaned.get('marca_texto'):
+            self.add_error('marca_texto', 'Este campo es obligatorio.')
+            return cleaned
+    if imagen and imagen_url:
+        if not imagen.name:
+            self.add_error("imagen_url","Usa solo una imagen o url, no ambas")
+    return cleaned
 
     # ===============================
     # SAVE
@@ -95,3 +121,14 @@ class ProductoForm(forms.ModelForm):
             producto.save()
 
         return producto
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    for name, field in self.fields.items():
+        if name == "activo":
+            continue
+        if not field.widget.attrs.get("class"):
+            if field.widget.__class__.__name__ in ["Select", "SelectMultiple"]:
+                field.widget.attrs["class"] = "form-select"
+            else:
+                field.widget.attrs["class"] = "form-control"
+

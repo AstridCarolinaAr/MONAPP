@@ -8,7 +8,7 @@ from .models import Personal
 class PersonalForm(forms.ModelForm):
     class Meta:
         model = Personal
-        fields = ['numero_documento', 'nombres', 'telefono', 'correo', 'rol', 'activo']
+        fields = ['numero_documento', 'nombres', 'apellidos', 'telefono', 'correo', 'rol', 'activo']
         widgets = {
             'numero_documento': forms.TextInput(attrs={
                 'class': 'personal-form-control',
@@ -18,8 +18,14 @@ class PersonalForm(forms.ModelForm):
             }),
             'nombres': forms.TextInput(attrs={
                 'class': 'personal-form-control',
-                'placeholder': 'Ingrese nombres completos',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'placeholder': 'Ingrese nombres',
+                'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'title': 'Solo se permiten letras y espacios'
+            }),
+            'apellidos': forms.TextInput(attrs={
+                'class': 'personal-form-control',
+                'placeholder': 'Ingrese apellidos',
+                'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
                 'title': 'Solo se permiten letras y espacios'
             }),
             'telefono': forms.TextInput(attrs={
@@ -36,7 +42,7 @@ class PersonalForm(forms.ModelForm):
                 'class': 'personal-form-control'
             }),
             'activo': forms.CheckboxInput(attrs={
-                'style': 'width: 20px; height: 20px; cursor: pointer;'
+                'class': 'personal-switch-input'
             })
         }
     
@@ -57,6 +63,15 @@ class PersonalForm(forms.ModelForm):
                 raise ValidationError('El nombre solo puede contener letras y espacios.')
         return nombres
     
+    def clean_apellidos(self):
+        """Validar que los apellidos solo contengan letras y espacios"""
+        apellidos = self.cleaned_data.get('apellidos')
+        if apellidos:
+            # Permite letras (incluyendo acentos y ñ) y espacios
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', apellidos):
+                raise ValidationError('Los apellidos solo pueden contener letras y espacios.')
+        return apellidos
+    
     def clean_telefono(self):
         """Validar que el teléfono solo contenga números"""
         telefono = self.cleaned_data.get('telefono')
@@ -75,10 +90,14 @@ class PersonalBusquedaForm(forms.Form):
             'placeholder': 'Ingrese término de búsqueda'
         })
     )
-    rol = forms.ChoiceField(
+    filtro = forms.ChoiceField(
         required=False,
-        label='Filtrar por rol',
-        choices=[('', 'Todos los roles')] + list(Personal.ROLES),
+        label='Filtrar por',
+        choices=[
+            ('', 'Todos'),
+            ('activo', 'Activos'),
+            ('inactivo', 'Inactivos'),
+        ] + [('rol_' + rol[0], rol[1]) for rol in Personal.ROLES],
         widget=forms.Select(attrs={
             'class': 'personal-form-control'
         })

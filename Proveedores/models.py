@@ -18,15 +18,7 @@ class Proveedor(models.Model):
         verbose_name="NIT"
     )
 
-    id_venta = models.CharField(
-        max_length=50,
-        verbose_name="ID Venta"
-    )
 
-    codigo_marca = models.CharField(
-        max_length=50,
-        verbose_name="Código Marca"
-    )
 
     # ===============================
     # INFORMACIÓN DEL PROVEEDOR
@@ -37,35 +29,6 @@ class Proveedor(models.Model):
         verbose_name="Proveedor"
     )
 
-    fecha_entrega = models.DateField(
-        verbose_name="Fecha de entrega"
-    )
-
-    # ===============================
-    # RESPONSABLE
-    # ===============================
-    cc_encargado = models.CharField(
-        max_length=20,
-        verbose_name="Cédula encargado"
-    )
-
-    nombre_encargado = models.CharField(
-        max_length=150,
-        verbose_name="Nombre encargado"
-    )
-
-    # ===============================
-    # TRANSPORTE
-    # ===============================
-    tipo_vehiculo = models.CharField(
-        max_length=100,
-        verbose_name="Tipo de vehículo"
-    )
-
-    placa_vehiculo = models.CharField(
-        max_length=20,
-        verbose_name="Placa"
-    )
 
     # ===============================
     # CONTACTO
@@ -78,13 +41,16 @@ class Proveedor(models.Model):
     correo_proveedor = models.EmailField(
         verbose_name="Correo"
     )
-
+    direccion_proveedor = models.CharField(
+        max_length=200,
+        verbose_name="Dirección"
+    )
     # ===============================
     # ESTADO
     # ===============================
     estado = models.CharField(
         max_length=10,
-        choices=ESTADO_CHOICES,
+        choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')],
         default='activo'
     )
 
@@ -107,7 +73,6 @@ class Proveedor(models.Model):
     def clean(self):
         # Normalizar textos
         self.nombre_proveedor = self.nombre_proveedor.strip().title()
-        self.nombre_encargado = self.nombre_encargado.strip().title()
 
         # Validar NIT duplicado
         if Proveedor.objects.exclude(pk=self.pk).filter(

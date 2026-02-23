@@ -14,7 +14,7 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- CSS BASE DEL PANEL -->
-    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=2.0">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -26,7 +26,7 @@
     <div class="sidebar-header">
         <div class="user-avatar">
             {% if user.perfil.foto_perfil %}
-                <img src="{{ user.perfil.foto_perfil.url }}" class="avatar-img">
+                <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.username }}" class="avatar-img">
             {% else %}
                 <div class="avatar-placeholder">
                     <i class="bi bi-person-circle"></i>
@@ -39,9 +39,19 @@
         </h6>
 
         <p class="user-role text-muted">
-            {% if user.is_superuser %}Superadministrador
-            {% elif user.is_staff %}Administrador
-            {% else %}Usuario{% endif %}
+            {% if user.is_superuser %}
+                Superadministrador
+            {% else %}
+                {% with grupos=user.groups.all %}
+                    {% if grupos %}
+                        {% for grupo in grupos %}
+                            {{ grupo.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Usuario
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
         </p>
 
         <div class="divider"></div>
@@ -53,20 +63,13 @@
 
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'core:dashboard' %}">
-                    <i class="bi bi-speedometer2"></i>
+                    <i class="bi bi-house-door"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'usuarios:lista_usuarios' %}">
-                    <i class="bi bi-people"></i>
-                    <span>Usuarios</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'productos:lista_productos_admin' %}">
+                <a class="nav-link" href="{% url 'productos:lista_productos' %}">
                     <i class="bi bi-box-seam"></i>
                     <span>Productos</span>
                 </a>
@@ -74,42 +77,69 @@
 
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'proveedores:lista_proveedor' %}">
-                    <i class="bi bi-people-fill"></i>
+                    <i class="bi bi-truck"></i>
                     <span>Proveedores</span>
                 </a>
             </li>
             
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'clientes:lista' %}">
-                    <i class="bi bi-person-vcard"></i>
+                    <i class="bi bi-person-heart"></i>
                     <span>Clientes</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'ventas:lista' %}">
                     <i class="bi bi-cart"></i>
                     <span>Ventas</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'inventario:caja_vista' %}">
+                <a class="nav-link" href="{% url 'inventario:inventario_lista' %}">
                     <i class="bi bi-gear"></i>
                     <span>Inventario</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'compras:lista_compras' %}">
+                    <i class="bi bi-gear"></i>
+                    <span>compras</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'servicios:lista_servicios' %}">
-                    <i class="bi bi-tools"></i>
+                    <i class="bi bi-stars"></i>
                     <span>Servicios</span>
                 </a>
             </li>
 
             <li class="nav-item">
+                <a class="nav-link" href="{% url 'productos_web:lista' %}">
+                    <i class="bi bi-globe2"></i>
+                    <span>Catálogo Web</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'promociones:lista' %}">
+                    <i class="bi bi-percent"></i>
+                    <span>Promociones</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link" href="{% url 'personal:lista_personal' %}">
-                    <i class="bi bi-file-earmark-person"></i>
+                    <i class="bi bi-people"></i>
                     <span>Personal</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'usuarios:lista_usuarios' %}">
+                    <i class="bi bi-unlock-fill"></i>
+                    <span>Usuarios</span>
                 </a>
             </li>
 
@@ -154,7 +184,7 @@
         </p>
       </div>
 
-      <!-- ✅ BARRA -->
+      <!--  BARRA -->
       <div class="tiempo-cierre">
         <div class="tiempo-barra" id="barraTiempoPermiso"></div>
       </div>
@@ -166,21 +196,70 @@
 <!-- CONTENIDO -->
 <div class="main-content">
 
-    <div class="topbar">
-        <h4 class="page-title">
-            {% block page_title %}{% endblock %}
-        </h4>
-    </div>
+  <div class="page-bg">
+    <div class="page-container">
+        
+        <div class="page-card">
 
-    <div class="content-wrapper">
-        {% block content %}{% endblock %}
+            <div class="page-header">
+                <div class="page-left">
+                    <div class="page-title-row">
+                        {% block page_icon %}{% endblock %}
+                        <h2 class="page-title">{% block page_title %}{% endblock %}</h2>
+                    </div>
+                    <div class="page-subtitle">{% block page_subtitle %}{% endblock %}</div>
+                </div>
+
+                <div class="page-actions">
+                    {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+
+            {# ========= MENSAJES + FLAGS (UN SOLO LOOP) ========= #}
+            <script>
+                window.tieneErrorPermiso = false;
+                window.mensajePermiso = "";
+            </script>
+
+            {# ====== SWEETALERT DESDE DJANGO MESSAGES ====== #}
+            {% if messages %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                {% for message in messages %}
+                    (function(){
+                    const tags = "{{ message.tags|escapejs }}";
+                    const text = "{{ message|escapejs }}";
+
+                    let icon = "info";
+                    if (tags.includes("success")) icon = "success";
+                    else if (tags.includes("error")) icon = "error";
+                    else if (tags.includes("warning")) icon = "warning";
+
+                    Swal.fire({
+                        icon: icon,
+                        title: "Mensaje",
+                        text: text,
+                        confirmButtonText: "OK"
+                    });
+                    })();
+                {% endfor %}
+                });
+            </script>
+            {% endif %}
+{# ============================================ #}
+            {# ================================================ #}
+
+            {% block content %}{% endblock %}
+
+        </div>
     </div>
+  </div>
 
 </div>
+
 <script>
     window.ES_ADMIN = {{ request.user.is_staff|yesno:"true,false" }};
 </script>
-
 
 <!-- BOOTSTRAP JS (ÚNICO Y CORRECTO) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -202,7 +281,18 @@
 <!-- JS GENERAL -->
 <script src="{% static 'core/js/main.js' %}"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
+
+
 {% block extra_js %}{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof SiennaAccessibility !== 'undefined') {
+        SiennaAccessibility.init();
+    }
+});
+</script>
 
 </body>
 </html>

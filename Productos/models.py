@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
 
 
 class Marca(models.Model):
@@ -11,6 +12,7 @@ class Marca(models.Model):
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         verbose_name = "Marca"
         verbose_name_plural = "Marcas"
@@ -21,42 +23,22 @@ class Marca(models.Model):
 
 
 class Producto(models.Model):
-    """
-    Modelo para productos
-    """
 
-    # ===============================
-    # CHOICES
-    # ===============================
-    ESTADO_CHOICES = [
-        ('disponible', 'Disponible'),
-        ('agotado', 'Agotado'),
-        ('descontinuado', 'Descontinuado'),
-        ('en_transito', 'En Tránsito'),
-    ]
-
-    UNIDAD_MEDIDA_CHOICES = [
-        ('unidad', 'Unidad'),
-        ('kg', 'Kilogramo'),
-        ('g', 'Gramo'),
-        ('litro', 'Litro'),
-        ('ml', 'Mililitro'),
-        ('caja', 'Caja'),
-        ('paquete', 'Paquete'),
-        ('metro', 'Metro'),
-    ]
-
+    UNIDAD_MEDIDA_CHOICES = (
+        ("unidad", "Unidad"),
+        ("kg", "Kilogramo"),
+        ("g", "Gramo"),
+        ("litro", "Litro"),
+        ("ml", "Mililitro"),
+        ("caja", "Caja"),
+        ("paquete", "Paquete"),
+        ("metro", "Metro"),
+    )
     # ===============================
     # CAMPOS
     # ===============================
     codigo = models.AutoField(primary_key=True)
-
-    id_marca = models.ForeignKey(
-        Marca,
-        on_delete=models.PROTECT,
-        related_name='productos',
-        verbose_name='Marca'
-    )
+    marca=models.CharField(max_length=100)
     nombre = models.CharField(
         max_length=60,
         verbose_name='Nombre del Producto',
@@ -68,7 +50,7 @@ class Producto(models.Model):
         verbose_name='Precio',
         help_text='Precio del producto en pesos colombianos'
     )
-    cantidad = models.PositiveIntegerField()
+
     
     descripcion = models.TextField(
         blank=True,
@@ -94,16 +76,13 @@ class Producto(models.Model):
         verbose_name='Unidad de Medida'
     )
 
-    estado = models.CharField(
-        max_length=20,
-        choices=ESTADO_CHOICES,
-        default='disponible',
-        verbose_name='Estado'
-    )
+    activo = models.BooleanField(default=True)
+
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-    
+    imagen =models.ImageField(upload_to="productos/",blank=True,null=True)
+    imagen_url =models.URLField(blank=True,null=True)
 
     class Meta:
         verbose_name = "Producto"
@@ -111,7 +90,6 @@ class Producto(models.Model):
         ordering = ['nombre']
         indexes = [
             models.Index(fields=['nombre']),
-            models.Index(fields=['estado']),
             models.Index(fields=['linea']),
         ]
 
@@ -150,3 +128,14 @@ class Producto(models.Model):
         if self.presentacion:
             return f"{self.nombre} - {self.presentacion}"
         return self.nombre
+    @property
+    def stock_actual(self):
+        stock_obj = getattr(self, "stock", None)  
+        return stock_obj.cantidad_actual if stock_obj else 0
+    @property
+    def imagen_crud(self):
+        if self.image:
+            return self.imagen.url
+        if self.imagen_url:
+            return ""
+        

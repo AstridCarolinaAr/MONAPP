@@ -4,13 +4,14 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from datetime import datetime,date
-from core.funciones import admin_o_aux_required
-
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
-
 from clientes.models import Cliente
 from servicios.models import Servicio
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+from promociones.models import Promocion
+from productos_web.models import ProductoWeb
 
 
 
@@ -30,11 +31,17 @@ def index(request):
 
     # Obtener servicios activos
     servicios = Servicio.objects.filter(activo=True)
+    promociones = Promocion.objects.filter(activa=True)
+    productos_web = ProductoWeb.objects.filter(visible=True)
 
     return render(request, 'core/index.html', {
         'show_login_modal': show_login_modal,
-        'servicios': servicios
+        'servicios': servicios,
+        'promociones': promociones,
+        'productos_web': productos_web,
     })
+    
+    
 
 @login_required
 def dashboard_view(request):
@@ -139,3 +146,4 @@ def solo_admin(view_func):
             return redirect("core:dashboard")
         return view_func(request, *args, **kwargs)
     return wrapper
+

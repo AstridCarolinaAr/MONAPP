@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,16 +40,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'core',
-    'bootstrap5',
     'clientes',
     'usuarios',
-    'Productos',
+    'Productos.apps.ProductosConfig',
     'Proveedores',
     'ventas.apps.VentasConfig',
     'personal',
     'inventario',
     'servicios',
+<<<<<<< HEAD
     'gestion_alisados',
+=======
+    'productos_web',
+    'compras.apps.ComprasConfig',
+     'bootstrap5',
+    'gestion_datos',
+    'promociones',
+    'Gestion',
+>>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
 ]
 
 MIDDLEWARE = [
@@ -126,7 +135,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/' 
+STATIC_URL = '/static/' 
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',  # Django buscará archivos estáticos aquí
@@ -135,6 +144,10 @@ STATICFILES_DIRS = [
 # Para producción (cuando uses collectstatic)
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (Uploaded by users)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
@@ -147,7 +160,16 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # LOGIN/LOGOUT SETTINGS
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'monappadso@gmail.com'
+EMAIL_HOST_PASSWORD = 'odvd jycx ilml iggy'
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # URLs de redirección después de login/logout
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
 LOGIN_REDIRECT_URL = 'core:dashboard'  # A dónde ir después de login exitoso
@@ -175,3 +197,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# ==================== CONFIGURACIÓN DE EMAIL ====================
+
+# Para desarrollo: mostrar emails en consola
+
+
+# Para producción: usar un servidor SMTP real (descomenta y configura)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'tu-host-smtp'
+# EMAIL_PORT = 587
+# EMre_ZdYQwY39_6K2PqjMwuXNYVzy3d9mmuC5sAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'tucorreo@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacióre_ZdYQwY39_6K2PqjMwuXNYVzy3d9mmuC5sn'

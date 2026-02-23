@@ -1,15 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from .models import Cliente
 from django.db.models import Q
 from datetime import date
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-import re
 from django.http import JsonResponse
-from core.funciones import bloquear_eliminar
 from .validaciones import validar_datos_cliente
+from django.urls import reverse
 
 
 def crear_cliente(request):
@@ -59,7 +55,8 @@ def crear_cliente(request):
         })
 
     messages.success(request, 'Cliente registrado correctamente.')
-    return redirect('clientes:lista')
+    return redirect(f"{reverse('clientes:lista')}?nuevo={cliente.id}")
+
 
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
@@ -93,6 +90,12 @@ def editar_cliente(request, cliente_id):
         'cliente': cliente
     })
 def lista_clientes(request):
+    nuevo_id = request.GET.get("nuevo")
+    cliente_creado = None
+
+    if nuevo_id:
+        cliente_creado = Cliente.objects.filter(id=nuevo_id).first()
+
     q = request.GET.get('q')
     estado = request.GET.get('estado')
     codigo = request.GET.get('codigo')
@@ -146,21 +149,35 @@ def lista_clientes(request):
         'registro_fallido': False,
         'errores': {},
         'datos': {},
+        'mostrar_modal_gestion': bool(cliente_creado),
+        'cliente_creado_id': cliente_creado.id if cliente_creado else None,
+        'cliente_creado_nombre': f"{cliente_creado.nombre} {cliente_creado.apellido}" if cliente_creado else "",
     })
     
 def validar_documento(request):
-    numero = request.GET.get('numero', '').strip()
+    numero = (request.GET.get('numero') or '').strip()
     cliente_id = request.GET.get('cliente_id')
 
+    #  validar numero
     if not numero.isdigit():
         return JsonResponse({'valido': False, 'mensaje': 'Solo números'})
 
     if not (6 <= len(numero) <= 12):
         return JsonResponse({'valido': False, 'mensaje': 'Debe tener entre 6 y 12 dígitos'})
-    
+
+    # normalizar cliente_id
+    if not cliente_id or cliente_id in ('undefined', 'null', ''):
+        cliente_id = None
+    else:
+        try:
+            cliente_id = int(cliente_id)
+        except ValueError:
+            cliente_id = None
+
     qs = Cliente.objects.filter(numero_documento=numero)
 
-    if cliente_id:
+    # si es edición, excluye el mismo cliente
+    if cliente_id is not None:
         qs = qs.exclude(id=cliente_id)
 
     if qs.exists():
@@ -171,16 +188,10 @@ def validar_documento(request):
 
     return JsonResponse({'valido': True})
 
-    if Cliente.objects.filter(numero_documento=numero).exists():
-        return JsonResponse({'valido': False, 'mensaje': 'Documento ya registrado'})
-
-    return JsonResponse({'valido': True})
 
 
 
 
-
-@bloquear_eliminar("No tienes permiso para eliminar clientes.")
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 

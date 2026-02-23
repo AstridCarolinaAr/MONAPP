@@ -1,19 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Proveedor
-from .forms import ProveedorForm
-from django.shortcuts import render
 from django.db.models import Q, Count
 from .models import Proveedor
-from core.funciones import bloquear_eliminar
+from .forms import ProveedorcrearForm
+from .forms import ProveedoreditarForm
+from django.db.models.deletion import ProtectedError
+from compras.models import DetalleCompra
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
+from django.urls import reverse
+
+def is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
 
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
 
-    proveedores = Proveedor.objects.all()
+    # estado activo por defecto
+    estado = request.GET.get("estado", "activo")
 
-    #  BUSCADOR
+    if estado not in ["activo", "inactivo"]:
+        estado = "activo"
+
+    proveedores = Proveedor.objects.filter(estado=estado)
+
+    # BUSCADOR
     if q:
         proveedores = proveedores.filter(
             Q(nombre_proveedor__icontains=q) |
@@ -21,89 +35,147 @@ def lista_proveedores(request):
             Q(correo_proveedor__icontains=q)
         )
 
-    #  ANOTAR ENTREGAS (ajusta cuando tengas relación real)
+    # CONTADOR (si luego lo usas)
     proveedores = proveedores.annotate(
-        total_entregas=Count("id")  # placeholder
+        total_entregas=Count("id")
     )
 
-    #  ORDENAMIENTO
-    if orden == "nombre":
-        proveedores = proveedores.order_by("nombre_proveedor")
+    # ORDENAMIENTO
+    ordenamientos = {
+        "nombre": "nombre_proveedor",
+        "nombre_desc": "-nombre_proveedor",
+        "entregas": "-total_entregas",
+    }
 
-    elif orden == "nombre_desc":
-        proveedores = proveedores.order_by("-nombre_proveedor")
-
-    elif orden == "entregas":
-        proveedores = proveedores.order_by("-total_entregas")
-
-    else:
-        proveedores = proveedores.order_by("nombre_proveedor")
+    proveedores = proveedores.order_by(
+        ordenamientos.get(orden, "nombre_proveedor")
+    )
 
     return render(
         request,
-        "colaborador/lista_proveedor.html",
+        "proveedor/lista_proveedor.html",
         {
             "proveedores": proveedores,
+            "estado_actual": estado
         }
     )
-
-
 
 
 def crear_proveedor(request):
-    if request.method == 'POST':
-        form = ProveedorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Proveedor creado correctamente.')
-            return redirect('proveedores:lista_proveedor')
-    else:
-        form = ProveedorForm()
+    form = ProveedorcrearForm(request.POST or None, request.FILES or None)
 
-    return render(
-        request,
-        'colaborador/crear_proveedor.html',
-        {
-            'form': form,
-            'titulo': 'Nuevo proveedor'
-        }
-    )
+    if request.method == "POST" and form.is_valid():
+        proveedor = form.save()
+        messages.success(request, f'Proveedor "{proveedor.nombre_proveedor}" creado correctamente.')
 
+        if is_ajax(request):
+            return JsonResponse({
+                "success": True,
+                "redirect_url": reverse("proveedores:lista_proveedor")
+            })
 
+        return redirect("proveedores:lista_proveedor")
+
+    context = {
+        "form": form,
+        "action_url": reverse("proveedores:crear_proveedor"),
+        "submit_label": "Crear",
+        "titulo": "Crear proveedor"
+    }
+
+    if is_ajax(request):
+        html = render_to_string(
+            "proveedor/formulario_crear_proveedor.html",
+            context,
+            request=request
+        )
+        return JsonResponse({
+            "success": False,
+            "html": html,
+            "title": context["titulo"],
+            "redirect_url": reverse("proveedores:lista_proveedor")
+        })
+
+    return render(request, "proveedor/crear_proveedor.html", context)
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
+    form = ProveedorcrearForm(request.POST or None, instance=proveedor)
 
-    if request.method == 'POST':
-        form = ProveedorForm(request.POST, instance=proveedor)
+    if request.method == "POST":
         if form.is_valid():
             form.save()
-            messages.success(request, 'Proveedor actualizado correctamente.')
-            return redirect('proveedores:lista_proveedor')
-    else:
-        form = ProveedorForm(instance=proveedor)
 
-    return render(
-        request,
-        'colaborador/editar_proveedor.html',  
-        {
-            'form': form,
-            'proveedor': proveedor,
-            'titulo': 'Editar proveedor'
-        }
-    )
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"success": True})
 
+            return redirect("proveedores:lista_proveedor")
 
-@bloquear_eliminar("No tienes permiso para eliminar proveedores.")
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "proveedor/_form_proveedor.html",
+                {
+                    "form": form,
+                    "action_url": reverse("proveedores:editar_proveedor", args=[pk]),
+                    "titulo": "Editar proveedor",
+                    "submit_label": "Actualizar"
+                },
+                request=request
+            )
+            return JsonResponse({
+                "success": False,
+                "html": html,
+                "title": "Editar proveedor"
+            })
+
+    context = {
+        "form": form,
+        "action_url": reverse("proveedores:editar_proveedor", args=[pk]),
+        "titulo": "Editar proveedor",
+        "submit_label": "Actualizar"
+    }
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = render_to_string("proveedor/formulario_editar_proveedor.html", context, request=request)
+        return JsonResponse({
+            "success": False,
+            "html": html,
+            "title": context["titulo"]
+        })
+
+    return render(request, "proveedor/editar_proveedor.html", context)
+
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     if request.method == "POST":
-        proveedor.delete()
-        messages.success(request, "Proveedor eliminado correctamente.")
-        return redirect("proveedores:lista_proveedor")
+        try:
+            proveedor.delete()
+            return JsonResponse({
+                "status": "deleted"
+            })
 
-    return render(
-        request,
-        "colaborador/eliminar_proveedor.html",
-        {"proveedor": proveedor}
-    )
+        except ProtectedError:
+
+                movimientos = DetalleCompra.objects.filter(proveedor=proveedor)
+
+        return JsonResponse({
+            "status": "protected",
+            "cantidad": movimientos.count(),
+            "detalle": "movimientos de inventario"
+        })
+
+
+@require_POST
+def reactivar_proveedor(request, pk):
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    proveedor.estado = "activo"
+    proveedor.save()
+    return JsonResponse({"status": "activated"})
+
+
+@require_POST
+def desactivar_proveedor(request, pk):
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    proveedor.estado = "inactivo"
+    proveedor.save()
+    return JsonResponse({"status": "inactivated"})

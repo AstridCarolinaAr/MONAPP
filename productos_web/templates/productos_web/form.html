@@ -1,0 +1,179 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-globe2"></i> {{ titulo }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.pw-form-card {
+    max-width: 680px;
+    margin: 0 auto;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+.pw-form-card .card-header {
+    background: linear-gradient(135deg, #3a2a24, #5c3d2e);
+    color: #fff;
+    border-radius: 14px 14px 0 0;
+    padding: 18px 24px;
+    font-weight: 600;
+}
+.pw-dropzone {
+    background: linear-gradient(145deg, #fafafa, #f0f0f0);
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.pw-dropzone:hover,
+.pw-dropzone.dragover {
+    border-color: #8d604a;
+    background: linear-gradient(145deg, #fff, #f8f5f2);
+    box-shadow: 0 6px 20px rgba(141,96,74,.15);
+    transform: translateY(-2px);
+}
+.pw-dropzone i { 
+    font-size: 3.5rem; 
+    color: #8d604a;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.pw-dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;
+}
+.pw-dropzone .upload-text {
+    font-size: 1.05rem;
+    color: #5c3d2e;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.pw-dropzone .upload-hint {
+    font-size: 0.85rem;
+    color: #999;
+}
+.pw-preview-img {
+    max-height: 200px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card pw-form-card">
+        <div class="card-header">
+            <i class="bi bi-pencil-square me-2"></i>{{ titulo }}
+        </div>
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Precio Público ($)</label>
+                        {{ form.precio }}
+                        {% if form.precio.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
+                        <div class="pw-dropzone" id="dropzoneEditar">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                            <div class="upload-text">Arrastra tu imagen aquí</div>
+                            <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                            {{ form.imagen }}
+                            {% if producto and producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" class="pw-preview-img" id="previewEditar" alt="preview">
+                            {% else %}
+                                <img class="pw-preview-img d-none" id="previewEditar" alt="preview">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            {{ form.visible }}
+                            <label class="form-check-label" for="id_visible">Visible en la Web</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'productos_web:lista' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Volver
+                    </a>
+                    <button type="submit" class="btn text-white" style="background:#3a2a24;">
+                        <i class="bi bi-check-lg me-1"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.querySelector('#dropzoneEditar input[type="file"]');
+    const preview   = document.getElementById('previewEditar');
+    if (fileInput && preview) {
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    document.querySelectorAll('.pw-dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+});
+</script>
+{% endblock %}

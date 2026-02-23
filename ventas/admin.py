@@ -7,11 +7,9 @@ class VentaAdmin(admin.ModelAdmin):
     list_display = (
         'codigo_venta',
         'cliente',
-        'codigo_producto',
-        'precio_unitario',
-        'cantidad',
-        'subtotal',
         'fecha',
+        'estado',
+        'total',
     )
 
     search_fields = (
