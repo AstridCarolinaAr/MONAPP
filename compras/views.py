@@ -12,12 +12,12 @@ from collections import Counter
 from .models import Compra
 from .forms import CompraForm, DetalleCompraFormSet
 from inventario.models import Stock
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-
+@ensure_csrf_cookie
 @login_required
 @require_http_methods(["GET"])
 def lista_compras(request):
@@ -138,6 +138,11 @@ def editar_compra(request, pk):
 
                 compra = form.save()
                 formset.save()
+                total=0
+                for d in compra.detalles.all():
+                    total += d.cantidad*d.precio_unitario
+                compra.precio_total = total
+                compra.save(update_fields=["precio_total"])
 
                 new_map = dict(
                     compra.detalles.values("producto_id")
@@ -159,7 +164,9 @@ def editar_compra(request, pk):
                     Stock.objects.filter(pk=stock_obj.pk).update(
                         cantidad_actual=F("cantidad_actual") + delta
                     )
-
+                    
+                    if compra.anulada:
+                        return JsonResponse({"success": False, "message": "no se puede editar una compra anulada."})
             return JsonResponse({
                 "success": True,
                 "message": "Se editó correctamente"
@@ -177,7 +184,6 @@ def editar_compra(request, pk):
             "html": html
         }, status=400)
 
-    # GET
     form = CompraForm(instance=compra)
     formset = DetalleCompraFormSet(instance=compra)
 
@@ -187,40 +193,30 @@ def editar_compra(request, pk):
         {"form": form, "formset": formset, "compra": compra},
     )
     
-    
-@require_POST
 @login_required
-def eliminar_compra(request, pk):
+@require_POST
+def anular_compra(request, pk):
     compra = get_object_or_404(Compra, pk=pk)
 
-    try:
-        with transaction.atomic():
-            qtys = compra.detalles.values("producto_id").annotate(total=Sum("cantidad"))
 
-            for row in qtys:
-                pid = row["producto_id"]
-                total = row["total"] or 0
-                stock_obj, _ = Stock.objects.get_or_create(producto_id=pid)
-                Stock.objects.filter(pk=stock_obj.pk).update(
-                    cantidad_actual=F("cantidad_actual") - total
-                )
+    if compra.anulada:
+        return JsonResponse({"status": "already", "message": "La compra ya estaba anulada."})
 
-            compra.delete()
+    with transaction.atomic():
 
-        return JsonResponse({"status": "deleted"})
+        qtys = (
+            compra.detalles.values("producto_id")
+            .annotate(total=Sum("cantidad"))
+            .values_list("producto_id", "total")
+        )
 
-    except ProtectedError as e:
-        objs = list(getattr(e, "protected_objects", []) or [])
-        counter = Counter(f"{o._meta.verbose_name_plural}" for o in objs)
+        for pid, total in qtys:
+            stock_obj, _ = Stock.objects.get_or_create(producto_id=pid)
+            Stock.objects.filter(pk=stock_obj.pk).update(
+                cantidad_actual=F("cantidad_actual") - total
+            )
 
-        relacionados = [{"modelo": k, "cantidad": v} for k, v in counter.items()]
-        total = sum(counter.values())
+        compra.anulada = True
+        compra.save(update_fields=["anulada"])
 
-        detalle_txt = ", ".join([f'{r["cantidad"]} {r["modelo"]}' for r in relacionados]) or "registros relacionados"
-
-        return JsonResponse({
-            "status": "protected",
-            "total": total,
-            "relacionados": relacionados,
-            "detalle": detalle_txt,
-        }, status=409)
+    return JsonResponse({"status": "ok", "message": "Compra anulada y stock revertido."})

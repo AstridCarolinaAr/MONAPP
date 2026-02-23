@@ -22,6 +22,8 @@ class Compra(models.Model):
         null=True,
         blank=True
     )
+    anulada=models.BooleanField(default=False)
+    anulada_en =models.DateTimeField(null = True,blank=True)
 
     def __str__(self):
         return f"Compra #{self.id} - {self.proveedor.nombre_proveedor}"
