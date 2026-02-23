@@ -248,6 +248,25 @@
     .pw-fab { bottom: 20px; right: 20px; }
     .pw-thumb, .pw-thumb-placeholder { width: 42px; height: 42px; }
 }
+
+/* Validación de precio */
+.pw-price-error {
+    color: #a0715a;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-price-error.visible {
+    display: block;
+}
+.form-control.is-invalid-price {
+    border-color: #a0715a !important;
+    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+}
+.form-control.is-valid-price {
+    border-color: #6ba06a !important;
+    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+}
 </style>
 {% endblock %}
 
@@ -361,6 +380,7 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Precio Público ($)</label>
                             {{ form.precio }}
+                            <div class="pw-price-error" id="err_precio_agregar"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">Descripción</label>
@@ -477,6 +497,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 reader.readAsDataURL(this.files[0]);
             }
+        });
+    }
+
+    /* ── Validación de precio en tiempo real ── */
+    function validarPrecio(input, errorEl, submitBtn) {
+        const val = parseFloat(input.value);
+        const isEmpty = input.value.trim() === '';
+        const decimals = input.value.includes('.') ? input.value.split('.')[1].length : 0;
+        let msg = '';
+
+        if (isEmpty) {
+            msg = 'El precio es obligatorio.';
+        } else if (isNaN(val)) {
+            msg = 'Ingresa un número válido.';
+        } else if (val <= 0) {
+            msg = 'El precio debe ser mayor a $0.';
+        } else if (val > 9999999.99) {
+            msg = 'El precio no puede superar $9,999,999.99.';
+        } else if (decimals > 2) {
+            msg = 'Máximo 2 decimales permitidos.';
+        }
+
+        if (msg) {
+            input.classList.add('is-invalid-price');
+            input.classList.remove('is-valid-price');
+            errorEl.textContent = msg;
+            errorEl.classList.add('visible');
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            input.classList.remove('is-invalid-price');
+            input.classList.add('is-valid-price');
+            errorEl.textContent = '';
+            errorEl.classList.remove('visible');
+            if (submitBtn) submitBtn.disabled = false;
+        }
+        return !msg;
+    }
+
+    // Agregar modal
+    const precioAgregar = document.querySelector('#modalAgregar [name="precio"]');
+    const errPrecioAgregar = document.getElementById('err_precio_agregar');
+    const btnGuardarAgregar = document.querySelector('#modalAgregar [type="submit"]');
+    if (precioAgregar) {
+        precioAgregar.addEventListener('input', () => validarPrecio(precioAgregar, errPrecioAgregar, btnGuardarAgregar));
+        precioAgregar.addEventListener('blur',  () => validarPrecio(precioAgregar, errPrecioAgregar, btnGuardarAgregar));
+        // Validar al enviar el formulario
+        precioAgregar.closest('form').addEventListener('submit', function(e) {
+            if (!validarPrecio(precioAgregar, errPrecioAgregar, btnGuardarAgregar)) {
+                e.preventDefault();
+                precioAgregar.focus();
+            }
+        });
+        // Resetear al abrir el modal
+        document.getElementById('modalAgregar').addEventListener('show.bs.modal', () => {
+            precioAgregar.classList.remove('is-invalid-price', 'is-valid-price');
+            errPrecioAgregar.classList.remove('visible');
+            btnGuardarAgregar.disabled = false;
         });
     }
 

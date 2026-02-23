@@ -72,6 +72,24 @@
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
 }
+/* Validación de precio */
+.pw-price-error {
+    color: #a0715a;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-price-error.visible {
+    display: block;
+}
+.form-control.is-invalid-price {
+    border-color: #a0715a !important;
+    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+}
+.form-control.is-valid-price {
+    border-color: #6ba06a !important;
+    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+}
 </style>
 {% endblock %}
 
@@ -108,6 +126,7 @@
                         {% if form.precio.errors %}
                             <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
                         {% endif %}
+                        <div class="pw-price-error" id="err_precio_form"></div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold">Descripción</label>
@@ -174,6 +193,48 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
+
+    /* ── Validación de precio ── */
+    function validarPrecio(input, errorEl, submitBtn) {
+        const val = parseFloat(input.value);
+        const isEmpty = input.value.trim() === '';
+        const decimals = input.value.includes('.') ? input.value.split('.')[1].length : 0;
+        let msg = '';
+        if (isEmpty)          msg = 'El precio es obligatorio.';
+        else if (isNaN(val))  msg = 'Ingresa un número válido.';
+        else if (val <= 0)    msg = 'El precio debe ser mayor a $0.';
+        else if (val > 9999999.99) msg = 'El precio no puede superar $9,999,999.99.';
+        else if (decimals > 2)    msg = 'Máximo 2 decimales permitidos.';
+
+        if (msg) {
+            input.classList.add('is-invalid-price');
+            input.classList.remove('is-valid-price');
+            errorEl.textContent = msg;
+            errorEl.classList.add('visible');
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            input.classList.remove('is-invalid-price');
+            input.classList.add('is-valid-price');
+            errorEl.textContent = '';
+            errorEl.classList.remove('visible');
+            if (submitBtn) submitBtn.disabled = false;
+        }
+        return !msg;
+    }
+
+    const precioInput = document.getElementById('id_precio');
+    const errPrecio   = document.getElementById('err_precio_form');
+    const btnSubmit   = document.querySelector('[type="submit"]');
+    if (precioInput) {
+        precioInput.addEventListener('input', () => validarPrecio(precioInput, errPrecio, btnSubmit));
+        precioInput.addEventListener('blur',  () => validarPrecio(precioInput, errPrecio, btnSubmit));
+        precioInput.closest('form').addEventListener('submit', function(e) {
+            if (!validarPrecio(precioInput, errPrecio, btnSubmit)) {
+                e.preventDefault();
+                precioInput.focus();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
