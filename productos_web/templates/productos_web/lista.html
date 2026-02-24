@@ -94,23 +94,24 @@
     position: fixed;
     bottom: 32px;
     right: 32px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3a2a24, #5c3d2e);
+    border-radius: 50px;
+    background: #1a1a1a;
     color: #fff;
     border: none;
-    font-size: 1.5rem;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: .65rem 1.4rem;
     box-shadow: 0 6px 20px rgba(0,0,0,.3);
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: .4rem;
     z-index: 1050;
-    transition: transform .2s, box-shadow .2s;
+    transition: transform .2s, box-shadow .2s, background .2s;
 }
 .pw-fab:hover {
-    transform: scale(1.1);
+    transform: translateY(-2px);
     box-shadow: 0 8px 28px rgba(0,0,0,.4);
+    background: #3a2a24;
     color: #fff;
 }
 
@@ -358,7 +359,7 @@
 
 <!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
 <button class="pw-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar" title="Agregar producto">
-    <i class="bi bi-plus-lg"></i>
+    <i class="bi bi-plus-lg"></i> Nuevo producto
 </button>
 
 <!-- ═══════════════ MODAL AGREGAR ═══════════════ -->
