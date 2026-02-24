@@ -1,0 +1,18 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Crear Servicio Web{% endblock %}
+
+{% block page_icon %}
+<i class="bi bi-plus-circle page-icon"></i>
+{% endblock %}
+
+{% block page_title %}Crear Servicio Web{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        {% include 'servicios_web/_servicio_web_form.html' %}
+    </div>
+</div>
+{% endblock %}

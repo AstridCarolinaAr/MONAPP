@@ -151,6 +151,13 @@
             </li>
 
             <li class="nav-item">
+                <a class="nav-link" href="{% url 'servicios_web:lista_servicios_web' %}">
+                    <i class="bi bi-globe"></i> {# Usaré un icono de globo para diferenciar #}
+                    <span>Servicios Web</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link text-danger" href="{% url 'usuarios:logout' %}">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Cerrar Sesión</span>

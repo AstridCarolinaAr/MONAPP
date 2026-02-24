@@ -1,11 +1,13 @@
 from django import forms
 from .models import Servicio, GestionAlisado
 from clientes.models import Cliente
+from django.core.exceptions import ValidationError
+
 
 class ServicioForm(forms.ModelForm):
     class Meta:
         model = Servicio
-        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'activo']
+        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'video', 'activo']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -26,6 +28,10 @@ class ServicioForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'image/*'
             }),
+            'video': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'video/*'
+            }),
             'activo': forms.Select(attrs={
                 'class': 'form-select'
             }, choices=[
@@ -38,8 +44,12 @@ class ServicioForm(forms.ModelForm):
             'precio': 'Precio ($)',
             'descripcion': 'Descripción',
             'imagen': 'Imagen del Servicio',
+            'video': 'Video del Servicio (opcional, máx. 5s)',
             'activo': 'Estado del Servicio',
         }
+
+
+
 
 
 class GestionAlisadoForm(forms.ModelForm):
