@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'gestion_datos',
     'promociones',
     'Gestion',
+    'servicios_web',
 ]
 
 MIDDLEWARE = [
