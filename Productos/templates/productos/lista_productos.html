@@ -2,9 +2,8 @@
 {% load static %}
 {% load humanize %}
 
-{% block breadcrumb_items %}
-<li class="breadcrumb-item active">Productos</li>
-{% endblock %}
+{% block title %}Lista de Productos{% endblock %}
+
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'Productos/css/lista_producto.css' %}">
@@ -16,7 +15,6 @@
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <!-- ENCABEZADO -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Gestión de Productos</h2>
 
         <a href="{% url 'productos:crear_producto' %}"
            class="btn btn-primary"

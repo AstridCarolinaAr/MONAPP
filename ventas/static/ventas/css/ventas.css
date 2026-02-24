@@ -13,7 +13,7 @@ input:disabled {
 }
 
 .is-invalid {
-  border-color: #dc3545 !important;
+  border-color: rgba(141, 96, 74, 0.45);
 }
 
 .is-invalid:focus {
@@ -167,7 +167,7 @@ input:disabled {
   position: absolute;
   inset: 0;
   cursor: pointer;
-  background: #dc3545;
+  background: rgba(141, 96, 74, 0.45);
   transition: .25s;
   border-radius: 999px;
 }
@@ -186,7 +186,7 @@ input:disabled {
 }
 
 .sw__input:checked + .sw__slider {
-  background: #198754;
+  background:  rgba(141, 96, 74, 0.95);
 }
 
 .sw__input:checked + .sw__slider:before {

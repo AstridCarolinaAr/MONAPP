@@ -253,10 +253,10 @@
 }
 
 
-.page-title {
+/* .page-title {
     color: var(--mona-brown-dark);
     font-weight: 700;
-}
+} */
 
 
 .topbar-left {
@@ -280,12 +280,12 @@
     background-color: #f0f0f0;
 }
 
-.page-title {
+/* .page-title {
     font-size: 24px;
     font-weight: 700;
     color: #2c3e50;
     margin: 0;
-}
+} */
 
 .topbar-right {
     display: flex;
@@ -1100,10 +1100,10 @@ small.text-muted {
   color: #3a2a24;
 }
 
-.page-title{
+/* .page-title{
   font-size: 32px;
   font-weight: 800;
-}
+} */
 
 .page-subtitle{
   margin-top: 4px;
@@ -1167,9 +1167,10 @@ small.text-muted {
 
 .page-icon{
   font-size: 30px;
-  color:#3a2a24;
+  color:#000000;
   line-height:1;
 }
+
 
 .page-subtitle{
   margin-top:6px;
@@ -1183,3 +1184,51 @@ small.text-muted {
   gap:10px;
   flex-wrap:wrap;
 }
+/* ================================
+   ACCIONES CON ÍCONOS (GLOBAL)
+   ================================ */
+
+/* contenedor (opcional) */
+.actions {
+  display: inline-flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* botón-icono base */
+.act {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ícono */
+.act i {
+  font-size: 1.05rem;
+}
+
+/* colores (café) */
+.act {
+  color: rgba(141, 96, 74, 0.95); /* café */
+}
+.act:hover {
+  background: rgba(141, 96, 74, 0.12);
+}
+
+/* variantes por acción */
+.act-view { }
+.act-edit { }
+.act-del  { color: rgba(180, 60, 60, 0.95); }
+.act-del:hover { background: rgba(180, 60, 60, 0.12); }
+
+.act-toggle { } /* por si luego pones activar/desactivar */
