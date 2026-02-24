@@ -1,6 +1,8 @@
 <form method="post" action="{% url 'compras:crear_compra' %}" id="formCompra">
   {% csrf_token %}
 
+  <div id="compraErroresGenerales" class="alert alert-danger d-none mb-3"></div>
+
   <!-- =========================
        INFORMACIÓN GENERAL
   ========================== -->
@@ -36,6 +38,7 @@
     </button>
   </div>
 
+  <!-- ✅ ESTO ES OBLIGATORIO PARA FORMSETS -->
   {{ formset.management_form }}
 
   {% if formset.non_form_errors %}
@@ -46,7 +49,15 @@
 
   <div class="vstack gap-3" id="productosContainer">
     {% for f in formset %}
-      <div class="border rounded p-3 detalle-item">
+      <div class="border rounded p-3 detalle-item position-relative">
+
+        <!-- X esquina -->
+        <button type="button"
+                class="btn btn-sm btn-danger btn-eliminar-item position-absolute top-0 end-0 m-2"
+                title="Quitar producto">
+          <i class="bi bi-x-lg"></i>
+        </button>
+
         <div class="row g-3 align-items-end">
           <div class="col-md-6">
             <label class="form-label">Producto</label>
@@ -73,10 +84,10 @@
           </div>
         </div>
 
+        <!-- DELETE oculto -->
         {% if f.DELETE %}
-          <div class="form-check mt-3">
+          <div class="d-none">
             {{ f.DELETE }}
-            <label class="form-check-label">Eliminar este producto</label>
           </div>
         {% endif %}
       </div>
@@ -87,7 +98,15 @@
        TEMPLATE PARA AGREGAR ITEMS
   ========================== -->
   <template id="emptyFormTemplate">
-    <div class="border rounded p-3 detalle-item">
+    <div class="border rounded p-3 detalle-item position-relative">
+
+      <!-- X esquina -->
+      <button type="button"
+              class="btn btn-sm btn-danger btn-eliminar-item position-absolute top-0 end-0 m-2"
+              title="Quitar producto">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
       <div class="row g-3 align-items-end">
         <div class="col-md-6">
           <label class="form-label">Producto</label>
@@ -105,15 +124,16 @@
         </div>
       </div>
 
-      <div class="form-check mt-3">
+      <!-- DELETE oculto del empty_form -->
+      <div class="d-none">
         {{ formset.empty_form.DELETE }}
-        <label class="form-check-label">Eliminar este producto</label>
       </div>
+
     </div>
   </template>
 
   <div class="d-flex justify-content-end mt-4">
-    <button type="submit" class="btn btn-success">
+    <button type="submit" class="btn btn-success" id="btnGuardarCompra">
       Guardar compra
     </button>
   </div>

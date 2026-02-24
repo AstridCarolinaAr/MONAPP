@@ -2,6 +2,93 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================
   // HELPERS
   // =========================
+    // =========================
+  // ELIMINAR ITEM (X) - FORMSET
+  // =========================
+
+  function renumerarForms(container, prefix) {
+    const items = Array.from(container.querySelectorAll(".detalle-item"));
+
+    items.forEach((item, newIndex) => {
+      item.querySelectorAll("input, select, textarea, label").forEach((el) => {
+        // name="detalles-3-cantidad" -> detalles-0-cantidad
+        if (el.name) {
+          el.name = el.name.replace(
+            new RegExp(`^${prefix}-(\\d+)-`),
+            `${prefix}-${newIndex}-`
+          );
+        }
+
+        // id="id_detalles-3-cantidad" -> id_detalles-0-cantidad
+        if (el.id) {
+          el.id = el.id.replace(
+            new RegExp(`^id_${prefix}-(\\d+)-`),
+            `id_${prefix}-${newIndex}-`
+          );
+        }
+
+        // for="id_detalles-3-cantidad"
+        const f = el.getAttribute?.("for");
+        if (f) {
+          el.setAttribute(
+            "for",
+            f.replace(
+              new RegExp(`^id_${prefix}-(\\d+)-`),
+              `id_${prefix}-${newIndex}-`
+            )
+          );
+        }
+      });
+    });
+  }
+
+  // 👇 OJO: este listener debe ser GLOBAL y no romper tu otro click handler
+  // Por eso NO reemplazamos el tuyo: solo añadimos este "if" dentro del MISMO click global
+  // Si prefieres: pega este "if" dentro de tu document.body.addEventListener("click", async (e) => { ... })
+  // justo antes del "AGREGAR PRODUCTO".
+  document.body.addEventListener("click", (e) => {
+    const btnX = e.target.closest(".btn-eliminar-item");
+    if (!btnX) return;
+
+    e.preventDefault();
+
+    const item = btnX.closest(".detalle-item");
+    const form = btnX.closest("form");
+    if (!item || !form) return;
+
+    const container = form.querySelector("#productosContainer");
+    const totalForms = form.querySelector('input[name$="-TOTAL_FORMS"]');
+    if (!container || !totalForms) return;
+
+    // detectar prefix del formset (ej: detalles-0-producto)
+    const anyField = item.querySelector("[name]");
+    const m = anyField?.name?.match(/^([A-Za-z0-9_]+)-\d+-/);
+    const prefix = m ? m[1] : null;
+
+    // si existe DELETE => estamos en formset can_delete (editar o incluso crear)
+    const deleteInput = item.querySelector('input[name$="-DELETE"]');
+
+    if (deleteInput) {
+        deleteInput.checked = true;
+      item.classList.add("d-none");
+
+      // recalcular total
+      calcularTotal(form);
+      // validar (si tienes validación en tiempo real)
+      if (typeof validateCompraForm === "function") validateCompraForm(form);
+      return;
+    }
+
+
+    item.remove();
+
+    totalForms.value = container.querySelectorAll(".detalle-item").length;
+
+    if (prefix) renumerarForms(container, prefix);
+
+    calcularTotal(form);
+    if (typeof validateCompraForm === "function") validateCompraForm(form);
+  });
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -424,4 +511,173 @@ function attachCOPMask(input) {
 
   document.querySelectorAll('input[name$="-precio_unitario"]').forEach(attachCOPMask);
   calcularTotal(document);
+});
+// =========================
+// VALIDACIONES EN TIEMPO REAL (COMPRAS)
+// =========================
+function showGeneralErrors(messages = []) {
+  const box = document.getElementById("compraErroresGenerales");
+  if (!box) return;
+
+  if (!messages.length) {
+    box.classList.add("d-none");
+    box.innerHTML = "";
+    return;
+  }
+
+  box.classList.remove("d-none");
+  box.innerHTML = `
+    <strong>Revisa estos campos:</strong>
+    <ul class="mb-0 mt-2">
+      ${messages.map(m => `<li>${m}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function markInvalid(input, msg) {
+  if (!input) return;
+  input.classList.add("is-invalid");
+
+  // crea/actualiza feedback
+  let fb = input.parentElement?.querySelector(".invalid-feedback");
+  if (!fb) {
+    fb = document.createElement("div");
+    fb.className = "invalid-feedback";
+    // si está dentro de input-group, pon el feedback después del input-group
+    if (input.closest(".input-group")) {
+      input.closest(".input-group").insertAdjacentElement("afterend", fb);
+    } else {
+      input.insertAdjacentElement("afterend", fb);
+    }
+  }
+  fb.textContent = msg || "Campo inválido";
+}
+
+function clearInvalid(input) {
+  if (!input) return;
+  input.classList.remove("is-invalid");
+
+  // NO borramos el feedback siempre, pero lo ocultamos si quieres:
+  const fb = input.parentElement?.querySelector(".invalid-feedback");
+  if (fb) fb.textContent = "";
+}
+
+function validateCompraForm(scope) {
+  const root = scope || document;
+  const form = root.querySelector("#formCompra") || root.closest("#formCompra") || document.querySelector("#formCompra");
+  if (!form) return true;
+
+  const btnGuardar = form.querySelector("#btnGuardarCompra");
+  const errores = [];
+
+  // --- proveedor obligatorio ---
+  const proveedor = form.querySelector("#id_proveedor");
+  if (proveedor) {
+    if (!proveedor.value) {
+      errores.push("Selecciona un proveedor.");
+      markInvalid(proveedor, "Proveedor obligatorio");
+    } else {
+      clearInvalid(proveedor);
+    }
+  }
+
+  // --- validar items y duplicados ---
+  const usados = new Map();
+  form.querySelectorAll(".detalle-item").forEach((item, idx) => {
+    const productoSel = item.querySelector('select[name$="-producto"]');
+    const cantidadInp = item.querySelector('input[name$="-cantidad"]');
+    const precioInp = item.querySelector('input[name$="-precio_unitario"]');
+
+    // producto obligatorio
+    if (productoSel) {
+      if (!productoSel.value) {
+        errores.push(`Producto requerido en la fila ${idx + 1}.`);
+        markInvalid(productoSel, "Selecciona un producto");
+      } else {
+        clearInvalid(productoSel);
+        usados.set(productoSel.value, (usados.get(productoSel.value) || 0) + 1);
+      }
+    }
+
+    // cantidad > 0
+    if (cantidadInp) {
+      const c = toNumber(cantidadInp.value);
+      if (c <= 0) {
+        errores.push(`La cantidad debe ser mayor que 0 (fila ${idx + 1}).`);
+        markInvalid(cantidadInp, "Debe ser mayor que 0");
+      } else {
+        clearInvalid(cantidadInp);
+      }
+    }
+
+    // precio > 0
+    if (precioInp) {
+      const p = toNumber(precioInp.value);
+      if (p <= 0) {
+        errores.push(`El precio unitario debe ser mayor que 0 (fila ${idx + 1}).`);
+        markInvalid(precioInp, "Debe ser mayor que 0");
+      } else {
+        clearInvalid(precioInp);
+      }
+    }
+  });
+
+  // --- duplicados ---
+  for (const [prodId, count] of usados.entries()) {
+    if (count > 1) {
+      errores.push("No puedes repetir el mismo producto en la compra.");
+      // marcar todos los selects duplicados como invalid
+      form.querySelectorAll('select[name$="-producto"]').forEach(sel => {
+        if (sel.value === prodId) markInvalid(sel, "Producto duplicado");
+      });
+      break;
+    }
+  }
+
+  // mensajes generales
+  showGeneralErrors(errores);
+
+  // habilitar/deshabilitar botón
+  const ok = errores.length === 0;
+  if (btnGuardar) btnGuardar.disabled = !ok;
+
+  return ok;
+}
+
+// Validar al escribir/cambiar
+document.addEventListener("input", (e) => {
+  if (
+    e.target.matches("#id_proveedor") ||
+    e.target.matches('input[name$="-cantidad"]') ||
+    e.target.matches('input[name$="-precio_unitario"]')
+  ) {
+    const scope = e.target.closest("form") || document;
+    validateCompraForm(scope);
+  }
+});
+
+document.addEventListener("change", (e) => {
+  if (e.target.matches('select[name$="-producto"]') || e.target.matches("#id_proveedor")) {
+    const scope = e.target.closest("form") || document;
+    validateCompraForm(scope);
+  }
+});
+
+// Validar cuando abre el modal 
+document.addEventListener("shown.bs.modal", (e) => {
+  validateCompraForm(e.target);
+});
+
+// Validar una vez al cargar
+validateCompraForm(document);
+
+document.addEventListener("submit", (e) => {
+  const form = e.target.closest("#formCompra");
+  if (!form) return;
+
+  const ok = validateCompraForm(form);
+  if (!ok) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
 });
