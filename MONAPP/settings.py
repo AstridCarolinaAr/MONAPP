@@ -48,16 +48,13 @@ INSTALLED_APPS = [
     'personal',
     'inventario',
     'servicios',
-<<<<<<< HEAD
     'gestion_alisados',
-=======
     'productos_web',
     'compras.apps.ComprasConfig',
-     'bootstrap5',
+    'bootstrap5',
     'gestion_datos',
     'promociones',
     'Gestion',
->>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
 ]
 
 MIDDLEWARE = [

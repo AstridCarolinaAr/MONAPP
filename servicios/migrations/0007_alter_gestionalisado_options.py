@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0006_gestionalisado_firma_consentimiento'),
+        ('servicios', '0001_initial'),
     ]
 
     operations = [

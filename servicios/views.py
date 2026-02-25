@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Servicio
 from .forms import ServicioForm
+
+def es_staff(user):
+    return user.is_staff
 
 @login_required
 def lista_servicios(request):
@@ -139,8 +142,6 @@ def servicios_publicos(request):
     }
     return render(request, 'servicios/servicios_publicos.html', context)
 
-<<<<<<< HEAD
-=======
 
 # Vistas para Gestion de datos
 @login_required
@@ -291,4 +292,3 @@ def eliminar_gestion_alisado(request, pk):
 #     
 #     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
->>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
