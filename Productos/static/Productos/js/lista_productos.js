@@ -202,4 +202,23 @@ function reactivarProducto(codigo, nombre) {
         });
 
     });
+    document.addEventListener("click", (e) => {
+  const img = e.target.closest(".js-img-zoom");
+  if (!img) return;
+
+  // si es un link/botón, evita navegación
+  e.preventDefault();
+
+  const src = img.getAttribute("data-src") || img.getAttribute("src");
+  const modalEl = document.getElementById("modalImagen");
+  const tag = document.getElementById("modalImagenTag");
+
+  if (!src || !modalEl || !tag) {
+    console.warn("Falta src o falta modal (#modalImagen / #modalImagenTag)");
+    return;
+  }
+
+  tag.src = src;
+  new bootstrap.Modal(modalEl).show();
+});
 }

@@ -1,6 +1,15 @@
-document.addEventListener("DOMContentLoaded", () => {
+// static/compras/js/compra.js
+(() => {
+  "use strict";
+
   // =========================
-  // HELPERS
+  // Helpers DOM
+  // =========================
+  const qs = (root, sel) => (root || document).querySelector(sel);
+  const qsa = (root, sel) => Array.from((root || document).querySelectorAll(sel));
+
+  // =========================
+  // CSRF
   // =========================
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -8,11 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (parts.length === 2) return parts.pop().split(";").shift();
     return "";
   }
-
   function csrfFromCookie() {
     return getCookie("csrftoken") || "";
   }
 
+  // =========================
+  // Fetch helper
+  // =========================
   async function fetchSmart(url, options = {}) {
     const res = await fetch(url, options);
     const contentType = (res.headers.get("content-type") || "").toLowerCase();
@@ -21,60 +32,64 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       return { type: "json", ok: res.ok, status: res.status, data, res };
     }
-
     const text = await res.text();
     return { type: "html", ok: res.ok, status: res.status, data: text, res };
   }
 
+  // =========================
+  // Numbers / COP
+  // =========================
   function toNumber(v) {
     if (v === null || v === undefined || v === "") return 0;
-    const s = String(v).replace(/\./g, "").replace(",", "."); // quita miles, soporta coma decimal
+    const s = String(v).replace(/\./g, "").replace(",", ".").trim();
     const n = parseFloat(s);
     return Number.isFinite(n) ? n : 0;
   }
 
- function formatCOPDigitsOnly(value) {
-  const digits = String(value || "").replace(/\D/g, "");
-  const n = parseInt(digits || "0", 10);
-  return n.toLocaleString("es-CO");
-}
+  function formatCOPNumber(value) {
+    const n = Math.round(Number(value) || 0);
+    return n.toLocaleString("es-CO");
+  }
 
-function attachCOPMask(input) {
-  if (!input || input.dataset.copMask === "1") return;
-  input.dataset.copMask = "1";
+  function unformatCOP(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
 
-  input.addEventListener("input", () => {
-    const start = input.selectionStart || 0;
-    const before = input.value;
+  function formatCOPDigitsOnly(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    const n = parseInt(digits || "0", 10);
+    return n.toLocaleString("es-CO");
+  }
 
-    input.value = formatCOPDigitsOnly(before);
+  function attachCOPMask(input) {
+    if (!input || input.dataset.copMask === "1") return;
+    input.dataset.copMask = "1";
 
-    // cursor al final (simple y estable)
-    input.setSelectionRange(input.value.length, input.value.length);
-  });
+    input.addEventListener("input", () => {
+      input.value = formatCOPDigitsOnly(input.value);
+      input.setSelectionRange(input.value.length, input.value.length);
+    });
 
-  input.addEventListener("focus", () => {
-    if (!input.value) input.value = "";
-  });
+    if (input.value) input.value = formatCOPDigitsOnly(input.value);
+  }
 
-  // formatea si viene con valor
-  if (input.value) input.value = formatCOPDigitsOnly(input.value);
-}
-
-  // Calcula total recorriendo tus .detalle-item (NO tbody)
+  // =========================
+  // Total
+  // =========================
   function calcularTotal(scope) {
     const root = scope || document;
-
-    const totalInput = root.querySelector("#id_precio_total");
+    const totalInput = qs(root, "#id_precio_total");
     if (!totalInput) return;
 
     let total = 0;
 
-    // recorre todos los items de productos
-    root.querySelectorAll(".detalle-item").forEach((item) => {
-      const cantidadInput = item.querySelector('input[name$="-cantidad"]');
-      const precioInput = item.querySelector('input[name$="-precio_unitario"]');
+    qsa(root, ".detalle-item").forEach((item) => {
+      const del = qs(item, 'input[name$="-DELETE"]');
+      if (del && del.checked) return;
+      if (item.classList.contains("d-none")) return;
 
+      const cantidadInput = qs(item, 'input[name$="-cantidad"]');
+      const precioInput = qs(item, 'input[name$="-precio_unitario"]');
       if (!cantidadInput || !precioInput) return;
 
       const cantidad = toNumber(cantidadInput.value);
@@ -83,34 +98,189 @@ function attachCOPMask(input) {
       if (cantidad > 0 && precio >= 0) total += cantidad * precio;
     });
 
-    // total en formato COP
     totalInput.value = formatCOPNumber(total);
   }
 
-  function isCreateMode(form) {
-    return (form?.action || "").toLowerCase().includes("/crear");
+  // =========================
+  // Formset renumerar
+  // =========================
+  function renumerarForms(container, prefix) {
+    const items = Array.from(container.querySelectorAll(".detalle-item"));
+    items.forEach((item, newIndex) => {
+      item.querySelectorAll("input, select, textarea, label").forEach((el) => {
+        if (el.name) {
+          el.name = el.name.replace(new RegExp(`^${prefix}-(\\d+)-`), `${prefix}-${newIndex}-`);
+        }
+        if (el.id) {
+          el.id = el.id.replace(new RegExp(`^id_${prefix}-(\\d+)-`), `id_${prefix}-${newIndex}-`);
+        }
+        const f = el.getAttribute?.("for");
+        if (f) {
+          el.setAttribute("for", f.replace(new RegExp(`^id_${prefix}-(\\d+)-`), `id_${prefix}-${newIndex}-`));
+        }
+      });
+    });
   }
 
   // =========================
-  // MODAL FORM (CREAR/EDITAR)
+  // Validaciones (ROJO / VERDE)
   // =========================
+  function hideGeneralErrors(form) {
+    const box = qs(form, "#compraErroresGenerales");
+    if (!box) return;
+    box.classList.add("d-none");
+    box.innerHTML = "";
+  }
+
+  function ensureFeedback(input) {
+    if (!input) return null;
+
+    // si está en input-group, el feedback debe ir después del input-group
+    const inputGroup = input.closest(".input-group");
+    const anchor = inputGroup || input;
+
+    let fb = anchor.parentElement?.querySelector(".invalid-feedback");
+    if (!fb) {
+      fb = document.createElement("div");
+      fb.className = "invalid-feedback";
+      anchor.insertAdjacentElement("afterend", fb);
+    }
+    return fb;
+  }
+
+  function markInvalid(input, msg) {
+    if (!input) return;
+    input.classList.add("is-invalid");
+    input.classList.remove("is-valid");
+
+    const fb = ensureFeedback(input);
+    if (fb) fb.textContent = msg || "Campo inválido";
+  }
+
+  function markValid(input) {
+    if (!input) return;
+
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
+
+    const fb = ensureFeedback(input);
+    if (fb) fb.textContent = "";
+  }
+
+  function clearState(input) {
+    if (!input) return;
+    input.classList.remove("is-invalid", "is-valid");
+
+    const fb = ensureFeedback(input);
+    if (fb) fb.textContent = "";
+  }
+
+  function validateCompraForm(scope) {
+    const root = scope || document;
+    const form = root?.tagName === "FORM" ? root : qs(root, "#formCompra") || qs(document, "#formCompra");
+    if (!form) return true;
+
+    hideGeneralErrors(form);
+
+    const btnGuardar = qs(form, "#btnGuardarCompra");
+    const errores = [];
+
+    // items activos
+    const items = Array.from(form.querySelectorAll(".detalle-item"));
+    const itemsActivos = items.filter((item) => {
+      if (item.classList.contains("d-none")) return false;
+      const del = item.querySelector('input[name$="-DELETE"]');
+      if (del && del.checked) return false;
+      return true;
+    });
+
+    // ✅ regla: debe haber 1 producto mínimo
+    if (itemsActivos.length === 0) {
+      errores.push("Debes agregar al menos un producto.");
+    }
+
+    // proveedor
+    const proveedor = qs(form, "#id_proveedor");
+    if (proveedor) {
+      if (!proveedor.value) {
+        errores.push("Selecciona un proveedor.");
+        markInvalid(proveedor, "Proveedor obligatorio");
+      } else {
+        markValid(proveedor);
+      }
+    }
+
+    // validar filas
+    const usados = new Map();
+
+    itemsActivos.forEach((item, idx) => {
+      const productoSel = qs(item, 'select[name$="-producto"]');
+      const cantidadInp = qs(item, 'input[name$="-cantidad"]');
+      const precioInp = qs(item, 'input[name$="-precio_unitario"]');
+
+      if (productoSel) {
+        if (!productoSel.value) {
+          errores.push(`Producto requerido en la fila ${idx + 1}.`);
+          markInvalid(productoSel, "Selecciona un producto");
+        } else {
+          markValid(productoSel);
+          usados.set(productoSel.value, (usados.get(productoSel.value) || 0) + 1);
+        }
+      }
+
+      if (cantidadInp) {
+        const c = toNumber(cantidadInp.value);
+        if (c <= 0) {
+          errores.push(`La cantidad debe ser mayor que 0 (fila ${idx + 1}).`);
+          markInvalid(cantidadInp, "Mayor que 0");
+        } else {
+          markValid(cantidadInp);
+        }
+      }
+
+      if (precioInp) {
+        const p = toNumber(precioInp.value);
+        if (p <= 0) {
+          errores.push(`El precio unitario debe ser mayor que 0 (fila ${idx + 1}).`);
+          markInvalid(precioInp, "Mayor que 0");
+        } else {
+          markValid(precioInp);
+        }
+      }
+    });
+
+    // duplicados
+    for (const [prodId, count] of usados.entries()) {
+      if (count > 1) {
+        errores.push("No puedes repetir el mismo producto en la compra.");
+        qsa(form, 'select[name$="-producto"]').forEach((sel) => {
+          if (sel.value === prodId) markInvalid(sel, "Producto duplicado");
+        });
+        break;
+      }
+    }
+
+    const ok = errores.length === 0;
+    if (btnGuardar) btnGuardar.disabled = !ok;
+    return ok;
+  }
+
+  // =========================
+  // Modales
+  // =========================
+  let formModal = null;
   const formModalEl = document.getElementById("ajaxFormModal");
   const formModalTitleEl = document.getElementById("ajaxFormModalTitle");
   const formModalBodyEl = document.getElementById("ajaxFormModalBody");
-  const formModal = formModalEl ? new bootstrap.Modal(formModalEl) : null;
+  if (formModalEl) formModal = new bootstrap.Modal(formModalEl);
 
-  // =========================
-  // MODAL DETALLE
-  // =========================
+  let detalleModal = null;
   const detalleModalEl = document.getElementById("modalDetalleCompra");
   const detalleBodyEl = document.getElementById("detalleCompraBody");
-  const detalleModal = detalleModalEl ? new bootstrap.Modal(detalleModalEl) : null;
+  if (detalleModalEl) detalleModal = new bootstrap.Modal(detalleModalEl);
 
   async function openFormModal(url, title) {
-    if (!formModal || !formModalTitleEl || !formModalBodyEl) {
-      console.error("Falta el modal #ajaxFormModal (o sus ids).");
-      return;
-    }
+    if (!formModal || !formModalTitleEl || !formModalBodyEl) return;
 
     formModalTitleEl.textContent = title || "Formulario";
     formModalBodyEl.innerHTML = `
@@ -118,7 +288,6 @@ function attachCOPMask(input) {
         <div class="spinner-border" role="status" aria-hidden="true"></div>
       </div>
     `;
-
     formModal.show();
 
     const result = await fetchSmart(url, {
@@ -127,48 +296,34 @@ function attachCOPMask(input) {
       headers: { "X-Requested-With": "XMLHttpRequest" },
     });
 
-    if (result.type === "json") {
-      formModalTitleEl.textContent = result.data.title || title || "Formulario";
-      formModalBodyEl.innerHTML =
-        result.data.html || `<div class="alert alert-danger">No se pudo cargar.</div>`;
-    } else {
-      formModalBodyEl.innerHTML = result.data;
-    }
+    formModalBodyEl.innerHTML =
+      result.type === "json"
+        ? result.data.html || `<div class="alert alert-danger">No se pudo cargar.</div>`
+        : result.data;
 
-    // aplicar máscara COP a precios dentro del modal
-    formModalEl.querySelectorAll('input[name$="-precio_unitario"]').forEach(attachCOPMask);
+    qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
     calcularTotal(formModalEl);
+    validateCompraForm(formModalEl);
   }
 
   // =========================
-  // CLICK GLOBAL (UNA SOLA VEZ)
+  // Click global
   // =========================
   document.body.addEventListener("click", async (e) => {
-    // CREAR/EDITAR
     const trigger = e.target.closest("[data-modal-url]");
     if (trigger) {
       e.preventDefault();
-      const url = trigger.getAttribute("data-modal-url");
-      const title = trigger.getAttribute("data-modal-title") || "Formulario";
-      await openFormModal(url, title);
+      await openFormModal(trigger.getAttribute("data-modal-url"), trigger.getAttribute("data-modal-title") || "Formulario");
       return;
     }
 
-    // VER DETALLE
     const btnDetalle = e.target.closest(".js-ver-detalle");
     if (btnDetalle) {
       e.preventDefault();
-
-      if (!detalleModal || !detalleBodyEl) {
-        console.error("Falta modal detalle (#modalDetalleCompra o #detalleCompraBody).");
-        return;
-      }
+      if (!detalleModal || !detalleBodyEl) return;
 
       const url = btnDetalle.getAttribute("data-url");
-      if (!url) {
-        console.error("El botón detalle no tiene data-url");
-        return;
-      }
+      if (!url) return;
 
       detalleBodyEl.innerHTML = `<div class="text-muted">Cargando...</div>`;
       detalleModal.show();
@@ -179,116 +334,15 @@ function attachCOPMask(input) {
           credentials: "same-origin",
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
-
         const data = await res.json();
-        if (data.success && data.html) {
-          detalleBodyEl.innerHTML = data.html;
-        } else {
-          detalleBodyEl.innerHTML = `<div class="alert alert-danger">No se pudo cargar el detalle.</div>`;
-        }
+        detalleBodyEl.innerHTML = data.success && data.html ? data.html : `<div class="alert alert-danger">No se pudo cargar el detalle.</div>`;
       } catch (err) {
+        console.error(err);
         detalleBodyEl.innerHTML = `<div class="alert alert-danger">Error cargando detalle.</div>`;
-        console.error(err);
       }
       return;
     }
 
-    // ANULAR COMPRA
-    const btnAnular = e.target.closest(".js-anular-compra");
-    if (btnAnular) {
-      e.preventDefault();
-
-      const url = btnAnular.dataset.url;
-      if (!url) return;
-
-      const confirm = await Swal.fire({
-        title: "Anular compra",
-        text: "Esto revertirá el stock ingresado por esta compra. ¿Deseas continuar?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, anular",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#ffc107",
-        cancelButtonColor: "#6c757d",
-      });
-
-      if (!confirm.isConfirmed) return;
-
-      const csrf = csrfFromCookie();
-      if (!csrf || csrf.length < 20) {
-        await Swal.fire({
-          title: "CSRF no encontrado",
-          text: "Recarga la página e inicia sesión de nuevo.",
-          icon: "error",
-          confirmButtonColor: "#dc3545",
-        });
-        return;
-      }
-
-      try {
-        btnAnular.disabled = true;
-
-        const res = await fetch(url, {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "X-CSRFToken": csrf,
-            "X-Requested-With": "XMLHttpRequest",
-          },
-        });
-
-        const contentType = (res.headers.get("content-type") || "").toLowerCase();
-        if (!contentType.includes("application/json")) {
-          const txt = await res.text();
-          console.error("Respuesta no JSON:", res.status, txt);
-          throw new Error(`Respuesta no JSON (status ${res.status})`);
-        }
-
-        const data = await res.json();
-
-        if (data.status === "ok") {
-          await Swal.fire({
-            title: "Anulada",
-            text: data.message || "Compra anulada y stock revertido.",
-            icon: "success",
-            timer: 1600,
-            showConfirmButton: false,
-          });
-          location.reload();
-          return;
-        }
-
-        if (data.status === "already") {
-          await Swal.fire({
-            title: "Ya anulada",
-            text: data.message || "Esta compra ya estaba anulada.",
-            icon: "info",
-            confirmButtonColor: "#0d6efd",
-          });
-          return;
-        }
-
-        await Swal.fire({
-          title: "No se pudo anular",
-          text: data.message || "Ocurrió un error.",
-          icon: "error",
-          confirmButtonColor: "#dc3545",
-        });
-      } catch (err) {
-        console.error(err);
-        await Swal.fire({
-          title: "Error",
-          text: "No fue posible procesar la solicitud.",
-          icon: "error",
-          confirmButtonColor: "#dc3545",
-        });
-      } finally {
-        btnAnular.disabled = false;
-      }
-      return;
-    }
-
-    // AGREGAR PRODUCTO (FORMSET)
     const btnAdd = e.target.closest("#btnAgregarProducto");
     if (btnAdd) {
       e.preventDefault();
@@ -296,14 +350,10 @@ function attachCOPMask(input) {
       const form = btnAdd.closest("form");
       if (!form) return;
 
-      const container = form.querySelector("#productosContainer");
-      const template = form.querySelector("#emptyFormTemplate");
-      const totalForms = form.querySelector('input[name$="-TOTAL_FORMS"]');
-
-      if (!container || !template || !totalForms) {
-        console.error("Faltan #productosContainer, #emptyFormTemplate o TOTAL_FORMS.");
-        return;
-      }
+      const container = qs(form, "#productosContainer");
+      const template = qs(form, "#emptyFormTemplate");
+      const totalForms = qs(form, 'input[name$="-TOTAL_FORMS"]');
+      if (!container || !template || !totalForms) return;
 
       const index = parseInt(totalForms.value || "0", 10);
       const html = template.innerHTML.replace(/__prefix__/g, index);
@@ -311,50 +361,104 @@ function attachCOPMask(input) {
       container.insertAdjacentHTML("beforeend", html);
       totalForms.value = index + 1;
 
-      // aplicar mask al nuevo input precio
       const newItem = container.lastElementChild;
-      const newPrecio = newItem?.querySelector('input[name$="-precio_unitario"]');
+      const newPrecio = qs(newItem, 'input[name$="-precio_unitario"]');
       attachCOPMask(newPrecio);
 
       calcularTotal(form);
+      validateCompraForm(form);
       return;
+    }
+
+    const btnX = e.target.closest(".btn-eliminar-item");
+    if (btnX) {
+      e.preventDefault();
+
+      const item = btnX.closest(".detalle-item");
+      const form = btnX.closest("form");
+      if (!item || !form) return;
+
+      const container = qs(form, "#productosContainer");
+      const totalForms = qs(form, 'input[name$="-TOTAL_FORMS"]');
+      if (!container || !totalForms) return;
+
+      const anyField = qs(item, "[name]");
+      const m = anyField?.name?.match(/^([A-Za-z0-9_]+)-\d+-/);
+      const prefix = m ? m[1] : null;
+
+      const deleteInput = qs(item, 'input[name$="-DELETE"]');
+      if (deleteInput) {
+        deleteInput.checked = true;
+        item.classList.add("d-none");
+      } else {
+        item.remove();
+        totalForms.value = container.querySelectorAll(".detalle-item").length;
+        if (prefix) renumerarForms(container, prefix);
+      }
+
+      calcularTotal(form);
+      validateCompraForm(form);
     }
   });
 
   // =========================
-  // SUBMIT AJAX DEL FORM (CREAR/EDITAR)
+  // Tiempo real
+  // =========================
+  document.addEventListener("input", (e) => {
+    if (
+      e.target.matches("#id_proveedor") ||
+      e.target.matches('input[name$="-cantidad"]') ||
+      e.target.matches('input[name$="-precio_unitario"]')
+    ) {
+      const form = e.target.closest("form") || document;
+      calcularTotal(form);
+      validateCompraForm(form);
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    if (e.target.matches('select[name$="-producto"]') || e.target.matches("#id_proveedor")) {
+      const form = e.target.closest("form") || document;
+      calcularTotal(form);
+      validateCompraForm(form);
+    }
+
+    if (e.target.matches('input[name$="-precio_unitario"]')) {
+      attachCOPMask(e.target);
+      const form = e.target.closest("form") || document;
+      calcularTotal(form);
+      validateCompraForm(form);
+    }
+  });
+
+  document.addEventListener("shown.bs.modal", (e) => {
+    qsa(e.target, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
+    calcularTotal(e.target);
+    validateCompraForm(e.target);
+  });
+
+  // =========================
+  // Submit AJAX modal
   // =========================
   document.body.addEventListener("submit", async (e) => {
     const form = e.target.closest("#ajaxFormModal form");
     if (!form) return;
 
     e.preventDefault();
+    if (!validateCompraForm(form)) return;
 
-    //  IMPORTANTE: antes de enviar, limpiar puntos de miles
-    form.querySelectorAll('input[name$="-precio_unitario"]').forEach((inp) => {
+    qsa(form, 'input[name$="-precio_unitario"]').forEach((inp) => {
       inp.value = unformatCOP(inp.value);
     });
-    // total readonly también
-    const totalInp = form.querySelector("#id_precio_total");
+    const totalInp = qs(form, "#id_precio_total");
     if (totalInp) totalInp.value = unformatCOP(totalInp.value);
 
-    const url = form.action;
-    const formData = new FormData(form);
-
     const csrf = csrfFromCookie();
-    if (!csrf || csrf.length < 20) {
-      await Swal.fire({
-        title: "CSRF no encontrado",
-        text: "Recarga la página e inicia sesión de nuevo.",
-        icon: "error",
-        confirmButtonColor: "#dc3545",
-      });
-      return;
-    }
+    if (!csrf) return;
 
-    const result = await fetchSmart(url, {
+    const result = await fetchSmart(form.action, {
       method: "POST",
-      body: formData,
+      body: new FormData(form),
       credentials: "same-origin",
       headers: {
         "X-Requested-With": "XMLHttpRequest",
@@ -365,63 +469,34 @@ function attachCOPMask(input) {
     if (result.type === "json") {
       if (result.data.success) {
         formModal?.hide();
-
-        const msg =
-          result.data.message ||
-          (isCreateMode(form)
-            ? "Compra registrada correctamente."
-            : "Se editó correctamente.");
-
         await Swal.fire({
           title: "Éxito",
-          text: msg,
+          text: result.data.message || "Compra guardada correctamente.",
           icon: "success",
-          timer: 1500,
+          timer: 1400,
           showConfirmButton: false,
         });
-
         location.reload();
         return;
       }
 
-      formModalTitleEl.textContent = result.data.title || formModalTitleEl.textContent;
-      formModalBodyEl.innerHTML =
-        result.data.html || `<div class="alert alert-danger mb-0">No se pudo guardar.</div>`;
-
-      // re-aplicar mask porque el backend devolvió el form con errores
-      formModalEl.querySelectorAll('input[name$="-precio_unitario"]').forEach(attachCOPMask);
+      formModalBodyEl.innerHTML = result.data.html || `<div class="alert alert-danger">No se pudo guardar.</div>`;
+      qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
       calcularTotal(formModalEl);
+      validateCompraForm(formModalEl);
       return;
     }
 
     formModalBodyEl.innerHTML = result.data;
-    await Swal.fire({
-      title: "No se pudo guardar",
-      text: "Revisa el formulario.",
-      icon: "error",
-      confirmButtonColor: "#dc3545",
-    });
+    qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
+    calcularTotal(formModalEl);
+    validateCompraForm(formModalEl);
   });
 
-  // =========================
-  // RECALCULAR TOTAL 
-  // =========================
-  document.addEventListener("input", (e) => {
-    if (
-      e.target.matches('input[name$="-cantidad"]') ||
-      e.target.matches('input[name$="-precio_unitario"]')
-    ) {
-      const scope = e.target.closest("form") || document;
-      calcularTotal(scope);
-    }
+  // init página
+  document.addEventListener("DOMContentLoaded", () => {
+    qsa(document, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
+    calcularTotal(document);
+    validateCompraForm(document);
   });
-
-  document.addEventListener("shown.bs.modal", (e) => {
-    const modal = e.target;
-    modal.querySelectorAll('input[name$="-precio_unitario"]').forEach(attachCOPMask);
-    calcularTotal(modal);
-  });
-
-  document.querySelectorAll('input[name$="-precio_unitario"]').forEach(attachCOPMask);
-  calcularTotal(document);
-});
+})();
