@@ -6,36 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const eye = document.getElementById("togglePassword");
 
   if (password && eye) {
-    console.log("Toggle password encontrado"); // Para debug
-    
-    // PC - Mostrar/ocultar contraseña
-    eye.addEventListener("mousedown", () => {
-      password.type = "text";
-      eye.classList.replace("bi-eye", "bi-eye-slash");
-    });
-
-    eye.addEventListener("mouseup", () => {
-      password.type = "password";
-      eye.classList.replace("bi-eye-slash", "bi-eye");
-    });
-
-    eye.addEventListener("mouseleave", () => {
-      password.type = "password";
-      eye.classList.replace("bi-eye-slash", "bi-eye");
-    });
-
-    // MÓVIL - Mostrar/ocultar contraseña
-    eye.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      password.type = "text";
-      eye.classList.replace("bi-eye", "bi-eye-slash");
-    });
-
-    eye.addEventListener("touchend", (e) => {
-      e.preventDefault();
-      password.type = "password";
-      eye.classList.replace("bi-eye-slash", "bi-eye");
-    });
+    eye.addEventListener("mousedown", () => { password.type = "text"; });
+    eye.addEventListener("mouseup",   () => { password.type = "password"; });
+    eye.addEventListener("mouseleave",() => { password.type = "password"; });
+    eye.addEventListener("touchstart",(e) => { e.preventDefault(); password.type = "text"; });
+    eye.addEventListener("touchend",  (e) => { e.preventDefault(); password.type = "password"; });
   }
 
   // ==================== ANIMACIÓN DE BOLAS ====================

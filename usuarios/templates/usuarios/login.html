@@ -65,7 +65,7 @@
           <div class="input-icon-wrapper password-wrapper">
             <i class="bi bi-lock"></i>
             <input type="password" id="password" name="password" placeholder="Contraseña" required>
-            <i id="togglePassword" class="bi bi-eye toggle-eye"></i>
+            <span id="togglePassword" class="toggle-eye">&#128064;</span>
           </div>
 
           <button type="submit" class="btn-login">
@@ -74,8 +74,8 @@
         </form>
 
         <div class="recovery-links">
-          <a href="{% url 'usuarios:recuperar' %}">
-            <i class="bi bi-key me-1"></i>¿Olvidaste la contraseña?
+          <a href="{% url 'usuarios:recuperar' %}" class="btn-recovery-link">
+            <i class="bi bi-key-fill me-2"></i>¿Olvidaste la contraseña?
           </a>
         </div>
       </div>
@@ -94,10 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const passInput = document.getElementById('password');
   if (toggle && passInput) {
     toggle.addEventListener('click', () => {
-      const isPass = passInput.type === 'password';
-      passInput.type = isPass ? 'text' : 'password';
-      toggle.classList.toggle('bi-eye');
-      toggle.classList.toggle('bi-eye-slash');
+      passInput.type = passInput.type === 'password' ? 'text' : 'password';
     });
   }
 

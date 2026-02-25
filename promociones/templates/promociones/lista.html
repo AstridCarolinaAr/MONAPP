@@ -67,30 +67,26 @@
     transform: translateX(22px);
 }
 
-/* Botón flotante */
+/* Botón nueva promoción */
 .promo-fab {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
     border-radius: 50px;
-    background: #1a1a1a;
+    background: #212529;
     color: #fff;
     border: none;
-    font-size: .9rem;
+    font-size: .82rem;
     font-weight: 600;
-    padding: .65rem 1.4rem;
-    box-shadow: 0 6px 20px rgba(0,0,0,.3);
-    display: flex;
+    padding: .35rem .7rem;
+    display: inline-flex;
     align-items: center;
-    gap: .4rem;
-    z-index: 1050;
-    transition: transform .2s, box-shadow .2s, background .2s;
+    gap: .35rem;
+    transition: background .2s, transform .2s, box-shadow .2s;
+    white-space: nowrap;
 }
 .promo-fab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(0,0,0,.4);
     background: #3a2a24;
     color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
 }
 
 /* Acciones de fila */
@@ -255,7 +251,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .promo-fab { bottom: 20px; right: 20px; }
     .promo-thumb, .promo-thumb-placeholder { width: 42px; height: 42px; }
     .promo-thumb-placeholder i { font-size: 1.1rem; }
 }
@@ -363,6 +358,9 @@
             <h3 class="mb-0 fw-semibold"><i class="bi bi-percent me-2"></i>Gestión de Promociones</h3>
             <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
         </div>
+        <button class="promo-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+            <i class="bi bi-plus-lg me-1"></i> Nueva promoción
+        </button>
     </div>
 
     <!-- ───── FILTROS ───── -->
@@ -508,10 +506,7 @@
 
 </div>
 
-<!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
-<button class="promo-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar" title="Agregar promoción">
-    <i class="bi bi-plus-lg"></i> Nueva promoción
-</button>
+
 
 <!-- ═══════════════ MODAL AGREGAR ═══════════════ -->
 <div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">

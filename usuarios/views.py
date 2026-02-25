@@ -45,7 +45,7 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    messages.info(request, 'Has cerrado sesión exitosamente.')
+    messages.success(request, 'Has cerrado sesión exitosamente.')
     return redirect('core:index')
 
 
