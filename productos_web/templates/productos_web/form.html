@@ -3,6 +3,11 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'productos_web:lista' %}">Catálogo Web</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
 {% block page_title %}
     <i class="bi bi-globe2"></i> {{ titulo }}
 {% endblock %}

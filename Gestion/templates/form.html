@@ -1,5 +1,9 @@
 {% extends 'gestion/base.html' %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-8 col-lg-7">

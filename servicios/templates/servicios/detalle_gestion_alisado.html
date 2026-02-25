@@ -4,6 +4,11 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'servicios:lista_gestion_alisados' %}">Gestión de Datos</a></li>
+<li class="breadcrumb-item active" aria-current="page">Detalle</li>
+{% endblock %}
+
 {% block page_title %}
     <i class="bi bi-file-earmark-text"></i> Gestion de datos
 {% endblock %}

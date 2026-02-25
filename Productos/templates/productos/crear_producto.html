@@ -1,4 +1,10 @@
 {% extends "core/panel_admin_base.html" %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'productos:lista_productos' %}">Productos</a></li>
+<li class="breadcrumb-item active" aria-current="page">Crear producto</li>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
   <h3 class="mb-3">Nuevo producto</h3>

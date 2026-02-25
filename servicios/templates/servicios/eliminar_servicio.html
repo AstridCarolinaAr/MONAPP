@@ -3,6 +3,11 @@
 
 {% block title %}Eliminar Servicio{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'servicios:lista_servicios' %}">Servicios</a></li>
+<li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+{% endblock %}
+
 {% block page_title %}
     <i class="bi bi-trash"></i> Eliminar Servicio
 {% endblock %}

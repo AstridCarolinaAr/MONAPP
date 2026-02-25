@@ -201,6 +201,16 @@
         
         <div class="page-card">
 
+            <!-- Breadcrumb -->
+            {% block breadcrumb %}
+            <nav aria-label="breadcrumb" class="mb-3">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+                {% block breadcrumb_items %}{% endblock %}
+              </ol>
+            </nav>
+            {% endblock %}
+
             <div class="page-header">
                 <div class="page-left">
                     <div class="page-title-row">

@@ -2,6 +2,11 @@
 
 {% block title %}Detalle de venta{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'ventas:lista' %}">Ventas</a></li>
+<li class="breadcrumb-item active" aria-current="page">Detalle</li>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
