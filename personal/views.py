@@ -229,3 +229,83 @@ def toggle_activo_personal(request, pk):
         })
     
     return JsonResponse({'success': False, 'mensaje': 'Método no permitido.'}, status=405)
+
+
+# ==================== VALIDACIONES EN TIEMPO REAL ====================
+
+def validar_documento_personal(request):
+    """
+    Endpoint para validar documento de personal en tiempo real
+    """
+    numero = (request.GET.get('numero') or '').strip()
+    personal_id = request.GET.get('personal_id')
+
+    # Validar número
+    if not numero.isdigit():
+        return JsonResponse({'valido': False, 'mensaje': 'Solo números'})
+
+    if not (6 <= len(numero) <= 12):
+        return JsonResponse({'valido': False, 'mensaje': 'Debe tener entre 6 y 12 dígitos'})
+
+    # Normalizar personal_id
+    if not personal_id or personal_id in ('undefined', 'null', ''):
+        personal_id = None
+    else:
+        try:
+            personal_id = int(personal_id)
+        except ValueError:
+            personal_id = None
+
+    qs = Personal.objects.filter(numero_documento=numero)
+
+    # Si es edición, excluye el mismo personal
+    if personal_id is not None:
+        qs = qs.exclude(id=personal_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Ya existe otro personal con este documento.'
+        })
+
+    return JsonResponse({'valido': True})
+
+
+def validar_email_personal(request):
+    """
+    Endpoint para validar email de personal en tiempo real
+    """
+    email = (request.GET.get('email') or '').strip()
+    personal_id = request.GET.get('personal_id')
+
+    # Validar formato de email
+    from django.core.validators import validate_email
+    from django.core.exceptions import ValidationError
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({'valido': False, 'mensaje': 'Correo electrónico inválido'})
+
+    # Normalizar personal_id
+    if not personal_id or personal_id in ('undefined', 'null', ''):
+        personal_id = None
+    else:
+        try:
+            personal_id = int(personal_id)
+        except ValueError:
+            personal_id = None
+
+    qs = Personal.objects.filter(correo=email)
+
+    # Si es edición, excluye el mismo personal
+    if personal_id is not None:
+        qs = qs.exclude(id=personal_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Ya existe otro personal con este email.'
+        })
+
+    return JsonResponse({'valido': True})

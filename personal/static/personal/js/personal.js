@@ -1,8 +1,8 @@
 // Función para inicializar las validaciones en tiempo real
-function inicializarValidacionesUsuario() {
+function inicializarValidacionesPersonal() {
 
-    const form = document.getElementById('form-crear-usuario');
-    const btnGuardar = document.getElementById('btnGuardarUsuario');
+    const form = document.getElementById('form-crear-personal') || document.getElementById('form-editar-personal');
+    const btnGuardar = document.getElementById('btnGuardarPersonal');
 
     if (!form || !btnGuardar) return;
 
@@ -10,8 +10,8 @@ function inicializarValidacionesUsuario() {
        INICIO: BOTÓN DESHABILITADO
     =============================== */
     btnGuardar.disabled = true;
-    btnGuardar.classList.remove('btn-dark');
-    btnGuardar.classList.add('btn-secondary');
+    btnGuardar.classList.remove('personal-btn-dark');
+    btnGuardar.classList.add('personal-btn-secondary');
 
     /* ===============================
        FUNCIONES VISUALES
@@ -21,14 +21,26 @@ function inicializarValidacionesUsuario() {
         input.classList.remove('is-valid');
         let feedback = input.nextElementSibling;
         
-        // Si el siguiente elemento no es un feedback, buscar o crear uno
+        // Si el siguiente elemento no es un feedback o es un small, buscar o crear uno
         if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-            // Buscar si ya existe un invalid-feedback después
-            feedback = input.parentElement.querySelector('.invalid-feedback');
-            if (!feedback) {
-                feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                input.parentElement.appendChild(feedback);
+            // Saltar el elemento small si existe
+            if (feedback && feedback.tagName === 'SMALL') {
+                feedback = feedback.nextElementSibling;
+            }
+            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                feedback = input.parentElement.querySelector('.invalid-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.style.cssText = 'color: #c7412b; font-size: 0.85rem; margin-top: 6px; display: block;';
+                    // Insertar después del small si existe
+                    const small = input.parentElement.querySelector('small');
+                    if (small) {
+                        small.parentNode.insertBefore(feedback, small.nextSibling);
+                    } else {
+                        input.parentElement.appendChild(feedback);
+                    }
+                }
             }
         }
         
@@ -61,20 +73,16 @@ function inicializarValidacionesUsuario() {
     function actualizarEstadoBoton() {
 
         const obligatorios = [
-            'tipo_documento',
-            'documento',
-            'email',
-            'first_name',
-            'last_name',
-            'password1',
-            'password2',
+            'numero_documento',
+            'nombres',
+            'apellidos',
             'rol'
         ];
 
         let habilitar = true;
 
         obligatorios.forEach(id => {
-            const campo = document.getElementById(id);
+            const campo = document.getElementById('id_' + id);
             if (!campo) {
                 habilitar = false;
                 return;
@@ -90,11 +98,11 @@ function inicializarValidacionesUsuario() {
         btnGuardar.disabled = !habilitar;
 
         if (btnGuardar.disabled) {
-            btnGuardar.classList.remove('btn-dark');
-            btnGuardar.classList.add('btn-secondary');
+            btnGuardar.classList.remove('personal-btn-dark');
+            btnGuardar.classList.add('personal-btn-secondary');
         } else {
-            btnGuardar.classList.remove('btn-secondary');
-            btnGuardar.classList.add('btn-dark');
+            btnGuardar.classList.remove('personal-btn-secondary');
+            btnGuardar.classList.add('personal-btn-dark');
         }
     }
 
@@ -119,21 +127,21 @@ function inicializarValidacionesUsuario() {
                 return;
             }
 
-            const userIdEl = document.getElementById('user_id');
-            const userId = userIdEl ? userIdEl.value : '';
+            if (valor.length < 6 || valor.length > 12) {
+                invalido(input, 'Debe tener entre 6 y 12 dígitos.');
+                actualizarEstadoBoton();
+                return;
+            }
 
-            let url = `/auth/validar-documento/?numero=${encodeURIComponent(valor)}`;
-            if (userId) {
-                url += `&user_id=${encodeURIComponent(userId)}`;
+            const personalId = form.dataset.personalId || '';
+
+            let url = `/personal/validar-documento/?numero=${encodeURIComponent(valor)}`;
+            if (personalId) {
+                url += `&personal_id=${encodeURIComponent(personalId)}`;
             }
 
             try {
                 const res = await fetch(url, { signal: docAbort.signal });
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                
                 const data = await res.json();
 
                 if (!data.valido) invalido(input, data.mensaje);
@@ -141,9 +149,7 @@ function inicializarValidacionesUsuario() {
 
             } catch (e) {
                 if (e.name !== 'AbortError') {
-                    console.error('Error en validación de documento:', e);
-                    // Si hay un error de red, simplemente marcamos como válido para no bloquear
-                    valido(input);
+                    invalido(input, 'Error validando documento.');
                 }
             }
 
@@ -167,28 +173,23 @@ function inicializarValidacionesUsuario() {
 
         emailTimer = setTimeout(async () => {
 
-            // Validación básica: debe contener @ y un punto después del @
-            if (!valor.includes('@') || !valor.split('@')[1]?.includes('.')) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(valor)) {
                 invalido(input, 'Correo electrónico inválido.');
                 actualizarEstadoBoton();
                 return;
             }
 
-            const userIdEl = document.getElementById('user_id');
-            const userId = userIdEl ? userIdEl.value : '';
+            const personalId = form.dataset.personalId || '';
 
-            let url = `/auth/validar-email/?email=${encodeURIComponent(valor)}`;
-            if (userId) {
-                url += `&user_id=${encodeURIComponent(userId)}`;
+            let url = `/personal/validar-email/?email=${encodeURIComponent(valor)}`;
+            if (personalId) {
+                url += `&personal_id=${encodeURIComponent(personalId)}`;
             }
 
             try {
                 const res = await fetch(url, { signal: emailAbort.signal });
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                
                 const data = await res.json();
 
                 if (!data.valido) invalido(input, data.mensaje);
@@ -196,66 +197,13 @@ function inicializarValidacionesUsuario() {
 
             } catch (e) {
                 if (e.name !== 'AbortError') {
-                    console.error('Error en validación de email:', e);
-                    // Si hay un error de red, simplemente marcamos como válido para no bloquear
-                    valido(input);
+                    invalido(input, 'Error validando email.');
                 }
             }
 
             actualizarEstadoBoton();
 
         }, 300);
-    }
-
-    /* ===============================
-       VALIDACIÓN CONTRASEÑAS
-    =============================== */
-    function validarPassword(input) {
-        const valor = input.value;
-
-        if (!valor) {
-            invalido(input, 'La contraseña es obligatoria.');
-            return false;
-        }
-
-        if (valor.length < 8) {
-            invalido(input, 'Mínimo 8 caracteres.');
-            return false;
-        }
-
-        if (!/[A-Z]/.test(valor)) {
-            invalido(input, 'Debe contener al menos una mayúscula.');
-            return false;
-        }
-
-        if (!/[a-z]/.test(valor)) {
-            invalido(input, 'Debe contener al menos una minúscula.');
-            return false;
-        }
-
-        if (!/[0-9]/.test(valor)) {
-            invalido(input, 'Debe contener al menos un número.');
-            return false;
-        }
-
-        valido(input);
-        return true;
-    }
-
-    function validarPasswordConfirmacion() {
-        const password1 = document.getElementById('password1');
-        const password2 = document.getElementById('password2');
-
-        if (!password2.value) {
-            limpiar(password2);
-            return;
-        }
-
-        if (password1.value !== password2.value) {
-            invalido(password2, 'Las contraseñas no coinciden.');
-        } else {
-            valido(password2);
-        }
     }
 
     /* ===============================
@@ -267,7 +215,7 @@ function inicializarValidacionesUsuario() {
         const valor = (input.value || '').trim();
 
         /* DOCUMENTO */
-        if (input.id === 'documento') {
+        if (input.id === 'id_numero_documento') {
             if (!valor) {
                 limpiar(input);
                 actualizarEstadoBoton();
@@ -277,10 +225,34 @@ function inicializarValidacionesUsuario() {
             return;
         }
 
-        /* EMAIL */
-        if (input.id === 'email') {
+        /* NOMBRES */
+        if (input.id === 'id_nombres') {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!valor) invalido(input, 'Los nombres son obligatorios.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras.');
+            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
+            else valido(input);
+
+            actualizarEstadoBoton();
+        }
+
+        /* APELLIDOS */
+        if (input.id === 'id_apellidos') {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!valor) invalido(input, 'Los apellidos son obligatorios.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras.');
+            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
+            else valido(input);
+
+            actualizarEstadoBoton();
+        }
+
+        /* CORREO */
+        if (input.id === 'id_correo') {
             if (!valor) {
-                invalido(input, 'El correo electrónico es obligatorio.');
+                limpiar(input);
                 actualizarEstadoBoton();
                 return;
             }
@@ -288,32 +260,8 @@ function inicializarValidacionesUsuario() {
             return;
         }
 
-        /* NOMBRE */
-        if (input.id === 'first_name') {
-            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-            if (!valor) invalido(input, 'El nombre es obligatorio.');
-            else if (!regex.test(valor)) invalido(input, 'Solo letras.');
-            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
-            else valido(input);
-
-            actualizarEstadoBoton();
-        }
-
-        /* APELLIDO */
-        if (input.id === 'last_name') {
-            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-            if (!valor) invalido(input, 'El apellido es obligatorio.');
-            else if (!regex.test(valor)) invalido(input, 'Solo letras.');
-            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
-            else valido(input);
-
-            actualizarEstadoBoton();
-        }
-
         /* TELÉFONO */
-        if (input.id === 'telefono') {
+        if (input.id === 'id_telefono') {
 
             if (!valor) {
                 limpiar(input);
@@ -327,37 +275,10 @@ function inicializarValidacionesUsuario() {
 
             actualizarEstadoBoton();
         }
-
-        /* CONTRASEÑA 1 */
-        if (input.id === 'password1') {
-            validarPassword(input);
-            // También revalidar password2 si ya tiene valor
-            const password2 = document.getElementById('password2');
-            if (password2 && password2.value) {
-                validarPasswordConfirmacion();
-            }
-            actualizarEstadoBoton();
-        }
-
-        /* CONTRASEÑA 2 */
-        if (input.id === 'password2') {
-            validarPasswordConfirmacion();
-            actualizarEstadoBoton();
-        }
     });
 
-    /* SELECT tipo documento */
-    const tipoDoc = document.getElementById('tipo_documento');
-    if (tipoDoc) {
-        tipoDoc.addEventListener('change', function () {
-            if (!this.value.trim()) limpiar(this);
-            else valido(this);
-            actualizarEstadoBoton();
-        });
-    }
-
     /* SELECT rol */
-    const rol = document.getElementById('rol');
+    const rol = document.getElementById('id_rol');
     if (rol) {
         rol.addEventListener('change', function () {
             if (!this.value.trim()) {
@@ -372,9 +293,9 @@ function inicializarValidacionesUsuario() {
 }
 
 // Inicializar al cargar la página
-document.addEventListener('DOMContentLoaded', inicializarValidacionesUsuario);
+document.addEventListener('DOMContentLoaded', inicializarValidacionesPersonal);
 
 // También exportar para poder llamarla cuando se cargue el modal dinámicamente
 if (typeof window !== 'undefined') {
-    window.inicializarValidacionesUsuario = inicializarValidacionesUsuario;
+    window.inicializarValidacionesPersonal = inicializarValidacionesPersonal;
 }

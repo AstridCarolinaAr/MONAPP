@@ -46,8 +46,6 @@ def validar_datos_usuario(data, user_id=None):
         errores['documento'] = 'El número de documento es obligatorio.'
     elif not documento.isdigit():
         errores['documento'] = 'Solo se permiten números.'
-    elif not (6 <= len(documento) <= 12):
-        errores['documento'] = 'Debe tener entre 6 y 12 dígitos.'
     else:
         # Verificar unicidad del documento
         qs = PerfilUsuario.objects.filter(documento=documento)
@@ -81,17 +79,15 @@ def validar_datos_usuario(data, user_id=None):
     # ===============================
     if not email:
         errores['email'] = 'El correo electrónico es obligatorio.'
+    elif '@' not in email or '.' not in email.split('@')[-1]:
+        errores['email'] = 'Correo electrónico inválido.'
     else:
-        try:
-            validate_email(email)
-            # Verificar unicidad del email
-            qs = User.objects.filter(email=email)
-            if user_id:
-                qs = qs.exclude(id=user_id)
-            if qs.exists():
-                errores['email'] = 'Ya existe otro usuario con este correo electrónico.'
-        except ValidationError:
-            errores['email'] = 'Correo electrónico inválido.'
+        # Verificar unicidad del email
+        qs = User.objects.filter(email=email)
+        if user_id:
+            qs = qs.exclude(id=user_id)
+        if qs.exists():
+            errores['email'] = 'Ya existe otro usuario con este correo electrónico.'
 
     # ===============================
     # VALIDACIÓN USERNAME (opcional)

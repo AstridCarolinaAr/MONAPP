@@ -773,9 +773,6 @@ def validar_documento_usuario(request):
     if not numero.isdigit():
         return JsonResponse({'valido': False, 'mensaje': 'Solo números'})
 
-    if not (6 <= len(numero) <= 12):
-        return JsonResponse({'valido': False, 'mensaje': 'Debe tener entre 6 y 12 dígitos'})
-
     # Normalizar user_id
     if not user_id or user_id in ('undefined', 'null', ''):
         user_id = None
@@ -807,13 +804,8 @@ def validar_email_usuario(request):
     email = (request.GET.get('email') or '').strip()
     user_id = request.GET.get('user_id')
 
-    # Validar formato de email
-    from django.core.validators import validate_email
-    from django.core.exceptions import ValidationError
-
-    try:
-        validate_email(email)
-    except ValidationError:
+    # Validar formato de email (solo verificar @ y .)
+    if '@' not in email or '.' not in email.split('@')[-1]:
         return JsonResponse({'valido': False, 'mensaje': 'Correo electrónico inválido'})
 
     # Normalizar user_id
