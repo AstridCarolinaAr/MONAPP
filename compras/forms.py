@@ -33,9 +33,15 @@ class DetalleCompraForm(forms.ModelForm):
                 "placeholder": "0",
             }),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields["producto"].queryset = Producto.objects.all().order_by("nombre")
+
+        self.fields["producto"].label_from_instance = lambda obj: obj.nombre
+
+        self.fields["producto"].widget.attrs.update({"class": "form-select"})
 
 
 DetalleCompraFormSet = inlineformset_factory(

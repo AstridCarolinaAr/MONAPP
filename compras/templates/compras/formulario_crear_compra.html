@@ -38,7 +38,7 @@
     </button>
   </div>
 
-  <!-- ✅ ESTO ES OBLIGATORIO PARA FORMSETS -->
+  <!-- ESTO ES OBLIGATORIO PARA FORMSETS -->
   {{ formset.management_form }}
 
   {% if formset.non_form_errors %}
@@ -130,10 +130,11 @@
       </div>
 
     </div>
-  </template>
+    
 
+  </template>
   <div class="d-flex justify-content-end mt-4">
-    <button type="submit" class="btn btn-success" id="btnGuardarCompra">
+    <button type="submit" class="btn btn-primary" id="btnGuardarCompra">
       Guardar compra
     </button>
   </div>

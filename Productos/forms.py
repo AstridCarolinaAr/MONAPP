@@ -27,6 +27,7 @@ class ProductoForm(forms.ModelForm):
             "unidad": forms.Select(attrs={"class": "form-select"}),
             "activo": forms.CheckboxInput(attrs={"class": "switch-input"}),
             "marca": forms.TextInput(attrs={"class": "form-control", "placeholder": "Escribe la marca (Ej: Mona Keratina)"}),
+            "imagen_url":forms.URLInput(attrs={"class": "form-control","placeholder":"https://..."}),
         }
 def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)

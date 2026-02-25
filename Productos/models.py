@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
+import re
 
 
 class Marca(models.Model):
@@ -99,7 +100,15 @@ class Producto(models.Model):
     def clean(self):
         # Normalizar nombre
         self.nombre = self.nombre.strip().title()
-
+                
+        if self.linea and not re.fullmatch(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+", self.linea):    
+            raise ValidationError({
+                'linea': 'La línea solo debe contener letras.'
+            })
+        if self.presentacion and not str(self.presentacion).isdigit():
+            raise ValidationError({
+                'presentacion': 'La presentación solo debe contener numeros.'
+            })
         # Validar nombre duplicado (case-insensitive)
         if Producto.objects.exclude(pk=self.pk).filter(
             nombre__iexact=self.nombre
@@ -122,7 +131,7 @@ class Producto(models.Model):
         return f"${self.precio:,}".replace(",", ".")
 
     def esta_disponible(self):
-        return self.estado == 'disponible'
+        return self.activo
 
     def get_nombre_completo(self):
         if self.presentacion:
@@ -134,7 +143,7 @@ class Producto(models.Model):
         return stock_obj.cantidad_actual if stock_obj else 0
     @property
     def imagen_crud(self):
-        if self.image:
+        if self.imagen:
             return self.imagen.url
         if self.imagen_url:
             return ""
