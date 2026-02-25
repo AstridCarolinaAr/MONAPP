@@ -63,6 +63,19 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
+
+    // ==================== AUTO-EXPANDIR SUBMENÚ SI HIJO ACTIVO ====================
+    document.querySelectorAll('.submenu').forEach(function(submenu) {
+        const activeChild = submenu.querySelector('.nav-link.active');
+        if (activeChild) {
+            submenu.classList.add('show');
+            const toggle = submenu.previousElementSibling;
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.classList.add('active');
+            }
+        }
+    });
     
     // ==================== BÚSQUEDA EN TIEMPO REAL ====================
     const searchInput = document.querySelector('.search-box input');
