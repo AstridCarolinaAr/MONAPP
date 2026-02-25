@@ -89,6 +89,13 @@
         .alert-mona{background:linear-gradient(135deg,#fff9ec,#fef3d9);border-left:4px solid var(--gold);
             padding:14px 18px;border-radius:12px;margin-bottom:22px;color:#7a5c1e;
             font-size:.9rem;font-weight:500;display:flex;align-items:flex-start;gap:10px}
+        .alert-error{background:linear-gradient(135deg,#fff5f5,#ffe8e8);border-left:4px solid #e74c3c;
+            padding:14px 18px;border-radius:12px;margin-bottom:22px;color:#c0392b;
+            font-size:.9rem;font-weight:500;display:flex;align-items:flex-start;gap:10px}
+        .field-error{font-size:.78rem;color:#e74c3c;margin-top:6px;min-height:1.1em;font-weight:500}
+        .field input.input-invalid{border-color:#e74c3c !important;box-shadow:0 0 0 4px rgba(231,76,60,.1) !important}
+        .field input.input-valid{border-color:#27ae60 !important;box-shadow:0 0 0 4px rgba(39,174,96,.1) !important}
+        .btn-mona:disabled{opacity:.6;cursor:not-allowed;transform:none !important}
 
         @media(max-width:900px){.left{display:none}.right{padding:40px 24px}}
     </style>
@@ -129,14 +136,18 @@
                     <div class="alert-mona">&#9888;&nbsp;{{ message }}</div>
                 {% endfor %}
             {% endif %}
+            {% if error %}
+                <div class="alert-error">&#10060;&nbsp;{{ error }}</div>
+            {% endif %}
 
-            <form method="POST">
+            <form method="POST" id="recuperarForm">
                 {% csrf_token %}
                 <div class="field">
                     <label for="email">Correo electr&oacute;nico</label>
-                    <input type="email" id="email" name="email" placeholder="tu@correo.com" required autofocus>
+                    <input type="email" id="email" name="email" placeholder="tu@correo.com" required autofocus autocomplete="email">
+                    <div class="field-error" id="email-error"></div>
                 </div>
-                <button type="submit" class="btn-mona">Enviar c&oacute;digo &nbsp;&rarr;</button>
+                <button type="submit" class="btn-mona" id="btnEnviar">Enviar c&oacute;digo &nbsp;&rarr;</button>
             </form>
 
             <div class="back-link">
@@ -146,5 +157,45 @@
     </div>
 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var emailInp = document.getElementById('email');
+    var emailErr = document.getElementById('email-error');
+    var form     = document.getElementById('recuperarForm');
+    var btnEnviar = document.getElementById('btnEnviar');
+    var RE_EMAIL  = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function setEmailState(valid, msg) {
+        emailErr.textContent = msg || '';
+        emailInp.classList.remove('input-invalid', 'input-valid');
+        if (valid === true)  emailInp.classList.add('input-valid');
+        if (valid === false) emailInp.classList.add('input-invalid');
+    }
+
+    function validateEmail() {
+        var v = emailInp.value.trim();
+        if (!v) { setEmailState(null, ''); return false; }
+        if (!RE_EMAIL.test(v)) {
+            setEmailState(false, 'Ingresa un correo válido (ej: tu@correo.com)');
+            return false;
+        }
+        setEmailState(true, '');
+        return true;
+    }
+
+    emailInp.addEventListener('input', validateEmail);
+    emailInp.addEventListener('blur',  validateEmail);
+
+    form.addEventListener('submit', function (e) {
+        if (!validateEmail()) {
+            e.preventDefault();
+            emailInp.focus();
+            return;
+        }
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = 'Enviando…';
+    });
+});
+</script>
 </body>
 </html>

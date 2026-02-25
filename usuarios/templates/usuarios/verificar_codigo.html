@@ -74,6 +74,13 @@
             padding:14px 18px;border-radius:12px;margin-bottom:22px;color:#7a5c1e;
             font-size:.9rem;font-weight:500;display:flex;align-items:flex-start;gap:10px}
         .hint{font-size:.82rem;color:var(--mid);text-align:center;margin-top:18px}
+        .alert-error{background:linear-gradient(135deg,#fff5f5,#ffe8e8);border-left:4px solid #e74c3c;
+            padding:14px 18px;border-radius:12px;margin-bottom:22px;color:#c0392b;
+            font-size:.9rem;font-weight:500;display:flex;align-items:flex-start;gap:10px}
+        .code-counter{font-size:.82rem;text-align:center;margin-top:10px;min-height:1.2em;color:var(--mid);font-weight:500}
+        .code-counter.complete{color:#27ae60}
+        .code-counter.error{color:#e74c3c}
+        .btn-mona:disabled{opacity:.6;cursor:not-allowed;transform:none !important}
         @media(max-width:900px){.left{display:none}.right{padding:40px 24px}}
     </style>
 </head>
@@ -113,18 +120,80 @@
                     <div class="alert-mona">&#9888;&nbsp;{{ message }}</div>
                 {% endfor %}
             {% endif %}
+            {% if error %}
+                <div class="alert-error">&#10060;&nbsp;{{ error }}</div>
+            {% endif %}
 
-            <form method="POST">
+            <form method="POST" id="codigoForm">
                 {% csrf_token %}
                 <div class="otp-wrap">
-                    <input type="text" name="codigo" placeholder="&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;" maxlength="6" required autofocus autocomplete="one-time-code">
+                    <input type="text" id="codigoInput" name="codigo" placeholder="&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;" maxlength="6" required autofocus autocomplete="one-time-code" inputmode="numeric">
                 </div>
-                <button class="btn-mona">Verificar &nbsp;&rarr;</button>
+                <div class="code-counter" id="codeCounter"></div>
+                <button class="btn-mona" id="btnVerificar">Verificar &nbsp;&rarr;</button>
             </form>
             <p class="hint">El c&oacute;digo expira en 10 minutos</p>
         </div>
     </div>
 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var inp     = document.getElementById('codigoInput');
+    var counter = document.getElementById('codeCounter');
+    var form    = document.getElementById('codigoForm');
+    var btn     = document.getElementById('btnVerificar');
+
+    function updateCounter() {
+        var len = inp.value.length;
+        counter.className = 'code-counter';
+        if (len === 0) { counter.textContent = ''; return; }
+        if (len === 6) {
+            counter.textContent = '\u2713 Código completo';
+            counter.classList.add('complete');
+            inp.style.borderColor = 'var(--gold)';
+            inp.style.boxShadow   = '0 0 0 4px rgba(201,169,110,.2)';
+        } else {
+            counter.textContent = (6 - len) + ' dígito(s) restante(s)';
+            inp.style.borderColor = '';
+            inp.style.boxShadow   = '';
+        }
+    }
+
+    /* solo dígitos */
+    inp.addEventListener('keypress', function (e) {
+        if (!/[0-9]/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+
+    inp.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 6);
+        updateCounter();
+    });
+
+    inp.addEventListener('paste', function (e) {
+        e.preventDefault();
+        var pasted = (e.clipboardData || window.clipboardData).getData('text');
+        var digits = pasted.replace(/\D/g, '').slice(0, 6);
+        this.value = digits;
+        this.dispatchEvent(new Event('input'));
+    });
+
+    form.addEventListener('submit', function (e) {
+        if (inp.value.length !== 6) {
+            e.preventDefault();
+            inp.style.borderColor = '#e74c3c';
+            inp.style.boxShadow   = '0 0 0 4px rgba(231,76,60,.1)';
+            counter.textContent = 'El código debe tener exactamente 6 dígitos.';
+            counter.className = 'code-counter error';
+            inp.focus();
+            return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'Verificando…';
+    });
+});
+</script>
 </body>
 </html>

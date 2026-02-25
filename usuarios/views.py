@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -561,6 +562,18 @@ def nueva_password(request):
 
         if len(password1) < 8:
             messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if not re.search(r'[A-Z]', password1):
+            messages.error(request, 'La contraseña debe contener al menos una letra mayúscula.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if not re.search(r'[0-9]', password1):
+            messages.error(request, 'La contraseña debe contener al menos un número.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if not re.search(r'[^A-Za-z0-9]', password1):
+            messages.error(request, 'La contraseña debe incluir al menos un carácter especial (ej: @, #, !, %).')
             return render(request, 'usuarios/nueva_password.html')
 
         user.set_password(password1)

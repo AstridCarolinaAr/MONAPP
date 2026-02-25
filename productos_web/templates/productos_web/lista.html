@@ -4,9 +4,7 @@
 
 {% block title %}Catálogo Web{% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-globe2"></i> Catálogo Web de Productos
-{% endblock %}
+{% block page_title %}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -268,6 +266,52 @@
     border-color: #6ba06a !important;
     box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
 }
+
+/* Validación nombre */
+.pw-name-error {
+    color: #a0715a;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-name-error.visible { display: block; }
+.form-control.is-invalid-name {
+    border-color: #a0715a !important;
+    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+}
+.form-control.is-valid-name {
+    border-color: #6ba06a !important;
+    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+}
+
+/* Contador descripción */
+.pw-char-count {
+    font-size: .78rem;
+    color: #9a8579;
+    text-align: right;
+    margin-top: 3px;
+    display: block;
+}
+.pw-char-count.near-limit { color: #a0715a; }
+.pw-char-count.at-limit   { color: #dc3545; font-weight: 600; }
+
+/* Precio COP preview */
+.pw-cop-preview {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: .88rem;
+    font-weight: 700;
+    color: #3d7a4e;
+    background: rgba(107,176,122,.1);
+    border-radius: 8px;
+    padding: 3px 10px;
+    display: none;
+}
+.pw-cop-preview.visible { display: inline-block; }
+.pw-cop-preview.is-error {
+    color: #a04040;
+    background: rgba(180,90,90,.1);
+}
 </style>
 {% endblock %}
 
@@ -426,15 +470,18 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Nombre</label>
                             {{ form.nombre }}
+                            <div class="pw-name-error" id="err_nombre_agregar"></div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Precio Público ($)</label>
+                            <label class="form-label fw-semibold">Precio Público <small class="text-muted">(pesos colombianos)</small></label>
                             {{ form.precio }}
+                            <span class="pw-cop-preview" id="cop_preview_agregar"></span>
                             <div class="pw-price-error" id="err_precio_agregar"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">Descripción</label>
                             {{ form.descripcion }}
+                            <small class="pw-char-count" id="char_desc_agregar"></small>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
@@ -445,6 +492,7 @@
                                 {{ form.imagen }}
                                 <img id="previewAgregar" class="pw-preview-img d-none" alt="preview">
                             </div>
+                            <div class="pw-img-error" id="err_img_agregar"></div>
                         </div>
                         <div class="col-12">
                             <div class="form-check form-switch">
@@ -583,73 +631,187 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ── Preview de imagen en modal Agregar ── */
-    const fileInput = document.querySelector('#dropzoneAgregar input[type="file"]');
-    const preview   = document.getElementById('previewAgregar');
-    if (fileInput && preview) {
-        fileInput.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src = e.target.result;
-                    preview.classList.remove('d-none');
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    }
+    /* ══════════════════════════════════════════════════════
+       VALIDACIONES EN TIEMPO REAL — Productos Web
+       - Nombre:      obligatorio · 2-200 chars · solo chars válidos
+       - Precio:      COP · mín $100 · máx $99.999.999 · entero
+       - Descripción: máx 500 chars · contador
+       - Imagen:      JPG/PNG/WEBP/GIF · máx 5 MB · preview
+    ══════════════════════════════════════════════════════ */
 
-    /* ── Validación de precio en tiempo real ── */
-    function validarPrecio(input, errorEl, submitBtn) {
-        const val = parseFloat(input.value);
-        const isEmpty = input.value.trim() === '';
-        const decimals = input.value.includes('.') ? input.value.split('.')[1].length : 0;
-        let msg = '';
+    /* ── Formato COP (es-CO, pesos enteros) ── */
+    const fmtCOP = val =>
+        new Intl.NumberFormat('es-CO', {
+            style: 'currency', currency: 'COP',
+            minimumFractionDigits: 0, maximumFractionDigits: 0,
+        }).format(Math.round(val));
 
-        if (isEmpty) {
-            msg = 'El precio es obligatorio.';
-        } else if (isNaN(val)) {
-            msg = 'Ingresa un número válido.';
-        } else if (val <= 0) {
-            msg = 'El precio debe ser mayor a $0.';
-        } else if (val > 9999999.99) {
-            msg = 'El precio no puede superar $9,999,999.99.';
-        } else if (decimals > 2) {
-            msg = 'Máximo 2 decimales permitidos.';
-        }
-
+    /* ── Helper genérico set/clear error ── */
+    function pwSetError(input, errEl, msg, validClass, invalidClass) {
         if (msg) {
-            input.classList.add('is-invalid-price');
-            input.classList.remove('is-valid-price');
-            errorEl.textContent = msg;
-            errorEl.classList.add('visible');
-            if (submitBtn) submitBtn.disabled = true;
+            input.classList.add(invalidClass);
+            input.classList.remove(validClass);
+            errEl.textContent = msg;
+            errEl.classList.add('visible');
         } else {
-            input.classList.remove('is-invalid-price');
-            input.classList.add('is-valid-price');
-            errorEl.textContent = '';
-            errorEl.classList.remove('visible');
-            if (submitBtn) submitBtn.disabled = false;
+            input.classList.remove(invalidClass);
+            input.classList.add(validClass);
+            errEl.textContent = '';
+            errEl.classList.remove('visible');
         }
         return !msg;
     }
 
-    const precioAgregar    = document.querySelector('#modalAgregar [name="precio"]');
-    const errPrecioAgregar = document.getElementById('err_precio_agregar');
-    const btnGuardarAgregar = document.querySelector('#modalAgregar [type="submit"]');
-    if (precioAgregar) {
-        precioAgregar.addEventListener('input', () => validarPrecio(precioAgregar, errPrecioAgregar, btnGuardarAgregar));
-        precioAgregar.addEventListener('blur',  () => validarPrecio(precioAgregar, errPrecioAgregar, btnGuardarAgregar));
-        precioAgregar.closest('form').addEventListener('submit', function(e) {
-            if (!validarPrecio(precioAgregar, errPrecioAgregar, btnGuardarAgregar)) {
+    /* ── Validar nombre ── */
+    function pwValidarNombre(input, errEl) {
+        const v = input.value.trim();
+        // Regex: letras (incluyendo tildes/ñ), números, espacios y -.,()&+/#*!?:'"
+        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.,\(\)&\+\/\#\*\!\?:\'"]+$/;
+        let msg = '';
+        if (!v)                msg = 'El nombre es obligatorio.';
+        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
+        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
+        else if (!REG.test(v))     msg = 'Caracteres no permitidos. Use letras, números y -.,()&+/#*!?:\'"';
+        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name');
+    }
+
+    /* ── Validar precio COP ── */
+    function pwValidarPrecio(input, errEl, previewEl) {
+        const raw  = input.value.trim();
+        const val  = parseFloat(raw);
+        const decs = raw.includes('.') ? raw.split('.')[1].length : 0;
+        let msg = '';
+
+        if (!raw)              msg = 'El precio es obligatorio.';
+        else if (isNaN(val))   msg = 'Ingresa un número válido.';
+        else if (val < 100)    msg = 'El precio mínimo es $100 COP.';
+        else if (val > 99999999) msg = 'El precio máximo es $99.999.999 COP.';
+        else if (decs > 0)     msg = 'El precio debe ser un valor entero (sin centavos) en pesos colombianos.';
+
+        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price');
+
+        /* Preview COP */
+        if (previewEl) {
+            if (!msg && raw) {
+                previewEl.textContent = fmtCOP(val);
+                previewEl.classList.add('visible');
+                previewEl.classList.remove('is-error');
+            } else {
+                previewEl.textContent = '';
+                previewEl.classList.remove('visible');
+            }
+        }
+        return ok;
+    }
+
+    /* ── Contador descripción ── */
+    function pwActualizarContador(textarea, contEl, max) {
+        const len = textarea.value.length;
+        if (len > max) textarea.value = textarea.value.substring(0, max);
+        contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
+        contEl.className = 'pw-char-count' +
+            (len >= max        ? ' at-limit'   :
+             len >= max * 0.85 ? ' near-limit' : '');
+    }
+
+    /* ── Validar imagen ── */
+    function pwValidarImagen(input, errEl, previewEl) {
+        const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        const MAX_MB = 5;
+        errEl.textContent = '';
+        errEl.classList.remove('visible');
+        if (!input.files || !input.files[0]) return true;  // Opcional
+        const f = input.files[0];
+        if (!TIPOS.includes(f.type)) {
+            errEl.textContent = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
+            errEl.classList.add('visible');
+            input.value = '';
+            if (previewEl) previewEl.classList.add('d-none');
+            return false;
+        }
+        const mb = f.size / (1024 * 1024);
+        if (mb > MAX_MB) {
+            errEl.textContent = `La imagen pesa ${mb.toFixed(1)} MB. Máximo ${MAX_MB} MB.`;
+            errEl.classList.add('visible');
+            input.value = '';
+            if (previewEl) previewEl.classList.add('d-none');
+            return false;
+        }
+        /* Preview si pasa */
+        if (previewEl) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewEl.src = e.target.result;
+                previewEl.classList.remove('d-none');
+            };
+            reader.readAsDataURL(f);
+        }
+        return true;
+    }
+
+    /* ── Referencias DOM — modal Agregar ── */
+    const ag = {
+        nombre:     document.querySelector('#modalAgregar [name="nombre"]'),
+        errNombre:  document.getElementById('err_nombre_agregar'),
+        desc:       document.querySelector('#modalAgregar [name="descripcion"]'),
+        ctrDesc:    document.getElementById('char_desc_agregar'),
+        precio:     document.querySelector('#modalAgregar [name="precio"]'),
+        errPrecio:  document.getElementById('err_precio_agregar'),
+        copPrev:    document.getElementById('cop_preview_agregar'),
+        img:        document.querySelector('#dropzoneAgregar input[type="file"]'),
+        errImg:     document.getElementById('err_img_agregar'),
+        prevImg:    document.getElementById('previewAgregar'),
+        btnGuardar: document.querySelector('#modalAgregar [type="submit"]'),
+    };
+
+    /* Bindings */
+    if (ag.nombre) {
+        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre));
+        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre));
+    }
+    if (ag.desc && ag.ctrDesc) {
+        ag.desc.addEventListener('input', () => pwActualizarContador(ag.desc, ag.ctrDesc, 500));
+    }
+    if (ag.precio) {
+        ag.precio.addEventListener('input', () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev));
+        ag.precio.addEventListener('blur',  () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev));
+    }
+    if (ag.img) {
+        ag.img.addEventListener('change', () => pwValidarImagen(ag.img, ag.errImg, ag.prevImg));
+    }
+
+    /* Submit modal Agregar */
+    const formAgregar = document.querySelector('#modalAgregar form');
+    if (formAgregar) {
+        formAgregar.addEventListener('submit', function (e) {
+            const ok1 = ag.nombre ? pwValidarNombre(ag.nombre, ag.errNombre) : true;
+            const ok2 = ag.precio ? pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev) : true;
+            const ok3 = ag.img    ? pwValidarImagen(ag.img, ag.errImg, ag.prevImg) : true;
+            if (!ok1 || !ok2 || !ok3) {
                 e.preventDefault();
-                precioAgregar.focus();
+                if (!ok1) ag.nombre.focus();
+                else if (!ok2) ag.precio.focus();
             }
         });
-        document.getElementById('modalAgregar').addEventListener('show.bs.modal', () => {
-            precioAgregar.classList.remove('is-invalid-price', 'is-valid-price');
-            errPrecioAgregar.classList.remove('visible');
-            btnGuardarAgregar.disabled = false;
+    }
+
+    /* Reset al abrir modal */
+    const modalAgregarEl = document.getElementById('modalAgregar');
+    if (modalAgregarEl) {
+        modalAgregarEl.addEventListener('show.bs.modal', () => {
+            [ag.nombre, ag.precio].forEach(el => {
+                if (el) el.classList.remove(
+                    'is-valid-name','is-invalid-name',
+                    'is-valid-price','is-invalid-price'
+                );
+            });
+            ['err_nombre_agregar','err_precio_agregar','err_img_agregar'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = ''; el.classList.remove('visible'); }
+            });
+            if (ag.ctrDesc)    ag.ctrDesc.textContent = '';
+            if (ag.copPrev) { ag.copPrev.textContent = ''; ag.copPrev.classList.remove('visible'); }
+            if (ag.prevImg)    ag.prevImg.classList.add('d-none');
         });
     }
 
