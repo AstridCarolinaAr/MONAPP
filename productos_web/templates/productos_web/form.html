@@ -96,14 +96,10 @@
 {% block content %}
 <div class="container-fluid">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+    <!-- Mensajes Django para SweetAlert -->
+    <script id="pw-form-messages" type="application/json">
+        [{% for message in messages %}{"tags":"{{ message.tags }}","text":"{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+    </script>
 
     <div class="card pw-form-card">
         <div class="card-header">
@@ -173,6 +169,28 @@
 
 {% block extra_js %}
 <script>
+/* ── Mensajes Django como Swal toast ── */
+(function () {
+    const raw = document.getElementById('pw-form-messages');
+    if (!raw) return;
+    const msgs = JSON.parse(raw.textContent || '[]');
+    const MAP = {
+        success: { icon: 'success', background: '#f0fdf4', color: '#166534' },
+        error:   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
+        warning: { icon: 'warning', background: '#fffbeb', color: '#92400e' },
+        info:    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
+    };
+    msgs.forEach(m => {
+        const key  = Object.keys(MAP).find(k => m.tags.includes(k)) || 'info';
+        const opts = MAP[key];
+        Swal.mixin({
+            toast: true, position: 'top-end',
+            showConfirmButton: false, timer: 3500, timerProgressBar: true,
+            background: opts.background, color: opts.color,
+        }).fire({ icon: opts.icon, title: m.text });
+    });
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.querySelector('#dropzoneEditar input[type="file"]');
     const preview   = document.getElementById('previewEditar');

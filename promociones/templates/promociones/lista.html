@@ -333,16 +333,6 @@
 {% block content %}
 <div class="container-fluid">
 
-    <!-- ───── MENSAJES ───── -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
     <!-- ───── BARRA SUPERIOR ───── -->
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
         <div class="promo-search position-relative">
@@ -353,7 +343,6 @@
     </div>
 
     <!-- ───── TABLA ───── -->
-    {% if promociones %}
     <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(141,96,74,.15) !important;">
         <div class="table-responsive">
             <table class="promo-table" id="promo-tabla">
@@ -399,7 +388,8 @@
                             <label class="promo-switch" title="Alternar estado">
                                 <input type="checkbox"
                                        {% if p.activa %}checked{% endif %}
-                                       data-toggle-url="{% url 'promociones:toggle_activa' p.pk %}">
+                                       data-toggle-url="{% url 'promociones:toggle_activa' p.pk %}"
+                                       data-nombre="{{ p.nombre }}">
                                 <span class="slider"></span>
                             </label>
                         </td>
@@ -420,9 +410,7 @@
                                     title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
-                            <button type="button" class="btn btn-link btn-del p-0 ms-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalEliminar"
+                            <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-promo"
                                     data-nombre="{{ p.nombre }}"
                                     data-url="{% url 'promociones:eliminar' p.pk %}"
                                     title="Eliminar">
@@ -430,18 +418,19 @@
                             </button>
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <i class="bi bi-percent d-block mb-2" style="font-size:2.5rem; color:#c9b8ae;"></i>
+                            <span class="text-muted">Sin promociones registradas. Pulsa <strong>+</strong> para crear la primera.</span>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-    {% else %}
-    <div class="promo-empty">
-        <i class="bi bi-percent d-block mb-3"></i>
-        <h5 class="text-muted">Sin promociones registradas</h5>
-        <p class="text-muted mb-0">Pulsa <strong>+</strong> para crear la primera.</p>
-    </div>
-    {% endif %}
+
 </div>
 
 <!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
@@ -593,51 +582,121 @@
     </div>
 </div>
 
-<!-- ═══════════════ MODAL ELIMINAR ═══════════════ -->
-<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white" style="border-radius:12px 12px 0 0; background: linear-gradient(135deg, #7a5c4a, #5c3d2e) !important;">
-                <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <p class="mb-0">¿Eliminar la promoción <strong id="delNombre"></strong>?</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <form id="formEliminar" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm text-white" style="background:#8d604a;">
-                        <i class="bi bi-trash3 me-1"></i>Eliminar
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Formulario oculto para eliminación vía Swal -->
+<form id="formEliminarPromo" method="post" style="display:none;">
+    {% csrf_token %}
+</form>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+/* ── Mensajes Django como Swal toast ── */
+const PROMO_MESSAGES = [
+    {% for message in messages %}
+    { tags: "{{ message.tags }}", text: "{{ message|escapejs }}" },
+    {% endfor %}
+];
+
+const PROMO_TAGS_MAP = {
+    'success': { icon: 'success', background: '#f0fdf4', color: '#166534' },
+    'error':   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
+    'warning': { icon: 'warning', background: '#fffbeb', color: '#92400e' },
+    'info':    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
+};
+
+if (PROMO_MESSAGES.length) {
+    PROMO_MESSAGES.forEach(m => {
+        const tag  = Object.keys(PROMO_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
+        const opts = PROMO_TAGS_MAP[tag];
+        Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            background: opts.background,
+            color: opts.color,
+        }).fire({ icon: opts.icon, title: m.text });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ── Toggle estado (AJAX) ── */
+    const CSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    /* ── Toggle estado con confirmación Swal ── */
     document.querySelectorAll('.promo-switch input[type="checkbox"]').forEach(toggle => {
         toggle.addEventListener('change', function () {
-            const url = this.dataset.toggleUrl;
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (!data.ok) { this.checked = !this.checked; }
-            })
-            .catch(() => { this.checked = !this.checked; });
+            const url    = this.dataset.toggleUrl;
+            const nombre = this.dataset.nombre;
+            const actNow = this.checked;
+            const el     = this;
+
+            Swal.fire({
+                title: actNow ? '¿Activar promoción?' : '¿Desactivar promoción?',
+                text:  `"${nombre}" ${actNow ? 'estará activa en el catálogo.' : 'se desactivará del catálogo.'}`,
+                icon:  actNow ? 'question' : 'warning',
+                showCancelButton:   true,
+                confirmButtonColor: '#3a2a24',
+                cancelButtonColor:  '#6c757d',
+                confirmButtonText:  actNow ? 'Sí, activar' : 'Sí, desactivar',
+                cancelButtonText:   'Cancelar',
+            }).then(result => {
+                if (!result.isConfirmed) {
+                    el.checked = !actNow;
+                    return;
+                }
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': CSRF(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) {
+                        el.checked = !actNow;
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el estado.', timer: 2500, showConfirmButton: false });
+                        return;
+                    }
+                    Swal.mixin({
+                        toast: true, position: 'top-end',
+                        showConfirmButton: false, timer: 2000, timerProgressBar: true,
+                        background: '#f0fdf4', color: '#166534',
+                    }).fire({ icon: 'success', title: actNow ? 'Promoción activada' : 'Promoción desactivada' });
+                })
+                .catch(() => {
+                    el.checked = !actNow;
+                    Swal.fire({ icon: 'error', title: 'Error de red', timer: 2500, showConfirmButton: false });
+                });
+            });
+        });
+    });
+
+    /* ── Eliminar promoción con confirmación Swal ── */
+    document.querySelectorAll('.btn-eliminar-promo').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const nombre = this.dataset.nombre;
+            const url    = this.dataset.url;
+
+            Swal.fire({
+                title: '¿Eliminar promoción?',
+                html:  `¿Seguro que deseas eliminar <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
+                icon:  'warning',
+                showCancelButton:    true,
+                confirmButtonColor:  '#dc3545',
+                cancelButtonColor:   '#6c757d',
+                confirmButtonText:   '<i class="bi bi-trash3"></i> Eliminar',
+                cancelButtonText:    'Cancelar',
+                reverseButtons:      true,
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const form = document.getElementById('formEliminarPromo');
+                    form.action = url;
+                    form.submit();
+                }
+            });
         });
     });
 
@@ -691,16 +750,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-    }
-
-    /* ── Modal Eliminar: rellenar datos ── */
-    const modalEl = document.getElementById('modalEliminar');
-    if (modalEl) {
-        modalEl.addEventListener('show.bs.modal', function (e) {
-            const btn = e.relatedTarget;
-            document.getElementById('delNombre').textContent = btn.dataset.nombre;
-            document.getElementById('formEliminar').action = btn.dataset.url;
-        });
     }
 
     /* ── Preview imagen en modal Agregar ── */

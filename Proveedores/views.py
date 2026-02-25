@@ -10,8 +10,11 @@ from .forms import ProveedoreditarForm
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
-    activo = request.models
+    activo = request.GET.get("activo", "")
     proveedores = Proveedor.objects.all()
+
+    if activo:
+        proveedores = proveedores.filter(estado=activo)
 
     #  BUSCADOR
     if q:
@@ -45,15 +48,6 @@ def lista_proveedores(request):
 
 
 def crear_proveedor(request):
-    print("METODO:", request.method)
-    print("POST:", request.POST)
-
-    if request.method == 'POST':
-        form = ProveedorcrearForm(request.POST)
-
-        print("VALIDO:", form.is_valid())
-        print("ERRORES:", form.errors)
-
     if request.method == "POST":
         form = ProveedorcrearForm(request.POST)
         if form.is_valid():

@@ -1,86 +1,502 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Panel Administrativo{% endblock %}
+{% block title %}Dashboard | MONA KERATINA{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ───── TIPOGRAFÍA BASE ───── */
+body, .dash-wrap, .kpi-label, .qa-label, .u-name, .u-role, .bday-name, .bday-age {
+    font-family: 'Inter', sans-serif;
+}
+.brand-serif {
+    font-family: 'Cormorant Garamond', serif;
+}
+
+/* ───── DASHBOARD GENERAL ───── */
+.dash-wrap { padding: 0 4px; }
+
+/* ── WELCOME BANNER ── */
+.welcome-banner {
+    background: linear-gradient(135deg, #2b1a14 0%, #3b2f2f 55%, #5a3e3e 100%);
+    border-radius: 20px;
+    padding: 28px 40px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(59,47,47,.35);
+}
+.wb-logo {
+    position: relative; z-index: 1;
+    flex-shrink: 0;
+    width: 80px; height: 80px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(201,169,110,.25);
+    box-shadow: 0 4px 18px rgba(0,0,0,.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+}
+.wb-logo img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+}
+.welcome-banner::before {
+    content: '';
+    position: absolute;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,169,110,.18) 0%, transparent 70%);
+    top: -100px; right: -60px;
+    pointer-events: none;
+}
+.welcome-banner::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,169,110,.1) 0%, transparent 70%);
+    bottom: -60px; left: 20px;
+    pointer-events: none;
+}
+.wb-text { position: relative; z-index: 1; flex: 1; }
+.wb-greeting {
+    font-family: 'Inter', sans-serif;
+    font-size: .75rem;
+    color: rgba(245,240,232,.55);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+.wb-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.7rem;
+    font-weight: 500;
+    font-style: italic;
+    color: #f5f0e8;
+    margin-bottom: 6px;
+    line-height: 1.1;
+    letter-spacing: .5px;
+}
+.wb-role {
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+    color: #c9a96e;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.wb-date {
+    position: relative; z-index: 1;
+    text-align: right;
+    color: rgba(245,240,232,.55);
+    font-size: .82rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    letter-spacing: .5px;
+}
+.wb-date .big-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: #c9a96e;
+    display: block;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+/* ── KPI CARDS ── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin-bottom: 30px;
+}
+.kpi-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px 26px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 2px 16px rgba(59,47,47,.08);
+    border: 1px solid rgba(59,47,47,.07);
+    transition: transform .25s, box-shadow .25s;
+}
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(59,47,47,.14);
+}
+.kpi-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+.kpi-icon.brown   { background: linear-gradient(135deg, #3b2f2f, #6d5c5c); color: #f5f0e8; }
+.kpi-icon.gold    { background: linear-gradient(135deg, #c9a96e, #e0c285); color: #2b1a14; }
+.kpi-icon.green   { background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; }
+.kpi-icon.blue    { background: linear-gradient(135deg, #2c7be5, #5096f0); color: #fff; }
+.kpi-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1a0f0a;
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -.5px;
+}
+.kpi-label {
+    font-family: 'Inter', sans-serif;
+    font-size: .76rem;
+    color: #7a6060;
+    font-weight: 400;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+}
+
+/* ── QUICK ACTIONS ── */
+.qa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 30px;
+}
+.qa-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 16px;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid rgba(59,47,47,.08);
+    box-shadow: 0 2px 12px rgba(59,47,47,.07);
+    transition: all .25s;
+    color: #3b2f2f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.qa-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(59,47,47,.16);
+    color: #1a0f0a;
+    text-decoration: none;
+    border-color: rgba(201,169,110,.4);
+}
+.qa-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.4rem;
+}
+.qa-label {
+    font-family: 'Inter', sans-serif;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+/* ── BOTTOM ROW ── */
+.bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-bottom: 22px;
+}
+@media (max-width: 900px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+/* ── CARD SHARED ── */
+.dash-card {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(59,47,47,.07);
+    box-shadow: 0 2px 16px rgba(59,47,47,.08);
+    overflow: hidden;
+}
+.dash-card-head {
+    padding: 18px 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.dash-card-body { padding: 18px 22px; }
+
+/* ── BIRTHDAY CARD ── */
+.bday-head { background: linear-gradient(135deg, #f8f0d8, #fdf5e0); color: #7a5c1e; border-bottom: 1px solid rgba(201,169,110,.2); }
+.bday-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(59,47,47,.06);
+}
+.bday-item:last-child { border-bottom: none; }
+.bday-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b2f2f, #6d5c5c);
+    color: #f5f0e8;
+    font-size: .95rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+.bday-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: .9rem; color: #2b1a14; }
+.bday-age  { font-family: 'Inter', sans-serif; font-size: .76rem; color: #7a6060; margin-top: 2px; font-weight: 300; letter-spacing: .3px; }
+.bday-badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, #c9a96e, #e0c285);
+    color: #2b1a14;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.empty-state { text-align: center; padding: 24px 0; color: #b09f9f; font-size: .9rem; }
+
+/* ── USERS TABLE ── */
+.users-head { background: linear-gradient(135deg, #2b1a14, #3b2f2f); color: #f5f0e8; }
+.user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(59,47,47,.06);
+}
+.user-row:last-child { border-bottom: none; }
+.u-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #c9a96e, #e0c285);
+    color: #2b1a14; font-size: .8rem; font-weight: 700;
+    display: flex; justify-content: center; align-items: center;
+    flex-shrink: 0; text-transform: uppercase;
+}
+.u-name  { font-size: .88rem; font-weight: 600; color: #2b1a14; }
+.u-role  { font-size: .76rem; color: #7a6060; }
+.u-badge {
+    margin-left: auto;
+    font-size: .7rem; font-weight: 600; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap;
+}
+.u-badge.staff  { background: rgba(59,47,47,.1); color: #3b2f2f; }
+.u-badge.active { background: rgba(39,174,96,.12); color: #1e7e45; }
+</style>
 {% endblock %}
 
 {% block content %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-<div class="container-fluid py-4">
+<div class="dash-wrap">
 
-    <!-- Zona de acciones rápidas genéricas -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header text-white" style="background-color:#6b3a2a;">
-                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
-                </div>
-                <div class="card-body">
-                    <a href="{% url 'clientes:lista' %}" class="btn me-2" style="background-color:#6b3a2a;color:#fff;border:none;">
-                        <i class="bi bi-person-vcard me-1"></i> Clientes
-                    </a>
-                    <a href="{% url 'productos:lista_productos_admin' %}" class="btn me-2" style="background-color:#8b5e3c;color:#fff;border:none;">
-                        <i class="bi bi-box-seam me-1"></i> Productos
-                    </a>
+    <!-- ── WELCOME BANNER ── -->
+    <div class="welcome-banner">
+        <div class="wb-logo">
+            <img src="{% static 'logo_mona.png' %}" alt="Mona Keratina">
+        </div>
+        <div class="wb-text">
+            <div class="wb-greeting">Bienvenido de vuelta</div>
+            <div class="wb-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="wb-role">
+                {% if user.is_superuser %}Superadministrador
+                {% elif user.is_staff %}Administrador
+                {% else %}Usuario{% endif %}
+            </div>
+        </div>
+        <div class="wb-date">
+            <span class="big-date" id="live-clock"></span>
+            <span id="live-date"></span>
+        </div>
+    </div>
 
-                    <a href="{% url 'ventas:lista' %}" class="btn me-2" style="background-color:#a0703a;color:#fff;border:none;">
-                        <i class="bi bi-cart3 me-1"></i> Ventas
-                    </a>
-
-                    <a href="{% url 'inventario:inventario_vista' %}" class="btn me-2" style="background-color:#c49a3c;color:#fff;border:none;">
-                        <i class="bi bi-gear"></i> Inventario
-                    </a>
-                </div>
+    <!-- ── KPI CARDS ── -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon brown"><i class="bi bi-people-fill"></i></div>
+            <div>
+                <div class="kpi-value">{{ total_usuarios }}</div>
+                <div class="kpi-label">Usuarios totales</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon green"><i class="bi bi-person-check-fill"></i></div>
+            <div>
+                <div class="kpi-value">{{ usuarios_activos }}</div>
+                <div class="kpi-label">Usuarios activos</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon gold"><i class="bi bi-shield-lock-fill"></i></div>
+            <div>
+                <div class="kpi-value">{{ usuarios_staff }}</div>
+                <div class="kpi-label">Administradores</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="bi bi-person-plus-fill"></i></div>
+            <div>
+                <div class="kpi-value">{{ nuevos_usuarios_mes }}</div>
+                <div class="kpi-label">Nuevos este mes</div>
             </div>
         </div>
     </div>
 
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-
-            <div class="card-header bg-warning text-dark fw-semibold">
-                <i class="bi bi-balloon-fill me-2"></i>
-                Cumpleaños de hoy
+    <!-- ── QUICK ACTIONS ── -->
+    <div class="qa-grid">
+        <a href="{% url 'clientes:lista' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#f0e8d8,#fdf5e5);color:#7a5c1e;">
+                <i class="bi bi-person-vcard-fill"></i>
             </div>
+            <span class="qa-label">Clientes</span>
+        </a>
+        <a href="{% url 'productos:lista_productos_admin' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#edf6ff,#dbeeff);color:#2c7be5;">
+                <i class="bi bi-box-seam-fill"></i>
+            </div>
+            <span class="qa-label">Productos</span>
+        </a>
+        <a href="{% url 'ventas:lista' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#f0faf3,#d8f5e4);color:#1e7e45;">
+                <i class="bi bi-cart-fill"></i>
+            </div>
+            <span class="qa-label">Ventas</span>
+        </a>
+        <a href="{% url 'inventario:inventario_vista' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#fef6ea,#fdebd0);color:#c9770d;">
+                <i class="bi bi-gear-fill"></i>
+            </div>
+            <span class="qa-label">Inventario</span>
+        </a>
+        <a href="{% url 'servicios:lista_servicios' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#f8f0f8,#f2e0f5);color:#8e44ad;">
+                <i class="bi bi-stars"></i>
+            </div>
+            <span class="qa-label">Servicios</span>
+        </a>
+        <a href="{% url 'personal:lista_personal' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#fff0f0,#ffe0e0);color:#c0392b;">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <span class="qa-label">Personal</span>
+        </a>
+        <a href="{% url 'proveedores:lista_proveedor' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#f0f8f0,#d8f0e4);color:#1a6e3a;">
+                <i class="bi bi-truck"></i>
+            </div>
+            <span class="qa-label">Proveedores</span>
+        </a>
+        <a href="{% url 'usuarios:lista_usuarios' %}" class="qa-card">
+            <div class="qa-icon" style="background:linear-gradient(135deg,#f0f0ff,#e0e0ff);color:#3a3ac9;">
+                <i class="bi bi-unlock-fill"></i>
+            </div>
+            <span class="qa-label">Usuarios</span>
+        </a>
+    </div>
 
-            <div class="card-body">
+    <!-- ── BOTTOM: BIRTHDAYS + RECENT USERS ── -->
+    <div class="bottom-grid">
+
+        <!-- Birthdays -->
+        <div class="dash-card">
+            <div class="dash-card-head bday-head">
+                <i class="bi bi-balloon-heart-fill"></i>
+                Cumplea&ntilde;os de hoy
                 {% if clientes_cumple_hoy %}
-                    <ul class="list-group list-group-flush">
-                        {% for item in clientes_cumple_hoy %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>
-                                    {{ item.cliente.nombre }} {{ item.cliente.apellido }}
-                                </span>
-                                <span class="badge bg-success">
-                                    🎉 {{ item.edad }} años
-                                </span>
-                            </li>
-
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted mb-0">
-                        No hay clientes cumpliendo años hoy 🎈
-                    </p>
+                    <span class="ms-auto" style="background:rgba(201,169,110,.25);color:#7a5c1e;font-size:.72rem;padding:3px 10px;border-radius:20px;">
+                        {{ clientes_cumple_hoy|length }}
+                    </span>
                 {% endif %}
             </div>
-
-        </div>
-    </div>
-</div>
-    <!-- Espacio para contenido dinámico (gráficos, tablas, etc.) -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    
-                    <p class="text-muted mb-0">Área de widgets: agrega aquí información relevante del sistema (ventas, inventario, productos, etc.).</p>
-                </div>
+            <div class="dash-card-body">
+                {% if clientes_cumple_hoy %}
+                    {% for item in clientes_cumple_hoy %}
+                        <div class="bday-item">
+                            <div class="bday-avatar">
+                                {{ item.cliente.nombre|slice:":1" }}{{ item.cliente.apellido|slice:":1" }}
+                            </div>
+                            <div>
+                                <div class="bday-name">{{ item.cliente.nombre }} {{ item.cliente.apellido }}</div>
+                                <div class="bday-age">{{ item.edad }} a&ntilde;os hoy</div>
+                            </div>
+                            <div class="bday-badge">&#127881; {{ item.edad }} a&ntilde;os</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-calendar-x" style="font-size:2rem;opacity:.35;display:block;margin-bottom:8px;"></i>
+                        Ning&uacute;n cliente cumple a&ntilde;os hoy
+                    </div>
+                {% endif %}
             </div>
         </div>
+
+        <!-- Recent Users -->
+        <div class="dash-card">
+            <div class="dash-card-head users-head">
+                <i class="bi bi-people-fill"></i>
+                &Uacute;ltimos usuarios registrados
+            </div>
+            <div class="dash-card-body">
+                {% for u in ultimos_usuarios %}
+                    <div class="user-row">
+                        <div class="u-avatar">{{ u.username|slice:":2" }}</div>
+                        <div>
+                            <div class="u-name">{{ u.get_full_name|default:u.username }}</div>
+                            <div class="u-role">{{ u.email|default:"Sin correo" }}</div>
+                        </div>
+                        {% if u.is_staff %}
+                            <span class="u-badge staff">Admin</span>
+                        {% elif u.is_active %}
+                            <span class="u-badge active">Activo</span>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="empty-state">No hay usuarios registrados</div>
+                {% endfor %}
+            </div>
+        </div>
+
     </div>
+
 </div>
+
+<script>
+(function(){
+    var days=['Domingo','Lunes','Martes','Mi\u00e9rcoles','Jueves','Viernes','S\u00e1bado'];
+    var months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    function tick(){
+        var d=new Date();
+        var h=String(d.getHours()).padStart(2,'0');
+        var m=String(d.getMinutes()).padStart(2,'0');
+        var s=String(d.getSeconds()).padStart(2,'0');
+        document.getElementById('live-clock').textContent=h+':'+m+':'+s;
+        document.getElementById('live-date').textContent=days[d.getDay()]+', '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear();
+    }
+    tick();setInterval(tick,1000);
+})();
+</script>
 {% endblock %}
+
