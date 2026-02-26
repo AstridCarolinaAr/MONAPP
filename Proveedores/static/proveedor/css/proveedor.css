@@ -252,3 +252,23 @@ h2 {
 .btn-eliminar:hover {
     transform: translateY(-2px);
 }
+.form-validated{
+  position: relative;
+}
+.form-validated .valid-check{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+.form-validated.is-ok .valid-check{
+  opacity: 1;
+}
+
+/* deja espacio para el ícono */
+.form-validated input.form-control,
+.form-validated select.form-select{
+  padding-right: 2.2rem;
+}

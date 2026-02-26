@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         Inputmask({ mask: '(999) 999-9999', placeholder: ' ' }).mask('#id_telefono_proveedor'); // Teléfono
     }
 
-    // Validación en tiempo real básica (ejemplo para campos requeridos)
+    // Validación en tiempo real 
     const requiredFields = document.querySelectorAll('.form-proveedor [required]');
     requiredFields.forEach(field => {
         field.addEventListener('blur', function() {
@@ -70,9 +70,14 @@ fetch(form.action, {
 .then(data => {
 
     if (data.success) {
-        window.location.href = data.redirect_url;  // ← AQUÍ está la clave
+        window.location.href = data.redirect_url;  
     } else {
         modalBody.innerHTML = data.html;
     }
 
+});
+(() => {
+  "use strict";
+
+  const qs = (root, sel) => (root || document).querySelector(sel);
 });

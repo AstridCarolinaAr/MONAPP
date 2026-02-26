@@ -26,8 +26,8 @@
             <a href="{% url 'proveedores:crear_proveedor' %}"
             class="btn btn-primary"
             data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-            data-modal-title="Crear producto">
-            Crear producto
+            data-modal-title="Crear Proveedor">
+            Crear Proveedor
             </a>
             </div>
 
@@ -149,18 +149,14 @@
                                         </button>
 
                                     {% if proveedor.estado == 'activo' %}
-                                        <!-- DESACTIVAR -->
-                                    <button 
-                                        class="btn-icon btn-eliminar"
-                                        onclick="eliminarProveedor({{ proveedor.id }})">
+                                    <button type="button"
+                                            class="btn-icon btn-eliminar js-eliminar-proveedor"
+                                            data-id="{{ proveedor.id }}">
                                         <i class="bi bi-trash3-fill"></i>
                                     </button>
-
                                     {% else %}
-                                        <!-- REACTIVAR (desactivar boton -->
-                                        <button class="btn btn-sm btn-primary"
-                                                onclick="reactivarProveedor({{ proveedor.id }})">
-                                            Reactivar
+                                        <button type="button" class="btn btn-success btn-sm js-reactivar-proveedor" data-id="{{ proveedor.id }}">
+                                        Reactivar
                                         </button>
                                     {% endif %}
 
@@ -238,6 +234,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
 {% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <script src="{% static 'proveedor/js/detalle_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/eliminar_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/proveedor_formulario.js' %}"></script>
