@@ -10,7 +10,6 @@ class CompraForm(forms.ModelForm):
         model = Compra
         fields = [
             "proveedor",
-
         ]
         widgets = {
             "proveedor": forms.Select(attrs={"class": "form-select"}),
@@ -38,9 +37,9 @@ class DetalleCompraForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["producto"].queryset = Producto.objects.all().order_by("nombre")
-
+        self.empty_permitted=True
         self.fields["producto"].label_from_instance = lambda obj: obj.nombre
-
+        self.empty_permitted = True
         self.fields["producto"].widget.attrs.update({"class": "form-select"})
 
 
@@ -50,4 +49,5 @@ DetalleCompraFormSet = inlineformset_factory(
     form=DetalleCompraForm,
     extra=1,
     can_delete=True,
+    validate_min=False
 )

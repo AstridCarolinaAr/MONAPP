@@ -49,40 +49,55 @@
 
         <tbody>
         {% for c in compras %}
-          <tr>
+        <tr id="fila-compra-{{ c.id }}">
             <td>{{ c.proveedor }}</td>
             <td>{{ c.fecha }}</td>
             <td>{{ c.usuario.username }}</td>
 
-
             <td class="text-center">
+                <div class="acciones-group">
+                    <button type="button"
+                            class="btn btn-outline-info btn-sm js-ver-detalle"
+                            data-url="{% url 'compras:detalle_compra' c.id %}">
+                        <i class="bi bi-eye"></i>
+                    </button>
 
-              <div class="acciones-group">
-                <button type="button"
-                        class="btn btn-outline-info btn-sm js-ver-detalle"
-                        data-url="{% url 'compras:detalle_compra' c.id %}">
-                <i class="bi bi-eye"></i>
-                </button>
-                <a href="#"
-                class="btn btn-sm btn-outline-primary"
-                data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                data-modal-title="Editar compra">
-                editar
-                </a>
-                <button
-                  class="btn btn-warning btn-sm js-anular-compra"
-                  data-url="{% url 'compras:anular_compra' c.id %}">
-                  Anular
-                </button>
-              </div>
+                    <a href="#"
+                      class="btn btn-sm btn-outline-primary"
+                      data-modal-url="{% url 'compras:editar_compra' c.id %}"
+                      data-modal-title="Editar compra">
+                        editar
+                    </a>
+
+                    <button
+                        class="btn btn-warning btn-sm js-anular-compra"
+                        data-id="{{ c.id }}"
+                        data-proveedor="{{ c.proveedor }}"
+                        data-url="{% url 'compras:anular_compra' c.id %}">
+                        Anular
+                    </button>
+                </div>
             </td>
-          </tr>
-
-
+        </tr>
         {% endfor %}
         </tbody>
       </table>
+      {%if compras_anuladas %}
+<div id="anuladas-box">
+    <div class="anuladas-header">
+        🗑 anuladas 
+        <span id="contador-anuladas">{{ compras_anuladas|length }}</span>
     </div>
+    <div id="anuladas-content">
+        {% for c in compras_anuladas %}
+            <div class="anulada-item">
+                <strong>Compra #{{ c.id }}</strong><br>
+                <small>{{ c.proveedor }}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+      {%endif%}
   {% else %}
     <div class="alert alert-light mt-3 text-center">No hay compras registradas</div>
   {% endif %}

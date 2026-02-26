@@ -21,14 +21,27 @@ def is_ajax(request):
 @login_required
 @require_http_methods(["GET"])
 def lista_compras(request):
-    compras = (
-        Compra.objects.select_related("proveedor", "usuario")
+
+    compras_base = (
+        Compra.objects
+        .select_related("proveedor", "usuario")
         .prefetch_related("detalles__producto")
         .order_by("-id")
     )
-    total_compras = compras.aggregate(total=Sum("precio_total"))["total"] or 0
 
-    context = {"compras": compras, "total_compras": total_compras}
+    compras_activas = compras_base.filter(anulada=False)
+    compras_anuladas = compras_base.filter(anulada=True)
+
+    total_compras = compras_activas.aggregate(
+        total=Sum("precio_total")
+    )["total"] or 0
+
+    context = {
+        "compras": compras_activas,  
+        "compras_anuladas": compras_anuladas,
+        "total_compras": total_compras,
+    }
+
     return render(request, "compras/compra.html", context)
 
 @login_required
@@ -64,7 +77,7 @@ def detalle_compra(request, compra_id):
 def crear_compra(request):
     if request.method == "POST":
         form = CompraForm(request.POST)
-        formset = DetalleCompraFormSet(request.POST or None)
+        formset = DetalleCompraFormSet(request.POST, instance=compra, prefix="detalles")
 
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
@@ -105,13 +118,14 @@ def crear_compra(request):
             "action_url": reverse("compras:crear_compra"),
             "compra": None,
         }
+        context ["modo"]="crear"
         if is_ajax(request):
             html = render_to_string("compras/formulario_crear_compra.html", context, request=request)
             return JsonResponse({"success": False, "html": html})
         return render(request, "compras/crear_compra.html", context)
 
     form = CompraForm()
-    formset = DetalleCompraFormSet()
+    formset = DetalleCompraFormSet(instance=compra, prefix="detalles")
     context = {
         "form": form,
         "formset": formset,
@@ -131,13 +145,30 @@ def crear_compra(request):
 def editar_compra(request, pk):
     compra = get_object_or_404(Compra, pk=pk)
 
+    if compra.anulada:
+        if is_ajax(request):
+            return JsonResponse(
+                {"success": False, "message": "No se puede editar una compra anulada."},
+                status=400
+            )
+        # no-ajax
+        return render(request, "compras/formulario_editar.html", {
+            "compra": compra,
+            "form": CompraForm(instance=compra),
+            "formset": DetalleCompraFormSet(instance=compra),
+            "modo": "editar",
+            "action_url": reverse("compras:editar_compra", args=[compra.pk]),
+            "error": "No se puede editar una compra anulada."
+        })
+
+    PREFIX = "detalles"  
+
     if request.method == "POST":
         form = CompraForm(request.POST, instance=compra)
-        formset = DetalleCompraFormSet(request.POST or None, instance=compra)
+        formset = DetalleCompraFormSet(request.POST, instance=compra, prefix=PREFIX)
 
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
-
                 old_map = dict(
                     compra.detalles.values("producto_id")
                     .annotate(total=Sum("cantidad"))
@@ -160,12 +191,10 @@ def editar_compra(request, pk):
                 )
 
                 producto_ids = set(old_map.keys()) | set(new_map.keys())
-
                 for pid in producto_ids:
                     old_qty = old_map.get(pid) or 0
                     new_qty = new_map.get(pid) or 0
                     delta = new_qty - old_qty
-
                     if delta == 0:
                         continue
 
@@ -174,39 +203,44 @@ def editar_compra(request, pk):
                         cantidad_actual=F("cantidad_actual") + delta
                     )
 
-                    if compra.anulada:
-                        return JsonResponse({"success": False, "message": "no se puede editar una compra anulada."})
-
             return JsonResponse({"success": True, "message": "Se editó correctamente"})
 
+        print("=== EDITAR INVALIDA ===")
+        print("FORM ERRORS:", form.errors)
+        print("FORMSET NON_FORM:", formset.non_form_errors())
+        print("FORMSET ERRORS:", formset.errors)
+
         html = render_to_string(
-            "compras/formulario_compra.html",
+            "compras/formulario_editar.html",
             {
                 "form": form,
                 "formset": formset,
                 "compra": compra,
+                "modo": "editar",
                 "action_url": reverse("compras:editar_compra", args=[compra.pk]),
             },
             request=request
         )
-
         return JsonResponse({"success": False, "html": html}, status=400)
 
     form = CompraForm(instance=compra)
-    formset = DetalleCompraFormSet(instance=compra)
+    formset = DetalleCompraFormSet(instance=compra, prefix=PREFIX)
 
     context = {
         "form": form,
         "formset": formset,
         "compra": compra,
+        "modo": "editar",
         "action_url": reverse("compras:editar_compra", args=[compra.pk]),
     }
 
     if is_ajax(request):
-        html = render_to_string("compras/formulario_crear_compra.html", context, request=request)
+        html = render_to_string("compras/formulario_editar.html", context, request=request)
         return JsonResponse({"success": True, "html": html})
 
-    return render(request, "compras/formulario_compra.html", context)
+    return render(request, "compras/formulario_editar.html", context)
+
+
 @login_required
 @require_POST
 def anular_compra(request, pk):
@@ -233,4 +267,7 @@ def anular_compra(request, pk):
         compra.anulada = True
         compra.save(update_fields=["anulada"])
 
-    return JsonResponse({"status": "ok", "message": "Compra anulada y stock revertido."})
+    return JsonResponse({
+        "success": True,
+        "message": "Compra anulada y stock revertido."
+    })

@@ -1,4 +1,4 @@
-// static/compras/js/compra.js
+
 (() => {
   "use strict";
 
@@ -174,96 +174,111 @@
     const fb = ensureFeedback(input);
     if (fb) fb.textContent = "";
   }
-
   function validateCompraForm(scope) {
-    const root = scope || document;
-    const form = root?.tagName === "FORM" ? root : qs(root, "#formCompra") || qs(document, "#formCompra");
-    if (!form) return true;
+  const root = scope || document;
+  const form =
+    root?.tagName === "FORM"
+      ? root
+      : qs(root, "#formCompra") || qs(document, "#formCompra");
+  if (!form) return true;
 
-    hideGeneralErrors(form);
+  hideGeneralErrors(form);
 
-    const btnGuardar = qs(form, "#btnGuardarCompra");
-    const errores = [];
+  const btnGuardar = qs(form, "#btnGuardarCompra");
+  const errores = [];
 
-    // items activos
-    const items = Array.from(form.querySelectorAll(".detalle-item"));
-    const itemsActivos = items.filter((item) => {
-      if (item.classList.contains("d-none")) return false;
-      const del = item.querySelector('input[name$="-DELETE"]');
-      if (del && del.checked) return false;
-      return true;
-    });
+  // ✅ items + itemsActivos (esto faltaba y rompía todo)
+  const items = Array.from(form.querySelectorAll(".detalle-item"));
+  const itemsActivos = items.filter((item) => {
+    if (item.classList.contains("d-none")) return false;
+    const del = item.querySelector('input[name$="-DELETE"]');
+    if (del && del.checked) return false;
+    return true;
+  });
 
-    // ✅ regla: debe haber 1 producto mínimo
-    if (itemsActivos.length === 0) {
-      errores.push("Debes agregar al menos un producto.");
+  const modo = form.dataset.modo || "crear";
+
+  // ✅ validar filas (ignorando extras vacíos)
+  const usados = new Map();
+  let hayProductoReal = false;
+
+  itemsActivos.forEach((item, idx) => {
+    const productoSel = qs(item, 'select[name$="-producto"]');
+    const cantidadInp = qs(item, 'input[name$="-cantidad"]');
+    const precioInp = qs(item, 'input[name$="-precio_unitario"]');
+
+    const productoVal = (productoSel?.value || "").trim();
+    const cantidadRaw = (cantidadInp?.value || "").trim();
+    const precioRaw = (precioInp?.value || "").trim();
+
+    // ✅ fila totalmente vacía => NO validar
+    const filaVacia = !productoVal && !cantidadRaw && !precioRaw;
+    if (filaVacia) {
+      clearState(productoSel);
+      clearState(cantidadInp);
+      clearState(precioInp);
+      return;
     }
 
-    // proveedor
-    const proveedor = qs(form, "#id_proveedor");
-    if (proveedor) {
-      if (!proveedor.value) {
-        errores.push("Selecciona un proveedor.");
-        markInvalid(proveedor, "Proveedor obligatorio");
-      } else {
-        markValid(proveedor);
-      }
+    // si llegó aquí, ya hay intención de llenar o es una fila real
+    if (productoVal) hayProductoReal = true;
+
+    if (!productoVal) {
+      errores.push(`Producto requerido en la fila ${idx + 1}.`);
+      markInvalid(productoSel, "Selecciona un producto");
+    } else {
+      markValid(productoSel);
+      usados.set(productoVal, (usados.get(productoVal) || 0) + 1);
     }
 
-    // validar filas
-    const usados = new Map();
-
-    itemsActivos.forEach((item, idx) => {
-      const productoSel = qs(item, 'select[name$="-producto"]');
-      const cantidadInp = qs(item, 'input[name$="-cantidad"]');
-      const precioInp = qs(item, 'input[name$="-precio_unitario"]');
-
-      if (productoSel) {
-        if (!productoSel.value) {
-          errores.push(`Producto requerido en la fila ${idx + 1}.`);
-          markInvalid(productoSel, "Selecciona un producto");
-        } else {
-          markValid(productoSel);
-          usados.set(productoSel.value, (usados.get(productoSel.value) || 0) + 1);
-        }
-      }
-
-      if (cantidadInp) {
-        const c = toNumber(cantidadInp.value);
-        if (c <= 0) {
-          errores.push(`La cantidad debe ser mayor que 0 (fila ${idx + 1}).`);
-          markInvalid(cantidadInp, "Mayor que 0");
-        } else {
-          markValid(cantidadInp);
-        }
-      }
-
-      if (precioInp) {
-        const p = toNumber(precioInp.value);
-        if (p <= 0) {
-          errores.push(`El precio unitario debe ser mayor que 0 (fila ${idx + 1}).`);
-          markInvalid(precioInp, "Mayor que 0");
-        } else {
-          markValid(precioInp);
-        }
-      }
-    });
-
-    // duplicados
-    for (const [prodId, count] of usados.entries()) {
-      if (count > 1) {
-        errores.push("No puedes repetir el mismo producto en la compra.");
-        qsa(form, 'select[name$="-producto"]').forEach((sel) => {
-          if (sel.value === prodId) markInvalid(sel, "Producto duplicado");
-        });
-        break;
-      }
+    const cantidadVal = toNumber(cantidadRaw);
+    if (cantidadVal <= 0) {
+      errores.push(`La cantidad debe ser mayor que 0 (fila ${idx + 1}).`);
+      markInvalid(cantidadInp, "Mayor que 0");
+    } else {
+      markValid(cantidadInp);
     }
 
-    const ok = errores.length === 0;
-    if (btnGuardar) btnGuardar.disabled = !ok;
-    return ok;
+    const precioVal = toNumber(precioRaw);
+    if (precioVal <= 0) {
+      errores.push(`El precio unitario debe ser mayor que 0 (fila ${idx + 1}).`);
+      markInvalid(precioInp, "Mayor que 0");
+    } else {
+      markValid(precioInp);
+    }
+  });
+
+  // ✅ Solo en CREAR obligar mínimo un producto real
+  if (modo === "crear" && !hayProductoReal) {
+    errores.push("Debes agregar al menos un producto.");
   }
+
+  // proveedor
+  const proveedor = qs(form, "#id_proveedor");
+  if (proveedor) {
+    if (!proveedor.value) {
+      errores.push("Selecciona un proveedor.");
+      markInvalid(proveedor, "Proveedor obligatorio");
+    } else {
+      markValid(proveedor);
+    }
+  }
+
+  // duplicados
+  for (const [prodId, count] of usados.entries()) {
+    if (count > 1) {
+      errores.push("No puedes repetir el mismo producto en la compra.");
+      qsa(form, 'select[name$="-producto"]').forEach((sel) => {
+        if (sel.value === prodId) markInvalid(sel, "Producto duplicado");
+      });
+      break;
+    }
+  }
+
+  const ok = errores.length === 0;
+  if (btnGuardar) btnGuardar.disabled = !ok;
+  return ok;
+}
 
   // =========================
   // Modales
@@ -310,7 +325,70 @@
   // Click global
   // =========================
   document.body.addEventListener("click", async (e) => {
+    // =========================
+    // ANULAR COMPRA
+    // =========================
+    const btnAnular = e.target.closest(".js-anular-compra");
+    if (btnAnular) {
+      e.preventDefault();
+
+      const url = btnAnular.getAttribute("data-url");
+      const id = btnAnular.getAttribute("data-id");
+      const proveedor = btnAnular.getAttribute("data-proveedor");
+
+      if (!url) return;
+
+      const confirm = await Swal.fire({
+        title: "¿Anular compra?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, anular",
+        cancelButtonText: "Cancelar"
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "X-CSRFToken": csrfFromCookie(),
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+
+          const fila = document.getElementById(`fila-compra-${id}`);
+          if (fila) {
+            animarHaciaCaja(fila, { id, proveedor });
+            fila.remove();
+          }
+
+          await Swal.fire({
+            icon: "success",
+            title: "Compra anulada",
+            timer: 1200,
+            showConfirmButton: false
+          });
+
+        } else {
+          Swal.fire("Error", data.message || "No se pudo anular.", "error");
+        }
+
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "Error del servidor.", "error");
+      }
+
+      return;
+    }
     const trigger = e.target.closest("[data-modal-url]");
+    
     if (trigger) {
       e.preventDefault();
       await openFormModal(trigger.getAttribute("data-modal-url"), trigger.getAttribute("data-modal-title") || "Formulario");
@@ -367,7 +445,9 @@
 
       calcularTotal(form);
       validateCompraForm(form);
+      
       return;
+      
     }
 
     const btnX = e.target.closest(".btn-eliminar-item");
@@ -454,6 +534,27 @@
     if (totalInp) totalInp.value = unformatCOP(totalInp.value);
 
     const csrf = csrfFromCookie();
+form.querySelectorAll(".detalle-item").forEach((item) => {
+  const producto = item.querySelector('select[name$="-producto"]');
+  const cantidad = item.querySelector('input[name$="-cantidad"]');
+  const precio = item.querySelector('input[name$="-precio_unitario"]');
+  const del = item.querySelector('input[name$="-DELETE"]');
+
+  if (!producto || !cantidad || !precio) return;
+  if (del?.checked) return;
+
+  const pv = (producto.value || "").trim();
+  const cv = (cantidad.value || "").trim();
+  const pr = (precio.value || "").trim();
+
+  const vacia = !pv && !cv && !pr;
+
+  if (vacia) {
+    cantidad.value = "";
+    precio.value = "";
+    if (del) del.checked = true;
+  }
+});
     if (!csrf) return;
 
     const result = await fetchSmart(form.action, {
@@ -476,9 +577,15 @@
           timer: 1400,
           showConfirmButton: false,
         });
-        location.reload();
-        return;
+      }else{
+        formModalBodyEl.innerHTML = result.data.html || `<div class="alert alert-danger">No se pudo guardar.</div>`;
+        qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
+        calcularTotal(formModalEl);
+        validateCompraForm(formModalEl);
       }
+      return;
+    }
+
 
       formModalBodyEl.innerHTML = result.data.html || `<div class="alert alert-danger">No se pudo guardar.</div>`;
       qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
@@ -486,17 +593,89 @@
       validateCompraForm(formModalEl);
       return;
     }
-
-    formModalBodyEl.innerHTML = result.data;
-    qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
-    calcularTotal(formModalEl);
-    validateCompraForm(formModalEl);
-  });
-
-  // init página
+  );
   document.addEventListener("DOMContentLoaded", () => {
-    qsa(document, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
-    calcularTotal(document);
-    validateCompraForm(document);
+    const header = document.querySelector(".aunuladas-header");
+    const caja = document.getElementById("anuladas-box");
+    if (header ||caja) return; 
+    header.addEventListener("click", function(e) {
+      e.stopPropagation();
+      caja.classList.toggle("abierto");
+    });
   });
 })();
+
+// función para animar la caja de anuladas
+
+
+function animarHaciaCaja(fila, dataCompra) {
+
+  const caja = document.getElementById("anuladas-box");
+  const filaRect = fila.getBoundingClientRect();
+  const cajaRect = caja.getBoundingClientRect();
+
+  const clon = fila.cloneNode(true);
+
+  clon.style.position = "fixed";
+  clon.style.left = filaRect.left + "px";
+  clon.style.top = filaRect.top + "px";
+  clon.style.width = filaRect.width + "px";
+  clon.style.transition = "all 0.7s ease";
+  clon.style.zIndex = 10000;
+  clon.style.background = "#f8d7da";
+
+  document.body.appendChild(clon);
+
+  requestAnimationFrame(() => {
+    clon.style.left = cajaRect.left + "px";
+    clon.style.top = cajaRect.top + "px";
+    clon.style.opacity = "0";
+    clon.style.transform = "scale(0.3)";
+  });
+
+  setTimeout(() => {
+    agregarAnulada(dataCompra);
+    clon.remove();
+    fila.remove(); 
+  }, 700);
+}
+function agregarAnulada(dataCompra) {
+
+  const contenedor = document.querySelector("#anuladas-content");
+  const contador = document.querySelector("#contador-anuladas");
+  const caja = document.querySelector("#anuladas-box");
+
+  if (!contenedor || !contador || !caja) return;
+
+  const item = document.createElement("div");
+  item.className = "anulada-item";
+  item.innerHTML = `
+    <strong>Compra #${dataCompra.id}</strong><br>
+    <small>${dataCompra.proveedor}</small>
+  `;
+
+  contenedor.appendChild(item);
+
+  contador.textContent = contenedor.children.length;
+
+  
+  caja.classList.add("abierto");
+  
+}
+document.addEventListener("DOMContentLoaded", function () {
+
+  const caja = document.getElementById("anuladas-box");
+  const header = document.querySelector(".anuladas-header");
+
+  if (!caja || !header) {
+    console.log("No se encontró la caja o el header");
+    return;
+  }
+
+  header.addEventListener("click", function (e) {
+    e.stopPropagation();
+    caja.classList.toggle("abierto");
+    console.log("Click detectado - toggle ejecutado");
+  });
+
+});
