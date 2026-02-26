@@ -11,14 +11,20 @@
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 <div class="container-fluid">
 
+    <div class="card shadow-sm card-proveedores">
+        <div class="card-body">
+
             <!-- HEADER -->
             <div class="proveedores-header mb-4 d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-0">Gestión de Proveedores</h2>
+                    <h4 class="mb-0">Listado de Proveedores</h4>
+                    <small class="text-muted">
+                        Total: {{ proveedores|length }}
+                        proveedor{{ proveedores|length|pluralize:"es" }}
+                    </small>
                 </div>
             <a href="{% url 'proveedores:crear_proveedor' %}"
             class="btn-pill-dark"
-            style="font-size: 11px; padding: 3px 10px;"
             data-modal-url="{% url 'proveedores:crear_proveedor' %}"
             data-modal-title="Nuevo proveedor">
             <i class="bi bi-plus-circle"></i> Nuevo proveedor
@@ -103,12 +109,12 @@
             <!-- TABLA -->
             {% if proveedores %}
             <div class="table-responsive">
-                <table class="styled-table" style="width: 100%;">
+                <table class="styled-table">
                     <thead>
                         <tr>
-                            <th style="font-size: 9px;">NIT</th>
-                            <th style="font-size: 9px;">Proveedor</th>
-                            <th class="text-center" style="font-size: 9px;">Acciones</th>
+                            <th>NIT</th>
+                            <th>Proveedor</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -179,6 +185,8 @@
                 </div>
             {% endif %}
 
+        </div>
+    </div>
 </div>
 
 <!-- MODAL DETALLE -->
