@@ -21,10 +21,10 @@
     </h2>
 
     <a href="#"
-    class="btn btn-primary"
+    class="btn-pill-dark"
     data-modal-url="{% url 'compras:crear_compra' %}"
-    data-modal-title="Registrar compra">
-    <i class="bi bi-plus-circle me-1"></i> Registrar compra
+    data-modal-title="Nueva compra">
+    <i class="bi bi-plus-circle"></i> Nueva compra
     </a>
   </div>
 
@@ -35,7 +35,7 @@
 
   {% if compras %}
     <div class="table-responsive">
-      <table class="table table-hover align-middle tabla-compras">
+      <table class="styled-table">
         <thead>
           <tr>
             <th>Proveedor</th>
@@ -59,21 +59,30 @@
 
               <div class="acciones-group">
                 <button type="button"
-                        class="btn btn-outline-info btn-sm js-ver-detalle"
-                        data-url="{% url 'compras:detalle_compra' c.id %}">
-                <i class="bi bi-eye"></i>
+                        class="btn btn-link"
+                        style="color: #382822;"
+                        data-url="{% url 'compras:detalle_compra' c.id %}"
+                        title="Ver detalles"
+                        data-bs-placement="bottom">
+                <i class="bi bi-eye" style="font-size: 24px;"></i>
                 </button>
                 <a href="#"
-                class="btn btn-sm btn-outline-primary"
+                class="btn btn-link"
+                style="color: #382822;"
                 data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                data-modal-title="Editar compra">
-                editar
+                data-modal-title="Editar compra"
+                title="Editar"
+                data-bs-placement="bottom">
+                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
                 </a>
                 <button type="button"
-                            class="btn btn-danger js-eliminar-compra"
+                            class="btn btn-link"
+                            style="color: #382822;"
                             data-url="{% url 'compras:eliminar_compra' c.id %}"
-                            data-id="{{ c.id }}">
-                      Eliminar
+                            data-id="{{ c.id }}"
+                            title="Eliminar"
+                            data-bs-placement="bottom">
+                      <i class="bi bi-trash3" style="font-size: 24px;"></i>
                     </button>
               </div>
             </td>

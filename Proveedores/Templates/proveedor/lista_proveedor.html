@@ -24,10 +24,10 @@
                     </small>
                 </div>
             <a href="{% url 'proveedores:crear_proveedor' %}"
-            class="btn btn-primary"
+            class="btn-pill-dark"
             data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-            data-modal-title="Crear producto">
-            Crear producto
+            data-modal-title="Nuevo proveedor">
+            <i class="bi bi-plus-circle"></i> Nuevo proveedor
             </a>
             </div>
 
@@ -109,8 +109,8 @@
             <!-- TABLA -->
             {% if proveedores %}
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                <table class="styled-table">
+                    <thead>
                         <tr>
                             <th>NIT</th>
                             <th>Proveedor</th>
@@ -128,32 +128,38 @@
                                 <div class="d-flex justify-content-center gap-2">
 
                                     <!-- VER DETALLES -->
-                                    <button
-                                        type="button"
-                                        class="btn btn-icon btn-ver"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetalleProveedor"
-                                        data-nombre="{{ proveedor.nombre_proveedor }}"
-                                        data-nit="{{ proveedor.nit }}"
-                                        data-correo="{{ proveedor.correo_proveedor }}"
-                                        data-estado="{{ proveedor.get_estado_display }}"
-                                        data-telefono="{{ proveedor.telefono_proveedor }}"
-                                        data-direccion="{{ proveedor.direccion_proveedor }}">
-                                        <i class="bi bi-eye-fill"></i>
+                                    <button class="btn btn-link"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalDetalleProveedor"
+                                            data-nombre="{{ proveedor.nombre_proveedor }}"
+                                            data-nit="{{ proveedor.nit }}"
+                                            data-correo="{{ proveedor.correo_proveedor }}"
+                                            data-estado="{{ proveedor.get_estado_display }}"
+                                            data-telefono="{{ proveedor.telefono_proveedor }}"
+                                            data-direccion="{{ proveedor.direccion_proveedor }}"
+                                            style="color: #382822;"
+                                            title="Ver detalles"
+                                            data-bs-placement="bottom">
+                                        <i class="bi bi-eye" style="font-size: 24px;"></i>
                                     </button>
 
-                                        <button class="btn btn-primary btn-sm"
-                                                data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
-                                                data-modal-title="Editar proveedor">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                    <button class="btn btn-link"
+                                            data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
+                                            data-modal-title="Editar proveedor"
+                                            style="color: #382822;"
+                                            title="Editar"
+                                            data-bs-placement="bottom">
+                                        <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                                    </button>
 
                                     {% if proveedor.estado == 'activo' %}
                                         <!-- DESACTIVAR -->
-                                    <button 
-                                        class="btn-icon btn-eliminar"
-                                        onclick="eliminarProveedor({{ proveedor.id }})">
-                                        <i class="bi bi-trash3-fill"></i>
+                                    <button class="btn btn-link"
+                                            onclick="eliminarProveedor({{ proveedor.id }})"
+                                            style="color: #382822;"
+                                            title="Eliminar"
+                                            data-bs-placement="bottom">
+                                        <i class="bi bi-trash3" style="font-size: 24px;"></i>
                                     </button>
 
                                     {% else %}

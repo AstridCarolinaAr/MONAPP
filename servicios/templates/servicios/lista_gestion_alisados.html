@@ -23,14 +23,14 @@
     <div class="card shadow">
         <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
             <h4 class="mb-0">Gestion de datos</h4>
-            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
+            <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
                 <i class="bi bi-plus-circle"></i> Nueva Gestión
             </button>
         </div>
         <div class="card-body">
             {% if gestiones %}
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped">
+                    <table class="styled-table">
                         <thead>
                             <tr>
                                 <th>Fecha y Hora</th>
@@ -58,15 +58,9 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Ver detalles" data-bs-placement="bottom"><i class="bi bi-eye" style="font-size: 24px;"></i></a>
+                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom"><i class="bi bi-pencil-square" style="font-size: 24px;"></i></a>
+                                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Eliminar" data-bs-placement="bottom"><i class="bi bi-trash3" style="font-size: 24px;"></i></a>
                                 </td>
                             </tr>
                             {% endfor %}

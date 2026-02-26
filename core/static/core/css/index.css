@@ -19,15 +19,15 @@ body {
 /* -------------------- GLOBAL -------------------- */
 
 .sq-container {
-    max-width: 1140px;
+    max-width: 1130px;
     margin: 0 auto;
-    padding: 0 32px;
+    padding: 0 16px;
 }
 
 .sq-btn {
     display: inline-block;
-    padding: 16px 52px;
-    border-radius: 999px;
+    padding: 9px 52px;
+    border-radius: 995px;
     border: 1px solid #111;
     text-decoration: none;
     color: #111;
@@ -35,7 +35,7 @@ body {
     transition: all 0.3s ease;
     font-size: 1.05rem;
     letter-spacing: 0.02em;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
     
 }
 
@@ -65,7 +65,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-bottom: 220px;
+    padding-bottom: 29px;
 }
 .sq-hero-bg::before {
     content: "";
@@ -99,7 +99,7 @@ body {
     align-items: center;
     justify-content: center;
     padding-top: 160px;
-    padding-bottom: 40px;
+    padding-bottom: 30px;
     position: relative;
     
 }
@@ -129,7 +129,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 220px;
+    height: 29px;
     background: linear-gradient(
         to bottom,
         rgba(15,15,15,0),
@@ -145,7 +145,7 @@ body {
     z-index: 2;
     color: #ffffff;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 9px;
      
     
 }
@@ -154,7 +154,7 @@ body {
     line-height: 1.08;
     font-weight: 500;
     letter-spacing: -0.03em;
-    margin-bottom: 100px;
+    margin-bottom: 60px;
 }
 
 .sq-hero h2 {
@@ -162,19 +162,19 @@ body {
     line-height: 1.08;
     font-weight: 500;
     letter-spacing: -0.03em;
-    margin-bottom: 100px;
+    margin-bottom: 60px;
     text-align: center;
 }
 
 .sq-hero p {
-    margin-top: 32px;
-    max-width: 520px;
+    margin-top: 16px;
+    max-width: 59px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .sq-hero .sq-btn {
-    margin-top: 50px;
+    margin-top: 30px;
     border-color: #fff;
     color: #fff;
 }
@@ -182,8 +182,8 @@ body {
 /* ==================== SOBRE NOSOTROS – 3 COLUMNAS ==================== */
 
 .sq-intro {
-    padding-top: 60px;   /* antes 140px */
-    padding-bottom: 140px;
+    padding-top: 60px;   /* antes 130px */
+    padding-bottom: 130px;
 }
 
 /* Layout principal */
@@ -191,7 +191,7 @@ body {
     display: grid;
     grid-template-columns: 2fr 2.2fr 0.4fr; /* imagen | texto | imagen */
     align-items: center;
-    gap: 80px;
+    gap: 60px;
     max-width: 1600px;
     margin: 0 auto;
 }
@@ -203,15 +203,15 @@ body {
 }
 
 #intro {
-    scroll-margin-top: 100px; 
+    scroll-margin-top: 60px; 
 }
 
 .sq-intro-img.left {
     width: 100%;
     justify-content: flex-start;
-    margin-left: -120px;
+    margin-left: -19px;
     align-self: flex-start;
-    margin-top: 120px;
+    margin-top: 19px;
 }
 
 .sq-intro-img.right {
@@ -220,33 +220,33 @@ body {
 }
 
 .sq-intro-img img {
-    border-radius: 18px;
+    border-radius: 6px;
 }
 
 /* Tamaños distintos */
 .sq-intro-img.left img {
     width: 100%;
-    max-width: 620px;  
+    max-width: 69px;  
     height: auto;
-    border-radius: 18px;
+    border-radius: 6px;
 }
 
 .sq-intro-img.right img {
     max-width: 200px;
-    margin-top: -180px;
+    margin-top: -160px;
 }
 
 /* ---------- TEXTO CENTRAL ---------- */
 .sq-intro-content {
     text-align: center;
-    margin-left: -120px;
-    margin-top: -180px;
+    margin-left: -19px;
+    margin-top: -160px;
 }
 
 .sq-intro-content h2 {
     font-size: 2.6rem;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 9px;
 }
 
 .sq-intro-content p {
@@ -290,21 +290,21 @@ body {
     font-weight: 500;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 110px;
+    margin-bottom: 9px;
     color: #ffffff;
 }
 .sq-promotions-title::after {
     content: "";
-    width: 120px;
+    width: 19px;
     height: 1px;
     background: rgba(255,255,255,0.6);
     display: block;
-    margin: 35px auto 0;
+    margin: 33px auto 0;
 }
 .sq-promotions-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 50px;
+    gap: 30px;
 }
 
 /* CARD */
@@ -313,30 +313,30 @@ body {
     border: 1px solid rgba(255,255,255,0.35);
     color: #fff;
     background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(6px);
-    padding: 50px 40px;
+    backdrop-filter: blur(3px);
+    padding: 30px 30px;
     text-align: center;
     transition: transform 0.35s ease, background 0.35s ease;
 }
 
 .sq-promo-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-3px);
     background: rgba(0, 0, 0, 0.35);
 }
 
 /* IMAGE */
 .sq-promo-image {
-    margin-bottom: 20px;
+    margin-bottom: 9px;
 }
 
 .sq-promo-image img {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease;
-    margin-bottom: 20px;
+    margin-bottom: 9px;
 }
 
 .sq-promo-card:hover .sq-promo-image img {
@@ -346,23 +346,23 @@ body {
 /* TAG */
 .sq-promo-tag {
     position: absolute;
-    top: -14px;
+    top: -6px;
     left: 50%;
     transform: translateX(-50%);
     background: #ffffff;
     color: #382a23;
-    padding: 6px 18px;
+    padding: 3px 6px;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-weight: 600;
-    border-radius: 999px;
+    border-radius: 995px;
 }
 
 /* TEXT */
 .sq-promo-card h3 {
     font-size: 1.15rem;
-    margin-bottom: 16px;
+    margin-bottom: 9px;
     color: #ffffff;
 }
 
@@ -373,10 +373,10 @@ body {
 }
 .sq-promo-btn {
     display: inline-block;
-    margin-top: 28px;
-    padding: 10px 28px;
+    margin-top: 23px;
+    padding: 3px 23px;
     border: 1px solid rgba(255,255,255,0.7);
-    border-radius: 999px;
+    border-radius: 995px;
     text-decoration: none;
     color: #fff;
     font-size: 0.85rem;
@@ -392,7 +392,7 @@ body {
 @media (max-width: 900px) {
     .sq-promotions-grid {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 30px;
     }
 }
 
@@ -427,21 +427,21 @@ body.bg-black {
 
 #infinite,
 #testimonials {
-    scroll-margin-top: clamp(120px, 10vw, 180px);
+    scroll-margin-top: clamp(19px, 10vw, 160px);
 }
 
 .sq-infinite {
     position: relative;
-    top: 80px;
+    top: 60px;
     z-index: 5;
     height: 700px;
     display: flex;
     align-items: flex-start;
-    padding-top: 24px;
+    padding-top: 10px;
     overflow: hidden;
 }
 #infinite {
-    scroll-margin-top: 320px; 
+    scroll-margin-top: 39px; 
 }
 
 .sq-products-title2 {
@@ -452,17 +452,17 @@ body.bg-black {
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 24px;
+    margin-bottom: 10px;
     color:#382a23;
 }
 
 .sq-products-title2::after {
     content: "";
-    width: 80px;
-    height: 1.5px;
+    width: 60px;
+    height: 1.3px;
     background: #3a2b24;
     display: block;
-    margin: 25px auto 0;
+    margin: 10px auto 0;
     opacity: 0.7;
 }
 
@@ -481,16 +481,16 @@ body.bg-black {
     top: 0; 
     display: flex;
     will-change: transform;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
 /* ================= CARD ================= */
 .sq-card {
-    min-width: 380px;
+    min-width: 360px;
     height: 500px;
     border-radius: 60px;
-    margin-right: 40px;
+    margin-right: 30px;
     flex-shrink: 0;
 
     background-size: cover;
@@ -538,7 +538,7 @@ body.bg-black {
 }
 
 .sq-card.is-video .sq-blur {
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(5px);
     background: rgba(0,0,0,0.25);
 }
 
@@ -576,7 +576,7 @@ body.bg-black {
 .sq-card.is-video {
     transform: scale(1.08);
     z-index: 10;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.45);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.45);
 }
 
 /* ================= TEXTO ================= */
@@ -588,7 +588,7 @@ body.bg-black {
 
 .sq-card h3 {
     font-size: 1.2rem;
-    margin-bottom: 8px;
+    margin-bottom: 3px;
 }
 
 .sq-card p {
@@ -599,11 +599,11 @@ body.bg-black {
 /* -------------------- TESTIMONIALS -------------------- */
 /* ===================== PRODUCTS ===================== */
 #testimonials {
-    scroll-margin-top: 140px;
+    scroll-margin-top: 130px;
 }
 .sq-products {
     background: #4b3a30;
-    padding: 120px 6%;
+    padding: 19px 6%;
     color: #fff;
 }
 
@@ -615,18 +615,18 @@ body.bg-black {
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 110px;
+    margin-bottom: 9px;
     position: relative;
     color:#ffffff
 }
 
 .sq-products-title::after {
     content: "";
-    width: 80px;
-    height: 1.5px;
+    width: 60px;
+    height: 1.3px;
     background: #fff;
     display: block;
-    margin: 25px auto 0;
+    margin: 10px auto 0;
     opacity: 0.7;
 }
 
@@ -634,17 +634,17 @@ body.bg-black {
 .sq-products-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    column-gap: 80px;
+    column-gap: 60px;
     row-gap: 130px;
-    max-width: 1350px; /* ⬅️ más ancho */
+    max-width: 1330px; /* ⬅️ más ancho */
     margin: 0 auto;
 }
 
 /* TARJETA MÁS GRANDE */
 .sq-product-card {
     background: transparent;
-    border: 1.3px solid transparent; /* ❌ invisible */
-    padding: 50px 38px 55px;
+    border: 1.2px solid transparent; /* ❌ invisible */
+    padding: 30px 33px 40px;
     text-align: center;
     min-height: 600px;
     display: flex;
@@ -666,7 +666,7 @@ body.bg-black {
 /* IMAGEN MÁS ALTA */
 .sq-product-card img {
     width: 100%;
-    height: 340px;  
+    height: 330px;  
     object-fit: cover;
     margin-bottom: 30px;
 
@@ -675,19 +675,19 @@ body.bg-black {
 /* NOMBRE */
 .sq-product-card h3 {
     font-size: 1.1rem; /* ⬅️ apenas más grande */
-    margin-bottom: 22px;
+    margin-bottom: 15px;
     color:#fff
 }
 
 /* BOTÓN PRECIO (se mantiene) */
 .sq-product-price {
     display: inline-block;
-    padding: 14px 34px;
-    border: 1.3px solid rgba(255, 255, 255, 0.75);
+    padding: 6px 33px;
+    border: 1.2px solid rgba(255, 255, 255, 0.75);
     color: rgba(255, 255, 255, 0.85);
     font-size: 0.9rem;
     letter-spacing: 0.1em;
-    border-radius: 8px;
+    border-radius: 3px;
     transition: all 0.3s ease;
 }
 
@@ -699,13 +699,13 @@ body.bg-black {
 /* Placeholder cuando no hay imagen */
 .sq-product-placeholder {
     width: 100%;
-    height: 340px;
+    height: 330px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.06);
     border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
+    border-radius: 3px;
     margin-bottom: 30px;
 }
 .sq-product-placeholder i {
@@ -717,14 +717,14 @@ body.bg-black {
 .sq-product-desc {
     font-size: 0.88rem;
     color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 18px;
+    margin-bottom: 6px;
     line-height: 1.5;
 }
 
 /* Estado vacío */
 .sq-products-empty {
     text-align: center;
-    padding: 100px 20px;
+    padding: 60px 9px;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -732,13 +732,13 @@ body.bg-black {
     content: "📦";
     display: block;
     font-size: 5rem;
-    margin-bottom: 25px;
+    margin-bottom: 10px;
     opacity: 0.3;
     animation: floatIcon 3s ease-in-out infinite;
 }
 @keyframes floatIcon {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+    50% { transform: translateY(-11px); }
 }
 .sq-products-empty p {
     font-size: 1.25rem;
@@ -759,19 +759,19 @@ body.bg-black {
 
 /* -------------------- CTA FINAL -------------------- */
 .sq-cta {
-    padding: 160px 40px;
+    padding: 160px 30px;
     text-align: center;
 }
 
 .sq-cta h2 {
     font-size: 2.6rem;
     font-weight: 500;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 /* ==================== CONTACTO PREMIUM ==================== */
 
 .sq-contact {
-    padding: 180px 32px;
+    padding: 160px 16px;
     color: #ffffff;
 }
 
@@ -782,8 +782,8 @@ body.bg-black {
 
 /* Encabezado */
 .sq-contact-header {
-    max-width: 720px;
-    margin-bottom: 120px;
+    max-width: 79px;
+    margin-bottom: 19px;
 }
 
 .sq-contact-eyebrow {
@@ -791,14 +791,14 @@ body.bg-black {
     font-size: 0.85rem;
     letter-spacing: 0.25em;
     color: rgba(255,255,255,0.5);
-    margin-bottom: 20px;
+    margin-bottom: 9px;
 }
 
 .sq-contact-header h2 {
     font-size: 3rem;
     font-weight: 500;
     line-height: 1.1;
-    margin-bottom: 28px;
+    margin-bottom: 23px;
     color: rgba(255,255,255,0.5);
 }
 
@@ -812,19 +812,19 @@ body.bg-black {
 .sq-contact-layout {
     display: grid;
     grid-template-columns: 1fr 1.2fr;
-    gap: 120px;
+    gap: 19px;
     align-items: start;
 }
 
 /* Info */
 .sq-contact-item {
-    margin-bottom: 48px;
+    margin-bottom: 43px;
 }
 
 .sq-contact-item h3 {
     font-size: 1.05rem;
     font-weight: 500;
-    margin-bottom: 12px;
+    margin-bottom: 5px;
     color: rgba(255,255,255,0.9);
 }
 
@@ -837,12 +837,12 @@ body.bg-black {
 /* Links */
 .sq-contact-link {
     display: block;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
     font-size: 1.05rem;
     text-decoration: none;
     color: #ffffff;
     width: fit-content;
-    padding-bottom: 6px;
+    padding-bottom: 3px;
     border-bottom: 1px solid rgba(255,255,255,0.25);
     transition: border-color 0.3s ease, opacity 0.3s ease;
 }
@@ -855,15 +855,15 @@ body.bg-black {
 /* Mapa minimalista */
 .sq-contact-map {
     position: relative;
-    border-radius: 20px;
+    border-radius: 9px;
     overflow: hidden;
     filter: grayscale(100%) contrast(1.1) brightness(0.9);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
 }
 
 .sq-contact-map iframe {
     width: 100%;
-    height: 420px;
+    height: 49px;
     border: none;
 }
 
@@ -873,7 +873,7 @@ body.bg-black {
 @media (max-width: 900px) {
     .sq-contact-layout {
         grid-template-columns: 1fr;
-        gap: 80px;
+        gap: 60px;
     }
 
     .sq-contact-header h2 {
@@ -881,7 +881,7 @@ body.bg-black {
     }
 
     .sq-contact-map iframe {
-        height: 320px;
+        height: 39px;
     }
 }
 
@@ -895,12 +895,15 @@ body.bg-black {
     }
 
     .sq-text {
-        padding: 80px 40px;
+        padding: 60px 30px;
     }
 
     .sq-hero {
         min-height: auto;
-        padding: 120px 40px;
+        padding: 19px 30px;
     }
 
 } 
+
+
+

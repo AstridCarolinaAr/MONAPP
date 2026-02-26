@@ -1,0 +1,220 @@
+/* global bootstrap, Swal, ogl */
+
+function getCookie(name) {
+    const v = `; ${document.cookie}`;
+    const parts = v.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+}
+
+async function confirmarSinMediaSiAplica(form) {
+    // Solo cuando es CREAR
+    const isEdit = form.dataset.isEdit === "1";
+    if (isEdit) return true;
+
+    const img = form.querySelector('input[name="imagen"]');
+    const vid = form.querySelector('input[name="video"]');
+
+    const hasImg = img && img.files && img.files.length > 0;
+    const hasVid = vid && vid.files && vid.files.length > 0;
+
+    // Si tiene ambos, no molestamos
+    if (hasImg && hasVid) return true;
+
+    let detalle = "";
+    if (!hasImg && !hasVid) detalle = "sin imagen ni video";
+    else if (!hasImg) detalle = "sin imagen";
+    else detalle = "sin video";
+
+    const res = await Swal.fire({
+        icon: "warning",
+        title: "Faltan archivos",
+        html: `Estás a punto de crear el servicio <b>${detalle}</b>.<br>
+               <small>El usuario podría no visualizar correctamente el resultado del servicio.</small><br><br>
+               ¿Deseas continuar?`,
+        showCancelButton: true,
+        confirmButtonText: "Sí, continuar",
+        cancelButtonText: "Volver y agregar",
+        confirmButtonColor: "#3a2a24"
+    });
+
+    return res.isConfirmed;
+}
+
+function limpiarErrores(form) {
+    form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+    form.querySelectorAll(".invalid-feedback").forEach(el => el.remove());
+}
+
+function pintarErrores(form, errors) {
+    Object.keys(errors || {}).forEach(key => {
+        const input = form.querySelector(`[name="${key}"]`);
+        if (!input) return;
+        input.classList.add("is-invalid");
+
+        let feedback = input.nextElementSibling;
+        if (!feedback || !feedback.classList.contains("invalid-feedback")) {
+            feedback = document.createElement("div");
+            feedback.classList.add("invalid-feedback");
+            input.parentNode.appendChild(feedback);
+        }
+        feedback.innerText = (errors[key] || []).join(", ");
+    });
+}
+
+function activarClickVideoEnCards() {
+    document.querySelectorAll(".sq-card.has-video").forEach(card => {
+        card.addEventListener("click", (e) => {
+            // Si clickeó en botones (editar) no tocar el video
+            if (e.target.closest(".actions-overlay")) return;
+            if (e.target.closest(".btn-edit-servicioweb")) return;
+
+            const video = card.querySelector("video.sq-video");
+            if (!video) return;
+
+            // Pausar otras tarjetas
+            document.querySelectorAll(".sq-card.playing").forEach(other => {
+                if (other !== card) {
+                    const v = other.querySelector("video.sq-video");
+                    if (v && !v.paused) v.pause();
+                    other.classList.remove("playing");
+                }
+            });
+
+            if (video.paused) {
+                card.classList.add("playing");
+                video.play().catch(() => {});
+            } else {
+                video.pause();
+                card.classList.remove("playing");
+            }
+        });
+    });
+}
+
+function activarConfirmacionEnFormularioPagina() {
+    const form = document.getElementById("servicioWebForm");
+    if (!form) return;
+
+    // Solo en página (no modal)
+    const dentroDeModal = !!form.closest(".modal");
+    if (dentroDeModal) return;
+
+    form.addEventListener("submit", async (e) => {
+        const ok = await confirmarSinMediaSiAplica(form);
+        if (!ok) {
+            e.preventDefault();
+        }
+    });
+}
+
+function activarModalYAjaxSiExiste() {
+    const modalEl = document.getElementById("modalServicioWeb");
+    if (!modalEl) return;
+
+    const modalBody = modalEl.querySelector("#modalBodyContent");
+    const modalLabel = modalEl.querySelector("#modalServicioWebLabel");
+    const modal = new bootstrap.Modal(modalEl);
+
+    async function cargarEnModal(url, tituloHtml) {
+        modalLabel.innerHTML = tituloHtml;
+        modalBody.innerHTML = `
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        `;
+        modal.show();
+
+        const resp = await fetch(url, { credentials: "same-origin" });
+        const html = await resp.text();
+        modalBody.innerHTML = html;
+
+        const form = modalBody.querySelector("form");
+        if (form) activarSubmitAjax(form);
+    }
+
+    async function activarSubmitAjax(form) {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            limpiarErrores(form);
+
+            const ok = await confirmarSinMediaSiAplica(form);
+            if (!ok) return;
+
+            const formData = new FormData(form);
+
+            const resp = await fetch(form.action, {
+                method: "POST",
+                body: formData,
+                credentials: "same-origin",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            });
+
+            const ct = (resp.headers.get("content-type") || "").toLowerCase();
+
+            // Si tu backend responde JSON (recomendado)
+            if (ct.includes("application/json")) {
+                const data = await resp.json();
+
+                if (data.success) {
+                    modal.hide();
+                    await Swal.fire({
+                        icon: "success",
+                        title: "¡Éxito!",
+                        text: data.message || "Guardado correctamente",
+                        confirmButtonColor: "#3a2a24"
+                    });
+                    location.reload();
+                } else {
+                    pintarErrores(form, data.errors || {});
+                }
+                return;
+            }
+
+            // Fallback: si responde HTML
+            const html = await resp.text();
+            modalBody.innerHTML = html;
+
+            const newForm = modalBody.querySelector("form");
+            if (newForm) activarSubmitAjax(newForm);
+        });
+    }
+
+    // Botón CREAR
+    const btnCrear = document.getElementById("btnOpenCrearServicioWeb");
+    if (btnCrear) {
+        btnCrear.addEventListener("click", () => {
+            const url = btnCrear.dataset.url + "?modal=1";
+            cargarEnModal(url, `<i class="bi bi-plus-circle me-2"></i> Nuevo Servicio Web`);
+        });
+    }
+
+    // Botones EDITAR
+    document.querySelectorAll(".btn-edit-servicioweb").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const url = btn.dataset.url + "?modal=1";
+            cargarEnModal(url, `<i class="bi bi-pencil-square me-2"></i> Editar Servicio Web`);
+        });
+    });
+}
+
+function activarBotonEmptyState() {
+    const b2 = document.getElementById('btnOpenCrearServicioWeb2');
+    const b1 = document.getElementById('btnOpenCrearServicioWeb');
+    if (b2 && b1) b2.addEventListener('click', () => b1.click());
+}
+
+/* =========================
+   DOMContentLoaded handlers
+   ========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    activarClickVideoEnCards();
+    activarConfirmacionEnFormularioPagina();
+    activarModalYAjaxSiExiste();
+    activarBotonEmptyState();
+});
+

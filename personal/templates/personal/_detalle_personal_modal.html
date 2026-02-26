@@ -103,13 +103,13 @@
 
     <div style="display: flex; gap: 12px; margin-top: 32px;">
         {% if puede_modificar %}
-        <button type="button" class="personal-btn warning" style="flex: 1;" onclick="cerrarModalDetallePersonal(); abrirModalEditarPersonal({{ personal.id }});">
-            <i class="fas fa-edit"></i> Editar
+        <button type="button" class="personal-btn warning" style="flex: 1;" onclick="cerrarModalDetallePersonal(); abrirModalEditarPersonal({{ personal.id }});" title="Editar" data-bs-placement="bottom">
+            <i class="bi bi-pencil-square" style="font-size: 24px;"></i> Editar
         </button>
         {% endif %}
         {% if es_administrador %}
-        <button type="button" class="personal-btn" style="flex: 1; background: #d4a574; border-color: #d4a574; color: white;" onclick="cerrarModalDetallePersonal(); abrirModalEliminarPersonal({{ personal.id }});">
-            <i class="fas fa-trash"></i> Eliminar
+        <button type="button" class="personal-btn" style="flex: 1; background: #d4a574; border-color: #d4a574; color: white;" onclick="cerrarModalDetallePersonal(); abrirModalEliminarPersonal({{ personal.id }});" title="Eliminar" data-bs-placement="bottom">
+            <i class="bi bi-trash3" style="font-size: 24px;"></i> Eliminar
         </button>
         {% endif %}
     </div>

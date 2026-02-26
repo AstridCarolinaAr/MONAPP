@@ -2,7 +2,7 @@
    CONTENEDOR GENERAL
 ============================= */
 .container-fluid {
-    padding-top: 10px;
+    padding-top: 3px;
 }
 
 /* =============================
@@ -11,9 +11,9 @@
 .card,
 .tabla-proveedores {
     background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 8px 22px rgba(0,0,0,.08);
-    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 3px 15px rgba(0,0,0,.08);
+    padding: 5px;
 }
 
 /* =============================
@@ -21,8 +21,9 @@
 ============================= */
 h2 {
     font-weight: 700;
-    letter-spacing: .4px;
-    margin-bottom: 4px;
+    letter-spacing: .3px;
+    margin-bottom: 10px;
+    font-size: 22px;
 }
 
 /* =============================
@@ -30,42 +31,46 @@ h2 {
 ============================= */
 .total-proveedores,
 .badge {
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 13px;
+    border-radius: 5px;
+    padding: 10px 12px;
+    font-size: 12px;
 }
 
 /* =============================
    BOTÓN NUEVO
 ============================= */
+/* BOTÓN NUEVO */
 .btn-success {
     background: linear-gradient(135deg, #3b2f2f, #6d5c5c);
     border: none;
-    border-radius: 999px;
-    padding: 10px 26px;
+    border-radius: 995px;
+    padding: 8px 20px;
     font-weight: 600;
-    box-shadow: 0 10px 26px rgba(0,0,0,.25);
+    box-shadow: 0 3px 23px rgba(0,0,0,.25);
+    font-size: 12px;
 }
 
 .btn-success:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgba(0,0,0,.35);
+    box-shadow: 0 6px 33px rgba(0,0,0,.35);
 }
 
 /* =============================
    BUSCADOR
 ============================= */
-.buscador-proveedores input {
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
+.buscador-proveedor3px;
+    padding: 3px 5px;
+    font-size: 9 6px;
+    font-size: 12px;
 }
 
 .buscador-proveedores button {
-    border-radius: 10px;
+    border-radius: 3px;
     background: #3b2f2f;
     color: white;
     border: none;
+    padding: 10px 12px;
+    font-size: 12px;
 }
 
 /* =============================
@@ -73,6 +78,7 @@ h2 {
 ============================= */
 .table {
     margin: 0;
+    width: 100%;
 }
 
 .table thead {
@@ -81,17 +87,24 @@ h2 {
 
 .table thead th {
     border: none;
-    font-size: 12px;
+    font-size: 16px;
     text-transform: uppercase;
     letter-spacing: .08em;
     color: #5a4a4a;
-    padding: 14px;
+    padding: 18px 20px;
+    font-weight: 700;
+    line-height: 1.5;
+    min-height: 50px;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .table td {
     border: none;
-    padding: 14px;
+    padding: 16px 18px;
     vertical-align: middle;
+    font-size: 15px;
+    line-height: 1.6;
 }
 
 .table tbody tr {
@@ -106,18 +119,19 @@ h2 {
    ACCIONES
 ============================= */
 .table td .d-flex {
-    gap: 8px;
+    gap: 3px;
 }
 
 /* BOTONES DE ACCIÓN */
 .btn-sm {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    font-size: 11px;
 }
 
 .btn-sm i {
@@ -154,13 +168,13 @@ h2 {
     background: #ffffff;
     border: 1px solid #3b2f2f;
     color: #3b2f2f;
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 13px;
+    border-radius: 995px;
+    padding: 3px 6px;
+    font-size: 12px;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
     transition: all .25s ease;
 }
 
@@ -173,7 +187,7 @@ h2 {
 
 /* Ícono */
 .btn-filter i {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 /* Quitar azul de Bootstrap */
@@ -189,7 +203,7 @@ h2 {
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(3px);
     }
     to {
         opacity: 1;
@@ -206,49 +220,92 @@ h2 {
 .acciones-proveedor {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 3px;
 }
 
 .btn-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all .25s ease;
-    box-shadow: 0 6px 14px rgba(0,0,0,.12);
+    background: none;
+    border: none;
+    padding: 3px;
 }
 
 .btn-icon i {
-    font-size: 16px;
-    color: #fff;
+    font-size: 11px;
+    color: #382822;
+    transition: color 0.2s;
 }
 
 /* VER */
 .btn-ver {
-    background: linear-gradient(135deg, #4fc3f7);
+    background: none;
+    border: none;
+    padding: 3px 5px;
+    border-radius: 30px;
+    transition: all 0.2s;
 }
 
 .btn-ver:hover {
-    transform: translateY(-2px);
+    background: #382822;
+    transform: none;
+}
+
+.btn-ver:hover i {
+    color: white;
+}
+
+.btn-ver i {
+    color: #382822;
 }
 
 /* EDITAR */
 .btn-editar {
-    background: linear-gradient(135deg, #9575cd);
+    background: none;
+    border: none;
+    padding: 3px 5px;
+    border-radius: 30px;
+    transition: all 0.2s;
 }
 
 .btn-editar:hover {
-    transform: translateY(-2px);
+    background: #382822;
+    transform: none;
+}
+
+.btn-editar:hover i {
+    color: white;
+}
+
+.btn-editar i {
+    color: #382822;
 }
 
 /* ELIMINAR */
 .btn-eliminar {
-    background: linear-gradient(135deg, #c85c5c);
+    background: none;
+    border: none;
+    padding: 3px 5px;
+    border-radius: 30px;
+    transition: all 0.2s;
 }
 
 .btn-eliminar:hover {
-    transform: translateY(-2px);
+    background: #382822;
+    transform: none;
 }
+
+.btn-eliminar:hover i {
+    color: white;
+}
+
+.btn-eliminar i {
+    color: #382822;
+}
+
+
+
+

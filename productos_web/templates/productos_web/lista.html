@@ -117,15 +117,18 @@
 /* Acciones de fila */
 .pw-actions a,
 .pw-actions button {
-    padding: 5px 8px;
-    border-radius: 8px;
+    padding: 8px 12px;
+    border-radius: 50px;
     font-size: .92rem;
-    transition: background .2s;
+    transition: all .2s;
+    background: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-.pw-actions .btn-edit        { color: #8d604a; }
-.pw-actions .btn-edit:hover  { background: rgba(141,96,74,.12); }
-.pw-actions .btn-del         { color: #b45a5a; }
-.pw-actions .btn-del:hover   { background: rgba(180,90,90,.12); }
+.pw-actions .btn-edit        { color: #382822; display: inline-flex; align-items: center; }
+.pw-actions .btn-del         { color: #382822; display: inline-flex; align-items: center; }
 
 /* Vista vacía */
 .pw-empty {
@@ -167,14 +170,14 @@
 }
 .pw-dropzone:hover,
 .pw-dropzone.dragover {
-    border-color: #8d604a;
+    border-color: #382822;
     background: linear-gradient(145deg, #fff, #f8f5f2);
     box-shadow: 0 6px 20px rgba(141,96,74,.15);
     transform: translateY(-2px);
 }
 .pw-dropzone i {
     font-size: 3.5rem;
-    color: #8d604a;
+    color: #382822;
     margin-bottom: 8px;
     display: block;
     animation: float 3s ease-in-out infinite;
@@ -275,9 +278,9 @@
 
     <!-- ───── TABLA ───── -->
     {% if productos %}
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+    <div class="table-container-custom">
         <div class="table-responsive">
-            <table class="pw-table" id="pw-tabla">
+            <table class="styled-table" id="pw-tabla">
                 <thead>
                     <tr>
                         <th>Foto</th>
@@ -302,7 +305,7 @@
                         <td class="fw-semibold">{{ p.nombre }}</td>
                         <td>${{ p.precio|intcomma }}</td>
                         <td class="text-center">
-                            <label class="pw-switch" title="Alternar visibilidad">
+                            <label class="pw-switch" title="Alternar visibilidad" data-bs-placement="bottom">
                                 <input type="checkbox"
                                        {% if p.visible %}checked{% endif %}
                                        data-toggle-url="{% url 'productos_web:toggle_visible' p.pk %}">
@@ -310,16 +313,18 @@
                             </label>
                         </td>
                         <td class="text-center pw-actions">
-                            <a href="{% url 'productos_web:editar' p.pk %}" class="btn-edit" title="Editar">
-                                <i class="bi bi-pencil-square"></i>
+                            <a href="{% url 'productos_web:editar' p.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom">
+                                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
                             </a>
-                            <button type="button" class="btn btn-link btn-del p-0 ms-2"
+                            <button type="button" class="btn btn-link"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalEliminar"
                                     data-nombre="{{ p.nombre }}"
                                     data-url="{% url 'productos_web:eliminar' p.pk %}"
-                                    title="Eliminar">
-                                <i class="bi bi-trash3"></i>
+                                    style="color: #382822;"
+                                    title="Eliminar"
+                                    data-bs-placement="bottom">
+                                <i class="bi bi-trash3" style="font-size: 24px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -338,8 +343,13 @@
 </div>
 
 <!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
-<button class="pw-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar" title="Agregar producto">
-    <i class="bi bi-plus-lg"></i>
+<button class="btn-pill-dark position-fixed bottom-0 end-0 m-4 shadow-lg" 
+        data-bs-toggle="modal" 
+        data-bs-target="#modalAgregar" 
+        title="Nuevo producto web" 
+        data-bs-placement="bottom"
+        style="z-index: 1050;">
+    <i class="bi bi-plus-circle"></i> Nuevo producto web
 </button>
 
 <!-- ═══════════════ MODAL AGREGAR ═══════════════ -->

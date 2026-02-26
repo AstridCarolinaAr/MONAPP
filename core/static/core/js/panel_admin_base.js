@@ -120,12 +120,29 @@ function showNotification(message, type = 'info') {
         }, 5000);
     }
 }
+document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
 
 // Función para confirmar acciones (deprecated)
 function confirmAction(message) {
     console.warn('confirmAction() is deprecated. Use data-confirm attributes. Falling back to window.confirm for legacy code.');
     return confirm(message || '¿Estás seguro de realizar esta acción?');
 }
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips de Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    if (typeof SiennaAccessibility !== 'undefined') {
+        SiennaAccessibility.init();
+    }
+});
 
 // Exportar funciones para uso global
 window.showNotification = showNotification;

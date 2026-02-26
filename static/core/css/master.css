@@ -23,7 +23,7 @@
 
 /* Logo SVG */
 .logo svg {
-    height: 150px;
+    height: 60px;
     width: auto;
     display: block;
     color: #ffffff; 
@@ -43,13 +43,13 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
 
-    padding: 6px;
-    border-radius: 999px;
+    padding: 3px;
+    border-radius: 995px;
 
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(9px) saturate(140%);
+    -webkit-backdrop-filter: blur(9px) saturate(140%);
 
     overflow: hidden;
 }
@@ -75,15 +75,15 @@
     position: relative;
     z-index: 1;
 
-    padding:  0.65rem 1.4rem;
-    font-size: 1.05rem;
+    padding:  0.43rem 0.93rem;
+    font-size: 0.7rem;
     font-weight: 400;
 
     color: #ffffff;
     text-decoration: none;
 
     background: transparent;
-    border-radius: 6px;
+    border-radius: 3px;
 
      transition:
         color 0.4s ease,
@@ -95,7 +95,7 @@
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.2);
     color: #000;
-    border-radius: 999px;
+    border-radius: 995px;
 }
 
 /* CTA */
@@ -113,8 +113,8 @@
 
 /* La cápsula se aclara */
 .header.scrolled .nav-glass {
-    backdrop-filter: blur(14px) saturate(120%);
-    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    backdrop-filter: blur(6px) saturate(120%);
+    -webkit-backdrop-filter: blur(6px) saturate(120%);
 }
 
 /* Overlay claro al scroll */
@@ -143,8 +143,8 @@
 
 @media (max-width: 900px) {
     .nav-glass {
-        gap: 2px;
-        padding: 4px;
+        gap: 1px;
+        padding: 2px;
     }
 
     .nav-item {
@@ -160,10 +160,10 @@
     padding: 1rem 0;
     position: relative;
     opacity: 0;
-    transform: translateY(50px);
+    transform: translateY(30px);
     transition: all 0.5s ease;
     background: #0f0f0f;
-    box-shadow: 0 -40px 80px rgba(0,0,0,0.6);
+    box-shadow: 0 -30px 60px rgba(0,0,0,0.6);
     color: #ffffff;
 }
 
@@ -197,14 +197,14 @@
 
 .btn-login {
     padding: 0.5rem 1.5rem;
-    border-radius: 50px; /* estilo píldora */
+    border-radius: 30px; /* estilo píldora */
     border: 1px solid rgba(0,0,0,0.2);
     background: rgba(255,255,255,0.01); /* transparente inicial */
     color: #fff;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.3s ease;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(9px);
 }
 
 .btn-login:hover {
@@ -214,7 +214,7 @@
 }
 .main-content {
     background: #fff;
-    backdrop-filter: blur(3px); /* efecto vidrio opcional */
+    backdrop-filter: blur(2px); /* efecto vidrio opcional */
     padding: 2rem;
     min-height: calc(100vh - 160px); /* altura mínima considerando header + footer */
 }
@@ -224,8 +224,8 @@
 
 .header.navbar-dark .nav-glass::before {
     background: rgba(20, 20, 20, 0.4);
-    backdrop-filter: blur(16px) saturate(130%);
-    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    backdrop-filter: blur(9px) saturate(130%);
+    -webkit-backdrop-filter: blur(9px) saturate(130%);
 }
 
 /* Texto blanco */
@@ -261,3 +261,6 @@
     background: rgba(255, 255, 255, 0.25);
     color: #ffffff;
 }
+
+
+

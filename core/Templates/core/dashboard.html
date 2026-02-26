@@ -9,87 +9,29 @@
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="display-5 fw-bold">
-                <i class="bi bi-speedometer2"></i> Panel de Administración
-            </h1>
-            <p class="text-muted">Bienvenido al panel de administración.</p>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-3">
-            <div class="stats-card card-productos">
-                <i class="bi bi-box-seam icon"></i>
-                <p class="mb-0">Productos</p>
-                <h3>—</h3>
-            </div>
-        </div>
-    
-    
-
-        <div class="col-md-3">
-            <div class="stats-card card-ventas">
-                <i class="bi bi-cart-check icon"></i>
-                <p class="mb-0">Ventas</p>
-                <h3>—</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="stats-card card-inventario">
-                <i class="bi bi-cart-check icon"></i>
-                <p class="mb-0">Inventario</p>
-                <h3>—</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="stats-card card-reportes">
-                <i class="bi bi-graph-up icon"></i>
-                <p class="mb-0">Reportes</p>
-                <h3>—</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-3">
-            <div class="stats-card card-clientes" onclick="location.href='{% url 'clientes:lista' %}'" style="cursor:pointer;">
-                <i class="bi bi-person-vcard icon"></i>
-                <p class="mb-0">Clientes</p>
-                <h3>—</h3>
-            </div>
-        </div>
-    </div>
 
     <!-- Zona de acciones rápidas genéricas -->
-    <div class="row mt-4">
+    <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-white" style="background-color:#6b3a2a;">
                     <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'clientes:lista' %}" class="btn btn-outline-dark me-2">
+                    <a href="{% url 'clientes:lista' %}" class="btn me-2" style="background-color:#6b3a2a;color:#fff;border:none;">
                         <i class="bi bi-person-vcard me-1"></i> Clientes
                     </a>
-                    <a href="{% url 'productos:lista_productos' %}" class="btn btn-success me-2">
+                    <a href="{% url 'productos:lista_productos' %}" class="btn me-2" style="background-color:#8b5e3c;color:#fff;border:none;">
                         <i class="bi bi-box-seam me-1"></i> Productos
                     </a>
 
-                    <a href="#" class="btn btn-outline-primary me-2">
+                    <a href="{% url 'ventas:lista' %}" class="btn me-2" style="background-color:#a0703a;color:#fff;border:none;">
                         <i class="bi bi-cart3 me-1"></i> Ventas
                     </a>
 
-                    <a href="{% url 'inventario:inventario_lista'%}" class="btn btn-warning me-2">
+                    <a href="{% url 'inventario:inventario_lista
+                    ' %}" class="btn me-2" style="background-color:#c49a3c;color:#fff;border:none;">
                         <i class="bi bi-gear"></i> Inventario
-                    </a>
-
-                    <a href="#" class="btn btn-outline-secondary">
-                        <i class="bi bi-graph-up me-1"></i> Reportes
                     </a>
                 </div>
             </div>
