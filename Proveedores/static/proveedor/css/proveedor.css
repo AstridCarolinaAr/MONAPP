@@ -14,6 +14,21 @@
     border-radius: 6px;
     box-shadow: 0 3px 15px rgba(0,0,0,.08);
     padding: 5px;
+    width: 100% !important; /* Forzar ancho completo */
+}
+
+/* Forzar que el contenedor de la tabla sea del 100% */
+.table-responsive {
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+}
+
+.styled-table {
+    width: 100% !important;
+    min-width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
 }
 
 /* =============================

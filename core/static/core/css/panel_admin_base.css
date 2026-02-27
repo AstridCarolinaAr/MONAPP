@@ -253,12 +253,6 @@
 }
 
 
-/* .page-title {
-    color: var(--mona-brown-dark);
-    font-weight: 700;
-} */
-
-
 .topbar-left {
     display: flex;
     align-items: center;
@@ -280,12 +274,6 @@
     background-color: #f0f0f0;
 }
 
-/* .page-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 0;
-} */
 
 .topbar-right {
     display: flex;
@@ -1264,7 +1252,7 @@ small.text-muted {
 
 /* ===== COLOR PRINCIPAL (igual al catálogo web) ===== */
 :root {
-    --color-principal: #6f42c1; /* ⚠️ Cambia por el color real */
+    --color-principal: #6f42c1; /*  Cambia por el color real */
     --color-hover: #59359c;
 }
 
