@@ -298,20 +298,20 @@
                             </button>
                             {% if puede_modificar %}
                             <button type="button"
-                                    class="btn btn-sm btn-primary"
+                                    class="btn btn-sm btn-primary btn-editar-usuario"
                                     data-bs-toggle="tooltip"
                                     title="Editar usuario"
-                                    onclick="abrirModalEditarUsuario({{ usuario.id }})">
+                                    data-usuario-id="{{ usuario.id }}">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                             {% endif %}
 
                             {% if es_administrador %}
                             <button type="button" 
-                                    class="btn btn-sm btn-danger"
+                                    class="btn btn-sm btn-danger btn-eliminar-usuario"
                                     data-bs-toggle="tooltip"
                                     title="Eliminar usuario"
-                                    onclick="abrirModalEliminarUsuario({{ usuario.id }})">
+                                    data-usuario-id="{{ usuario.id }}">
                                 <i class="bi bi-trash-fill"></i>
                             </button>
                             {% endif %}
@@ -677,6 +677,21 @@
             `;
         });
     }
+    
+    // Event delegation para botones de editar
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-editar-usuario')) {
+            const btn = e.target.closest('.btn-editar-usuario');
+            const usuarioId = btn.getAttribute('data-usuario-id');
+            abrirModalEditarUsuario(usuarioId);
+        }
+        
+        if (e.target.closest('.btn-eliminar-usuario')) {
+            const btn = e.target.closest('.btn-eliminar-usuario');
+            const usuarioId = btn.getAttribute('data-usuario-id');
+            abrirModalEliminarUsuario(usuarioId);
+        }
+    });
     
     // Cerrar el modal con la tecla ESC
     document.addEventListener('keydown', function(e) {
