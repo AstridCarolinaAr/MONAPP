@@ -113,6 +113,16 @@
         overflow-y: auto;
         max-height: calc(90vh - 100px);
     }
+
+    #modalDetalleUsuario .modal-usuario-body {
+        overflow-y: visible;
+        max-height: none;
+    }
+
+    #modalDetalleUsuario .modal-usuario-content {
+        max-height: none;
+        overflow: visible;
+    }
     
     /* Scrollbar personalizada para el modal */
     .modal-usuario-body::-webkit-scrollbar {
@@ -130,6 +140,86 @@
     
     .modal-usuario-body::-webkit-scrollbar-thumb:hover {
         background: #7d5e4f;
+    }
+
+    /* Switch de estado en la tabla */
+    .table-switch-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+
+    .table-switch-wrapper input[type="checkbox"] {
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+    }
+
+    .table-switch-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 34px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider {
+        background-color: #634c40;
+    }
+
+    .table-switch-wrapper input[type="checkbox"]:disabled + .table-switch-slider {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider:before {
+        transform: translateX(24px);
+    }
+
+    .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
+        box-shadow: 0 0 0 3px rgba(99, 76, 64, 0.2);
+    }
+
+    /* Estilo café para el switch del modal de editar usuario */
+    .form-switch .form-check-input {
+        background-color: #ccc;
+        border: none;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #634c40;
+        border-color: #634c40;
+    }
+
+    .form-switch .form-check-input:focus {
+        border-color: #634c40;
+        box-shadow: 0 0 0 0.25rem rgba(99, 76, 64, 0.25);
+    }
+
+    .form-switch .form-check-input:checked:focus {
+        background-color: #634c40;
+        border-color: #634c40;
+        box-shadow: 0 0 0 0.25rem rgba(99, 76, 64, 0.25);
     }
 </style>
 
@@ -179,15 +269,33 @@
                         </td>
 
                         <td>
-                            {% if usuario.is_active %}
-                                <span class="badge bg-success">Activo</span>
+                            {% if puede_modificar %}
+                                <label class="table-switch-wrapper" title="Cambiar estado">
+                                    <input type="checkbox"
+                                           class="toggle-activo-usuario-checkbox"
+                                           data-usuario-id="{{ usuario.id }}"
+                                           data-usuario-nombre="{{ usuario.username }}"
+                                           {% if usuario.is_active %}checked{% endif %}>
+                                    <span class="table-switch-slider"></span>
+                                </label>
                             {% else %}
-                                <span class="badge bg-secondary">Inactivo</span>
+                                {% if usuario.is_active %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
                             {% endif %}
                         </td>
 
                         <!-- Acciones -->
                         <td class="text-end">
+                            <button type="button"
+                                    class="btn btn-sm"
+                                    style="background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;"
+                                    title="Ver detalles"
+                                    onclick="abrirModalDetalleUsuario({{ usuario.id }})">
+                                <i class="bi bi-eye"></i>
+                            </button>
                             {% if puede_modificar %}
                             <button type="button"
                                     class="btn btn-sm btn-primary"
@@ -207,10 +315,6 @@
                                 <i class="bi bi-trash-fill"></i>
                             </button>
                             {% endif %}
-                            
-                            {% if not puede_modificar %}
-                            <span class="text-muted small">Solo lectura</span>
-                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
@@ -227,6 +331,25 @@
         </div>
     </div>
 
+</div>
+
+<!-- Modal para ver detalles de usuario -->
+<div id="modalDetalleUsuario" class="modal-usuario" style="display: none;">
+    <div class="modal-usuario-overlay" onclick="cerrarModalDetalleUsuario()"></div>
+    <div class="modal-usuario-content" style="max-width: 960px;">
+        <div class="modal-usuario-header">
+            <h3><i class="bi bi-person-lines-fill"></i> Detalles del Usuario</h3>
+            <button type="button" class="modal-usuario-close" onclick="cerrarModalDetalleUsuario()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-usuario-body" id="modalDetalleUsuarioBody">
+            <div style="text-align: center; padding: 40px;">
+                <i class="bi bi-arrow-clockwise" style="font-size: 2rem; color: #634c40; animation: spin 1s linear infinite;"></i>
+                <p class="mt-3 text-muted">Cargando...</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal para crear usuario -->
@@ -561,8 +684,42 @@
             cerrarModalUsuario();
             cerrarModalEditarUsuario();
             cerrarModalEliminarUsuario();
+            cerrarModalDetalleUsuario();
         }
     });
+
+    // Funciones para el modal de detalles de usuario
+    function abrirModalDetalleUsuario(usuarioId) {
+        const modal = document.getElementById('modalDetalleUsuario');
+        const modalBody = document.getElementById('modalDetalleUsuarioBody');
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        fetch(`/auth/usuarios/${usuarioId}/detalle/`, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            modalBody.innerHTML = data.html_content;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Error al cargar la información. Intenta nuevamente.
+                </div>
+            `;
+        });
+    }
+
+    function cerrarModalDetalleUsuario() {
+        const modal = document.getElementById('modalDetalleUsuario');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
 
     // Funciones para el modal de editar usuario
     function abrirModalEditarUsuario(usuarioId) {
@@ -592,6 +749,38 @@
                     enviarFormularioEditarUsuario(form, usuarioId);
                 });
             }
+            
+            // Configurar preview de foto de perfil
+            const fotoPerfil = document.querySelector('#form-editar-usuario input[name="foto_perfil"]');
+            if (fotoPerfil) {
+                fotoPerfil.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = document.getElementById('preview-foto-editar');
+                            const container = document.getElementById('preview-foto-editar-container');
+                            const icon = container ? container.querySelector('i') : null;
+                            
+                            if (preview) {
+                                preview.src = e.target.result;
+                                preview.style.display = 'block';
+                            }
+                            if (icon) {
+                                icon.style.display = 'none';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            
+            // Inicializar validaciones en tiempo real
+            setTimeout(() => {
+                if (typeof window.inicializarValidacionesEditarUsuario === 'function') {
+                    window.inicializarValidacionesEditarUsuario();
+                }
+            }, 200);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -654,6 +843,38 @@
                         enviarFormularioEditarUsuario(newForm, usuarioId);
                     });
                 }
+                
+                // Reconfigurar preview de foto de perfil
+                const fotoPerfil = document.querySelector('#form-editar-usuario input[name="foto_perfil"]');
+                if (fotoPerfil) {
+                    fotoPerfil.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const preview = document.getElementById('preview-foto-editar');
+                                const container = document.getElementById('preview-foto-editar-container');
+                                const icon = container ? container.querySelector('i') : null;
+                                
+                                if (preview) {
+                                    preview.src = e.target.result;
+                                    preview.style.display = 'block';
+                                }
+                                if (icon) {
+                                    icon.style.display = 'none';
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+                
+                // Reinicializar validaciones
+                setTimeout(() => {
+                    if (typeof window.inicializarValidacionesEditarUsuario === 'function') {
+                        window.inicializarValidacionesEditarUsuario();
+                    }
+                }, 200);
             }
         })
         .catch(error => {
@@ -667,6 +888,67 @@
         });
     }
     
+    // Manejar el switch de estado activo/inactivo del usuario
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleCheckboxes = document.querySelectorAll('.toggle-activo-usuario-checkbox');
+
+        toggleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const usuarioId = this.dataset.usuarioId;
+                const usuarioNombre = this.dataset.usuarioNombre;
+                const isChecked = this.checked;
+                const switchEl = this;
+
+                switchEl.disabled = true;
+
+                const csrftoken = getCookie('csrftoken');
+
+                fetch(`/auth/usuarios/${usuarioId}/toggle-activo/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-dismissible fade show';
+                        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease; min-width: 300px; background-color: #d4a574; color: #634c40; border: 2px solid #634c40; border-radius: 12px;';
+                        alertDiv.innerHTML = `
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <strong>${data.mensaje}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(alertDiv);
+                        setTimeout(() => { alertDiv.remove(); }, 3000);
+                        switchEl.disabled = false;
+                    } else {
+                        switchEl.checked = !isChecked;
+                        switchEl.disabled = false;
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
+                        alertDiv.innerHTML = `
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            ${data.mensaje || 'Error al cambiar el estado'}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(alertDiv);
+                        setTimeout(() => { alertDiv.remove(); }, 3000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    switchEl.checked = !isChecked;
+                    switchEl.disabled = false;
+                });
+            });
+        });
+    });
+
     // Animación para el mensaje de éxito
     const style = document.createElement('style');
     style.textContent = `

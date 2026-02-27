@@ -1,7 +1,9 @@
 {% load static %}
 
 <div style="padding: 0;">
-    <div class="personal-detail-grid" style="padding: 20px 0;">
+
+    <!-- Fila 1: ID | Estado | Nombres | Apellidos -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 16px 0;">
         <div class="personal-detail-section">
             <span class="personal-detail-label">ID</span>
             <p class="personal-detail-value"><strong>{{ personal.id }}</strong></p>
@@ -16,11 +18,6 @@
                 {% endif %}
             </p>
         </div>
-    </div>
-
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
-
-    <div class="personal-detail-grid">
         <div class="personal-detail-section">
             <span class="personal-detail-label">Nombres</span>
             <p class="personal-detail-value">{{ personal.nombres }}</p>
@@ -31,9 +28,10 @@
         </div>
     </div>
 
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 12px 0;">
 
-    <div class="personal-detail-grid">
+    <!-- Fila 2: Documento | Rol | Teléfono | Correo -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
         <div class="personal-detail-section">
             <span class="personal-detail-label">Número de Documento</span>
             <p class="personal-detail-value">{{ personal.numero_documento }}</p>
@@ -46,11 +44,6 @@
                 </span>
             </p>
         </div>
-    </div>
-
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
-
-    <div class="personal-detail-grid">
         <div class="personal-detail-section">
             <span class="personal-detail-label">Teléfono</span>
             <p class="personal-detail-value">
@@ -61,7 +54,7 @@
         </div>
         <div class="personal-detail-section">
             <span class="personal-detail-label">Correo Electrónico</span>
-            <p class="personal-detail-value">
+            <p class="personal-detail-value" style="word-break: break-all;">
                 <a href="mailto:{{ personal.correo }}" style="color: #634c40; text-decoration: none;">
                     <i class="fas fa-envelope"></i> {{ personal.correo }}
                 </a>
@@ -69,39 +62,38 @@
         </div>
     </div>
 
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 12px 0;">
 
-    <div class="personal-detail-grid">
+    <!-- Fila 3: Fecha creación | Última actualización | Usuario del sistema -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
         <div class="personal-detail-section">
             <span class="personal-detail-label">Fecha de Creación</span>
             <p class="personal-detail-value">
-                <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 6px;"></i>
+                <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
                 {{ personal.fecha_creacion|date:"d/m/Y H:i" }}
             </p>
         </div>
         <div class="personal-detail-section">
             <span class="personal-detail-label">Última Actualización</span>
             <p class="personal-detail-value">
-                <i class="fas fa-clock" style="color: #634c40; margin-right: 6px;"></i>
+                <i class="fas fa-clock" style="color: #634c40; margin-right: 4px;"></i>
                 {{ personal.fecha_actualizacion|date:"d/m/Y H:i" }}
             </p>
         </div>
-    </div>
-
-    {% if personal.usuario %}
-        <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
-        <div class="personal-detail-section">
+        {% if personal.usuario %}
+        <div class="personal-detail-section" style="grid-column: span 2;">
             <span class="personal-detail-label">Usuario del Sistema</span>
             <p class="personal-detail-value">
                 <i class="fas fa-user-shield" style="color: #634c40; margin-right: 6px;"></i>
                 {{ personal.usuario.username }} ({{ personal.usuario.first_name }})
             </p>
         </div>
-    {% endif %}
+        {% endif %}
+    </div>
 
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 24px 0;">
+    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 20px 0;">
 
-    <div style="display: flex; gap: 12px; margin-top: 32px;">
+    <div style="display: flex; gap: 12px;">
         {% if puede_modificar %}
         <button type="button" class="personal-btn warning" style="flex: 1;" onclick="cerrarModalDetallePersonal(); abrirModalEditarPersonal({{ personal.id }});">
             <i class="fas fa-edit"></i> Editar
@@ -112,13 +104,10 @@
             <i class="fas fa-trash"></i> Eliminar
         </button>
         {% endif %}
-    </div>
-    
-    {% if not puede_modificar and not es_administrador %}
-    <div style="text-align: center; margin-top: 20px;">
-        <button type="button" class="personal-btn secondary" onclick="cerrarModalDetallePersonal()">
+        {% if not puede_modificar and not es_administrador %}
+        <button type="button" class="personal-btn secondary" style="flex: 1;" onclick="cerrarModalDetallePersonal()">
             <i class="fas fa-times"></i> Cerrar
         </button>
+        {% endif %}
     </div>
-    {% endif %}
 </div>

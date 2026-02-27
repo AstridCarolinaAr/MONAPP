@@ -371,10 +371,657 @@ function inicializarValidacionesUsuario() {
 
 }
 
+// ===========================================================================================
+// FUNCIÓN PARA VALIDACIONES EN EL FORMULARIO DE EDITAR USUARIO
+// ===========================================================================================
+
+function inicializarValidacionesEditarUsuario() {
+    const form = document.getElementById('form-editar-usuario');
+    const btnGuardar = form ? form.querySelector('button[type="submit"]') : null;
+
+    if (!form || !btnGuardar) {
+        return;
+    }
+
+    /* ===============================
+       INICIO: BOTÓN DESHABILITADO
+    =============================== */
+    btnGuardar.disabled = true;
+    btnGuardar.style.opacity = '0.5';
+
+    /* ===============================
+       FUNCIONES VISUALES
+    =============================== */
+    function invalido(input, mensaje) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        let feedback = input.nextElementSibling;
+        
+        // Si el siguiente elemento no es un feedback, buscar o crear uno
+        if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+            // Buscar si ya existe un invalid-feedback después
+            feedback = input.parentElement.querySelector('.invalid-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block';
+                input.parentElement.appendChild(feedback);
+            }
+        }
+        
+        feedback.textContent = mensaje;
+        feedback.style.display = 'block';
+    }
+
+    function valido(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = '';
+            feedback.style.display = 'none';
+        }
+    }
+
+    function limpiar(input) {
+        input.classList.remove('is-invalid', 'is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = '';
+            feedback.style.display = 'none';
+        }
+    }
+
+    /* ===============================
+       ESTADO DEL BOTÓN
+    =============================== */
+    function actualizarEstadoBoton() {
+        // Campos obligatorios del formulario de editar
+        const camposObligatorios = [
+            { name: 'first_name', selector: 'input[name="first_name"]' },
+            { name: 'last_name', selector: 'input[name="last_name"]' },
+            { name: 'email', selector: 'input[name="email"]' },
+            { name: 'tipo_documento', selector: 'select[name="tipo_documento"]' },
+            { name: 'documento', selector: 'input[name="documento"]' }
+        ];
+
+        let habilitar = true;
+
+        camposObligatorios.forEach(campo => {
+            const elemento = form.querySelector(campo.selector);
+            if (!elemento) {
+                habilitar = false;
+                return;
+            }
+
+            const valor = (elemento.value || '').trim();
+
+            if (valor === '') habilitar = false;
+            if (!elemento.classList.contains('is-valid')) habilitar = false;
+            if (elemento.classList.contains('is-invalid')) habilitar = false;
+        });
+
+        btnGuardar.disabled = !habilitar;
+
+        if (btnGuardar.disabled) {
+            btnGuardar.style.opacity = '0.5';
+        } else {
+            btnGuardar.style.opacity = '1';
+        }
+    }
+
+    /* ===============================
+       VALIDACIÓN DOCUMENTO EN VIVO
+    =============================== */
+    let docTimer = null;
+    let docAbort = null;
+
+    function validarDocumentoEnVivo(valor, input) {
+        if (docTimer) clearTimeout(docTimer);
+        if (docAbort) docAbort.abort();
+
+        docAbort = new AbortController();
+
+        docTimer = setTimeout(async () => {
+            if (!/^\d+$/.test(valor)) {
+                invalido(input, 'Solo números.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            // Obtener el ID del usuario que se está editando
+            const userIdInput = document.getElementById('user_id_editar');
+            const userId = userIdInput ? userIdInput.value : '';
+
+            let url = `/auth/validar-documento/?numero=${encodeURIComponent(valor)}`;
+            if (userId) {
+                url += `&user_id=${encodeURIComponent(userId)}`;
+            }
+
+            try {
+                const res = await fetch(url, { signal: docAbort.signal });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
+                const data = await res.json();
+
+                if (!data.valido) invalido(input, data.mensaje);
+                else valido(input);
+
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    console.error('Error en validación de documento:', e);
+                    valido(input);
+                }
+            }
+
+            actualizarEstadoBoton();
+        }, 300);
+    }
+
+    /* ===============================
+       VALIDACIÓN EMAIL EN VIVO
+    =============================== */
+    let emailTimer = null;
+    let emailAbort = null;
+
+    function validarEmailEnVivo(valor, input) {
+        if (emailTimer) clearTimeout(emailTimer);
+        if (emailAbort) emailAbort.abort();
+
+        emailAbort = new AbortController();
+
+        emailTimer = setTimeout(async () => {
+            if (!valor.includes('@') || !valor.split('@')[1]?.includes('.')) {
+                invalido(input, 'Correo electrónico inválido.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            // Obtener el ID del usuario que se está editando
+            const userIdInput = document.getElementById('user_id_editar');
+            const userId = userIdInput ? userIdInput.value : '';
+
+            let url = `/auth/validar-email/?email=${encodeURIComponent(valor)}`;
+            if (userId) {
+                url += `&user_id=${encodeURIComponent(userId)}`;
+            }
+
+            try {
+                const res = await fetch(url, { signal: emailAbort.signal });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
+                const data = await res.json();
+
+                if (!data.valido) invalido(input, data.mensaje);
+                else valido(input);
+
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    console.error('Error en validación de email:', e);
+                    valido(input);
+                }
+            }
+
+            actualizarEstadoBoton();
+        }, 300);
+    }
+
+    /* ===============================
+       EVENTOS INPUT
+    =============================== */
+    form.addEventListener('input', function (e) {
+        const input = e.target;
+        const valor = (input.value || '').trim();
+
+        /* DOCUMENTO */
+        if (input.name === 'documento') {
+            if (!valor) {
+                invalido(input, 'El documento es obligatorio.');
+                actualizarEstadoBoton();
+                return;
+            }
+            validarDocumentoEnVivo(valor, input);
+            return;
+        }
+
+        /* EMAIL */
+        if (input.name === 'email') {
+            if (!valor) {
+                invalido(input, 'El correo electrónico es obligatorio.');
+                actualizarEstadoBoton();
+                return;
+            }
+            validarEmailEnVivo(valor, input);
+            return;
+        }
+
+        /* NOMBRE */
+        if (input.name === 'first_name') {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!valor) invalido(input, 'El nombre es obligatorio.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras y espacios.');
+            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
+            else valido(input);
+
+            actualizarEstadoBoton();
+        }
+
+        /* APELLIDO */
+        if (input.name === 'last_name') {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!valor) invalido(input, 'El apellido es obligatorio.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras y espacios.');
+            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
+            else valido(input);
+
+            actualizarEstadoBoton();
+        }
+
+        /* TELÉFONO */
+        if (input.name === 'telefono') {
+            if (!valor) {
+                limpiar(input);
+            } else if (!/^\d+$/.test(valor)) {
+                invalido(input, 'Solo números.');
+            } else if (valor.length !== 10) {
+                invalido(input, 'Debe tener 10 dígitos.');
+            } else {
+                valido(input);
+            }
+
+            actualizarEstadoBoton();
+        }
+    });
+
+    /* SELECT tipo documento */
+    const tipoDoc = form.querySelector('select[name="tipo_documento"]');
+    if (tipoDoc) {
+        tipoDoc.addEventListener('change', function () {
+            if (!this.value.trim()) {
+                invalido(this, 'El tipo de documento es obligatorio.');
+            } else {
+                valido(this);
+            }
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* SELECT rol */
+    const rol = form.querySelector('select[name="rol"]');
+    if (rol) {
+        rol.addEventListener('change', function () {
+            if (!this.value.trim()) {
+                invalido(this, 'El rol es obligatorio.');
+            } else {
+                valido(this);
+            }
+            actualizarEstadoBoton();
+        });
+    }
+
+    // Validar campos iniciales que ya tengan valores
+    setTimeout(() => {
+        const camposValidar = [
+            { name: 'first_name', selector: 'input[name="first_name"]' },
+            { name: 'last_name', selector: 'input[name="last_name"]' },
+            { name: 'email', selector: 'input[name="email"]' },
+            { name: 'documento', selector: 'input[name="documento"]' },
+            { name: 'tipo_documento', selector: 'select[name="tipo_documento"]' }
+        ];
+
+        camposValidar.forEach(campo => {
+            const elemento = form.querySelector(campo.selector);
+            if (elemento && elemento.value) {
+                // Disparar evento input para validar
+                elemento.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Para selects, disparar change
+                if (elemento.tagName === 'SELECT') {
+                    elemento.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        });
+    }, 100);
+}
+
 // Inicializar al cargar la página
-document.addEventListener('DOMContentLoaded', inicializarValidacionesUsuario);
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarValidacionesUsuario();
+    inicializarValidacionesEditarUsuario();
+});
 
 // También exportar para poder llamarla cuando se cargue el modal dinámicamente
 if (typeof window !== 'undefined') {
     window.inicializarValidacionesUsuario = inicializarValidacionesUsuario;
+    window.inicializarValidacionesEditarUsuario = inicializarValidacionesEditarUsuario;
+    window.inicializarValidacionesEditarUsuarioCompleto = inicializarValidacionesEditarUsuarioCompleto;
+}
+
+// ===========================================================================================
+// FUNCIÓN PARA VALIDACIONES EN EL FORMULARIO DE EDITAR USUARIO (PÁGINA COMPLETA)
+// ===========================================================================================
+
+function inicializarValidacionesEditarUsuarioCompleto() {
+    const form = document.getElementById('form-editar-usuario');
+    const btnGuardar = document.getElementById('btnGuardarUsuarioEdit');
+
+    if (!form || !btnGuardar) {
+        return;
+    }
+
+    /* ===============================
+       INICIO: BOTÓN DESHABILITADO
+    =============================== */
+    btnGuardar.disabled = true;
+    btnGuardar.style.opacity = '0.5';
+
+    /* ===============================
+       FUNCIONES VISUALES
+    =============================== */
+    function invalido(input, mensaje) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        let feedback = input.nextElementSibling;
+        
+        // Si el siguiente elemento no es un feedback, buscar o crear uno
+        if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+            // Buscar si ya existe un invalid-feedback después
+            feedback = input.parentElement.querySelector('.invalid-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block';
+                input.parentElement.appendChild(feedback);
+            }
+        }
+        
+        feedback.textContent = mensaje;
+        feedback.style.display = 'block';
+    }
+
+    function valido(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = '';
+            feedback.style.display = 'none';
+        }
+    }
+
+    function limpiar(input) {
+        input.classList.remove('is-invalid', 'is-valid');
+        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = '';
+            feedback.style.display = 'none';
+        }
+    }
+
+    /* ===============================
+       ESTADO DEL BOTÓN
+    =============================== */
+    function actualizarEstadoBoton() {
+        // Campos obligatorios del formulario de editar
+        const camposObligatorios = [
+            { name: 'first_name', selector: 'input[name="first_name"]' },
+            { name: 'last_name', selector: 'input[name="last_name"]' },
+            { name: 'email', selector: 'input[name="email"]' },
+            { name: 'tipo_documento', selector: 'select[name="tipo_documento"]' },
+            { name: 'documento', selector: 'input[name="documento"]' },
+            { name: 'rol', selector: 'select[name="rol"]' }
+        ];
+
+        let habilitar = true;
+
+        camposObligatorios.forEach(campo => {
+            const elemento = form.querySelector(campo.selector);
+            if (!elemento) {
+                habilitar = false;
+                return;
+            }
+
+            const valor = (elemento.value || '').trim();
+
+            if (valor === '') habilitar = false;
+            if (!elemento.classList.contains('is-valid')) habilitar = false;
+            if (elemento.classList.contains('is-invalid')) habilitar = false;
+        });
+
+        btnGuardar.disabled = !habilitar;
+
+        if (btnGuardar.disabled) {
+            btnGuardar.style.opacity = '0.5';
+        } else {
+            btnGuardar.style.opacity = '1';
+        }
+    }
+
+    /* ===============================
+       VALIDACIÓN DOCUMENTO EN VIVO
+    =============================== */
+    let docTimer = null;
+    let docAbort = null;
+
+    function validarDocumentoEnVivo(valor, input) {
+        if (docTimer) clearTimeout(docTimer);
+        if (docAbort) docAbort.abort();
+
+        docAbort = new AbortController();
+
+        docTimer = setTimeout(async () => {
+            if (!/^\d+$/.test(valor)) {
+                invalido(input, 'Solo números.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            // Obtener el ID del usuario que se está editando
+            const userIdInput = document.getElementById('user_id_editar');
+            const userId = userIdInput ? userIdInput.value : '';
+
+            let url = `/auth/validar-documento/?numero=${encodeURIComponent(valor)}`;
+            if (userId) {
+                url += `&user_id=${encodeURIComponent(userId)}`;
+            }
+
+            try {
+                const res = await fetch(url, { signal: docAbort.signal });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
+                const data = await res.json();
+
+                if (!data.valido) invalido(input, data.mensaje);
+                else valido(input);
+
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    console.error('Error en validación de documento:', e);
+                    valido(input);
+                }
+            }
+
+            actualizarEstadoBoton();
+        }, 300);
+    }
+
+    /* ===============================
+       VALIDACIÓN EMAIL EN VIVO
+    =============================== */
+    let emailTimer = null;
+    let emailAbort = null;
+
+    function validarEmailEnVivo(valor, input) {
+        if (emailTimer) clearTimeout(emailTimer);
+        if (emailAbort) emailAbort.abort();
+
+        emailAbort = new AbortController();
+
+        emailTimer = setTimeout(async () => {
+            if (!valor.includes('@') || !valor.split('@')[1]?.includes('.')) {
+                invalido(input, 'Correo electrónico inválido.');
+                actualizarEstadoBoton();
+                return;
+            }
+
+            // Obtener el ID del usuario que se está editando
+            const userIdInput = document.getElementById('user_id_editar');
+            const userId = userIdInput ? userIdInput.value : '';
+
+            let url = `/auth/validar-email/?email=${encodeURIComponent(valor)}`;
+            if (userId) {
+                url += `&user_id=${encodeURIComponent(userId)}`;
+            }
+
+            try {
+                const res = await fetch(url, { signal: emailAbort.signal });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
+                const data = await res.json();
+
+                if (!data.valido) invalido(input, data.mensaje);
+                else valido(input);
+
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    console.error('Error en validación de email:', e);
+                    valido(input);
+                }
+            }
+
+            actualizarEstadoBoton();
+        }, 300);
+    }
+
+    /* ===============================
+       EVENTOS INPUT
+    =============================== */
+    form.addEventListener('input', function (e) {
+        const input = e.target;
+        const valor = (input.value || '').trim();
+
+        /* DOCUMENTO */
+        if (input.name === 'documento') {
+            if (!valor) {
+                invalido(input, 'El documento es obligatorio.');
+                actualizarEstadoBoton();
+                return;
+            }
+            validarDocumentoEnVivo(valor, input);
+            return;
+        }
+
+        /* EMAIL */
+        if (input.name === 'email') {
+            if (!valor) {
+                invalido(input, 'El correo electrónico es obligatorio.');
+                actualizarEstadoBoton();
+                return;
+            }
+            validarEmailEnVivo(valor, input);
+            return;
+        }
+
+        /* NOMBRE */
+        if (input.name === 'first_name') {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!valor) invalido(input, 'El nombre es obligatorio.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras y espacios.');
+            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
+            else valido(input);
+
+            actualizarEstadoBoton();
+        }
+
+        /* APELLIDO */
+        if (input.name === 'last_name') {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+            if (!valor) invalido(input, 'El apellido es obligatorio.');
+            else if (!regex.test(valor)) invalido(input, 'Solo letras y espacios.');
+            else if (valor.length > 150) invalido(input, 'Máximo 150 caracteres.');
+            else valido(input);
+
+            actualizarEstadoBoton();
+        }
+
+        /* TELÉFONO */
+        if (input.name === 'telefono') {
+            if (!valor) {
+                limpiar(input);
+            } else if (!/^\d+$/.test(valor)) {
+                invalido(input, 'Solo números.');
+            } else if (valor.length !== 10) {
+                invalido(input, 'Debe tener 10 dígitos.');
+            } else {
+                valido(input);
+            }
+
+            actualizarEstadoBoton();
+        }
+    });
+
+    /* SELECT tipo documento */
+    const tipoDoc = form.querySelector('select[name="tipo_documento"]');
+    if (tipoDoc) {
+        tipoDoc.addEventListener('change', function () {
+            if (!this.value.trim()) {
+                invalido(this, 'El tipo de documento es obligatorio.');
+            } else {
+                valido(this);
+            }
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* SELECT rol */
+    const rol = form.querySelector('select[name="rol"]');
+    if (rol) {
+        rol.addEventListener('change', function () {
+            if (!this.value.trim()) {
+                invalido(this, 'El rol es obligatorio.');
+            } else {
+                valido(this);
+            }
+            actualizarEstadoBoton();
+        });
+    }
+
+    // Validar campos iniciales que ya tengan valores
+    setTimeout(() => {
+        const camposValidar = [
+            { name: 'first_name', selector: 'input[name="first_name"]' },
+            { name: 'last_name', selector: 'input[name="last_name"]' },
+            { name: 'email', selector: 'input[name="email"]' },
+            { name: 'documento', selector: 'input[name="documento"]' },
+            { name: 'tipo_documento', selector: 'select[name="tipo_documento"]' },
+            { name: 'rol', selector: 'select[name="rol"]' }
+        ];
+
+        camposValidar.forEach(campo => {
+            const elemento = form.querySelector(campo.selector);
+            if (elemento && elemento.value) {
+                // Disparar evento input para validar
+                elemento.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Para selects, disparar change
+                if (elemento.tagName === 'SELECT') {
+                    elemento.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        });
+    }, 100);
 }
