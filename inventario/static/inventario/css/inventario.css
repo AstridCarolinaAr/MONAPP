@@ -10,32 +10,6 @@
     font-size: 18px;
 }
 
-/* TABLAS */
-.tabla-caja {
-    background: white;
-    border-radius: 3px;
-    overflow: hidden;
-    width: 100%;
-}
-
-.tabla-caja th {
-    background: #f1f3f5;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 18px 20px;
-    line-height: 1.5;
-    min-height: 50px;
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.tabla-caja td {
-    padding: 16px 18px;
-    vertical-align: middle;
-    font-size: 15px;
-    line-height: 1.6;
-}
-
 /* BOTONES */
 .btn-outline-primary,
 .btn-outline-danger,

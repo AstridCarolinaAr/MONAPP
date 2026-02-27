@@ -8,15 +8,6 @@
   font-size: 18px;
   margin-bottom: 12px;
 }
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 6px;
-  border-radius: 3px;
-  background: #fff;
-  box-shadow: 0 3px 6px rgba(16, 24, 40, .06);
-  border: 1px solid rgba(16, 24, 40, .06);
-}
 
 .total-card span {
   color: #6b7280;
@@ -41,18 +32,13 @@
   font-weight: 700;
   color: #334155;
   border-bottom: 1px solid rgba(16, 24, 40, .08);
-  padding: 18px 20px;
-  font-size: 16px;
-  line-height: 1.5;
-  min-height: 50px;
-  display: table-cell;
-  vertical-align: middle;
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .tabla-compras tbody td {
-  padding: 16px 18px;
-  font-size: 15px;
-  line-height: 1.6;
+  padding: 8px 10px;
+  font-size: 11px;
 }
 
 .acciones-group {

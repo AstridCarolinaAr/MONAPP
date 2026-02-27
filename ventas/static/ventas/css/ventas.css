@@ -40,97 +40,12 @@ input:disabled {
 }
 
 /* =====================================================
-   CARD TABLAS
+   TABLA LISTA VENTAS - Hereda de panel_admin_base.css
 ===================================================== */
-
-.table-card {
-  background: #fff;
-  border-radius: 5px;
-  box-shadow: 0 3px 10px rgba(0,0,0,.08);
-  overflow: hidden;
-}
 
 /* =====================================================
-   TABLA LISTA VENTAS (styled-table)
+   TABLA DETALLE VENTA - Hereda de panel_admin_base.css
 ===================================================== */
-
-.styled-table thead th {
-  background: linear-gradient(90deg, #3a2a24, #1f1412);
-  color: #fff !important;
-  font-weight: 700;
-  letter-spacing: .3px;
-  border: 0 !important;
-  padding: 18px 20px;
-  text-transform: uppercase;
-  font-size: 16px;
-  line-height: 1.5;
-  min-height: 50px;
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.styled-table tbody td {
-  padding: 16px 18px;
-  border-top: 1px solid rgba(0,0,0,.06);
-  vertical-align: middle;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.styled-table tbody tr:hover {
-  background: rgba(58,42,36,.04);
-}
-
-/* =====================================================
-   TABLA DETALLE VENTA (IGUAL ESTILO LISTA)
-===================================================== */
-
-#tablaItems.table {
-  margin-bottom: 0;
-  border-radius: 5px;
-  overflow: hidden;
-  border: 0 !important;
-  width: 100%;
-}
-
-/* HEADER CAFÉ */
-#tablaItems thead th {
-  background: linear-gradient(90deg, #3a2a24, #1f1412) !important;
-  color: #fff !important;
-  font-weight: 700;
-  letter-spacing: .3px;
-  text-transform: uppercase;
-  font-size: 16px;
-  padding: 18px 20px;
-  border: 0 !important;
-  line-height: 1.5;
-  min-height: 50px;
-  display: table-cell;
-  vertical-align: middle;
-}
-
-#tablaItems tbody td {
-  padding: 14px 16px;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* CELDAS */
-#tablaItems tbody td {
-  background: #fff !important;
-  padding: 16px 18px;
-  border-top: 1px solid rgba(0,0,0,.06) !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  vertical-align: middle;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-/* HOVER */
-#tablaItems tbody tr:hover td {
-  background: rgba(58,42,36,.04) !important;
-}
 
 /* =====================================================
    BOTÓN PRINCIPAL PILL
@@ -138,7 +53,6 @@ input:disabled {
 
 .btn-pill-dark {
   display: inline-flex;
-  align3px;
   padding: 3px 5px;
   border-radius: 995px;
   background: linear-gradient(90deg, #3a2a24, #1f1412);
@@ -149,14 +63,12 @@ input:disabled {
   border: 0;
   transition: .2s ease;
   font-size: 12px
-  transition: .2s ease;
 }
 
-.btn-pill-dark:hover {
+/* .btn-pill-dark:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
 }
-11px;
   height: 15rk .icon {
   width: 15px;
   height: 15px;
@@ -165,7 +77,7 @@ input:disabled {
   place-items: center;
   background: rgba(255,255,255,.15);
   font-weight: 900;
-}
+} */
 
 /* =====================================================
    SWITCH ESTADO

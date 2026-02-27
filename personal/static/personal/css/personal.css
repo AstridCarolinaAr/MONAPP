@@ -357,61 +357,7 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     align-items: end;
 }
 
-/* ==================== TABLA ==================== */
-.personal-table-wrapper {
-    background: #ffffff;
-    border: 1.3px solid rgba(17, 17, 17, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.personal-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.personal-table thead {
-    background: linear-gradient(135deg, #111 0%, #2a2a2a 100%);
-}
-
-.personal-table thead th {
-    padding: 16px 18px;
-    text-align: left;
-    font-size: 1.2rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #ffffff;
-    border-bottom: none;
-    min-height: 50px;
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.personal-table tbody tr {
-    border-bottom: 1px solid rgba(17, 17, 17, 0.06);
-    transition: background 0.25s ease;
-}
-
-.personal-table tbody tr:hover {
-    background: rgba(99, 76, 64, 0.03);
-}
-
-.personal-table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.personal-table tbody td {
-    padding: 16px 18px;
-    font-size: 1.15rem;
-    color: #333;
-    vertical-align: middle;
-}
-
-.personal-table tbody td strong {
-    color: #111;
-    font-weight: 600;
-}
+/* ==================== TABLA - Hereda de panel_admin_base.css ==================== */
 
 /* ==================== BADGES ==================== */
 .personal-badge {
@@ -643,10 +589,6 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     .personal-search-form {
         grid-template-columns: 1fr;
     }
-    
-    .personal-table {
-        font-size: 0.9rem;
-    }
 }
 
 @media (max-width: 900px) {
@@ -659,15 +601,6 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     .personal-detail-grid {
         grid-template-columns: 1fr;
         gap: 9px;
-    }
-
-    .personal-table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .personal-table {
-        min-width: 800px;
     }
 
     .personal-container {
@@ -708,16 +641,6 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     
     .personal-search-card {
         padding: 10px 9px;
-    }
-    
-    .personal-table thead th {
-        padding: 9px 5px;
-        font-size: 0.8rem;
-    }
-    
-    .personal-table tbody td {
-        padding: 9px 5px;
-        font-size: 0.85rem;
     }
     
     .personal-detail-section {

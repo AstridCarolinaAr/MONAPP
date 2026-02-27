@@ -74,48 +74,6 @@ h2 {
 }
 
 /* =============================
-   TABLA
-============================= */
-.table {
-    margin: 0;
-    width: 100%;
-}
-
-.table thead {
-    background: #f2ece8;
-}
-
-.table thead th {
-    border: none;
-    font-size: 16px;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: #5a4a4a;
-    padding: 18px 20px;
-    font-weight: 700;
-    line-height: 1.5;
-    min-height: 50px;
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.table td {
-    border: none;
-    padding: 16px 18px;
-    vertical-align: middle;
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.table tbody tr {
-    transition: all .25s ease;
-}
-
-.table tbody tr:hover {
-    background: #fbf7f5;
-}
-
-/* =============================
    ACCIONES
 ============================= */
 .table td .d-flex {

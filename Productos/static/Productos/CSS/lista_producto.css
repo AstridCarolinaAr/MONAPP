@@ -1,62 +1,31 @@
-:root {
-    --mona-bg: #fdf6f8;
-    --mona-card: #ffffff;
-    --mona-text: #3a3a3a;
-    --mona-dark: #3b2f2f;
-}
-
-/* FONDO */
-body {
-    background: var(--mona-bg);
-    color: var(--mona-text);
-}
-
 /* TÍTULO */
 h2 {
     font-weight: 700;
-    font-size: 22px;
+    font-size: 28px;
     margin-bottom: 15px;
 }
 
-/* BOTÓN NUEVO */
-.btn-success {
-    background: linear-gradient(135deg, #3b2f2f, #6d5c5c);
-    border: none;
-    border-radius: 995px;
-    padding: 8px 20px;
+/* BOTÓN NUEVO PRODUCTO */
+.btn-pill-dark {
+    background: linear-gradient(135deg, #3b2f2f, #6d5c5c) !important;
+    border: none !important;
+    border-radius: 995px !important;
+    padding: 5px 10px !important;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 10px !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
-/* TABLA */
-.table {
-    width: 100%;
-    margin-top: 15px;
+.btn-pill-dark i {
+    font-size: 14px !important;
 }
 
-.table thead th {
-    font-size: 16px;
-    text-transform: uppercase;
-    color: #5a4a4a;
-    padding: 18px 20px;
-    font-weight: 700;
-    background: #f5f1ee;
-    line-height: 1.5;
-    min-height: 50px;
-    display: table-cell;
-    vertical-align: middle;
-}
 
-.table tbody td {
-    padding: 16px 18px;
-    font-size: 15px;
-    vertical-align: middle;
-    line-height: 1.6;
-}
-
-.table tbody tr:hover {
-    background: #fbf7f5;
-}
+/* ✅ TABLA - HEREDA DE panel_admin_base.css */
 
 /* BOTONES */
 .btn-sm {
@@ -86,14 +55,14 @@ h2 {
     padding: 3px 6px;
     border-radius: 995px;
     background: #f1ece9;
-    color: var(--mona-dark);
+    color: var(--mona-brown-dark);
     text-decoration: none;
     border: 1px solid #ddd;
     font-size: 12px;
 }
 
 .linea-chip.active {
-    background: var(--mona-dark);
+    background: var(--mona-brown-dark);
     color: #fff;
 }
 
@@ -386,18 +355,17 @@ h2 {
 
 /* quita sensación de "líneas" */
 .producto-form hr{ display:none !important; }
-.table { table-layout: fixed; width: 100%; }
-
-.col-codigo { width: 19px; }
-.col-linea { width: 160px; }
-.col-acciones { width: 230px; }
-.col-producto { width: auto; }
+.styled-table { width: 100%; border-collapse: collapse; }
 
 .acciones-wrap{
   display: flex;
   justify-content: center;
   gap: 3px;
   flex-wrap: nowrap;
+}
+
+.acciones-wrap i {
+  font-size: 20px !important;
 }
 
 .col-linea{
