@@ -515,7 +515,15 @@ h2 {
 .form_validated.is-ok .valid-check{
   display: inline-block;
 }
-/* Dropzone pro */
+
+/* Dropzone  */
+
+.dropdwon-menu {
+
+z-index:2000 !important;
+}
+
+
 .dropzone-pro{
   display:flex;
   flex-direction:column;
@@ -569,6 +577,28 @@ h2 {
   display:grid;
   place-items:center;
 }
+
+
+.img-preview-remove{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font-size: 20px;
+  line-height: 28px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.img-preview-remove:hover{
+  background: rgba(0,0,0,.85);
+}
 #previewProductoImagen{
   display:none;
   width:100%;
@@ -582,4 +612,17 @@ h2 {
 .preview-empty-icon{
   font-size:26px;
   margin-bottom:6px;
+}
+.img-preview-wrap{
+  position: relative;
+  display: inline-block;
+  max-width: 240px;
+}
+
+.img-preview{
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
 }
