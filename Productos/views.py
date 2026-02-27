@@ -149,7 +149,7 @@ def eliminar_producto(request, codigo):
         detalle_items.append({
             "id": d.id,
             "compra_id": getattr(compra, "id", None),
-            "compra_codigo": getattr(compra, "codigo", None),  # si existe
+            "compra_codigo": getattr(compra, "codigo", None), 
             "fecha": getattr(compra, "fecha", None).isoformat() if getattr(compra, "fecha", None) else None,
             "cantidad": getattr(d, "cantidad", None),
             "precio": str(getattr(d, "precio", "")) if getattr(d, "precio", None) is not None else None,
