@@ -467,6 +467,22 @@
                             </label>
                         </td>
                         <td class="text-center promo-actions">
+                            <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-promo"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDetallePromo"
+                                    data-nombre="{{ p.nombre|escapejs }}"
+                                    data-descripcion="{{ p.descripcion|escapejs }}"
+                                    data-etiqueta="{{ p.get_etiqueta_display }}"
+                                    data-descuento="{{ p.porcentaje_descuento }}"
+                                    data-inicio="{{ p.fecha_inicio|date:'d/m/Y' }}"
+                                    data-fin="{{ p.fecha_fin|date:'Y-m-d' }}"
+                                    data-activa="{{ p.activa|yesno:'Sí,No' }}"
+                                    data-imagen-url="{% if p.imagen %}{{ p.imagen.url }}{% endif %}"
+                                    data-creado="{{ p.fecha_creacion|date:'d/m/Y H:i' }}"
+                                    data-modificado="{{ p.fecha_modificacion|date:'d/m/Y H:i' }}"
+                                    title="Ver detalles">
+                                <i class="bi bi-eye"></i>
+                            </button>
                             <button type="button" class="btn btn-link btn-edit p-0"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalEditar"
@@ -660,6 +676,50 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL VER DETALLES PROMOCIÓN ═══ -->
+<div class="modal fade" id="modalDetallePromo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header promo-header">
+                <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Detalle de la Promoción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-4 text-center">
+                        <img id="promoDetImg" src="" class="img-fluid rounded shadow-sm" style="max-height:200px;object-fit:cover;display:none;" alt="Imagen">
+                        <div id="promoDetImgPh" class="d-flex align-items-center justify-content-center rounded" style="height:180px;background:#f0e8e3;font-size:3rem;color:#b8a49a;">
+                            <i class="bi bi-percent"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-start gap-2 mb-3">
+                            <h4 id="promoDetNombre" class="fw-bold mb-0"></h4>
+                            <span id="promoDetEtiqueta" class="badge"></span>
+                        </div>
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <tr><th style="width:130px;color:#6d5050;">Descuento</th><td id="promoDetDescuento"></td></tr>
+                                <tr><th style="color:#6d5050;">Inicio</th><td id="promoDetInicio"></td></tr>
+                                <tr><th style="color:#6d5050;">Fin</th><td id="promoDetFin"></td></tr>
+                                <tr><th style="color:#6d5050;">Estado</th><td id="promoDetActiva"></td></tr>
+                                <tr><th style="color:#6d5050;">Creado</th><td id="promoDetCreado"></td></tr>
+                                <tr><th style="color:#6d5050;">Modificado</th><td id="promoDetModificado"></td></tr>
+                            </tbody>
+                        </table>
+                        <hr class="my-2">
+                        <p class="small text-muted mb-0"><strong>Descripción:</strong></p>
+                        <p id="promoDetDesc" class="mt-1" style="white-space:pre-wrap;"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1074,6 +1134,37 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+
+    /* ── Modal Ver Detalles Promoción ── */
+    const ETIQUETA_COLORS = {
+        nuevo:     'bg-primary',
+        especial:  'bg-warning text-dark',
+        limitado:  'bg-danger',
+        descuento: 'bg-success',
+        exclusivo: 'bg-purple',
+    };
+    document.querySelectorAll('.btn-detalle-promo').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('promoDetNombre').textContent     = btn.dataset.nombre;
+            document.getElementById('promoDetDescuento').textContent  = btn.dataset.descuento + '%';
+            document.getElementById('promoDetInicio').textContent     = btn.dataset.inicio;
+            document.getElementById('promoDetFin').textContent        = (() => { const d=new Date(btn.dataset.fin); return isNaN(d)?btn.dataset.fin:d.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'}); })();
+            document.getElementById('promoDetCreado').textContent     = btn.dataset.creado;
+            document.getElementById('promoDetModificado').textContent = btn.dataset.modificado;
+            document.getElementById('promoDetDesc').textContent       = btn.dataset.descripcion || '—';
+            document.getElementById('promoDetActiva').innerHTML =
+                btn.dataset.activa === 'Sí'
+                ? '<span class="badge bg-success">Activa</span>'
+                : '<span class="badge bg-secondary">Inactiva</span>';
+            const etBadge = document.getElementById('promoDetEtiqueta');
+            etBadge.textContent = btn.dataset.etiqueta;
+            etBadge.className = 'badge ' + (ETIQUETA_COLORS[btn.dataset.etiqueta?.toLowerCase()] || 'bg-secondary');
+            const img = document.getElementById('promoDetImg');
+            const ph  = document.getElementById('promoDetImgPh');
+            if (btn.dataset.imagenUrl) { img.src = btn.dataset.imagenUrl; img.style.display = ''; ph.style.display = 'none'; }
+            else                       { img.style.display = 'none'; ph.style.display = ''; }
+        });
     });
 });
 </script>
