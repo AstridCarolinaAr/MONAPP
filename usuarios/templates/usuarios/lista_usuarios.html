@@ -147,20 +147,20 @@
 
     <!-- Tabla -->
     <div class="card shadow-sm">
-        <div class="card-body table-responsive">
-
-            <table class="styled-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Usuario</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Estado</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Usuario</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
                     {% for usuario in usuarios %}
                     <tr>
@@ -223,7 +223,7 @@
 
                 </tbody>
             </table>
-
+            </div>
         </div>
     </div>
 

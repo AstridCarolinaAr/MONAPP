@@ -1,0 +1,34 @@
+/* =============================
+   GESTIÓN DE USUARIOS
+============================= */
+
+/* Forzar que el contenedor y la tarjeta ocupen el 100% */
+.container-fluid {
+    width: 100% !important;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.card {
+    width: 100% !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+
+.table-responsive {
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+}
+
+.styled-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    border-collapse: collapse;
+}
+
+/* Ajuste de celdas */
+.styled-table th,
+.styled-table td {
+    padding: 16px 20px;
+}

@@ -11,9 +11,28 @@
 {% block extra_css %}
 <style>
 /* ============ TABLA ============ */
+.table-container-custom {
+    width: 100% !important;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,.05);
+}
+
+.table-responsive {
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+}
+
+.styled-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
 .pw-table {
-    border-collapse: separate;
-    border-spacing: 0;
     width: 100%;
 }
 .pw-table thead th {
