@@ -54,17 +54,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
     
-    // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+        // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     
-    navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active');
-        }
-    });
-    
-    // ==================== BÚSQUEDA EN TIEMPO REAL ====================
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            
+            // Si la URL actual empieza con el href del link (y no es solo la raíz /)
+            // O si las URLs son idénticas
+            if ((href !== '/' && currentPath.startsWith(href)) || currentPath === href) {
+                link.classList.add('active');
+            }
+        });
+        // ==================== BÚSQUEDA EN TIEMPO REAL ====================
     const searchInput = document.querySelector('.search-box input');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
