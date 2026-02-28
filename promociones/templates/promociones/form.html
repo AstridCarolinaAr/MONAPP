@@ -4,7 +4,7 @@
 {% block title %}{{ titulo }}{% endblock %}
 
 {% block page_title %}
-    <i class="bi bi-percent"></i> {{ titulo }}
+    <i class="bi bi-percent" style="color: #8d604a;"></i> <span style="color: #5c3d2e;">{{ titulo }}</span>
 {% endblock %}
 
 {% block extra_css %}
@@ -72,20 +72,64 @@
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
 }
+/* Estilos adicionales café para formulario */
+.form-label.fw-semibold {
+    color: #5c3d2e;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #8d604a;
+    box-shadow: 0 0 0 0.2rem rgba(141,96,74,.25);
+}
+.form-switch .form-check-input:checked {
+    background-color: #8d604a;
+    border-color: #8d604a;
+}
+.btn-outline-secondary {
+    color: #7a5c4a;
+    border-color: #7a5c4a;
+}
+.btn-outline-secondary:hover {
+    background-color: #7a5c4a;
+    border-color: #7a5c4a;
+    color: #fff;
+}
+.text-danger {
+    color: #a0715a !important;
+}
+/* Alertas con tema café */
+.alert-success {
+    background-color: rgba(141,96,74,.12);
+    border-color: #8d604a;
+    color: #5c3d2e;
+}
+.alert-danger, .alert-error {
+    background-color: rgba(122,92,74,.12);
+    border-color: #7a5c4a;
+    color: #5c3d2e;
+}
+.alert-warning {
+    background-color: rgba(165,129,102,.15);
+    border-color: #a58166;
+    color: #5c3d2e;
+}
+.alert-info {
+    background-color: rgba(180,156,138,.12);
+    border-color: #b49c8a;
+    color: #5c3d2e;
+}
+.form-control, .form-select {
+    border: 1px solid #d4c4ba;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+    <!-- Mensajes Django para SweetAlert -->
+    <script id="promo-form-messages" type="application/json">
+        [{% for message in messages %}{"tags":"{{ message.tags }}","text":"{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+    </script>
 
     <div class="card promo-form-card">
         <div class="card-header">
@@ -174,6 +218,28 @@
 
 {% block extra_js %}
 <script>
+/* ── Mensajes Django como Swal toast ── */
+(function () {
+    const raw = document.getElementById('promo-form-messages');
+    if (!raw) return;
+    const msgs = JSON.parse(raw.textContent || '[]');
+    const MAP = {
+        success: { icon: 'success', background: '#f0fdf4', color: '#166534' },
+        error:   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
+        warning: { icon: 'warning', background: '#fffbeb', color: '#92400e' },
+        info:    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
+    };
+    msgs.forEach(m => {
+        const key  = Object.keys(MAP).find(k => m.tags.includes(k)) || 'info';
+        const opts = MAP[key];
+        Swal.mixin({
+            toast: true, position: 'top-end',
+            showConfirmButton: false, timer: 3500, timerProgressBar: true,
+            background: opts.background, color: opts.color,
+        }).fire({ icon: opts.icon, title: m.text });
+    });
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.querySelector('#dropzonePromo input[type="file"]');
     const preview   = document.getElementById('previewPromo');

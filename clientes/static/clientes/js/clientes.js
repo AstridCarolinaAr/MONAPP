@@ -182,29 +182,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    /* SELECT tipo documento */
-    const tipoDoc = document.getElementById('tipo_documento');
-    if (tipoDoc) {
-        tipoDoc.addEventListener('change', function () {
-            if (!this.value.trim()) limpiar(this);
-            else valido(this);
+    /* ===============================
+       VALIDACIÓN TIPO DOCUMENTO (SELECT)
+    =============================== */
+    const tipoDocumentoSelect = document.getElementById('tipo_documento');
+    
+    if (tipoDocumentoSelect) {
+        tipoDocumentoSelect.addEventListener('change', function() {
+            const feedback = this.nextElementSibling;
+            
+            if (this.value.trim() === '') {
+                limpiar(this, feedback);
+            } else {
+                valido(this, feedback);
+            }
+            
             actualizarEstadoBoton();
         });
     }
 
-    /* FECHA */
-    const fecha = document.getElementById('fecha_nacimiento');
-    if (fecha) {
-        fecha.addEventListener('change', function () {
-            const hoy = new Date().toISOString().split('T')[0];
-            if (!this.value) limpiar(this);
-            else if (this.value > hoy) invalido(this, 'No puede ser futura.');
-            else valido(this);
-            actualizarEstadoBoton();
-        });
-    }
-
-    /* LIMPIAR MODAL */
+    /* ===============================
+       LIMPIAR TODO AL CERRAR MODAL
+    =============================== */
     modal.addEventListener('hidden.bs.modal', function () {
         form.reset();
         form.querySelectorAll('input, select').forEach(el => {

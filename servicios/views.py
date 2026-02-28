@@ -2,11 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
-from django.urls import reverse
-from .models import Servicio, GestionAlisado
-from .forms import ServicioForm, GestionAlisadoForm
-from clientes.models import Cliente
-from clientes.validaciones import validar_datos_cliente
+from .models import Servicio
+from .forms import ServicioForm
 
 def es_staff(user):
     return user.is_staff

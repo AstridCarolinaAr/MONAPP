@@ -19,13 +19,13 @@
     <h2 class="titulo-modulo">
       <i class="bi bi-cart-check me-2"></i> Gestión de Compras
     </h2>
-
-    <a href="#"
-    class="btn btn-primary"
-    data-modal-url="{% url 'compras:crear_compra' %}"
-    data-modal-title="Registrar compra">
-    <i class="bi bi-plus-circle me-1"></i> Registrar compra
-    </a>
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-modal-url="{% url 'compras:crear_compra' %}"
+      data-modal-title="Registrar compra">
+      Registrar compra
+    </button>
   </div>
 
   <div class="total-card mb-4">
@@ -49,58 +49,55 @@
 
         <tbody>
         {% for c in compras %}
-          <tr>
+        <tr id="fila-compra-{{ c.id }}">
             <td>{{ c.proveedor }}</td>
             <td>{{ c.fecha }}</td>
             <td>{{ c.usuario.username }}</td>
 
-
             <td class="text-center">
-
-              <div class="acciones-group">
-                <button type="button"
-                        class="btn btn-outline-info btn-sm js-ver-detalle"
-                        data-url="{% url 'compras:detalle_compra' c.id %}">
-                <i class="bi bi-eye"></i>
-                </button>
-                <a href="#"
-                class="btn btn-sm btn-outline-primary"
-                data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                data-modal-title="Editar compra">
-                editar
-                </a>
-                <button type="button"
-                            class="btn btn-danger js-eliminar-compra"
-                            data-url="{% url 'compras:eliminar_compra' c.id %}"
-                            data-id="{{ c.id }}">
-                      Eliminar
+                <div class="acciones-group">
+                    <button type="button"
+                            class="btn btn-outline-info btn-sm js-ver-detalle"
+                            data-url="{% url 'compras:detalle_compra' c.id %}">
+                        <i class="bi bi-eye"></i>
                     </button>
-              </div>
+
+                    <a href="#"
+                      class="btn btn-sm btn-outline-primary"
+                      data-modal-url="{% url 'compras:editar_compra' c.id %}"
+                      data-modal-title="Editar compra">
+                        editar
+                    </a>
+
+                    <button
+                        class="btn btn-warning btn-sm js-anular-compra"
+                        data-id="{{ c.id }}"
+                        data-proveedor="{{ c.proveedor }}"
+                        data-url="{% url 'compras:anular_compra' c.id %}">
+                        Anular
+                    </button>
+                </div>
             </td>
-          </tr>
-
-          <div class="modal fade" id="modalEliminar{{ c.id }}" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content p-4 text-center">
-                <h5>¿Eliminar esta compra?</h5>
-                <p class="text-muted mb-3">Esta acción no se puede deshacer</p>
-
-                <form method="post" action="{% url 'compras:eliminar_compra' c.id %}">
-                  {% csrf_token %}
-
-                  <div class="d-flex justify-content-center gap-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
+        </tr>
         {% endfor %}
         </tbody>
       </table>
+      {%if compras_anuladas %}
+<div id="anuladas-box">
+    <div class="anuladas-header">
+        🗑 anuladas 
+        <span id="contador-anuladas">{{ compras_anuladas|length }}</span>
     </div>
+    <div id="anuladas-content">
+        {% for c in compras_anuladas %}
+            <div class="anulada-item">
+                <strong>Compra #{{ c.id }}</strong><br>
+                <small>{{ c.proveedor }}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+      {%endif%}
   {% else %}
     <div class="alert alert-light mt-3 text-center">No hay compras registradas</div>
   {% endif %}

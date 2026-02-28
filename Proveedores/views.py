@@ -19,6 +19,9 @@ def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
 
+    activo = Proveedor.objects.all()
+    proveedores = Proveedor.objects.all()
+
     # estado activo por defecto
     estado = request.GET.get("estado", "activo")
 
@@ -28,6 +31,13 @@ def lista_proveedores(request):
     proveedores = Proveedor.objects.filter(estado=estado)
 
     # BUSCADOR
+    activo = request.GET.get("activo", "")
+    proveedores = Proveedor.objects.all()
+
+    if activo:
+        proveedores = proveedores.filter(estado=activo)
+
+    #  BUSCADOR
     if q:
         proveedores = proveedores.filter(
             Q(nombre_proveedor__icontains=q) |
@@ -35,10 +45,11 @@ def lista_proveedores(request):
             Q(correo_proveedor__icontains=q)
         )
 
-    # CONTADOR (si luego lo usas)
-    proveedores = proveedores.annotate(
-        total_entregas=Count("id")
-    )
+    # # CONTADOR (si luego lo usas)
+    # proveedores = proveedores.annotate(
+    #     total_entregas=Count("id")
+    #     total_entregas=Count("id")  
+    # )
 
     # ORDENAMIENTO
     ordenamientos = {
@@ -62,19 +73,14 @@ def lista_proveedores(request):
 
 
 def crear_proveedor(request):
-    form = ProveedorcrearForm(request.POST or None, request.FILES or None)
-
-    if request.method == "POST" and form.is_valid():
-        proveedor = form.save()
-        messages.success(request, f'Proveedor "{proveedor.nombre_proveedor}" creado correctamente.')
-
-        if is_ajax(request):
-            return JsonResponse({
-                "success": True,
-                "redirect_url": reverse("proveedores:lista_proveedor")
-            })
-
-        return redirect("proveedores:lista_proveedor")
+    if request.method == "POST":
+        form = ProveedorcrearForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Proveedor creado correctamente.")
+            return redirect("proveedores:lista_proveedor")
+    else:
+        form = ProveedorcrearForm()
 
     context = {
         "form": form,
@@ -85,7 +91,7 @@ def crear_proveedor(request):
 
     if is_ajax(request):
         html = render_to_string(
-            "proveedor/formulario_crear_proveedor.html",
+            "proveedor/formulario_global_proveedor.html",
             context,
             request=request
         )
@@ -112,7 +118,7 @@ def editar_proveedor(request, pk):
 
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             html = render_to_string(
-                "proveedor/_form_proveedor.html",
+                "proveedor/formulario_global_proveedor.html",
                 {
                     "form": form,
                     "action_url": reverse("proveedores:editar_proveedor", args=[pk]),
@@ -130,39 +136,41 @@ def editar_proveedor(request, pk):
     context = {
         "form": form,
         "action_url": reverse("proveedores:editar_proveedor", args=[pk]),
-        "titulo": "Editar proveedor",
-        "submit_label": "Actualizar"
     }
 
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        html = render_to_string("proveedor/formulario_editar_proveedor.html", context, request=request)
+        html = render_to_string("proveedor/formulario_global_proveedor.html", context, request=request)
         return JsonResponse({
             "success": False,
             "html": html,
-            "title": context["titulo"]
+
         })
 
     return render(request, "proveedor/editar_proveedor.html", context)
 
+
+def is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+@require_POST
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
-    if request.method == "POST":
-        try:
-            proveedor.delete()
-            return JsonResponse({
-                "status": "deleted"
-            })
+    try:
+        proveedor.delete()
+        if is_ajax(request):
+            return JsonResponse({"success": True, "message": "Proveedor eliminado."})
+        messages.success(request, "Proveedor eliminado.")
+        return JsonResponse({"success": True})
 
-        except ProtectedError:
+    except ProtectedError:
+        Proveedor.objects.filter(pk=proveedor.pk).update(estado="inactivo")
 
-                movimientos = DetalleCompra.objects.filter(proveedor=proveedor)
-
-        return JsonResponse({
-            "status": "protected",
-            "cantidad": movimientos.count(),
-            "detalle": "movimientos de inventario"
-        })
+        msg = "Este proveedor está relacionado con compras u otros registros. Se marcó como INACTIVO."
+        if is_ajax(request):
+            return JsonResponse({"success": False, "protected": True, "message": msg}, status=409)
+        messages.warning(request, msg)
+        return JsonResponse({"success": False, "protected": True, "message": msg}, status=409)
 
 
 @require_POST

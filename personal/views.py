@@ -6,7 +6,6 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from .models import Personal
 from .forms import PersonalForm, PersonalBusquedaForm
-from core.funciones import solo_admin_required, no_colaborador_required
 
 
 @login_required
@@ -56,7 +55,6 @@ def lista_personal(request):
 
 
 @login_required
-@no_colaborador_required
 def crear_personal(request):
     """Crear nuevo personal"""
     # Verificar si es una petición AJAX para cargar el modal
@@ -102,7 +100,6 @@ def crear_personal(request):
 
 
 @login_required
-@no_colaborador_required
 def editar_personal(request, pk):
     """Editar información del personal"""
     personal = get_object_or_404(Personal, pk=pk)
@@ -152,7 +149,7 @@ def editar_personal(request, pk):
 
 
 @login_required
-@solo_admin_required
+
 def eliminar_personal(request, pk):
     """Eliminar personal"""
     personal = get_object_or_404(Personal, pk=pk)
@@ -218,7 +215,6 @@ def detalle_personal(request, pk):
 
 
 @login_required
-@no_colaborador_required
 def toggle_activo_personal(request, pk):
     """Cambiar el estado activo/inactivo del personal mediante AJAX"""
     if request.method == 'POST':

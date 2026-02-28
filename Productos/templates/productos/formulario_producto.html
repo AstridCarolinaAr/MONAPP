@@ -1,6 +1,6 @@
 <form method="post" action="{{ action_url }}" enctype="multipart/form-data" class="producto-form">
   {% csrf_token %}
-
+  
 
 
   <div class="row g-4 mt-1">
@@ -75,36 +75,94 @@
         </div>
       </div>
     </div>
- <div class="row g-3">
-  <div class="col-md-6">
-    {{ form.imagen.label_tag }}
-    {{ form.imagen }}
-    {% if form.imagen.errors %}<div class="text-danger small">{{ form.imagen.errors }}</div>{% endif %}
+<!-- IMAGEN PRO -->
+<div class="row g-3 mt-2">
+  <!-- Uploader -->
+  <div class="col-md-7">
+    <div class="img-uploader card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div>
+            <div class="fw-semibold">Imagen del producto</div>
+            <div class="text-muted small">Sube un archivo o pega una URL</div>
+          </div>
+          <span class="badge bg-light text-dark border">Opcional</span>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-pills gap-2 mb-3" id="imgTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabArchivo" type="button" role="tab">
+              Archivo
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabUrl" type="button" role="tab">
+              URL
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Archivo -->
+          <div class="tab-pane fade show active" id="tabArchivo" role="tabpanel">
+            <label for="id_imagen" class="dropzone-pro">
+              <div class="dz-icon">📷</div>
+              <div class="dz-title">Arrastra y suelta tu imagen aquí</div>
+              <div class="dz-subtitle">o haz clic para seleccionar (JPG, PNG, WEBP)</div>
+              <div class="dz-filename" id="dzFilename">Ningún archivo seleccionado</div>
+            </label>
+
+            <!-- input real (oculto) -->
+            <div class="d-none">
+              {{ form.imagen }}
+
+            </div>
+          </div>
+
+          <!-- URL -->
+          <div class="tab-pane fade" id="tabUrl" role="tabpanel">
+            <label class="form-label fw-semibold mb-1">URL de imagen</label>
+            {{ form.imagen_url }}
+            <div class="form-text">Ej: https://.../imagen.png</div>
+          </div>
+        </div>
+
+        <div class="text-muted small mt-3" id="previewProductoImagenMsg"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="col-md-6">
-    {{ form.imagen_url.label_tag }}
-    {{ form.imagen_url }}
-    {% if form.imagen_url.errors %}<div class="text-danger small">{{ form.imagen_url.errors }}</div>{% endif %}
-  </div>
+  <!-- Preview -->
+  <div class="col-md-5">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="fw-semibold mb-2">Vista previa</div>
 
-  <div class="col-12">
-    <div class="mt-2">
-      <div class="small text-muted mb-2">Vista previa</div>
+        <div class="preview-frame position-relative">
+          <!-- X -->
+          <button type="button" class="img-preview-remove d-none" id="imgPreviewRemove" aria-label="Quitar imagen">
+            &times;
+          </button>
 
-    <img
-      id="previewProductoImagen"
-      src="{% if producto and producto.imagen %}{{ producto.imagen.url }}{% elif producto and producto.imagen_url %}{{ producto.imagen_url }}{% endif %}"
-      alt="Vista previa"
-      style="max-height: 180px; width: auto; border-radius: 10px; {% if producto and producto.imagen %}display:block;{% elif producto and producto.imagen_url %}display:block;{% else %}display:none;{% endif %}"
-    />
+          <!-- Imagen -->
+          <img
+            id="previewProductoImagen"
+            alt="Vista previa"
+            style="display:none;"
+            data-initial-src="{% if producto.imagen %}{{ producto.imagen.url }}{% elif producto.imagen_url %}{{ producto.imagen_url }}{% endif %}"
+          />     
+           <!-- Empty -->
+          <div class="preview-empty" id="previewEmpty">
+            <div class="preview-empty-icon">🖼️</div>
+            <div class="text-muted">Aún no hay imagen</div>
+          </div>
+        </div>
 
-      <div id="previewProductoImagenMsg" class="text-muted small mt-2"></div>
+      </div>
     </div>
   </div>
 </div>
-
-
   <div class="mt-4 d-flex justify-content-end gap-2">
     <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Cancelar</button>
     <button type="submit"  class="btn btn-primary px-4">{{ submit_label }}</button>

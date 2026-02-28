@@ -22,7 +22,7 @@
     {% for s in stock %}
       <tr>
         <td>{{ s.producto.nombre }}</td>
-        <td>{{ s.producto.unidad_medida }}</td>
+        <td>{{ stock.producto.get_unidad_medida_display }}</td>
         <td>{{ s.cantidad_actual }}</td>
         <td>{{ s.actualizado_en|date:"Y-m-d H:i" }}</td>
       </tr>

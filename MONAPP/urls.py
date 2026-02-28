@@ -30,6 +30,7 @@ urlpatterns = [
     path('personal/', include('personal.urls')),
     path('inventario/', include('inventario.urls')),
     path('servicios/', include('servicios.urls')),
+    path('gestion-alisados/', include('gestion_alisados.urls')),
     path('productos-web/', include('productos_web.urls')),
     path("compras/", include("compras.urls")),
     path('gestion-datos/', include('gestion_datos.urls')),
@@ -37,6 +38,5 @@ urlpatterns = [
     path('gestion/', include('Gestion.urls')),
 ]
 
-# Servir archivos media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

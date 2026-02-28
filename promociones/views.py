@@ -11,10 +11,38 @@ from .forms import PromocionForm
 @login_required
 def lista_promociones(request):
     promociones = Promocion.objects.all()
+
+    # ── Filtros ──
+    q             = request.GET.get('q', '').strip()
+    activa_filter = request.GET.get('activa', '').strip()
+    orden         = request.GET.get('orden', '').strip()
+
+    if q:
+        promociones = promociones.filter(nombre__icontains=q)
+
+    if activa_filter == 'si':
+        promociones = promociones.filter(activa=True)
+    elif activa_filter == 'no':
+        promociones = promociones.filter(activa=False)
+
+    orden_map = {
+        'nombre_asc':  'nombre',
+        'nombre_desc': '-nombre',
+        'desc_asc':    'porcentaje_descuento',
+        'desc_desc':   '-porcentaje_descuento',
+        'fecha_asc':   'fecha_inicio',
+        'fecha_desc':  '-fecha_inicio',
+    }
+    if orden in orden_map:
+        promociones = promociones.order_by(orden_map[orden])
+
     form = PromocionForm()  # formulario para el modal "Agregar"
     return render(request, 'promociones/lista.html', {
         'promociones': promociones,
         'form': form,
+        'q':             q,
+        'activa_filter': activa_filter,
+        'orden':         orden,
     })
 
 
@@ -48,17 +76,14 @@ def editar_promocion(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'Promoción "{promocion.nombre}" actualizada.')
-            return redirect('promociones:lista')
         else:
-            messages.error(request, 'Corrige los errores del formulario.')
-    else:
-        form = PromocionForm(instance=promocion)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    label = form.fields[field].label if field in form.fields else field
+                    messages.error(request, f'{label}: {error}')
+        return redirect('promociones:lista')
 
-    return render(request, 'promociones/form.html', {
-        'form': form,
-        'titulo': 'Editar Promoción',
-        'promocion': promocion,
-    })
+    return redirect('promociones:lista')
 
 
 # ─────────────────────── ELIMINAR ────────────────────

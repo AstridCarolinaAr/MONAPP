@@ -1,3 +1,5 @@
+import re
+import socket
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -50,7 +52,7 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    messages.info(request, 'Has cerrado sesión exitosamente.')
+    messages.success(request, 'Has cerrado sesión exitosamente.')
     return redirect('core:index')
 
 
@@ -111,6 +113,12 @@ def solicitar_recuperacion(request):
                 'Si existe una cuenta con ese correo, recibirás instrucciones para recuperar tu contraseña.'
             )
             return redirect('usuarios:login')
+        except (socket.gaierror, OSError, TimeoutError) as e:
+            messages.error(
+                request,
+                'No se pudo conectar al servidor de correo. Verifica la conexión a internet e intenta más tarde.'
+            )
+            return render(request, 'usuarios/password_reset.html')
         except Exception as e:
             messages.error(
                 request,
@@ -673,6 +681,8 @@ def nueva_password(request):
 
 # ==================== RECUPERACIÓN DE USUARIO ====================
 
+@csrf_protect
+@never_cache
 def solicitar_recuperacion(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -699,7 +709,7 @@ def solicitar_recuperacion(request):
         email_msg = EmailMultiAlternatives(
             subject='✨ Recuperación de contraseña - MONAPP',
             body='Tu cliente de correo no soporta HTML',
-            from_email='MONAPP <tucorreo@gmail.com>',
+            from_email=settings.DEFAULT_FROM_EMAIL,
             to=[email],
         )
 
@@ -710,6 +720,9 @@ def solicitar_recuperacion(request):
         return redirect('usuarios:verificar_codigo')
 
     return render(request, 'usuarios/recuperar.html')
+
+@csrf_protect
+@never_cache
 def verificar_codigo(request):
     user_id = request.session.get('recovery_user')
 
@@ -736,6 +749,9 @@ def verificar_codigo(request):
         return redirect('usuarios:nueva_password')
 
     return render(request, 'usuarios/verificar_codigo.html')
+
+@csrf_protect
+@never_cache
 def nueva_password(request):
     if not request.session.get('codigo_validado'):
         return redirect('usuarios:login')
@@ -743,9 +759,34 @@ def nueva_password(request):
     user = User.objects.get(id=request.session['recovery_user'])
 
     if request.method == 'POST':
-        password = request.POST.get('password')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
 
-        user.set_password(password)
+        if not password1 or not password2:
+            messages.error(request, 'Debes ingresar ambas contraseñas.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if len(password1) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if not re.search(r'[A-Z]', password1):
+            messages.error(request, 'La contraseña debe contener al menos una letra mayúscula.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if not re.search(r'[0-9]', password1):
+            messages.error(request, 'La contraseña debe contener al menos un número.')
+            return render(request, 'usuarios/nueva_password.html')
+
+        if not re.search(r'[^A-Za-z0-9]', password1):
+            messages.error(request, 'La contraseña debe incluir al menos un carácter especial (ej: @, #, !, %).')
+            return render(request, 'usuarios/nueva_password.html')
+
+        user.set_password(password1)
         user.save()
 
         # Limpiar código
@@ -755,6 +796,7 @@ def nueva_password(request):
         perfil.save()
 
         request.session.flush()
+        messages.success(request, 'Tu contraseña ha sido actualizada exitosamente.')
         return redirect('usuarios:login')
 
     return render(request, 'usuarios/nueva_password.html')
