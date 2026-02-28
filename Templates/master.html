@@ -32,13 +32,9 @@
         <a href="#cta" class="nav-item">Contactenos</a>
     </nav>
 
-<button
-    type="button"
-    class="btn btn-outline-light"
-    data-bs-toggle="modal"
-    data-bs-target="#loginModal">
+<a href="{% url 'usuarios:login' %}" class="btn btn-outline-light">
     Iniciar sesión
-</button>
+</a>
 
 </header>
 <main>
@@ -57,81 +53,22 @@
     </div>
 </footer>
 
-<!-- ==================== MODAL LOGIN (FUNCIONALIDAD COMPLETA) ==================== -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content login-modal-content">
-
-            <div class="card-header text-center">
-                <canvas id="bolaCanvas"></canvas>
-                <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="120" alt="Monakeratina">
-            </div>
-
-            <div class="modal-body p-0">
-                <div class="card-body">
-
-                    {% if messages %}
-                        <div class="messages-container">
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                    <form method="post">
-                        {% csrf_token %}
-                        {% if request.GET.next %}
-                            <input type="hidden" name="next" value="{{ request.GET.next }}">
-                            {% endif %}
-                        <div class="login-form-wrapper">
-                        <div class="mb-3">
-                            <input type="text"
-                                   name="username"
-                                   class="form-control"
-                                   placeholder="Usuario o documento"
-                                   required>
-                        </div>
-
-                        <div class="mb-3 password-wrapper"> 
-                            <input type="password"
-                                   id="password"
-                                   name="password"
-                                   class="form-control"
-                                   placeholder="Contraseña"
-                                   required>
-                            <i id="togglePassword" class="bi bi-eye"></i>
-                        </div>
-
-                        <div class="mb-3 text-end">
-                            <a href="{% url 'usuarios:recuperar' %}" class="forgot-password-link">
-                                ¿Olvidaste tu contraseña?
-                            </a>
-                        </div>
-
-                        <button type="submit" class="btn btn-dark w-100">
-                            Ingresar
-                        </button>
-                    </form>
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-<script>
-  window.tieneErrorPermiso = {% if messages %}true{% else %}false{% endif %};
-</script>
-<script>
-    window.showLoginModal = {{ show_login_modal|default:"false"|lower }};
-</script>
-
 <!-- ==================== JS ==================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'core/js/main.js' %}"></script>
+<script>
+(function(){
+    var tog = document.getElementById('togglePassword');
+    var pw  = document.getElementById('password');
+    if(tog && pw){
+        tog.addEventListener('mousedown', function(){ pw.type='text'; });
+        tog.addEventListener('mouseup',   function(){ pw.type='password'; });
+        tog.addEventListener('mouseleave',function(){ pw.type='password'; });
+        tog.addEventListener('touchstart',function(e){ e.preventDefault(); pw.type='text'; });
+        tog.addEventListener('touchend',  function(e){ e.preventDefault(); pw.type='password'; });
+    }
+})();
+</script>
     
 
 {% block extra_js %}{% endblock %}

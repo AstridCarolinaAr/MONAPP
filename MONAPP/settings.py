@@ -135,7 +135,8 @@ USE_TZ = True
 STATIC_URL = '/static/' 
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Django buscará archivos estáticos aquí
+    BASE_DIR / 'static',           # Django buscará archivos estáticos aquí
+    BASE_DIR / 'MONAPP' / 'static', # Archivos estáticos del paquete de config (master.css, etc.)
 ]
 
 # Para producción (cuando uses collectstatic)

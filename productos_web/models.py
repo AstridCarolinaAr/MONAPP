@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
 from PIL import Image
 from io import BytesIO
@@ -19,6 +20,10 @@ class ProductoWeb(models.Model):
         max_digits=12,
         decimal_places=2,
         verbose_name='Precio Público',
+        validators=[
+            MinValueValidator(0.01, message='El precio debe ser mayor a $0.'),
+            MaxValueValidator(9999999.99, message='El precio no puede superar $9,999,999.99.'),
+        ],
     )
     descripcion = models.TextField(
         blank=True,
