@@ -157,13 +157,13 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-info" title="Ver detalles">
+                                    <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-info" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-warning" title="Editar">
+                                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-warning" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
@@ -171,13 +171,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> No hay gestiones de alisados registradas.
-                    <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal" data-bs-target="#modalGestionAlisado">
-                        Crear la primera gestión
-                    </button>
                 </div>
             {% endif %}
         </div>
@@ -207,7 +200,7 @@
                     </div>
                 </div>
                 
-                <form method="post" action="{% url 'servicios:crear_gestion_alisado' %}" id="gestionAlisadoForm">
+                <form method="post" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" id="gestionAlisadoForm">
                     {% csrf_token %}
                     
                     <!-- PASO 1: Información General -->

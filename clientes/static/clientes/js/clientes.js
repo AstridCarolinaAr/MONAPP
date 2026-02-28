@@ -182,16 +182,39 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+<<<<<<< HEAD
+    /* ===============================
+       VALIDACIÓN TIPO DOCUMENTO (SELECT)
+    =============================== */
+    const tipoDocumentoSelect = document.getElementById('tipo_documento');
+    
+    if (tipoDocumentoSelect) {
+        tipoDocumentoSelect.addEventListener('change', function() {
+            const feedback = this.nextElementSibling;
+            
+            if (this.value.trim() === '') {
+                limpiar(this, feedback);
+            } else {
+                valido(this, feedback);
+            }
+            
+=======
     /* SELECT tipo documento */
     const tipoDoc = document.getElementById('tipo_documento');
     if (tipoDoc) {
         tipoDoc.addEventListener('change', function () {
             if (!this.value.trim()) limpiar(this);
             else valido(this);
+>>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
             actualizarEstadoBoton();
         });
     }
 
+<<<<<<< HEAD
+    /* ===============================
+       LIMPIAR TODO AL CERRAR MODAL
+    =============================== */
+=======
     /* FECHA */
     const fecha = document.getElementById('fecha_nacimiento');
     if (fecha) {
@@ -205,6 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* LIMPIAR MODAL */
+>>>>>>> 4f7c7795ccdd2020aa9e23075436fe9dcc829002
     modal.addEventListener('hidden.bs.modal', function () {
         form.reset();
         form.querySelectorAll('input, select').forEach(el => {

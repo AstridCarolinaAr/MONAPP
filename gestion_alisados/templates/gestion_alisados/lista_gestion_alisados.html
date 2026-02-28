@@ -4,10 +4,6 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> Gestion de datos
-{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>
@@ -28,7 +24,65 @@
             </button>
         </div>
         <div class="card-body">
+            <!-- Filtros de Búsqueda -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <form method="get" id="filtrosForm">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="text" name="buscar" class="form-control" placeholder="Buscar por cliente o profesional" value="{{ request.GET.buscar }}">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="forma_natural" class="form-select">
+                                    <option value="">Tipo de cabello</option>
+                                    <option value="liso" {% if request.GET.forma_natural == 'liso' %}selected{% endif %}>Liso</option>
+                                    <option value="ondulado" {% if request.GET.forma_natural == 'ondulado' %}selected{% endif %}>Ondulado</option>
+                                    <option value="rizado" {% if request.GET.forma_natural == 'rizado' %}selected{% endif %}>Rizado</option>
+                                    <option value="afro" {% if request.GET.forma_natural == 'afro' %}selected{% endif %}>Afro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="porosidad" class="form-select">
+                                    <option value="">Porosidad</option>
+                                    <option value="alta" {% if request.GET.porosidad == 'alta' %}selected{% endif %}>Alta</option>
+                                    <option value="media" {% if request.GET.porosidad == 'media' %}selected{% endif %}>Media</option>
+                                    <option value="baja" {% if request.GET.porosidad == 'baja' %}selected{% endif %}>Baja</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select name="textura" class="form-select">
+                                    <option value="">Textura</option>
+                                    <option value="gruesa" {% if request.GET.textura == 'gruesa' %}selected{% endif %}>Gruesa</option>
+                                    <option value="normal" {% if request.GET.textura == 'normal' %}selected{% endif %}>Normal</option>
+                                    <option value="delgada" {% if request.GET.textura == 'delgada' %}selected{% endif %}>Delgada</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="estado_pago" class="form-select">
+                                    <option value="">Estado de pago</option>
+                                    <option value="pagado" {% if request.GET.estado_pago == 'pagado' %}selected{% endif %}>Pagado</option>
+                                    <option value="pendiente" {% if request.GET.estado_pago == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                                <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Limpiar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {% if gestiones %}
+                <div class="mb-2">
+                    <small class="text-muted">Se encontraron {{ gestiones.count }} registro{{ gestiones.count|pluralize }}</small>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-hover table-striped">
                         <thead>
@@ -58,13 +112,13 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
+                                    <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Editar">
+                                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
@@ -74,12 +128,11 @@
                     </table>
                 </div>
             {% else %}
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> No hay gestiones de alisados registradas.
-                    <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
-                        Crear la primera gestión
-                    </button>
+                {% if request.GET %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> No se encontraron registros con los filtros aplicados.
                 </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>
@@ -127,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // Cargar el formulario mediante fetch
-        fetch('{% url "servicios:crear_gestion_alisado" %}?modal=1')
+        fetch('{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1')
             .then(response => response.text())
             .then(html => {
                 modalContent.innerHTML = html;
