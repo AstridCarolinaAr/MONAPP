@@ -29,6 +29,9 @@ from django.utils.encoding import force_bytes, force_str
 @csrf_protect
 @never_cache
 def login_view(request):
+    # Si el usuario ya está autenticado, lo enviamos al dashboard
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
 
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -36,16 +39,18 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-
             return redirect('core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
+        # Redirigir de vuelta a la página donde estaba el usuario para que el modal se pueda reabrir
+        return redirect(request.META.get('HTTP_REFERER', 'core:index'))
+    else:
+        # Para peticiones GET, creamos un formulario vacío
+        form = LoginForm()
 
-        return render(request, 'core/index.html', {
-            'show_login_modal': True
-        })
-
-    return redirect('core:index')
+    return render(request, 'usuarios/login.html', {
+        'form': form
+    })
 
 
 

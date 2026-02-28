@@ -54,7 +54,7 @@
 
       <!-- ═══════ FORMULARIO LOGIN (panel principal) ═══════ -->
       <div id="panelLogin">
-        <form method="post" id="loginForm" autocomplete="off">
+        <form method="post" action="{% url 'usuarios:login' %}" id="loginForm" autocomplete="off">
           {% csrf_token %}
 
           <div class="input-icon-wrapper">

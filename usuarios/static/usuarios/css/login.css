@@ -346,161 +346,26 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
    ESTILOS PARA EL MODAL LOGIN (master.html)
    ═══════════════════════════════════════ */
 .login-modal-content {
-  border: none;
-  border-radius: 18px;
-  min-height: 420px;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,.3);
-}
-.login-modal-content .card-header {
-  position: relative;
-  height: 180px;
-  background: var(--color-cafe-principal);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  border: none;
-  margin: 0;
-  border-radius: 15px 15px 0 0;
-}
-.login-modal-content .card-header img {
-  position: relative;
-  z-index: 2;
-}
-.login-modal-content .card-body {
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 35px;
-  padding-top: 40px;
-  padding-bottom: 50px;
-  background: var(--color-blanco);
-  animation: fadeInUpLogin 0.6s ease-out;
-}
-@keyframes fadeInUpLogin {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.login-modal-content .form-control {
-  padding: 16px 14px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  margin-bottom: 18px;
-  font-size: 15px;
-  height: 48px;
-}
-.login-form-wrapper {
-  width: 100%;
-  margin-top: 10px;
-  transform: translateY(10px);
-}
-.login-modal-content .form-control:focus {
-  border-color: var(--color-cafe-principal);
-  box-shadow: 0 0 0 0.2rem rgba(59, 47, 47, 0.15);
-}
-.login-modal-content .password-wrapper {
-  position: relative;
-  margin-bottom: 18px;
-  height: 48px;
-}
-.login-modal-content .password-wrapper input {
-  padding-right: 45px;
-}
-.login-modal-content #togglePassword {
-  position: absolute;
-  top: 50%;
-  right: 14px;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: var(--color-cafe-principal);
-  z-index: 5;
-}
-.login-modal-content #togglePassword:hover {
-  opacity: 0.7;
-}
-.login-modal-content .btn-primary {
-  background: var(--color-cafe-principal);
-  border: none;
-  margin-top: 10px;
-  padding: 16px;
-  border-radius: 10px;
-  font-weight: 500;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-.login-modal-content .btn-primary:hover {
-  background: var(--color-cafe-claro);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 47, 47, 0.3);
-}
-.login-modal-content .messages-container {
-  margin-bottom: 20px;
-}
-.login-modal-content .mb-3 {
-  margin-bottom: 14px;
-}
-.login-modal-content .alert {
-  background: rgba(220,53,69,0.12);
-  border: none;
-  color: #842029;
-  padding: 10px 15px;
-  font-size: 14px;
-  border-radius: 8px;
-}
-.login-modal-content .form-check {
-  margin-bottom: 15px;
-}
-.login-modal-content form {
-  width: 100%;
-  margin-top: 20px;
-}
-.login-modal-content .form-check-input:checked {
-  background-color: var(--color-cafe-principal);
-  border-color: var(--color-cafe-principal);
-}
-.login-modal-content button {
-  transition: all 0.3s ease;
-}
-.login-modal-content button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(59, 47, 47, 0.4);
-}
-.login-modal-content button:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 10px rgba(59, 47, 47, 0.3);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* Forgot password link */
-.forgot-password-link {
-  color: var(--color-cafe-principal);
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-.forgot-password-link:hover {
-  color: var(--color-cafe-claro);
-  text-decoration: underline;
+/* Forzar que los inputs dentro del modal hereden el diseño café */
+#loginModal .input-icon-wrapper input {
+  background: #fafafa !important;
+  border: 1.5px solid #ddd !important;
+  padding: 13px 14px 13px 42px !important;
 }
 
-/* Modal animations */
-.modal.fade .modal-dialog {
-  transform: scale(0.8);
-  opacity: 0;
-  transition: all 0.3s ease-in-out;
+#loginModal .input-icon-wrapper input:focus {
+  border-color: var(--color-cafe-principal) !important;
+  box-shadow: 0 0 0 3px rgba(59,47,47,.12) !important;
+  background: #fff !important;
 }
-.modal.show .modal-dialog {
-  transform: scale(1);
-  opacity: 1;
-}
-.modal-backdrop.show {
-  opacity: 0.7;
-}
-.modal-dialog-centered {
-  transform: translateY(60px);
+
+#loginModal .card-body {
+  border-radius: 0 0 18px 18px !important;
 }
 
 /* ═══════════════
