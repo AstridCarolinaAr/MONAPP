@@ -75,8 +75,9 @@
         </div>
       </div>
     </div>
- <!-- IMAGEN PRO -->
+<!-- IMAGEN PRO -->
 <div class="row g-3 mt-2">
+  <!-- Uploader -->
   <div class="col-md-7">
     <div class="img-uploader card border-0 shadow-sm">
       <div class="card-body">
@@ -115,6 +116,7 @@
             <!-- input real (oculto) -->
             <div class="d-none">
               {{ form.imagen }}
+
             </div>
           </div>
 
@@ -136,25 +138,31 @@
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body">
         <div class="fw-semibold mb-2">Vista previa</div>
-        <div class="preview-frame">
-          <img id="previewProductoImagen" alt="Vista previa" />
+
+        <div class="preview-frame position-relative">
+          <!-- X -->
+          <button type="button" class="img-preview-remove d-none" id="imgPreviewRemove" aria-label="Quitar imagen">
+            &times;
+          </button>
+
+          <!-- Imagen -->
+          <img
+            id="previewProductoImagen"
+            alt="Vista previa"
+            style="display:none;"
+            data-initial-src="{% if producto.imagen %}{{ producto.imagen.url }}{% elif producto.imagen_url %}{{ producto.imagen_url }}{% endif %}"
+          />     
+           <!-- Empty -->
           <div class="preview-empty" id="previewEmpty">
             <div class="preview-empty-icon">🖼️</div>
             <div class="text-muted">Aún no hay imagen</div>
           </div>
         </div>
 
-        <div class="d-flex gap-2 mt-3">
-          <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarImagen">
-            Quitar
-          </button>
-          <span class="text-muted small align-self-center">Se verá así en el catálogo</span>
-        </div>
       </div>
     </div>
   </div>
 </div>
-
   <div class="mt-4 d-flex justify-content-end gap-2">
     <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Cancelar</button>
     <button type="submit"  class="btn btn-primary px-4">{{ submit_label }}</button>

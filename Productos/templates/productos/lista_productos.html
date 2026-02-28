@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'Productos/css/lista_producto.css' %}">
+<link rel="stylesheet" href="{% static 'Productos/CSS/lista_producto.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 {% endblock %}
 
@@ -31,10 +31,9 @@
 
         <!-- FILTRO -->
         <div class="dropdown">
-            <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
-                <i class="bi bi-funnel"></i> Filtrar
-            </button>
-
+        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-funnel"></i> Filtrar
+        </button>
             <ul class="dropdown-menu shadow-sm">
                 <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
                 <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
@@ -336,14 +335,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Tus scripts -->
+<!--scripts -->
 <script src="{% static 'Productos/js/producto_action.js' %}"></script>
-<script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
-
+<script src="{% static 'Productos/js/lista_productos.js' %}"></script>
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 
 <script>

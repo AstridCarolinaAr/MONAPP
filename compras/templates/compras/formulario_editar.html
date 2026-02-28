@@ -1,4 +1,4 @@
-<form method="post"  action="{% url 'compras:crear_compra' %}" id="formCompra"data-modo ="{{modo}}">
+<form method="post"  action="{% url 'compras:editar_compra' compra.id %}" id="formCompra"data-modo ="editar">
   {% csrf_token %}
 
   <div id="compraErroresGenerales" class="alert alert-danger d-none mb-3"></div>
@@ -48,51 +48,42 @@
   {% endif %}
 
   <div class="vstack gap-3" id="productosContainer">
-    {% for f in formset %}
-      <div class="border rounded p-3 detalle-item position-relative">
+{% for f in formset %}
+  <div class="border rounded p-3 detalle-item position-relative">
 
-        <!-- X esquina -->
-        <button type="button"
-                class="btn btn-sm btn-danger btn-eliminar-item position-absolute top-0 end-0 m-2"
-                title="Quitar producto">
-          <i class="bi bi-x-lg"></i>
-        </button>
-
-        <div class="row g-3 align-items-end">
-          <div class="col-md-6">
-            <label class="form-label">Producto</label>
-            {{ f.producto }}
-            {% for e in f.producto.errors %}
-              <div class="text-danger small">{{ e }}</div>
-            {% endfor %}
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Cantidad</label>
-            {{ f.cantidad }}
-            {% for e in f.cantidad.errors %}
-              <div class="text-danger small">{{ e }}</div>
-            {% endfor %}
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Precio unitario</label>
-            {{ f.precio_unitario }}
-            {% for e in f.precio_unitario.errors %}
-              <div class="text-danger small">{{ e }}</div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <!-- DELETE oculto -->
-        {% if f.DELETE %}
-          <div class="d-none">
-            {{ f.DELETE }}
-          </div>
-        {% endif %}
-      </div>
+    {% for hidden in f.hidden_fields %}
+      <div class="d-none">{{ hidden }}</div>
     {% endfor %}
+
+    <!-- X esquina -->
+    <button type="button"
+            class="btn btn-sm btn-danger btn-eliminar-item position-absolute top-0 end-0 m-2"
+            title="Quitar producto">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label">Producto</label>
+        {{ f.producto }}
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Cantidad</label>
+        {{ f.cantidad }}
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Precio unitario</label>
+        {{ f.precio_unitario }}
+      </div>
+    </div>
+
+    {% if f.DELETE %}
+      <div class="d-none">{{ f.DELETE }}</div>
+    {% endif %}
   </div>
+{% endfor %}
 
   <!-- =========================
        TEMPLATE PARA AGREGAR ITEMS
@@ -135,7 +126,7 @@
   </template>
   <div class="d-flex justify-content-end mt-4">
     <button type="submit" class="btn btn-primary" id="btnGuardarCompra">
-      Guardar compra
+      Editar compra
     </button>
   </div>
 </form>

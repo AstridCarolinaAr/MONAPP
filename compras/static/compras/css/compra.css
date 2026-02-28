@@ -60,3 +60,44 @@
   background: #fff;
   border: 1px solid rgba(16, 24, 40, .10) !important;
 }
+
+#anuladas-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .08);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.anuladas-header {
+  padding: 12px;
+  background: #c0392b;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+#anuladas-content {
+  max-height: 0;
+  overflow-y: auto;
+  transition: max-height 0.4s ease;
+  background: #f9fafb;
+}
+
+#anuladas-box.abierto #anuladas-content {
+  max-height: 240px;
+  padding: 12px;
+}
+
+.anulada-item {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #374151;
+}

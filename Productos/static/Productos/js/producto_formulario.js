@@ -1,4 +1,3 @@
-// static/productos/js/productoformulario.js
 (() => {
   // =========================
   // Helpers DOM
@@ -52,8 +51,6 @@
       }
 
       modalBodyEl.innerHTML = result.data;
-
-      // ✅ importante: inicializar validaciones/preview dentro del contenido cargado
       ProductoFormulario.init(modalEl);
     }
 
@@ -74,7 +71,6 @@
 
       e.preventDefault();
 
-      // ✅ valida antes de enviar
       const ok = ProductoFormulario.validate(form);
       if (!ok) return;
 
@@ -103,12 +99,10 @@
         modalBodyEl.innerHTML =
           result.data.html || `<div class="alert alert-danger mb-0">No se pudo guardar.</div>`;
 
-        // re-init por si llegó HTML con errores
         ProductoFormulario.init(modalEl);
         return;
       }
 
-      // si devuelve HTML directo
       modalBodyEl.innerHTML = result.data;
       ProductoFormulario.init(modalEl);
     });
@@ -119,11 +113,8 @@
   // =========================
   function ensureWrapper(input) {
     if (!input) return null;
-
-    // Si ya lo envolvimos, no repetir
     if (input.closest(".form-validated")) return input.closest(".form-validated");
 
-    // Si está dentro de un input-group, envolvemos el input-group (mejor)
     const inputGroup = input.closest(".input-group");
     const target = inputGroup || input;
 
@@ -138,7 +129,6 @@
 
     const icon = document.createElement("span");
     icon.className = "valid-check";
-    // ✅ si no tienes bootstrap-icons, esto no rompe, solo no se verá.
     icon.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i>`;
     wrapper.appendChild(icon);
 
@@ -148,7 +138,6 @@
   function markValid(input) {
     if (!input) return;
 
-    // no marcar válido si está vacío y no es required
     const isRequired = input.hasAttribute("required");
     const val = (input.value || "").trim();
     if (!isRequired && !val) {
@@ -194,7 +183,7 @@
   }
 
   // =========================
-  // Preview imagen (file o url)
+  // Preview imagen (file, url, o imagen inicial)
   // =========================
   function isValidUrl(url) {
     try {
@@ -208,49 +197,79 @@
   function isImageUrl(url) {
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url.split("?")[0]);
   }
-function updatePreview(form) {
-  const imgInput = qs(form, "#id_imagen");
-  const urlInput = qs(form, "#id_imagen_url");
-  const imgEl = qs(form, "#previewProductoImagen");
-  const msgEl = qs(form, "#previewProductoImagenMsg");
-  const emptyEl = qs(form, "#previewEmpty");     
-  const dzFilename = qs(form, "#dzFilename");    
-  if (!imgEl) return;
 
-  const file = imgInput?.files?.[0];
-  const url = (urlInput?.value || "").trim();
+  function updatePreview(form) {
+    const imgInput = qs(form, "#id_imagen");
+    const urlInput = qs(form, "#id_imagen_url");
+    const imgEl = qs(form, "#previewProductoImagen");
+    const msgEl = qs(form, "#previewProductoImagenMsg");
+    const emptyEl = qs(form, "#previewEmpty");
+    const dzFilename = qs(form, "#dzFilename");
+    const removeBtn = qs(form, "#imgPreviewRemove");
 
-  // reset
-  imgEl.style.display = "none";
-  imgEl.removeAttribute("src");
-  if (msgEl) msgEl.textContent = "";
-  if (emptyEl) emptyEl.style.display = "block";
-  if (dzFilename) dzFilename.textContent = "Ningún archivo seleccionado";
+    if (!imgEl) return;
 
-  if (file) {
-    if (!file.type.startsWith("image/")) {
-      if (msgEl) msgEl.textContent = "El archivo seleccionado no es una imagen.";
+    const file = imgInput?.files?.[0];
+    const url = (urlInput?.value || "").trim();
+    const initialSrc = (imgEl.dataset.initialSrc || "").trim(); // ✅ FIX
+    const clearCheckbox = qs(form, "#id_imagen-clear");
+    const isCleared = clearCheckbox ? clearCheckbox.checked : false;
+
+    // reset
+    imgEl.style.display = "none";
+    imgEl.removeAttribute("src");
+    if (msgEl) msgEl.textContent = "";
+    if (emptyEl) emptyEl.style.display = "block";
+    if (dzFilename) dzFilename.textContent = "Ningún archivo seleccionado";
+    if (removeBtn) removeBtn.classList.add("d-none");
+
+    // 1) Archivo
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        if (msgEl) msgEl.textContent = "El archivo seleccionado no es una imagen.";
+        return;
+      }
+
+      if (clearCheckbox) clearCheckbox.checked = false;
+
+      const blobUrl = URL.createObjectURL(file);
+      imgEl.src = blobUrl;
+      imgEl.style.display = "block";
+      if (emptyEl) emptyEl.style.display = "none";
+      if (dzFilename) dzFilename.textContent = file.name;
+      if (msgEl) msgEl.textContent = file.name;
+      if (removeBtn) removeBtn.classList.remove("d-none");
+
+      imgEl.onload = () => URL.revokeObjectURL(blobUrl);
       return;
     }
 
-    const blobUrl = URL.createObjectURL(file);
-    imgEl.src = blobUrl;
-    imgEl.style.display = "block";
-    if (emptyEl) emptyEl.style.display = "none";
-    if (dzFilename) dzFilename.textContent = file.name;
-    if (msgEl) msgEl.textContent = file.name;
+    // 2) URL
+    if (url) {
+      if (!isValidUrl(url) || !isImageUrl(url)) {
+        // No rompemos preview si URL es inválida; solo dejamos vacío
+        if (msgEl) msgEl.textContent = "URL inválida o no parece imagen.";
+        return;
+      }
 
-    imgEl.onload = () => URL.revokeObjectURL(blobUrl);
-    return;
-  }
+      imgEl.src = url;
+      imgEl.style.display = "block";
+      if (emptyEl) emptyEl.style.display = "none";
+      if (msgEl) msgEl.textContent = "Vista previa desde URL";
+      if (removeBtn) removeBtn.classList.remove("d-none");
+      return;
+    }
 
-  if (url) {
-    imgEl.src = url;
-    imgEl.style.display = "block";
-    if (emptyEl) emptyEl.style.display = "none";
-    if (msgEl) msgEl.textContent = "Vista previa desde URL";
+    // 3) Imagen inicial (editar)
+    if (initialSrc && !isCleared) {
+      imgEl.src = initialSrc;
+      imgEl.style.display = "block";
+      if (emptyEl) emptyEl.style.display = "none";
+      if (msgEl) msgEl.textContent = "Imagen actual";
+      if (removeBtn) removeBtn.classList.remove("d-none");
+      return;
+    }
   }
-}
 
   // =========================
   // Validación del formulario Producto
@@ -273,9 +292,9 @@ function updatePreview(form) {
       </ul>
     `;
   }
-  
-const RE_SOLO_LETRAS = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/;
-const RE_SOLO_NUMEROS = /^\d+$/;
+
+  const RE_SOLO_LETRAS = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/;
+  const RE_SOLO_NUMEROS = /^\d+$/;
 
   function validateProductoForm(scope) {
     const form =
@@ -302,9 +321,7 @@ const RE_SOLO_NUMEROS = /^\d+$/;
       if (!v) {
         errores.push("El nombre del producto es obligatorio.");
         markInvalid(nombre, "Nombre obligatorio");
-      } else {
-        markValid(nombre);
-      }
+      } else markValid(nombre);
     }
 
     if (marca) {
@@ -312,9 +329,7 @@ const RE_SOLO_NUMEROS = /^\d+$/;
       if (!v) {
         errores.push("La marca es obligatoria.");
         markInvalid(marca, "Marca obligatoria");
-      } else {
-        markValid(marca);
-      }
+      } else markValid(marca);
     }
 
     if (precio) {
@@ -323,44 +338,36 @@ const RE_SOLO_NUMEROS = /^\d+$/;
       if (!Number.isFinite(n) || n <= 0) {
         errores.push("El precio debe ser mayor que 0.");
         markInvalid(precio, "Mayor que 0");
-      } else {
-        markValid(precio);
-      }
+      } else markValid(precio);
     }
 
     if (unidad && unidad.hasAttribute("required")) {
       if (!unidad.value) {
         errores.push("La unidad de medida es obligatoria.");
         markInvalid(unidad, "Obligatoria");
-      } else {
-        markValid(unidad);
-      }
+      } else markValid(unidad);
     } else if (unidad) {
       const v = (unidad.value || "").trim();
       if (v) markValid(unidad);
       else clearState(unidad);
     }
+
     if (linea) {
       const v = (linea.value || "").trim();
       if (v && !RE_SOLO_LETRAS.test(v)) {
         errores.push("La línea solo debe contener letras.");
         markInvalid(linea, "Solo letras");
-      } else if (v) {
-        markValid(linea);
-      } else {
-        clearState(linea);
-      }
+      } else if (v) markValid(linea);
+      else clearState(linea);
     }
+
     if (presentacion) {
       const v = (presentacion.value || "").trim();
       if (v && !RE_SOLO_NUMEROS.test(v)) {
         errores.push("La presentación solo debe contener numeros.");
         markInvalid(presentacion, "Solo numeros");
-      } else if (v) {
-        markValid(presentacion);
-      } else {
-        clearState(presentacion);
-      }
+      } else if (v) markValid(presentacion);
+      else clearState(presentacion);
     }
 
     if (urlInput) {
@@ -368,11 +375,8 @@ const RE_SOLO_NUMEROS = /^\d+$/;
       if (url && (!isValidUrl(url) || !isImageUrl(url))) {
         errores.push("La URL de imagen no parece válida (http/https y termina en .jpg/.png/.webp/.gif).");
         markInvalid(urlInput, "URL inválida");
-      } else if (url) {
-        markValid(urlInput);
-      } else {
-        clearState(urlInput);
-      }
+      } else if (url) markValid(urlInput);
+      else clearState(urlInput);
     }
 
     if (imgInput?.files?.length) {
@@ -380,17 +384,14 @@ const RE_SOLO_NUMEROS = /^\d+$/;
       if (!file.type.startsWith("image/")) {
         errores.push("El archivo seleccionado no es una imagen.");
         markInvalid(imgInput, "Archivo inválido");
-      } else {
-        markValid(imgInput);
-      }
+      } else markValid(imgInput);
     } else if (imgInput) {
       clearState(imgInput);
     }
 
     showGeneralErrors(form, errores);
 
-    const btn =
-      qs(form, "#btnGuardarProducto") || qs(form, 'button[type="submit"]');
+    const btn = qs(form, "#btnGuardarProducto") || qs(form, 'button[type="submit"]');
     if (btn) btn.disabled = errores.length > 0;
 
     return errores.length === 0;
@@ -402,10 +403,39 @@ const RE_SOLO_NUMEROS = /^\d+$/;
       qs(root, "form.producto-form") || qs(root, "#productoForm") || qs(root, "form");
     if (!form) return;
 
-    ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_imagen_url", "#id_imagen","#id_linea","#id_presentacion"].forEach((sel) => {
+    // ✅ Evitar listeners duplicados al reabrir modal
+    if (form.dataset.wired === "1") {
+      updatePreview(form);
+      validateProductoForm(form);
+      return;
+    }
+    form.dataset.wired = "1";
+
+    ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_imagen_url", "#id_imagen", "#id_linea", "#id_presentacion"].forEach((sel) => {
       const el = qs(form, sel);
       if (el) ensureWrapper(el);
     });
+
+    // ✅ botón X (quitar imagen)
+    const removeBtn = qs(form, "#imgPreviewRemove");
+    if (removeBtn) {
+      removeBtn.addEventListener("click", () => {
+        const imgEl = qs(form, "#previewProductoImagen");
+        const imgInput = qs(form, "#id_imagen");
+        const urlInput = qs(form, "#id_imagen_url");
+        const clearCheckbox = qs(form, "#id_imagen-clear");
+
+        if (imgInput) imgInput.value = "";
+        if (urlInput) urlInput.value = "";
+        if (clearCheckbox) clearCheckbox.checked = true;
+
+        // ocultar imagen inicial en UI
+        if (imgEl) imgEl.dataset.initialSrc = "";
+
+        updatePreview(form);
+        validateProductoForm(form);
+      });
+    }
 
     form.addEventListener("input", (e) => {
       const t = e.target;
@@ -414,21 +444,12 @@ const RE_SOLO_NUMEROS = /^\d+$/;
         t.matches("#id_marca") ||
         t.matches("#id_precio") ||
         t.matches("#id_linea") ||
-        t.matches("#id_presentacion")||
+        t.matches("#id_presentacion") ||
         t.matches("#id_imagen_url")
       ) {
         validateProductoForm(form);
         if (t.matches("#id_imagen_url")) updatePreview(form);
       }
-      form.addEventListener("click", (e) => {
-        const btn = e.target.closest("#btnLimpiarImagen");
-      if (!btn) return;
-
-      const imgInput = qs(form, "#id_imagen");
-      const urlInput = qs(form, "#id_imagen_url");
-      updatePreview(form);
-      validateProductoForm(form);
-      });
     });
 
     form.addEventListener("change", (e) => {
@@ -440,7 +461,11 @@ const RE_SOLO_NUMEROS = /^\d+$/;
 
       if (t.matches("#id_imagen")) {
         const urlInput = qs(form, "#id_imagen_url");
+        const clearCheckbox = qs(form, "#id_imagen-clear");
+
         if (urlInput && t.files?.length) urlInput.value = "";
+        if (clearCheckbox && t.files?.length) clearCheckbox.checked = false;
+
         updatePreview(form);
         validateProductoForm(form);
       }
@@ -449,7 +474,6 @@ const RE_SOLO_NUMEROS = /^\d+$/;
     updatePreview(form);
     validateProductoForm(form);
   }
-
 
   window.ProductoFormulario = {
     init(scope) {
