@@ -201,9 +201,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+
     /* ===============================
        LIMPIAR TODO AL CERRAR MODAL
     =============================== */
+
+    /* FECHA */
+    const fecha = document.getElementById('fecha_nacimiento');
+    if (fecha) {
+        fecha.addEventListener('change', function () {
+            const hoy = new Date().toISOString().split('T')[0];
+            if (!this.value) limpiar(this);
+            else if (this.value > hoy) invalido(this, 'No puede ser futura.');
+            else valido(this);
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* LIMPIAR MODAL */
     modal.addEventListener('hidden.bs.modal', function () {
         form.reset();
         form.querySelectorAll('input, select').forEach(el => {
