@@ -3,6 +3,11 @@
 
 {% block title %}Eliminar – {{ promocion.nombre }}{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'promociones:lista' %}">Promociones</a></li>
+<li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+{% endblock %}
+
 {% block page_title %}
     <i class="bi bi-trash3"></i> Eliminar Promoción
 {% endblock %}

@@ -1,0 +1,191 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'gestion_datos:lista' %}">Gestión de Datos</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-clipboard-data"></i> {{ titulo }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow">
+        <div class="card-header text-white" style="background-color: #634c40;">
+            <h4 class="mb-0">{{ titulo }}</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="formGestionDatos">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Información del Cliente -->
+                <div class="section-title">
+                    <h5><i class="bi bi-person"></i> Información del Cliente</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }}</label>
+                        {{ form.cliente }}
+                        {% if form.cliente.errors %}
+                            <div class="invalid-feedback d-block">{{ form.cliente.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Información del Servicio y Pago -->
+                <div class="section-title">
+                    <h5><i class="bi bi-currency-dollar"></i> Información del Servicio y Pago</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.precio_servicio.id_for_label }}" class="form-label">{{ form.precio_servicio.label }}</label>
+                        {{ form.precio_servicio }}
+                        {% if form.precio_servicio.errors %}
+                            <div class="invalid-feedback d-block">{{ form.precio_servicio.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.anticipo_cliente.id_for_label }}" class="form-label">{{ form.anticipo_cliente.label }}</label>
+                        {{ form.anticipo_cliente }}
+                        {% if form.anticipo_cliente.errors %}
+                            <div class="invalid-feedback d-block">{{ form.anticipo_cliente.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.saldo_pendiente.id_for_label }}" class="form-label">{{ form.saldo_pendiente.label }}</label>
+                        {{ form.saldo_pendiente }}
+                        {% if form.saldo_pendiente.errors %}
+                            <div class="invalid-feedback d-block">{{ form.saldo_pendiente.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.medio_pago.id_for_label }}" class="form-label">{{ form.medio_pago.label }}</label>
+                        {{ form.medio_pago }}
+                        {% if form.medio_pago.errors %}
+                            <div class="invalid-feedback d-block">{{ form.medio_pago.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.es_oferta_especial.id_for_label }}" class="form-label">{{ form.es_oferta_especial.label }}</label>
+                        {{ form.es_oferta_especial }}
+                        {% if form.es_oferta_especial.errors %}
+                            <div class="invalid-feedback d-block">{{ form.es_oferta_especial.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Información del Procedimiento -->
+                <div class="section-title">
+                    <h5><i class="bi bi-scissors"></i> Información del Procedimiento</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.procedimiento_realizado_por.id_for_label }}" class="form-label">{{ form.procedimiento_realizado_por.label }}</label>
+                        {{ form.procedimiento_realizado_por }}
+                        {% if form.procedimiento_realizado_por.errors %}
+                            <div class="invalid-feedback d-block">{{ form.procedimiento_realizado_por.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.porcentaje_tratamiento.id_for_label }}" class="form-label">{{ form.porcentaje_tratamiento.label }}</label>
+                        {{ form.porcentaje_tratamiento }}
+                        {% if form.porcentaje_tratamiento.errors %}
+                            <div class="invalid-feedback d-block">{{ form.porcentaje_tratamiento.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.tipo_tratamiento.id_for_label }}" class="form-label">{{ form.tipo_tratamiento.label }}</label>
+                        {{ form.tipo_tratamiento }}
+                        {% if form.tipo_tratamiento.errors %}
+                            <div class="invalid-feedback d-block">{{ form.tipo_tratamiento.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Características del Cabello -->
+                <div class="section-title">
+                    <h5><i class="bi bi-droplet"></i> Características del Cabello</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="{{ form.porosidad.id_for_label }}" class="form-label">{{ form.porosidad.label }}</label>
+                        {{ form.porosidad }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.textura.id_for_label }}" class="form-label">{{ form.textura.label }}</label>
+                        {{ form.textura }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.forma_natural.id_for_label }}" class="form-label">{{ form.forma_natural.label }}</label>
+                        {{ form.forma_natural }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.longitud.id_for_label }}" class="form-label">{{ form.longitud.label }}</label>
+                        {{ form.longitud }}
+                    </div>
+                </div>
+
+                <!-- Observaciones y Recomendaciones -->
+                <div class="section-title">
+                    <h5><i class="bi bi-pencil-square"></i> Observaciones y Recomendaciones</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.recomendaciones_post_cuidados.id_for_label }}" class="form-label">{{ form.recomendaciones_post_cuidados.label }}</label>
+                        {{ form.recomendaciones_post_cuidados }}
+                        {% if form.recomendaciones_post_cuidados.errors %}
+                            <div class="invalid-feedback d-block">{{ form.recomendaciones_post_cuidados.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn text-white" style="background-color: #634c40; border-color: #634c40;">
+                            <i class="bi bi-save"></i> Guardar Gestión de Datos
+                        </button>
+                        <a href="{% url 'gestion_datos:lista_gestion_datos' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .section-title {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #634c40;
+        font-weight: bold;
+    }
+    .section-title h5 {
+        color: #382a23;
+        margin: 0;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}

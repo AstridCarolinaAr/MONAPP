@@ -1,0 +1,157 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Detalles - Gestión de Datos{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'gestion_datos:lista' %}">Gestión de Datos</a></li>
+<li class="breadcrumb-item active" aria-current="page">Detalle</li>
+{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-clipboard-data"></i> Detalles de Gestión de Datos
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow">
+        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
+            <h4 class="mb-0">Información Completa de Gestión</h4>
+            <div>
+                <a href="{% url 'gestion_datos:editar_gestion_datos' gestion.pk %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a href="{% url 'gestion_datos:lista_gestion_datos' %}" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Cliente -->
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="bi bi-person"></i> Información del Cliente
+            </h5>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Cliente:</strong> 
+                        {% if gestion.cliente %}
+                            {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}
+                        {% else %}
+                            <em>Sin cliente asignado</em>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Fecha y Hora:</strong> {{ gestion.fecha_hora|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            <!-- Información del Servicio -->
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="bi bi-currency-dollar"></i> Información del Servicio y Pago
+            </h5>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <p><strong>Precio:</strong> ${{ gestion.precio_servicio|intcomma }} COP</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Anticipo:</strong> ${{ gestion.anticipo_cliente|intcomma }} COP</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Saldo Pendiente:</strong> 
+                        {% if gestion.saldo_pendiente > 0 %}
+                            <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
+                        {% else %}
+                            <span class="badge bg-success">Pagado</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Medio de Pago:</strong> {{ gestion.get_medio_pago_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Oferta Especial:</strong> {{ gestion.get_es_oferta_especial_display }}</p>
+                </div>
+            </div>
+
+            <!-- Procedimiento -->
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="bi bi-scissors"></i> Información del Procedimiento
+            </h5>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Realizado por:</strong> {{ gestion.procedimiento_realizado_por }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Porcentaje del Tratamiento:</strong> {{ gestion.porcentaje_tratamiento }}%</p>
+                </div>
+                <div class="col-md-12">
+                    <p><strong>Tipo de Tratamiento:</strong></p>
+                    <p class="ps-3">{{ gestion.tipo_tratamiento }}</p>
+                </div>
+            </div>
+
+            <!-- Características del Cabello -->
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="bi bi-droplet"></i> Características del Cabello
+            </h5>
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <p><strong>Porosidad:</strong> {{ gestion.get_porosidad_display }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Textura:</strong> {{ gestion.get_textura_display }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Forma Natural:</strong> {{ gestion.get_forma_natural_display }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Longitud:</strong> {{ gestion.get_longitud_display }}</p>
+                </div>
+            </div>
+
+            <!-- Recomendaciones -->
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="bi bi-pencil-square"></i> Recomendaciones
+            </h5>
+            <div class="mb-4">
+                <p class="ps-3">{{ gestion.recomendaciones_post_cuidados }}</p>
+            </div>
+
+            <!-- Fotos (si existen) -->
+            {% if gestion.foto_antes or gestion.foto_despues %}
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="bi bi-images"></i> Fotografías
+            </h5>
+            <div class="row mb-4">
+                {% if gestion.foto_antes %}
+                <div class="col-md-6">
+                    <p><strong>Antes:</strong></p>
+                    <img src="{{ gestion.foto_antes.url }}" alt="Foto antes" class="img-fluid rounded" style="max-height: 300px;">
+                </div>
+                {% endif %}
+                {% if gestion.foto_despues %}
+                <div class="col-md-6">
+                    <p><strong>Después:</strong></p>
+                    <img src="{{ gestion.foto_despues.url }}" alt="Foto después" class="img-fluid rounded" style="max-height: 300px;">
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-bottom {
+        border-bottom: 2px solid #634c40 !important;
+    }
+    h5 {
+        color: #382a23;
+    }
+    h5 i {
+        color: #634c40;
+    }
+</style>
+{% endblock %}

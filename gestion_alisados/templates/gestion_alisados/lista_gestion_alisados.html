@@ -4,6 +4,18 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
+<<<<<<< HEAD:gestion_alisados/templates/gestion_alisados/lista_gestion_alisados.html
+=======
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'servicios:lista_servicios' %}">Servicios</a></li>
+<li class="breadcrumb-item active" aria-current="page">Gestion de datos</li>
+{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-file-earmark-text"></i> Gestion de datos
+{% endblock %}
+
+>>>>>>> ea582f7c6233cd5896ba82abad47950daf0fbc78:servicios/templates/servicios/lista_gestion_alisados.html
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>

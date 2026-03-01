@@ -3,6 +3,10 @@
 
 {% block title %}Inventario{% endblock %}
 {% load static %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Inventario</li>
+{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'inventario/css/inventario.css' %}">
 {% endblock %}

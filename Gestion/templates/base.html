@@ -76,6 +76,16 @@
     {% endfor %}
   {% endif %}
 
+  <!-- Breadcrumb -->
+  {% block breadcrumb %}
+  <nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'index_gestion' %}">Gestión</a></li>
+      {% block breadcrumb_items %}{% endblock %}
+    </ol>
+  </nav>
+  {% endblock %}
+
   {% block content %}{% endblock %}
 </div>
 
