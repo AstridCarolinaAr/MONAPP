@@ -4,17 +4,17 @@ from django.utils.translation import gettext_lazy as _
 from Proveedores.models import Proveedor
 from Productos.models import Producto
 from django.conf import settings
+from django.utils import timezone
 
 class Compra(models.Model):
     fecha = models.DateField(auto_now_add=True)
-
+    fecha_anulada =models.DateField(null = True,blank=True)
     proveedor = models.ForeignKey(
         Proveedor,
         on_delete=models.PROTECT,
         related_name="compras"
     )
-
-    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    precio_total = models.DecimalField(max_digits=18, decimal_places=0)
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -43,7 +43,7 @@ class DetalleCompra(models.Model):
     )
 
     cantidad = models.IntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=16, decimal_places=0)
 
     def clean(self):
         super().clean()
@@ -59,3 +59,6 @@ class DetalleCompra(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} x {self.cantidad}"
+    def anular(self):
+        self.anulada=True
+        self.fecha_anulada=timezone.now()

@@ -38,9 +38,7 @@ async function postAction(url, action, extra = {}) {
   return { ok: res.ok, status: res.status, data };
 }
 
-/** Normaliza relaciones desde tu backend actual (data.detalles) o futuro (data.related.detalle_compras.items) */
 function getRelacionItems(data) {
-  // Formato actual: data.detalles = [{cantidad, nombre}, ...]
   if (Array.isArray(data?.detalles) && data.detalles.length) {
     const items = data.detalles.map((d, i) => ({
       id: i + 1,

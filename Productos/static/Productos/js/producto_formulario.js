@@ -1,6 +1,6 @@
 (() => {
   // =========================
-  // Helpers DOM
+  // Helpers
   // =========================
   const qs = (root, sel) => (root || document).querySelector(sel);
 
@@ -109,7 +109,7 @@
   });
 
   // =========================
-  // UI: check verde dentro del input
+  // UI validación (check)
   // =========================
   function ensureWrapper(input) {
     if (!input) return null;
@@ -183,7 +183,7 @@
   }
 
   // =========================
-  // Preview imagen (file, url, o imagen inicial)
+  // Preview imagen
   // =========================
   function isValidUrl(url) {
     try {
@@ -211,11 +211,12 @@
 
     const file = imgInput?.files?.[0];
     const url = (urlInput?.value || "").trim();
-    const initialSrc = (imgEl.dataset.initialSrc || "").trim(); // ✅ FIX
+
+    const initialSrc = (imgEl.dataset.initialSrc || "").trim();
     const clearCheckbox = qs(form, "#id_imagen-clear");
     const isCleared = clearCheckbox ? clearCheckbox.checked : false;
 
-    // reset
+    // reset UI
     imgEl.style.display = "none";
     imgEl.removeAttribute("src");
     if (msgEl) msgEl.textContent = "";
@@ -223,7 +224,7 @@
     if (dzFilename) dzFilename.textContent = "Ningún archivo seleccionado";
     if (removeBtn) removeBtn.classList.add("d-none");
 
-    // 1) Archivo
+    // 1) archivo
     if (file) {
       if (!file.type.startsWith("image/")) {
         if (msgEl) msgEl.textContent = "El archivo seleccionado no es una imagen.";
@@ -244,10 +245,9 @@
       return;
     }
 
-    // 2) URL
+    // 2) url
     if (url) {
       if (!isValidUrl(url) || !isImageUrl(url)) {
-        // No rompemos preview si URL es inválida; solo dejamos vacío
         if (msgEl) msgEl.textContent = "URL inválida o no parece imagen.";
         return;
       }
@@ -260,19 +260,18 @@
       return;
     }
 
-    // 3) Imagen inicial (editar)
+    // 3) imagen inicial (editar)
     if (initialSrc && !isCleared) {
       imgEl.src = initialSrc;
       imgEl.style.display = "block";
       if (emptyEl) emptyEl.style.display = "none";
       if (msgEl) msgEl.textContent = "Imagen actual";
       if (removeBtn) removeBtn.classList.remove("d-none");
-      return;
     }
   }
 
   // =========================
-  // Validación del formulario Producto
+  // Validación
   // =========================
   function showGeneralErrors(form, messages = []) {
     const box = qs(form, "#productoErroresGenerales");
@@ -312,7 +311,6 @@
     const unidad = qs(form, "#id_unidad_medida");
     const linea = qs(form, "#id_linea");
     const presentacion = qs(form, "#id_presentacion");
-
     const imgInput = qs(form, "#id_imagen");
     const urlInput = qs(form, "#id_imagen_url");
 
@@ -397,13 +395,47 @@
     return errores.length === 0;
   }
 
+  // =========================
+  // Pastilla Estado (Inactivo/Activo)
+  // =========================
+  function wireEstadoPill(form) {
+    const pill = qs(form, "#estadoPill");
+    if (!pill || pill.dataset.wired === "1") return;
+    pill.dataset.wired = "1";
+
+    const checkbox = pill.querySelector('input[type="checkbox"]');
+    const btns = Array.from(pill.querySelectorAll(".estado-opt"));
+    if (!checkbox || !btns.length) return;
+
+    const sync = () => {
+      const on = checkbox.checked;
+      btns.forEach((b) => {
+        const isOnBtn = b.dataset.val === "1";
+        b.classList.toggle("is-active", (on && isOnBtn) || (!on && !isOnBtn));
+      });
+    };
+
+    btns.forEach((b) => {
+      b.addEventListener("click", () => {
+        checkbox.checked = b.dataset.val === "1";
+        checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+        sync();
+      });
+    });
+
+    checkbox.addEventListener("change", sync);
+    sync();
+  }
+
+  // =========================
+  // Wire events (1 sola vez)
+  // =========================
   function wireEvents(scope) {
     const root = scope || document;
     const form =
       qs(root, "form.producto-form") || qs(root, "#productoForm") || qs(root, "form");
     if (!form) return;
 
-    // ✅ Evitar listeners duplicados al reabrir modal
     if (form.dataset.wired === "1") {
       updatePreview(form);
       validateProductoForm(form);
@@ -416,7 +448,7 @@
       if (el) ensureWrapper(el);
     });
 
-    // ✅ botón X (quitar imagen)
+    // X quitar imagen
     const removeBtn = qs(form, "#imgPreviewRemove");
     if (removeBtn) {
       removeBtn.addEventListener("click", () => {
@@ -429,7 +461,7 @@
         if (urlInput) urlInput.value = "";
         if (clearCheckbox) clearCheckbox.checked = true;
 
-        // ocultar imagen inicial en UI
+        // para que no vuelva a aparecer en UI
         if (imgEl) imgEl.dataset.initialSrc = "";
 
         updatePreview(form);
@@ -471,10 +503,14 @@
       }
     });
 
+    wireEstadoPill(form);
     updatePreview(form);
     validateProductoForm(form);
   }
 
+  // =========================
+  // Public API
+  // =========================
   window.ProductoFormulario = {
     init(scope) {
       wireEvents(scope || document);
