@@ -18,6 +18,8 @@ def is_ajax(request):
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
+    activo = Proveedor.objects.all()
+    proveedores = Proveedor.objects.all()
 
     activo = Proveedor.objects.all()
     proveedores = Proveedor.objects.all()
@@ -148,10 +150,20 @@ def editar_proveedor(request, pk):
 
     return render(request, "proveedor/editar_proveedor.html", context)
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models.deletion import ProtectedError
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+
+from .models import Proveedor
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
+
+@login_required
 @require_POST
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
