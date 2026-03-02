@@ -1048,3 +1048,45 @@ z-index:2000 !important;
   max-height: 420px;
   object-fit: cover; 
 }
+/* ===== SELECT PRO MONAAPP ===== */
+
+.select-pro{
+  position: relative;
+}
+
+.select-pro select,
+.select-pro .form-select{
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 12px !important;
+  padding: 10px 40px 10px 14px !important;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid #e6e8eb;
+  transition: all .18s ease;
+  cursor: pointer;
+}
+
+/* Hover */
+.select-pro select:hover,
+.select-pro .form-select:hover{
+  border-color: #b07a50;
+}
+
+/* Focus */
+.select-pro select:focus,
+.select-pro .form-select:focus{
+  border-color: #b07a50;
+  box-shadow: 0 0 0 3px rgba(176,122,80,.18);
+}
+
+/* Flecha personalizada */
+.select-icon{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #7a4f35;
+  font-size: 14px;
+}

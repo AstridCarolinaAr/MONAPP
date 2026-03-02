@@ -130,52 +130,37 @@ def editar_producto(request, codigo):
 
     return render(request, "productos/editar_producto.html", context)
 
-@require_POST
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 
+    action = (request.POST.get("action") or "").lower().strip()
+    force_deactivate = request.POST.get("force_deactivate") == "1"
 
+    if action == "activate":
+        producto.activo = True
+        producto.save(update_fields=["activo"])
+        return JsonResponse({"status": "activated"})
 
-    detalles_qs = (
-        DetalleCompra.objects
-        .filter(producto=producto)
-        .select_related("compra")  
-        .order_by("-id")[:20]      
-    )
-
-    detalle_items = []
-    for d in detalles_qs:
-        compra = getattr(d, "compra", None)
-        detalle_items.append({
-            "id": d.id,
-            "compra_id": getattr(compra, "id", None),
-            "compra_codigo": getattr(compra, "codigo", None), 
-            "fecha": getattr(compra, "fecha", None).isoformat() if getattr(compra, "fecha", None) else None,
-            "cantidad": getattr(d, "cantidad", None),
-            "precio": str(getattr(d, "precio", "")) if getattr(d, "precio", None) is not None else None,
-            "total": str(getattr(d, "total", "")) if hasattr(d, "total") and getattr(d, "total", None) is not None else None,
-        })
-
-    relaciones = {}
-    if detalles_qs.exists():
-        relaciones["detalle_compras"] = {
-            "count": DetalleCompra.objects.filter(producto=producto).count(),
-            "items": detalle_items
-        }
-
-    if relaciones:
-        return JsonResponse({
-            "status": "blocked",
-            "title": "No se puede eliminar",
-            "message": "Este producto está relacionado con:",
-            "related": relaciones,
-            "suggest_action": "deactivate",
-        }, status=409)
-
-    producto.activo = False
-    producto.save(update_fields=["activo"])
-    force = request.POST.get("force_deactivate") == "1"
-    if relaciones and force:
+    if action == "deactivate" or force_deactivate:
         producto.activo = False
         producto.save(update_fields=["activo"])
-    return JsonResponse({"status": "ok", "message": "Producto desactivado."})
+        return JsonResponse({"status": "inactivated"})
+
+    
+    try:
+        producto.delete()
+        return JsonResponse({"status": "deleted"})
+    except ProtectedError as e:
+        labels = [obj._meta.verbose_name_plural for obj in e.protected_objects]
+        counts = Counter(labels)
+        detalles = [{"nombre": k, "cantidad": v} for k, v in counts.items()]
+
+        return JsonResponse(
+            {
+                "status": "protected",
+                "title": "No se puede eliminar",
+                "message": "Este producto está relacionado con otros registros.",
+                "detalles": detalles,
+            },
+            status=409
+        )

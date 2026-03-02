@@ -149,7 +149,7 @@ document.addEventListener("click", async (e) => {
         showCancelButton: true,
         confirmButtonText: "Sí, activar",
         cancelButtonText: "Cancelar",
-        confirmButtonColor: "#198754",
+        confirmButtonColor: "#8b5e3c",
       });
       if (!r.isConfirmed) return;
 
@@ -185,37 +185,43 @@ document.addEventListener("click", async (e) => {
     }
 
     // 3) PROTEGIDO (409 o status protected/blocked)
-    if (resp.status === 409 || resp.data?.status === "protected" || resp.data?.status === "blocked") {
-      const detallesHtml = renderInteractiveRelacionados(resp.data, 3);
+if (resp.status === 409 || resp.data?.status === "protected" || resp.data?.status === "blocked") {
+  const detallesHtml = renderInteractiveRelacionados(resp.data, 3);
 
-      const rOff = await Swal.fire({
-        title: "No se puede eliminar",
-        icon: "info",
-        html: `
-          <div style="margin-bottom:10px;">Este producto está relacionado con:</div>
-          ${detallesHtml}
-          <div style="margin-top:12px;">¿Deseas desactivarlo en su lugar?</div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: "Sí, desactivar",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#0d6efd",
-        didOpen: () => wireSwalMoreButton(),
-      });
+  const rOff = await Swal.fire({
+    title: resp.data.title || "No se puede eliminar",
+    html: `
+      <div style="margin-bottom:8px;">${escapeHtml(resp.data.message || "")}</div>
+      ${detallesHtml}
+      <div style="margin-top:10px;">¿Deseas desactivarlo en su lugar?</div>
+    `,
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Sí, desactivar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#0d6efd",
+    didOpen: () => wireSwalMoreButton(),
+  });
 
-      if (!rOff.isConfirmed) return;
+  if (!rOff.isConfirmed) return;
 
-      const resp2 = await postAction(url, "deactivate");
-      if (resp2.data?.status === "inactivated") {
-        await Swal.fire("Desactivado", "El producto fue desactivado correctamente.", "success");
-        window.location.reload();
-        return;
-      }
+  // ✅ AQUÍ EL FIX
+  const resp2 = await postAction(url, "deactivate");
 
-      await Swal.fire("Error", "No se pudo desactivar el producto.", "error");
-      return;
-    }
+  if (resp2.data?.status === "inactivated") {
+    await Swal.fire({
+      title: "Desactivado",
+      text: "El producto fue desactivado correctamente.",
+      icon: "success",
+      confirmButtonColor: "#8b5e3c",
+    });
+    window.location.reload();
+    return;
+  }
 
+  await Swal.fire("Error", "No se pudo desactivar el producto.", "error");
+  return;
+}
     await Swal.fire("Error", "Ocurrió un error procesando la solicitud.", "error");
   } catch (err) {
     console.error(err);
