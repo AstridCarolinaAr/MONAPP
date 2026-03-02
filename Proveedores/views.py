@@ -18,12 +18,6 @@ def is_ajax(request):
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden")
-<<<<<<< HEAD
-    activo = Proveedor.objects.all()
-    proveedores = Proveedor.objects.all()
-
-=======
->>>>>>> cd2e47aeb2f08769392bffda43af118b6716ab09
     activo = Proveedor.objects.all()
     proveedores = Proveedor.objects.all()
 
@@ -36,16 +30,6 @@ def lista_proveedores(request):
     proveedores = Proveedor.objects.filter(estado=estado)
 
     # BUSCADOR
-<<<<<<< HEAD
-    activo = request.GET.get("activo", "")
-    proveedores = Proveedor.objects.all()
-
-    if activo:
-        proveedores = proveedores.filter(estado=activo)
-
-    #  BUSCADOR
-=======
->>>>>>> cd2e47aeb2f08769392bffda43af118b6716ab09
     if q:
         proveedores = proveedores.filter(
             Q(nombre_proveedor__icontains=q) |
@@ -81,16 +65,6 @@ def lista_proveedores(request):
 
 
 def crear_proveedor(request):
-<<<<<<< HEAD
-    if request.method == "POST":
-        form = ProveedorcrearForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Proveedor creado correctamente.")
-            return redirect("proveedores:lista_proveedor")
-    else:
-        form = ProveedorcrearForm()
-=======
     form = ProveedorcrearForm(request.POST or None, request.FILES or None)
 
     if request.method == "POST" and form.is_valid():
@@ -104,7 +78,6 @@ def crear_proveedor(request):
             })
 
         return redirect("proveedores:lista_proveedor")
->>>>>>> cd2e47aeb2f08769392bffda43af118b6716ab09
 
     context = {
         "form": form,
@@ -183,7 +156,6 @@ from .models import Proveedor
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
-
 
 @login_required
 @require_POST
