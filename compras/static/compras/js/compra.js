@@ -577,10 +577,10 @@
 })();
 
 // ======================================================
-// Animación anular (más lenta + premium) + agregar al modal
+// Animación anular 
 // ======================================================
 function animarHaciaCaja(fila, dataCompra) {
-  // Si ya no tienes "anuladas-box", no pasa nada: removemos directo
+
   const filaRect = fila.getBoundingClientRect();
 
   const clon = fila.cloneNode(true);
@@ -588,7 +588,7 @@ function animarHaciaCaja(fila, dataCompra) {
   clon.style.left = filaRect.left + "px";
   clon.style.top = filaRect.top + "px";
   clon.style.width = filaRect.width + "px";
-  clon.style.transition = "all 1.1s cubic-bezier(.2,.8,.2,1)"; // 👈 más pro y lenta
+  clon.style.transition = "all 1.1s cubic-bezier(.2,.8,.2,1)";
   clon.style.zIndex = 10000;
   clon.style.background = "#f8d7da";
   clon.style.borderRadius = "10px";
@@ -631,6 +631,10 @@ function agregarAnulada(dataCompra) {
   const tr = document.createElement("tr");
   tr.className = "anulada-row";
   tr.dataset.fecha = fechaAnuladaYMD;
+  tr.dataset.id = String(dataCompra.id ?? "");
+  tr.dataset.proveedor = String(proveedor).toLowerCase();
+  tr.dataset.usuario = String(usuario).toLowerCase();
+  tr.dataset.total = String(total);
 
   tr.innerHTML = `
     <td>${dataCompra.id ?? ""}</td>
@@ -642,6 +646,10 @@ function agregarAnulada(dataCompra) {
   `;
 
   tbody.prepend(tr);
+  tr.dataset.id = String(dataCompra.id ?? "");
+  tr.dataset.proveedor = String(proveedor).toLowerCase();
+  tr.dataset.usuario = String(usuario).toLowerCase();
+  tr.dataset.total = String(total);
 
   // al agregar, si el modal está abierto, re-aplicamos paginado/filtros
   const modal = document.getElementById("modalAnuladas");
@@ -662,6 +670,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const orden = document.getElementById("anuladasOrden");
   const tbody = document.getElementById("tbodyAnuladas");
   const wrap = document.getElementById("anuladasScrollWrap");
+  const buscador = document.getElementById("anuladasBuscar") || document.getElementById("anuladasSearch");
+if (buscador) {
+  buscador.addEventListener("input", () => {
+    visibles = 10;
+    render();
+    wrap.scrollTop = 0;
+  });
+}
   const vacio = document.getElementById("anuladasVacio");
   const btnReset = document.getElementById("btnResetAnuladas");
   const btnExcel = document.getElementById("btnExportExcel");
@@ -713,9 +729,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.from(tbody.querySelectorAll("tr.anulada-row"));
   }
 
-  function getSearch() {
-    return (document.getElementById("anuladasSearch")?.value || "").trim().toLowerCase();
-  }
+function getSearch() {
+  return(
+    document.getElementById("anuladasSearch")?.value ||
+    document.getElementById("anuladasBuscar")?.value ||
+    ""
+  ).trim().toLowerCase();
+}
+
+
 
   // ---- estado paginado (scroll infinito)
   let visibles = 10;
@@ -931,6 +953,12 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.disabled = false;
       Swal.fire("Error", "Error del servidor.", "error");
     }
+    
   });
 
 });
+function actualizarCountAnuladas() {
+  const rows = [...document.querySelectorAll("#tbodyAnuladas tr.anulada-row")];
+  const visibles = rows.filter(r => !r.classList.contains("d-none")).length;
+  document.getElementById("anuladasCount").textContent = `Mostrando ${visibles}`;
+}
