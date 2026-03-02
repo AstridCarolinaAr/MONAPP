@@ -8,10 +8,13 @@ from datetime import datetime,date
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
+from django.db.models import Sum
 from clientes.models import Cliente
 from servicios.models import Servicio
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
+from Productos.models import Producto
+from inventario.models import DetalleMovimiento
 
 
 
@@ -81,6 +84,20 @@ def dashboard_view(request):
             'cliente': cliente,
             'edad': edad
         })
+
+    # 📦 Productos sin stock (estado agotado)
+    productos_agotados = Producto.objects.filter(estado='agotado').order_by('nombre')
+
+    # 📉 Productos por acabarse: stock total (suma de ingresos) <= umbral
+    UMBRAL_BAJO = 5
+    productos_con_stock = (
+        Producto.objects
+        .filter(estado='disponible')
+        .annotate(stock_total=Sum('detallemovimiento__cantidad'))
+        .filter(stock_total__isnull=False, stock_total__lte=UMBRAL_BAJO)
+        .order_by('stock_total')
+    )
+
     context = {
         'titulo': 'Panel de Administración',
         'total_usuarios': total_usuarios,
@@ -88,7 +105,10 @@ def dashboard_view(request):
         'usuarios_staff': usuarios_staff,
         'nuevos_usuarios_mes': nuevos_usuarios_mes,
         'ultimos_usuarios': ultimos_usuarios,
-        'clientes_cumple_hoy': clientes_cumple_info
+        'clientes_cumple_hoy': clientes_cumple_info,
+        'productos_agotados': productos_agotados,
+        'productos_por_acabarse': productos_con_stock,
+        'umbral_stock': UMBRAL_BAJO,
     }
 
     return render(request, 'core/dashboard.html', context)

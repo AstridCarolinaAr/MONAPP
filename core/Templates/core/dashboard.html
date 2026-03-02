@@ -1,86 +1,450 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Panel Administrativo{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block extra_css %}
+<style>
+  /* ── Base ── */
+  .dash-wrap {
+    background: #f0ebe4;
+    min-height: 100vh;
+    padding: 1.75rem;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  /* ── Welcome card ── */
+  .welcome-card {
+    background: linear-gradient(135deg, #1e0d05 0%, #4a1e0c 50%, #6b2f14 100%);
+    border-radius: 1.25rem;
+    padding: 1.75rem 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 8px 32px rgba(43,20,9,0.25);
+  }
+  .welcome-avatar {
+    width: 76px; height: 76px;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .welcome-avatar img { width:100%; height:100%; object-fit:cover; }
+  .welcome-sup {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.45); margin-bottom: 3px;
+  }
+  .welcome-name {
+    font-size: 2.25rem; font-style: italic; font-weight: 700;
+    color: #fff; line-height: 1.05; letter-spacing: -0.01em;
+  }
+  .welcome-role {
+    font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: #d4a827; margin-top: 4px;
+  }
+  .clock-block { text-align: right; }
+  .clock-time {
+    font-size: 2rem; font-weight: 700; color: #d4a827;
+    font-variant-numeric: tabular-nums; letter-spacing: 0.03em; line-height: 1;
+  }
+  .clock-date { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+  /* ── Stat cards ── */
+  .stat-card {
+    background: #fff;
+    border-radius: 1.1rem;
+    padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 1.1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .stat-icon {
+    width: 54px; height: 54px; border-radius: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; flex-shrink: 0;
+  }
+  .stat-count { font-size: 2rem; font-weight: 800; color: #1a1a1a; line-height: 1; }
+  .stat-label {
+    font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #aaa; margin-top: 4px; font-weight: 600;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #b09070; margin-bottom: 0.65rem;
+  }
+
+  /* ── Module cards ── */
+  .modules-grid { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+  .module-card {
+    background: #fff;
+    border-radius: 1.1rem;
+    padding: 1.4rem 1rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+    text-decoration: none; color: #1a1a1a;
+    min-width: 110px; flex: 1 1 110px;
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .module-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.11); color: #1a1a1a; }
+  .module-icon {
+    width: 58px; height: 58px; border-radius: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+  }
+  .module-label {
+    font-size: 0.6rem; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase; text-align: center; color: #444;
+  }
+
+  /* ── Panel cards (stock, birthday, users) ── */
+  .panel-card {
+    background: #fff;
+    border-radius: 1.1rem;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+    height: 100%;
+  }
+  .panel-header {
+    padding: 0.9rem 1.4rem;
+    display: flex; align-items: center; gap: 0.55rem;
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .panel-header .ph-badge {
+    margin-left: auto;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 999px; color: #fff;
+  }
+  .panel-body { padding: 0.85rem 1.4rem; }
+  .panel-body.dark-body { background: #1e0d05; }
+  .panel-scroll { max-height: 230px; overflow-y: auto; }
+  .panel-scroll::-webkit-scrollbar { width: 4px; }
+  .panel-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+  /* ── Stock rows ── */
+  .stock-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .stock-row:last-child { border-bottom: none; }
+  .stock-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block; flex-shrink: 0;
+  }
+  .stock-link {
+    font-size: 0.82rem; font-weight: 500; color: #2a2a2a;
+    text-decoration: none; transition: color 0.15s;
+  }
+  .stock-link:hover { color: #6b2f14; text-decoration: underline; }
+  .stock-pill {
+    font-size: 0.65rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  /* ── User rows ── */
+  .user-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .user-row:last-child { border-bottom: none; }
+  .user-thumb {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+  }
+  .user-thumb img { width:100%; height:100%; object-fit:cover; }
+
+  /* ── Birthday rows ── */
+  .bday-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .bday-row:last-child { border-bottom: none; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1.5rem 1rem; gap: 0.4rem; text-align: center;
+  }
+  .empty-state i { font-size: 1.6rem; opacity: 0.25; }
+  .empty-state span { font-size: 0.78rem; color: #bbb; }
+</style>
 {% endblock %}
 
 {% block content %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-<div class="container-fluid py-4">
+<div class="dash-wrap">
 
-    <!-- Zona de acciones rápidas genéricas -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header text-white" style="background-color:#6b3a2a;">
-                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
-                </div>
-                <div class="card-body">
-                    <a href="{% url 'clientes:lista' %}" class="btn me-2" style="background-color:#6b3a2a;color:#fff;border:none;">
-                        <i class="bi bi-person-vcard me-1"></i> Clientes
-                    </a>
-                    <a href="{% url 'productos:lista_productos_admin' %}" class="btn me-2" style="background-color:#8b5e3c;color:#fff;border:none;">
-                        <i class="bi bi-box-seam me-1"></i> Productos
-                    </a>
-
-                    <a href="{% url 'ventas:lista' %}" class="btn me-2" style="background-color:#a0703a;color:#fff;border:none;">
-                        <i class="bi bi-cart3 me-1"></i> Ventas
-                    </a>
-
-                    <a href="{% url 'inventario:inventario_vista' %}" class="btn me-2" style="background-color:#c49a3c;color:#fff;border:none;">
-                        <i class="bi bi-gear"></i> Inventario
-                    </a>
-                </div>
-            </div>
+  {# ── WELCOME CARD ── #}
+  <div class="welcome-card mb-4">
+    <div class="d-flex align-items-center gap-3">
+      <div class="welcome-avatar">
+        {% if user.perfil.foto_perfil %}
+          <img src="{{ user.perfil.foto_perfil.url }}" alt="avatar">
+        {% else %}
+          <i class="bi bi-person-fill" style="font-size:2.2rem;color:rgba(255,255,255,0.4);"></i>
+        {% endif %}
+      </div>
+      <div>
+        <div class="welcome-sup">Bienvenido de vuelta</div>
+        <div class="welcome-name">{{ user.username }}</div>
+        <div class="welcome-role">
+          {% if user.is_superuser %}Superadministrador
+          {% elif user.is_staff %}Administrador
+          {% else %}Usuario{% endif %}
         </div>
+      </div>
+    </div>
+    <div class="clock-block">
+      <div class="clock-time" id="dashClock">--:--:--</div>
+      <div class="clock-date" id="dashDate"></div>
+    </div>
+  </div>
+
+  {# ── STAT CARDS ── #}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#1e0d05;color:#fff;"><i class="bi bi-people-fill"></i></div>
+        <div>
+          <div class="stat-count">{{ total_usuarios }}</div>
+          <div class="stat-label">Usuarios totales</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#16a34a;color:#fff;"><i class="bi bi-person-check-fill"></i></div>
+        <div>
+          <div class="stat-count">{{ usuarios_activos }}</div>
+          <div class="stat-label">Usuarios activos</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#a07830;color:#fff;"><i class="bi bi-shield-fill"></i></div>
+        <div>
+          <div class="stat-count">{{ usuarios_staff }}</div>
+          <div class="stat-label">Administradores</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#2563eb;color:#fff;"><i class="bi bi-person-plus-fill"></i></div>
+        <div>
+          <div class="stat-count">{{ nuevos_usuarios_mes }}</div>
+          <div class="stat-label">Nuevos este mes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── MODULES ── #}
+  <p class="section-title">Módulos</p>
+  <div class="modules-grid mb-4">
+    <a href="{% url 'clientes:lista' %}" class="module-card">
+      <div class="module-icon" style="background:#fef3e2;color:#92500f;"><i class="bi bi-person-vcard"></i></div>
+      <div class="module-label">Clientes</div>
+    </a>
+    <a href="{% url 'productos:lista_productos_admin' %}" class="module-card">
+      <div class="module-icon" style="background:#dbeafe;color:#1d4ed8;"><i class="bi bi-box-seam"></i></div>
+      <div class="module-label">Productos</div>
+    </a>
+    <a href="{% url 'ventas:lista' %}" class="module-card">
+      <div class="module-icon" style="background:#dcfce7;color:#15803d;"><i class="bi bi-cart3"></i></div>
+      <div class="module-label">Ventas</div>
+    </a>
+    <a href="{% url 'inventario:inventario_vista' %}" class="module-card">
+      <div class="module-icon" style="background:#fefce8;color:#a16207;"><i class="bi bi-gear-fill"></i></div>
+      <div class="module-label">Inventario</div>
+    </a>
+    <a href="{% url 'servicios:lista_servicios' %}" class="module-card">
+      <div class="module-icon" style="background:#f3e8ff;color:#6d28d9;"><i class="bi bi-stars"></i></div>
+      <div class="module-label">Servicios</div>
+    </a>
+    <a href="{% url 'personal:lista_personal' %}" class="module-card">
+      <div class="module-icon" style="background:#ffe4e6;color:#be123c;"><i class="bi bi-person-badge-fill"></i></div>
+      <div class="module-label">Personal</div>
+    </a>
+    <a href="{% url 'proveedores:lista_proveedor' %}" class="module-card">
+      <div class="module-icon" style="background:#d1fae5;color:#047857;"><i class="bi bi-truck"></i></div>
+      <div class="module-label">Proveedores</div>
+    </a>
+    <a href="{% url 'usuarios:lista_usuarios' %}" class="module-card">
+      <div class="module-icon" style="background:#ede9fe;color:#5b21b6;"><i class="bi bi-shield-lock-fill"></i></div>
+      <div class="module-label">Usuarios</div>
+    </a>
+  </div>
+
+  {# ── STOCK WIDGETS ── #}
+  <p class="section-title">Estado de inventario</p>
+  <div class="row g-3 mb-4">
+
+    {# Sin stock #}
+    <div class="col-12 col-md-6">
+      <div class="panel-card">
+        <div class="panel-header" style="background:#fff1f2;color:#9f1239;">
+          <i class="bi bi-x-circle-fill"></i>
+          Sin stock
+          <span class="ph-badge" style="background:#e11d48;">{{ productos_agotados|length }}</span>
+        </div>
+        <div class="panel-body panel-scroll">
+          {% if productos_agotados %}
+            {% for p in productos_agotados %}
+              <div class="stock-row">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="stock-dot" style="background:#e11d48;"></span>
+                  <a href="{% url 'productos:editar_producto' p.codigo %}" class="stock-link">{{ p.nombre }}</a>
+                </div>
+                <span class="stock-pill" style="background:#fff1f2;color:#9f1239;">Agotado</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <i class="bi bi-check-circle" style="color:#16a34a;opacity:0.5;"></i>
+              <span>Todos los productos tienen stock disponible</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
 
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-
-            <div class="card-header bg-warning text-dark fw-semibold">
-                <i class="bi bi-balloon-fill me-2"></i>
-                Cumpleaños de hoy
+    {# Por acabarse #}
+    <div class="col-12 col-md-6">
+      <div class="panel-card">
+        <div class="panel-header" style="background:#fff7ed;color:#9a3412;">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          Stock bajo
+          <span style="font-size:0.6rem;color:#c2670a;font-weight:500;margin-left:2px;">— {{ umbral_stock }} uds. o menos</span>
+          <span class="ph-badge" style="background:#ea580c;">{{ productos_por_acabarse|length }}</span>
+        </div>
+        <div class="panel-body panel-scroll">
+          {% if productos_por_acabarse %}
+            {% for p in productos_por_acabarse %}
+              <div class="stock-row">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="stock-dot" style="background:#ea580c;"></span>
+                  <a href="{% url 'productos:editar_producto' p.codigo %}" class="stock-link">{{ p.nombre }}</a>
+                </div>
+                <span class="stock-pill" style="background:#fff7ed;color:#9a3412;">{{ p.stock_total }} uds.</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <i class="bi bi-check-circle" style="color:#16a34a;opacity:0.5;"></i>
+              <span>Ningún producto presenta stock bajo</span>
             </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
 
-            <div class="card-body">
-                {% if clientes_cumple_hoy %}
-                    <ul class="list-group list-group-flush">
-                        {% for item in clientes_cumple_hoy %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>
-                                    {{ item.cliente.nombre }} {{ item.cliente.apellido }}
-                                </span>
-                                <span class="badge bg-success">
-                                    🎉 {{ item.edad }} años
-                                </span>
-                            </li>
+  </div>
 
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted mb-0">
-                        No hay clientes cumpliendo años hoy 🎈
-                    </p>
+  {# ── BOTTOM ── #}
+  <div class="row g-3">
+
+    {# Cumpleaños #}
+    <div class="col-12 col-md-6">
+      <div class="panel-card">
+        <div class="panel-header" style="background:#fefce8;color:#854d0e;">
+          <i class="bi bi-cake2-fill"></i>
+          Cumpleaños de hoy
+        </div>
+        <div class="panel-body panel-scroll">
+          {% if clientes_cumple_hoy %}
+            {% for item in clientes_cumple_hoy %}
+              <div class="bday-row">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-person-fill" style="color:#a16207;font-size:1rem;"></i>
+                  <span style="font-size:0.83rem;font-weight:500;color:#1a1a1a;">
+                    {{ item.cliente.nombre }} {{ item.cliente.apellido }}
+                  </span>
+                </div>
+                <span class="stock-pill" style="background:#fef9c3;color:#713f12;">{{ item.edad }} años</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <i class="bi bi-calendar-x" style="color:#ccc;"></i>
+              <span>No hay cumpleaños registrados para hoy</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# Últimos usuarios #}
+    <div class="col-12 col-md-6">
+      <div class="panel-card">
+        <div class="panel-header" style="background:#1e0d05;color:#d4a827;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <i class="bi bi-people-fill"></i>
+          Últimos usuarios registrados
+        </div>
+        <div class="panel-body dark-body panel-scroll">
+          {% if ultimos_usuarios %}
+            {% for u in ultimos_usuarios %}
+              <div class="user-row">
+                <div class="user-thumb">
+                  {% if u.perfil.foto_perfil %}
+                    <img src="{{ u.perfil.foto_perfil.url }}" alt="">
+                  {% else %}
+                    <i class="bi bi-person-fill" style="color:rgba(255,255,255,0.4);font-size:1.1rem;"></i>
+                  {% endif %}
+                </div>
+                <div>
+                  <div style="color:#fff;font-size:0.84rem;font-weight:600;line-height:1.2;">{{ u.username }}</div>
+                  <div style="color:rgba(255,255,255,0.38);font-size:0.7rem;">{{ u.date_joined|date:"d M Y" }}</div>
+                </div>
+                {% if u.is_superuser %}
+                  <span style="margin-left:auto;font-size:0.6rem;background:rgba(212,168,39,0.2);color:#d4a827;padding:2px 8px;border-radius:999px;font-weight:700;letter-spacing:0.08em;">SUPER</span>
+                {% elif u.is_staff %}
+                  <span style="margin-left:auto;font-size:0.6rem;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:2px 8px;border-radius:999px;font-weight:700;letter-spacing:0.08em;">ADMIN</span>
                 {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <i class="bi bi-person-slash" style="color:rgba(255,255,255,0.2);"></i>
+              <span style="color:rgba(255,255,255,0.3);">Sin usuarios registrados</span>
             </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
 
-        </div>
-    </div>
+  </div>
 </div>
-    <!-- Espacio para contenido dinámico (gráficos, tablas, etc.) -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    
-                    <p class="text-muted mb-0">Área de widgets: agrega aquí información relevante del sistema (ventas, inventario, productos, etc.).</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
+<script>
+(function () {
+  const DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function tick(){
+    const now = new Date();
+    document.getElementById('dashClock').textContent =
+      pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    document.getElementById('dashDate').textContent =
+      DIAS[now.getDay()]+', '+now.getDate()+' de '+MESES[now.getMonth()]+' '+now.getFullYear();
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
 {% endblock %}
