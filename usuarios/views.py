@@ -805,3 +805,75 @@ def nueva_password(request):
         return redirect('usuarios:login')
 
     return render(request, 'usuarios/nueva_password.html')
+
+
+# ==================== VALIDACIONES EN TIEMPO REAL ====================
+
+def validar_documento_usuario(request):
+    """
+    Endpoint para validar documento de usuario en tiempo real
+    """
+    numero = (request.GET.get('numero') or '').strip()
+    user_id = request.GET.get('user_id')
+
+    # Validar número
+    if not numero.isdigit():
+        return JsonResponse({'valido': False, 'mensaje': 'Solo números'})
+
+    # Normalizar user_id
+    if not user_id or user_id in ('undefined', 'null', ''):
+        user_id = None
+    else:
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            user_id = None
+
+    qs = PerfilUsuario.objects.filter(documento=numero)
+
+    # Si es edición, excluye el mismo usuario
+    if user_id is not None:
+        qs = qs.exclude(user__id=user_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Ya existe otro usuario con este documento.'
+        })
+
+    return JsonResponse({'valido': True})
+
+
+def validar_email_usuario(request):
+    """
+    Endpoint para validar email de usuario en tiempo real
+    """
+    email = (request.GET.get('email') or '').strip()
+    user_id = request.GET.get('user_id')
+
+    # Validar formato de email (solo verificar @ y .)
+    if '@' not in email or '.' not in email.split('@')[-1]:
+        return JsonResponse({'valido': False, 'mensaje': 'Correo electrónico inválido'})
+
+    # Normalizar user_id
+    if not user_id or user_id in ('undefined', 'null', ''):
+        user_id = None
+    else:
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            user_id = None
+
+    qs = User.objects.filter(email=email)
+
+    # Si es edición, excluye el mismo usuario
+    if user_id is not None:
+        qs = qs.exclude(id=user_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Ya existe otro usuario con este email.'
+        })
+
+    return JsonResponse({'valido': True})

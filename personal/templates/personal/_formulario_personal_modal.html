@@ -1,5 +1,8 @@
 {% load static %}
 
+<!-- Cargar JavaScript de validaciones -->
+<script src="{% static 'personal/js/personal.js' %}"></script>
+
 <style>
 /* Switch Toggle Styles */
 .personal-switch {
@@ -119,22 +122,14 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
             <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
                 Aquí solo se pueden ingresar números
             </small>
-            {% if form.numero_documento.errors %}
-                <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-                    {{ form.numero_documento.errors|join:", " }}
-                </div>
-            {% endif %}
+            <div class="invalid-feedback" style="display: none;"></div>
         </div>
 
         <!-- Rol -->
         <div class="personal-form-group">
             <label class="personal-form-label">Rol <span style="color: #c7412b;">*</span></label>
             {{ form.rol }}
-            {% if form.rol.errors %}
-                <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-                    {{ form.rol.errors|join:", " }}
-                </div>
-            {% endif %}
+            <div class="invalid-feedback" style="display: none;"></div>
         </div>
     </div>
 
@@ -146,11 +141,7 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
             <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
                 Aquí no se pueden ingresar números
             </small>
-            {% if form.nombres.errors %}
-                <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-                    {{ form.nombres.errors|join:", " }}
-                </div>
-            {% endif %}
+            <div class="invalid-feedback" style="display: none;"></div>
         </div>
 
         <!-- Apellidos -->
@@ -160,38 +151,26 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
             <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
                 Aquí no se pueden ingresar números
             </small>
-            {% if form.apellidos.errors %}
-                <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-                    {{ form.apellidos.errors|join:", " }}
-                </div>
-            {% endif %}
+            <div class="invalid-feedback" style="display: none;"></div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
         <!-- Teléfono -->
         <div class="personal-form-group">
-            <label class="personal-form-label">Teléfono <span style="color: #c7412b;">*</span></label>
+            <label class="personal-form-label">Teléfono</label>
             {{ form.telefono }}
             <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
                 Aquí no se pueden ingresar letras
             </small>
-            {% if form.telefono.errors %}
-                <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-                    {{ form.telefono.errors|join:", " }}
-                </div>
-            {% endif %}
+            <div class="invalid-feedback" style="display: none;"></div>
         </div>
 
         <!-- Correo -->
         <div class="personal-form-group">
-            <label class="personal-form-label">Correo Electrónico <span style="color: #c7412b;">*</span></label>
+            <label class="personal-form-label">Correo Electrónico</label>
             {{ form.correo }}
-            {% if form.correo.errors %}
-                <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-                    {{ form.correo.errors|join:", " }}
-                </div>
-            {% endif %}
+            <div class="invalid-feedback" style="display: none;"></div>
         </div>
     </div>
 
@@ -203,15 +182,10 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
         </label>
         <label class="personal-switch-label" for="id_activo">Personal Activo</label>
     </div>
-    {% if form.activo.errors %}
-        <div style="color: #c7412b; font-size: 0.85rem; margin-top: 6px;">
-            {{ form.activo.errors|join:", " }}
-        </div>
-    {% endif %}
 
     <!-- Botones -->
     <div style="display: flex; gap: 12px; margin-top: 32px;">
-        <button type="submit" class="personal-btn success">
+        <button type="submit" id="btnGuardarPersonal" class="personal-btn personal-btn-dark success">
             <i class="fas fa-save"></i> Guardar
         </button>
         <button type="button" class="personal-btn secondary" onclick="cerrarModalPersonal()">
@@ -219,65 +193,3 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
         </button>
     </div>
 </form>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Validación para número de documento - solo números
-        const numeroDocumento = document.querySelector('#form-crear-personal input[name="numero_documento"]');
-        if (numeroDocumento) {
-            numeroDocumento.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            
-            numeroDocumento.addEventListener('keypress', function(e) {
-                if (e.which < 48 || e.which > 57) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // Validación para nombres - solo letras y espacios
-        const nombres = document.querySelector('#form-crear-personal input[name="nombres"]');
-        if (nombres) {
-            nombres.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-            });
-            
-            nombres.addEventListener('keypress', function(e) {
-                const char = String.fromCharCode(e.which);
-                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // Validación para apellidos - solo letras y espacios
-        const apellidos = document.querySelector('#form-crear-personal input[name="apellidos"]');
-        if (apellidos) {
-            apellidos.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-            });
-            
-            apellidos.addEventListener('keypress', function(e) {
-                const char = String.fromCharCode(e.which);
-                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // Validación para teléfono - solo números
-        const telefono = document.querySelector('#form-crear-personal input[name="telefono"]');
-        if (telefono) {
-            telefono.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            
-            telefono.addEventListener('keypress', function(e) {
-                if (e.which < 48 || e.which > 57) {
-                    e.preventDefault();
-                }
-            });
-        }
-    });
-</script>

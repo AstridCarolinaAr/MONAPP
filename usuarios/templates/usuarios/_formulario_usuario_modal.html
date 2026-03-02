@@ -1,5 +1,8 @@
 {% load static %}
 
+<!-- Cargar JavaScript de validaciones -->
+<script src="{% static 'usuarios/js/usuarios.js' %}"></script>
+
 <form method="post" id="form-crear-usuario" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     
@@ -19,97 +22,75 @@
         <!-- Tipo de Documento -->
         <div class="col-md-6">
             <label class="form-label">{{ form.tipo_documento.label }} <span class="text-danger">*</span></label>
-            {{ form.tipo_documento }}
-            {% if form.tipo_documento.errors %}
-                <div class="invalid-feedback d-block">{{ form.tipo_documento.errors|join:", " }}</div>
-            {% endif %}
+            <select name="tipo_documento" id="tipo_documento" class="form-control">
+                <option value="">Seleccione...</option>
+                <option value="tarjeta_identidad">Tarjeta de Identidad</option>
+                <option value="cedula">Cédula</option>
+                <option value="pasaporte">Pasaporte</option>
+                <option value="otro">Otro</option>
+            </select>
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Documento -->
         <div class="col-md-6">
             <label class="form-label">{{ form.documento.label }} <span class="text-danger">*</span></label>
-            {{ form.documento }}
-            <small class="text-muted d-block mt-1">
-                Aquí solo se pueden ingresar números
-            </small>
-            {% if form.documento.errors %}
-                <div class="invalid-feedback d-block">{{ form.documento.errors|join:", " }}</div>
-            {% endif %}
+            <input type="text" name="documento" id="documento" class="form-control" placeholder="Número de documento">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Email -->
         <div class="col-md-6">
             <label class="form-label">{{ form.email.label }} <span class="text-danger">*</span></label>
-            {{ form.email }}
-            {% if form.email.errors %}
-                <div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>
-            {% endif %}
+            <input type="email" name="email" id="email" class="form-control" placeholder="correo@ejemplo.com">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Nombre -->
         <div class="col-md-6">
             <label class="form-label">{{ form.first_name.label }} <span class="text-danger">*</span></label>
-            {{ form.first_name }}
-            <small class="text-muted d-block mt-1">
-                Aquí no se pueden ingresar números
-            </small>
-            {% if form.first_name.errors %}
-                <div class="invalid-feedback d-block">{{ form.first_name.errors|join:", " }}</div>
-            {% endif %}
+            <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Nombre">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Apellido -->
         <div class="col-md-6">
             <label class="form-label">{{ form.last_name.label }} <span class="text-danger">*</span></label>
-            {{ form.last_name }}
-            <small class="text-muted d-block mt-1">
-                Aquí no se pueden ingresar números
-            </small>
-            {% if form.last_name.errors %}
-                <div class="invalid-feedback d-block">{{ form.last_name.errors|join:", " }}</div>
-            {% endif %}
+            <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Apellido">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Contraseña -->
         <div class="col-md-6">
             <label class="form-label">{{ form.password1.label }} <span class="text-danger">*</span></label>
-            {{ form.password1 }}
-            {% if form.password1.errors %}
-                <div class="invalid-feedback d-block">{{ form.password1.errors|join:", " }}</div>
-            {% endif %}
-            {% if form.password1.help_text %}
-                <small class="text-muted d-block mt-1">{{ form.password1.help_text }}</small>
-            {% endif %}
+            <input type="password" name="password1" id="password1" class="form-control" placeholder="Contraseña">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Confirmar Contraseña -->
         <div class="col-md-6">
             <label class="form-label">{{ form.password2.label }} <span class="text-danger">*</span></label>
-            {{ form.password2 }}
-            {% if form.password2.errors %}
-                <div class="invalid-feedback d-block">{{ form.password2.errors|join:", " }}</div>
-            {% endif %}
+            <input type="password" name="password2" id="password2" class="form-control" placeholder="Confirmar contraseña">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Rol -->
         <div class="col-md-6">
             <label class="form-label">{{ form.rol.label }} <span class="text-danger">*</span></label>
-            {{ form.rol }}
-            {% if form.rol.errors %}
-                <div class="invalid-feedback d-block">{{ form.rol.errors|join:", " }}</div>
-            {% endif %}
+            <select name="rol" id="rol" class="form-control">
+                <option value="">Seleccione...</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Auxiliar">Auxiliar</option>
+                <option value="Colaborador">Colaborador</option>
+            </select>
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Teléfono -->
         <div class="col-md-6">
             <label class="form-label">{{ form.telefono.label }}</label>
-            {{ form.telefono }}
-            <small class="text-muted d-block mt-1">
-                Aquí no se pueden ingresar letras
-            </small>
-            {% if form.telefono.errors %}
-                <div class="invalid-feedback d-block">{{ form.telefono.errors|join:", " }}</div>
-            {% endif %}
+            <input type="text" name="telefono" id="telefono" class="form-control" placeholder="Teléfono (opcional)">
+            <div class="invalid-feedback"></div>
         </div>
 
         <!-- Foto de Perfil -->
@@ -121,13 +102,10 @@
                     <img id="preview-foto" style="display: none; width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div class="flex-grow-1">
-                    {{ form.foto_perfil }}
+                    <input type="file" name="foto_perfil" id="foto_perfil" class="form-control" accept="image/*">
                     <small class="text-muted d-block mt-1">
                         Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 5MB
                     </small>
-                    {% if form.foto_perfil.errors %}
-                        <div class="invalid-feedback d-block">{{ form.foto_perfil.errors|join:", " }}</div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -138,7 +116,7 @@
         <button type="button" class="btn btn-secondary me-2" onclick="cerrarModalUsuario()">
             <i class="bi bi-x-circle"></i> Cancelar
         </button>
-        <button type="submit" class="btn" style="background-color: #634c40; color: white; border: none;">
+        <button type="submit" id="btnGuardarUsuario" class="btn btn-dark">
             <i class="bi bi-save"></i> Guardar
         </button>
     </div>
@@ -146,66 +124,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Validación para documento - solo números
-        const documento = document.querySelector('#form-crear-usuario input[name="documento"]');
-        if (documento) {
-            documento.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            
-            documento.addEventListener('keypress', function(e) {
-                if (e.which < 48 || e.which > 57) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // Validación para nombre - solo letras y espacios
-        const firstName = document.querySelector('#form-crear-usuario input[name="first_name"]');
-        if (firstName) {
-            firstName.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-            });
-            
-            firstName.addEventListener('keypress', function(e) {
-                const char = String.fromCharCode(e.which);
-                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // Validación para apellido - solo letras y espacios
-        const lastName = document.querySelector('#form-crear-usuario input[name="last_name"]');
-        if (lastName) {
-            lastName.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-            });
-            
-            lastName.addEventListener('keypress', function(e) {
-                const char = String.fromCharCode(e.which);
-                if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(char)) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // Validación para teléfono - solo números
-        const telefono = document.querySelector('#form-crear-usuario input[name="telefono"]');
-        if (telefono) {
-            telefono.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            
-            telefono.addEventListener('keypress', function(e) {
-                if (e.which < 48 || e.which > 57) {
-                    e.preventDefault();
-                }
-            });
-        }
-
         // Vista previa de la foto de perfil
-        const fotoPerfil = document.querySelector('#form-crear-usuario input[name="foto_perfil"]');
+        const fotoPerfil = document.getElementById('foto_perfil');
         if (fotoPerfil) {
             fotoPerfil.addEventListener('change', function(e) {
                 const file = e.target.files[0];

@@ -783,7 +783,10 @@ body.bg-black {
 /* Encabezado */
 .sq-contact-header {
     max-width: 720px;
-    margin-bottom: 120px;
+   
+       /* CORRECCIÓN: margin '0 auto 120px auto' centra la caja, text-align centra las letras */
+    margin: 0 auto 120px auto;
+    text-align: center;
 }
 
 .sq-contact-eyebrow {
@@ -810,16 +813,25 @@ body.bg-black {
 
 /* Layout */
 .sq-contact-layout {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 120px;
-    align-items: start;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    flex-wrap: wrap;
 }
 
 /* Info */
 .sq-contact-item {
     margin-bottom: 48px;
 }
+
+/* --- CORRECCIÓN: Centrar solo el último ítem (Redes Sociales) --- */
+.sq-contact-item:last-child {
+    text-align: center; /* Centra el título "Redes sociales" */
+}
+/* ---------------------------------------------------------------- */
+
 
 .sq-contact-item h3 {
     font-size: 1.05rem;
@@ -847,6 +859,14 @@ body.bg-black {
     transition: border-color 0.3s ease, opacity 0.3s ease;
 }
 
+
+/* --- CORRECCIÓN: Centrar los enlaces de Redes Sociales --- */
+.sq-contact-item:last-child .sq-contact-link {
+    margin-left: auto;  /* Empuje automático izquierda */
+    margin-right: auto; /* Empuje automático derecha */
+}
+/* --------------------------------------------------------- */
+
 .sq-contact-link:hover {
     border-color: #ffffff;
     opacity: 0.85;
@@ -857,32 +877,58 @@ body.bg-black {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    filter: grayscale(100%) contrast(1.1) brightness(0.9);
+    filter: none !important;
     box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    width: 500px;
+    height: 350px;
 }
 
 .sq-contact-map iframe {
     width: 100%;
-    height: 420px;
+    height: 100%;
     border: none;
 }
 
 
+/* Hacer que el texto general del footer sea blanco */
+.mona-footer .footer-content {
+    color: #FFFFFF; /* Código hexadecimal para blanco */
+}
 
-/* Responsive */
-@media (max-width: 900px) {
-    .sq-contact-layout {
-        grid-template-columns: 1fr;
-        gap: 80px;
-    }
+.mona-footer {
+    background-color: #000000; /* Fondo negro */
+    color: #888888;            /* Texto gris suave para que no brille tanto */
+    padding: 3rem 1rem;
+    border-top: 1px solid #222; /* Una línea sutil arriba para separar */
+    font-size: 0.9rem;
+    text-align: center;        /* Todo centrado por defecto */
+}
 
-    .sq-contact-header h2 {
-        font-size: 2.4rem;
-    }
+.mona-footer .footer-logo span {
+    color: #ffffff;            /* El nombre en blanco */
+    font-weight: bold;
+    letter-spacing: 2px;       /* Espaciado elegante */
+    display: block;
+    margin-bottom: 1rem;
+}
 
-    .sq-contact-map iframe {
-        height: 320px;
-    }
+.mona-footer .copyright {
+    margin-bottom: 1rem;
+}
+
+.mona-footer .footer-legal a {
+    color: #888888;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.mona-footer .footer-legal a:hover {
+    color: #ffffff; /* Se ilumina al pasar el mouse */
+}
+
+.mona-footer .separator {
+    margin: 0 10px;
+    color: #444;
 }
 
 

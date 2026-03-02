@@ -1,4 +1,10 @@
 {% extends 'core/panel_admin_base.html' %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'inventario:inventario_lista' %}">Inventario</a></li>
+<li class="breadcrumb-item active" aria-current="page">Crear compra</li>
+{% endblock %}
+
 {%block content%}
 
 {%include 'inventario/formulario_inventario.html'%}

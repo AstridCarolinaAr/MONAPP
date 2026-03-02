@@ -788,3 +788,45 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
         padding: 4px 12px;
     }
 }
+
+/* ==================== VALIDACIONES EN TIEMPO REAL ==================== */
+.personal-form-control.is-valid {
+    border-color: #28a745 !important;
+    background-color: #f8fff9 !important;
+}
+
+.personal-form-control.is-invalid {
+    border-color: #c7412b !important;
+    background-color: #fff8f7 !important;
+}
+
+.invalid-feedback {
+    color: #c7412b;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    display: none;
+}
+
+.invalid-feedback.d-block {
+    display: block !important;
+}
+
+/* Estilo para botón deshabilitado */
+.personal-btn-secondary {
+    background: #ccc !important;
+    border-color: #ccc !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+}
+
+.personal-btn-secondary:hover {
+    background: #ccc !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.personal-btn-dark {
+    background: #634c40 !important;
+    border-color: #634c40 !important;
+    color: #fff !important;
+}
