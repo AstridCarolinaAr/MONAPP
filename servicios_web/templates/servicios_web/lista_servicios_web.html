@@ -16,10 +16,8 @@
 {% block page_subtitle %}Gestiona los servicios que se muestran en la página pública.{% endblock %}
 
 {% block page_actions %}
-<button type="button"
-        class="btn btn-pill-dark"
-        id="btnOpenCrearServicioWeb"
-        data-url="{% url 'servicios_web:crear_servicio_web' %}">
+<button type="button" class="btn btn-pill-dark" id="btnOpenCrearServicioWeb"
+    data-url="{% url 'servicios_web:crear_servicio_web' %}">
     <span class="icon">+</span> Nuevo Servicio Web
 </button>
 {% endblock %}
@@ -29,8 +27,8 @@
     {% for servicio in servicios_web %}
     <div class="sq-card
                 {% if not servicio.imagen %}no-image{% endif %}
-                {% if servicio.video %}has-video{% endif %}"
-         {% if servicio.imagen %}style="background-image: url('{{ servicio.imagen.url }}');"{% endif %}>
+                {% if servicio.video %}has-video{% endif %}" {% if servicio.imagen
+        %}style="background-image: url('{{ servicio.imagen.url }}');" {% endif %}>
 
         <div class="sq-blur"></div>
 
@@ -47,9 +45,7 @@
 
         {# ✅ SIN imagen y SIN video => metaballs (NO placeholder) #}
         {% if not servicio.imagen and not servicio.video %}
-        <div class="metaballs-slot"
-             data-metaballs="1"
-             aria-label="Servicio sin multimedia"></div>
+        <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
 
         {# ✅ SIN imagen pero CON video => placeholder simple #}
         {% elif not servicio.imagen and servicio.video %}
@@ -65,9 +61,8 @@
         {# ✅ Botón editar #}
         <div class="actions-overlay">
             <button class="btn-action edit btn-edit-servicioweb"
-                    data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}"
-                    title="Editar"
-                    data-bs-placement="bottom">
+                data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}" title="Editar"
+                data-bs-placement="bottom">
                 <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
             </button>
         </div>
@@ -88,7 +83,7 @@
         <h4>No hay servicios web creados</h4>
         <p class="text-muted">Comienza agregando tu primer servicio para mostrarlo en la web.</p>
         <button class="btn btn-primary mt-3" id="btnOpenCrearServicioWeb2"
-                data-url="{% url 'servicios_web:crear_servicio_web' %}">
+            data-url="{% url 'servicios_web:crear_servicio_web' %}">
             Agregar Servicio
         </button>
     </div>
@@ -121,7 +116,7 @@
 {# OGL local #}
 <script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
 
-{#  JS #}
+{# JS #}
 <script src="{% static 'servicios_web/js/servicios_web.js' %}"></script>
 <script src="{% static '/servicios_web/js/metaballs.js' %}"></script>
 {% endblock %}

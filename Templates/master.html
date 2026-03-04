@@ -116,10 +116,6 @@
             Iniciar sesión
         </button>
 
-    </header>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
 
     <!-- ==================== FOOTER ==================== -->
     <footer class="footer">
@@ -206,24 +202,6 @@
             }
         });
     </script>
-
-<!-- ==================== JS ==================== -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'core/js/main.js' %}"></script>
-<script>
-(function(){
-    var tog = document.getElementById('togglePassword');
-    var pw  = document.getElementById('password');
-    if(tog && pw){
-        tog.addEventListener('mousedown', function(){ pw.type='text'; });
-        tog.addEventListener('mouseup',   function(){ pw.type='password'; });
-        tog.addEventListener('mouseleave',function(){ pw.type='password'; });
-        tog.addEventListener('touchstart',function(e){ e.preventDefault(); pw.type='text'; });
-        tog.addEventListener('touchend',  function(e){ e.preventDefault(); pw.type='password'; });
-    }
-})();
-</script>
-    
 
     <!-- ==================== JS ==================== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

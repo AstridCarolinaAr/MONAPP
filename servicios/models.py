@@ -18,12 +18,6 @@ class Servicio(models.Model):
         blank=True,
         verbose_name='Imagen del Servicio'
     )
-    video = models.FileField(
-        upload_to='servicios/videos/',
-        null=True,
-        blank=True,
-        verbose_name='Video del Servicio (opcional, máx. 5s)'
-    )
     activo = models.BooleanField(default=True, verbose_name='Activo')
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name='Última Modificación')
