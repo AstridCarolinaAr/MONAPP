@@ -270,6 +270,7 @@ h2 {
     background: #382822;
     transform: none;
 }
+<<<<<<< HEAD
 
 .btn-eliminar:hover i {
     color: white;
@@ -282,3 +283,25 @@ h2 {
 
 
 
+=======
+.form-validated{
+  position: relative;
+}
+.form-validated .valid-check{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+.form-validated.is-ok .valid-check{
+  opacity: 1;
+}
+
+/* deja espacio para el ícono */
+.form-validated input.form-control,
+.form-validated select.form-select{
+  padding-right: 2.2rem;
+}
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb

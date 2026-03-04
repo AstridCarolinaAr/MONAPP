@@ -27,6 +27,7 @@ class ProductoForm(forms.ModelForm):
             "unidad": forms.Select(attrs={"class": "form-select"}),
             "activo": forms.CheckboxInput(attrs={"class": "switch-input"}),
             "marca": forms.TextInput(attrs={"class": "form-control", "placeholder": "Escribe la marca (Ej: Mona Keratina)"}),
+            "imagen_url":forms.URLInput(attrs={"class": "form-control","placeholder":"https://..."}),
         }
 def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -106,19 +107,19 @@ def clean(self):
     # SAVE
     # ===============================
 
-    def save(self, commit=True):
-        producto = super().save(commit=False)
+def save(self, commit=True):
+    producto = super().save(commit=False)
 
-        marca_texto = self.cleaned_data.get('marca_texto')
-        if marca_texto:
-            marca, _ = Marca.objects.get_or_create(
-                nombre__iexact=marca_texto.strip().title(),
-                defaults={'nombre': marca_texto.strip().title()}
-            )
-            producto.id_marca = marca
+    marca_texto = self.cleaned_data.get('marca_texto')
+    if marca_texto:
+        marca, _ = Marca.objects.get_or_create(
+            nombre__iexact=marca_texto.strip().title(),
+            defaults={'nombre': marca_texto.strip().title()}
+        )
+        producto.id_marca = marca
 
-        if commit:
-            producto.save()
+    if commit:
+        producto.save()
 
         return producto
 def __init__(self, *args, **kwargs):

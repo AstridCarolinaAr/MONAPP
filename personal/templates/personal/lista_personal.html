@@ -3,6 +3,10 @@
 
 {% block title %}Lista de Personal - Monapp{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Personal</li>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -394,6 +398,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Cargar JavaScript de validaciones en tiempo real -->
+<script src="{% static 'personal/js/personal.js' %}"></script>
+
 <script>
     // Función para obtener el CSRF token de las cookies
     function getCookie(name) {
@@ -430,6 +437,11 @@
         .then(response => response.json())
         .then(data => {
             modalBody.innerHTML = data.html_form;
+            
+            // Inicializar validaciones en tiempo real
+            if (typeof inicializarValidacionesPersonal === 'function') {
+                inicializarValidacionesPersonal();
+            }
             
             // Configurar el envío del formulario
             const form = document.getElementById('form-crear-personal');
@@ -492,6 +504,11 @@
                 // Error - actualizar el formulario con los errores
                 modalBody.innerHTML = data.html_form;
                 
+                // Reinicializar validaciones
+                if (typeof inicializarValidacionesPersonal === 'function') {
+                    inicializarValidacionesPersonal();
+                }
+                
                 // Volver a configurar el envío del formulario
                 const newForm = document.getElementById('form-crear-personal');
                 if (newForm) {
@@ -532,6 +549,11 @@
         .then(response => response.json())
         .then(data => {
             modalBody.innerHTML = data.html_form;
+            
+            // Inicializar validaciones en tiempo real
+            if (typeof inicializarValidacionesPersonal === 'function') {
+                inicializarValidacionesPersonal();
+            }
             
             // Configurar el envío del formulario
             const form = document.getElementById('form-editar-personal');

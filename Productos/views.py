@@ -42,7 +42,7 @@ def lista_productos(request):
     elif orden == "nombre_desc":
         productos = productos.order_by("-nombre")
     elif orden == "codigo":
-        productos = productos.order_by("nombre")
+        productos = productos.order_by("codigo")
     elif orden == "marca":
         productos = productos.order_by("marca")
     elif orden == "presentacion":
@@ -95,7 +95,17 @@ def crear_producto(request):
 def editar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
-
+    
+    imagen_inicial_url = ""
+    if producto.imagen:
+        try:
+            imagen_inicial_url = producto.imagen.url
+            
+        except:
+            imagen_inicial_url=""
+            
+    if not imagen_inicial_url and getattr(producto,"imagen_url",""):
+        imagen_inicial_url=producto.imagen_url
     if request.method == "POST" and form.is_valid():
         producto = form.save()
         messages.success(request, f'Producto "{producto.nombre}" actualizado.')
@@ -111,6 +121,7 @@ def editar_producto(request, codigo):
         "submit_label": "Guardar cambios",
         "title": f"Editar producto: {producto.nombre}",
         "producto": producto,
+        "imagen_inicial_url":imagen_inicial_url,
     }
 
     if is_ajax(request):
@@ -123,28 +134,48 @@ def editar_producto(request, codigo):
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 
-    action = request.POST.get("action", "delete").lower()
 
-    if action == "activate":
-        producto.activo = True
-        producto.save(update_fields=["activo"])
-        return JsonResponse({"status": "activated"})
 
-    if action == "deactivate":
+    detalles_qs = (
+        DetalleCompra.objects
+        .filter(producto=producto)
+        .select_related("compra")  
+        .order_by("-id")[:20]      
+    )
+
+    detalle_items = []
+    for d in detalles_qs:
+        compra = getattr(d, "compra", None)
+        detalle_items.append({
+            "id": d.id,
+            "compra_id": getattr(compra, "id", None),
+            "compra_codigo": getattr(compra, "codigo", None), 
+            "fecha": getattr(compra, "fecha", None).isoformat() if getattr(compra, "fecha", None) else None,
+            "cantidad": getattr(d, "cantidad", None),
+            "precio": str(getattr(d, "precio", "")) if getattr(d, "precio", None) is not None else None,
+            "total": str(getattr(d, "total", "")) if hasattr(d, "total") and getattr(d, "total", None) is not None else None,
+        })
+
+    relaciones = {}
+    if detalles_qs.exists():
+        relaciones["detalle_compras"] = {
+            "count": DetalleCompra.objects.filter(producto=producto).count(),
+            "items": detalle_items
+        }
+
+    if relaciones:
+        return JsonResponse({
+            "status": "blocked",
+            "title": "No se puede eliminar",
+            "message": "Este producto está relacionado con:",
+            "related": relaciones,
+            "suggest_action": "deactivate",
+        }, status=409)
+
+    producto.activo = False
+    producto.save(update_fields=["activo"])
+    force = request.POST.get("force_deactivate") == "1"
+    if relaciones and force:
         producto.activo = False
         producto.save(update_fields=["activo"])
-        return JsonResponse({"status": "inactivated"})
-
-    try:
-        producto.delete()
-        return JsonResponse({"status": "deleted"})
-    except ProtectedError as e:
-        labels = [obj._meta.verbose_name_plural for obj in e.protected_objects]
-        counts = Counter(labels)
-
-        detalles = [{"nombre": k, "cantidad": v} for k, v in counts.items()]
-
-        return JsonResponse({
-            "status": "protected",
-            "detalles": detalles,
-        })
+    return JsonResponse({"status": "ok", "message": "Producto desactivado."})

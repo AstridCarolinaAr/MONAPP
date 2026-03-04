@@ -3,6 +3,10 @@
 
 {% block title %}Gestión de Proveedores{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Proveedores</li>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'proveedor/css/proveedor.css' %}">
 {% endblock %}
@@ -26,8 +30,13 @@
             <a href="{% url 'proveedores:crear_proveedor' %}"
             class="btn-pill-dark"
             data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+<<<<<<< HEAD
             data-modal-title="Nuevo proveedor">
             <i class="bi bi-plus-circle"></i> Nuevo proveedor
+=======
+            data-modal-title="Crear Proveedor">
+            Crear Proveedor
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
             </a>
             </div>
 
@@ -153,6 +162,7 @@
                                     </button>
 
                                     {% if proveedor.estado == 'activo' %}
+<<<<<<< HEAD
                                         <!-- DESACTIVAR -->
                                     <button class="btn btn-link"
                                             onclick="eliminarProveedor({{ proveedor.id }})"
@@ -160,13 +170,16 @@
                                             title="Eliminar"
                                             data-bs-placement="bottom">
                                         <i class="bi bi-trash3" style="font-size: 24px;"></i>
+=======
+                                    <button type="button"
+                                            class="btn-icon btn-eliminar js-eliminar-proveedor"
+                                            data-id="{{ proveedor.id }}">
+                                        <i class="bi bi-trash3-fill"></i>
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                                     </button>
-
                                     {% else %}
-                                        <!-- REACTIVAR (desactivar boton -->
-                                        <button class="btn btn-sm btn-primary"
-                                                onclick="reactivarProveedor({{ proveedor.id }})">
-                                            Reactivar
+                                        <button type="button" class="btn btn-success btn-sm js-reactivar-proveedor" data-id="{{ proveedor.id }}">
+                                        Reactivar
                                         </button>
                                     {% endif %}
 
@@ -244,6 +257,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
 {% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <script src="{% static 'proveedor/js/detalle_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/eliminar_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/proveedor_formulario.js' %}"></script>

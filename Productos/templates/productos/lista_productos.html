@@ -6,7 +6,7 @@
 
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'Productos/css/lista_producto.css' %}">
+<link rel="stylesheet" href="{% static 'Productos/CSS/lista_producto.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 {% endblock %}
 
@@ -29,10 +29,9 @@
 
         <!-- FILTRO -->
         <div class="dropdown">
-            <button class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown">
-                <i class="bi bi-funnel"></i> Filtrar
-            </button>
-
+        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-funnel"></i> Filtrar
+        </button>
             <ul class="dropdown-menu shadow-sm">
                 <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
                 <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
@@ -343,33 +342,27 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="modalZoomImagen" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-fullscreen">
-    <div class="modal-content bg-transparent border-0 shadow-none">
-
-      <button type="button"
-              class="btn-close btn-close-white zoom-close"
-              data-bs-dismiss="modal"
-              aria-label="Cerrar"></button>
-
-      <div class="modal-body p-0 d-flex justify-content-center align-items-center">
-        <img id="zoomImg" src="" class="zoom-img" alt="Imagen">
+<div class="modal fade" id="modalImagen" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-body p-0 position-relative">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3"
+                data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <img id="modalImagenTag"
+             style="width:100%; height:auto; display:block;"
+             alt="Imagen ampliada">
       </div>
-
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Tus scripts -->
+<!--scripts -->
 <script src="{% static 'Productos/js/producto_action.js' %}"></script>
-<script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
-
+<script src="{% static 'Productos/js/lista_productos.js' %}"></script>
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 
 <script>

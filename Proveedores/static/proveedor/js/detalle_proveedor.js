@@ -33,4 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     });
+    document.getElementById('detalleDireccion').textContent =
+    this.dataset.direccion;
+
+
 });

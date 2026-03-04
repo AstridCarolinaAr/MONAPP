@@ -58,16 +58,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentPath = window.location.pathname;
         const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     
-        navLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            
-            // Si la URL actual empieza con el href del link (y no es solo la raíz /)
-            // O si las URLs son idénticas
-            if ((href !== '/' && currentPath.startsWith(href)) || currentPath === href) {
-                link.classList.add('active');
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+
+    // ==================== AUTO-EXPANDIR SUBMENÚ SI HIJO ACTIVO ====================
+    document.querySelectorAll('.submenu').forEach(function(submenu) {
+        const activeChild = submenu.querySelector('.nav-link.active');
+        if (activeChild) {
+            submenu.classList.add('show');
+            const toggle = submenu.previousElementSibling;
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.classList.add('active');
             }
-        });
-        // ==================== BÚSQUEDA EN TIEMPO REAL ====================
+        }
+    });
+    
+    // ==================== BÚSQUEDA EN TIEMPO REAL ====================
     const searchInput = document.querySelector('.search-box input');
     if (searchInput) {
         searchInput.addEventListener('input', function() {

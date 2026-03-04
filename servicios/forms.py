@@ -1,8 +1,12 @@
 from django import forms
+<<<<<<< HEAD
 from .models import Servicio, GestionAlisado
 from clientes.models import Cliente
 from django.core.exceptions import ValidationError
 
+=======
+from .models import Servicio
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 
 class ServicioForm(forms.ModelForm):
     class Meta:
@@ -47,6 +51,7 @@ class ServicioForm(forms.ModelForm):
             'video': 'Video del Servicio (opcional, máx. 5s)',
             'activo': 'Estado del Servicio',
         }
+<<<<<<< HEAD
 
 
 
@@ -267,3 +272,5 @@ class GestionAlisadoForm(forms.ModelForm):
             cleaned_data['saldo_pendiente'] = precio - anticipo
         
         return cleaned_data
+=======
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb

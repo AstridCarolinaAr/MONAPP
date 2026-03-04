@@ -14,8 +14,16 @@ def crear_cliente(request):
 
     datos = request.POST
     errores = validar_datos_cliente(datos)
+    
+    # Si es una petición AJAX, devolver JSON
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if errores:
+        if es_ajax:
+            return JsonResponse({
+                'success': False,
+                'errores': errores
+            })
         messages.error(request, ' No se pudo registrar el cliente.')
         return render(request, 'clientes/lista_clientes.html', {
             'clientes': Cliente.objects.all(),
@@ -34,6 +42,17 @@ def crear_cliente(request):
         correo=datos.get('correo', ''),
         estado='activo'
     )
+    
+    if es_ajax:
+        return JsonResponse({
+            'success': True,
+            'cliente': {
+                'id': cliente.id,
+                'nombre': cliente.nombre,
+                'apellido': cliente.apellido,
+                'numero_documento': cliente.numero_documento
+            }
+        })
 
     messages.success(request, 'Cliente registrado correctamente.')
     return redirect(f"{reverse('clientes:lista')}?nuevo={cliente.id}")

@@ -182,15 +182,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    /* SELECT tipo documento */
-    const tipoDoc = document.getElementById('tipo_documento');
-    if (tipoDoc) {
-        tipoDoc.addEventListener('change', function () {
-            if (!this.value.trim()) limpiar(this);
-            else valido(this);
+    /* ===============================
+       VALIDACIÓN TIPO DOCUMENTO (SELECT)
+    =============================== */
+    const tipoDocumentoSelect = document.getElementById('tipo_documento');
+    
+    if (tipoDocumentoSelect) {
+        tipoDocumentoSelect.addEventListener('change', function() {
+            const feedback = this.nextElementSibling;
+            
+            if (this.value.trim() === '') {
+                limpiar(this, feedback);
+            } else {
+                valido(this, feedback);
+            }
+            
             actualizarEstadoBoton();
         });
     }
+
+
+    /* ===============================
+       LIMPIAR TODO AL CERRAR MODAL
+    =============================== */
 
     /* FECHA */
     const fecha = document.getElementById('fecha_nacimiento');
