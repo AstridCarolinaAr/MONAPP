@@ -3,6 +3,10 @@
 
 {% block title %}Lista de Servicios{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Servicios</li>
+{% endblock %}
+
 {% block page_title %}
 {% endblock %}
 
@@ -25,6 +29,20 @@
         top: 10px;
         right: 10px;
     }
+    .btn-action-round {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s, color 0.3s;
+        text-decoration: none !important;
+    }
+    .btn-action-round:hover {
+        background-color: rgba(99, 76, 64, 0.1);
+        color: #634c40 !important;
+    }
 </style>
 {% endblock %}
 
@@ -43,8 +61,8 @@
 
     <!-- Botón Crear -->
     <div class="mb-4">
-        <button type="button" class="btn text-white" style="background-color: #634c40; border-color: #634c40;" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
-            <i class="bi bi-plus-circle"></i> Crear Nuevo Servicio
+        <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
+            <i class="bi bi-plus-circle"></i> Nuevo servicio
         </button>
     </div>
 
@@ -72,24 +90,17 @@
                             <p class="h4 text-primary">${{ servicio.precio|floatformat:2 }}</p>
                             <small class="text-muted">Creado: {{ servicio.fecha_creacion|date:"d/m/Y" }}</small>
                         </div>
-                        <div class="card-footer bg-transparent">
-                            <button type="button" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" onclick="abrirModalEditar('{{ servicio.pk }}')">
-                                <i class="bi bi-pencil"></i> Editar
+                        <div class="card-footer bg-transparent d-flex gap-2 justify-content-center">
+                            <button type="button" class="btn btn-link btn-action-round" style="color: #382822;" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar" data-bs-placement="bottom">
+                                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-danger" onclick="abrirModalEliminar('{{ servicio.pk }}')">
-                                <i class="bi bi-trash"></i> Eliminar
+                            <button type="button" class="btn btn-link btn-action-round" style="color: #382822;" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar" data-bs-placement="bottom">
+                                <i class="bi bi-trash3" style="font-size: 24px;"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> No hay servicios registrados. 
-            <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
-                Crear el primero
-            </button>
         </div>
     {% endif %}
 </div>

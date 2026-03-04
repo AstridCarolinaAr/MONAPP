@@ -48,12 +48,14 @@ INSTALLED_APPS = [
     'personal',
     'inventario',
     'servicios',
+    'gestion_alisados',
     'productos_web',
     'compras.apps.ComprasConfig',
-     'bootstrap5',
+    'bootstrap5',
     'gestion_datos',
     'promociones',
     'Gestion',
+    'servicios_web',
 ]
 
 MIDDLEWARE = [
@@ -134,7 +136,8 @@ USE_TZ = True
 STATIC_URL = '/static/' 
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Django buscará archivos estáticos aquí
+    BASE_DIR / 'static',           # Django buscará archivos estáticos aquí
+    BASE_DIR / 'MONAPP' / 'static', # Archivos estáticos del paquete de config (master.css, etc.)
 ]
 
 # Para producción (cuando uses collectstatic)

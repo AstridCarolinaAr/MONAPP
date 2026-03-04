@@ -9,7 +9,7 @@ urlpatterns = [
     path('auth/', include('usuarios.urls')),
     path('personal/', include('personal.urls')),
     path('ventas/', include('ventas.urls')),
-
+    path('servicios-web/', include('servicios_web.urls')),
 ]
 
 # Servir archivos media en desarrollo

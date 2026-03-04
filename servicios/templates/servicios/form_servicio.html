@@ -3,6 +3,11 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'servicios:lista_servicios' %}">Servicios</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
 {% block page_title %}
     <i class="bi bi-gear-fill"></i> {{ titulo }}
 {% endblock %}
@@ -57,6 +62,23 @@
                                 <div class="mt-2">
                                     <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="img-thumbnail" style="max-width: 200px;">
                                     <p class="text-muted small">Imagen actual</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.video.label_tag }}
+                            {{ form.video }}
+                            {% if form.video.errors %}
+                                <div class="text-danger">{{ form.video.errors }}</div>
+                            {% endif %}
+                            {% if servicio.video %}
+                                <div class="mt-2">
+                                    <video width="200" controls>
+                                        <source src="{{ servicio.video.url }}" type="video/mp4">
+                                        Tu navegador no soporta el tag de video.
+                                    </video>
+                                    <p class="text-muted small">Video actual</p>
                                 </div>
                             {% endif %}
                         </div>

@@ -255,18 +255,71 @@ class EditarUsuarioForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'is_active']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'title': 'Solo se permiten letras y espacios'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'title': 'Solo se permiten letras y espacios'
+            }),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Marcar campos como required
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+        
         if self.instance.pk:
             grupos = self.instance.groups.values_list('name', flat=True)
             if grupos:
                 self.fields['rol'].initial = grupos[0]
+    
+    def clean_first_name(self):
+        """Validar que el nombre solo contenga letras y espacios"""
+        first_name = self.cleaned_data.get('first_name', '').strip()
+        if not first_name:
+            raise forms.ValidationError('El nombre es obligatorio.')
+        import re
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', first_name):
+            raise forms.ValidationError('El nombre solo puede contener letras y espacios.')
+        if len(first_name) > 150:
+            raise forms.ValidationError('El nombre no puede exceder 150 caracteres.')
+        return first_name
+    
+    def clean_last_name(self):
+        """Validar que el apellido solo contenga letras y espacios"""
+        last_name = self.cleaned_data.get('last_name', '').strip()
+        if not last_name:
+            raise forms.ValidationError('El apellido es obligatorio.')
+        import re
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', last_name):
+            raise forms.ValidationError('El apellido solo puede contener letras y espacios.')
+        if len(last_name) > 150:
+            raise forms.ValidationError('El apellido no puede exceder 150 caracteres.')
+        return last_name
+    
+    def clean_email(self):
+        """Validar que el email no exista en la base de datos (excepto el usuario actual)"""
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError('El correo electrónico es obligatorio.')
+        # Validación básica de formato
+        if '@' not in email or '.' not in email.split('@')[-1]:
+            raise forms.ValidationError('Correo electrónico inválido.')
+        # Excluir el usuario actual de la verificación
+        usuarios_con_email = User.objects.filter(email=email)
+        if self.instance.pk:
+            usuarios_con_email = usuarios_con_email.exclude(pk=self.instance.pk)
+        if usuarios_con_email.exists():
+            raise forms.ValidationError('Este correo electrónico ya está registrado.')
+        return email
 
 
 
@@ -286,9 +339,46 @@ class EditarPerfilForm(forms.ModelForm):
             'tipo_documento': forms.Select(attrs={'class': 'form-control'}),
             'documento': forms.TextInput(attrs={
                 'class': 'form-control',
-                'readonly': 'readonly'
+                'pattern': '[0-9]+',
+                'title': 'Solo se permiten números'
             }),
-            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control',
+                'pattern': '[0-9]+',
+                'title': 'Solo se permiten números'
+            }),
             'foto_perfil': forms.FileInput(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Marcar campos como required
+        self.fields['tipo_documento'].required = True
+        self.fields['documento'].required = True
+    
+    def clean_documento(self):
+        """Valida que el documento no exista en la base de datos (excepto el perfil actual)"""
+        documento = self.cleaned_data.get('documento', '').strip()
+        if not documento:
+            raise forms.ValidationError('El número de documento es obligatorio.')
+        # Validar que solo contenga números
+        if not documento.isdigit():
+            raise forms.ValidationError('El documento solo puede contener números.')
+        # Validar que no exista (excluyendo el perfil actual)
+        perfiles_con_documento = PerfilUsuario.objects.filter(documento=documento)
+        if self.instance.pk:
+            perfiles_con_documento = perfiles_con_documento.exclude(pk=self.instance.pk)
+        if perfiles_con_documento.exists():
+            raise forms.ValidationError('Este documento ya está registrado.')
+        return documento
+    
+    def clean_telefono(self):
+        """Validar que el teléfono solo contenga números"""
+        telefono = self.cleaned_data.get('telefono', '').strip()
+        if telefono:
+            if not telefono.isdigit():
+                raise forms.ValidationError('El teléfono solo puede contener números.')
+            if len(telefono) != 10:
+                raise forms.ValidationError('El teléfono debe tener exactamente 10 dígitos.')
+        return telefono
 

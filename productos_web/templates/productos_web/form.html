@@ -3,6 +3,11 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'productos_web:lista' %}">Catálogo Web</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
 {% block page_title %}
     <i class="bi bi-globe2"></i> {{ titulo }}
 {% endblock %}
@@ -36,14 +41,14 @@
 }
 .pw-dropzone:hover,
 .pw-dropzone.dragover {
-    border-color: #8d604a;
+    border-color: #382822;
     background: linear-gradient(145deg, #fff, #f8f5f2);
     box-shadow: 0 6px 20px rgba(141,96,74,.15);
     transform: translateY(-2px);
 }
 .pw-dropzone i { 
     font-size: 3.5rem; 
-    color: #8d604a;
+    color: #382822;
     margin-bottom: 8px;
     display: block;
     animation: float 3s ease-in-out infinite;
@@ -72,20 +77,34 @@
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
 }
+/* Validación de precio */
+.pw-price-error {
+    color: #a0715a;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-price-error.visible {
+    display: block;
+}
+.form-control.is-invalid-price {
+    border-color: #a0715a !important;
+    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+}
+.form-control.is-valid-price {
+    border-color: #6ba06a !important;
+    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+    <!-- Mensajes Django para SweetAlert -->
+    <script id="pw-form-messages" type="application/json">
+        [{% for message in messages %}{"tags":"{{ message.tags }}","text":"{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+    </script>
 
     <div class="card pw-form-card">
         <div class="card-header">
@@ -108,6 +127,7 @@
                         {% if form.precio.errors %}
                             <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
                         {% endif %}
+                        <div class="pw-price-error" id="err_precio_form"></div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold">Descripción</label>
@@ -154,6 +174,28 @@
 
 {% block extra_js %}
 <script>
+/* ── Mensajes Django como Swal toast ── */
+(function () {
+    const raw = document.getElementById('pw-form-messages');
+    if (!raw) return;
+    const msgs = JSON.parse(raw.textContent || '[]');
+    const MAP = {
+        success: { icon: 'success', background: '#f0fdf4', color: '#166534' },
+        error:   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
+        warning: { icon: 'warning', background: '#fffbeb', color: '#92400e' },
+        info:    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
+    };
+    msgs.forEach(m => {
+        const key  = Object.keys(MAP).find(k => m.tags.includes(k)) || 'info';
+        const opts = MAP[key];
+        Swal.mixin({
+            toast: true, position: 'top-end',
+            showConfirmButton: false, timer: 3500, timerProgressBar: true,
+            background: opts.background, color: opts.color,
+        }).fire({ icon: opts.icon, title: m.text });
+    });
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.querySelector('#dropzoneEditar input[type="file"]');
     const preview   = document.getElementById('previewEditar');
@@ -174,6 +216,48 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
+
+    /* ── Validación de precio ── */
+    function validarPrecio(input, errorEl, submitBtn) {
+        const val = parseFloat(input.value);
+        const isEmpty = input.value.trim() === '';
+        const decimals = input.value.includes('.') ? input.value.split('.')[1].length : 0;
+        let msg = '';
+        if (isEmpty)          msg = 'El precio es obligatorio.';
+        else if (isNaN(val))  msg = 'Ingresa un número válido.';
+        else if (val <= 0)    msg = 'El precio debe ser mayor a $0.';
+        else if (val > 9999999.99) msg = 'El precio no puede superar $9,999,999.99.';
+        else if (decimals > 2)    msg = 'Máximo 2 decimales permitidos.';
+
+        if (msg) {
+            input.classList.add('is-invalid-price');
+            input.classList.remove('is-valid-price');
+            errorEl.textContent = msg;
+            errorEl.classList.add('visible');
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            input.classList.remove('is-invalid-price');
+            input.classList.add('is-valid-price');
+            errorEl.textContent = '';
+            errorEl.classList.remove('visible');
+            if (submitBtn) submitBtn.disabled = false;
+        }
+        return !msg;
+    }
+
+    const precioInput = document.getElementById('id_precio');
+    const errPrecio   = document.getElementById('err_precio_form');
+    const btnSubmit   = document.querySelector('[type="submit"]');
+    if (precioInput) {
+        precioInput.addEventListener('input', () => validarPrecio(precioInput, errPrecio, btnSubmit));
+        precioInput.addEventListener('blur',  () => validarPrecio(precioInput, errPrecio, btnSubmit));
+        precioInput.closest('form').addEventListener('submit', function(e) {
+            if (!validarPrecio(precioInput, errPrecio, btnSubmit)) {
+                e.preventDefault();
+                precioInput.focus();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

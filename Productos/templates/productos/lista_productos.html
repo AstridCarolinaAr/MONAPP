@@ -2,9 +2,8 @@
 {% load static %}
 {% load humanize %}
 
-{% block breadcrumb_items %}
-<li class="breadcrumb-item active">Productos</li>
-{% endblock %}
+{% block title %}Lista de Productos{% endblock %}
+
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'Productos/CSS/lista_producto.css' %}">
@@ -17,12 +16,11 @@
     <!-- ENCABEZADO -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Gestión de Productos</h2>
-
         <a href="{% url 'productos:crear_producto' %}"
-           class="btn btn-primary"
+           class="btn-pill-dark"
            data-modal-url="{% url 'productos:crear_producto' %}"
-           data-modal-title="Crear producto">
-          Crear producto
+           data-modal-title="Nuevo producto">
+          <i class="bi bi-plus-circle"></i> Nuevo producto
         </a>
     </div>
 
@@ -93,15 +91,14 @@
     {% endif %}
 
  <!-- TABLA -->
-<div class="tabla-productos">
   <div class="table-responsive">
-    <table class="table table-hover align-middle">
+    <table class="styled-table">
       <thead>
         <tr>
           <th class="col-codigo">CÓDIGO</th>
           <th class="col-producto">PRODUCTO</th>
           <th class="col-linea">LÍNEA</th>
-          <th style="width: 100px;">Imagen</th>
+          <th class="col-imagen">Imagen</th>
           <th class="col-acciones text-center">ACCIONES</th>
         </tr>
       </thead>
@@ -156,9 +153,10 @@
               {% endif %}
             </td>
           <td class="col-acciones text-center">
-            <div class="acciones-wrap">
+            <div class="acciones-wrap d-flex justify-content-center align-items-center gap-1">
               <button type="button"
-                      class="btn btn-info btn-sm btn-ver-detalle"
+                      class="btn btn-sm btn-link btn-action-round"
+                      style="color: #382822;"
                       data-bs-toggle="modal"
                       data-bs-target="#modalDetalleProducto"
                       data-codigo="{{ producto.codigo }}"
@@ -170,26 +168,34 @@
                       data-unidad="{{ producto.unidad_medida }}"
                       data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
                       data-descripcion="{{ producto.descripcion|default:'' }}"
-                      data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%else%}{%endif%}">
-                <i class="bi bi-eye"></i>
+                      data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%else%}{%endif %}"
+                      title="Ver detalles"
+                      data-bs-placement="bottom">
+                <i class="bi bi-eye" style="font-size: 24px;"></i>
               </button>
 
               <a href="{% url 'productos:editar_producto' producto.codigo %}"
-                 class="btn btn-sm btn-outline-secondary"
+                 class="btn btn-link btn-action-round"
+                 style="color: #382822;"
                  data-modal-url="{% url 'productos:editar_producto' producto.codigo %}"
-                 data-modal-title="Editar producto">
-                Editar
+                 data-modal-title="Editar producto"
+                 title="Editar"
+                 data-bs-placement="bottom">
+                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
               </a>
 
               <button type="button"
-                      class="btn btn-sm btn-toggle-activo {% if producto.activo %}btn-danger{% else %}btn-success{% endif %}"
+                      class="btn btn-link btn-action-round"
+                      style="color: #382822;"
                       data-url="{% url 'productos:eliminar_producto' producto.codigo %}"
                       data-nombre="{{ producto.nombre|escapejs }}"
-                      data-activo="{% if producto.activo %}1{% else %}0{% endif %}">
+                      data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
+                      title="{% if producto.activo %}Eliminar{% else %}Reactivar{% endif %}"
+                      data-bs-placement="bottom">
                 {% if producto.activo %}
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash3" style="font-size: 24px;"></i>
                 {% else %}
-                  <i class="bi bi-arrow-clockwise"></i>
+                  <i class="bi bi-arrow-clockwise" style="font-size: 24px;"></i>
                 {% endif %}
               </button>
             </div>
@@ -205,7 +211,24 @@
       </tbody>
     </table>
   </div>
-</div>
+
+<style>
+    .btn-action-round {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s, color 0.3s;
+        text-decoration: none !important;
+        padding: 0;
+    }
+    .btn-action-round:hover {
+        background-color: rgba(99, 76, 64, 0.1);
+        color: #634c40 !important;
+    }
+</style>
 
    <!-- MODAL DETALLE -->
 <div class="modal fade ultra-modal" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">

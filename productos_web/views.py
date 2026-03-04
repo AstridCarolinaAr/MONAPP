@@ -11,10 +11,38 @@ from .forms import ProductoWebForm
 @login_required
 def lista_productos_web(request):
     productos = ProductoWeb.objects.all()
+
+    # ── Filtros ──
+    q = request.GET.get('q', '').strip()
+    visible_filter = request.GET.get('visible', '').strip()
+    orden = request.GET.get('orden', '').strip()
+
+    if q:
+        productos = productos.filter(nombre__icontains=q)
+
+    if visible_filter == 'si':
+        productos = productos.filter(visible=True)
+    elif visible_filter == 'no':
+        productos = productos.filter(visible=False)
+
+    orden_map = {
+        'nombre_asc': 'nombre',
+        'nombre_desc': '-nombre',
+        'precio_asc': 'precio',
+        'precio_desc': '-precio',
+        'fecha_asc': 'fecha_creacion',
+        'fecha_desc': '-fecha_creacion',
+    }
+    if orden in orden_map:
+        productos = productos.order_by(orden_map[orden])
+
     form = ProductoWebForm()                       # formulario para el modal "Agregar"
     return render(request, 'productos_web/lista.html', {
         'productos': productos,
         'form': form,
+        'q': q,
+        'visible_filter': visible_filter,
+        'orden': orden,
     })
 
 

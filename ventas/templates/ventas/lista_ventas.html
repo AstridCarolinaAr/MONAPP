@@ -2,6 +2,9 @@
 {% load static %}
 {% load humanize %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Ventas</li>
+{% endblock %}
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -106,24 +109,29 @@
         <!-- ACCIONES -->
         <td class="text-end">
 
+          <!-- Ver -->
           <button type="button"
-                  class="btn btn-outline-primary btn-sm btn-ver-detalle"
+                  class="btn btn-link"
+                  style="color: #382822;"
                   data-url="{% url 'ventas:detalle_json' venta.id %}"
                   data-bs-toggle="modal"
                   data-bs-target="#modalDetalleVenta"
-                  title="Ver detalle">
-            <i class="bi bi-eye"></i>
+                  title="Ver detalles"
+                  data-bs-placement="bottom">
+            <i class="bi bi-eye" style="font-size: 24px;"></i>
           </button>
 
+          <!-- Editar -->
           <button type="button"
-                  class="btn btn-outline-secondary btn-sm btn-editar"
+                  class="btn btn-link"
+                  style="color: #382822;"
                   data-url="{% url 'ventas:editar_modal' venta.id %}"
                   data-bs-toggle="modal"
                   data-bs-target="#modalEditarVenta"
-                  title="Editar venta">
-            <i class="bi bi-pencil"></i>
+                  title="Editar"
+                  data-bs-placement="bottom">
+            <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
           </button>
-
         </td>
       </tr>
       {% empty %}

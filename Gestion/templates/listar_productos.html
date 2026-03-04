@@ -1,5 +1,9 @@
 {% extends 'gestion/base.html' %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Productos</li>
+{% endblock %}
+
 {% block content %}
 <div class="page-header d-flex justify-content-between align-items-center">
   <div>
@@ -12,7 +16,7 @@
       <button class="btn btn-sm btn-primary ms-2" type="submit"><i class="bi bi-search"></i></button>
     </form>
     {% if es_administrador %}
-    <a href="{% url 'crear_producto' %}" class="btn btn-success btn-sm">
+    <a href="{% url 'crear_producto' %}" class="btn-pill-dark" style="font-size: 12px; padding: 8px 14px;">
       <i class="bi bi-plus-circle"></i> Nuevo Producto
     </a>
     {% endif %}
@@ -29,7 +33,7 @@
   </div>
 
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
+    <table class="styled-table">
       <thead>
         <tr>
           <th scope="col">Imagen</th>
@@ -67,13 +71,13 @@
           </td>
           <td class="text-end">
             {% if es_administrador %}
-            <a href="{% url 'editar_producto' producto.id %}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'editar_producto' producto.id %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom"><i class="bi bi-pencil-square" style="font-size: 24px;"></i></a>
             <form method="post" action="{% url 'eliminar_producto' producto.id %}" style="display:inline-block">
               {% csrf_token %}
-              <button class="btn btn-sm btn-outline-danger btn-confirm" type="button" data-confirm="¿Seguro de eliminar &quot;{{ producto.nombre }}&quot;?" title="Eliminar"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-link" style="color: #382822;" type="button" data-confirm="¿Seguro de eliminar &quot;{{ producto.nombre }}&quot;?" title="Eliminar" data-bs-placement="bottom"><i class="bi bi-trash3" style="font-size: 24px;"></i></button>
             </form>
             {% else %}
-            <a href="#" class="btn btn-sm btn-outline-secondary disabled" title="Sin permisos"><i class="bi bi-lock"></i></a>
+            <a href="#" class="btn btn-sm btn-outline-secondary disabled" title="Sin permisos" data-bs-placement="bottom"><i class="bi bi-lock"></i></a>
             {% endif %}
           </td>
         </tr>

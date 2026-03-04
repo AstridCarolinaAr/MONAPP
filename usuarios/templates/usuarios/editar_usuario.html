@@ -3,6 +3,11 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'usuarios:lista_usuarios' %}">Usuarios</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
 <div class="container-fluid py-4">

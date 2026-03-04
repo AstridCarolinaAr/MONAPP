@@ -54,13 +54,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
     
-    // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+        // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     
     navLinks.forEach(link => {
         if (link.getAttribute('href') === currentPath) {
             link.classList.add('active');
+        }
+    });
+
+    // ==================== AUTO-EXPANDIR SUBMENÚ SI HIJO ACTIVO ====================
+    document.querySelectorAll('.submenu').forEach(function(submenu) {
+        const activeChild = submenu.querySelector('.nav-link.active');
+        if (activeChild) {
+            submenu.classList.add('show');
+            const toggle = submenu.previousElementSibling;
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.classList.add('active');
+            }
         }
     });
     
@@ -120,12 +133,29 @@ function showNotification(message, type = 'info') {
         }, 5000);
     }
 }
+document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
 
 // Función para confirmar acciones (deprecated)
 function confirmAction(message) {
     console.warn('confirmAction() is deprecated. Use data-confirm attributes. Falling back to window.confirm for legacy code.');
     return confirm(message || '¿Estás seguro de realizar esta acción?');
 }
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips de Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    if (typeof SiennaAccessibility !== 'undefined') {
+        SiennaAccessibility.init();
+    }
+});
 
 // Exportar funciones para uso global
 window.showNotification = showNotification;

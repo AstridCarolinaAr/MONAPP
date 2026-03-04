@@ -139,28 +139,28 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Gestión de Usuarios</h2>
         {% if puede_modificar %}
-        <button type="button" class="btn btn-success" onclick="abrirModalUsuario()">
-            <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+        <button type="button" class="btn-pill-dark" onclick="abrirModalUsuario()">
+            <i class="bi bi-plus-circle"></i> Nuevo Usuario
         </button>
         {% endif %}
     </div>
 
     <!-- Tabla -->
     <div class="card shadow-sm">
-        <div class="card-body table-responsive">
-
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Usuario</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Estado</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Usuario</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
                     {% for usuario in usuarios %}
                     <tr>
@@ -190,21 +190,37 @@
                         <td class="text-end">
                             {% if puede_modificar %}
                             <button type="button"
-                                    class="btn btn-sm btn-primary"
+<<<<<<< HEAD
+                                    class="btn btn-link"
+                                    onclick="abrirModalEditarUsuario({{ usuario.id }})"
+                                    title="Editar"
+                                    data-bs-placement="bottom">
+                                <i class="bi bi-pencil-square" style="color: #382822; font-size: 24px;"></i>
+=======
+                                    class="btn btn-sm btn-primary btn-editar-usuario"
                                     data-bs-toggle="tooltip"
                                     title="Editar usuario"
-                                    onclick="abrirModalEditarUsuario({{ usuario.id }})">
+                                    data-usuario-id="{{ usuario.id }}">
                                 <i class="bi bi-pencil-square"></i>
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                             </button>
                             {% endif %}
 
                             {% if es_administrador %}
                             <button type="button" 
-                                    class="btn btn-sm btn-danger"
+<<<<<<< HEAD
+                                    class="btn btn-link"
+                                    onclick="abrirModalEliminarUsuario({{ usuario.id }})"
+                                    title="Eliminar"
+                                    data-bs-placement="bottom">
+                                <i class="bi bi-trash3" style="color: #382822; font-size: 24px;"></i>
+=======
+                                    class="btn btn-sm btn-danger btn-eliminar-usuario"
                                     data-bs-toggle="tooltip"
                                     title="Eliminar usuario"
-                                    onclick="abrirModalEliminarUsuario({{ usuario.id }})">
+                                    data-usuario-id="{{ usuario.id }}">
                                 <i class="bi bi-trash-fill"></i>
+>>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                             </button>
                             {% endif %}
                             
@@ -223,7 +239,7 @@
 
                 </tbody>
             </table>
-
+            </div>
         </div>
     </div>
 
@@ -288,6 +304,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Cargar JavaScript de validaciones en tiempo real -->
+<script src="{% static 'usuarios/js/usuarios.js' %}"></script>
+
 <script>
     // Función para obtener el token CSRF
     function getCookie(name) {
@@ -324,6 +343,11 @@
         .then(response => response.json())
         .then(data => {
             modalBody.innerHTML = data.html_form;
+            
+            // Inicializar validaciones en tiempo real
+            if (typeof inicializarValidacionesUsuario === 'function') {
+                inicializarValidacionesUsuario();
+            }
             
             // Configurar el envío del formulario
             const form = document.getElementById('form-crear-usuario');
@@ -386,6 +410,11 @@
             } else {
                 // Error - actualizar el formulario con los errores
                 modalBody.innerHTML = data.html_form;
+                
+                // Reinicializar validaciones
+                if (typeof inicializarValidacionesUsuario === 'function') {
+                    inicializarValidacionesUsuario();
+                }
                 
                 // Volver a configurar el envío del formulario
                 const newForm = document.getElementById('form-crear-usuario');
@@ -541,6 +570,21 @@
             `;
         });
     }
+    
+    // Event delegation para botones de editar
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-editar-usuario')) {
+            const btn = e.target.closest('.btn-editar-usuario');
+            const usuarioId = btn.getAttribute('data-usuario-id');
+            abrirModalEditarUsuario(usuarioId);
+        }
+        
+        if (e.target.closest('.btn-eliminar-usuario')) {
+            const btn = e.target.closest('.btn-eliminar-usuario');
+            const usuarioId = btn.getAttribute('data-usuario-id');
+            abrirModalEliminarUsuario(usuarioId);
+        }
+    });
     
     // Cerrar el modal con la tecla ESC
     document.addEventListener('keydown', function(e) {

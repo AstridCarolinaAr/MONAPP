@@ -16,26 +16,12 @@ from productos_web.models import ProductoWeb
 
 
 def index(request):
-    show_login_modal = False
-
-    if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
-
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('core:dashboard')
-
-        messages.error(request, 'Usuario o contraseña incorrectos.')
-        show_login_modal = True
-
     # Obtener servicios activos
     servicios = Servicio.objects.filter(activo=True)
     promociones = Promocion.objects.filter(activa=True)
     productos_web = ProductoWeb.objects.filter(visible=True)
 
     return render(request, 'core/index.html', {
-        'show_login_modal': show_login_modal,
         'servicios': servicios,
         'promociones': promociones,
         'productos_web': productos_web,

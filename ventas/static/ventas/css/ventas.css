@@ -13,7 +13,7 @@ input:disabled {
 }
 
 .is-invalid {
-  border-color: #dc3545 !important;
+  border-color: rgba(141, 96, 74, 0.45);
 }
 
 .is-invalid:focus {
@@ -26,10 +26,11 @@ input:disabled {
 
 .empty-state {
   display: inline-block;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 4px;
   background: rgba(58,42,36,.05);
   color: #3a2a24;
+  font-size: 12px;
 }
 
 .empty-state a {
@@ -39,78 +40,12 @@ input:disabled {
 }
 
 /* =====================================================
-   CARD TABLAS
+   TABLA LISTA VENTAS - Hereda de panel_admin_base.css
 ===================================================== */
-
-.table-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.08);
-  overflow: hidden;
-}
 
 /* =====================================================
-   TABLA LISTA VENTAS (styled-table)
+   TABLA DETALLE VENTA - Hereda de panel_admin_base.css
 ===================================================== */
-
-.styled-table thead th {
-  background: linear-gradient(90deg, #3a2a24, #1f1412);
-  color: #fff !important;
-  font-weight: 700;
-  letter-spacing: .5px;
-  border: 0 !important;
-  padding: 14px 16px;
-  text-transform: uppercase;
-  font-size: 12px;
-}
-
-.styled-table tbody td {
-  padding: 14px 16px;
-  border-top: 1px solid rgba(0,0,0,.06);
-  vertical-align: middle;
-}
-
-.styled-table tbody tr:hover {
-  background: rgba(58,42,36,.04);
-}
-
-/* =====================================================
-   TABLA DETALLE VENTA (IGUAL ESTILO LISTA)
-===================================================== */
-
-#tablaItems.table {
-  margin-bottom: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 0 !important;
-}
-
-/* HEADER CAFÉ */
-#tablaItems thead th {
-  background: linear-gradient(90deg, #3a2a24, #1f1412) !important;
-  color: #fff !important;
-  font-weight: 700;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-  font-size: 12px;
-  padding: 12px 14px;
-  border: 0 !important;
-}
-
-/* CELDAS */
-#tablaItems tbody td {
-  background: #fff !important;
-  padding: 12px 14px;
-  border-top: 1px solid rgba(0,0,0,.06) !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  vertical-align: middle;
-}
-
-/* HOVER */
-#tablaItems tbody tr:hover td {
-  background: rgba(58,42,36,.04) !important;
-}
 
 /* =====================================================
    BOTÓN PRINCIPAL PILL
@@ -118,33 +53,31 @@ input:disabled {
 
 .btn-pill-dark {
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  border-radius: 999px;
+  padding: 3px 5px;
+  border-radius: 995px;
   background: linear-gradient(90deg, #3a2a24, #1f1412);
   color: #fff !important;
   text-decoration: none !important;
   font-weight: 700;
-  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+  box-shadow: 0 3px 15px rgba(0,0,0,.18);
   border: 0;
   transition: .2s ease;
+  font-size: 12px
 }
 
-.btn-pill-dark:hover {
+/* .btn-pill-dark:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
 }
-
-.btn-pill-dark .icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
+  height: 15rk .icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 995px;
   display: grid;
   place-items: center;
   background: rgba(255,255,255,.15);
   font-weight: 900;
-}
+} */
 
 /* =====================================================
    SWITCH ESTADO
@@ -154,7 +87,7 @@ input:disabled {
   position: relative;
   display: inline-block;
   width: 52px;
-  height: 28px;
+  height: 23px;
 }
 
 .sw__input {
@@ -167,30 +100,30 @@ input:disabled {
   position: absolute;
   inset: 0;
   cursor: pointer;
-  background: #dc3545;
+  background: rgba(141, 96, 74, 0.45);
   transition: .25s;
-  border-radius: 999px;
+  border-radius: 995px;
 }
 
 .sw__slider:before {
   content: "";
   position: absolute;
-  width: 22px;
-  height: 22px;
-  left: 3px;
-  top: 3px;
+  width: 15px;
+  height: 15px;
+  left: 2px;
+  top: 2px;
   background: #fff;
   transition: .25s;
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
 }
 
 .sw__input:checked + .sw__slider {
-  background: #198754;
+  background:  rgba(141, 96, 74, 0.95);
 }
 
 .sw__input:checked + .sw__slider:before {
-  transform: translateX(24px);
+  transform: translateX(10px);
 }
 
 /* =====================================================
@@ -250,7 +183,7 @@ input:disabled {
 
 /* Caja */
 .ts-control {
-  border-radius: 10px;
+  border-radius: 3px;
   border-color: #4b2e2e !important;
 }
 
@@ -281,3 +214,6 @@ input:disabled {
 .ts-control .item {
   color: #3a2a24 !important;
 }
+
+
+

@@ -3,6 +3,10 @@
 
 {% block title %}Lista de Personal - Monapp{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Personal</li>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -193,8 +197,8 @@
                 <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
             </h1>
             {% if puede_modificar %}
-            <button type="button" class="personal-btn primary" onclick="abrirModalPersonal()">
-                <i class="fas fa-plus"></i> Agregar Personal
+            <button type="button" class="btn-pill-dark" onclick="abrirModalPersonal()">
+                <i class="bi bi-plus-circle"></i> Nuevo personal
             </button>
             {% endif %}
         </div>
@@ -221,24 +225,23 @@
         <!-- Tabla de personal -->
         <div class="personal-table-wrapper">
             {% if personal_list %}
-                <table class="personal-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Documento</th>
-                            <th>Nombres</th>
-                            <th>Teléfono</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Fecha de Registro</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for persona in personal_list %}
-                            <tr>
-                                <td><strong>{{ persona.id }}</strong></td>
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Documento</th>
+                                        <th>Nombres</th>
+                                        <th>Teléfono</th>
+                                        <th>Correo</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Fecha de Registro</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for persona in personal_list %}
+                                        <tr>                                <td><strong>{{ persona.id }}</strong></td>
                                 <td>{{ persona.numero_documento }}</td>
                                 <td>{{ persona.nombres }} {{ persona.apellidos }}</td>
                                 <td>
@@ -258,7 +261,7 @@
                                 </td>
                                 <td>
                                     {% if puede_modificar %}
-                                        <label class="table-switch-wrapper" title="Cambiar estado">
+                                        <label class="table-switch-wrapper" title="Cambiar estado" data-bs-placement="bottom">
                                             <input type="checkbox" 
                                                    class="toggle-activo-checkbox" 
                                                    data-personal-id="{{ persona.id }}"
@@ -282,17 +285,17 @@
                                 </td>
                                 <td>
                                     <div class="personal-action-group">
-                                        <button type="button" class="personal-action-btn info" title="Ver detalles" onclick="abrirModalDetallePersonal({{ persona.id }})">
-                                            <i class="fas fa-eye"></i>
+                                        <button type="button" class="btn btn-link" style="color: #382822;" onclick="abrirModalDetallePersonal({{ persona.id }})" title="Ver detalles" data-bs-placement="bottom">
+                                            <i class="bi bi-eye" style="font-size: 24px;"></i>
                                         </button>
                                         {% if puede_modificar %}
-                                        <button type="button" class="personal-action-btn warning" title="Editar" onclick="abrirModalEditarPersonal({{ persona.id }})">
-                                            <i class="fas fa-edit"></i>
+                                        <button type="button" class="btn btn-link" style="color: #382822;" onclick="abrirModalEditarPersonal({{ persona.id }})" title="Editar" data-bs-placement="bottom">
+                                            <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
                                         </button>
                                         {% endif %}
                                         {% if es_administrador %}
-                                        <button type="button" class="personal-action-btn danger" title="Eliminar" onclick="abrirModalEliminarPersonal({{ persona.id }})">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="button" class="btn btn-link" style="color: #382822;" onclick="abrirModalEliminarPersonal({{ persona.id }})" title="Eliminar" data-bs-placement="bottom">
+                                            <i class="bi bi-trash3" style="font-size: 24px;"></i>
                                         </button>
                                         {% endif %}
                                     </div>
@@ -341,7 +344,7 @@
     <div class="modal-personal-overlay" onclick="cerrarModalEditarPersonal()"></div>
     <div class="modal-personal-content">
         <div class="modal-personal-header">
-            <h3><i class="fas fa-edit"></i> Editar Personal</h3>
+            <h3><i class="bi bi-pencil-square"></i> Editar Personal</h3>
             <button type="button" class="modal-personal-close" onclick="cerrarModalEditarPersonal()">
                 <i class="fas fa-times"></i>
             </button>
@@ -395,6 +398,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Cargar JavaScript de validaciones en tiempo real -->
+<script src="{% static 'personal/js/personal.js' %}"></script>
+
 <script>
     // Función para obtener el CSRF token de las cookies
     function getCookie(name) {
@@ -431,6 +437,11 @@
         .then(response => response.json())
         .then(data => {
             modalBody.innerHTML = data.html_form;
+            
+            // Inicializar validaciones en tiempo real
+            if (typeof inicializarValidacionesPersonal === 'function') {
+                inicializarValidacionesPersonal();
+            }
             
             // Configurar el envío del formulario
             const form = document.getElementById('form-crear-personal');
@@ -493,6 +504,11 @@
                 // Error - actualizar el formulario con los errores
                 modalBody.innerHTML = data.html_form;
                 
+                // Reinicializar validaciones
+                if (typeof inicializarValidacionesPersonal === 'function') {
+                    inicializarValidacionesPersonal();
+                }
+                
                 // Volver a configurar el envío del formulario
                 const newForm = document.getElementById('form-crear-personal');
                 if (newForm) {
@@ -533,6 +549,11 @@
         .then(response => response.json())
         .then(data => {
             modalBody.innerHTML = data.html_form;
+            
+            // Inicializar validaciones en tiempo real
+            if (typeof inicializarValidacionesPersonal === 'function') {
+                inicializarValidacionesPersonal();
+            }
             
             // Configurar el envío del formulario
             const form = document.getElementById('form-editar-personal');

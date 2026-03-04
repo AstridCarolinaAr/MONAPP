@@ -1,21 +1,31 @@
 .compras-container {
-  padding: 18px;
+  padding: 5px;
+  width: 100% !important;
 }
 
 .titulo-modulo {
   font-weight: 700;
   letter-spacing: .2px;
+  font-size: 18px;
+  margin-bottom: 12px;
 }
 
-.total-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, .06);
-  border: 1px solid rgba(16, 24, 40, .06);
+/* Estilos de tabla unificados y ancho completo */
+.table-responsive {
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+}
+
+.styled-table {
+    width: 100% !important;
+    min-width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
+.card {
+    width: 100% !important;
 }
 
 .total-card span {
@@ -24,15 +34,16 @@
 }
 
 .total-card strong {
-  font-size: 1.1rem;
+  font-size: 0.73rem;
 }
 
 .tabla-compras {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 3px;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, .06);
+  box-shadow: 0 3px 6px rgba(16, 24, 40, .06);
   border: 1px solid rgba(16, 24, 40, .06);
+  width: 100%;
 }
 
 .tabla-compras thead th {
@@ -40,15 +51,22 @@
   font-weight: 700;
   color: #334155;
   border-bottom: 1px solid rgba(16, 24, 40, .08);
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.tabla-compras tbody td {
+  padding: 8px 10px;
+  font-size: 11px;
 }
 
 .acciones-group {
   display: inline-flex;
-  gap: 8px;
+  gap: 3px;
 }
 
 #ajaxFormModal .modal-content {
-  border-radius: 16px;
+  border-radius: 6px;
 }
 
 #ajaxFormModal .modal-header {
@@ -60,6 +78,8 @@
   background: #fff;
   border: 1px solid rgba(16, 24, 40, .10) !important;
 }
+
+
 
 #anuladas-box {
   position: fixed;
@@ -346,3 +366,4 @@
 .mona-btn-restore:hover{
   filter: brightness(.98);
 }
+
