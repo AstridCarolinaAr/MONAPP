@@ -15,24 +15,27 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header text-white" style="background-color:#6b3a2a;">
-                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+                    <h5 class="mb-0"><i class="bi bi-grid-3x3-gap-fill"></i> Módulos del Sistema</h5>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'clientes:lista' %}" class="btn me-2" style="background-color:#6b3a2a;color:#fff;border:none;">
-                        <i class="bi bi-person-vcard me-1"></i> Clientes
-                    </a>
-                    <a href="{% url 'productos:lista_productos' %}" class="btn me-2" style="background-color:#8b5e3c;color:#fff;border:none;">
-                        <i class="bi bi-box-seam me-1"></i> Productos
-                    </a>
-
-                    <a href="{% url 'ventas:lista' %}" class="btn me-2" style="background-color:#a0703a;color:#fff;border:none;">
-                        <i class="bi bi-cart3 me-1"></i> Ventas
-                    </a>
-
-                    <a href="{% url 'inventario:inventario_lista
-                    ' %}" class="btn me-2" style="background-color:#c49a3c;color:#fff;border:none;">
-                        <i class="bi bi-gear"></i> Inventario
-                    </a>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{% url 'clientes:lista' %}" class="btn-modulo" style="--bg-color: #6b3a2a;">
+                            <i class="bi bi-person-vcard"></i>
+                            <span>Clientes</span>
+                        </a>
+                        <a href="{% url 'productos:lista_productos' %}" class="btn-modulo" style="--bg-color: #8b5e3c;">
+                            <i class="bi bi-box-seam"></i>
+                            <span>Productos</span>
+                        </a>
+                        <a href="{% url 'ventas:lista' %}" class="btn-modulo" style="--bg-color: #a0703a;">
+                            <i class="bi bi-cart3"></i>
+                            <span>Ventas</span>
+                        </a>
+                        <a href="{% url 'inventario:inventario_lista' %}" class="btn-modulo" style="--bg-color: #c49a3c;">
+                            <i class="bi bi-gear"></i>
+                            <span>Inventario</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -91,6 +91,7 @@
 
 /* --- VIDEO dentro del mismo recuadro --- */
 .sq-video {
+    
     position: absolute;
     inset: 0;
     width: 100%;
