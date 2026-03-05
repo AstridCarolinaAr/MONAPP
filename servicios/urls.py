@@ -10,4 +10,5 @@ urlpatterns = [
     path('editar/<uuid:pk>/', views.editar_servicio, name='editar_servicio'),
     path('eliminar/<uuid:pk>/', views.eliminar_servicio, name='eliminar_servicio'),
     path('publicos/', views.servicios_publicos, name='servicios_publicos'),
+    path('toggle-activo/<uuid:pk>/', views.toggle_activo_servicio, name='toggle_activo_servicio'),  # <-- agrega esta línea
 ]
