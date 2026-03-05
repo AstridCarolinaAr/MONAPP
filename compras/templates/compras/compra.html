@@ -23,7 +23,6 @@
     <h2 class="titulo-modulo">
       <i class="bi bi-cart-check me-2"></i> Gestión de Compras
     </h2>
-<<<<<<< HEAD
 
     <a href="#"
     class="btn-pill-dark"
@@ -31,15 +30,6 @@
     data-modal-title="Nueva compra">
     <i class="bi bi-plus-circle"></i> Nueva compra
     </a>
-=======
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-modal-url="{% url 'compras:crear_compra' %}"
-      data-modal-title="Registrar compra">
-      Registrar compra
-    </button>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
   </div>
 
   <div class="total-card mb-4">
@@ -69,40 +59,12 @@
             <td class="text-center">
               <div class="acciones-group">
                 <button type="button"
-<<<<<<< HEAD
-                        class="btn btn-link"
-                        style="color: #382822;"
-                        data-url="{% url 'compras:detalle_compra' c.id %}"
-                        title="Ver detalles"
-                        data-bs-placement="bottom">
-                <i class="bi bi-eye" style="font-size: 24px;"></i>
-=======
                         class="btn btn-outline-info btn-sm js-ver-detalle"
                         data-url="{% url 'compras:detalle_compra' c.id %}">
                   <i class="bi bi-eye"></i>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                 </button>
 
                 <a href="#"
-<<<<<<< HEAD
-                class="btn btn-link"
-                style="color: #382822;"
-                data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                data-modal-title="Editar compra"
-                title="Editar"
-                data-bs-placement="bottom">
-                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
-                </a>
-                <button type="button"
-                            class="btn btn-link"
-                            style="color: #382822;"
-                            data-url="{% url 'compras:eliminar_compra' c.id %}"
-                            data-id="{{ c.id }}"
-                            title="Eliminar"
-                            data-bs-placement="bottom">
-                      <i class="bi bi-trash3" style="font-size: 24px;"></i>
-                    </button>
-=======
                    class="btn btn-sm btn-outline-primary"
                    data-modal-url="{% url 'compras:editar_compra' c.id %}"
                    data-modal-title="Editar compra">
@@ -116,7 +78,6 @@
                   data-url="{% url 'compras:anular_compra' c.id %}">
                   Anular
                 </button>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
               </div>
             </td>
           </tr>

@@ -27,8 +27,8 @@
     {% for servicio in servicios_web %}
     <div class="sq-card
                 {% if not servicio.imagen %}no-image{% endif %}
-                {% if servicio.video %}has-video{% endif %}" {% if servicio.imagen
-        %}style="background-image: url('{{ servicio.imagen.url }}');" {% endif %}>
+                {% if servicio.video %}has-video{% endif %}"
+         {% if servicio.imagen %}style="background-image: url('{{ servicio.imagen.url }}');"{% endif %}>
 
         <div class="sq-blur"></div>
 
@@ -90,7 +90,7 @@
     {% endfor %}
 </div>
 
-{# ✅ Modal #}
+{# ✅ Modal (DEBE ir dentro de content o dentro de un bloque del base) #}
 <div class="modal fade" id="modalServicioWeb" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
@@ -111,12 +111,10 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 {# OGL local #}
 <script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
 
 {# JS #}
 <script src="{% static 'servicios_web/js/servicios_web.js' %}"></script>
-<script src="{% static '/servicios_web/js/metaballs.js' %}"></script>
+<script src="{% static 'servicios_web/js/metaballs.js' %}"></script>
 {% endblock %}

@@ -20,6 +20,110 @@
 
     {% block extra_css %}{% endblock %}
 </head>
+<!-- ================================
+MODAL GLOBAL CONSENTIMIENTO
+Se usa desde gestión de alisados
+================================ -->
+
+<div class="modal fade" id="modalConsentimiento" tabindex="-1"
+     aria-labelledby="modalConsentimientoLabel"
+     aria-hidden="true"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false">
+
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background-color:#634c40;">
+        <h5 class="modal-title" id="modalConsentimientoLabel">
+          <i class="bi bi-file-earmark-text"></i>
+          Consentimiento Informado - Términos y Condiciones
+        </h5>
+      </div>
+
+      <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
+
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <strong>Por favor leer primariamente la información de la página 02</strong>
+        </div>
+
+        <!-- Aquí va TODO tu texto del consentimiento -->
+
+        <div class="card bg-light mt-4 p-3">
+
+          <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
+
+          <p class="mb-2">
+            He leído y comprendido toda la información anterior y acepto los términos
+            y condiciones del tratamiento de alisado.
+          </p>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
+
+            <label class="form-check-label fw-bold" for="checkboxAceptacion">
+              Acepto todos los términos, condiciones, recomendaciones y compromisos
+              descritos anteriormente
+            </label>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold text-danger">
+              <i class="bi bi-pen"></i>
+              Cargar firma del cliente *
+            </label>
+
+            <div class="form-text">
+              La firma se carga en el formulario antes de confirmar.
+            </div>
+
+            <div id="errorFirma" class="text-danger" style="display:none;">
+              <i class="bi bi-exclamation-triangle"></i>
+              Debe cargar la firma del cliente para continuar
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Información del cliente seleccionado:</strong><br>
+
+            <span id="infoClienteConsentimiento">
+              Seleccione un cliente en el formulario
+            </span>
+          </div>
+
+          <div class="text-muted small">
+            <i class="bi bi-calendar"></i>
+            Fecha: <span id="fechaConsentimiento"></span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button type="button" class="btn btn-secondary" id="btnCerrarModal">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+
+        <button type="button"
+                class="btn text-white"
+                id="btnConfirmarConsentimiento"
+                disabled
+                style="background-color:#634c40; border-color:#634c40;">
+
+          <i class="bi bi-check-circle"></i>
+          Aceptar y Guardar
+
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <body class="dashboard-body">
 
@@ -305,6 +409,17 @@
 
                     <!-- Contenido principal -->
                     {% block content %}{% endblock %}
+                    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+                    <div id="notificacionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+                        data-bs-autohide="true" data-bs-delay="4000">
+                        <div class="toast-header" style="background-color: #634c40; color: white;">
+                        <i class="bi bi-check-circle-fill me-2" id="toastIcon"></i>
+                        <strong class="me-auto" id="toastTitle">Notificación</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" id="toastMessage">Mensaje de notificación</div>
+                    </div>
+                    </div>
 
                 </div>
             </div>

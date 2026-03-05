@@ -30,13 +30,8 @@
             <a href="{% url 'proveedores:crear_proveedor' %}"
             class="btn-pill-dark"
             data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-<<<<<<< HEAD
             data-modal-title="Nuevo proveedor">
             <i class="bi bi-plus-circle"></i> Nuevo proveedor
-=======
-            data-modal-title="Crear Proveedor">
-            Crear Proveedor
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
             </a>
             </div>
 
@@ -162,20 +157,10 @@
                                     </button>
 
                                     {% if proveedor.estado == 'activo' %}
-<<<<<<< HEAD
-                                        <!-- DESACTIVAR -->
-                                    <button class="btn btn-link"
-                                            onclick="eliminarProveedor({{ proveedor.id }})"
-                                            style="color: #382822;"
-                                            title="Eliminar"
-                                            data-bs-placement="bottom">
-                                        <i class="bi bi-trash3" style="font-size: 24px;"></i>
-=======
                                     <button type="button"
                                             class="btn-icon btn-eliminar js-eliminar-proveedor"
                                             data-id="{{ proveedor.id }}">
                                         <i class="bi bi-trash3-fill"></i>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                                     </button>
                                     {% else %}
                                         <button type="button" class="btn btn-success btn-sm js-reactivar-proveedor" data-id="{{ proveedor.id }}">
