@@ -1,7 +1,7 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
 {% load humanize %}
-
+{% load sort_tags %}
 {% block title %}Lista de Productos{% endblock %}
 
 
@@ -93,16 +93,25 @@
  <!-- TABLA -->
   <div class="table-responsive">
     <table class="styled-table">
-      <thead>
-        <tr>
-          <th class="col-codigo">CÓDIGO</th>
-          <th class="col-producto">PRODUCTO</th>
-          <th class="col-linea">LÍNEA</th>
-          <th class="col-imagen">Imagen</th>
-          <th class="col-acciones text-center">ACCIONES</th>
-        </tr>
-      </thead>
+    <thead>
+      <tr>
+        <th class="col-codigo">
+          <a href="{% sort_url 'codigo' %}">CÓDIGO</a>
+        </th>
 
+        <th class="col-producto">
+          <a href="{% sort_url 'nombre' %}">PRODUCTO</a>
+        </th>
+
+        <th class="col-linea">
+          <a href="{% sort_url 'linea' %}">LÍNEA</a>
+        </th>
+
+        <th class="col-imagen">Imagen</th>
+        <th><a href ="% sort_url '' %">Activo</a></th>
+        <th class="col-acciones text-center">ACCIONES</th>
+      </tr>
+    </thead>
       <tbody>
         {% for producto in productos %}
         <tr>

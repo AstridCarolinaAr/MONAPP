@@ -130,99 +130,113 @@ function wireSwalMoreButton() {
     btn.textContent = open ? "Ver más" : "Ocultar";
   });
 }
-
 document.addEventListener("click", async (e) => {
-  const btn = e.target.closest(".btn-toggle-activo");
+  const btn = e.target.closest('button[data-url].btn-action-round');
   if (!btn) return;
+
+  e.preventDefault();
 
   const url = btn.dataset.url;
   const nombre = btn.dataset.nombre || "este producto";
   const activo = btn.dataset.activo === "1";
 
+  // CSRF (usa tu helper si ya lo tienes)
+  const csrf =
+    document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+    document.cookie.split("; ").find(r => r.startsWith("csrftoken="))?.split("=")[1] ||
+    "";
+
+  // Confirmación
+  const r = await Swal.fire({
+    title: activo ? "¿Eliminar producto?" : "¿Reactivar producto?",
+    text: activo
+      ? `Se intentará eliminar "${nombre}". Si está relacionado, te ofrecerá desactivarlo.`
+      : `Se reactivará "${nombre}".`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: activo ? "Sí, eliminar" : "Sí, reactivar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#8b5a3c",
+  });
+
+  if (!r.isConfirmed) return;
+
+  // Acción según estado
+  const action = activo ? "delete" : "activate";
+
   try {
-    // 1) ACTIVAR
-    if (!activo) {
-      const r = await Swal.fire({
-        title: "Activar producto",
-        text: `¿Deseas activar "${nombre}"?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Sí, activar",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#8b5e3c",
-      });
-      if (!r.isConfirmed) return;
+    const formData = new FormData();
+    formData.append("action", action);
 
-      const resp = await postAction(url, "activate");
-      if (resp.data?.status === "activated") {
-        await Swal.fire("Activado", "El producto fue activado correctamente.", "success");
-        window.location.reload();
-        return;
-      }
-
-      await Swal.fire("Error", "No se pudo activar el producto.", "error");
-      return;
-    }
-
-    // 2) ELIMINAR
-    const rDel = await Swal.fire({
-      title: "Eliminar producto",
-      html: `Vas a eliminar <strong>"${escapeHtml(nombre)}"</strong>.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#dc3545",
+    const resp = await fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": csrf,
+      },
+      credentials: "same-origin",
     });
-    if (!rDel.isConfirmed) return;
 
-    const resp = await postAction(url, "delete");
+    const data = await resp.json().catch(() => ({}));
 
-    if (resp.data?.status === "deleted") {
-      await Swal.fire("Eliminado", "El producto fue eliminado correctamente.", "success");
+    // ✅ OK
+    if (resp.ok && (data.status === "deleted" || data.status === "activated")) {
+      await Swal.fire({
+        title: data.status === "deleted" ? "Eliminado" : "Reactivado",
+        icon: "success",
+        confirmButtonColor: "#8b5a3c",
+      });
       window.location.reload();
       return;
     }
 
-    // 3) PROTEGIDO (409 o status protected/blocked)
-if (resp.status === 409 || resp.data?.status === "protected" || resp.data?.status === "blocked") {
-  const detallesHtml = renderInteractiveRelacionados(resp.data, 3);
+    // ✅ PROTEGIDO => ofrecer desactivar
+    if (resp.status === 409 || data.status === "protected") {
+      const r2 = await Swal.fire({
+        title: data.title || "No se puede eliminar",
+        html: `
+          <div>${data.message || "Está relacionado con otros registros."}</div>
+          <div style="margin-top:10px;">¿Deseas desactivarlo en su lugar?</div>
+        `,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Sí, desactivar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#8b5a3c",
+      });
 
-  const rOff = await Swal.fire({
-    title: resp.data.title || "No se puede eliminar",
-    html: `
-      <div style="margin-bottom:8px;">${escapeHtml(resp.data.message || "")}</div>
-      ${detallesHtml}
-      <div style="margin-top:10px;">¿Deseas desactivarlo en su lugar?</div>
-    `,
-    icon: "info",
-    showCancelButton: true,
-    confirmButtonText: "Sí, desactivar",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#0d6efd",
-    didOpen: () => wireSwalMoreButton(),
-  });
+      if (!r2.isConfirmed) return;
 
-  if (!rOff.isConfirmed) return;
+      const fd2 = new FormData();
+      fd2.append("action", "deactivate");
 
-  // ✅ AQUÍ EL FIX
-  const resp2 = await postAction(url, "deactivate");
+      const resp2 = await fetch(url, {
+        method: "POST",
+        body: fd2,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": csrf,
+        },
+        credentials: "same-origin",
+      });
 
-  if (resp2.data?.status === "inactivated") {
-    await Swal.fire({
-      title: "Desactivado",
-      text: "El producto fue desactivado correctamente.",
-      icon: "success",
-      confirmButtonColor: "#8b5e3c",
-    });
-    window.location.reload();
-    return;
-  }
+      const data2 = await resp2.json().catch(() => ({}));
 
-  await Swal.fire("Error", "No se pudo desactivar el producto.", "error");
-  return;
-}
-    await Swal.fire("Error", "Ocurrió un error procesando la solicitud.", "error");
+      if (resp2.ok && data2.status === "inactivated") {
+        await Swal.fire({
+          title: "Desactivado",
+          text: "El producto fue desactivado correctamente.",
+          icon: "success",
+          confirmButtonColor: "#8b5a3c",
+        });
+        window.location.reload();
+        return;
+      }
+    }
+
+    // ❌ Error genérico
+    await Swal.fire("Error", data.message || "No se pudo procesar la solicitud.", "error");
   } catch (err) {
     console.error(err);
     await Swal.fire("Error", "Ocurrió un error procesando la solicitud.", "error");

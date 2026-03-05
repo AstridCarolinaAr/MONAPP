@@ -21,6 +21,7 @@ from django.utils import timezone
 from openpyxl import Workbook
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from core.global_ordenamiento import apply_smart_sorting,sorting_context
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
@@ -35,7 +36,7 @@ def lista_compras(request):
         .prefetch_related("detalles__producto")
         .order_by("-id")
     )
-
+    qs, sort_key, direction = apply_smart_sorting(request, qs, default_sort="id", default_dir="desc",aliases={"proveedor":"proveedor__nombre_proveedor","usuario":"usuario__username","fecha":"fecha"})
     compras_activas = qs.filter(anulada=False)
     compras_anuladas = qs.filter(anulada=True).order_by("-fecha_anulada", "-id")
 
@@ -45,6 +46,7 @@ def lista_compras(request):
         "compras": compras_activas,               
         "compras_anuladas": compras_anuladas,     
         "total_compras": total_compras,
+        **sorting_context(sort_key, direction),
     }
     return render(request, "compras/compra.html", context)
 

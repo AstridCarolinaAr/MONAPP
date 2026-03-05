@@ -679,6 +679,8 @@
 
 /* Tabla estilo header oscuro (para Ventas: .styled-table) */
 .styled-table {
+    table-layout: auto;
+    width: 100%;
     border-radius: 15px;
     background: #fff;
     overflow: hidden;
@@ -698,7 +700,16 @@
     display: table-cell;
     vertical-align: middle;
 }
-
+.styled-table thead th a{
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.styled-table thead th a:hover{
+  text-decoration: none;
+}
 .styled-table tbody td {
     padding: 12px 14px;
     border-top: 1px solid rgba(0, 0, 0, .06);
@@ -749,7 +760,9 @@
     background: rgba(58, 42, 36, .04);
 }
 
-
+.table-responsive {
+    width: 100%;
+}
 /* ==================== BOTONES (píldora oscuro tipo “Nuevo proveedor”) ==================== */
 .btn-pill-dark {
     display: inline-flex !important;
@@ -1605,3 +1618,4 @@ a.btn-link:active i {
 .btn-link[data-label]:hover::after {
     opacity: 1;
 }
+
