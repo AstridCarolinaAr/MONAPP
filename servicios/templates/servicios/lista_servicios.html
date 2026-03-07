@@ -456,11 +456,17 @@
             <span class="lib-count" id="libCount"></span>
         </div>
         <div class="lib-toolbar__right">
-            <!-- Búsqueda -->
-            <div class="lib-search">
-                <i class="bi bi-search"></i>
-                <input type="text" id="searchInput" placeholder="Buscar servicio...">
-            </div>
+            <form id="filtrosServicios" class="d-flex align-items-center gap-2 flex-wrap" onsubmit="event.preventDefault(); filtrarServicios();">
+                <div class="lib-search" style="flex:1;min-width:220px;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar servicio...">
+                </div>
+                <select id="estadoInput" class="form-select" style="width:140px;min-width:120px;">
+                    <option value="">Todos</option>
+                    <option value="activo">Activa</option>
+                    <option value="inactivo">Inactiva</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary" style="border-radius:20px;min-width:100px;">Filtrar</button>
+            </form>
             <!-- Toggle vista -->
             <div class="view-toggle">
                 <button class="view-btn active" id="btnGrid" title="Cuadrícula">
@@ -671,14 +677,32 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('viewGrid').style.setProperty('--cols', gridSizeEl.value);
     }
 
-    // ── BÚSQUEDA ──
-    document.getElementById('searchInput').addEventListener('input', function () {
-        const q = this.value.toLowerCase().trim();
-        filteredGrid = gridItems.filter(el => el.dataset.nombre.includes(q));
-        filteredList = listItems.filter(el => el.dataset.nombre.includes(q));
+
+    // ── FILTROS ──
+    function filtrarServicios() {
+        const q = document.getElementById('searchInput').value.toLowerCase().trim();
+        const estado = document.getElementById('estadoInput').value;
+        filteredGrid = gridItems.filter(el => {
+            const nombre = el.dataset.nombre;
+            const badge = el.querySelector('.lib-card__status');
+            let matchEstado = true;
+            if (estado === 'activo') matchEstado = badge && badge.classList.contains('lib-card__status--active');
+            if (estado === 'inactivo') matchEstado = badge && badge.classList.contains('lib-card__status--inactive');
+            return nombre.includes(q) && matchEstado;
+        });
+        filteredList = listItems.filter(el => {
+            const nombre = el.dataset.nombre;
+            const badge = el.querySelector('.lib-card__status');
+            let matchEstado = true;
+            if (estado === 'activo') matchEstado = badge && badge.classList.contains('lib-card__status--active');
+            if (estado === 'inactivo') matchEstado = badge && badge.classList.contains('lib-card__status--inactive');
+            return nombre.includes(q) && matchEstado;
+        });
         currentPage = 1;
         render();
-    });
+    }
+    document.getElementById('searchInput').addEventListener('input', filtrarServicios);
+    document.getElementById('estadoInput').addEventListener('change', filtrarServicios);
 
     // ── RENDER ──
     function render() {
