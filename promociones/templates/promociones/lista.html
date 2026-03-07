@@ -4,9 +4,6 @@
 
 {% block title %}Promociones{% endblock %}
 
-<<<<<<< HEAD
-{% block page_title %}{% endblock %}
-=======
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Promociones</li>
 {% endblock %}
@@ -14,7 +11,6 @@
 {% block page_title %}
     <i class="bi bi-percent"></i> Gestión de Promociones
 {% endblock %}
->>>>>>> ea582f7c6233cd5896ba82abad47950daf0fbc78
 
 {% block extra_css %}
 <style>
@@ -110,15 +106,10 @@
     align-items: center;
     justify-content: center;
 }
-<<<<<<< HEAD
-.promo-actions .btn-edit        { color: #382822; display: inline-flex; align-items: center; }
-.promo-actions .btn-del         { color: #382822; display: inline-flex; align-items: center; }
-=======
 .promo-actions .btn-edit        { color: #8d604a; text-decoration: none; }
 .promo-actions .btn-edit:hover  { background: rgba(141,96,74,.12); }
 .promo-actions .btn-del         { color: #a0715a; }
 .promo-actions .btn-del:hover   { background: rgba(160,113,90,.15); }
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 
 /* Vista vacía */
 .promo-empty {
@@ -373,7 +364,6 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-0 fw-semibold"><i class="bi bi-percent me-2"></i>Gestión de Promociones</h3>
             <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
         </div>
         <button class="promo-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar">
@@ -485,14 +475,7 @@
                             </label>
                         </td>
                         <td class="text-center promo-actions">
-<<<<<<< HEAD
-                            <a href="{% url 'promociones:editar' p.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom">
-                                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
-                            </a>
-                            <button type="button" class="btn btn-link"
-=======
                             <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-promo"
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalDetallePromo"
                                     data-nombre="{{ p.nombre|escapejs }}"
@@ -549,19 +532,6 @@
 
 </div>
 
-<<<<<<< HEAD
-<!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
-<button class="btn-pill-dark position-fixed bottom-0 end-0 m-4 shadow-lg" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modalAgregar" 
-        title="Nueva promoción" 
-        data-bs-placement="bottom"
-        style="z-index: 1050;">
-    <i class="bi bi-plus-circle"></i> Nueva promoción
-</button>
-=======
-
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 
 <!-- ═══════════════ MODAL AGREGAR ═══════════════ -->
 <div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">

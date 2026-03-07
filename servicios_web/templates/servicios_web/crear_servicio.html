@@ -1,5 +1,7 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
+{% load static %}
+{% include 'servicios_web/_servicio_web_form.html' with form=form servicio_web=None is_modal=True %}
 
 {% block title %}Crear Servicio Web{% endblock %}
 

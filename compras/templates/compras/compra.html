@@ -39,13 +39,13 @@
 
   {% if compras %}
     <div class="table-responsive">
-      <table class="styled-table">
+      <table class="table styled-table table-hover align-middle w-100">
         <thead>
           <tr>
             <th>Proveedor</th>
             <th>Fecha</th>
             <th>Usuario</th>
-            <th class="text-center">Acciones</th>
+            <th class="text-end">Acciones</th>
           </tr>
         </thead>
 
@@ -56,27 +56,24 @@
             <td>{{ c.fecha }}</td>
             <td>{{ c.usuario.username }}</td>
 
-            <td class="text-center">
-              <div class="acciones-group">
-                <button type="button"
-                        class="btn btn-outline-info btn-sm js-ver-detalle"
-                        data-url="{% url 'compras:detalle_compra' c.id %}">
-                  <i class="bi bi-eye"></i>
+            <td class="text-end">
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-link p-0 js-ver-detalle" 
+                        data-url="{% url 'compras:detalle_compra' c.id %}" title="Ver detalles">
+                  <i class="bi bi-eye" style="color: #382822; font-size: 24px;"></i>
                 </button>
 
-                <a href="#"
-                   class="btn btn-sm btn-outline-primary"
+                <button type="button" class="btn btn-link p-0"
                    data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                   data-modal-title="Editar compra">
-                  editar
-                </a>
+                   data-modal-title="Editar compra" title="Editar">
+                  <i class="bi bi-pencil-square" style="color: #382822; font-size: 24px;"></i>
+                </button>
 
-                <button
-                  class="btn btn-warning btn-sm js-anular-compra"
+                <button type="button" class="btn btn-link p-0 js-anular-compra"
                   data-id="{{ c.id }}"
                   data-proveedor="{{ c.proveedor }}"
-                  data-url="{% url 'compras:anular_compra' c.id %}">
-                  Anular
+                  data-url="{% url 'compras:anular_compra' c.id %}" title="Anular">
+                  <i class="bi bi-trash3" style="color: #c7412b; font-size: 24px;"></i>
                 </button>
               </div>
             </td>
