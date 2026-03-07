@@ -113,43 +113,61 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.sq-card').forEach(card => {
 
         const video = card.querySelector('video');
-
         card.addEventListener('click', () => {
 
-            // pausa SIEMPRE al click
-            isPaused = true;
 
-            if (card.classList.contains('is-video')) return;
-
-            // cerrar otros videos
+            // cerrar otros videos abiertos
             document.querySelectorAll('.sq-card.is-video').forEach(openCard => {
-                openCard.classList.remove('is-video');
-                const v = openCard.querySelector('video');
-                if (v) {
-                    v.pause();
-                    v.currentTime = 0;
+                if (openCard !== card) {
+                    openCard.classList.remove('is-video');
+                    const v = openCard.querySelector('video');
+                    if (v) {
+                        v.pause();
+                        v.currentTime = 0;
+                    }
                 }
             });
 
+            // si no tiene video, no abrir como video
+            if (!video) {
+                card.classList.remove('is-video');
+                isPaused = false;
+                acceleration = 0;
+                targetVelocity = baseSpeed;
+                return;
+            }
+
+            // si ya está abierta, cerrarla
+            if (card.classList.contains('is-video')) {
+                card.classList.remove('is-video');
+                video.pause();
+                video.currentTime = 0;
+
+                setTimeout(() => {
+                    isPaused = false;
+                    acceleration = 0;
+                    targetVelocity = baseSpeed;
+                }, 150);
+                return;
+            }
+
+            // abrir y reproducir
+            isPaused = true;
             card.classList.add('is-video');
 
-            if (video) {
-                video.currentTime = 0;
-                video.play().catch(err => {
-                    console.warn('Autoplay bloqueado:', err);
-                });
-            }
+            video.currentTime = 0;
+            video.play().catch(err => {
+                console.warn('Autoplay bloqueado:', err);
+            });
         });
-
+        
+       
         if (video) {
-            video.addEventListener('click', e => e.stopPropagation());
-
             video.addEventListener('ended', () => {
                 card.classList.remove('is-video');
                 video.pause();
                 video.currentTime = 0;
 
-                // reanudar suavemente
                 setTimeout(() => {
                     isPaused = false;
                     acceleration = 0;

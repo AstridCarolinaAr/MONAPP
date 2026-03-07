@@ -12,12 +12,14 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
+from servicios_web.models import ServicioWeb
+
 
 
 
 def index(request):
     # Obtener servicios activos
-    servicios = Servicio.objects.filter(activo=True)
+    servicios = ServicioWeb.objects.filter(activo=True).order_by('nombre')
     promociones = Promocion.objects.filter(activa=True)
     productos_web = ProductoWeb.objects.filter(visible=True)
 

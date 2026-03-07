@@ -94,350 +94,110 @@ Servicios
 </section>
 
 <!-- ==================== INFINITE SCROLL SERVICES ==================== -->
+{% if servicios %}
 <h2 class="sq-products-title2">SERVICIOS</h2>
-    <section class="sq-infinite" id="infinite">
-        <div class="sq-loop">
-        
+<section class="sq-infinite" id="infinite">
+    <div class="sq-loop">
 
-            <!-- ===== TRACK 1 ===== -->
-            <div class="sq-track" id="track1">
-                <div class="sq-card" data-bg="{% static 'core/IMG/global_cut.jpg' %}">
-                    <h3>GLOBAL CUT</h3>
+        <!-- ===== TRACK 1 ===== -->
+        <div class="sq-track" id="track1">
+            {% for servicio in servicios %}
+                <div class="sq-card
+                            {% if not servicio.imagen %}no-image{% endif %}
+                            {% if servicio.video %}has-video{% endif %}"
+                     {% if servicio.imagen %}data-bg="{{ servicio.imagen.url }}"{% endif %}>
 
-                    <!-- capa de blur -->
+                    <h3>{{ servicio.nombre }}</h3>
                     <div class="sq-blur"></div>
 
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/global_cut.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                
-                <div class="sq-card"data-bg="{% static 'core/IMG/keratina_premium.jpg' %}">
-                    <h3>KERATINA PREMIUM</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/keratina_premium.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                <div class="sq-card" data-bg="{% static 'core/IMG/aminoacidos_cannabis.jpg' %}">
-                    <h3>AMINOACIDOS DE CANNABIS</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/aminoacidos_cannabis.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                <div class="sq-card" data-bg="{% static 'core/IMG/reconeccion_cannabis.jpg' %}">
-                    <h3>RECONECCIÓN DE CANNABIS</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/reconeccion_cannabis.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-                
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/alisado_fotonico.jpg' %}">
-                    <h3>ALISADO FOTÓNICO</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/alisado_fotonico.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/cirugia_capilar.jpg' %}">
-                    <h3>CIRUGIA CAPILAR</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/cirugia_capilar.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/reposicion_aminoacidos.jpg' %}">
-                    <h3>REPOSICIÓN DE AMINOACIDOS</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/reposicion_aminoacidos.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/botox_capilar.jpg' %}">
-                    <h3>BOTOX CAPILAR</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/botox_capilar.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                <div class="sq-card" data-bg="{% static 'core/IMG/spa_capilar.jpg' %}">
-                    <h3>SPA CAPILAR</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/spa_capilar.mp4' %}" type="video/mp4">
-                    </video>
-
-                </div>
-
-
-            </div>
-
-            <!-- ===== TRACK 2 (DUPLICADO EXACTO) ===== -->
-            <div class="sq-track" id="track2">
-                <div class="sq-card" data-bg="{% static 'core/IMG/global_cut.jpg' %}">
-                    <h3>GLOBAL CUT</h3>
-
-                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/global_cut.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                
-                <div class="sq-card"data-bg="{% static 'core/IMG/keratina_premium.jpg' %}">
-                    <h3>KERATINA PREMIUM</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/keratina_premium.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                <div class="sq-card" data-bg="{% static 'core/IMG/aminoacidos_cannabis.jpg' %}">
-                    <h3>AMINOACIDOS DE CANNABIS</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/aminoacidos_cannabis.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                <div class="sq-card" data-bg="{% static 'core/IMG/reconeccion_cannabis.jpg' %}">
-                    <h3>RECONECCIÓN DE CANNABIS</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/reconeccion_cannabis.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-                
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/alisado_fotonico.jpg' %}">
-                    <h3>ALISADO FOTÓNICO</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/alisado_fotonico.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/cirugia_capilar.jpg' %}">
-                    <h3>CIRUGIA CAPILAR</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/cirugia_capilar.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/reposicion_aminoacidos.jpg' %}">
-                    <h3>REPOSICIÓN DE AMINOACIDOS</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/reposicion_aminoacidos.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-                
-                <div class="sq-card" data-bg="{% static 'core/IMG/botox_capilar.jpg' %}">
-                    <h3>BOTOX CAPILAR</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/botox_capilar.mp4' %}" type="video/mp4">
-                    </video>
-                </div>
-
-                <div class="sq-card" data-bg="{% static 'core/IMG/spa_capilar.jpg' %}">
-                    <h3>SPA CAPILAR</h3>
-                                    <!-- capa de blur -->
-                    <div class="sq-blur"></div>
-
-                    <!-- video -->
-                    <video
-                        class="sq-video"
-                        muted
-                        playsinline
-                        preload="auto"
-                    >
-                        <source src="{% static 'core/mp4/spa_capilar.mp4' %}" type="video/mp4">
-                    </video>
-
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-
-    <!-- ==================== SERVICIOS ADICIONALES (DINÁMICOS) ==================== -->
-    {% if servicios %}
-    <section class="sq-dynamic-services" style="padding: 60px 0; background: #f8f9fa;">
-        <div class="sq-container">
-            <h2 class="sq-products-title2" style="text-align: center; margin-bottom: 40px;">SERVICIOS ADICIONALES</h2>
-            
-            <div class="row justify-content-center">
-                {% for servicio in servicios %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s;">
-                        {% if servicio.imagen %}
-                            <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 250px; object-fit: cover;">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
-                                <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
-                            </div>
-                        {% endif %}
-                        <div class="card-body text-center">
-                            <h3 class="card-title" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">{{ servicio.nombre }}</h3>
-                            <p class="card-text text-muted" style="font-size: 0.95rem;">{{ servicio.descripcion|truncatewords:20 }}</p>
-                            <p class="h4 text-primary" style="margin-top: 15px;">${{ servicio.precio|floatformat:2 }}</p>
+                    {% if servicio.video %}
+                        <div class="sw-play-hint">
+                            <i class="bi bi-play-fill"></i>
+                            <span>Click para reproducir</span>
                         </div>
-                    </div>
+
+                        <video
+                            class="sq-video"
+                            muted
+                            playsinline
+                            preload="auto"
+                        >
+                            <source src="{{ servicio.video.url }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+
+                    {% if not servicio.imagen and not servicio.video %}
+                        <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
+
+                    {% elif not servicio.imagen and servicio.video %}
+                        <div class="media-placeholder">
+                            <div class="icon-row">
+                                <i class="bi bi-image"></i>
+                                <i class="bi bi-camera-video"></i>
+                            </div>
+                            <div class="hint">Sin imagen</div>
+                        </div>
+
+                    {% elif servicio.imagen and not servicio.video %}
+                        <img src="{{ servicio.imagen.url }}"
+                             alt="{{ servicio.nombre }}"
+                             class="sq-card-image">
+                    {% endif %}
                 </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
-    </section>
-    {% endif %}
- 
+
+        <!-- ===== TRACK 2 ===== -->
+        <div class="sq-track" id="track2">
+            {% for servicio in servicios %}
+                <div class="sq-card
+                            {% if not servicio.imagen %}no-image{% endif %}
+                            {% if servicio.video %}has-video{% endif %}"
+                     {% if servicio.imagen %}data-bg="{{ servicio.imagen.url }}"{% endif %}>
+
+                    <h3>{{ servicio.nombre }}</h3>
+                    <div class="sq-blur"></div>
+
+                    {% if servicio.video %}
+                        <div class="sw-play-hint">
+                            <i class="bi bi-play-fill"></i>
+                            <span>Click para reproducir</span>
+                        </div>
+
+                        <video
+                            class="sq-video"
+                            muted
+                            playsinline
+                            preload="auto"
+                        >
+                            <source src="{{ servicio.video.url }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+
+                    {% if not servicio.imagen and not servicio.video %}
+                        <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
+
+                    {% elif not servicio.imagen and servicio.video %}
+                        <div class="media-placeholder">
+                            <div class="icon-row">
+                                <i class="bi bi-image"></i>
+                                <i class="bi bi-camera-video"></i>
+                            </div>
+                            <div class="hint">Sin imagen</div>
+                        </div>
+
+                    {% elif servicio.imagen and not servicio.video %}
+                        <img src="{{ servicio.imagen.url }}"
+                             alt="{{ servicio.nombre }}"
+                             class="sq-card-image">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+{% endif %}
 
     <!-- ==================== CATÁLOGO WEB (DINÁMICO) ==================== -->
 <section class="sq-testimonials" id="testimonials">
@@ -545,9 +305,9 @@ Servicios
 
 </section>
 {% block extra_js %}
+<script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
+<script src="{% static 'servicios_web/js/metaballs.js' %}"></script>
 <script src="{% static 'core/js/index.js' %}"></script>
-
-
 
 <footer class="mona-footer">
     <div class="footer-content">
@@ -559,10 +319,6 @@ Servicios
         </p>
     </div>
 </footer>
-
-<script src="{% static 'core/js/index.js' %}"></script>
-
-
 {% endblock %}
 
 {% endblock %}

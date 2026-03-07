@@ -76,6 +76,13 @@ def editar_servicio_web(request, pk):
     
     return render(request, 'servicios_web/form_servicio_web.html', context)
 
+
+def servicios_web_publicos(request):
+    servicios = ServicioWeb.objects.filter(activo=True).order_by('nombre')
+    return render(request, 'servicios_web/publicos.html', {
+        'servicios': servicios
+    })
+
 def cambiar_estado_servicio_web(request, pk):
     if request.method == "POST":
         servicio = get_object_or_404(ServicioWeb, pk=pk)
@@ -94,6 +101,7 @@ def cambiar_estado_servicio_web(request, pk):
     }, status=400)
 def eliminar_servicio_web(request, pk):
     servicio_web = get_object_or_404(ServicioWeb, pk=pk)
+
 
     if request.method == 'POST':
         nombre = servicio_web.nombre
