@@ -1,20 +1,14 @@
 {% extends 'master.html' %}
 {% load static %}
 
-{# ===============================
-   TÍTULO DE LA PÁGINA
-   (se renderiza dentro del <title> de master.html)
-================================ #}
 {% block title %}
 Servicios
 {% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/index.css' %}">
 {% endblock %}
 
-{# ===============================
-   CONTENIDO PRINCIPAL
-================================ #}
 {% block content %}
 
 <section class="sq-hero-bg">
@@ -22,8 +16,7 @@ Servicios
     <!-- ==================== HERO ==================== -->
     <section class="sq-hero" id="inicio">
         <div class="sq-hero-inner">
-            <h1>Un gran día comienza con un cabello sano y hermoso  
-            </h1>
+            <h1>Un gran día comienza con un cabello sano y hermoso</h1>
             <h2>
                 Alisados y tratamientos capilares profesionales que cuidan tu cabello desde la raíz.
             </h2>
@@ -34,77 +27,73 @@ Servicios
     <!-- ==================== INTRO ==================== -->
     <section id="intro" class="sq-intro">
         <div class="sq-intro-layout">
-        
 
-            <!-- Imagen izquierda -->
             <div class="sq-intro-img left">
                 <img src="{% static 'core/IMG/img-sobrenosotros2.png' %}" alt="Mona Keratina equipo">
             </div>
 
-            <!-- Contenido central -->
             <div class="sq-intro-content">
                 <h2>SOBRE NOSOTROS</h2>
                 <p>
                     En Mona Keratina somos un centro especializado en tratamientos capilares y alisados profesionales,
-                    con varios años de experiencia dedicados al cuidado y la salud del cabello. Trabajamos con productos 
+                    con varios años de experiencia dedicados al cuidado y la salud del cabello. Trabajamos con productos
                     de alta calidad y técnicas responsables para ofrecer resultados visibles, seguros y adaptados a cada tipo de cabello.
                     <br><br>
-                    Contamos con sedes en Boyacá Duitama, Tunja y Sogamoso, donde acompañamos a cada persona en el proceso de transformar 
+                    Contamos con sedes en Boyacá Duitama, Tunja y Sogamoso, donde acompañamos a cada persona en el proceso de transformar
                     su cabello sin comprometer su bienestar.
                 </p>
             </div>
 
-            <!-- Imagen derecha -->
             <div class="sq-intro-img right">
                 <img src="{% static 'core/IMG/img-sobrenosotros.jpg' %}" alt="Mona Keratina experiencia">
             </div>
-    </section>
 
+        </div>
+    </section>
 
     <!-- ==================== PROMOCIONES ==================== -->
     <section class="sq-promotions" id="promociones">
         <div class="sq-container">
-            <h2 class="sq-promotions-title ">Promociones</h2>
+            <h2 class="sq-promotions-title">Promociones</h2>
 
             <div class="sq-promotions-grid">
-
                 {% for promo in promociones %}
-                <div class="sq-promo-card">
-                    {% if promo.imagen %}
-                        <div class="sq-promo-image">
-                            <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
-                        </div>
-                    {% endif %}
-                    <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
-                    <h3>{{ promo.nombre }}</h3>
-                    <p>{{ promo.descripcion }}</p>
-                    <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
-                </div>
-                {% empty %}
-                <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Pronto</span>
-                    <h3>Nuevas promociones en camino</h3>
-                    <p>Estamos preparando ofertas especiales para ti. ¡Vuelve pronto!</p>
-                </div>
-                {% endfor %}
+                    <div class="sq-promo-card">
+                        {% if promo.imagen %}
+                            <div class="sq-promo-image">
+                                <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
+                            </div>
+                        {% endif %}
 
+                        <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
+                        <h3>{{ promo.nombre }}</h3>
+                        <p>{{ promo.descripcion }}</p>
+                        <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
+                    </div>
+                {% empty %}
+                    <div class="sq-promo-card">
+                        <span class="sq-promo-tag">Pronto</span>
+                        <h3>Nuevas promociones en camino</h3>
+                        <p>Estamos preparando ofertas especiales para ti. ¡Vuelve pronto!</p>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </section>
+
 </section>
 
 <!-- ==================== INFINITE SCROLL SERVICES ==================== -->
 {% if servicios %}
 <h2 class="sq-products-title2">SERVICIOS</h2>
+
 <section class="sq-infinite" id="infinite">
     <div class="sq-loop">
 
         <!-- ===== TRACK 1 ===== -->
         <div class="sq-track" id="track1">
             {% for servicio in servicios %}
-                <div class="sq-card
-                            {% if not servicio.imagen %}no-image{% endif %}
-                            {% if servicio.video %}has-video{% endif %}"
+                <div class="sq-card {% if not servicio.imagen %}no-image{% endif %} {% if servicio.video %}has-video{% endif %}"
                      {% if servicio.imagen %}data-bg="{{ servicio.imagen.url }}"{% endif %}>
 
                     <h3>{{ servicio.nombre }}</h3>
@@ -140,9 +129,11 @@ Servicios
                         </div>
 
                     {% elif servicio.imagen and not servicio.video %}
-                        <img src="{{ servicio.imagen.url }}"
-                             alt="{{ servicio.nombre }}"
-                             class="sq-card-image">
+                        <img
+                            src="{{ servicio.imagen.url }}"
+                            alt="{{ servicio.nombre }}"
+                            class="sq-card-image"
+                        >
                     {% endif %}
                 </div>
             {% endfor %}
@@ -151,9 +142,7 @@ Servicios
         <!-- ===== TRACK 2 ===== -->
         <div class="sq-track" id="track2">
             {% for servicio in servicios %}
-                <div class="sq-card
-                            {% if not servicio.imagen %}no-image{% endif %}
-                            {% if servicio.video %}has-video{% endif %}"
+                <div class="sq-card {% if not servicio.imagen %}no-image{% endif %} {% if servicio.video %}has-video{% endif %}"
                      {% if servicio.imagen %}data-bg="{{ servicio.imagen.url }}"{% endif %}>
 
                     <h3>{{ servicio.nombre }}</h3>
@@ -169,7 +158,8 @@ Servicios
                             class="sq-video"
                             muted
                             playsinline
-                            preload="auto"
+                            webkit-playsinline
+                            preload="metadata"
                         >
                             <source src="{{ servicio.video.url }}" type="video/mp4">
                         </video>
@@ -188,9 +178,11 @@ Servicios
                         </div>
 
                     {% elif servicio.imagen and not servicio.video %}
-                        <img src="{{ servicio.imagen.url }}"
-                             alt="{{ servicio.nombre }}"
-                             class="sq-card-image">
+                        <img
+                            src="{{ servicio.imagen.url }}"
+                            alt="{{ servicio.nombre }}"
+                            class="sq-card-image"
+                        >
                     {% endif %}
                 </div>
             {% endfor %}
@@ -200,44 +192,45 @@ Servicios
 </section>
 {% endif %}
 
-    <!-- ==================== CATÁLOGO WEB (DINÁMICO) ==================== -->
+<!-- ==================== PRODUCTOS ==================== -->
 <section class="sq-testimonials" id="testimonials">
-    <h2 class="sq-products-title">Nuestros Productos </h2>
+    <h2 class="sq-products-title">Nuestros Productos</h2>
 
     {% if productos_web %}
-    <div class="sq-products-grid">
-        {% for producto in productos_web %}
-        <div class="sq-product-card" data-aos="fade-up">
-            <div class="sq-product-img">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
-                {% else %}
-                    <div class="sq-product-placeholder">
-                        <i class="bi bi-box-seam"></i>
+        <div class="sq-products-grid">
+            {% for producto in productos_web %}
+                <div class="sq-product-card" data-aos="fade-up">
+                    <div class="sq-product-img">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                        {% else %}
+                            <div class="sq-product-placeholder">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                        {% endif %}
                     </div>
-                {% endif %}
-            </div>
-            <h3>{{ producto.nombre }}</h3>
-            {% if producto.descripcion %}
-                <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
-            {% endif %}
-            <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+
+                    <h3>{{ producto.nombre }}</h3>
+
+                    {% if producto.descripcion %}
+                        <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
+                    {% endif %}
+
+                    <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
     {% else %}
-    <div class="sq-products-empty">
-        <p>Próximamente nuevos productos. ¡Mantente atento!</p>
-    </div>
+        <div class="sq-products-empty">
+            <p>Próximamente nuevos productos. ¡Mantente atento!</p>
+        </div>
     {% endif %}
 </section>
-<!-- ==================== IMAGEN ==================== -->
 
 <!-- ==================== FINAL CTA ==================== -->
 <section class="sq-cta" id="cta">
     <div class="sq-contact-wrapper">
 
-        <!-- Encabezado -->
         <header class="sq-contact-header">
             <span class="sq-contact-eyebrow">MONA KERATINA</span>
             <h2>Agenda, visítanos o escríbenos</h2>
@@ -247,12 +240,9 @@ Servicios
             </p>
         </header>
 
-        <!-- Contenido -->
         <div class="sq-contact-layout">
 
-            <!-- Información -->
             <div class="sq-contact-info">
-
                 <div class="sq-contact-item">
                     <h3>Sede principal</h3>
                     <p>Duitama, Boyacá – Colombia</p>
@@ -286,10 +276,8 @@ Servicios
                         Facebook · Mona Keratina Duitama
                     </a>
                 </div>
-
             </div>
 
-            <!-- Mapa -->
             <div class="sq-contact-map">
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387.6692098579932!2d-73.0329069!3d5.8266966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e6a3f55fe1d0cb5%3A0x2b2c27a99cc5efea!2sMona%20Keratina%20Duitama!5e0!3m2!1ses!2sco!4v1708800000000!5m2!1ses!2sco"
@@ -301,14 +289,8 @@ Servicios
             </div>
 
         </div>
-
     </div>
-
 </section>
-{% block extra_js %}
-<script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
-<script src="{% static 'servicios_web/js/metaballs.js' %}"></script>
-<script src="{% static 'core/js/index.js' %}"></script>
 
 <footer class="mona-footer">
     <div class="footer-content">
@@ -320,6 +302,11 @@ Servicios
         </p>
     </div>
 </footer>
+
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
+<script src="{% static 'servicios_web/js/metaballs.js' %}"></script>
+<script src="{% static 'core/js/index.js' %}"></script>
 {% endblock %}
