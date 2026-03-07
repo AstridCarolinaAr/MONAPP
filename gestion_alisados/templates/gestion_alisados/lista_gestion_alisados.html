@@ -4,18 +4,6 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
-<<<<<<< HEAD:gestion_alisados/templates/gestion_alisados/lista_gestion_alisados.html
-=======
-{% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{% url 'servicios:lista_servicios' %}">Servicios</a></li>
-<li class="breadcrumb-item active" aria-current="page">Gestion de datos</li>
-{% endblock %}
-
-{% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> Gestion de datos
-{% endblock %}
-
->>>>>>> ea582f7c6233cd5896ba82abad47950daf0fbc78:servicios/templates/servicios/lista_gestion_alisados.html
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>
@@ -31,7 +19,7 @@
     <div class="card shadow">
         <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
             <h4 class="mb-0">Gestion de datos</h4>
-            <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
+            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
                 <i class="bi bi-plus-circle"></i> Nueva Gestión
             </button>
         </div>
@@ -96,7 +84,7 @@
                     <small class="text-muted">Se encontraron {{ gestiones.count }} registro{{ gestiones.count|pluralize }}</small>
                 </div>
                 <div class="table-responsive">
-                    <table class="styled-table">
+                    <table class="table table-hover table-striped">
                         <thead>
                             <tr>
                                 <th>Fecha y Hora</th>
@@ -124,11 +112,6 @@
                                     {% endif %}
                                 </td>
                                 <td>
-<<<<<<< HEAD:servicios/templates/servicios/lista_gestion_alisados.html
-                                    <a href="{% url 'servicios:ver_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Ver detalles" data-bs-placement="bottom"><i class="bi bi-eye" style="font-size: 24px;"></i></a>
-                                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom"><i class="bi bi-pencil-square" style="font-size: 24px;"></i></a>
-                                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Eliminar" data-bs-placement="bottom"><i class="bi bi-trash3" style="font-size: 24px;"></i></a>
-=======
                                     <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
@@ -138,7 +121,6 @@
                                     <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </a>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb:gestion_alisados/templates/gestion_alisados/lista_gestion_alisados.html
                                 </td>
                             </tr>
                             {% endfor %}

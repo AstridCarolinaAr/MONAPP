@@ -15,12 +15,11 @@ def es_staff(user):
 
 @login_required
 def form_gestion_alisado_modal_content(request):
-    """
-    Retorna SOLO el contenido del formulario para ser cargado dentro de un modal por fetch().
-    Recibe cliente por querystring: ?cliente=<id>
-    """
     cliente_id = (request.GET.get("cliente") or "").strip()
+    desde_clientes = (request.GET.get("desde_clientes") or "").strip() == "1"
+
     cliente_obj = None
+    cliente_bloqueado = False
 
     if cliente_id:
         try:
@@ -28,19 +27,32 @@ def form_gestion_alisado_modal_content(request):
         except (ValueError, Cliente.DoesNotExist):
             cliente_obj = None
 
-    # Si encontramos cliente, precargarlo
     if cliente_obj:
         form = GestionAlisadoForm(initial={"cliente": cliente_obj})
     else:
         form = GestionAlisadoForm()
 
+    form.fields["cliente"].widget.attrs["id"] = "selectCliente"
+    form.fields["cliente"].widget.attrs["class"] = "form-select"
+
+    if cliente_obj and desde_clientes:
+        form.fields["cliente"].widget.attrs["disabled"] = "disabled"
+        cliente_bloqueado = True
+
     context = {
         "form": form,
         "is_modal": True,
         "cliente_preseleccionado": cliente_obj,
+        "cliente_bloqueado": cliente_bloqueado,
+        "cliente_id_bloqueado": cliente_obj.id if cliente_obj and cliente_bloqueado else "",
+        "desde_clientes": desde_clientes,
     }
-    return render(request, "gestion_alisados/form_gestion_alisado_modal_content.html", context)
 
+    return render(
+        request,
+        "gestion_alisados/form_gestion_alisado_modal_content.html",
+        context
+    )
 
 @login_required
 def lista_gestion_alisados(request):

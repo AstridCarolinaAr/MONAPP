@@ -18,7 +18,7 @@
 {% block page_actions %}
 <button type="button" class="btn btn-pill-dark" id="btnOpenCrearServicioWeb"
     data-url="{% url 'servicios_web:crear_servicio_web' %}">
-    <span class="icon">+</span> Nuevo Servicio Web
+     <i class="bi bi-plus-circle"></i> Nuevo servicio Web
 </button>
 {% endblock %}
 
@@ -60,11 +60,34 @@
 
         {# ✅ Botón editar #}
         <div class="actions-overlay">
+
             <button class="btn-action edit btn-edit-servicioweb"
-                data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}" title="Editar"
+                data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}"
+                title="Editar"
                 data-bs-placement="bottom">
                 <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
             </button>
+
+            <button class="btn-action delete-outline btn-delete-servicioweb"
+                data-url="{% url 'servicios_web:eliminar_servicio_web' servicio.id_servicio_web %}"
+                data-nombre="{{ servicio.nombre|escape }}"
+                title="Eliminar"
+                data-bs-placement="bottom">
+                <i class="bi bi-trash3" style="font-size: 24px;"></i>
+            </button>
+            <button class="btn-action toggle-activo-servicioweb"
+                data-url="{% url 'servicios_web:toggle_estado_servicio_web' servicio.id_servicio_web %}"
+                title="Activar / Desactivar"
+                data-activo="{{ servicio.activo|yesno:'true,false' }}">
+
+                {% if servicio.activo %}
+                    <i class="bi bi-toggle-on text-success" style="font-size: 24px;"></i>
+                {% else %}
+                    <i class="bi bi-toggle-off text-secondary" style="font-size: 24px;"></i>
+                {% endif %}
+
+            </button>
+
         </div>
 
         <div class="sq-card-content">

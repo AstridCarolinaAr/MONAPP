@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'ventas.apps.VentasConfig',
     'personal',
     'inventario',
-    'servicios',
     'gestion_alisados',
     'productos_web',
     'compras.apps.ComprasConfig',
@@ -56,6 +55,7 @@ INSTALLED_APPS = [
     'promociones',
     'Gestion',
     'servicios_web',
+    'servicios.apps.ServiciosConfig',
 ]
 
 MIDDLEWARE = [

@@ -201,6 +201,86 @@ function activarModalYAjaxSiExiste() {
         });
     });
 }
+function activarEliminarServicioWeb() {
+    document.querySelectorAll(".btn-delete-servicioweb").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const url = btn.dataset.url;
+            const nombre = btn.dataset.nombre || "este servicio";
+
+            const res = await Swal.fire({
+                title: "¿Eliminar servicio?",
+                html: `¿Seguro que deseas eliminar <strong>${nombre}</strong>?<br><small class="text-muted">Esta acción no se puede deshacer.</small>`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#dc3545",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: '<i class="bi bi-trash3"></i> Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            });
+
+            if (!res.isConfirmed) return;
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = url;
+
+            const csrf = document.createElement("input");
+            csrf.type = "hidden";
+            csrf.name = "csrfmiddlewaretoken";
+            csrf.value = getCookie("csrftoken");
+
+            form.appendChild(csrf);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+}
+function activarToggleEstadoServicioWeb() {
+
+    document.querySelectorAll(".toggle-activo-servicioweb").forEach(btn => {
+
+        btn.addEventListener("click", async function () {
+
+            const url = this.dataset.url;
+
+            try {
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    const icon = this.querySelector("i");
+
+                    if (data.activo) {
+                        icon.classList.remove("bi-toggle-off", "text-secondary");
+                        icon.classList.add("bi-toggle-on", "text-success");
+                    } else {
+                        icon.classList.remove("bi-toggle-on", "text-success");
+                        icon.classList.add("bi-toggle-off", "text-secondary");
+                    }
+
+                }
+
+            } catch (error) {
+                console.error("Error cambiando estado:", error);
+            }
+
+        });
+
+    });
+
+}
 
 function activarBotonEmptyState() {
     const b2 = document.getElementById('btnOpenCrearServicioWeb2');
@@ -216,5 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
     activarConfirmacionEnFormularioPagina();
     activarModalYAjaxSiExiste();
     activarBotonEmptyState();
+    activarEliminarServicioWeb();
+    activarToggleEstadoServicioWeb();
 });
 

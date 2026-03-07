@@ -211,6 +211,21 @@
 .sq-card.no-image:hover .sq-blur{
   background: rgba(0,0,0,0.18);
 }
+/* ===============================
+   BOTÓN ELIMINAR ESTILO PANEL ADMIN
+================================ */
+
+.btn-action.delete-outline {
+   
+    color: #2b2b2b;
+    background: transparent;
+    transition: all .25s ease;
+}
+
+.btn-action.delete-outline:hover {
+    background: #2b2b2b;
+    color: #fff;
+}
 
 /* ✅ Orden de capas garantizado */
 .sq-card .sq-blur{ z-index: 2; }

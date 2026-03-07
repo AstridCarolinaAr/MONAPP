@@ -2,245 +2,256 @@
 {% load static %}
 
 {% block title %}Clientes{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'clientes/css/cliente.css' %}">
-{% endblock %}
-
-{% block breadcrumb_items %}
-<li class="breadcrumb-item active" aria-current="page">Clientes</li>
-{% endblock %}
 
 {% block content %}
+<p style="color:red">
+mostrar_modal_gestion = {{ mostrar_modal_gestion }}
+</p>
 
 <div class="container-fluid px-4 py-4">
 
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h3 class="mb-0 fw-semibold">Clientes</h3>
-      <small class="text-muted">Gestión de clientes registrados</small>
-    </div>
-    <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalCrearCliente">
-      <i class="bi bi-plus-circle"></i> Nuevo cliente
-    </button>
-  </div>
-
-  <form method="get" class="row g-2 align-items-center mb-4">
-
-    <!-- BÚSQUEDA GENERAL -->
-    <div class="col-md-3">
-      <input type="text" name="q" class="form-control" placeholder="Buscar nombre o documento"
-        value="{{ q|default:'' }}">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0 fw-semibold">Clientes</h3>
+            <small class="text-muted">Gestión de clientes registrados</small>
+        </div>
+            <button class="btn btn-dark btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCrearCliente">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo cliente
+            </button>
     </div>
 
-    <!-- CÓDIGO -->
-    <div class="col-md-2">
-      <input type="text" name="codigo" class="form-control" placeholder="Código cliente"
-        value="{{ codigo|default:'' }}">
-    </div>
 
-    <!-- ESTADO -->
-    <div class="col-md-2">
-      <select name="estado" class="form-select">
-        <option value="">Estado</option>
-        <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
-        <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
-      </select>
-    </div>
+    <form method="get" class="row g-2 align-items-center mb-4">
 
-    <!-- EDAD -->
-    <div class="col-md-2">
-      <select name="edad" class="form-select">
-        <option value="">Edad</option>
-        <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
-        <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
-      </select>
-    </div>
+        <!-- BÚSQUEDA GENERAL -->
+        <div class="col-md-3">
+            <input type="text" name="q" class="form-control"
+                  placeholder="Buscar nombre o documento"
+                  value="{{ q|default:'' }}">
+        </div>
 
-    <!-- ORDEN -->
-    <div class="col-md-2">
-      <select name="orden" class="form-select">
-        <option value="">Ordenar</option>
-        <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
-        <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
-        <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A–Z</option>
-        <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z–A</option>
-        <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
-        <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
-      </select>
-    </div>
+        <!-- CÓDIGO -->
+        <div class="col-md-2">
+            <input type="text" name="codigo" class="form-control"
+                  placeholder="Código cliente"
+                  value="{{ codigo|default:'' }}">
+        </div>
 
-    <!-- APLICAR -->
-    <div class="col-md-1">
-      <button class="btn btn-outline-secondary w-100">
-        <i class="bi bi-filter"></i>
-      </button>
-    </div>
+        <!-- ESTADO -->
+        <div class="col-md-2">
+            <select name="estado" class="form-select">
+                <option value="">Estado</option>
+                <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
 
-    <!--  LIMPIAR -->
-    {% if q or estado or codigo or edad or orden %}
-    <div class="col-md-1">
-      <a href="{% url 'clientes:lista' %}" class="btn btn-outline-danger w-100">
-        <i class="bi bi-x-lg"></i>
-      </a>
-    </div>
-    {% endif %}
+        <!-- EDAD -->
+        <div class="col-md-2">
+            <select name="edad" class="form-select">
+                <option value="">Edad</option>
+                <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
+                <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
+            </select>
+        </div>
 
-  </form>
+        <!-- ORDEN -->
+        <div class="col-md-2">
+            <select name="orden" class="form-select">
+                <option value="">Ordenar</option>
+                <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
+                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
+                <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A–Z</option>
+                <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z–A</option>
+                <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
+                <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
+            </select>
+        </div>
 
-  <!-- Card -->
-  <div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Cliente</th>
-              <th>Documento</th>
-              <th>Teléfono</th>
-              <th>Estado</th>
-              <th class="text-end">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for cliente in clientes %}
-            <tr>
-              <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
-              <td>
-                {{ cliente.nombre }} {{ cliente.apellido }}<br>
-                <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
-              </td>
-              <td>
-                {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
-              </td>
-              <td>{{ cliente.telefono|default:"—" }}</td>
-              <td>
-                {% if cliente.estado == 'activo' %}
-                <span class="badge bg-success-subtle text-success">Activo</span>
-                {% else %}
-                <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
-                {% endif %}
-              </td>
-              <td class="text-end">
-                <a href="{% url 'clientes:editar' cliente.id %}" class="btn btn-link" style="color: #382822;"
-                  title="Editar" data-bs-placement="bottom">
-                  <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
-                </a>
+        <!-- APLICAR -->
+        <div class="col-md-1">
+            <button class="btn btn-outline-secondary w-100" title="Aplicar filtros">
+                <i class="bi bi-filter"></i>
+            </button>
+        </div>
 
-                <button class="btn btn-link" style="color: #382822;" data-bs-toggle="modal"
-                  data-bs-target="#modalDetalleCliente{{ cliente.id }}" title="Ver detalles" data-bs-placement="bottom">
-                  <i class="bi bi-eye" style="font-size: 24px;"></i>
-                </button>
+        <!--  LIMPIAR -->
+        {% if q or estado or codigo or edad or orden %}
+        <div class="col-md-1">
+            <a href="{% url 'clientes:lista' %}"
+              class="btn btn-outline-danger w-100"
+              title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+        {% endif %}
 
-                <!-- MODAL DETALLES -->
-                <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1">
-                  <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
+    </form>
 
-                      <div class="modal-header">
-                        <h5 class="modal-title">
-                          <i class="bi bi-person-badge me-2"></i>
-                          Detalles del cliente
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                      </div>
 
-                      <div class="modal-body">
-                        <div class="row g-3">
-                          <div class="col-md-6"><strong>Código:</strong><br>{{ cliente.codigo_cliente }}</div>
-                          <div class="col-md-6"><strong>Estado:</strong><br>{{ cliente.estado|capfirst }}</div>
-                          <div class="col-md-6"><strong>Tipo documento:</strong><br>{{ cliente.tipo_documento }}</div>
-                          <div class="col-md-6"><strong>Número documento:</strong><br>{{ cliente.numero_documento }}</div>
-                          <div class="col-md-6"><strong>Nombre:</strong><br>{{ cliente.nombre }}</div>
-                          <div class="col-md-6"><strong>Apellido:</strong><br>{{ cliente.apellido }}</div>
-                          <div class="col-md-6"><strong>Fecha nacimiento:</strong><br>{{ cliente.fecha_nacimiento }}</div>
-                          <div class="col-md-6"><strong>Teléfono:</strong><br>{{ cliente.telefono|default:"—" }}</div>
-                          <div class="col-12"><strong>Correo:</strong><br>{{ cliente.correo|default:"—" }}</div>
-                        </div>
-                      </div>
 
-                      <div class="modal-footer">
-                        <a href="{% url 'clientes:editar' cliente.id %}" class="btn btn-link" style="color: #382822;">
-                          <i class="bi bi-pencil-square me-1" style="font-size: 24px;"></i> Editar cliente
-                        </a>
+    <!-- Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
 
-                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                          Cerrar
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Documento</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
+                        <td>
+                            {{ cliente.nombre }} {{ cliente.apellido }}<br>
+                            <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
+                        </td>
+                        <td>
+                            {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
+                        </td>
+                        <td>{{ cliente.telefono|default:"—" }}</td>
+                        <td>
+                            {% if cliente.estado == 'activo' %}
+                                <span class="badge bg-success-subtle text-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'clientes:editar' cliente.id %}"
+                                class="btn btn-outline-secondary btn-sm"
+                                title="Editar cliente">
+                                    <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-outline-primary btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDetalleCliente{{ cliente.id }}"
+                                    title="Ver detalles">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <!-- ✅ AQUÍ VA EL MODAL DE DETALLES -->
+                            <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                    <i class="bi bi-person-badge me-2"></i>
+                                    Detalles del cliente
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                    <div class="col-md-6"><strong>Código:</strong><br>{{ cliente.codigo_cliente }}</div>
+                                    <div class="col-md-6"><strong>Estado:</strong><br>{{ cliente.estado|capfirst }}</div>
+                                    <div class="col-md-6"><strong>Tipo documento:</strong><br>{{ cliente.tipo_documento }}</div>
+                                    <div class="col-md-6"><strong>Número documento:</strong><br>{{ cliente.numero_documento }}</div>
+                                    <div class="col-md-6"><strong>Nombre:</strong><br>{{ cliente.nombre }}</div>
+                                    <div class="col-md-6"><strong>Apellido:</strong><br>{{ cliente.apellido }}</div>
+                                    <div class="col-md-6"><strong>Fecha nacimiento:</strong><br>{{ cliente.fecha_nacimiento }}</div>
+                                    <div class="col-md-6"><strong>Teléfono:</strong><br>{{ cliente.telefono|default:"—" }}</div>
+                                    <div class="col-12"><strong>Correo:</strong><br>{{ cliente.correo|default:"—" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <a href="{% url 'clientes:editar' cliente.id %}"
+                                        class="btn btn-outline-primary">
+                                        <i class="bi bi-pencil me-1"></i> Editar cliente
+                                    </a>
+
+                                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        Cerrar
+                                    </button>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm btn-eliminar-cliente"
+                            data-es-admin="{{ user.is_staff|yesno:'true,false' }}"
+                            data-modal-id="modalEliminarCliente{{ cliente.id }}">
+                            <i class="bi bi-trash"></i>
                         </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                <button type="button" class="btn btn-link" style="color: #382822;"
-                  data-es-admin="{{ user.is_staff|yesno:'true,false' }}"
-                  data-modal-id="modalEliminarCliente{{ cliente.id }}" title="Eliminar" data-bs-placement="bottom">
-                  <i class="bi bi-trash3" style="font-size: 24px;"></i>
-                </button>
 
-                {% if user.is_staff %}
-                <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow">
+                      {% if user.is_staff %}
+<div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
 
-                      <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">
-                          <i class="bi bi-exclamation-triangle me-2"></i>
-                          Confirmar eliminación
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                      </div>
-
-                      <form method="post" action="{% url 'clientes:eliminar' cliente.id %}">
-                        {% csrf_token %}
-
-                        <div class="modal-body text-center">
-                          <p class="fw-semibold mb-1">¿Deseas eliminar al cliente?</p>
-                          <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
-                        </div>
-
-                        <div class="modal-footer justify-content-center">
-                          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Cancelar
-                          </button>
-                          <button type="submit" class="btn btn-danger">
-                            Eliminar
-                          </button>
-                        </div>
-                      </form>
-
-                    </div>
-                  </div>
-                </div>
-                {% endif %}
-
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center py-4 text-muted">
-                No hay clientes registrados
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Confirmar eliminación
+        </h5>
+        <button type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
       </div>
+
+      <form method="post" action="{% url 'clientes:eliminar' cliente.id %}">
+        {% csrf_token %}
+
+        <div class="modal-body text-center">
+          <p class="fw-semibold mb-1">¿Deseas eliminar al cliente?</p>
+          <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
+        </div>
+
+        <div class="modal-footer justify-content-center">
+          <button type="button"
+                  class="btn btn-outline-secondary"
+                  data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-danger">
+            Eliminar
+          </button>
+        </div>
+      </form>
+
     </div>
   </div>
+</div>
+{% endif %}
+
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No hay clientes registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
 
 </div>
+<!-- MODAL CREAR CLIENTE -->
 
-<!-- ============================
-     MODAL CREAR CLIENTE
-============================ -->
-<div class="modal" id="modalCrearCliente" tabindex="-1">
+<div class="modal " id="modalCrearCliente" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow">
 
-      <!-- ⚠️ IMPORTANTÍSIMO: le ponemos ID para manejarlo por AJAX -->
-      <form id="formCrearCliente" method="post" action="{% url 'clientes:crear' %}" autocomplete="off">
+      <form method="post" action="{% url 'clientes:crear' %}" autocomplete="off">
         {% csrf_token %}
 
         <div class="modal-header">
@@ -251,10 +262,6 @@
         </div>
 
         <div class="modal-body">
-
-          <!-- Errores AJAX -->
-          <div id="erroresClienteAjax" class="alert alert-danger d-none"></div>
-
           {% if errores %}
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong><i class="bi bi-exclamation-triangle"></i> Por favor corrige los siguientes errores:</strong>
@@ -266,13 +273,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
           </div>
           {% endif %}
-
+          
           <div class="row g-3">
             <!-- TIPO DOCUMENTO -->
             <div class="col-md-6">
               <label class="form-label">Tipo documento <span class="text-danger">*</span></label>
-              <select name="tipo_documento" id="tipo_documento"
-                class="form-select {% if errores.tipo_documento %}is-invalid{% endif %}">
+              <select name="tipo_documento"
+                      id="tipo_documento"
+                      class="form-select {% if errores.tipo_documento %}is-invalid{% endif %}">
                 <option value="">Seleccione</option>
                 <option value="CC" {% if datos.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
                 <option value="TI" {% if datos.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta</option>
@@ -283,14 +291,18 @@
                 {% if errores.tipo_documento %}{{ errores.tipo_documento }}{% endif %}
               </div>
             </div>
-
+            
             <!-- NÚMERO DOCUMENTO -->
             <div class="col-md-6">
               <label class="form-label">Número documento <span class="text-danger">*</span></label>
-              <input type="text" id="numero_documento" name="numero_documento"
-                class="form-control {% if errores.numero_documento %}is-invalid{% endif %}"
-                value="{{ datos.numero_documento|default:'' }}" maxlength="12" placeholder="Ej: 1234567890"
-                autocomplete="off">
+              <input type="text"
+                     id="numero_documento"
+                     name="numero_documento"
+                     class="form-control {% if errores.numero_documento %}is-invalid{% endif %}"
+                     value="{{ datos.numero_documento|default:'' }}"
+                     maxlength="12"
+                     placeholder="Ej: 1234567890"
+                     autocomplete="off">
               <div class="invalid-feedback">
                 {% if errores.numero_documento %}{{ errores.numero_documento }}{% endif %}
               </div>
@@ -299,10 +311,13 @@
             <!-- NOMBRE -->
             <div class="col-md-6">
               <label class="form-label">Nombre <span class="text-danger">*</span></label>
-              <input type="text" id="nombre" name="nombre"
-                class="form-control {% if errores.nombre %}is-invalid{% endif %}"
-                value="{{ datos.nombre|default:'' }}"
-                placeholder="Ej: Juan" autocomplete="off">
+              <input type="text"
+                     id="nombre"
+                     name="nombre"
+                     class="form-control {% if errores.nombre %}is-invalid{% endif %}"
+                     value="{{ datos.nombre|default:'' }}"
+                     placeholder="Ej: Juan"
+                     autocomplete="off">
               <div class="invalid-feedback">
                 {% if errores.nombre %}{{ errores.nombre }}{% endif %}
               </div>
@@ -311,9 +326,13 @@
             <!-- APELLIDO -->
             <div class="col-md-6">
               <label class="form-label">Apellido <span class="text-danger">*</span></label>
-              <input type="text" id="apellido" name="apellido"
-                class="form-control {% if errores.apellido %}is-invalid{% endif %}"
-                value="{{ datos.apellido|default:'' }}" placeholder="Ej: Pérez" autocomplete="off">
+              <input type="text"
+                     id="apellido"
+                     name="apellido"
+                     class="form-control {% if errores.apellido %}is-invalid{% endif %}"
+                     value="{{ datos.apellido|default:'' }}"
+                     placeholder="Ej: Pérez"
+                     autocomplete="off">
               <div class="invalid-feedback">
                 {% if errores.apellido %}{{ errores.apellido }}{% endif %}
               </div>
@@ -322,9 +341,11 @@
             <!-- FECHA NACIMIENTO -->
             <div class="col-md-6">
               <label class="form-label">Fecha nacimiento <span class="text-danger">*</span></label>
-              <input type="date" id="fecha_nacimiento" name="fecha_nacimiento"
-                class="form-control {% if errores.fecha_nacimiento %}is-invalid{% endif %}"
-                value="{{ datos.fecha_nacimiento|default:'' }}">
+              <input type="date"
+                     id="fecha_nacimiento"
+                     name="fecha_nacimiento"
+                     class="form-control {% if errores.fecha_nacimiento %}is-invalid{% endif %}"
+                     value="{{ datos.fecha_nacimiento|default:'' }}">
               <div class="invalid-feedback">
                 {% if errores.fecha_nacimiento %}{{ errores.fecha_nacimiento }}{% endif %}
               </div>
@@ -333,9 +354,14 @@
             <!-- TELÉFONO -->
             <div class="col-md-6">
               <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
-              <input type="text" id="telefono" name="telefono"
-                class="form-control {% if errores.telefono %}is-invalid{% endif %}"
-                value="{{ datos.telefono|default:'' }}" maxlength="10" placeholder="Ej: 3001234567" autocomplete="off">
+              <input type="text"
+                     id="telefono"
+                     name="telefono"
+                     class="form-control {% if errores.telefono %}is-invalid{% endif %}"
+                     value="{{ datos.telefono|default:'' }}"
+                     maxlength="10"
+                     placeholder="Ej: 3001234567"
+                     autocomplete="off">
               <div class="invalid-feedback">
                 {% if errores.telefono %}{{ errores.telefono }}{% endif %}
               </div>
@@ -344,25 +370,27 @@
             <!-- CORREO -->
             <div class="col-12">
               <label class="form-label">Correo electrónico <small class="text-muted">(opcional)</small></label>
-              <input type="email" id="correo" name="correo"
-                class="form-control {% if errores.correo %}is-invalid{% endif %}"
-                value="{{ datos.correo|default:'' }}"
-                placeholder="ejemplo@correo.com" autocomplete="off">
+              <input type="email"
+                     id="correo"
+                     name="correo"
+                     class="form-control {% if errores.correo %}is-invalid{% endif %}"
+                     value="{{ datos.correo|default:'' }}"
+                     placeholder="ejemplo@correo.com"
+                     autocomplete="off">
               <div class="invalid-feedback">
                 {% if errores.correo %}{{ errores.correo }}{% endif %}
               </div>
             </div>
           </div>
 
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-dark" id="btnGuardarCliente">
-            Guardar cliente
-          </button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-dark" id="btnGuardarCliente">
+              Guardar cliente
+            </button>
+          </div>
         </div>
 
       </form>
@@ -371,159 +399,88 @@
   </div>
 </div>
 
-{% endblock %}
+<script>
+window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
 
-{% block js %}
+<style>
+  .invalid-feedback {
+    display: block !important;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+  }
+  
+  .form-control.is-invalid,
+  .form-select.is-invalid {
+    border-color: #dc3545 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  }
+</style>
 
-<!-- SweetAlert2 (por si no lo trae tu base) -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-{# ===========================
-   MODAL para Gestión de Datos (vacío, se llenará por fetch)
-   =========================== #}
-<div class="modal fade" id="modalGestionDatos" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title">
-          <i class="bi bi-database me-2"></i> Agregar tratamiento de datos
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="modalGestionDatosBody">
-        <div class="text-center p-5">
-          <div class="spinner-border" role="status"></div>
+<script>
+    // Abrir modal automáticamente si hay errores
+    document.addEventListener('DOMContentLoaded', function() {
+        const abrirModal = {{ abrir_modal_cliente|default:False|yesno:"true,false" }};
+        const hayErrores = {{ errores|length }} > 0;
+        
+        if (abrirModal || hayErrores) {
+            const modal = new bootstrap.Modal(document.getElementById('modalCrearCliente'));
+            modal.show();
+        }
+    });
+</script>
+    {% if mostrar_modal_gestion %}
+    <div class="modal fade" id="modalGestionDatos" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirmación</h5>
+        </div>
+
+        <div class="modal-body">
+            ¿Deseas añadir un tratamiento de datos a
+            <strong>{{ cliente_creado_nombre }}</strong>?
+        </div>
+
+        <div class="modal-footer">
+            <a href="{% url 'clientes:lista' %}" class="btn btn-secondary">No</a>
+            <button type="button" class="btn btn-primary" id="btnAbrirGestionDesdeCliente">
+              Sí
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endif %}
+    <div class="modal fade" id="modalGestionAlisadoCliente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header text-white" style="background-color: #634c40;">
+            <h5 class="modal-title">
+              <i class="bi bi-file-earmark-plus"></i> Gestión de datos
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body" id="contenedorGestionAlisadoModal">
+            <div class="text-center py-4">
+              <div class="spinner-border" role="status"></div>
+              <p class="mt-2 mb-0">Cargando formulario...</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-
 <script>
-  // ✅ URLs backend
-  const URL_CREAR_CLIENTE = "{% url 'clientes:crear' %}";
-  const URL_FORM_GESTION = "{% url 'gestion_alisados:form_gestion_alisado_modal_content' %}"; // mantiene tu URL actual
-
-  function mostrarErroresCliente(errorsObj) {
-    const box = document.getElementById("erroresClienteAjax");
-    if (!box) return;
-
-    let html = "<strong>Por favor revisa:</strong><ul class='mb-0'>";
-    for (const campo in errorsObj) {
-      html += `<li><b>${campo}:</b> ${errorsObj[campo]}</li>`;
-    }
-    html += "</ul>";
-
-    box.innerHTML = html;
-    box.classList.remove("d-none");
-  }
-
-  function ocultarErroresCliente() {
-    const box = document.getElementById("erroresClienteAjax");
-    if (!box) return;
-    box.innerHTML = "";
-    box.classList.add("d-none");
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-
-    // ✅ Si el backend abre modal por error real (solo cuando falló un POST normal)
-    const abrirModal = {{ abrir_modal_cliente|default:"False"|yesno:"true,false" }};
-    const hayErrores = {{ errores|length }} > 0;
-
-    if (abrirModal || hayErrores) {
-      const modal = new bootstrap.Modal(document.getElementById("modalCrearCliente"));
-      modal.show();
-    }
-
-    // ✅ Interceptar submit para hacerlo AJAX y poder encadenar SweetAlert + modal gestión
-    const form = document.getElementById("formCrearCliente");
-    if (!form) return;
-
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      ocultarErroresCliente();
-
-      const formData = new FormData(form);
-
-      let resp, data;
-      try {
-        resp = await fetch(URL_CREAR_CLIENTE, {
-          method: "POST",
-          body: formData,
-          headers: { "X-Requested-With": "XMLHttpRequest" }
-        });
-        data = await resp.json();
-      } catch (err) {
-        await Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "No se pudo enviar el formulario."
-        });
-        return;
-      }
-
-      if (!resp.ok || !data || data.success !== true) {
-        // backend devuelve: {success:false, errors:{...}}
-        const errs = data?.errors || data?.errores || { "__all__": "Verifica los datos del formulario" };
-        mostrarErroresCliente(errs);
-        return;
-      }
-
-      // ✅ Cliente creado
-      const cliente = data.cliente;
-
-      // Cerrar modal crear
-      const modalCrear = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalCrearCliente"));
-      modalCrear.hide();
-
-      const r = await Swal.fire({
-        title: "Cliente guardado ✅",
-        text: `¿Deseas añadir un tratamiento de datos a ${cliente.nombre} ${cliente.apellido}?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Sí, agregar",
-        cancelButtonText: "No",
-        confirmButtonColor: "#382822",
-      });
-
-      if (!r.isConfirmed) {
-        // Recargo para ver el cliente en la tabla (si prefieres, lo hacemos sin recargar)
-        window.location.reload();
-        return;
-      }
-
-      // ✅ Abrir modal de gestión y cargar form preseleccionado por query ?cliente=ID
-      const modalGestionEl = document.getElementById("modalGestionDatos");
-      const modalGestionBody = document.getElementById("modalGestionDatosBody");
-      const modalGestion = bootstrap.Modal.getOrCreateInstance(modalGestionEl);
-
-      modalGestionBody.innerHTML = `
-        <div class="text-center p-5">
-          <div class="spinner-border" role="status"></div>
-        </div>
-      `;
-
-      modalGestion.show();
-
-      const url = URL_FORM_GESTION + "?cliente=" + encodeURIComponent(cliente.id);
-
-      try {
-        const respForm = await fetch(url, {
-          headers: { "X-Requested-With": "XMLHttpRequest" }
-        });
-        modalGestionBody.innerHTML = await respForm.text();
-      } catch (e) {
-        modalGestionBody.innerHTML = "<div class='alert alert-danger'>No se pudo cargar el formulario.</div>";
-        console.error(e);
-      }
-    });
-
-  });
+window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};
+window.clienteCreadoId = "{{ cliente_creado_id|default:'' }}";
+window.urlGestionModal = "{% url 'gestion_alisados:form_gestion_alisado_modal_content' %}";
 </script>
-
-<!-- ✅ Tus validaciones en vivo -->
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 <script src="{% static 'clientes/js/eliminar_clientes.js' %}"></script>
-
-{% endblock %}
+window.urlGestionModal = "{% url 'gestion_alisados:form_gestion_alisado_modal_content' %}";
+{% endblock %} 

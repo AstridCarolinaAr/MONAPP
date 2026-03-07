@@ -76,4 +76,33 @@ def editar_servicio_web(request, pk):
     
     return render(request, 'servicios_web/form_servicio_web.html', context)
 
+def cambiar_estado_servicio_web(request, pk):
+    if request.method == "POST":
+        servicio = get_object_or_404(ServicioWeb, pk=pk)
+
+        servicio.activo = not servicio.activo
+        servicio.save()
+
+        return JsonResponse({
+            "success": True,
+            "activo": servicio.activo
+        })
+
+    return JsonResponse({
+        "success": False,
+        "message": "Método no permitido"
+    }, status=400)
+def eliminar_servicio_web(request, pk):
+    servicio_web = get_object_or_404(ServicioWeb, pk=pk)
+
+    if request.method == 'POST':
+        nombre = servicio_web.nombre
+        servicio_web.delete()
+        messages.success(request, f'Servicio Web "{nombre}" eliminado exitosamente.')
+        return redirect('servicios_web:lista_servicios_web')
+
+    return render(request, 'servicios_web/eliminar_servcio.html', {
+        'servicio_web': servicio_web,
+    })
+  
 

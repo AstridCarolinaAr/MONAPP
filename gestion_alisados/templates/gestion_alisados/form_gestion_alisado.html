@@ -3,11 +3,6 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
-{% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{% url 'servicios:lista_gestion_alisados' %}">Gestión de Datos</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
-{% endblock %}
-
 {% block page_title %}
     <i class="bi bi-file-earmark-text"></i> {{ titulo }}
 {% endblock %}
@@ -173,8 +168,6 @@
 {% endblock %}
 
 {% block content %}
-
-
 <!-- Contenedor de notificaciones toast -->
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     <div id="notificacionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
@@ -1015,59 +1008,88 @@ document.addEventListener('DOMContentLoaded', function() {
         let isValid = true;
         let firstInvalidField = null;
         const currentStepEl = document.getElementById('step' + step);
-        
+
         // Limpiar errores previos
         currentStepEl.querySelectorAll('.validation-error').forEach(function(el) {
             el.remove();
         });
+
         currentStepEl.querySelectorAll('.is-invalid').forEach(function(el) {
             el.classList.remove('is-invalid');
         });
-        
-        // Obtener todos los campos requeridos del paso actual
+
+        currentStepEl.querySelectorAll('.alert.alert-danger').forEach(function(el) {
+            el.remove();
+        });
+
+        // Solo validar campos required visibles y habilitados
         const requiredFields = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
-        
+
         requiredFields.forEach(function(field) {
-            // Verificar si el campo está vacío
-            if (!field.value || field.value.trim() === '') {
+            const estaOculto = field.offsetParent === null;
+            const estaDeshabilitado = field.disabled;
+            const contenedorOculto = field.closest('.conditional-field') && !field.closest('.conditional-field').classList.contains('show');
+
+            if (estaOculto || estaDeshabilitado || contenedorOculto) {
+                return;
+            }
+
+            const valor = (field.value || '').trim();
+
+            if (!valor) {
                 isValid = false;
                 field.classList.add('is-invalid');
-                
-                // Mostrar mensaje de error
+
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'validation-error text-danger mt-1';
                 errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Este campo es obligatorio';
+
                 field.parentElement.appendChild(errorDiv);
-                
+
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+                return;
+            }
+
+            // Validación extra para selects
+            if (field.tagName === 'SELECT' && (field.value === '' || field.value === 'None')) {
+                isValid = false;
+                field.classList.add('is-invalid');
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'validation-error text-danger mt-1';
+                errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Debe seleccionar una opción';
+
+                field.parentElement.appendChild(errorDiv);
+
                 if (!firstInvalidField) {
                     firstInvalidField = field;
                 }
             }
         });
-        
-        // Si hay errores, hacer scroll al primer campo inválido
+
         if (!isValid && firstInvalidField) {
             firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
             firstInvalidField.focus();
-            
-            // Mostrar alerta general
+
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-danger alert-dismissible fade show';
             alertDiv.innerHTML = `
                 <i class="bi bi-exclamation-triangle-fill"></i>
-                <strong>¡Atención!</strong> Por favor, completa todos los campos obligatorios antes de continuar.
+                <strong>¡Atención!</strong> Te faltan campos obligatorios por completar en este paso.
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
+
             currentStepEl.insertBefore(alertDiv, currentStepEl.firstChild);
-            
-            // Auto-cerrar la alerta después de 5 segundos
+
             setTimeout(function() {
                 if (alertDiv && alertDiv.parentElement) {
                     alertDiv.remove();
                 }
             }, 5000);
         }
-        
+
         return isValid;
     }
     

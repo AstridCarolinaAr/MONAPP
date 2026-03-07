@@ -4,11 +4,6 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
-{% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{% url 'servicios:lista_gestion_alisados' %}">Gestión de Datos</a></li>
-<li class="breadcrumb-item active" aria-current="page">Detalle</li>
-{% endblock %}
-
 {% block page_title %}
     <i class="bi bi-file-earmark-text"></i> Gestion de datos
 {% endblock %}
@@ -62,13 +57,8 @@
         <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
             <h4 class="mb-0">Gestion de datos</h4>
             <div>
-<<<<<<< HEAD:servicios/templates/servicios/detalle_gestion_alisado.html
-                <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;">
-                    <i class="bi bi-pencil-square"></i> Editar
-=======
                 <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-warning">
                     <i class="bi bi-pencil"></i> Editar
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb:gestion_alisados/templates/gestion_alisados/detalle_gestion_alisado.html
                 </a>
                 <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-light">
                     <i class="bi bi-arrow-left"></i> Volver
@@ -351,19 +341,11 @@
                     <i class="bi bi-arrow-left"></i> Volver a la Lista
                 </a>
                 <div>
-<<<<<<< HEAD:servicios/templates/servicios/detalle_gestion_alisado.html
-                    <a href="{% url 'servicios:editar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom">
-                        <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
-                    </a>
-                    <a href="{% url 'servicios:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-link" style="color: #382822;" title="Eliminar" data-bs-placement="bottom">
-                        <i class="bi bi-trash3" style="font-size: 24px;"></i>
-=======
                     <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-warning">
                         <i class="bi bi-pencil"></i> Editar
                     </a>
                     <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-danger">
                         <i class="bi bi-trash"></i> Eliminar
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb:gestion_alisados/templates/gestion_alisados/detalle_gestion_alisado.html
                     </a>
                 </div>
             </div>
