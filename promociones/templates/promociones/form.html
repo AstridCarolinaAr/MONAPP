@@ -120,6 +120,22 @@
 .form-control, .form-select {
     border: 1px solid #d4c4ba;
 }
+/* Validación nombre */
+.promo-name-error {
+    color: #a0715a;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.promo-name-error.visible { display: block; }
+.form-control.is-invalid-name {
+    border-color: #a0715a !important;
+    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+}
+.form-control.is-valid-name {
+    border-color: #6ba06a !important;
+    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+}
 </style>
 {% endblock %}
 
@@ -145,6 +161,7 @@
                         {% if form.nombre.errors %}
                             <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
                         {% endif %}
+                        <div class="promo-name-error" id="err_nombre_promo_form"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Etiqueta</label>
@@ -260,6 +277,67 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
+
+    /* ── Validar nombre (solo letras y espacios) ── */
+    function validarNombrePromo(input, errEl) {
+        const v = input.value.trim();
+        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
+        let msg = '';
+        if (!v)                msg = 'El nombre es obligatorio.';
+        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
+        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
+        else if (!REG.test(v))     msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+        if (msg) {
+            input.classList.add('is-invalid-name');
+            input.classList.remove('is-valid-name');
+            errEl.textContent = msg;
+            errEl.classList.add('visible');
+        } else {
+            input.classList.remove('is-invalid-name');
+            input.classList.add('is-valid-name');
+            errEl.textContent = '';
+            errEl.classList.remove('visible');
+        }
+        return !msg;
+    }
+
+    const nombreInput = document.getElementById('id_nombre');
+    const errNombre   = document.getElementById('err_nombre_promo_form');
+    if (nombreInput && errNombre) {
+        nombreInput.addEventListener('input', () => validarNombrePromo(nombreInput, errNombre));
+        nombreInput.addEventListener('blur',  () => validarNombrePromo(nombreInput, errNombre));
+        nombreInput.closest('form').addEventListener('submit', function(e) {
+            if (!validarNombrePromo(nombreInput, errNombre)) {
+                e.preventDefault();
+                nombreInput.focus();
+            }
+        });
+    }
+
+    /* ── Filtro nombre: impedir números y signos en tiempo real ── */
+    const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
+    if (nombreInput) {
+        nombreInput.addEventListener('keypress', function (e) {
+            if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                if (!NOMBRE_ALLOWED.test(e.key)) e.preventDefault();
+            }
+        });
+        nombreInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+            document.execCommand('insertText', false, limpio);
+        });
+        nombreInput.addEventListener('input', function () {
+            const pos = this.selectionStart;
+            const original = this.value;
+            const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+            if (limpio !== original) {
+                this.value = limpio;
+                this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

@@ -920,14 +920,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* Nombre */
-    const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.\,\(\)&\+\/\#\*\!\?:\'"]+$/;
+    const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
     function promoNombre(input, errEl) {
         const v = input.value.trim();
         let msg = '';
         if (!v)                  msg = 'El nombre es obligatorio.';
         else if (v.length < 2)       msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)     msg = 'Máximo 200 caracteres.';
-        else if (!PROMO_REG.test(v)) msg = 'Caracteres no permitidos. Use letras, números y -.,()&+/#*!?\'"';
+        else if (!PROMO_REG.test(v)) msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
         return promoErr(input, errEl, msg);
     }
 
@@ -1134,6 +1134,40 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+
+    /* ══════════════════════════════════════════════════════
+       FILTRO DE NOMBRE — impedir números y signos al escribir
+       Solo letras (incluyendo tildes/ñ) y espacios
+    ══════════════════════════════════════════════════════ */
+    const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
+
+    function filtrarNombreKeypress(e) {
+        if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            if (!NOMBRE_ALLOWED.test(e.key)) e.preventDefault();
+        }
+    }
+    function filtrarNombrePaste(e) {
+        e.preventDefault();
+        const texto = (e.clipboardData || window.clipboardData).getData('text');
+        const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+        document.execCommand('insertText', false, limpio);
+    }
+    function filtrarNombreInput() {
+        const pos = this.selectionStart;
+        const original = this.value;
+        const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+        if (limpio !== original) {
+            this.value = limpio;
+            this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
+        }
+    }
+
+    /* Aplicar filtro a todos los campos nombre de promociones */
+    document.querySelectorAll('#modalAgregar [name="nombre"], #modalEditar [name="nombre"]').forEach(input => {
+        input.addEventListener('keypress', filtrarNombreKeypress);
+        input.addEventListener('paste', filtrarNombrePaste);
+        input.addEventListener('input', filtrarNombreInput);
     });
 
     /* ── Modal Ver Detalles Promoción ── */
