@@ -544,34 +544,24 @@ body.bg-black {
 
 
 /* ================= VIDEO ================= */
-.sq-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-
-    opacity: 0;
-    transform: scale(1.04);
-    transition:
-        opacity 0.45s ease,
-        transform 0.6s ease;
-
-    z-index: 5;
-
-    pointer-events: none; 
-} 
-
-.sq-card.is-video .sq-video {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
+.sq-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:2;
+    opacity:0;
+    transition:opacity .4s ease;
 }
 
-.sq-card.is-video::before {
-    opacity: 0;
+.sq-card.is-video .sq-video{
+    opacity:1;
 }
 
+.sq-card.is-video{
+    background-image:none !important;
+}
 /* ================= CARD ACTIVA ================= */
 .sq-card.is-video {
     transform: scale(1.08);
@@ -1024,6 +1014,7 @@ body.bg-black {
     backdrop-filter: blur(3px);
     opacity: 0;
     transition: opacity 0.2s ease;
+    pointer-events: none; /* Agregado para que el clic pase a la tarjeta */
 }
 
 .sq-card.has-video:hover .sw-play-hint {

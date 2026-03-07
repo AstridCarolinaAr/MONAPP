@@ -63,27 +63,35 @@ function pintarErrores(form, errors) {
 }
 
 function activarClickVideoEnCards() {
-    document.querySelectorAll(".sq-card.has-video").forEach(card => {
+    const cards = document.querySelectorAll(
+        ".sq-card.has-video, .servicio-card"
+    );
+
+    cards.forEach(card => {
         card.addEventListener("click", (e) => {
-            // Si clickeó en botones (editar) no tocar el video
             if (e.target.closest(".actions-overlay")) return;
             if (e.target.closest(".btn-edit-servicioweb")) return;
+            if (e.target.closest(".btn-delete-servicioweb")) return;
+            if (e.target.closest(".toggle-activo-servicioweb")) return;
 
-            const video = card.querySelector("video.sq-video");
+            const video = card.querySelector("video.sq-video, video.servicio-video");
             if (!video) return;
 
-            // Pausar otras tarjetas
-            document.querySelectorAll(".sq-card.playing").forEach(other => {
-                if (other !== card) {
-                    const v = other.querySelector("video.sq-video");
-                    if (v && !v.paused) v.pause();
-                    other.classList.remove("playing");
+            document.querySelectorAll("video.sq-video, video.servicio-video").forEach(otherVideo => {
+                if (otherVideo !== video) {
+                    otherVideo.pause();
+                    otherVideo.closest(".sq-card, .servicio-card")?.classList.remove("playing");
                 }
             });
 
             if (video.paused) {
-                card.classList.add("playing");
-                video.play().catch(() => {});
+                video.play()
+                    .then(() => {
+                        card.classList.add("playing");
+                    })
+                    .catch(err => {
+                        console.error("No se pudo reproducir el video:", err);
+                    });
             } else {
                 video.pause();
                 card.classList.remove("playing");
