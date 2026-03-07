@@ -898,7 +898,7 @@ body.bg-black {
 .mona-footer {
     background-color: #000000; /* Fondo negro */
     color: #888888;            /* Texto gris suave para que no brille tanto */
-    padding: 3rem 1rem;
+    padding: 3rem 1rem 1.5rem;
     border-top: 1px solid #222; /* Una línea sutil arriba para separar */
     font-size: 0.9rem;
     text-align: center;        /* Todo centrado por defecto */
@@ -913,7 +913,7 @@ body.bg-black {
 }
 
 .mona-footer .copyright {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .mona-footer .footer-legal a {
@@ -931,7 +931,61 @@ body.bg-black {
     color: #444;
 }
 
+/* Ocultar el footer genérico del master en la página de inicio */
+.footer {
+    display: none;
+}
 
+/* Grid de info en el footer */
+.footer-info-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem 3rem;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.footer-info-block {
+    min-width: 160px;
+    max-width: 220px;
+}
+
+.footer-info-block h4 {
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.footer-info-block p {
+    color: #888888;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.footer-info-block a {
+    display: block;
+    color: #888888;
+    font-size: 0.85rem;
+    text-decoration: none;
+    line-height: 2;
+    transition: color 0.2s ease;
+}
+
+.footer-info-block a:hover {
+    color: #ffffff;
+}
+
+.mona-footer .footer-divider {
+    border: none;
+    border-top: 1px solid #222;
+    margin: 1.5rem auto;
+    width: 80%;
+}
 
 /* -------------------- RESPONSIVE -------------------- */
 @media (max-width: 900px) {
