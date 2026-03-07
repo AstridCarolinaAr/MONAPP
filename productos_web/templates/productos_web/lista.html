@@ -4,9 +4,6 @@
 
 {% block title %}Catálogo Web{% endblock %}
 
-<<<<<<< HEAD
-{% block page_title %}{% endblock %}
-=======
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Catálogo Web</li>
 {% endblock %}
@@ -14,7 +11,6 @@
 {% block page_title %}
     <i class="bi bi-globe2"></i> Catálogo Web de Productos
 {% endblock %}
->>>>>>> ea582f7c6233cd5896ba82abad47950daf0fbc78
 
 {% block extra_css %}
 <style>
@@ -414,62 +410,6 @@
     </form>
 
     <!-- ───── TABLA ───── -->
-<<<<<<< HEAD
-    {% if productos %}
-    <div class="table-container-custom">
-        <div class="table-responsive">
-            <table class="styled-table" id="pw-tabla">
-                <thead>
-                    <tr>
-                        <th>Foto</th>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th class="text-center">Visible</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in productos %}
-                    <tr data-nombre="{{ p.nombre|lower }}">
-                        <td>
-                            {% if p.imagen %}
-                                <img src="{{ p.imagen.url }}" class="pw-thumb" alt="{{ p.nombre }}">
-                            {% else %}
-                                <div class="pw-thumb-placeholder">
-                                    <i class="bi bi-image"></i>
-                                </div>
-                            {% endif %}
-                        </td>
-                        <td class="fw-semibold">{{ p.nombre }}</td>
-                        <td>${{ p.precio|intcomma }}</td>
-                        <td class="text-center">
-                            <label class="pw-switch" title="Alternar visibilidad" data-bs-placement="bottom">
-                                <input type="checkbox"
-                                       {% if p.visible %}checked{% endif %}
-                                       data-toggle-url="{% url 'productos_web:toggle_visible' p.pk %}">
-                                <span class="slider"></span>
-                            </label>
-                        </td>
-                        <td class="text-center pw-actions">
-                            <a href="{% url 'productos_web:editar' p.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom">
-                                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
-                            </a>
-                            <button type="button" class="btn btn-link"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalEliminar"
-                                    data-nombre="{{ p.nombre }}"
-                                    data-url="{% url 'productos_web:eliminar' p.pk %}"
-                                    style="color: #382822;"
-                                    title="Eliminar"
-                                    data-bs-placement="bottom">
-                                <i class="bi bi-trash3" style="font-size: 24px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-=======
     <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -551,23 +491,10 @@
                     </tbody>
                 </table>
             </div>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
         </div>
     </div>
 
-<<<<<<< HEAD
-<!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
-<button class="btn-pill-dark position-fixed bottom-0 end-0 m-4 shadow-lg" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modalAgregar" 
-        title="Nuevo producto web" 
-        data-bs-placement="bottom"
-        style="z-index: 1050;">
-    <i class="bi bi-plus-circle"></i> Nuevo producto web
-</button>
-=======
 </div>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 
 <!-- ═══════════════ MODAL AGREGAR ═══════════════ -->
 <div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
