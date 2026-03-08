@@ -18,7 +18,6 @@
     <div class="card shadow-sm card-proveedores">
         <div class="card-body">
 
-            <!-- HEADER -->
             <div class="proveedores-header mb-4 d-flex justify-content-between align-items-center">
                 <div>
                     <h4 class="mb-0">Listado de Proveedores</h4>
@@ -27,17 +26,16 @@
                         proveedor{{ proveedores|length|pluralize:"es" }}
                     </small>
                 </div>
-            <a href="{% url 'proveedores:crear_proveedor' %}"
-            class="btn-pill-dark"
-            data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-            data-modal-title="Crear Proveedor">
-            Crear Proveedor
-            </a>
+                <a href="{% url 'proveedores:crear_proveedor' %}"
+                   class="btn-pill-dark"
+                   data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+                   data-modal-title="Crear Proveedor">
+                    Crear Proveedor
+                </a>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-                <!-- FILTRO -->
                 <div class="dropdown">
                     <button class="btn btn-filter dropdown-toggle"
                             type="button"
@@ -87,7 +85,6 @@
                     </ul>
                 </div>
 
-                <!-- BUSCADOR -->
                 <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
                     {% if request.GET.orden %}
                         <input type="hidden" name="orden" value="{{ request.GET.orden }}">
@@ -110,7 +107,6 @@
 
             </div>
 
-            <!-- TABLA -->
             {% if proveedores %}
             <div class="table-responsive">
                 <table class="styled-table">
@@ -118,20 +114,28 @@
                         <tr>
                             <th>NIT</th>
                             <th>Proveedor</th>
+                            <th>Estado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-
                         {% for proveedor in proveedores %}
                         <tr>
                             <td>{{ proveedor.nit }}</td>
                             <td>{{ proveedor.nombre_proveedor }}</td>
+                            <td class="text-center">
+                                <span
+                                    id="estado-proveedor-{{ proveedor.pk }}"
+                                    class="estado-switch {% if proveedor.estado == 'activo' %}is-on{% else %}is-off{% endif %}"
+                                    aria-label="Estado del proveedor"
+                                    title="{% if proveedor.estado == 'activo' %}Activo{% else %}Desactivado{% endif %}">
+                                    <span class="switch-thumb"></span>
+                                </span>
+                            </td>
 
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
 
-                                    <!-- VER DETALLES -->
                                     <button class="btn btn-link"
                                             data-bs-toggle="modal"
                                             data-bs-target="#modalDetalleProveedor"
@@ -157,14 +161,21 @@
                                     </button>
 
                                     {% if proveedor.estado == 'activo' %}
-                                    <button type="button"
-                                            class="btn-icon btn-eliminar js-eliminar-proveedor"
-                                            data-id="{{ proveedor.id }}">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
+                                        <button type="button"
+                                                class="btn btn-link btn-action-round js-eliminar-proveedor"
+                                                style="color:#382822;"
+                                                data-id="{{ proveedor.pk }}"
+                                                data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
+                                                data-url-eliminar="{% url 'proveedores:eliminar_proveedor' proveedor.pk %}"
+                                                data-url-desactivar="{% url 'proveedores:desactivar' proveedor.pk %}"
+                                                title="Eliminar proveedor">
+                                            <i class="bi bi-trash3" style="font-size:24px;"></i>
+                                        </button>
                                     {% else %}
-                                        <button type="button" class="btn btn-success btn-sm js-reactivar-proveedor" data-id="{{ proveedor.id }}">
-                                        Reactivar
+                                        <button type="button"
+                                                class="btn btn-success btn-sm js-reactivar-proveedor"
+                                                data-id="{{ proveedor.id }}">
+                                            Reactivar
                                         </button>
                                     {% endif %}
 
@@ -172,11 +183,9 @@
                             </td>
                         </tr>
                         {% endfor %}
-
                     </tbody>
                 </table>
             </div>
-
             {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted">No hay proveedores registrados.</p>
@@ -187,7 +196,6 @@
     </div>
 </div>
 
-<!-- MODAL DETALLE -->
 <div class="modal fade" id="modalDetalleProveedor" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg">
@@ -218,29 +226,31 @@
         </div>
     </div>
 </div>
-<!-- Modal reutilizable -->
+
 <div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content ultra-card">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content ultra-card">
 
-      <div class="modal-header ultra-header">
-        <div class="d-flex align-items-center gap-2">
-          <span class="ultra-icon"><i class="bi bi-pencil-square"></i></span>
-          <div>
-            <div class="ultra-title" id="ajaxFormModalTitle">Formulario</div>
-            <div class="ultra-subtitle">Completa la información</div>
-          </div>
+            <div class="modal-header ultra-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="ultra-icon"><i class="bi bi-pencil-square"></i></span>
+                    <div>
+                        <div class="ultra-title" id="ajaxFormModalTitle">Formulario</div>
+                        <div class="ultra-subtitle">Completa la información</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body p-4" id="ajaxFormModalBody"></div>
+
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body p-4" id="ajaxFormModalBody"></div>
-
     </div>
-  </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
+
 {% block extra_js %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <script src="{% static 'proveedor/js/detalle_proveedor.js' %}"></script>

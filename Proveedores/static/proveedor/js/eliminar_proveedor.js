@@ -1,4 +1,4 @@
-// static/proveedor/js/proveedor_formulario.js
+
 (() => {
   "use strict";
 
@@ -6,10 +6,9 @@
   // Helpers DOM
   // =========================
   const qs = (root, sel) => (root || document).querySelector(sel);
-  const qsa = (root, sel) => Array.from((root || document).querySelectorAll(sel));
 
   // =========================
-  // CSRF (UNO SOLO)
+  // CSRF
   // =========================
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -43,9 +42,13 @@
   }
 
   // =========================
-  // SWEETALERT: ELIMINAR / DESACTIVAR / REACTIVAR
+  // ELIMINAR / DESACTIVAR
   // =========================
-  async function eliminarProveedor(id) {
+  async function eliminarProveedor(btn) {
+    const id = btn.dataset.id;
+    const urlEliminar = btn.dataset.urlEliminar || `/Proveedores/eliminar/${id}/`;
+    const urlDesactivar = btn.dataset.urlDesactivar || `/Proveedores/desactivar/${id}/`;
+
     const confirm = await Swal.fire({
       title: "Confirmar eliminación",
       text: "Esta acción eliminará el proveedor permanentemente.",
@@ -61,7 +64,8 @@
 
     try {
       const csrf = getCSRFToken();
-      const r = await fetch(`/Proveedores/eliminar/${id}/`, {
+
+      const r = await fetch(urlEliminar, {
         method: "POST",
         credentials: "same-origin",
         headers: {
@@ -71,14 +75,16 @@
       });
 
       const ct = (r.headers.get("content-type") || "").toLowerCase();
-      if (!ct.includes("application/json")) throw new Error("Respuesta no JSON");
+      if (!ct.includes("application/json")) {
+        throw new Error("Respuesta no JSON en eliminar");
+      }
 
       const data = await r.json();
 
       if (data.status === "deleted") {
         await Swal.fire({
           title: "Eliminado",
-          text: "El proveedor fue eliminado correctamente.",
+          text: data.message || "El proveedor fue eliminado correctamente.",
           icon: "success",
           confirmButtonColor: "#198754",
         });
@@ -91,7 +97,7 @@
           title: "No se puede eliminar",
           html: `
             Este proveedor está vinculado a 
-            <strong>${data.cantidad}</strong> ${data.detalle}.<br><br>
+            <strong>${data.cantidad ?? 0}</strong> ${data.detalle || "registros"}.<br><br>
             Por razones de seguridad, no puede eliminarse.<br><br>
             ¿Deseas desactivarlo en su lugar?
           `,
@@ -100,11 +106,12 @@
           confirmButtonText: "Sí, desactivar",
           cancelButtonText: "Cancelar",
           confirmButtonColor: "#0d6efd",
+          cancelButtonColor: "#6c757d",
         });
 
         if (!ask.isConfirmed) return;
 
-        const r2 = await fetch(`/Proveedores/desactivar/${id}/`, {
+        const r2 = await fetch(urlDesactivar, {
           method: "POST",
           credentials: "same-origin",
           headers: {
@@ -113,13 +120,24 @@
           },
         });
 
+        const ct2 = (r2.headers.get("content-type") || "").toLowerCase();
+        if (!ct2.includes("application/json")) {
+          throw new Error("Respuesta no JSON en desactivar");
+        }
+
         const data2 = await r2.json();
+
+        if (!r2.ok || !data2.success) {
+          throw new Error(data2.message || "No se pudo desactivar el proveedor.");
+        }
+
         await Swal.fire({
           title: "Proveedor desactivado",
           text: data2.message || "El proveedor fue desactivado correctamente.",
           icon: "success",
           confirmButtonColor: "#198754",
         });
+
         location.reload();
         return;
       }
@@ -131,7 +149,7 @@
         confirmButtonColor: "#d33",
       });
     } catch (err) {
-      console.error(err);
+      console.error("Error al eliminar/desactivar proveedor:", err);
       await Swal.fire({
         title: "Error",
         text: "Ocurrió un error al procesar la solicitud.",
@@ -141,6 +159,9 @@
     }
   }
 
+  // =========================
+  // REACTIVAR
+  // =========================
   async function reactivarProveedor(id) {
     const confirm = await Swal.fire({
       title: "Reactivar proveedor",
@@ -150,12 +171,14 @@
       confirmButtonText: "Sí, reactivar",
       cancelButtonText: "Cancelar",
       confirmButtonColor: "#198754",
+      cancelButtonColor: "#6c757d",
     });
 
     if (!confirm.isConfirmed) return;
 
     try {
       const csrf = getCSRFToken();
+
       const r = await fetch(`/Proveedores/reactivar/${id}/`, {
         method: "POST",
         credentials: "same-origin",
@@ -166,9 +189,15 @@
       });
 
       const ct = (r.headers.get("content-type") || "").toLowerCase();
-      if (!ct.includes("application/json")) throw new Error("Respuesta no JSON");
+      if (!ct.includes("application/json")) {
+        throw new Error("Respuesta no JSON en reactivar");
+      }
 
       const data = await r.json();
+
+      if (!r.ok || !data.success) {
+        throw new Error(data.message || "No fue posible reactivar el proveedor.");
+      }
 
       await Swal.fire({
         title: "Proveedor reactivado",
@@ -176,9 +205,10 @@
         icon: "success",
         confirmButtonColor: "#198754",
       });
+
       location.reload();
     } catch (err) {
-      console.error(err);
+      console.error("Error al reactivar proveedor:", err);
       await Swal.fire({
         title: "Error",
         text: "No fue posible reactivar el proveedor.",
@@ -225,7 +255,7 @@
   }
 
   // =========================
-  // VALIDACIONES PROVEEDOR (verde/rojo)
+  // VALIDACIONES PROVEEDOR
   // =========================
   function ensureWrapper(input) {
     if (!input) return null;
@@ -436,15 +466,17 @@
   };
 
   // =========================
-  // INIT + EVENTOS GLOBALES (UNA SOLA VEZ)
+  // INIT + EVENTOS GLOBALES
   // =========================
   document.addEventListener("DOMContentLoaded", () => {
     modalEl = document.getElementById("ajaxFormModal");
     modalTitleEl = document.getElementById("ajaxFormModalTitle");
     modalBodyEl = document.getElementById("ajaxFormModalBody");
-    if (modalEl && modalTitleEl && modalBodyEl) modal = new bootstrap.Modal(modalEl);
 
-    // 1) clicks: modal / eliminar / reactivar
+    if (modalEl && modalTitleEl && modalBodyEl) {
+      modal = new bootstrap.Modal(modalEl);
+    }
+
     document.addEventListener("click", async (e) => {
       const trigger = e.target.closest("[data-modal-url]");
       if (trigger) {
@@ -459,8 +491,7 @@
       const btnDel = e.target.closest(".js-eliminar-proveedor");
       if (btnDel) {
         e.preventDefault();
-        const id = btnDel.dataset.id;
-        if (id) await eliminarProveedor(id);
+        await eliminarProveedor(btnDel);
         return;
       }
 
@@ -473,7 +504,6 @@
       }
     });
 
-    // 2) submit modal AJAX
     document.addEventListener("submit", async (e) => {
       const form = e.target.closest("#ajaxFormModal form");
       if (!form) return;
@@ -485,7 +515,9 @@
         if (!ok) return;
       }
 
-      const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]')?.value || getCSRFToken();
+      const csrf =
+        form.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+        getCSRFToken();
 
       const result = await fetchSmart(form.action, {
         method: "POST",
@@ -517,7 +549,6 @@
       if (window.ProveedorFormulario) window.ProveedorFormulario.init(modalEl);
     });
 
-    // init por si renderizas form sin modal (opcional)
     wireProveedor(document);
   });
 

@@ -9,5 +9,4 @@ urlpatterns = [
     path("editar/<int:pk>/", views.editar_compra, name="editar_compra"),
     path("detalle/<int:compra_id>/", views.detalle_compra, name="detalle_compra"),
     path("anular/<int:pk>/", views.anular_compra, name="anular_compra"),
-    path("restaurar/<int:pk>/", views.restaurar_compra, name="restaurar_compra"),
     ]

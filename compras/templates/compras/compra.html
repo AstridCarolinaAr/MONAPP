@@ -37,79 +37,130 @@
     <span>Total compras registradas</span>
     <strong>${{ total_compras|floatformat:2 }}</strong>
   </div>
+<form method="get" class="filtro-compras mb-4">
+  <div class="filtro-compras-grid">
 
-  {% if compras %}
-    <div class="table-responsive">
-      <table class="styled-table">
-    <thead>
-      <tr>
-        <th><a href="{% sort_url 'proveedor' %}">Proveedor</a></th>
-        <th><a href="{% sort_url 'fecha' %}">Fecha</a></th>
-        <th><a href="{% sort_url 'usuario' %}">Usuario</a></th>
-        <th class="text-center">Acciones</th>
-      </tr>
-    </thead>
-
-        <tbody>
-        {% for c in compras %}
-          <tr id="fila-compra-{{ c.id }}">
-            <td>{{ c.proveedor }}</td>
-            <td>{{ c.fecha }}</td>
-            <td>{{ c.usuario.username }}</td>
-
-            <td class="text-center">
-              <div class="acciones-group">
-                  <button type="button"
-                          class="btn btn-link"
-                          style="color: #382822;"
-                          data-modal-url="{% url 'compras:detalle_compra' c.id %}"
-                          data-modal-title="Detalle de compra #{{ c.id }}"
-                          title="Ver detalles"
-                          data-bs-placement="bottom">
-                    <i class="bi bi-eye" style="font-size: 24px;"></i>
-                  </button>   
-
-                  <button type="button"
-                          class="btn btn-link btn-action-round"
-                          style="color:#382822;"
-                          data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                          data-modal-title="Editar compra"
-                          title="Editar compra"
-                          data-bs-placement="bottom">
-                      <i class="bi bi-pencil-square" style="font-size:24px;"></i>
-                  </button>
-
-              <button type="button"
-                      class="btn btn-link btn-action-round js-anular-compra"
-                      style="color:#382822;"
-                      data-id="{{ c.id }}"
-                      data-proveedor="{{ c.proveedor }}"
-                      data-url="{% url 'compras:anular_compra' c.id %}"
-                      title="Anular compra"
-                      data-bs-placement="bottom">
-                  <i class="bi bi-trash3" style="font-size:24px;"></i>
-              </button>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+    <div class="filtro-item">
+      <label class="filtro-label">Estado</label>
+      <select name="estado" class="filtro-input">
+        <option value="activas" {% if estado_actual == "activas" %}selected{% endif %}>Activas</option>
+        <option value="anuladas" {% if estado_actual == "anuladas" %}selected{% endif %}>Anuladas</option>
+        <option value="todas" {% if estado_actual == "todas" %}selected{% endif %}>Todas</option>
+      </select>
     </div>
-  {% else %}
-    <div class="alert alert-light mt-3 text-center">No hay compras registradas</div>
-  {% endif %}
 
-  {# ✅ FAB SIEMPRE visible (haya o no activas) #}
-  <button id="anuladas-fab" type="button" class="anuladas-fab"
-          data-bs-toggle="modal" data-bs-target="#modalAnuladas">
-    <span class="anuladas-fab__icon">🗑️</span>
-    <span class="anuladas-fab__text">Anuladas</span>
-    <span id="contador-anuladas" class="anuladas-fab__badge">
-      {{ compras_anuladas|length }}
-    </span>
-  </button>
+    <div class="filtro-item">
+      <label class="filtro-label">Fecha exacta</label>
+      <input type="date" name="fecha" class="filtro-input" value="{{ fecha_actual }}">
+    </div>
 
+    <div class="filtro-item">
+      <label class="filtro-label">Desde</label>
+      <input type="date" name="fecha_desde" class="filtro-input" value="{{ fecha_desde_actual }}">
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-label">Hasta</label>
+      <input type="date" name="fecha_hasta" class="filtro-input" value="{{ fecha_hasta_actual }}">
+    </div>
+
+    <div class="filtro-item filtro-item-busqueda">
+      <label class="filtro-label">Buscar</label>
+      <input
+        type="text"
+        name="q"
+        class="filtro-input"
+        value="{{ q_actual }}"
+        placeholder="ID compra, ID proveedor, proveedor o usuario">
+    </div>
+
+    <div class="filtro-item filtro-botones">
+      <button type="submit" class="btn-filtro btn-filtrar">
+        <i class="bi bi-funnel me-1"></i> Filtrar
+      </button>
+
+      <a href="{% url 'compras:lista_compras' %}" class="btn-filtro btn-limpiar">
+        <i class="bi bi-arrow-clockwise me-1"></i> Limpiar
+      </a>
+    </div>
+
+  </div>
+</form>
+{% if compras %}
+  <div class="table-responsive">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th><a href="{% sort_url 'id' %}">ID</a></th>
+          <th><a href="{% sort_url 'proveedor' %}">Proveedor</a></th>
+          <th><a href="{% sort_url 'fecha' %}">Fecha</a></th>
+          <th><a href="{% sort_url 'usuario' %}">Usuario</a></th>
+          <th><a href="{% sort_url 'anulada' %}">Estado</a></th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for c in compras %}
+        <tr id="fila-compra-{{ c.id }}">
+          <td>{{ c.id }}</td>
+          <td>{{ c.proveedor }}</td>
+          <td>{{ c.fecha }}</td>
+          <td>{{ c.usuario.username }}</td>
+          <td>
+            {% if c.anulada %}
+              <span class="badge bg-danger">Anulada</span>
+            {% else %}
+              <span class="badge bg-success">Activa</span>
+            {% endif %}
+          </td>
+
+          <td class="text-center">
+            <div class="acciones-group">
+              <button type="button"
+                      class="btn btn-link"
+                      style="color: #382822;"
+                      data-modal-url="{% url 'compras:detalle_compra' c.id %}"
+                      data-modal-title="Detalle de compra #{{ c.id }}"
+                      title="Ver detalles"
+                      data-bs-placement="bottom">
+                <i class="bi bi-eye" style="font-size: 24px;"></i>
+              </button>
+
+              {% if not c.anulada %}
+                <button type="button"
+                        class="btn btn-link btn-action-round"
+                        style="color:#382822;"
+                        data-modal-url="{% url 'compras:editar_compra' c.id %}"
+                        data-modal-title="Editar compra"
+                        title="Editar compra"
+                        data-bs-placement="bottom">
+                  <i class="bi bi-pencil-square" style="font-size:24px;"></i>
+                </button>
+
+                <button type="button"
+                        class="btn btn-link btn-action-round js-anular-compra"
+                        style="color:#382822;"
+                        data-id="{{ c.id }}"
+                        data-proveedor="{{ c.proveedor }}"
+                        data-url="{% url 'compras:anular_compra' c.id %}"
+                        title="Anular compra"
+                        data-bs-placement="bottom">
+                  <i class="bi bi-trash3" style="font-size:24px;"></i>
+                </button>
+              {% else %}
+                <span class="badge bg-secondary">Sin acciones</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-light mt-3 text-center">No hay compras registradas</div>
+{% endif %}
 </div>
 
 <div class="modal fade" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
@@ -141,157 +192,7 @@
     </div>
   </div>
 </div>
-{# ========================= MODAL ANULADAS ========================= #}
-<div class="modal fade" id="modalAnuladas" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content mona-modal">
-      
-      <!-- Header -->
-      <div class="modal-header mona-modal__header">
-        <div class="mona-modal__title">
-          <h5 class="modal-title mb-0">Compras anuladas</h5>
-          <small class="text-muted">Filtra, revisa y restaura compras canceladas</small>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
 
-      <!-- Body -->
-      <div class="modal-body mona-modal__body">
-
-        <!-- Filters card -->
-        <div class="mona-card mb-3">
-          <div class="row g-2 align-items-end">
-
-            <div class="col-md-4">
-              <label class="form-label mona-label">Desde</label>
-              <input type="date" class="form-control mona-input" id="anuladasDesde">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label mona-label">Hasta</label>
-              <input type="date" class="form-control mona-input" id="anuladasHasta">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label mona-label">Orden</label>
-              <select class="form-select mona-input" id="anuladasOrden">
-                <option value="new">Más nuevas primero</option>
-                <option value="old">Más viejas primero</option>
-              </select>
-            </div>
-
-            <div class="col-12 mt-1">
-              <label class="form-label mona-label">Buscar</label>
-              <div class="input-group">
-                <span class="input-group-text mona-addon">
-                  <i class="bi bi-search"></i>
-                </span>
-                <input type="text" class="form-control mona-input" id="anuladasBuscar"
-                       placeholder="Buscar por codigo, proveedor o usuario...">
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <small class="text-muted" id="anuladasCount">Mostrando 0</small>
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnResetAnuladas">
-                  <i class="bi bi-arrow-counterclockwise"></i> Limpiar
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Table card -->
-        <div class="mona-tablecard">
-          <div class="table-responsive mona-table-scroll" id="anuladasScrollWrap">
-            <table class="table align-middle mona-table mb-0" id="tablaAnuladas">
-              <thead>
-                <tr>
-                  <th style="width:84px;">codigo</th>
-                  <th>Proveedor</th>
-                  <th style="width:120px;">Creación</th>
-                  <th style="width:120px;">Anulación</th>
-                  <th style="width:120px;">Usuario</th>
-                  <th class="text-end" style="width:140px;">Total</th>
-                  <th class="text-end" style="width:120px;">Acciones</th>
-                </tr>
-              </thead>
-
-              <tbody id="tbodyAnuladas">
-                {% for a in compras_anuladas %}
-                <tr class="anulada-row"
-                    data-id="{{ a.id }}"
-                    data-proveedor="{{ a.proveedor|lower }}"
-                    data-usuario="{{ a.usuario.username|lower }}"
-                    data-total="{{ a.precio_total }}"
-                    data-fecha="{{ a.fecha_anulada|date:'Y-m-d' }}">
-
-                  <td>
-                    <span class="mona-pill mona-pill--id">codigo{{ a.id }}</span>
-                  </td>
-
-                  <td>
-                    <span class="mona-pill mona-pill--link">{{ a.proveedor }}</span>
-                  </td>
-
-                  <td class="text-muted">{{ a.fecha|date:"d/m/Y" }}</td>
-                  <td class="text-muted">{{ a.fecha_anulada|date:"d/m/Y" }}</td>
-
-                  <td>
-                    <span class="mona-pill mona-pill--user">{{ a.usuario.username }}</span>
-                  </td>
-
-                  <td class="text-end">
-                    <span class="mona-pill mona-pill--money">
-                      ${{ a.precio_total|floatformat:0 }}
-                    </span>
-                  </td>
-
-                  <td class="text-end">
-                    <button type="button"
-                            class="btn btn-sm mona-btn-restore js-restaurar-compra"
-                            data-url="{% url 'compras:restaurar_compra' a.id %}">
-                      <i class="bi bi-arrow-counterclockwise"></i>
-                      <span class="d-none d-md-inline">Restaurar</span>
-                    </button>
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="7" class="text-muted text-center py-4">No hay compras anuladas.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-
-          <div id="anuladasVacio" class="text-muted text-center py-3 d-none">
-            No hay anuladas en ese rango.
-          </div>
-        </div>
-
-      </div>
-
-      <div class="modal-footer mona-modal__footer">
-        <div class="d-flex w-100 align-items-center gap-2">
-          
-          <div class="me-auto d-flex gap-2">
-            <a class="btn btn-outline-success btn-sm" id="btnExportExcel" href="#">
-              <i class="bi bi-file-earmark-excel"></i> Excel
-            </a>
-            <a class="btn btn-outline-danger btn-sm" id="btnExportPDF" href="#">
-              <i class="bi bi-file-earmark-pdf"></i> PDF
-            </a>
-          </div>
-
-          <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">
-            Cerrar
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}

@@ -87,3 +87,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 })();
+const switchEl = document.getElementById(`estado-producto-${data.id}`);
+const labelEl = document.getElementById(`estado-label-${data.id}`);
+
+if (switchEl) {
+    switchEl.classList.remove("is-on");
+    switchEl.classList.add("is-off");
+}
+
+if (labelEl) {
+    labelEl.textContent = "Desactivado";
+}
+if (switchEl) {
+    switchEl.classList.remove("is-off");
+    switchEl.classList.add("is-on");
+}
+
+if (labelEl) {
+    labelEl.textContent = "Activo";
+}

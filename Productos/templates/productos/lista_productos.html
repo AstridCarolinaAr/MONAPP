@@ -108,7 +108,9 @@
         </th>
 
         <th class="col-imagen">Imagen</th>
-        <th><a href ="% sort_url '' %">Activo</a></th>
+
+        <th class="text-center">ESTADO</th>
+
         <th class="col-acciones text-center">ACCIONES</th>
       </tr>
     </thead>
@@ -161,6 +163,11 @@
                 <div class="img-placeholder">—</div>
               {% endif %}
             </td>
+          <td class="text-center">
+              <span class="estado-switch {% if producto.activo %}is-on{% else %}is-off{% endif %}">
+                  <span class="switch-thumb"></span>
+              </span>
+          </td>
           <td class="col-acciones text-center">
             <div class="acciones-wrap d-flex justify-content-center align-items-center gap-1">
               <button type="button"

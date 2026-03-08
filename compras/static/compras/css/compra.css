@@ -367,3 +367,134 @@
   filter: brightness(.98);
 }
 
+.compras-container form .form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.compras-container form .form-control,
+.compras-container form .form-select {
+  border-radius: 10px;
+}
+
+.compras-container form {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+} 
+/* ===== Filtros ===== */
+.filtro-compras {
+  background: #fffaf6;
+  border: 1px solid #e6d7cc;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(56, 40, 34, 0.06);
+}
+
+.filtro-compras-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.filtro-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.filtro-item-busqueda {
+  grid-column: span 2;
+}
+
+.filtro-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #382822;
+  margin-bottom: 6px;
+}
+
+.filtro-input {
+  height: 42px;
+  border: 1px solid #d8c3b5;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #382822;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.filtro-input:focus {
+  outline: none;
+  border-color: #a67c52;
+  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.15);
+}
+
+.filtro-botones {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  justify-content: flex-start;
+}
+
+.btn-filtro {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-filtrar {
+  background: #382822;
+  color: #fff;
+}
+
+.btn-filtrar:hover {
+  background: #4b362f;
+  color: #fff;
+}
+
+.btn-limpiar {
+  background: #e9ded6;
+  color: #382822;
+}
+
+.btn-limpiar:hover {
+  background: #dccabd;
+  color: #382822;
+}
+
+@media (max-width: 1200px) {
+  .filtro-compras-grid {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+
+  .filtro-item-busqueda {
+    grid-column: span 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .filtro-compras-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtro-item-busqueda {
+    grid-column: span 1;
+  }
+
+  .filtro-botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

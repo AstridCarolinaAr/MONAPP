@@ -11,6 +11,14 @@ from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.urls import reverse
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models.deletion import ProtectedError
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+
+from .models import Proveedor
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
@@ -145,51 +153,87 @@ def editar_proveedor(request, pk):
 
     return render(request, "proveedor/editar_proveedor.html", context)
 
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.db.models.deletion import ProtectedError
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
 
-from .models import Proveedor
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-@login_required
+
 @require_POST
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     try:
         proveedor.delete()
+
         if is_ajax(request):
-            return JsonResponse({"success": True, "message": "Proveedor eliminado."})
-        messages.success(request, "Proveedor eliminado.")
-        return JsonResponse({"success": True})
+            return JsonResponse({
+                "success": True,
+                "action": "deleted",
+                "id": pk,
+                "message": "Proveedor eliminado correctamente."
+            })
+
+        messages.success(request, "Proveedor eliminado correctamente.")
+        return redirect("Proveedores:lista_proveedores")
 
     except ProtectedError:
-        Proveedor.objects.filter(pk=proveedor.pk).update(estado="inactivo")
+        msg = (
+            "Este proveedor está relacionado con compras u otros registros. "
+            "No se puede eliminar, pero puedes desactivarlo."
+        )
 
-        msg = "Este proveedor está relacionado con compras u otros registros. Se marcó como INACTIVO."
         if is_ajax(request):
-            return JsonResponse({"success": False, "protected": True, "message": msg}, status=409)
-        messages.warning(request, msg)
-        return JsonResponse({"success": False, "protected": True, "message": msg}, status=409)
+            return JsonResponse({
+                "success": False,
+                "action": "confirm_deactivate",
+                "id": proveedor.pk,
+                "message": msg
+            }, status=409)
 
+        messages.warning(request, msg)
+        return redirect("Proveedores:lista_proveedores")
 
 @require_POST
 def reactivar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
-    proveedor.estado = "activo"
-    proveedor.save()
-    return JsonResponse({"status": "activated"})
 
+    if proveedor.estado != "activo":
+        proveedor.estado = "activo"
+        proveedor.save(update_fields=["estado"])
+
+    msg = "Proveedor reactivado correctamente."
+
+    if is_ajax(request):
+        return JsonResponse({
+            "success": True,
+            "action": "reactivated",
+            "id": proveedor.pk,
+            "estado": proveedor.estado,
+            "message": msg
+        })
+
+    messages.success(request, msg)
+    return redirect("Proveedores:lista_proveedores")
 
 @require_POST
 def desactivar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
-    proveedor.estado = "inactivo"
-    proveedor.save()
-    return JsonResponse({"status": "inactivated"})
+
+    if proveedor.estado != "inactivo":
+        proveedor.estado = "inactivo"
+        proveedor.save(update_fields=["estado"])
+
+    msg = "Proveedor desactivado correctamente."
+
+    if is_ajax(request):
+        return JsonResponse({
+            "success": True,
+            "action": "deactivated",
+            "id": proveedor.pk,
+            "estado": proveedor.estado,
+            "message": msg
+        })
+
+    messages.success(request, msg)
+    return redirect("Proveedores:lista_proveedores")
