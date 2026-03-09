@@ -329,7 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
             updateSubmitState();
         });
 
-        // validación inicial
         if ((nombreInput.value || "").trim()) validarNombre();
         if ((descripcionInput.value || "").trim()) validarDescripcion();
         if ((precioInput.value || "").trim()) validarPrecio();
@@ -425,7 +424,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
     const btnCrear = document.getElementById("btnOpenCrearServicioWeb");
     if (btnCrear) {
         btnCrear.addEventListener("click", () => {
@@ -450,9 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return cookieValue ? cookieValue.split("=")[1] : "";
     }
 
-    /* =====================================================
-       LOGICA DE VIDEO ADAPTADA DESDE CORE
-    ===================================================== */
     const cards = document.querySelectorAll(".sq-card");
 
     function prepareVideo(video) {
@@ -559,9 +554,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    /* =====================================================
-       BOTONES DE ACCION
-    ===================================================== */
     document.querySelectorAll(".btn-edit-servicioweb").forEach((btn) => {
         btn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -657,4 +649,264 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    const serviciosWebView = document.getElementById("serviciosWebView");
+    const viewButtons = document.querySelectorAll(".sw-view-btn");
+
+    function aplicarVista(view) {
+        if (!serviciosWebView) return;
+
+        serviciosWebView.dataset.view = view;
+        localStorage.setItem("servicios_web_view_mode", view);
+
+        viewButtons.forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.view === view);
+        });
+    }
+
+    viewButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            aplicarVista(btn.dataset.view);
+        });
+    });
+
+    const vistaGuardada = localStorage.getItem("servicios_web_view_mode") || "grid-2";
+    aplicarVista(vistaGuardada);
+
+    const previewModalEl = document.getElementById("modalPreviewMedia");
+    const previewModalBody = document.getElementById("modalPreviewMediaBody");
+    const previewModalLabel = document.getElementById("modalPreviewMediaLabel");
+    const previewModal = previewModalEl ? new bootstrap.Modal(previewModalEl) : null;
+
+    let lastPreviewServicioId = null;
+    let lastPreviewMode = "image";
+
+    function renderPreviewMedia({ nombre, imagen, video, mode }) {
+        if (!previewModalBody || !previewModalLabel) return;
+
+        previewModalLabel.textContent = nombre || "Vista previa";
+
+        let content = "";
+
+        if (mode === "video" && video) {
+            content = `
+                <div class="sw-preview-container"
+                    data-preview-nombre="${nombre || ''}"
+                    data-preview-imagen="${imagen || ''}"
+                    data-preview-video="${video || ''}"
+                    data-preview-mode="video">
+                    <div class="sw-preview-help">Vista de video</div>
+                    <video class="sw-preview-media sw-preview-video"
+                        src="${video}"
+                        controls
+                        autoplay
+                        playsinline
+                        preload="metadata">
+                        Tu navegador no soporta video.
+                    </video>
+                </div>
+            `;
+        } else if (imagen) {
+            content = `
+                <div class="sw-preview-container sw-preview-clickable"
+                    data-preview-nombre="${nombre || ''}"
+                    data-preview-imagen="${imagen || ''}"
+                    data-preview-video="${video || ''}"
+                    data-preview-mode="image">
+                    ${video ? '<div class="sw-preview-help">Haz click en la imagen para mostrar el video</div>' : ''}
+                    <img src="${imagen}" alt="${nombre}" class="sw-preview-media sw-preview-image">
+                </div>
+            `;
+        } else if (video) {
+            content = `
+                <div class="sw-preview-container"
+                    data-preview-nombre="${nombre || ''}"
+                    data-preview-imagen="${imagen || ''}"
+                    data-preview-video="${video || ''}"
+                    data-preview-mode="video">
+                    <div class="sw-preview-help">Vista de video</div>
+                    <video class="sw-preview-media sw-preview-video"
+                        src="${video}"
+                        controls
+                        autoplay
+                        playsinline
+                        preload="metadata">
+                        Tu navegador no soporta video.
+                    </video>
+                </div>
+            `;
+        } else {
+            content = `
+                <div class="sw-preview-empty">
+                    <i class="bi bi-image" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Este servicio no tiene imagen ni video.</p>
+                </div>
+            `;
+        }
+
+        previewModalBody.innerHTML = content;
+
+        const videoEl = previewModalBody.querySelector("video");
+        if (videoEl) {
+            videoEl.play().catch((err) => {
+                console.warn("No se pudo reproducir automáticamente el video del modal:", err);
+            });
+        }
+
+        const clickableImageContainer = previewModalBody.querySelector(".sw-preview-clickable");
+        if (clickableImageContainer) {
+            clickableImageContainer.addEventListener("click", () => {
+                const nextNombre = clickableImageContainer.dataset.previewNombre || "";
+                const nextImagen = clickableImageContainer.dataset.previewImagen || "";
+                const nextVideo = clickableImageContainer.dataset.previewVideo || "";
+
+                if (!nextVideo) return;
+
+                renderPreviewMedia({
+                    nombre: nextNombre,
+                    imagen: nextImagen,
+                    video: nextVideo,
+                    mode: "video"
+                });
+
+                lastPreviewMode = "video";
+            });
+        }
+    }
+
+    document.querySelectorAll(".sw-media-trigger").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const servicioId = btn.dataset.servicioId;
+            const nombre = btn.dataset.nombre || "Vista previa";
+            const imagen = btn.dataset.imagen || "";
+            const video = btn.dataset.video || "";
+
+            let mode = "image";
+
+            if (!imagen && video) {
+                mode = "video";
+            } else if (lastPreviewServicioId === servicioId) {
+                if (lastPreviewMode === "image" && video) {
+                    mode = "video";
+                } else {
+                    mode = "image";
+                }
+            }
+
+            renderPreviewMedia({ nombre, imagen, video, mode });
+
+            lastPreviewServicioId = servicioId;
+            lastPreviewMode = mode;
+
+            if (previewModal) {
+                previewModal.show();
+            }
+        });
+    });
+
+    if (previewModalEl) {
+        previewModalEl.addEventListener("hidden.bs.modal", () => {
+            if (previewModalBody) {
+                previewModalBody.innerHTML = "";
+            }
+            lastPreviewServicioId = null;
+            lastPreviewMode = "image";
+        });
+    }
+/* =========================
+   ORDENAR TABLA POR COLUMNAS
+========================= */
+    const tablaServicios = document.querySelector(".services-table-wrapper table tbody");
+    const sortableHeaders = document.querySelectorAll(".sw-sortable");
+
+    const sortState = {};
+
+    function normalizarNumero(valor) {
+        if (valor === null || valor === undefined) return 0;
+        const limpio = String(valor).replace(/[^0-9.-]+/g, "");
+        const numero = parseFloat(limpio);
+        return Number.isNaN(numero) ? 0 : numero;
+    }
+
+    function actualizarIconosOrden(headerActivo, direction) {
+        sortableHeaders.forEach((th) => {
+            const icon = th.querySelector("i");
+            if (!icon) return;
+
+            if (th !== headerActivo) {
+                icon.className = "bi bi-arrow-down-up ms-1";
+                th.classList.remove("sorted-asc", "sorted-desc");
+                return;
+            }
+
+            th.classList.remove("sorted-asc", "sorted-desc");
+
+            if (direction === "asc") {
+                icon.className = "bi bi-sort-down ms-1";
+                th.classList.add("sorted-asc");
+            } else {
+                icon.className = "bi bi-sort-up ms-1";
+                th.classList.add("sorted-desc");
+            }
+        });
+    }
+
+    sortableHeaders.forEach((header) => {
+        header.addEventListener("click", () => {
+            if (!tablaServicios) return;
+
+            const key = header.dataset.sortKey;
+            const type = header.dataset.sortType || "text";
+
+            const rows = Array.from(tablaServicios.querySelectorAll("tr"));
+            const currentDirection = sortState[key] === "asc" ? "desc" : "asc";
+            sortState[key] = currentDirection;
+
+            rows.sort((a, b) => {
+                let valorA = a.dataset[key] || "";
+                let valorB = b.dataset[key] || "";
+
+                if (type === "number") {
+                    valorA = normalizarNumero(valorA);
+                    valorB = normalizarNumero(valorB);
+                } else {
+                    valorA = String(valorA).toLowerCase().trim();
+                    valorB = String(valorB).toLowerCase().trim();
+                }
+
+                if (valorA < valorB) return currentDirection === "asc" ? -1 : 1;
+                if (valorA > valorB) return currentDirection === "asc" ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach((row) => tablaServicios.appendChild(row));
+            actualizarIconosOrden(header, currentDirection);
+        });
+    });
+    /* =========================
+    BUSCADOR SERVICIOS WEB
+    ========================= */
+    const inputBuscarServicios = document.getElementById("swBuscarServicios");
+    const cardsServicios = document.querySelectorAll(".sq-card");
+    const filasServicios = document.querySelectorAll(".services-table-wrapper tbody tr");
+
+    if (inputBuscarServicios) {
+        inputBuscarServicios.addEventListener("input", () => {
+            const termino = inputBuscarServicios.value.trim().toLowerCase();
+
+            cardsServicios.forEach((card) => {
+                const texto = (card.dataset.search || "").toLowerCase();
+                const visible = !termino || texto.includes(termino);
+                card.classList.toggle("sw-hidden", !visible);
+            });
+
+            filasServicios.forEach((fila) => {
+                if (fila.querySelector("td[colspan]")) return;
+
+                const texto = (fila.dataset.search || "").toLowerCase();
+                const visible = !termino || texto.includes(termino);
+                fila.classList.toggle("sw-hidden", !visible);
+            });
+        });
+    }
 });

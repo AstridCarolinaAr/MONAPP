@@ -135,9 +135,8 @@
 
 /* --- Placeholder cuando NO hay imagen --- */
 .sq-card.no-image {
-    background: linear-gradient(135deg, #2b2b2b, #6b6b6b);
+    background: transparent !important;
 }
-
 .media-placeholder {
     position: absolute;
     inset: 0;
@@ -205,11 +204,13 @@
 }
 
 /* Cuando hay metaballs, bajamos el blur para que se vea la animación */
-.sq-card.no-image .sq-blur{
-  background: rgba(0,0,0,0.10);
+.sq-card.no-image .sq-blur {
+    background: rgba(255, 255, 255, 0.04);
 }
-.sq-card.no-image:hover .sq-blur{
-  background: rgba(0,0,0,0.18);
+
+
+.sq-card.no-image:hover .sq-blur {
+    background: rgba(255, 255, 255, 0.08);
 }
 /* ===============================
    BOTÓN ELIMINAR ESTILO PANEL ADMIN
@@ -251,4 +252,568 @@
     color: #ffffff !important;
     cursor: not-allowed;
     opacity: 1;
+}
+/* =========================
+   MODOS DE VISTA
+========================= */
+.view-switcher {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.services-view[data-view="table"] .services-grid {
+    display: none;
+}
+
+.services-view:not([data-view="table"]) .services-table-wrapper {
+    display: none;
+}
+
+.services-view[data-view="grid-2"] .services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.services-view[data-view="grid-3"] .services-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.services-view[data-view="grid-4"] .services-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.sw-view-btn.active {
+    background: #212529 !important;
+    color: #fff !important;
+    border-color: #212529 !important;
+}
+
+/* =========================
+   TABLA
+========================= */
+
+.services-table-wrapper .table-dashboard thead th {
+    font-size: 11px !important;
+    padding: 12px 14px !important;
+}
+
+.services-table-wrapper .table-dashboard tbody td {
+    font-size: 15px !important;
+    padding: 14px 14px !important;
+}
+
+/* =========================
+   ACCIONES SIN BORDE
+========================= */
+.services-table-wrapper .actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.services-table-wrapper .act {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+    background: transparent !important;
+    color: #382822 !important;
+    box-shadow: none !important;
+    transition: all 0.22s ease;
+    padding: 0;
+}
+
+.services-table-wrapper .act i {
+    font-size: 1.08rem;
+    color: inherit;
+}
+
+.services-table-wrapper .act:hover,
+.services-table-wrapper .act:focus {
+    background: #382822 !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+.services-table-wrapper .act:hover i,
+.services-table-wrapper .act:focus i {
+    color: #fff !important;
+}
+
+/* eliminar también café */
+.services-table-wrapper .act-del {
+    color: #382822 !important;
+}
+
+/* =========================
+   ESTADO + TOGGLE SIN FONDO
+========================= */
+.sw-status-badge {
+    background: #382822 !important;
+    color: #fff !important;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+.sw-status-badge-off {
+    background: #a79a91 !important;
+    color: #fff !important;
+}
+
+.sw-status-toggle {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    cursor: pointer;
+    color: #382822;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.sw-status-toggle i {
+    font-size: 1.5rem;
+    color: inherit;
+}
+
+.sw-status-toggle:hover,
+.sw-status-toggle:focus {
+    background: transparent !important;
+    color: #382822;
+    transform: scale(1.06);
+    box-shadow: none !important;
+}
+.services-table-wrapper .table-dashboard thead th {
+    font-size: 11px !important;
+    padding: 12px 14px !important;
+}
+
+.services-table-wrapper .table-dashboard tbody td {
+    font-size: 15px !important;
+    padding: 14px 14px !important;
+}
+
+/* =========================
+   ACCIONES ESTILO CLIENTES
+========================= */
+.services-table-wrapper .actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.services-table-wrapper .act {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(111, 78, 55, 0.28);
+    background: #fff;
+    color: #6f4e37;
+    transition: all 0.22s ease;
+    box-shadow: 0 2px 8px rgba(111, 78, 55, 0.08);
+}
+
+.services-table-wrapper .act i {
+    font-size: 1.05rem;
+    color: inherit;
+}
+
+/* Hover general tipo clientes */
+.services-table-wrapper .act:hover {
+    background: rgba(111, 78, 55, 0.12);
+    color: #6f4e37;
+    border-color: rgba(111, 78, 55, 0.38);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(111, 78, 55, 0.12);
+}
+
+/* Editar */
+.services-table-wrapper .act-edit {
+    color: #6f4e37;
+}
+
+/* Eliminar en café */
+.services-table-wrapper .act-del {
+    color: #6f4e37;
+    border-color: rgba(111, 78, 55, 0.28);
+}
+
+.services-table-wrapper .act-del:hover {
+    background: #6f4e37;
+    color: #fff;
+    border-color: #6f4e37;
+}
+
+/* Toggle */
+.services-table-wrapper .act-toggle {
+    color: #6f4e37;
+}
+
+.services-table-wrapper .act-toggle i.bi-toggle-on {
+    color: #8b5e3c;
+}
+
+.services-table-wrapper .act-toggle i.bi-toggle-off {
+    color: #9c8f86;
+}
+
+.services-table-wrapper .act-toggle:hover i {
+    color: #fff;
+}
+.services-table-wrapper {
+    margin-top: 10px;
+}
+.services-table-wrapper .table-dashboard thead th {
+    font-size: 11px !important;
+    padding: 12px 14px !important;
+}
+
+.services-table-wrapper .table-dashboard tbody td {
+    font-size: 15px !important;
+    padding: 14px 14px !important;
+}
+
+.sw-media-trigger {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.sw-thumb {
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    display: block;
+}
+
+.sw-thumb-fallback {
+    background: #f1f3f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.4rem;
+}
+
+/* =========================
+   PREVIEW GRANDE
+========================= */
+.sw-preview-dialog {
+    width: fit-content;
+    max-width: 92vw;
+    margin: 1.75rem auto;
+}
+
+.sw-preview-content {
+    width: fit-content;
+    background: transparent;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: none !important;
+    border: none;
+}
+
+.sw-preview-header {
+    background: #8b5e3c;
+    color: #fff;
+    border-bottom: none;
+    padding: 14px 18px;
+}
+
+.sw-preview-header .btn-close {
+    filter: invert(1);
+    opacity: 0.95;
+}
+
+.sw-preview-body {
+    padding: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+}
+
+.sw-preview-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    max-width: 92vw;
+    padding: 0;
+    background: transparent;
+    position: relative;
+}
+
+.sw-preview-media {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(92vw, 340px);
+    max-height: 78vh;
+    object-fit: contain;
+    margin: 0 auto;
+}
+
+.sw-preview-image {
+    cursor: pointer;
+    border-radius: 0 0 18px 18px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.sw-preview-video {
+    display: block;
+    width: auto !important;
+    height: auto !important;
+    max-width: min(92vw, 340px);
+    max-height: 78vh;
+    border-radius: 0 0 18px 18px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.sw-preview-help {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    background: rgba(111, 78, 55, 0.92);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: .82rem;
+}
+
+.sw-preview-empty {
+    color: #6f4e37;
+    background: #fffaf5;
+    padding: 40px 24px;
+    border-radius: 0 0 18px 18px;
+    text-align: center;
+    width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .services-view[data-view="grid-4"] .services-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .services-view[data-view="grid-2"] .services-grid,
+    .services-view[data-view="grid-3"] .services-grid,
+    .services-view[data-view="grid-4"] .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .services-view[data-view="grid-2"] .services-grid,
+    .services-view[data-view="grid-3"] .services-grid,
+    .services-view[data-view="grid-4"] .services-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.btn-pill-dark {
+    background: #8b5e3c;
+    border: 1px solid #8b5e3c;
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 600;
+}
+
+.btn-pill-dark:hover,
+.btn-pill-dark:focus,
+.btn-pill-dark:active {
+    background: #6f4e37 !important;
+    border-color: #6f4e37 !important;
+    color: #fff !important;
+}
+.metaballs-slot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    overflow: hidden;
+    z-index: 4;
+    pointer-events: none;
+    background: radial-gradient(circle at center, #f4e3cf 0%, #d3b08a 100%);
+}
+
+.metaballs-slot canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+.sq-card.no-image .sq-card-content {
+    text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+/* =========================
+   ACCIONES TABLA
+========================= */
+.services-table-wrapper .actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.services-table-wrapper .act {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+    background: transparent !important;
+    color: #382822 !important;
+    box-shadow: none !important;
+    transition: all 0.22s ease;
+    padding: 0;
+    position: relative;
+}
+
+.services-table-wrapper .act i {
+    font-size: 1.08rem;
+    color: inherit;
+}
+
+.services-table-wrapper .act:hover,
+.services-table-wrapper .act:focus {
+    background: #382822 !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+.services-table-wrapper .act:hover i,
+.services-table-wrapper .act:focus i {
+    color: #fff !important;
+}
+
+/* Tooltip visual */
+.services-table-wrapper .act[data-label]::after,
+.services-table-wrapper .sw-status-toggle[data-label]::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #382822;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+}
+
+.services-table-wrapper .act[data-label]:hover::after,
+.services-table-wrapper .sw-status-toggle[data-label]:hover::after {
+    opacity: 1;
+}
+
+/* =========================
+   TOGGLE EN ESTADO
+========================= */
+.sw-status-toggle {
+    border: none;
+    background: transparent !important;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    cursor: pointer;
+    color: #382822;
+    transition: transform 0.2s ease, color 0.2s ease;
+    position: relative;
+}
+
+.sw-status-toggle i {
+    font-size: 1.55rem;
+    color: inherit;
+}
+
+.sw-status-toggle:hover,
+.sw-status-toggle:focus {
+    background: transparent !important;
+    color: #382822;
+    transform: scale(1.06);
+    box-shadow: none !important;
+}
+/* =========================
+   ENCABEZADOS ORDENABLES
+========================= */
+.sw-sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.sw-sortable:hover {
+    color: #382822 !important;
+}
+
+.sw-sortable i {
+    font-size: 0.9rem;
+}
+
+.sw-sortable.sorted-asc,
+.sw-sortable.sorted-desc {
+    color: #382822 !important;
+}
+/* =========================
+   BUSCADOR
+========================= */
+.sw-search-bar {
+    max-width: 460px;
+}
+
+.sw-search-bar .input-group {
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.sw-search-bar .input-group-text {
+    background: #3a2a24;
+    border: 1px solid #382822;
+    border-right: none;
+    color: #fff;
+    border-radius: 999px 0 0 999px;
+    padding: 4px 12px;
+}
+
+.sw-search-bar .form-control {
+    border: 1px solid #382822;
+    border-left: none;
+    border-radius: 0 999px 999px 0;
+    padding: 6px 14px;
+    font-size: 14px;
+    min-height: 40px;
+}
+
+.sw-search-bar .form-control:focus {
+    border-color: #382822;
+    box-shadow: none;
+}
+
+/* ocultar elementos filtrados */
+.sw-hidden {
+    display: none !important;
 }
