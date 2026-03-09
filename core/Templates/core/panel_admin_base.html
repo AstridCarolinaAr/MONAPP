@@ -322,8 +322,8 @@
     <!-- JS GENERAL -->
     <script src="{% static 'core/js/main.js' %}"></script>
 
-    <!-- Sienna accessibility (lo mantengo) -->
-    <script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
+    <!-- Sienna accessibility -->
+    <script src="{% static 'core/js/sienna.js' %}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof SiennaAccessibility !== 'undefined') {
