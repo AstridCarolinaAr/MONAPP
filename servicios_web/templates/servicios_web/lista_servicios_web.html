@@ -25,10 +25,22 @@
 {% block content %}
 <div class="services-grid">
     {% for servicio in servicios_web %}
-    <div class="sq-card
-                {% if not servicio.imagen %}no-image{% endif %}
-                {% if servicio.video %}has-video{% endif %}" {% if servicio.imagen
-        %}style="background-image: url('{{ servicio.imagen.url }}');" {% endif %}>
+<div class="sq-card
+            {% if not servicio.imagen %}no-image{% endif %}
+            {% if servicio.video %}has-video{% endif %}"
+     {% if servicio.imagen %}style="background-image: url('{{ servicio.imagen.url }}');"{% endif %}>
+
+    <div class="sq-blur"></div>
+
+    {% if servicio.video %}
+    <div class="sw-play-hint">
+        <i class="bi bi-play-fill"></i>
+        <span>Click para reproducir</span>
+    </div>
+    <video class="sq-video" muted loop playsinline preload="metadata">
+        <source src="{{ servicio.video.url }}" type="video/mp4">
+    </video>
+    {% endif %}
 
         <div class="sq-blur"></div>
 
