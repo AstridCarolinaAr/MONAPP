@@ -137,11 +137,7 @@ body {
 /* Toggle ojo */
 .toggle-eye {
   position: absolute;
-<<<<<<< HEAD
-  right: 6px;
-=======
   right: 12px;
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -212,11 +208,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   align-items: center;
   justify-content: center;
   width: 100%;
-<<<<<<< HEAD
-  padding: 5px;
-=======
   padding: 13px 20px;
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
   background: var(--color-cafe-principal);
   color: #fff;
   border: none;
@@ -255,11 +247,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   background: var(--color-cafe-claro);
   color: #fff;
   transform: translateY(-2px);
-<<<<<<< HEAD
-  box-shadow: 0 3px 6px rgba(59,47,47,.35);
-=======
   box-shadow: 0 8px 22px rgba(59,47,47,.4);
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
   text-decoration: none;
   animation: none;
 }
@@ -358,7 +346,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
    ESTILOS PARA EL MODAL LOGIN (master.html)
    ═══════════════════════════════════════ */
 .login-modal-content {
-<<<<<<< HEAD
   border: none;
   border-radius: 6px;
   min-height: 49px;
@@ -485,11 +472,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
 .login-modal-content button:active {
   transform: translateY(0);
   box-shadow: 0 3px 3px rgba(59, 47, 47, 0.3);
-=======
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 }
 
 /* Forzar que los inputs dentro del modal hereden el diseño café */
