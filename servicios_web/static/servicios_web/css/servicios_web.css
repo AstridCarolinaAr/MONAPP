@@ -105,7 +105,7 @@
 .sq-card.has-video { cursor: pointer; }
 .sq-card.playing .sq-video { opacity: 1; z-index: 3; }
 
-/* 🔥 Botón Click para reproducir FIJO arriba */
+/* Botón Click para reproducir FIJO arriba */
 .sq-card .sw-play-hint{
     position: absolute;
     top: 5px;
@@ -204,7 +204,7 @@
   display: block;
 }
 
-/* ✅ Cuando hay metaballs, bajamos el blur para que se vea la animación */
+/* Cuando hay metaballs, bajamos el blur para que se vea la animación */
 .sq-card.no-image .sq-blur{
   background: rgba(0,0,0,0.10);
 }
@@ -227,13 +227,28 @@
     color: #fff;
 }
 
-/* ✅ Orden de capas garantizado */
+/* Orden de capas garantizado */
 .sq-card .sq-blur{ z-index: 2; }
 .sq-card .metaballs-slot{ z-index: 4; }
 .sq-card .media-placeholder{ z-index: 3; }
 .sq-card .sq-card-content{ z-index: 6; position: relative; }
 .sq-card .actions-overlay{ z-index: 7; }
 .sq-card .sw-play-hint{ z-index: 8; }
+.btn-save {
+    background-color: #573e3e !important;
+    border-color: #2b2b2b !important;
+}
 
+.btn-save:hover,
+.btn-save:focus {
+    background-color: #573e3e !important;
+    border-color: #2b2b2b !important;
+}
 
-
+.btn-save:disabled {
+    background-color: #573e3e !important;
+    border-color: #a3cfbb !important;
+    color: #ffffff !important;
+    cursor: not-allowed;
+    opacity: 1;
+}

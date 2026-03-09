@@ -1,5 +1,7 @@
 from django import forms
 from .models import ServicioWeb
+import re
+
 
 class ServicioWebForm(forms.ModelForm):
     class Meta:
@@ -41,3 +43,63 @@ class ServicioWebForm(forms.ModelForm):
             'video': 'Video del Servicio (opcional)',
             'activo': 'Estado del Servicio',
         }
+
+    def clean_nombre(self):
+        nombre = (self.cleaned_data.get('nombre') or '').strip()
+
+        if not nombre:
+            raise forms.ValidationError('El nombre es obligatorio.')
+
+        if len(nombre) < 3:
+            raise forms.ValidationError('Debe tener al menos 3 caracteres.')
+
+        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s().,\-]+$', nombre):
+            raise forms.ValidationError('Contiene caracteres no permitidos.')
+
+        qs = ServicioWeb.objects.filter(nombre__iexact=nombre)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError('Ya existe un servicio web con ese nombre.')
+
+        return nombre
+
+    def clean_descripcion(self):
+        descripcion = (self.cleaned_data.get('descripcion') or '').strip()
+
+        if not descripcion:
+            raise forms.ValidationError('La descripción es obligatoria.')
+
+        if len(descripcion) < 10:
+            raise forms.ValidationError('Debe tener al menos 10 caracteres.')
+
+        return descripcion
+
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+
+        if precio is None:
+            raise forms.ValidationError('El precio es obligatorio.')
+
+        if precio <= 0:
+            raise forms.ValidationError('El precio debe ser mayor a 0.')
+
+        return precio
+
+    def clean_video(self):
+        video = self.cleaned_data.get('video')
+
+        if not video:
+            return video
+
+        max_size_mb = 25
+        if video.size > max_size_mb * 1024 * 1024:
+            raise forms.ValidationError(f'El video no puede superar {max_size_mb} MB.')
+
+        allowed_extensions = ('.mp4', '.webm', '.ogg', '.mov')
+        nombre = video.name.lower()
+        if not nombre.endswith(allowed_extensions):
+            raise forms.ValidationError('Formato de video no permitido.')
+
+        return video
