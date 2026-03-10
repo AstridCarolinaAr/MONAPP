@@ -1,33 +1,105 @@
-<div class="row g-3 mb-3">
-  <div class="col-md-6"><strong>Fecha:</strong> {{ c.fecha }}</div>
-  <div class="col-md-6"><strong>Proveedor:</strong> {{ c.proveedor }}</div>
+{% load static %}
 
+<div class="detalle-compra-ui">
+  <div class="detalle-compra-top">
+    <div class="detalle-compra-media">
+      {% with primer_detalle=c.detalles.all|first %}
+        {% if primer_detalle and primer_detalle.producto.imagen %}
+          <img
+            src="{{ primer_detalle.producto.imagen.url }}"
+            alt="{{ primer_detalle.producto.nombre }}"
+            class="detalle-compra-main-img"
+          >
+        {% else %}
+          <div class="detalle-compra-main-placeholder">
+            <i class="bi bi-box-seam"></i>
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
 
-  <div class="col-md-6"><strong>Usuario:</strong> {{ c.usuario.username }}</div>
-  <div class="col-md-6"><strong>Total:</strong> ${{ c.precio_total|floatformat:2 }}</div>
-</div>
+    <div class="detalle-compra-info">
+      <h2 class="detalle-compra-title">Compra #{{ c.id }}</h2>
 
-<hr>
+      <div class="detalle-compra-meta">
+        <div class="detalle-compra-row">
+          <span class="detalle-label">Proveedor</span>
+          <span class="detalle-value">{{ c.proveedor }}</span>
+        </div>
 
-<h6 class="mb-2">Productos</h6>
+        <div class="detalle-compra-row">
+          <span class="detalle-label">Estado</span>
+          <span class="detalle-estado {% if c.anulada %}is-danger{% else %}is-success{% endif %}">
+            {% if c.anulada %}Anulada{% else %}Activa{% endif %}
+          </span>
+        </div>
 
-<div class="table-responsive">
-  <table class="table table-sm align-middle">
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th class="text-end">Cantidad</th>
-        <th class="text-end">Precio Unitario</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for d in c.detalles.all %}
-      <tr>
-        <td>{{ d.producto.nombre }}</td>
-        <td class="text-end">{{ d.cantidad }}</td>
-        <td class="text-end">${{ d.precio_unitario|floatformat:2 }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        <div class="detalle-compra-row">
+          <span class="detalle-label">Fecha</span>
+          <span class="detalle-value">{{ c.fecha }}</span>
+        </div>
+
+        <div class="detalle-compra-row">
+          <span class="detalle-label">Usuario</span>
+          <span class="detalle-value">
+            {% if c.usuario %}{{ c.usuario.username }}{% else %}—{% endif %}
+          </span>
+        </div>
+
+        <div class="detalle-compra-row">
+          <span class="detalle-label">Total</span>
+          <span class="detalle-value">${{ c.precio_total|floatformat:2 }}</span>
+        </div>
+      </div>
+
+      <hr class="detalle-compra-divider">
+
+      <h6 class="detalle-compra-subtitle">Productos</h6>
+
+      <div class="table-responsive">
+        <table class="table table-sm align-middle detalle-compra-table mb-0">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="text-center">Cantidad</th>
+              <th class="text-end">Precio Unitario</th>
+              <th class="text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in c.detalles.all %}
+              <tr>
+                <td>
+                  <div class="detalle-producto-cell">
+                    {% if d.producto.imagen %}
+                      <img
+                        src="{{ d.producto.imagen.url }}"
+                        alt="{{ d.producto.nombre }}"
+                        class="detalle-producto-thumb"
+                      >
+                    {% else %}
+                      <div class="detalle-producto-thumb detalle-producto-thumb--placeholder">
+                        <i class="bi bi-box-seam"></i>
+                      </div>
+                    {% endif %}
+
+                    <span>{{ d.producto.nombre }}</span>
+                  </div>
+                </td>
+                <td class="text-center">{{ d.cantidad }}</td>
+                <td class="text-end">${{ d.precio_unitario|floatformat:2 }}</td>
+                <td class="text-end">${{ d.subtotal|floatformat:2 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">
+                  No hay productos registrados.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

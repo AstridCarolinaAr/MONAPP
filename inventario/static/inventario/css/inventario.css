@@ -29,31 +29,107 @@
     margin-bottom: 0;
     border-collapse: collapse;
 }
+/* =========================
+   STOCK PILLS / BADGES PREMIUM
+   ========================= */
 
-/* =============================
-   ESTILOS DE CELDAS (ADAPTADOS)
-============================= */
-.styled-table th, 
+.stock-pill {
+    --pill-text: #166534;
+    --pill-bg-top: #f4fdf7;
+    --pill-bg-bottom: #dcfce7;
+    --pill-border: rgba(22, 101, 52, 0.16);
+    --pill-shadow: rgba(22, 101, 52, 0.12);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+
+    min-width: 76px;
+    padding: 0.46rem 0.84rem;
+
+    border-radius: 999px;
+    border: 1px solid var(--pill-border);
+
+    background: linear-gradient(180deg, var(--pill-bg-top) 0%, var(--pill-bg-bottom) 100%);
+    color: var(--pill-text);
+
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.72),
+        0 1px 2px rgba(16, 24, 40, 0.04),
+        0 10px 22px var(--pill-shadow);
+
+    overflow: hidden;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+
+.stock-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.34) 0%,
+        rgba(255, 255, 255, 0.08) 52%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+}
+
+.stock-pill:hover {
+    transform: translateY(-1px);
+    filter: saturate(1.02);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 2px 6px rgba(16, 24, 40, 0.06),
+        0 14px 28px var(--pill-shadow);
+}
+
+.stock-pill i,
+.stock-pill span {
+    position: relative;
+    z-index: 1;
+}
+
+.stock-pill i {
+    font-size: 0.80rem;
+    line-height: 1;
+    opacity: 0.96;
+}
+
+/* Bajo stock */
+.stock-pill-danger {
+    --pill-text: #b42318;
+    --pill-bg-top: #fff5f4;
+    --pill-bg-bottom: #ffe8e6;
+    --pill-border: rgba(180, 35, 24, 0.16);
+    --pill-shadow: rgba(180, 35, 24, 0.10);
+}
+
+/* Normal + Alto: mismo verde */
+.stock-pill-success {
+    --pill-text: #166534;
+    --pill-bg-top: #f4fdf7;
+    --pill-bg-bottom: #dcfce7;
+    --pill-border: rgba(22, 101, 52, 0.16);
+    --pill-shadow: rgba(22, 101, 52, 0.12);
+}
+
+/* Ajuste fino para celdas de tabla */
 .styled-table td {
-    padding: 12px 15px;
     vertical-align: middle;
 }
 
-/* =============================
-   BADGES DE STOCK
-============================= */
-.badge {
-    padding: 6px 10px;
-    font-weight: 600;
-    border-radius: 6px;
-}
-
-.bg-danger-subtle {
-    background-color: rgba(220, 53, 69, 0.1) !important;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-}
-
-.bg-success-subtle {
-    background-color: rgba(25, 135, 84, 0.1) !important;
-    border: 1px solid rgba(25, 135, 84, 0.2);
+.styled-table td .stock-pill {
+    justify-content: center;
 }

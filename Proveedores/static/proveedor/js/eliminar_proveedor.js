@@ -1,4 +1,4 @@
-
+// static/proveedor/js/proveedor_formulario.js
 (() => {
   "use strict";
 
@@ -46,12 +46,13 @@
   // =========================
   async function eliminarProveedor(btn) {
     const id = btn.dataset.id;
+    const nombre = btn.dataset.nombre || "este proveedor";
     const urlEliminar = btn.dataset.urlEliminar || `/Proveedores/eliminar/${id}/`;
     const urlDesactivar = btn.dataset.urlDesactivar || `/Proveedores/desactivar/${id}/`;
 
     const confirm = await Swal.fire({
       title: "Confirmar eliminación",
-      text: "Esta acción eliminará el proveedor permanentemente.",
+      text: `Esta acción intentará eliminar a ${nombre}.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -81,7 +82,8 @@
 
       const data = await r.json();
 
-      if (data.status === "deleted") {
+      // 1) Eliminado correctamente
+      if (data.status === "deleted" || data.success === true && data.action === "deleted") {
         await Swal.fire({
           title: "Eliminado",
           text: data.message || "El proveedor fue eliminado correctamente.",
@@ -92,14 +94,25 @@
         return;
       }
 
-      if (data.status === "protected") {
+      // 2) No se puede eliminar, pero sí desactivar
+      const esProtegido =
+        r.status === 409 ||
+        data.status === "protected" ||
+        data.action === "confirm_deactivate";
+
+      if (esProtegido) {
+        const cantidad = data.cantidad ?? 0;
+        const detalle = data.detalle || "compras u otros registros";
+        const mensaje =
+          data.message ||
+          `Este proveedor está relacionado con ${detalle}. No se puede eliminar, pero puedes desactivarlo.`;
+
         const ask = await Swal.fire({
           title: "No se puede eliminar",
           html: `
-            Este proveedor está vinculado a 
-            <strong>${data.cantidad ?? 0}</strong> ${data.detalle || "registros"}.<br><br>
-            Por razones de seguridad, no puede eliminarse.<br><br>
-            ¿Deseas desactivarlo en su lugar?
+            ${mensaje}
+            ${cantidad ? `<br><br>Registros relacionados: <strong>${cantidad}</strong>.` : ""}
+            <br><br>¿Deseas desactivarlo en su lugar?
           `,
           icon: "info",
           showCancelButton: true,
@@ -142,6 +155,7 @@
         return;
       }
 
+      // 3) Otro error controlado del backend
       await Swal.fire({
         title: "Error",
         text: data.message || "No se pudo procesar la solicitud.",

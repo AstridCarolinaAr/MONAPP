@@ -3,6 +3,7 @@
 
 {% block title %}Inventario{% endblock %}
 {% load static %}
+{% load sort_tags %}
 
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Inventario</li>
@@ -21,7 +22,68 @@
             <small class="text-muted">Stock actual y estados de almacén</small>
         </div>
     </div>
+        <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
+            {% if estado_stock %}
+                <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+            {% endif %}
+            {% if current_sort %}
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            {% endif %}
+            {% if current_dir %}
+                <input type="hidden" name="dir" value="{{ current_dir }}">
+            {% endif %}
 
+            <input type="text"
+                name="q"
+                class="form-control form-control-sm"
+                placeholder="Buscar producto…"
+                value="{{ q }}">
+
+            <button class="btn btn-outline-secondary btn-sm" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+            <div class="dropdown mb-3">
+                <button class="btn btn-filter dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-funnel"></i>
+                    {% if estado_stock == 'bajo' %}
+                        Solo stock bajo
+                    {% elif estado_stock == 'normal' %}
+                        Stock normal
+                    {% elif estado_stock == 'alto' %}
+                        Solo stock alto
+                    {% else %}
+                        Filtrar por estado
+                    {% endif %}
+                </button>
+
+                <ul class="dropdown-menu shadow-sm">
+                    <li>
+                        <a class="dropdown-item text-danger"
+                        href="?estado_stock=bajo{% if q %}&q={{ q }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
+                            Solo stock bajo
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-success"
+                        href="?estado_stock=normal{% if q %}&q={{ q }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
+                            Stock normal
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-primary"
+                        href="?estado_stock=alto{% if q %}&q={{ q }}{% endif %}">
+                            Solo stock alto
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="?{% if q %}q={{ q }}{% endif %}">
+                            Quitar filtros
+                        </a>
+                    </li>
+                </ul>
+            </div>
     <!-- Card Principal -->
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
@@ -29,10 +91,10 @@
                 <table class="styled-table">
                     <thead>
                         <tr>
-                            <th>Producto</th>
-                            <th>Unidad de medida</th>
-                            <th>Stock total actual</th>
-                            <th>Última actualización</th>
+                            <th><a href="{% sort_url 'producto' %}">Producto</a></th>
+                            <th><a href="{% sort_url 'unidad' %}">Unidad de medida</a></th>
+                            <th><a href="{% sort_url 'stock' %}">Stock total actual</a></th>
+                            <th><a href="{% sort_url 'actualizacion' %}">Última actualización</a></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,16 +103,24 @@
                             <td class="fw-medium">{{ s.producto.nombre }}</td>
                             <td>{{ s.producto.get_unidad_medida_display }}</td>
                             <td>
-                                {% if s.cantidad_actual <= 5 %}
-                                    <span class="badge bg-danger-subtle text-danger">
-                                        <i class="bi bi-exclamation-triangle-fill"></i> {{ s.cantidad_actual }}
+                                {% if s.cantidad_actual < 10 %}
+                                    <span class="stock-pill stock-pill-danger" title="Stock bajo">
+                                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                                        <span>{{ s.cantidad_actual }}</span>
+                                    </span>
+                                {% elif s.cantidad_actual > 20 %}
+                                    <span class="stock-pill stock-pill-success" title="Stock alto">
+                                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                                        <span>{{ s.cantidad_actual }}</span>
                                     </span>
                                 {% else %}
-                                    <span class="badge bg-success-subtle text-success">
-                                        {{ s.cantidad_actual }}
+                                    <span class="stock-pill stock-pill-success" title="Stock normal">
+                                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                                        <span>{{ s.cantidad_actual }}</span>
                                     </span>
                                 {% endif %}
                             </td>
+                                                                                        
                             <td>{{ s.actualizado_en|date:"d/m/Y H:i" }}</td>
                         </tr>
                         {% empty %}

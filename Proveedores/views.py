@@ -17,6 +17,7 @@ from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
+from core.global_ordenamiento import sorting_context,apply_smart_sorting
 
 from .models import Proveedor
 def is_ajax(request):
@@ -25,9 +26,6 @@ def is_ajax(request):
 
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
-    orden = request.GET.get("orden")
-    activo = Proveedor.objects.all()
-    proveedores = Proveedor.objects.all()
 
     # estado activo por defecto
     estado = request.GET.get("estado", "activo")
@@ -44,30 +42,25 @@ def lista_proveedores(request):
             Q(nit__icontains=q) |
             Q(correo_proveedor__icontains=q)
         )
-
-    # # CONTADOR (si luego lo usas)
-    # proveedores = proveedores.annotate(
-    #     total_entregas=Count("id")
-    #     total_entregas=Count("id")  
-    # )
-
-    # ORDENAMIENTO
-    ordenamientos = {
-        "nombre": "nombre_proveedor",
-        "nombre_desc": "-nombre_proveedor",
-        "entregas": "-total_entregas",
-    }
-
-    proveedores = proveedores.order_by(
-        ordenamientos.get(orden, "nombre_proveedor")
+    proveedores,sort_key,direction =apply_smart_sorting(
+        request,
+        proveedores,
+        default_sort="nombre_proveedor",
+        default_dir="asc",
+        aliases={
+            "nit": "nit",
+            "nombre": "nombre_proveedor",
+            "estado": "estado",
+        }
     )
-
     return render(
         request,
         "proveedor/lista_proveedor.html",
         {
             "proveedores": proveedores,
-            "estado_actual": estado
+            "estado_actual": estado,
+            "q": q,
+            **sorting_context(sort_key, direction),
         }
     )
 

@@ -1,5 +1,6 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
+{%load sort_tags%}
 
 {% block title %}Gestión de Proveedores{% endblock %}
 
@@ -110,14 +111,20 @@
             {% if proveedores %}
             <div class="table-responsive">
                 <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>NIT</th>
-                            <th>Proveedor</th>
-                            <th>Estado</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="{% sort_url 'nit' %}">NIT</a>
+                        </th>
+                        <th>
+                            <a href="{% sort_url 'proveedor' %}">Proveedor</a>
+                        </th>
+                        <th class="text-center">
+                            <a href="{% sort_url 'estado' %}">Estado</a>
+                        </th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
                     <tbody>
                         {% for proveedor in proveedores %}
                         <tr>

@@ -12,16 +12,32 @@ from .forms import CompraForm, DetalleCompraFormSet
 from inventario.models import Stock
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils import timezone
-import io
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+import io
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from openpyxl import Workbook
+from .comprobante import(build_comprobante_pdf_response,build_comprobante_excel_response)
 
-from django.utils import timezone
+
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
+@login_required
+def comprobante_compra(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario")
+        .prefetch_related("detalles__producto"),
+        pk=pk
+    )
 
+    return render(request, "compras/comprobante_compra.html", {
+        "compra": compra
+    })
 @ensure_csrf_cookie
 @login_required
 @require_http_methods(["GET"])
@@ -47,7 +63,7 @@ def lista_compras(request):
         compras_qs = compras_qs.filter(anulada=False)
         estado = "activas"
 
-    # ✅ corregir rango invertido automáticamente
+    #  corregir rango invertido automáticamente
     if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
         fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
 
@@ -318,3 +334,36 @@ def anular_compra(request, pk):
         "message": "Compra anulada y stock revertido."
     })
     
+
+
+@login_required
+def comprobante_compra_preview(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        pk=pk
+    )
+
+    html = render_to_string(
+        "compras/comprobante_vista_previa.html",
+        {"compra": compra},
+        request=request
+    )
+    return JsonResponse({"success": True, "html": html})
+
+
+@login_required
+def comprobante_compra_pdf(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        pk=pk
+    )
+    return build_comprobante_pdf_response(compra)
+
+
+@login_required
+def comprobante_compra_excel(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        pk=pk
+    )
+    return build_comprobante_excel_response(compra)

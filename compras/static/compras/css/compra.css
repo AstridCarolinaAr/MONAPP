@@ -498,3 +498,181 @@
     align-items: stretch;
   }
 }
+.formulario-acciones-compra {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/*vista detalle compra*/
+/* ===== Detalle compra ===== */
+#modalDetalleCompra .modal-content {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e6d7cc;
+  box-shadow: 0 18px 42px rgba(56, 40, 34, 0.12);
+}
+
+#modalDetalleCompra .modal-header {
+  background: linear-gradient(90deg, #2d160f 0%, #4a2b1d 100%);
+  color: #fff;
+  border-bottom: none;
+}
+
+#modalDetalleCompra .modal-header .btn-close {
+  filter: invert(1);
+}
+
+#modalDetalleCompra .modal-content.p-4 {
+  padding: 0 !important;
+}
+
+#detalleCompraBody {
+  padding: 18px;
+}
+
+.detalle-compra-ui {
+  background: #fff;
+}
+
+.detalle-compra-top {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.detalle-compra-media {
+  width: 100%;
+}
+
+.detalle-compra-main-img,
+.detalle-compra-main-placeholder {
+  width: 100%;
+  height: 165px;
+  border-radius: 12px;
+  border: 1px solid #dbc8bb;
+  background: #e9dfd6;
+}
+
+.detalle-compra-main-img {
+  object-fit: cover;
+}
+
+.detalle-compra-main-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0917f;
+  font-size: 3rem;
+}
+
+.detalle-compra-title {
+  margin: 0 0 14px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #2f241d;
+}
+
+.detalle-compra-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 10px 22px;
+}
+
+.detalle-compra-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detalle-label {
+  min-width: 92px;
+  font-weight: 700;
+  color: #6b4a3a;
+}
+
+.detalle-value {
+  color: #2f241d;
+}
+
+.detalle-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.detalle-estado.is-success {
+  background: #dceee3;
+  color: #2f7d4f;
+}
+
+.detalle-estado.is-danger {
+  background: #f4dddd;
+  color: #b34343;
+}
+
+.detalle-compra-divider {
+  margin: 18px 0;
+  border-color: #e2d6cd;
+}
+
+.detalle-compra-subtitle {
+  margin-bottom: 12px;
+  font-weight: 800;
+  color: #5b3a2d;
+}
+
+.detalle-compra-table thead th {
+  background: #f3ebe5;
+  color: #5a3a2c;
+  font-weight: 800;
+  border-bottom: 1px solid #d9c8bc;
+}
+
+.detalle-compra-table tbody td {
+  border-color: #eadfd7;
+}
+
+.detalle-producto-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detalle-producto-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #dbc8bb;
+  background: #f5eee8;
+  flex: 0 0 auto;
+}
+
+.detalle-producto-thumb--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0917f;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 767.98px) {
+  .detalle-compra-top {
+    grid-template-columns: 1fr;
+  }
+
+  .detalle-compra-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .detalle-compra-title {
+    font-size: 1.5rem;
+  }
+}

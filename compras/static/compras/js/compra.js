@@ -569,3 +569,64 @@
     validateCompraForm(formModalEl);
   });
 })();
+document.addEventListener("DOMContentLoaded", () => {
+  const modalEl = document.getElementById("modalComprobanteCompra");
+  const modalBody = document.getElementById("comprobanteCompraBody");
+  const btnDescargar = document.getElementById("btnDescargarComprobante");
+
+  if (!modalEl || !modalBody || !btnDescargar) return;
+
+  const comprobanteModal = new bootstrap.Modal(modalEl);
+
+  let currentPdfUrl = null;
+  let currentExcelUrl = null;
+
+  document.body.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".js-ver-comprobante");
+    if (!btn) return;
+
+    e.preventDefault();
+
+    const url = btn.getAttribute("data-url");
+    currentPdfUrl = btn.getAttribute("data-pdf-url");
+    currentExcelUrl = btn.getAttribute("data-excel-url");
+
+    modalBody.innerHTML = `<div class="text-center py-5 text-muted">Cargando comprobante...</div>`;
+    comprobanteModal.show();
+
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        credentials: "same-origin",
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+
+      const data = await res.json();
+      modalBody.innerHTML = data.success
+        ? data.html
+        : `<div class="alert alert-danger">No se pudo cargar el comprobante.</div>`;
+    } catch (err) {
+      console.error(err);
+      modalBody.innerHTML = `<div class="alert alert-danger">Error cargando comprobante.</div>`;
+    }
+  });
+
+  btnDescargar.addEventListener("click", async () => {
+    const result = await Swal.fire({
+      title: "Descargar comprobante",
+      text: "¿En qué formato quieres descargarlo?",
+      icon: "question",
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: "PDF",
+      denyButtonText: "Excel",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed && currentPdfUrl) {
+      window.open(currentPdfUrl, "_blank");
+    } else if (result.isDenied && currentExcelUrl) {
+      window.open(currentExcelUrl, "_blank");
+    }
+  });
+});

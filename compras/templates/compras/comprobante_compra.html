@@ -1,0 +1,29 @@
+<div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modalComprobanteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable comprobante-print-dialog">
+    <div class="modal-content comprobante-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalComprobanteLabel">
+          <i class="bi bi-receipt-cutoff me-2"></i>
+          Comprobante de compra
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body comprobante-modal-body">
+        <div id="comprobantePreviewBody">
+          <div class="comprobante-loading">
+            <div class="spinner-border" role="status"></div>
+            <p class="mt-3 mb-0">Cargando vista previa...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" id="btnDescargarComprobante">
+          <i class="bi bi-download me-1"></i>
+          Descargar comprobante
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
