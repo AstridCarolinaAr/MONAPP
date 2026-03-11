@@ -236,6 +236,45 @@ Se usa desde gestión de alisados
                         <span>Inventario</span>
                     </a>
                 </li>
+                <!-- Catálogo Web (menú desplegable) -->
+            
+                <li class="nav-item has-submenu">
+                    <a class="nav-link submenu-toggle" href="#catalogoWebMenu" data-bs-toggle="collapse" role="button"
+                    aria-expanded="{% if request.resolver_match.namespace == 'productos_web' or request.resolver_match.namespace == 'promociones' or request.resolver_match.namespace == 'servicios_web' %}true{% else %}false{% endif %}"
+                    aria-controls="catalogoWebMenu">
+                        <i class="bi bi-globe2"></i>
+                        <span>Catálogo Web</span>
+                        <i class="bi bi-chevron-down submenu-arrow ms-auto"></i>
+                    </a>
+
+                    <div class="collapse submenu {% if request.resolver_match.namespace == 'productos_web' or request.resolver_match.namespace == 'promociones' or request.resolver_match.namespace == 'servicios_web' %}show{% endif %}" id="catalogoWebMenu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.namespace == 'productos_web' %}active{% endif %}"
+                                href="{% url 'productos_web:lista' %}">
+                                    <i class="bi bi-bag"></i>
+                                    <span>Productos Web</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.namespace == 'promociones' %}active{% endif %}"
+                                href="{% url 'promociones:lista' %}">
+                                    <i class="bi bi-percent"></i>
+                                    <span>Promociones</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.namespace == 'servicios_web' %}active{% endif %}"
+                                href="{% url 'servicios_web:lista_servicios_web' %}">
+                                    <i class="bi bi-globe"></i>
+                                    <span>Servicios Web</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'compras:lista_compras' %}">
@@ -251,60 +290,7 @@ Se usa desde gestión de alisados
                     </a>
                 </li>
 
-                <!-- Catálogo Web (menú desplegable) -->
-                <li class="nav-item has-submenu">
-                    <a class="nav-link submenu-toggle" href="#catalogoWebMenu" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="catalogoWebMenu">
-                        <i class="bi bi-globe2"></i>
-                        <span>Catálogo Web</span>
-                        <i class="bi bi-chevron-down submenu-arrow ms-auto"></i>
-                    </a>
-                    <div class="collapse submenu" id="catalogoWebMenu">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'productos_web:lista' %}">
-                                    <i class="bi bi-bag"></i>
-                                    <span>Productos Web</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'promociones:lista' %}">
-                                    <i class="bi bi-percent"></i>
-                                    <span>Promociones</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'usuarios:lista_usuarios' %}">
-                        <i class="bi bi-unlock-fill"></i>
-                        <span>Usuarios</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'gestion_alisados:lista_gestion_alisados' %}">
-                        <i class="bi bi-database"></i>
-                        <span>Gestión de Datos</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'servicios_web:lista_servicios_web' %}">
-                        <i class="bi bi-globe"></i>
-                        <span>Servicios Web</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="{% url 'usuarios:logout' %}">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Cerrar Sesión</span>
-                    </a>
-                </li>
-
+                
             </ul>
         </nav>
     </div>

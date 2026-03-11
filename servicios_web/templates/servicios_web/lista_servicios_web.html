@@ -9,10 +9,14 @@
 {% endblock %}
 
 {% block page_icon %}
-<i class="bi bi-globe page-icon"></i>
+<span class="sw-hero-icon" aria-hidden="true">
+    <i class="bi bi-globe"></i>
+</span>
 {% endblock %}
 
-{% block page_title %}Servicios Web{% endblock %}
+{% block page_title %}
+<span class="sw-hero-title-text">Servicios Web</span>
+{% endblock %}
 
 {% block page_subtitle %}
 Gestiona los servicios que se muestran en la página pública.
@@ -61,18 +65,22 @@ Gestiona los servicios que se muestran en la página pública.
 {% endblock %}
 {% block content %}
 
-<div class="sw-search-bar mb-3">
-    <div class="input-group">
-        <span class="input-group-text">
-            <i class="bi bi-search"></i>
-        </span>
-        <input
-            type="text"
-            id="swBuscarServicios"
-            class="form-control"
-            placeholder="Buscar por nombre, descripción, precio o estado...">
+<div class="sw-search-bar mb-3" id="swSearchBar">
+    <div class="sw-search-shell" id="swSearchShell">
+        <button type="button" class="sw-search-toggle" id="swSearchToggle" aria-label="Abrir búsqueda">
+            <i class="bi bi-search" id="swSearchIcon"></i>
+        </button>
+
+        <div class="sw-search-input-wrap" id="swSearchInputWrap">
+            <input
+                type="text"
+                id="swBuscarServicios"
+                class="form-control sw-search-input"
+                placeholder="Buscar por nombre, descripción, precio o estado...">
+        </div>
     </div>
 </div>
+
 <div id="serviciosWebView" class="services-view" data-view="grid-3">
 
     <!-- GRID -->
@@ -116,14 +124,14 @@ Gestiona los servicios que se muestran en la página pública.
                 <button class="btn-action edit btn-edit-servicioweb"
                     data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}"
                     title="Editar">
-                    <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                    <i class="bi bi-pencil-square" style="font-size: 28px;"></i>
                 </button>
 
                 <button class="btn-action delete-outline btn-delete-servicioweb"
                     data-url="{% url 'servicios_web:eliminar_servicio_web' servicio.id_servicio_web %}"
                     data-nombre="{{ servicio.nombre|escape }}"
                     title="Eliminar">
-                    <i class="bi bi-trash3" style="font-size: 24px;"></i>
+                    <i class="bi bi-trash3" style="font-size: 28px;"></i>
                 </button>
 
                 <button class="btn-action toggle-activo-servicioweb"
@@ -131,9 +139,9 @@ Gestiona los servicios que se muestran en la página pública.
                     title="Activar / Desactivar"
                     data-activo="{{ servicio.activo|yesno:'true,false' }}">
                     {% if servicio.activo %}
-                        <i class="bi bi-toggle-on text-success" style="font-size: 24px;"></i>
+                        <i class="bi bi-toggle-on text-white" style="font-size: 28px;"></i>
                     {% else %}
-                        <i class="bi bi-toggle-off text-secondary" style="font-size: 24px;"></i>
+                        <i class="bi bi-toggle-off text-secondary" style="font-size: 28px;"></i>
                     {% endif %}
                 </button>
             </div>
@@ -141,10 +149,10 @@ Gestiona los servicios que se muestran en la página pública.
             <div class="sq-card-content">
                 <h3>{{ servicio.nombre }}</h3>
                 <p class="price">${{ servicio.precio|floatformat:0 }}</p>
-                <p class="text-white-50 small">{{ servicio.descripcion|truncatewords:15 }}</p>
-                {% if not servicio.activo %}
-                <span class="badge bg-danger">Inactivo</span>
-                {% endif %}
+                <p class="text-white-50 small description-truncate">{{ servicio.descripcion }}</p>
+                <span class="badge badge-sw-coffee">
+                    {% if servicio.activo %}Activo{% else %}Inactivo{% endif %}
+                </span>
             </div>
         </div>
 
@@ -168,7 +176,7 @@ Gestiona los servicios que se muestran en la página pública.
             <table class="table table-dashboard align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 110px;">Multimedia</th>
+                        <th style="width: 82px;">Multimedia</th>
 
                         <th class="sw-sortable" data-sort-type="text" data-sort-key="nombre">
                             Nombre <i class="bi bi-arrow-down-up ms-1"></i>
@@ -186,7 +194,7 @@ Gestiona los servicios que se muestran en la página pública.
                             Estado <i class="bi bi-arrow-down-up ms-1"></i>
                         </th>
 
-                        <th style="width: 180px;">Acciones</th>
+                        <th style="width: 120px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -220,7 +228,7 @@ Gestiona los servicios que se muestran en la página pública.
 
                         <td class="fw-semibold">{{ servicio.nombre }}</td>
                         <td>${{ servicio.precio|floatformat:0 }}</td>
-                        <td>{{ servicio.descripcion|truncatewords:18 }}</td>
+                        <td><div class="sw-table-description" title="{{ servicio.descripcion }}">{{ servicio.descripcion }}</div></td>
 
                         <td>
                             {% if servicio.activo %}
@@ -282,11 +290,11 @@ Gestiona los servicios que se muestran en la página pública.
 <div class="modal fade" id="modalServicioWeb" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
-            <div class="modal-header bg-dark text-white" style="border-radius: 15px 15px 0 0;">
+            <div class="modal-header sw-form-header">
                 <h5 class="modal-title" id="modalServicioWebLabel">
                     <i class="bi bi-plus-circle me-2"></i> Nuevo Servicio Web
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white sw-form-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body p-0" id="modalBodyContent">
                 <div class="text-center p-5">
@@ -312,7 +320,19 @@ Gestiona los servicios que se muestran en la página pública.
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
-<script src="{% static 'servicios_web/js/servicios_web.js' %}"></script>
-<script src="{% static 'servicios_web/js/metaballs.js' %}"></script>
+    {{ block.super }}
+    <script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
+    <script src="{% static 'servicios_web/js/servicios_web.js' %}"></script>
+    <script src="{% static 'servicios_web/js/metaballs.js' %}"></script>
+
+     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const pageHeader = document.querySelector('.page-header');
+            if (!pageHeader) return;
+
+            requestAnimationFrame(() => {
+                pageHeader.classList.add('sw-intro-ready');
+            });
+        });
+    </script>
 {% endblock %}

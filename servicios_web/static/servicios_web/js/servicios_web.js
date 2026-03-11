@@ -883,30 +883,105 @@ document.addEventListener("DOMContentLoaded", () => {
             actualizarIconosOrden(header, currentDirection);
         });
     });
-    /* =========================
-    BUSCADOR SERVICIOS WEB
-    ========================= */
+/* =========================
+BUSCADOR SERVICIOS WEB
+========================= */
+    const searchShell = document.getElementById("swSearchShell");
+    const searchToggle = document.getElementById("swSearchToggle");
     const inputBuscarServicios = document.getElementById("swBuscarServicios");
+
     const cardsServicios = document.querySelectorAll(".sq-card");
     const filasServicios = document.querySelectorAll(".services-table-wrapper tbody tr");
 
-    if (inputBuscarServicios) {
+    function normalizarTexto(texto) {
+        return (texto || "")
+            .toString()
+            .toLowerCase()
+            .trim();
+    }
+
+    function ejecutarBusquedaServicios() {
+        const termino = normalizarTexto(inputBuscarServicios?.value);
+
+        cardsServicios.forEach((card) => {
+            const texto = normalizarTexto(card.dataset.search);
+            const visible = termino === "" || texto.includes(termino);
+            card.classList.toggle("sw-hidden", !visible);
+        });
+
+        filasServicios.forEach((fila) => {
+            if (fila.querySelector("td[colspan]")) return;
+
+            const texto = normalizarTexto(fila.dataset.search);
+            const visible = termino === "" || texto.includes(termino);
+            fila.classList.toggle("sw-hidden", !visible);
+        });
+    }
+
+    function girarIconoBusqueda() {
+        if (!searchToggle) return;
+
+        searchToggle.classList.remove("is-rotating");
+        void searchToggle.offsetWidth;
+        searchToggle.classList.add("is-rotating");
+    }
+
+    function abrirBuscadorServicios() {
+        if (!searchShell) return;
+
+        searchShell.classList.add("is-open");
+        girarIconoBusqueda();
+
+        setTimeout(() => {
+            inputBuscarServicios?.focus();
+        }, 220);
+    }
+
+    function cerrarBuscadorServicios() {
+        if (!searchShell || !inputBuscarServicios) return;
+
+        inputBuscarServicios.value = "";
+        ejecutarBusquedaServicios();
+        searchShell.classList.remove("is-open");
+    }
+
+    if (searchShell && searchToggle && inputBuscarServicios) {
+        searchToggle.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            const abierto = searchShell.classList.contains("is-open");
+            const termino = normalizarTexto(inputBuscarServicios.value);
+
+            if (!abierto) {
+                abrirBuscadorServicios();
+                return;
+            }
+
+            girarIconoBusqueda();
+
+            if (termino !== "") {
+                ejecutarBusquedaServicios();
+                inputBuscarServicios.focus();
+            } else {
+                cerrarBuscadorServicios();
+            }
+        });
+
+        inputBuscarServicios.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                ejecutarBusquedaServicios();
+            }
+        });
+
         inputBuscarServicios.addEventListener("input", () => {
-            const termino = inputBuscarServicios.value.trim().toLowerCase();
+            if (normalizarTexto(inputBuscarServicios.value) === "") {
+                ejecutarBusquedaServicios();
+            }
+        });
 
-            cardsServicios.forEach((card) => {
-                const texto = (card.dataset.search || "").toLowerCase();
-                const visible = !termino || texto.includes(termino);
-                card.classList.toggle("sw-hidden", !visible);
-            });
-
-            filasServicios.forEach((fila) => {
-                if (fila.querySelector("td[colspan]")) return;
-
-                const texto = (fila.dataset.search || "").toLowerCase();
-                const visible = !termino || texto.includes(termino);
-                fila.classList.toggle("sw-hidden", !visible);
-            });
+        searchToggle.addEventListener("animationend", () => {
+            searchToggle.classList.remove("is-rotating");
         });
     }
 });

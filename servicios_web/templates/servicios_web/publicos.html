@@ -20,7 +20,7 @@
                             {% elif servicio.imagen %}
                                 <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="servicio-img">
                             {% else %}
-                                <img src="{% static 'img/placeholder-servicio.jpg' %}" alt="{{ servicio.nombre }}" class="servicio-img">
+                                <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
                             {% endif %}
                         </div>
 
