@@ -171,25 +171,24 @@
           <td class="col-acciones text-center">
             <div class="acciones-wrap d-flex justify-content-center align-items-center gap-1">
               <button type="button"
-                      class="btn btn-sm btn-link btn-action-round"
-                      style="color: #382822;"
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalDetalleProducto"
-                      data-codigo="{{ producto.codigo }}"
-                      data-nombre="{{ producto.nombre }}"
-                      data-marca="{{ producto.marca }}"
-                      data-precio="{{ producto.precio|intcomma }}"
-                      data-linea="{{ producto.linea }}"
-                      data-presentacion="{{ producto.presentacion }}"
-                      data-unidad="{{ producto.unidad_medida }}"
-                      data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
-                      data-descripcion="{{ producto.descripcion|default:'' }}"
-                      data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%else%}{%endif %}"
-                      title="Ver detalles"
-                      data-bs-placement="bottom">
-                <i class="bi bi-eye" style="font-size: 24px;"></i>
+                    class="btn btn-sm btn-link btn-action-round"
+                    style="color: #382822;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalDetalleProducto"
+                    data-codigo="{{ producto.codigo }}"
+                    data-nombre="{{ producto.nombre }}"
+                    data-marca="{{ producto.marca }}"
+                    data-precio="{{ producto.precio|intcomma }}"
+                    data-linea="{{ producto.linea }}"
+                    data-presentacion="{{ producto.presentacion }}"
+                    data-unidad="{{ producto.unidad_medida }}"
+                    data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
+                    data-descripcion="{{ producto.descripcion|default:'' }}"
+                    data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%endif %}"
+                    title="Ver detalles"
+                    data-bs-placement="bottom">
+              <i class="bi bi-eye" style="font-size: 24px;"></i>
               </button>
-
               <a href="{% url 'productos:editar_producto' producto.codigo %}"
                  class="btn btn-link btn-action-round"
                  style="color: #382822;"
@@ -246,96 +245,6 @@
     }
 </style>
 
-   <!-- MODAL DETALLE -->
-<div class="modal fade ultra-modal" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content ultra-card">
-
-      <div class="modal-header ultra-header">
-        <div class="d-flex align-items-center gap-2">
-          <span class="ultra-icon"><i class="bi bi-box-seam"></i></span>
-          <div>
-            <div class="ultra-title">Detalles del producto</div>
-            <div class="ultra-subtitle">Información completa y organizada</div>
-          </div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body p-4">
-        <div class="row g-3">
-
-          <!-- Columna izquierda -->
-          <div class="col-md-6">
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">Código</div>
-                <div class="info-value" id="d-codigo">—</div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">Marca</div>
-                <div class="info-value" id="d-marca">—</div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">Línea</div>
-                <div class="info-value" id="d-linea">—</div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">Unidad</div>
-                <div class="info-value" id="d-unidad">—</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Columna derecha -->
-          <div class="col-md-6">
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">Nombre</div>
-                <div class="info-value" id="d-nombre">—</div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">Precio</div>
-                <div class="info-value" id="d-precio">—</div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">Estado</div>
-                <div class="info-value">
-                  <span class="badge rounded-pill" id="d-estado">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Descripción full -->
-          <div class="col-12 mt-2">
-            <div class="desc-box">
-              <div class="desc-title">Descripción</div>
-              <div class="desc-text" id="d-descripcion">—</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <!-- Imagen -->
-        <div class="desc-box">
-          <div class="desc-title">Imagen</div>
-          <div class="desc-text text-center" id="d-imagen"></div>
-        </div>
-      <div class="modal-footer px-4 py-3">
-        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-          Cerrar
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 <!-- Modal reutilizable -->
 <div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
@@ -371,6 +280,84 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL DETALLE -->
+<div class="modal fade ultra-modal" id="modalDetalleProducto" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal-content ultra-card">
+
+<div class="modal-header ultra-header">
+<div>
+<div class="ultra-title" id="dp-nombre"></div>
+<div class="ultra-subtitle">Información del producto</div>
+</div>
+
+<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+
+<div class="detalle-producto-wrap">
+
+<div class="detalle-top">
+
+<div class="detalle-img-box">
+<img id="dp-imagen" class="detalle-img-principal d-none">
+<div id="dp-noimg" class="detalle-img-placeholder">
+Sin imagen
+</div>
+</div>
+
+<div class="detalle-info">
+
+<div class="detalle-grid">
+
+<div><strong>Código</strong></div>
+<div id="dp-codigo"></div>
+
+<div><strong>Marca</strong></div>
+<div id="dp-marca"></div>
+
+<div><p><strong>Precio:</strong> $ {{ producto.precio|intcomma }}</p></div>
+<div id="dp-precio"></div>
+
+<div><strong>Línea</strong></div>
+<div id="dp-linea"></div>
+
+<div><strong>Presentación</strong></div>
+<div id="dp-presentacion"></div>
+
+<div><strong>Unidad</strong></div>
+<div id="dp-unidad"></div>
+
+<div><strong>Estado</strong></div>
+<div>
+<span id="dp-estado" class="badge-estado"></span>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="detalle-desc mt-3">
+
+<h6 class="detalle-subtitulo">Descripción</h6>
+
+<div id="dp-descripcion" class="text-muted">
+—
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -380,6 +367,7 @@
 <script src="{% static 'Productos/js/producto_action.js' %}"></script>
 <script src="{% static 'Productos/js/lista_productos.js' %}"></script>
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
+<script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
 
 <script>
   console.log(" lista_productos: extra_js cargado");

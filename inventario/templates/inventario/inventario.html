@@ -91,6 +91,7 @@
                 <table class="styled-table">
                     <thead>
                         <tr>
+                            <th>Vista Previa</th>
                             <th><a href="{% sort_url 'producto' %}">Producto</a></th>
                             <th><a href="{% sort_url 'unidad' %}">Unidad de medida</a></th>
                             <th><a href="{% sort_url 'stock' %}">Stock total actual</a></th>
@@ -99,33 +100,41 @@
                     </thead>
                     <tbody>
                         {% for s in stock %}
-                        <tr>
-                            <td class="fw-medium">{{ s.producto.nombre }}</td>
-                            <td>{{ s.producto.get_unidad_medida_display }}</td>
-                            <td>
-                                {% if s.cantidad_actual < 10 %}
-                                    <span class="stock-pill stock-pill-danger" title="Stock bajo">
-                                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                                        <span>{{ s.cantidad_actual }}</span>
-                                    </span>
-                                {% elif s.cantidad_actual > 20 %}
-                                    <span class="stock-pill stock-pill-success" title="Stock alto">
-                                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                                        <span>{{ s.cantidad_actual }}</span>
-                                    </span>
-                                {% else %}
-                                    <span class="stock-pill stock-pill-success" title="Stock normal">
-                                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                                        <span>{{ s.cantidad_actual }}</span>
-                                    </span>
-                                {% endif %}
-                            </td>
-                                                                                        
-                            <td>{{ s.actualizado_en|date:"d/m/Y H:i" }}</td>
-                        </tr>
+                            <tr>
+                                <td>
+                                    <div class="product-thumb-wrap">
+                                        {% if s.producto.imagen %}
+                                            <img src="{{ s.producto.imagen.url }}"
+                                                alt="{{ s.producto.nombre }}"
+                                                class="product-thumb">
+                                        {% else %}
+                                            <div class="product-thumb product-thumb-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td class="fw-medium">{{ s.producto.nombre }}</td>
+                                <td>{{ s.producto.get_unidad_medida_display }}</td>
+                                <td>
+                                    {% if s.cantidad_actual < 10 %}
+                                        <span class="stock-pill stock-pill-danger" title="Stock bajo">
+                                            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                                            <span>{{ s.cantidad_actual }}</span>
+                                        </span>
+                                    {% else %}
+                                        <span class="stock-pill stock-pill-success" title="Stock disponible">
+                                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                                            <span>{{ s.cantidad_actual }}</span>
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ s.actualizado_en|date:"d/m/Y H:i" }}</td>
+                            </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">
+                            <td colspan="5" class="text-center py-4 text-muted">
                                 No hay stock registrado en el sistema.
                             </td>
                         </tr>

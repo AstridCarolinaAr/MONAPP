@@ -71,7 +71,57 @@ def lista_productos(request):
         "productos": qs,
         **sorting_context(sort_key,direction)
     })
+    
+    
+    from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
+def detalle_compra_json(request, id):
+
+    compra = get_object_or_404(
+        Compra.objects.prefetch_related("detalles__producto"),
+        id=id
+    )
+
+    primer = compra.detalles.first()
+
+    imagen = ""
+
+    if primer:
+        if primer.producto.imagen:
+            imagen = primer.producto.imagen.url
+        elif primer.producto.imagen_url:
+            imagen = primer.producto.imagen_url
+
+    data = {
+        "id": compra.id,
+        "proveedor": str(compra.proveedor),
+        "fecha": compra.fecha.strftime("%d de %B de %Y") if compra.fecha else "",
+        "usuario": str(compra.usuario),
+        "estado": "Activa" if compra.activo else "Anulada",
+        "total": f"${compra.total:,.2f}",
+        "imagen": imagen,
+        "detalles": []
+    }
+
+    for d in compra.detalles.all():
+
+        img = ""
+
+        if d.producto.imagen:
+            img = d.producto.imagen.url
+        elif d.producto.imagen_url:
+            img = d.producto.imagen_url
+
+        data["detalles"].append({
+            "nombre": d.producto.nombre,
+            "cantidad": d.cantidad,
+            "precio_unitario": f"${d.precio_unitario:,.2f}",
+            "subtotal": f"${d.subtotal:,.2f}",
+            "imagen": img,
+        })
+
+    return JsonResponse(data)
 
 def crear_producto(request):
     form = ProductoForm(request.POST or None, request.FILES or None)

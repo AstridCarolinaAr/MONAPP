@@ -20,7 +20,12 @@ class ProductoForm(forms.ModelForm):
         ]
         widgets = {
             "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: Shampoo 500ml"}),
-            "precio": forms.NumberInput(attrs={"class": "form-control", "placeholder": "0"}),
+            "precio": forms.TextInput(attrs={
+                "class": "form-control",
+                "inputmode": "numeric",
+                "autocomplete": "off",
+                "placeholder": "0",
+            }),
             "descripcion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "linea": forms.TextInput(attrs={"class": "form-control"}),
             "presentacion": forms.TextInput(attrs={"class": "form-control"}),

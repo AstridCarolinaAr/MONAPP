@@ -5,6 +5,30 @@
   const qs = (root, sel) => (root || document).querySelector(sel);
 
   // =========================
+  // Helpers dinero
+  // =========================
+  function onlyDigits(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  function formatMiles(value) {
+    const digits = onlyDigits(value);
+    if (!digits) return "";
+    return new Intl.NumberFormat("es-CO", {
+      maximumFractionDigits: 0,
+    }).format(Number(digits));
+  }
+
+  function normalizeMoneyForSubmit(value) {
+    return onlyDigits(value);
+  }
+
+  function formatMoneyInput(input) {
+    if (!input) return;
+    input.value = formatMiles(input.value);
+  }
+
+  // =========================
   // Modal AJAX genérico
   // =========================
   document.addEventListener("DOMContentLoaded", () => {
@@ -75,6 +99,13 @@
       if (!ok) return;
 
       const url = form.action;
+
+      // ✅ limpiar formato visual antes de enviar
+      const precioInput = qs(form, "#id_precio");
+      if (precioInput) {
+        precioInput.value = normalizeMoneyForSubmit(precioInput.value);
+      }
+
       const formData = new FormData(form);
       const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]')?.value || "";
 
@@ -470,7 +501,11 @@
     }
 
     form.addEventListener("input", (e) => {
+      
       const t = e.target;
+      if(t.matches("#id_precio")){
+        formatMoneyInput(t);
+      }
       if (
         t.matches("#id_nombre") ||
         t.matches("#id_marca") ||
