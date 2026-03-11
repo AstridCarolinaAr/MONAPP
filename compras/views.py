@@ -22,6 +22,10 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from openpyxl import Workbook
 from .comprobante import(build_comprobante_pdf_response,build_comprobante_excel_response)
+from django.templatetags.static import static
+from django.utils.text import slugify
+from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
 
 
 def is_ajax(request):
@@ -83,7 +87,7 @@ def lista_compras(request):
         if fecha_hasta:
             compras_qs = compras_qs.filter(fecha__lte=fecha_hasta)
 
-    # Búsqueda unificada
+    # Búsqueda unificada compras
     if busqueda:
         filtros = (
             Q(id__icontains=busqueda) |
@@ -335,7 +339,12 @@ def anular_compra(request, pk):
     })
     
 
-
+# =========================
+# Vista previa HTML del comprobante de compra
+# =========================
+# =========================
+# Vista previa HTML del comprobante de compra
+# =========================
 @login_required
 def comprobante_compra_preview(request, pk):
     compra = get_object_or_404(
@@ -351,15 +360,25 @@ def comprobante_compra_preview(request, pk):
     return JsonResponse({"success": True, "html": html})
 
 
+# ========================= compra comprobante pdf ========================
+# =========================
 @login_required
 def comprobante_compra_pdf(request, pk):
     compra = get_object_or_404(
         Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
         pk=pk
     )
-    return build_comprobante_pdf_response(compra)
+
+    return render(
+        request,
+        "compras/comprobante_compra_pdf.html",
+        {"compra": compra},
+    )
 
 
+# =========================
+# Descarga Excel del comprobante de compra
+# =========================
 @login_required
 def comprobante_compra_excel(request, pk):
     compra = get_object_or_404(

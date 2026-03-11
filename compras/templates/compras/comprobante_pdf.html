@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comprobante de compra {{ compra.id }}</title>
+
+  <link rel="stylesheet" href="{% static 'compras/css/comprobante.css' %}">
+
+  <style>
+    /* =========================
+       Vista limpia para imprimir
+    ========================= */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #d9d1c7;
+    }
+
+    .print-page-shell {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        background: #ffffff !important;
+      }
+
+      .print-page-shell {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto;
+        display: block;
+      }
+
+      .invoice-preview-stage {
+        display: block !important;
+        width: 210mm !important;
+        margin: 0 auto !important;
+      }
+
+      .invoice-sheet-premium {
+        box-shadow: none !important;
+        border: 0 !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-page-shell">
+    <div class="invoice-preview-stage">
+      {% static 'compras/img/logo_monakeratina.png' as preview_logo %}
+      {% static 'compras/img/logo_monakeratina_watermark.png' as preview_watermark %}
+
+      {% include "compras/partials/comprobante_compra_base.html" with logo_src=preview_logo watermark_src=preview_watermark %}
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // Imprimir automáticamente
+    // =========================
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        window.print();
+      }, 250);
+    });
+
+    // =========================
+    // Cerrar pestaña después de imprimir
+    // =========================
+    window.onafterprint = function () {
+      window.close();
+    };
+  </script>
+</body>
+</html> 

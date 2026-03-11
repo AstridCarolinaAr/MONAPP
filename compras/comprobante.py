@@ -333,127 +333,278 @@ def build_comprobante_pdf_response(compra):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
 
-
 def build_comprobante_excel_response(compra):
+    # =========================
+    # Crear libro y hoja
+    # =========================
     wb = Workbook()
     ws = wb.active
     ws.title = "Comprobante"
 
-    title_font = Font(bold=True, size=14, color="111111")
-    header_font = Font(bold=True, color="FFFFFF")
-    label_font = Font(bold=True, color="111111")
-    total_font = Font(bold=True, color="111111")
+    # =========================
+    # Helpers de estilo
+    # =========================
+    def apply_style(cell, font=None, fill=None, border=None, alignment=None, number_format=None):
+        if font:
+            cell.font = font
+        if fill:
+            cell.fill = fill
+        if border:
+            cell.border = border
+        if alignment:
+            cell.alignment = alignment
+        if number_format:
+            cell.number_format = number_format
 
-    header_fill = PatternFill("solid", fgColor="111111")
-    soft_fill = PatternFill("solid", fgColor="F3F4F6")
-    light_fill = PatternFill("solid", fgColor="F8FAFC")
+    def style_range(start_row, end_row, start_col, end_col, **styles):
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                apply_style(ws.cell(row=row, column=col), **styles)
 
+    # =========================
+    # Configuración visual de hoja
+    # =========================
+    ws.sheet_view.showGridLines = False
+    ws.freeze_panes = "B12"
+    ws.page_setup.orientation = "portrait"
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.print_options.horizontalCentered = True
+    ws.print_options.verticalCentered = False
+    ws.page_margins.left = 0.35
+    ws.page_margins.right = 0.35
+    ws.page_margins.top = 0.4
+    ws.page_margins.bottom = 0.4
+
+    # =========================
+    # Anchos de columnas y alturas
+    # A queda como margen visual
+    # =========================
+    ws.column_dimensions["A"].width = 4
+    ws.column_dimensions["B"].width = 22
+    ws.column_dimensions["C"].width = 22
+    ws.column_dimensions["D"].width = 18
+    ws.column_dimensions["E"].width = 18
+
+    ws.row_dimensions[1].height = 30
+    ws.row_dimensions[2].height = 34
+    ws.row_dimensions[4].height = 22
+    ws.row_dimensions[11].height = 22
+    ws.row_dimensions[12].height = 22
+
+    # =========================
+    # Paleta visual
+    # =========================
+    color_dark = "3B261A"
+    color_brown = "A67C52"
+    color_soft = "F7F0E8"
+    color_soft_2 = "FBF7F2"
+    color_line = "D8C3B5"
+    color_white = "FFFFFF"
+    color_text = "2F241D"
+
+    # =========================
+    # Fuentes
+    # =========================
+    title_font = Font(bold=True, size=16, color=color_text)
+    section_font = Font(bold=True, size=11, color=color_white)
+    label_font = Font(bold=True, size=10, color=color_dark)
+    value_font = Font(size=10, color=color_text)
+    value_bold_font = Font(bold=True, size=10, color=color_text)
+    table_header_font = Font(bold=True, size=10, color=color_white)
+    total_font = Font(bold=True, size=11, color=color_dark)
+    footer_font = Font(italic=True, size=9, color=color_brown)
+
+    # =========================
+    # Rellenos
+    # =========================
+    dark_fill = PatternFill("solid", fgColor=color_dark)
+    brown_fill = PatternFill("solid", fgColor=color_brown)
+    soft_fill = PatternFill("solid", fgColor=color_soft)
+    soft_fill_2 = PatternFill("solid", fgColor=color_soft_2)
+
+    # =========================
+    # Bordes
+    # =========================
+    thin_side = Side(style="thin", color=color_line)
     thin_border = Border(
-        left=Side(style="thin", color="D1D5DB"),
-        right=Side(style="thin", color="D1D5DB"),
-        top=Side(style="thin", color="D1D5DB"),
-        bottom=Side(style="thin", color="D1D5DB"),
+        left=thin_side,
+        right=thin_side,
+        top=thin_side,
+        bottom=thin_side,
     )
 
+    # =========================
+    # Alineaciones
+    # =========================
+    center = Alignment(horizontal="center", vertical="center")
+    left = Alignment(horizontal="left", vertical="center")
+    right = Alignment(horizontal="right", vertical="center")
+
+    # =========================
+    # Datos del comprobante
+    # =========================
     proveedor = getattr(compra.proveedor, "nombre_proveedor", "—")
     usuario = compra.usuario.username if compra.usuario else "—"
     fecha = compra.fecha.strftime("%d/%m/%Y") if compra.fecha else "—"
     estado = "Anulada" if compra.anulada else "Activa"
-    total = compra.precio_total or 0
+    total = float(compra.precio_total or 0)
 
+    # =========================
+    # Logo
+    # =========================
     logo_path = _get_logo_path()
     if logo_path:
         try:
             img = XLImage(logo_path)
-            img.width = 180
-            img.height = 55
-            ws.add_image(img, "A1")
+            img.width = 145
+            img.height = 58
+            ws.add_image(img, "B1")
         except Exception:
             pass
 
-    ws.merge_cells("A1:D2")
-    ws["A1"] = f"Comprobante de Compra #{compra.id}"
-    ws["A1"].font = title_font
-    ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+    # =========================
+    # Título principal
+    # =========================
+    style_range(1, 2, 2, 5, border=thin_border, alignment=center)
+    ws.merge_cells("B1:E2")
+    ws["B1"] = f"Comprobante de Compra #{compra.id}"
+    apply_style(ws["B1"], font=title_font, alignment=center)
+
+    # =========================
+    # Sección de información general
+    # =========================
+    style_range(4, 4, 2, 5, fill=dark_fill, border=thin_border, alignment=left)
+    ws.merge_cells("B4:E4")
+    ws["B4"] = "DATOS GENERALES"
+    apply_style(ws["B4"], font=section_font, alignment=left)
 
     info_rows = [
-        ("Proveedor", proveedor),
-        ("Usuario", usuario),
-        ("Fecha", fecha),
-        ("Estado", estado),
-        ("Total", float(total or 0)),
+        (5, "Proveedor", proveedor),
+        (6, "Usuario", usuario),
+        (7, "Fecha", fecha),
+        (8, "Estado", estado),
+        (9, "Total", total),
     ]
 
-    start_info_row = 4
-    for idx, (label, value) in enumerate(info_rows, start=start_info_row):
-        label_cell = ws[f"A{idx}"]
-        value_cell = ws[f"B{idx}"]
+    for row_num, label, value in info_rows:
+        ws[f"B{row_num}"] = label
+        apply_style(ws[f"B{row_num}"], font=label_font, fill=soft_fill, border=thin_border, alignment=left)
 
-        label_cell.value = label
-        label_cell.font = label_font
-        label_cell.fill = light_fill
-        label_cell.border = thin_border
-        label_cell.alignment = Alignment(vertical="center")
+        style_range(row_num, row_num, 3, 5, fill=soft_fill_2, border=thin_border, alignment=left)
+        ws.merge_cells(start_row=row_num, start_column=3, end_row=row_num, end_column=5)
+        ws.cell(row=row_num, column=3, value=value)
 
-        value_cell.value = value
-        value_cell.border = thin_border
-        value_cell.alignment = Alignment(vertical="center")
+        if label == "Total":
+            apply_style(
+                ws.cell(row=row_num, column=3),
+                font=value_bold_font,
+                fill=soft_fill_2,
+                border=thin_border,
+                alignment=right,
+                number_format='$#,##0'
+            )
+        else:
+            apply_style(
+                ws.cell(row=row_num, column=3),
+                font=value_font,
+                fill=soft_fill_2,
+                border=thin_border,
+                alignment=left
+            )
 
-    ws[f"B{start_info_row + 4}"].number_format = '$#,##0'
-
-    table_start = start_info_row + len(info_rows) + 2
+    # =========================
+    # Sección de detalle
+    # =========================
+    style_range(11, 11, 2, 5, fill=dark_fill, border=thin_border, alignment=left)
+    ws.merge_cells("B11:E11")
+    ws["B11"] = "DETALLE DE PRODUCTOS"
+    apply_style(ws["B11"], font=section_font, alignment=left)
 
     headers = ["Producto", "Cantidad", "Precio Unitario", "Subtotal"]
-    for col_num, header in enumerate(headers, start=1):
-        cell = ws.cell(row=table_start, column=col_num, value=header)
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = Alignment(horizontal="center", vertical="center")
-        cell.border = thin_border
+    for col_num, header in enumerate(headers, start=2):
+        cell = ws.cell(row=12, column=col_num, value=header)
+        apply_style(
+            cell,
+            font=table_header_font,
+            fill=brown_fill,
+            border=thin_border,
+            alignment=center
+        )
 
-    current_row = table_start + 1
+    # =========================
+    # Filas de productos
+    # =========================
+    current_row = 13
     detalles = list(compra.detalles.all())
 
     if detalles:
         for detalle in detalles:
-            subtotal = getattr(detalle, "subtotal", 0) or 0
+            subtotal = float(getattr(detalle, "subtotal", 0) or 0)
 
-            ws.cell(row=current_row, column=1, value=str(detalle.producto.nombre))
-            ws.cell(row=current_row, column=2, value=detalle.cantidad)
-            ws.cell(row=current_row, column=3, value=float(detalle.precio_unitario or 0))
-            ws.cell(row=current_row, column=4, value=float(subtotal or 0))
+            ws.cell(row=current_row, column=2, value=str(detalle.producto.nombre))
+            ws.cell(row=current_row, column=3, value=int(detalle.cantidad or 0))
+            ws.cell(row=current_row, column=4, value=float(detalle.precio_unitario or 0))
+            ws.cell(row=current_row, column=5, value=subtotal)
 
-            for col in range(1, 5):
-                cell = ws.cell(row=current_row, column=col)
-                cell.border = thin_border
-                cell.alignment = Alignment(vertical="center")
+            row_fill = soft_fill if current_row % 2 == 1 else soft_fill_2
 
-            ws.cell(row=current_row, column=3).number_format = '$#,##0'
+            for col in range(2, 6):
+                apply_style(
+                    ws.cell(row=current_row, column=col),
+                    fill=row_fill,
+                    border=thin_border,
+                    alignment=left if col == 2 else center if col == 3 else right
+                )
+
             ws.cell(row=current_row, column=4).number_format = '$#,##0'
+            ws.cell(row=current_row, column=5).number_format = '$#,##0'
             current_row += 1
     else:
-        ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=4)
-        empty_cell = ws.cell(row=current_row, column=1, value="No hay productos en esta compra.")
-        empty_cell.border = thin_border
-        empty_cell.alignment = Alignment(horizontal="center", vertical="center")
+        ws.merge_cells(start_row=current_row, start_column=2, end_row=current_row, end_column=5)
+        ws.cell(row=current_row, column=2, value="No hay productos en esta compra.")
+        style_range(current_row, current_row, 2, 5, fill=soft_fill_2, border=thin_border, alignment=center)
+        apply_style(ws.cell(row=current_row, column=2), font=value_font, alignment=center)
         current_row += 1
 
-    ws.cell(row=current_row, column=3, value="TOTAL").font = total_font
-    ws.cell(row=current_row, column=4, value=float(total or 0)).font = total_font
-    ws.cell(row=current_row, column=4).number_format = '$#,##0'
+    # =========================
+    # Total final
+    # =========================
+    total_row = current_row + 1
 
-    ws.cell(row=current_row, column=3).fill = soft_fill
-    ws.cell(row=current_row, column=4).fill = soft_fill
-    ws.cell(row=current_row, column=3).border = thin_border
-    ws.cell(row=current_row, column=4).border = thin_border
-    ws.cell(row=current_row, column=3).alignment = Alignment(horizontal="right", vertical="center")
-    ws.cell(row=current_row, column=4).alignment = Alignment(vertical="center")
+    apply_style(
+        ws.cell(row=total_row, column=4, value="TOTAL"),
+        font=total_font,
+        fill=soft_fill,
+        border=thin_border,
+        alignment=right
+    )
+    apply_style(
+        ws.cell(row=total_row, column=5, value=total),
+        font=total_font,
+        fill=soft_fill,
+        border=thin_border,
+        alignment=right,
+        number_format='$#,##0'
+    )
 
-    ws.column_dimensions["A"].width = 40
-    ws.column_dimensions["B"].width = 14
-    ws.column_dimensions["C"].width = 18
-    ws.column_dimensions["D"].width = 18
+    # =========================
+    # Footer
+    # =========================
+    footer_row = total_row + 2
+    style_range(footer_row, footer_row, 2, 5, alignment=center)
+    ws.merge_cells(start_row=footer_row, start_column=2, end_row=footer_row, end_column=5)
+    ws.cell(row=footer_row, column=2, value="Generado por MonaApp / Monakeratina")
+    apply_style(ws.cell(row=footer_row, column=2), font=footer_font, alignment=center)
 
+    # =========================
+    # Área de impresión
+    # =========================
+    ws.print_area = f"B1:E{footer_row}"
+
+    # =========================
+    # Respuesta HTTP
+    # =========================
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )

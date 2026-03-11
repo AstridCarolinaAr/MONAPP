@@ -1,21 +1,18 @@
 (function () {
+  // =========================
+  // Inicializar comprobante
+  // =========================
   function initComprobante() {
-    console.log("comprobante.js cargado");
-
     const modalElement = document.getElementById("modalComprobante");
     const previewBody = document.getElementById("comprobantePreviewBody");
     const btnDescargar = document.getElementById("btnDescargarComprobante");
-
-    console.log("modalElement:", modalElement);
-    console.log("previewBody:", previewBody);
-    console.log("btnDescargar:", btnDescargar);
 
     if (!modalElement || !previewBody || !btnDescargar) {
       console.error("No se encontraron los elementos del comprobante.");
       return;
     }
 
-    let currentPdfUrl = "";
+    let currentCompraId = "";
     let currentExcelUrl = "";
 
     const loadingHTML = `
@@ -31,21 +28,98 @@
       </div>
     `;
 
+    // =========================
+    // Esperar carga de imágenes
+    // =========================
+    function waitForImages(root) {
+      const images = Array.from(root.querySelectorAll("img"));
+
+      return Promise.all(
+        images.map((img) => {
+          if (img.complete && img.naturalWidth > 0) {
+            return Promise.resolve();
+          }
+
+          return new Promise((resolve) => {
+            const done = () => resolve();
+            img.addEventListener("load", done, { once: true });
+            img.addEventListener("error", done, { once: true });
+          });
+        })
+      );
+    }
+
+    // =========================
+    // Descargar PDF desde la vista previa
+    // =========================
+    async function descargarPreviewComoPDF() {
+      if (typeof html2pdf === "undefined") {
+        throw new Error("html2pdf.js no está disponible.");
+      }
+
+      const comprobante = previewBody.querySelector(".invoice-sheet-premium");
+      if (!comprobante) {
+        throw new Error("No se encontró la vista previa del comprobante.");
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "fixed";
+      wrapper.style.left = "-99999px";
+      wrapper.style.top = "0";
+      wrapper.style.width = "210mm";
+      wrapper.style.background = "#ffffff";
+      wrapper.style.zIndex = "-1";
+
+      const clone = comprobante.cloneNode(true);
+      clone.style.margin = "0";
+      clone.style.boxShadow = "none";
+      clone.style.border = "0";
+
+      wrapper.appendChild(clone);
+      document.body.appendChild(wrapper);
+
+      try {
+        await waitForImages(clone);
+
+        const filename = currentCompraId
+          ? `comprobante_compra_${currentCompraId}.pdf`
+          : "comprobante_compra.pdf";
+
+        const opt = {
+          margin: 0,
+          filename: filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#f7f0e8",
+          },
+          jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+          },
+          pagebreak: {
+            mode: ["avoid-all", "css", "legacy"],
+          },
+        };
+
+        await html2pdf().set(opt).from(clone).save();
+      } finally {
+        wrapper.remove();
+      }
+    }
+
+    // =========================
+    // Abrir vista previa en modal
+    // =========================
     document.addEventListener("click", async function (event) {
       const trigger = event.target.closest(".js-open-comprobante");
       if (!trigger) return;
 
-      console.log("click detectado en comprobante");
-
       const previewUrl = trigger.dataset.previewUrl;
-      const pdfUrl = trigger.dataset.pdfUrl;
       const excelUrl = trigger.dataset.excelUrl;
-
-      console.log("previewUrl:", previewUrl);
-      console.log("pdfUrl:", pdfUrl);
-      console.log("excelUrl:", excelUrl);
-
-      currentPdfUrl = pdfUrl || "";
+      currentCompraId = trigger.dataset.compraId || "";
       currentExcelUrl = excelUrl || "";
 
       previewBody.innerHTML = loadingHTML;
@@ -54,15 +128,11 @@
         const response = await fetch(previewUrl, {
           method: "GET",
           headers: {
-            "X-Requested-With": "XMLHttpRequest"
-          }
+            "X-Requested-With": "XMLHttpRequest",
+          },
         });
 
-        console.log("status:", response.status);
-        console.log("content-type:", response.headers.get("content-type"));
-
         const text = await response.text();
-        console.log("respuesta cruda:", text);
 
         let data;
         try {
@@ -82,12 +152,15 @@
       }
     });
 
+    // =========================
+    // Descargar PDF o Excel
+    // =========================
     btnDescargar.addEventListener("click", async function () {
-      if (!currentPdfUrl || !currentExcelUrl) {
+      if (!previewBody.querySelector(".invoice-sheet-premium")) {
         Swal.fire({
           icon: "warning",
           title: "Sin comprobante",
-          text: "Primero abre un comprobante."
+          text: "Primero abre un comprobante.",
         });
         return;
       }
@@ -106,13 +179,40 @@
         customClass: {
           confirmButton: "btn btn-danger me-2",
           denyButton: "btn btn-success me-2",
-          cancelButton: "btn btn-secondary"
-        }
+          cancelButton: "btn btn-secondary",
+        },
       });
 
       if (result.isConfirmed) {
-        window.location.href = currentPdfUrl;
+        try {
+          Swal.fire({
+            title: "Generando PDF...",
+            text: "Espera un momento",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          await descargarPreviewComoPDF();
+          Swal.close();
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "No se pudo descargar",
+            text: error.message || "Error generando el PDF.",
+          });
+        }
       } else if (result.isDenied) {
+        if (!currentExcelUrl) {
+          Swal.fire({
+            icon: "warning",
+            title: "Sin archivo",
+            text: "No se encontró la ruta del Excel.",
+          });
+          return;
+        }
+
         window.location.href = currentExcelUrl;
       }
     });

@@ -302,3 +302,184 @@ h2 {
 .form-validated select.form-select{
   padding-right: 2.2rem;
 }
+/* =========================
+   DETALLE PROVEEDOR MODAL
+========================= */
+.proveedor-detail-modal {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.proveedor-detail-header {
+  background: #f8f5f2;
+  border-bottom: 1px solid #eee4dc;
+}
+
+.proveedor-detail-header .modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #382822;
+}
+
+.proveedor-detail-body {
+  background: #fff;
+  padding: 1.5rem;
+}
+
+.proveedor-visual-card {
+  border: 1px solid #eadfd7;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fcfaf8 0%, #f5efea 100%);
+  padding: 1rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(56, 40, 34, 0.06);
+}
+
+.proveedor-visual-icon-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.proveedor-visual-icon-bg {
+  width: 110px;
+  height: 110px;
+  border-radius: 24px;
+  background: radial-gradient(circle at top, #ffffff 0%, #efe5dd 100%);
+  border: 1px solid #e3d4ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+.proveedor-visual-icon {
+  font-size: 3rem;
+  color: #6b4a3a;
+}
+
+.proveedor-visual-mini {
+  width: 100%;
+  text-align: center;
+  padding-top: .75rem;
+  border-top: 1px dashed #dcc9bd;
+}
+
+.proveedor-mini-label {
+  display: block;
+  font-size: .82rem;
+  color: #8b6f60;
+  margin-bottom: .4rem;
+}
+
+.proveedor-mini-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 .75rem;
+  border-radius: 999px;
+  background: #382822;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .05em;
+}
+
+.proveedor-detail-main {
+  padding-top: .15rem;
+}
+
+.proveedor-detail-title {
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #382822;
+}
+
+.proveedor-detail-subtitle {
+  color: #8b6f60;
+  font-size: .95rem;
+}
+
+.proveedor-estado-badge {
+  padding: .55rem .85rem;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.proveedor-estado-badge.activo {
+  background: #dff3e4;
+  color: #1f7a3f;
+}
+
+.proveedor-estado-badge.inactivo {
+  background: #f4dede;
+  color: #a12828;
+}
+
+.proveedor-info-grid {
+  border-top: 1px solid #f0e8e2;
+  padding-top: 1rem;
+}
+
+.proveedor-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.proveedor-info-label {
+  font-size: .86rem;
+  font-weight: 700;
+  color: #6b4a3a;
+}
+
+.proveedor-info-value {
+  font-size: 1rem;
+  color: #2e2e2e;
+  word-break: break-word;
+}
+
+.proveedor-detail-section {
+  border-top: 1px solid #f0e8e2;
+  padding-top: 1rem;
+}
+
+.proveedor-section-title {
+  font-size: .95rem;
+  font-weight: 800;
+  color: #382822;
+  margin-bottom: .5rem;
+}
+
+.proveedor-section-text {
+  color: #6f6f6f;
+  line-height: 1.6;
+}
+
+@media (max-width: 767.98px) {
+  .proveedor-detail-title {
+    font-size: 1.5rem;
+  }
+
+  .proveedor-visual-card {
+    min-height: auto;
+  }
+
+  .proveedor-visual-icon-bg {
+    width: 90px;
+    height: 90px;
+  }
+
+  .proveedor-visual-icon {
+    font-size: 2.35rem;
+  }
+}

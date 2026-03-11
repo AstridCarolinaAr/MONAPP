@@ -280,83 +280,101 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content detalle-pro-modal">
 
-<!-- MODAL DETALLE -->
-<div class="modal fade ultra-modal" id="modalDetalleProducto" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered modal-lg">
-<div class="modal-content ultra-card">
+      <div class="modal-header detalle-pro-header">
+        <h5 class="modal-title">Detalle de producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
 
-<div class="modal-header ultra-header">
-<div>
-<div class="ultra-title" id="dp-nombre"></div>
-<div class="ultra-subtitle">Información del producto</div>
-</div>
+      <div class="modal-body detalle-pro-body">
+        <div class="detalle-pro-layout">
 
-<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-</div>
+          <!-- Lateral izquierdo -->
+          <aside class="detalle-pro-side">
+            <div class="detalle-pro-card">
 
-<div class="modal-body">
+              <div class="detalle-pro-imgwrap">
+                <img id="dp-imagen" class="detalle-pro-img d-none" alt="Imagen del producto">
+                <div id="dp-noimg" class="detalle-pro-noimg">
+                  <i class="bi bi-box-seam"></i>
+                </div>
+              </div>
 
-<div class="detalle-producto-wrap">
+              <div class="detalle-pro-divider"></div>
 
-<div class="detalle-top">
+              <div class="detalle-pro-side-label">Producto</div>
+              <div class="detalle-pro-avatar" id="dp-avatar">P</div>
+            </div>
+          </aside>
 
-<div class="detalle-img-box">
-<img id="dp-imagen" class="detalle-img-principal d-none">
-<div id="dp-noimg" class="detalle-img-placeholder">
-Sin imagen
-</div>
-</div>
+          <!-- Contenido derecho -->
+          <section class="detalle-pro-main">
+            <div class="detalle-pro-topbar">
+              <div>
+                <h2 class="detalle-pro-title" id="dp-nombre">Producto</h2>
+                <div class="detalle-pro-subtitle">Información general del producto</div>
+              </div>
 
-<div class="detalle-info">
+              <div>
+                <span id="dp-estado" class="detalle-pro-badge">Activo</span>
+              </div>
+            </div>
 
-<div class="detalle-grid">
+            <div class="detalle-pro-divider-line"></div>
 
-<div><strong>Código</strong></div>
-<div id="dp-codigo"></div>
+            <div class="detalle-pro-grid">
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Código</div>
+                <div class="detalle-pro-value" id="dp-codigo">—</div>
+              </div>
 
-<div><strong>Marca</strong></div>
-<div id="dp-marca"></div>
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Marca</div>
+                <div class="detalle-pro-value" id="dp-marca">—</div>
+              </div>
 
-<div><p><strong>Precio:</strong> $ {{ producto.precio|intcomma }}</p></div>
-<div id="dp-precio"></div>
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Precio</div>
+                <div class="detalle-pro-value" id="dp-precio">—</div>
+              </div>
 
-<div><strong>Línea</strong></div>
-<div id="dp-linea"></div>
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Unidad</div>
+                <div class="detalle-pro-value" id="dp-unidad">—</div>
+              </div>
 
-<div><strong>Presentación</strong></div>
-<div id="dp-presentacion"></div>
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Línea</div>
+                <div class="detalle-pro-value" id="dp-linea">—</div>
+              </div>
 
-<div><strong>Unidad</strong></div>
-<div id="dp-unidad"></div>
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Presentación</div>
+                <div class="detalle-pro-value" id="dp-presentacion">—</div>
+              </div>
+            </div>
 
-<div><strong>Estado</strong></div>
-<div>
-<span id="dp-estado" class="badge-estado"></span>
-</div>
+            <div class="detalle-pro-divider-line mt-3 mb-3"></div>
 
-</div>
+            <div class="detalle-pro-summary">
+              <div class="detalle-pro-summary-title">Resumen</div>
+              <div class="detalle-pro-summary-text" id="dp-descripcion">
+                Sin descripción.
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
 
-</div>
+      <div class="modal-footer detalle-pro-footer">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
 
-</div>
-
-<div class="detalle-desc mt-3">
-
-<h6 class="detalle-subtitulo">Descripción</h6>
-
-<div id="dp-descripcion" class="text-muted">
-—
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-</div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

@@ -1,73 +1,83 @@
-{% load static %}
-
-<div class="detalle-compra-ui">
-  <div class="detalle-compra-top">
-    <div class="detalle-compra-media">
-      {% with primer_detalle=c.detalles.all|first %}
-        {% if primer_detalle and primer_detalle.producto.imagen %}
-          <img
-            src="{{ primer_detalle.producto.imagen.url }}"
-            alt="{{ primer_detalle.producto.nombre }}"
-            class="detalle-compra-main-img"
-          >
-        {% else %}
-          <div class="detalle-compra-main-placeholder">
-            <i class="bi bi-box-seam"></i>
+  <div class="detalle-compra-content">
+    <div class="detalle-compra-layout">
+      <div class="detalle-compra-aside">
+        {% with primer_detalle=c.detalles.all|first %}
+          <div class="detalle-compra-imagebox">
+            {% if primer_detalle and primer_detalle.producto.imagen %}
+              <img
+                src="{{ primer_detalle.producto.imagen.url }}"
+                alt="{{ primer_detalle.producto.nombre }}"
+                class="detalle-compra-main-img"
+              >
+            {% else %}
+              <div class="detalle-compra-main-placeholder">
+                <i class="bi bi-box-seam"></i>
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
-      {% endwith %}
-    </div>
+        {% endwith %}
 
-    <div class="detalle-compra-info">
-      <h2 class="detalle-compra-title">Compra #{{ c.id }}</h2>
+        <div class="detalle-compra-aside-caption">Compra</div>
 
-      <div class="detalle-compra-meta">
-        <div class="detalle-compra-row">
-          <span class="detalle-label">Proveedor</span>
-          <span class="detalle-value">{{ c.proveedor }}</span>
-        </div>
-
-        <div class="detalle-compra-row">
-          <span class="detalle-label">Estado</span>
-          <span class="detalle-estado {% if c.anulada %}is-danger{% else %}is-success{% endif %}">
-            {% if c.anulada %}Anulada{% else %}Activa{% endif %}
-          </span>
-        </div>
-
-        <div class="detalle-compra-row">
-          <span class="detalle-label">Fecha</span>
-          <span class="detalle-value">{{ c.fecha }}</span>
-        </div>
-
-        <div class="detalle-compra-row">
-          <span class="detalle-label">Usuario</span>
-          <span class="detalle-value">
-            {% if c.usuario %}{{ c.usuario.username }}{% else %}—{% endif %}
-          </span>
-        </div>
-
-        <div class="detalle-compra-row">
-          <span class="detalle-label">Total</span>
-          <span class="detalle-value">${{ c.precio_total|floatformat:2 }}</span>
+        <div class="detalle-compra-aside-badge">
+          {{ c.id }}
         </div>
       </div>
 
-      <hr class="detalle-compra-divider">
+      <div class="detalle-compra-main">
+        <div class="detalle-compra-topline">
+          <div>
+            <h2 class="detalle-compra-title">Compra #{{ c.id }}</h2>
+            <div class="detalle-compra-subtitle">Información general de la compra</div>
+          </div>
 
-      <h6 class="detalle-compra-subtitle">Productos</h6>
+          <div class="detalle-compra-status {% if c.anulada %}is-danger{% else %}is-success{% endif %}">
+            {% if c.anulada %}Anulada{% else %}Activa{% endif %}
+          </div>
+        </div>
 
-      <div class="table-responsive">
-        <table class="table table-sm align-middle detalle-compra-table mb-0">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th class="text-center">Cantidad</th>
-              <th class="text-end">Precio Unitario</th>
-              <th class="text-end">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for d in c.detalles.all %}
+        <hr class="detalle-compra-sep">
+
+        <div class="detalle-compra-info-grid">
+          <div class="detalle-info-item">
+            <div class="detalle-info-label">Proveedor</div>
+            <div class="detalle-info-value">{{ c.proveedor }}</div>
+          </div>
+
+          <div class="detalle-info-item">
+            <div class="detalle-info-label">Fecha</div>
+            <div class="detalle-info-value">{{ c.fecha }}</div>
+          </div>
+
+          <div class="detalle-info-item">
+            <div class="detalle-info-label">Usuario</div>
+            <div class="detalle-info-value">
+              {% if c.usuario %}{{ c.usuario.username }}{% else %}—{% endif %}
+            </div>
+          </div>
+
+          <div class="detalle-info-item">
+            <div class="detalle-info-label">Total</div>
+            <div class="detalle-info-value">${{ c.precio_total|floatformat:2 }}</div>
+          </div>
+        </div>
+
+        <hr class="detalle-compra-sep">
+
+        <div class="detalle-compra-subsection-title">Productos</div>
+
+        <div class="table-responsive">
+          <table class="table detalle-compra-table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-end">Precio Unitario</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in c.detalles.all %}
               <tr>
                 <td>
                   <div class="detalle-producto-cell">
@@ -90,16 +100,27 @@
                 <td class="text-end">${{ d.precio_unitario|floatformat:2 }}</td>
                 <td class="text-end">${{ d.subtotal|floatformat:2 }}</td>
               </tr>
-            {% empty %}
+              {% empty %}
               <tr>
                 <td colspan="4" class="text-center text-muted">
                   No hay productos registrados.
                 </td>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detalle-compra-resumen">
+          <div class="detalle-compra-subsection-title mb-2">Resumen</div>
+          <p class="mb-0">
+            Esta compra se encuentra registrada en el sistema MONAAPP con la información
+            comercial del proveedor y el detalle de productos asociado.
+          </p>
+        </div>
+
+        <div class="detalle-compra-actions">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
       </div>
     </div>
-  </div>
-</div>

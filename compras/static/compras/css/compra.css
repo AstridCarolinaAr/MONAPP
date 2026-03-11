@@ -505,127 +505,329 @@
   display: flex;
   justify-content: flex-end;
 }
+/* ===== Buscador desplegable de compras ===== */
+.filtro-item-busqueda-toggle {
+  grid-column: span 2;
+}
 
+/* ===== Label oculto solo visualmente ===== */
+.filtro-label-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Contenedor del botón y la caja de búsqueda ===== */
+.busqueda-compras-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 42px;
+}
+
+/* ===== Botón de la lupa ===== */
+.btn-busqueda-toggle {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #a67c52;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(166, 124, 82, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-busqueda-toggle:hover {
+  background: #946b45;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(166, 124, 82, 0.28);
+}
+
+.btn-busqueda-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.18);
+}
+
+.btn-busqueda-toggle i {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ===== Caja animada del input ===== */
+.busqueda-compras-box {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: scaleX(0.96);
+  transform-origin: left center;
+  transition: width 0.28s ease, opacity 0.22s ease, transform 0.28s ease;
+}
+
+/* ===== Buscador desplegable de compras ===== */
+.filtro-item-busqueda {
+  grid-column: span 2;
+}
+
+/* ===== Label oculto visualmente ===== */
+.filtro-label-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Contenedor del botón y la barra ===== */
+.busqueda-compras-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  width: 100%;
+}
+
+/* ===== Botón lupa ===== */
+.btn-busqueda-toggle {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #a67c52;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(166, 124, 82, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-busqueda-toggle:hover {
+  background: #946b45;
+  transform: translateY(-1px);
+}
+
+.btn-busqueda-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.18);
+}
+
+/* ===== Caja animada ===== */
+.busqueda-compras-box {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: scaleX(0.96);
+  transform-origin: left center;
+  transition: width 0.28s ease, opacity 0.22s ease, transform 0.28s ease;
+}
+
+.busqueda-compras-box.is-open {
+  width: 100%;
+  max-width: 420px;
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.busqueda-compras-input {
+  width: 100%;
+  min-width: 220px;
+}
+
+@media (max-width: 1200px) {
+  .filtro-item-busqueda {
+    grid-column: span 3;
+  }
+
+  .busqueda-compras-box.is-open {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .filtro-item-busqueda {
+    grid-column: span 1;
+  }
+
+  .busqueda-compras-box.is-open {
+    width: calc(100% - 52px);
+    max-width: none;
+  }
+
+  .busqueda-compras-input {
+    min-width: 0;
+  }
+}
 /*vista detalle compra*/
 /* ===== Detalle compra ===== */
-#modalDetalleCompra .modal-content {
+/* ===== Modal detalle compra estilo proveedor ===== */
+.modal-detalle-compra-shell {
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid #e6d7cc;
   box-shadow: 0 18px 42px rgba(56, 40, 34, 0.12);
 }
 
-#modalDetalleCompra .modal-header {
-  background: linear-gradient(90deg, #2d160f 0%, #4a2b1d 100%);
-  color: #fff;
-  border-bottom: none;
-}
-
-#modalDetalleCompra .modal-header .btn-close {
-  filter: invert(1);
-}
-
-#modalDetalleCompra .modal-content.p-4 {
-  padding: 0 !important;
-}
-
-#detalleCompraBody {
-  padding: 18px;
-}
-
-.detalle-compra-ui {
+.detalle-compra-card {
   background: #fff;
 }
 
-.detalle-compra-top {
+.detalle-compra-header {
+  background: linear-gradient(90deg, #2d160f 0%, #4a2b1d 100%);
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.detalle-compra-header-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.detalle-compra-content {
+  padding: 18px;
+}
+
+.detalle-compra-layout {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 122px 1fr;
   gap: 18px;
   align-items: start;
 }
 
-.detalle-compra-media {
-  width: 100%;
+.detalle-compra-aside {
+  background: #f7f2ee;
+  border: 1px solid #e4d4c7;
+  border-radius: 16px;
+  padding: 12px;
+  text-align: center;
 }
 
-.detalle-compra-main-img,
-.detalle-compra-main-placeholder {
-  width: 100%;
-  height: 165px;
-  border-radius: 12px;
-  border: 1px solid #dbc8bb;
-  background: #e9dfd6;
+.detalle-compra-imagebox {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 10px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #d8c5b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .detalle-compra-main-img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
 .detalle-compra-main-placeholder {
+  color: #9b6a42;
+  font-size: 2rem;
+}
+
+.detalle-compra-aside-caption {
+  font-size: 0.85rem;
+  color: #8a5b3c;
+  margin-bottom: 10px;
+}
+
+.detalle-compra-aside-badge {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: #4a2b1d;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.detalle-compra-topline {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b0917f;
-  font-size: 3rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .detalle-compra-title {
-  margin: 0 0 14px;
+  margin: 0;
   font-size: 2rem;
   font-weight: 800;
   color: #2f241d;
 }
 
-.detalle-compra-meta {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(220px, 1fr));
-  gap: 10px 22px;
+.detalle-compra-subtitle {
+  color: #8a5b3c;
+  font-size: 0.95rem;
 }
 
-.detalle-compra-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.detalle-label {
-  min-width: 92px;
-  font-weight: 700;
-  color: #6b4a3a;
-}
-
-.detalle-value {
-  color: #2f241d;
-}
-
-.detalle-estado {
+.detalle-compra-status {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
   font-weight: 700;
+  font-size: 0.9rem;
 }
 
-.detalle-estado.is-success {
+.detalle-compra-status.is-success {
   background: #dceee3;
   color: #2f7d4f;
 }
 
-.detalle-estado.is-danger {
+.detalle-compra-status.is-danger {
   background: #f4dddd;
   color: #b34343;
 }
 
-.detalle-compra-divider {
-  margin: 18px 0;
-  border-color: #e2d6cd;
+.detalle-compra-sep {
+  margin: 14px 0 16px;
+  border-color: #e4d4c7;
 }
 
-.detalle-compra-subtitle {
-  margin-bottom: 12px;
+.detalle-compra-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 14px 28px;
+}
+
+.detalle-info-label {
+  font-weight: 700;
+  color: #6b4a3a;
+  margin-bottom: 2px;
+}
+
+.detalle-info-value {
+  color: #2f241d;
+  font-size: 1.02rem;
+}
+
+.detalle-compra-subsection-title {
   font-weight: 800;
   color: #5b3a2d;
+  margin-bottom: 10px;
 }
 
 .detalle-compra-table thead th {
@@ -663,16 +865,91 @@
   font-size: 1.1rem;
 }
 
+.detalle-compra-resumen {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #e4d4c7;
+  color: #5c4a3f;
+}
+
+.detalle-compra-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
 @media (max-width: 767.98px) {
-  .detalle-compra-top {
+  .detalle-compra-layout {
     grid-template-columns: 1fr;
   }
 
-  .detalle-compra-meta {
+  .detalle-compra-info-grid {
     grid-template-columns: 1fr;
+  }
+
+  .detalle-compra-topline {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .detalle-compra-title {
     font-size: 1.5rem;
+  }
+}
+#modalDetalleCompra .modal-header {
+  background: linear-gradient(90deg, #2d160f 0%, #4a2b1d 100%);
+  color: #fff;
+  border-bottom: none;
+}
+
+#modalDetalleCompra .modal-title {
+  color: #fff;
+  font-weight: 700;
+}
+
+#modalDetalleCompra .btn-close {
+  filter: invert(1);
+}
+#modalDetalleCompra .modal-content {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e6d7cc !important;
+  box-shadow: 0 18px 42px rgba(56, 40, 34, 0.12);
+}
+
+#modalDetalleCompra .modal-header {
+  background: #f3ede7 !important;
+  color: #2f241d !important;
+  border-bottom: 1px solid #e4d4c7 !important;
+  padding: 14px 18px;
+}
+
+#modalDetalleCompra .modal-title {
+  color: #2f241d !important;
+  font-weight: 700;
+  margin: 0;
+}
+
+#modalDetalleCompra .btn-close {
+  filter: none;
+  opacity: 1;
+}
+#modalDetalleCompra .modal-body {
+  background: #fff;
+}
+/* ===== Ajustes para PDF / impresión ===== */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+.invoice-sheet-premium {
+  margin: 0 auto;
+}
+
+@media print {
+  .invoice-sheet-premium {
+    box-shadow: none !important;
+    border: 0 !important;
   }
 }

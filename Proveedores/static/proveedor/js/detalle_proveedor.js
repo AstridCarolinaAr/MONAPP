@@ -1,40 +1,52 @@
-console.log("JS PROVEEDOR CARGADO");
 document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modalDetalleProveedor");
+  if (!modal) return;
 
+  modal.addEventListener("show.bs.modal", (event) => {
+    const button = event.relatedTarget;
+    if (!button) return;
 
+    const nombre = button.getAttribute("data-nombre") || "Proveedor";
+    const nit = button.getAttribute("data-nit") || "—";
+    const correo = button.getAttribute("data-correo") || "—";
+    const estado = button.getAttribute("data-estado") || "—";
+    const telefono = button.getAttribute("data-telefono") || "—";
+    const direccion = button.getAttribute("data-direccion") || "—";
 
-    const modal = document.getElementById("modalDetalleProveedor");
-    if (!modal) {
-        console.error(" Modal no encontrado");
-        return;
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+
+    setText("p-nombre", nombre);
+    setText("p-nit", nit);
+    setText("p-correo", correo);
+    setText("p-estado", estado);
+    setText("p-telefono", telefono);
+    setText("p-direccion", direccion);
+
+    const badge = document.getElementById("p-estado-badge");
+    if (badge) {
+      badge.textContent = estado;
+      badge.classList.remove("activo", "inactivo");
+
+      if (estado.toLowerCase().includes("activo")) {
+        badge.classList.add("activo");
+      } else {
+        badge.classList.add("inactivo");
+      }
     }
 
-    modal.addEventListener("show.bs.modal", function (event) {
+    const inicialesEl = document.getElementById("p-iniciales");
+    if (inicialesEl) {
+      const iniciales = nombre
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((p) => p.charAt(0).toUpperCase())
+        .join("") || "PR";
 
-        const button = event.relatedTarget;
-        if (!button) {
-            console.error("Botón no encontrado");
-            return;
-        }
-
-        const data = button.dataset;
-
-        // DEBUG (puedes quitar luego)
-        console.log("DATASET:", data);
-
-        //  ASIGNAR DATOS (UNO A UNO, SIN INVENTAR)
-        document.getElementById("p-nombre").textContent       = data.nombre || "—";
-        document.getElementById("p-nit").textContent          = data.nit || "—";
-
-        document.getElementById("p-telefono").textContent     = data.telefono || "—";
-        document.getElementById("p-correo").textContent       = data.correo || "—";
-        document.getElementById("p-estado").textContent       = data.estado || "—";
-        document.getElementById("p-direccion").textContent    = data.direccion || "—";
-
-
-    });
-    document.getElementById('detalleDireccion').textContent =
-    this.dataset.direccion;
-
-
+      inicialesEl.textContent = iniciales;
+    }
+  });
 });

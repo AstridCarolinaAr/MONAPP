@@ -315,6 +315,47 @@
   // Click global
   // =========================
   document.body.addEventListener("click", async (e) => {
+
+      // =========================
+    // Toggle del buscador de compras
+    // =========================
+    const btnBusquedaToggle = e.target.closest("#btnBusquedaToggle");
+    if (btnBusquedaToggle) {
+      e.preventDefault();
+
+      const boxBusqueda = document.getElementById("busquedaComprasBox");
+      const inputBusqueda = document.getElementById("busquedaComprasInput");
+
+      if (!boxBusqueda || !inputBusqueda) {
+        console.warn("Buscador de compras: no se encontraron los elementos.");
+        return;
+      }
+
+      const estaAbierto = boxBusqueda.classList.contains("is-open");
+
+      if (estaAbierto) {
+        if (inputBusqueda.value.trim()) {
+          inputBusqueda.focus();
+          return;
+        }
+
+        boxBusqueda.classList.remove("is-open");
+        btnBusquedaToggle.setAttribute("aria-expanded", "false");
+        return;
+      }
+
+      boxBusqueda.classList.add("is-open");
+      btnBusquedaToggle.setAttribute("aria-expanded", "true");
+
+      setTimeout(() => {
+        inputBusqueda.focus();
+        const len = inputBusqueda.value.length;
+        inputBusqueda.setSelectionRange(len, len);
+      }, 180);
+
+      return;
+    }
+
     // abrir modal crear/editar
     const trigger = e.target.closest("[data-modal-url]");
     if (trigger) {

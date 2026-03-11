@@ -202,36 +202,105 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalDetalleProveedor" tabindex="-1" aria-labelledby="modalDetalleProveedorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content shadow-lg border-0 proveedor-detail-modal">
 
-<div class="modal fade" id="modalDetalleProveedor" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg">
+      <div class="modal-header proveedor-detail-header">
+        <h5 class="modal-title" id="modalDetalleProveedorLabel">Detalle de proveedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
 
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-truck"></i> Detalles del proveedor
-                </h5>
-                <button type="button" class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
+      <div class="modal-body proveedor-detail-body">
+        <div class="row g-4 align-items-start">
+
+          <!-- LADO IZQUIERDO: VISUAL -->
+          <div class="col-lg-2 col-md-3">
+            <div class="proveedor-visual-card">
+              <div class="proveedor-visual-icon-wrap">
+                <div class="proveedor-visual-icon-bg">
+                  <i class="bi bi-truck proveedor-visual-icon"></i>
+                </div>
+              </div>
+
+              <div class="proveedor-visual-mini">
+                <span class="proveedor-mini-label">Proveedor</span>
+                <span class="proveedor-mini-badge" id="p-iniciales">PR</span>
+              </div>
             </div>
+          </div>
 
-            <div class="modal-body">
-                <p><strong>Proveedor:</strong> <span id="p-nombre"></span></p>
-                <p><strong>NIT:</strong> <span id="p-nit"></span></p>
-                <p><strong>Teléfono:</strong> <span id="p-telefono"></span></p>
-                <p><strong>Correo:</strong> <span id="p-correo"></span></p>
-                <p><strong>Estado:</strong> <span id="p-estado"></span></p>
-                <p><strong>Dirección:</strong> <span id="p-direccion"></span></p>
-            </div>
+          <!-- LADO DERECHO: INFO -->
+          <div class="col-lg-10 col-md-9">
+            <div class="proveedor-detail-main">
+              <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                  <h2 class="proveedor-detail-title mb-1" id="p-nombre">Proveedor</h2>
+                  <div class="proveedor-detail-subtitle">
+                    Información general del proveedor
+                  </div>
+                </div>
 
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cerrar
-                </button>
+                <div>
+                  <span class="badge proveedor-estado-badge" id="p-estado-badge">Activo</span>
+                </div>
+              </div>
+
+              <div class="row g-3 proveedor-info-grid">
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">NIT</span>
+                    <span class="proveedor-info-value" id="p-nit">—</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Estado</span>
+                    <span class="proveedor-info-value" id="p-estado">—</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Teléfono</span>
+                    <span class="proveedor-info-value" id="p-telefono">—</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Correo</span>
+                    <span class="proveedor-info-value" id="p-correo">—</span>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Dirección</span>
+                    <span class="proveedor-info-value" id="p-direccion">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="proveedor-detail-section mt-4">
+                <h6 class="proveedor-section-title">Resumen</h6>
+                <p class="proveedor-section-text mb-0">
+                  Este proveedor se encuentra registrado en el sistema MONAAPP con su información comercial y de contacto disponible para gestión administrativa y compras.
+                </p>
+              </div>
             </div>
+          </div>
 
         </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
     </div>
+  </div>
 </div>
 
 <div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
