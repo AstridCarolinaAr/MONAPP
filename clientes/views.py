@@ -128,11 +128,12 @@ def lista_clientes(request):
     """
     Lista con filtros. NO abre modal por recarga.
     """
-    q = request.GET.get('q')
-    estado = request.GET.get('estado')
-    codigo = request.GET.get('codigo')
-    edad = request.GET.get('edad')
-    orden = request.GET.get('orden')
+    q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '').strip()
+    codigo = request.GET.get('codigo', '').strip()
+    edad = request.GET.get('edad', '').strip()
+    orden = request.GET.get('orden', '').strip()
+        
 
     clientes = Cliente.objects.all()
 
@@ -144,8 +145,8 @@ def lista_clientes(request):
         )
 
     if codigo:
-        clientes = clientes.filter(codigo__icontains=codigo)
-
+        clientes = clientes.filter(codigo_cliente__icontains=codigo)
+        
     if estado in ['activo', 'inactivo']:
         clientes = clientes.filter(estado=estado)
 
@@ -158,16 +159,32 @@ def lista_clientes(request):
         clientes = clientes.filter(fecha_nacimiento__lte=fecha_limite)
 
     ordenamientos = {
-        'nombre_asc': ('nombre', 'apellido'),
-        'nombre_desc': ('-nombre', '-apellido'),
-        'apellido_asc': ('apellido', 'nombre'),
-        'apellido_desc': ('-apellido', '-nombre'),
-        'fecha_asc': ('fecha_nacimiento',),
-        'fecha_desc': ('-fecha_nacimiento',),
-    }
+    
+      'codigo_asc': ('codigo_cliente',),
+    'codigo_desc': ('-codigo_cliente',),
+
+    'nombre_asc': ('nombre', 'apellido'),
+    'nombre_desc': ('-nombre', '-apellido'),
+
+    'documento_asc': ('numero_documento',),
+    'documento_desc': ('-numero_documento',),
+
+    'telefono_asc': ('telefono',),
+    'telefono_desc': ('-telefono',),
+
+    'estado_asc': ('estado', 'nombre'),
+    'estado_desc': ('-estado', 'nombre'),
+
+    'fecha_nacimiento_asc': ('fecha_nacimiento',),
+    'fecha_nacimiento_desc': ('-fecha_nacimiento',),
+
+    'registro_asc': ('fecha_registro',),
+    'registro_desc': ('-fecha_registro',),
+}
 
     if orden in ordenamientos:
         clientes = clientes.order_by(*ordenamientos[orden])
+        
 
     return render(request, 'clientes/lista_clientes.html', {
         'clientes': clientes,
@@ -176,6 +193,7 @@ def lista_clientes(request):
         'codigo': codigo,
         'edad': edad,
         'orden': orden,
+        
 
         # ✅ Por defecto NO abrir modal al recargar
         'abrir_modal_cliente': False,
@@ -234,3 +252,20 @@ def eliminar_cliente(request, cliente_id):
 
     # Si alguien entra por GET, lo mandamos a lista (o puedes renderizar confirmación si tienes template)
     return redirect('clientes:lista')
+
+def cambiar_estado_cliente(request, cliente_id):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'mensaje': 'Método no permitido'}, status=405)
+
+    try:
+        cliente = Cliente.objects.get(id=cliente_id)
+    except Cliente.DoesNotExist:
+        return JsonResponse({'ok': False, 'mensaje': 'Cliente no encontrado'}, status=404)
+
+    cliente.estado = 'inactivo' if cliente.estado == 'activo' else 'activo'
+    cliente.save(update_fields=['estado'])
+
+    return JsonResponse({
+        'ok': True,
+        'estado': cliente.estado,
+    })
