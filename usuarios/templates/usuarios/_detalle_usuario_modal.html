@@ -55,10 +55,10 @@
             <span style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8b7355;">Grupos / Rol</span>
             <p style="margin: 5px 0 0;">
                 {% if usuario.is_superuser %}
-                    <span style="background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">Superusuario</span>
+                    <span style="background: #634c40; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">Superusuario</span>
                 {% else %}
                     {% for grupo in usuario.groups.all %}
-                        <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-right: 4px;">{{ grupo.name }}</span>
+                        <span style="background: #634c40; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-right: 4px;">{{ grupo.name }}</span>
                     {% empty %}
                         <span style="color: #aaa;">Sin grupos</span>
                     {% endfor %}
@@ -113,8 +113,10 @@
     <div style="display: flex; gap: 12px;">
         {% if puede_modificar %}
         <button type="button"
-                class="btn btn-warning"
-                style="flex: 1;"
+                class="btn"
+                style="flex: 1; background-color: #634c40; color: #ffffff; border: none;"
+                onmouseover="this.style.backgroundColor='#523d33'"
+                onmouseout="this.style.backgroundColor='#634c40'"
                 onclick="cerrarModalDetalleUsuario(); abrirModalEditarUsuario({{ usuario.id }});">
             <i class="bi bi-pencil-square me-1"></i> Editar
         </button>
