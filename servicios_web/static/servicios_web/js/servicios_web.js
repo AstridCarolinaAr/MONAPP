@@ -653,6 +653,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const serviciosWebView = document.getElementById("serviciosWebView");
     const viewButtons = document.querySelectorAll(".sw-view-btn");
 
+    function animarCardsGrid() {
+        const cardsGrid = document.querySelectorAll("#servicesGrid .sw-grid-card:not(.sw-hidden)");
+
+        cardsGrid.forEach((card) => {
+            card.classList.remove("is-visible");
+        });
+
+        requestAnimationFrame(() => {
+            cardsGrid.forEach((card, index) => {
+                const delay = Math.min(index * 45, 360);
+                setTimeout(() => {
+                    card.classList.add("is-visible");
+                }, delay);
+            });
+        });
+    }
+
     function aplicarVista(view) {
         if (!serviciosWebView) return;
 
@@ -662,6 +679,10 @@ document.addEventListener("DOMContentLoaded", () => {
         viewButtons.forEach((btn) => {
             btn.classList.toggle("active", btn.dataset.view === view);
         });
+
+        if (view !== "table") {
+            animarCardsGrid();
+        }
     }
 
     viewButtons.forEach((btn) => {
@@ -904,18 +925,17 @@ BUSCADOR SERVICIOS WEB
         const termino = normalizarTexto(inputBuscarServicios?.value);
 
         cardsServicios.forEach((card) => {
-            const texto = normalizarTexto(card.dataset.search);
-            const visible = termino === "" || texto.includes(termino);
-            card.classList.toggle("sw-hidden", !visible);
-        });
+    const texto = normalizarTexto(card.dataset.search);
+    const visible = termino === "" || texto.includes(termino);
+    card.classList.toggle("sw-hidden", !visible);
+    if (!visible) {
+        card.classList.remove("is-visible");
+    }
+});
 
-        filasServicios.forEach((fila) => {
-            if (fila.querySelector("td[colspan]")) return;
-
-            const texto = normalizarTexto(fila.dataset.search);
-            const visible = termino === "" || texto.includes(termino);
-            fila.classList.toggle("sw-hidden", !visible);
-        });
+if ((serviciosWebView?.dataset.view || "") !== "table") {
+    animarCardsGrid();
+}
     }
 
     function girarIconoBusqueda() {
@@ -984,4 +1004,37 @@ BUSCADOR SERVICIOS WEB
             searchToggle.classList.remove("is-rotating");
         });
     }
+    /* =========================
+    ENTRADA VISUAL SOLO AL CARGAR EL MODULO
+    ========================= */
+    document.body.classList.add("sw-enter-ready");
+
+    const elementosEntrada = document.querySelectorAll(".sw-enter");
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            elementosEntrada.forEach((elemento) => elemento.classList.add("is-visible"));
+            if ((serviciosWebView?.dataset.view || "") !== "table") {
+                animarCardsGrid();
+            }
+        });
+    });
+
+    const posiblesEtiquetasDashboard = Array.from(
+        document.querySelectorAll("a, span, div, li, p, small, strong")
+    );
+
+    posiblesEtiquetasDashboard.forEach((elemento) => {
+        const texto = (elemento.textContent || "").trim().toLowerCase();
+
+        if (texto === "dashboard") {
+            elemento.classList.add("sw-enter", "sw-enter-down", "sw-enter-delay-1");
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    elemento.classList.add("is-visible");
+                });
+            });
+        }
+    });
 });

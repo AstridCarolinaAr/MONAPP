@@ -19,13 +19,13 @@
 {% endblock %}
 
 {% block page_subtitle %}
-Gestiona los servicios que se muestran en la página pública.
+<span class="sw-enter sw-enter-up sw-enter-delay-2">Gestiona los servicios que se muestran en la página pública.</span>
 {% endblock %}
 
 {% block page_actions %}
 <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between w-100">
     <div class="dropdown sw-view-dropdown">
-        <button class="btn sw-view-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn sw-view-toggle dropdown-toggle sw-enter sw-enter-down sw-enter-delay-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-layout-text-window-reverse me-2"></i>
             Organizar vista
         </button>
@@ -55,7 +55,7 @@ Gestiona los servicios que se muestran en la página pública.
 
     <button
         type="button"
-        class="btn btn-pill-dark"
+        class="btn btn-pill-dark sw-enter sw-enter-down sw-enter-delay-2"
         id="btnOpenCrearServicioWeb"
         data-url="{% url 'servicios_web:crear_servicio_web' %}">
         <i class="bi bi-plus-circle me-2"></i>
@@ -65,7 +65,7 @@ Gestiona los servicios que se muestran en la página pública.
 {% endblock %}
 {% block content %}
 
-<div class="sw-search-bar mb-3" id="swSearchBar">
+<div class="sw-search-bar mb-3 sw-enter sw-enter-up sw-enter-delay-3" id="swSearchBar">
     <div class="sw-search-shell" id="swSearchShell">
         <button type="button" class="sw-search-toggle" id="swSearchToggle" aria-label="Abrir búsqueda">
             <i class="bi bi-search" id="swSearchIcon"></i>
@@ -84,9 +84,9 @@ Gestiona los servicios que se muestran en la página pública.
 <div id="serviciosWebView" class="services-view" data-view="grid-3">
 
     <!-- GRID -->
-    <div class="services-grid" id="servicesGrid">
+    <div class="services-grid sw-enter sw-enter-up sw-enter-delay-4" id="servicesGrid">
         {% for servicio in servicios_web %}
-        <div class="sq-card
+        <div class="sq-card sw-grid-card
                 {% if not servicio.imagen %}no-image{% endif %}
                 {% if servicio.video %}has-video{% endif %}"
             data-search="{{ servicio.nombre|lower }} {{ servicio.descripcion|lower }} {{ servicio.precio }} {% if servicio.activo %}activo{% else %}inactivo{% endif %}"
@@ -171,7 +171,7 @@ Gestiona los servicios que se muestran en la página pública.
     </div>
 
     <!-- TABLA -->
-    <div class="services-table-wrapper" id="servicesTableWrapper">
+    <div class="services-table-wrapper sw-enter sw-enter-up sw-enter-delay-4" id="servicesTableWrapper">
         <div class="table-responsive table-card">
             <table class="table table-dashboard align-middle mb-0">
                 <thead>
