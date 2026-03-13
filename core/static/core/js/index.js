@@ -251,11 +251,11 @@ document.addEventListener("DOMContentLoaded", () => {
        CAMBIO DE FONDO POR SCROLL
     =============================== */
     const body = document.body;
-    const sections = [
-        { id: "infinite", class: "bg-white" },
-        { id: "testimonials", class: "bg-brown" },
-        { id: "cta", class: "bg-black" }
-    ];
+        const sections = [
+            { id: "infinite",    class: "bg-white" },
+            { id: "productos",   class: "bg-brown" },
+            { id: "contactenos", class: "bg-black" }
+        ];
 
     function onScrollChangeBackground() {
         const mid = window.scrollY + window.innerHeight / 2;

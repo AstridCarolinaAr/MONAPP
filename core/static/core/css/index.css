@@ -424,15 +424,11 @@ body.bg-black {
 }
 
 /* ==================== INFINITE SCROLL ==================== */
-
-#infinite,
-#testimonials {
-    scroll-margin-top: clamp(19px, 10vw, 160px);
-}
+#infinite { scroll-margin-top: 39px; }
+#productos { scroll-margin-top: 130px; }
 
 .sq-infinite {
     position: relative;
-    top: 60px;
     z-index: 5;
     height: 700px;
     display: flex;
@@ -484,7 +480,11 @@ body.bg-black {
     padding-left: 3px;
     padding-right: 3px;
 }
-
+.sq-tracks-wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 560px;
+}
 /* ================= CARD ================= */
 .sq-card {
     min-width: 360px;

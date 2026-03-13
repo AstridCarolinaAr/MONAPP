@@ -25,17 +25,27 @@
     if (el.dataset.metaballsMounted) return;
     el.dataset.metaballsMounted = "1";
 
+    /* ── FIX: asegurar que el contenedor tenga position:relative
+       y overflow:hidden para que los canvas absolutos no se escapen ── */
+    el.style.position = "relative";
+    el.style.overflow = "hidden";
+    /* Si el slot no tiene dimensiones propias, heredar del padre */
+    if (!el.style.width)  el.style.width  = "100%";
+    if (!el.style.height) el.style.height = "100%";
+
     const host = el.closest(".sq-card") || el;
 
     // Canvas principal (bolas)
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d", { alpha: true });
+    canvas.style.position = "absolute";
+    canvas.style.inset = "0";
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.display = "block";
     el.appendChild(canvas);
 
-    // Canvas de “pintura” (queda pegada)
+    // Canvas de "pintura" (queda pegada)
     const paintCanvas = document.createElement("canvas");
     const pctx = paintCanvas.getContext("2d", { alpha: true });
     paintCanvas.style.position = "absolute";
@@ -73,23 +83,20 @@
     }
     window.addEventListener("resize", resize);
 
-    // ===== Look (nítido) =====
-    const BALL_ALPHA = 0.92;
-    const BALL_STROKE = 0.18;
-    const SHADOW_BLUR = 2.5;
+    const BALL_ALPHA   = 0.92;
+    const BALL_STROKE  = 0.18;
+    const SHADOW_BLUR  = 2.5;
     const SHADOW_ALPHA = 0.18;
 
-    // ===== Dificultad / crecimiento =====
-    const EAT_PADDING = 2;
-    const GROW_FACTOR = 0.16;
+    const EAT_PADDING  = 2;
+    const GROW_FACTOR  = 0.16;
 
     const BASE_CURSOR_R = 12;
     let cursorR = BASE_CURSOR_R;
 
-    // ===== Spawn gradual =====
-    const MAX_BALLS = 34;
-    const START_BALLS = 4;
-    const SPAWN_INTERVAL = 160;
+    const MAX_BALLS        = 34;
+    const START_BALLS      = 4;
+    const SPAWN_INTERVAL   = 160;
     const SPAWN_BURST_CHANCE = 0.22;
 
     const MIN_R = 6;
@@ -98,29 +105,21 @@
     const SPEED_MIN = 0.7;
     const SPEED_MAX = 1.5;
 
-    // ===== Paint bomb =====
-    const EXPLODE_AT = 95;
+    const EXPLODE_AT    = 95;
+    const PRE_SHAKE_MS  = 550;
+    const SHAKE_AMOUNT  = 4.5;
+    const PULSE_AMOUNT  = 0.12;
+    const EXPLOSION_MS  = 950;
 
-    // “Cargada” antes de explotar
-    const PRE_SHAKE_MS = 550;          // tiempo de temblor
-    const SHAKE_AMOUNT = 4.5;          // intensidad del temblor (px)
-    const PULSE_AMOUNT = 0.12;         // cuánto late
-
-    // Explosión
-    const EXPLOSION_MS = 950;
-
-    // Estado
     const balls = [];
-    const drops = []; // gotas volando (paint particles)
+    const drops = [];
 
     let lastSpawn = 0;
-
     let exploding = false;
     let explodeT0 = 0;
-    let preShake = false;
-    let shakeT0 = 0;
+    let preShake  = false;
+    let shakeT0   = 0;
 
-    // Color pintura (igual al color de la bola fg)
     let paintHex = curTheme().fg;
 
     host.addEventListener("pointerenter", () => { mouse.inside = true; });
@@ -128,16 +127,14 @@
     host.addEventListener("pointermove", (e) => {
       const rect = el.getBoundingClientRect();
       mouse.tx = clamp(e.clientX - rect.left, 0, rect.width);
-      mouse.ty = clamp(e.clientY - rect.top, 0, rect.height);
+      mouse.ty = clamp(e.clientY - rect.top,  0, rect.height);
     });
 
     function spawnBall() {
       if (balls.length >= MAX_BALLS) return;
-
-      const r = MIN_R + Math.random() * (MAX_R - MIN_R);
+      const r     = MIN_R + Math.random() * (MAX_R - MIN_R);
       const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
-      const ang = Math.random() * Math.PI * 2;
-
+      const ang   = Math.random() * Math.PI * 2;
       balls.push({
         x: r + Math.random() * (w - 2 * r),
         y: r + Math.random() * (h - 2 * r),
@@ -166,225 +163,160 @@
       }
     }
 
-    // ==== PAINT SPLAT (mancha pegada) ====
     function paintSplat(x, y, baseR, colorHex, alpha = 0.95) {
       const c = hexToRgb(colorHex);
-
-      // Mancha principal
       pctx.save();
       pctx.globalCompositeOperation = "source-over";
       pctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${alpha})`;
       pctx.beginPath();
       pctx.arc(x, y, baseR, 0, Math.PI * 2);
       pctx.fill();
-
-      // “salpicaduras” alrededor
       const n = 6 + Math.floor(Math.random() * 8);
       for (let i = 0; i < n; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const d = baseR * (0.8 + Math.random() * 1.9);
+        const a  = Math.random() * Math.PI * 2;
+        const d  = baseR * (0.8 + Math.random() * 1.9);
         const rr = baseR * (0.12 + Math.random() * 0.28);
         pctx.beginPath();
         pctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, rr, 0, Math.PI * 2);
         pctx.fill();
       }
-
       pctx.restore();
     }
 
     function startPreShake() {
       preShake = true;
-      shakeT0 = performance.now();
+      shakeT0  = performance.now();
     }
 
     function triggerExplosion() {
       exploding = true;
-      preShake = false;
+      preShake  = false;
       explodeT0 = performance.now();
-
-      paintHex = curTheme().fg;
+      paintHex  = curTheme().fg;
       drops.length = 0;
-
-      // Generar gotas (paint bomb)
       const count = 70;
       for (let i = 0; i < count; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const sp = 3.0 + Math.random() * 7.2;     // velocidad alta
-        const rr = 3 + Math.random() * 10;        // tamaños variados
-
+        const sp  = 3.0 + Math.random() * 7.2;
+        const rr  = 3   + Math.random() * 10;
         drops.push({
-          x: mouse.x,
-          y: mouse.y,
+          x: mouse.x, y: mouse.y,
           vx: Math.cos(ang) * sp,
           vy: Math.sin(ang) * sp,
-          r: rr,
-          life: 1,
-          splatted: false
+          r: rr, life: 1, splatted: false
         });
       }
-
-      // Mancha grande inicial
       paintSplat(mouse.x, mouse.y, cursorR * 0.35, paintHex, 0.9);
     }
 
     function resetAndSwitchTheme() {
       exploding = false;
-      cursorR = BASE_CURSOR_R;
+      cursorR   = BASE_CURSOR_R;
       drops.length = 0;
-
-      // cambiar tema al final
       toggleTheme();
       el.style.background = curTheme().bg;
-
-      // limpiar pintura “vieja” suavemente (opcional)
-      // si quieres que se quede, comenta estas 2 líneas:
       pctx.clearRect(0, 0, w, h);
-
       seedInitial();
       lastSpawn = performance.now();
     }
 
     function step(now) {
-      // mouse suave
       const cx = mouse.inside ? mouse.tx : w * 0.5;
       const cy = mouse.inside ? mouse.ty : h * 0.5;
       mouse.x = lerp(mouse.x, cx, 0.14);
       mouse.y = lerp(mouse.y, cy, 0.14);
 
-      // spawn gradual
       if (!exploding && !preShake && (now - lastSpawn) >= SPAWN_INTERVAL) {
         lastSpawn = now;
         spawnBall();
         if (Math.random() < SPAWN_BURST_CHANCE) spawnBall();
       }
 
-      // mover bolas
       for (const b of balls) {
         if (!b.alive) continue;
-        b.x += b.vx;
-        b.y += b.vy;
-
+        b.x += b.vx; b.y += b.vy;
         if (b.x < b.r || b.x > w - b.r) b.vx *= -1;
         if (b.y < b.r || b.y > h - b.r) b.vy *= -1;
-
         b.x = clamp(b.x, b.r, w - b.r);
         b.y = clamp(b.y, b.r, h - b.r);
       }
 
-      // Comer / crecer
       if (!exploding && !preShake) {
         let alive = 0;
         for (const b of balls) {
           if (!b.alive) continue;
           alive++;
-
           const d = dist(b.x, b.y, mouse.x, mouse.y);
           if (d < cursorR + b.r + EAT_PADDING) {
-            b.alive = false;
+            b.alive  = false;
             cursorR += b.r * GROW_FACTOR;
           }
         }
-
-        // si está muy grande => empieza temblor antes de explotar
         if (cursorR >= EXPLODE_AT) startPreShake();
-
-        // si no hay bolas, también temblor
-        if (alive === 0) startPreShake();
+        if (alive === 0)           startPreShake();
       }
 
-      // Pre-shake antes de explotar
       if (preShake) {
         const t = now - shakeT0;
-        if (t >= PRE_SHAKE_MS) {
-          triggerExplosion();
-        }
+        if (t >= PRE_SHAKE_MS) triggerExplosion();
       }
 
-      // Explosión paint bomb
       if (exploding) {
         const p = clamp((now - explodeT0) / EXPLOSION_MS, 0, 1);
-
-        // physics de gotas
         for (const d of drops) {
           if (d.splatted) continue;
-
-          d.x += d.vx;
-          d.y += d.vy;
-
-          // gravedad ligera
+          d.x += d.vx; d.y += d.vy;
           d.vy += 0.10;
-
-          // fricción
-          d.vx *= 0.99;
-          d.vy *= 0.99;
-
-          // si llega al borde => splat (mancha pegada)
+          d.vx *= 0.99; d.vy *= 0.99;
           if (d.x <= d.r || d.x >= w - d.r || d.y <= d.r || d.y >= h - d.r) {
             d.splatted = true;
             paintSplat(
               clamp(d.x, d.r, w - d.r),
               clamp(d.y, d.r, h - d.r),
               d.r * (1.1 + Math.random() * 1.4),
-              paintHex,
-              0.95
+              paintHex, 0.95
             );
           }
-
-          // si ya pasó “muy lejos” también splat
           if (d.x < -40 || d.x > w + 40 || d.y < -40 || d.y > h + 40) {
             d.splatted = true;
           }
         }
-
-        if (p >= 1) {
-          resetAndSwitchTheme();
-        }
+        if (p >= 1) resetAndSwitchTheme();
       }
     }
 
     function render(now) {
       ctx.clearRect(0, 0, w, h);
 
-      // Shake transform (solo durante preShake)
       let shakeX = 0, shakeY = 0, pulse = 1;
-
       if (preShake) {
-        const t = (now - shakeT0) / PRE_SHAKE_MS; // 0..1
+        const t = (now - shakeT0) / PRE_SHAKE_MS;
         const intensity = (0.25 + 0.75 * t) * SHAKE_AMOUNT;
         shakeX = (Math.random() * 2 - 1) * intensity;
         shakeY = (Math.random() * 2 - 1) * intensity;
-
-        // pulso (latido)
-        pulse = 1 + Math.sin(now * 0.03) * PULSE_AMOUNT * (0.3 + 0.7 * t);
+        pulse  = 1 + Math.sin(now * 0.03) * PULSE_AMOUNT * (0.3 + 0.7 * t);
       }
 
       const fgHex = curTheme().fg;
-      const fg = hexToRgb(fgHex);
+      const fg    = hexToRgb(fgHex);
 
       ctx.save();
       ctx.translate(shakeX, shakeY);
-
       ctx.shadowColor = `rgba(0,0,0,${SHADOW_ALPHA})`;
-      ctx.shadowBlur = SHADOW_BLUR;
+      ctx.shadowBlur  = SHADOW_BLUR;
 
-      const fill = `rgba(${fg.r},${fg.g},${fg.b},${BALL_ALPHA})`;
+      const fill   = `rgba(${fg.r},${fg.g},${fg.b},${BALL_ALPHA})`;
       const stroke = `rgba(255,255,255,${BALL_STROKE})`;
 
-      // bolitas
       for (const b of balls) {
         if (!b.alive) continue;
         drawCircle(ctx, b.x, b.y, b.r, fill, stroke, 1.3);
       }
-
-      // bola principal (con pulso si está “llena”)
       drawCircle(ctx, mouse.x, mouse.y, cursorR * pulse, fill, stroke, 1.6);
-
       ctx.restore();
 
-      // durante explosión, dibujar gotas volando (pintura en el aire)
       if (exploding) {
         const pc = hexToRgb(paintHex);
-
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
         for (const d of drops) {
@@ -396,7 +328,6 @@
         }
         ctx.restore();
 
-        // flash suave
         const p = clamp((now - explodeT0) / EXPLOSION_MS, 0, 1);
         if (p < 0.22) {
           ctx.save();
@@ -408,7 +339,6 @@
       }
     }
 
-    // Init
     resize();
     seedInitial();
     lastSpawn = performance.now();
@@ -432,4 +362,4 @@
   } else {
     boot();
   }
-})();
+})(); 
