@@ -1,5 +1,6 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
+{%load sort_tags%}
 
 {% block title %}Gestión de Proveedores{% endblock %}
 
@@ -18,14 +19,22 @@
     <div class="card shadow-sm card-proveedores">
         <div class="card-body">
 
-            <!-- HEADER -->
-            <div class="proveedores-header mb-4 d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-0">Listado de Proveedores</h4>
-                    <small class="text-muted">
-                        Total: {{ proveedores|length }}
-                        proveedor{{ proveedores|length|pluralize:"es" }}
-                    </small>
+            <div class="proveedores-header mb-4">
+                <div class="proveedores-header-top">
+                    <div>
+                        <h4 class="mb-0">Listado de Proveedores</h4>
+                        <small class="text-muted">
+                            Total: {{ proveedores|length }}
+                            proveedor{{ proveedores|length|pluralize:"es" }}
+                        </small>
+                    </div>
+
+                    <a href="{% url 'proveedores:crear_proveedor' %}"
+                       class="btn-pill-dark proveedores-btn-add"
+                       data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+                       data-modal-title="Crear Proveedor">
+                        Crear Proveedor
+                    </a>
                 </div>
             <a href="{% url 'proveedores:crear_proveedor' %}"
             class="btn-pill-dark"
@@ -35,103 +44,124 @@
             </a>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div class="proveedores-toolbar">
 
-                <!-- FILTRO -->
-                <div class="dropdown">
-                    <button class="btn btn-filter dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown">
-                        <i class="bi bi-funnel"></i>
+                    <div class="dropdown proveedores-toolbar__filter">
+                        <button class="btn btn-filter dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown">
+                            <i class="bi bi-funnel"></i>
 
-                        {% if request.GET.orden == 'nombre' %}
-                            Nombre A–Z
-                        {% elif request.GET.orden == 'nombre_desc' %}
-                            Nombre Z–A
-                        {% else %}
-                            Filtrar
-                        {% endif %}
-                    </button>
-
-                    <ul class="dropdown-menu shadow-sm">
-                        <li>
-                            <a class="dropdown-item"
-                               href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                            {% if request.GET.orden == 'nombre' %}
                                 Nombre A–Z
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"
-                               href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                            {% elif request.GET.orden == 'nombre_desc' %}
                                 Nombre Z–A
-                            </a>
-                        </li>
+                            {% else %}
+                                Filtrar
+                            {% endif %}
+                        </button>
 
-                        <li><hr class="dropdown-divider"></li>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li>
+                                <a class="dropdown-item"
+                                   href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                                    Nombre A–Z
+                                </a>
+                            </li>
 
-                        <li class="px-3 pb-2">
-                            <a href="?estado=activo" class="btn btn-success btn-sm w-100 mb-1">
-                                Activos
-                            </a>
-                            <a href="?estado=inactivo" class="btn btn-secondary btn-sm w-100">
-                                Inactivos
-                            </a>
-                        </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                                    Nombre Z–A
+                                </a>
+                            </li>
 
-                        <li>
-                            <a class="dropdown-item text-danger" href="?">
-                                Quitar filtros
-                            </a>
-                        </li>
-                    </ul>
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li class="px-3 pb-2">
+                                <a href="?estado=activo" class="btn btn-success w-100 mb-1">
+                                    Activos
+                                </a>
+                                <a href="?estado=inactivo" class="btn btn-secondary w-100">
+                                    Inactivos
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item text-danger" href="?">
+                                    Quitar filtros
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <form method="get"
+                          id="busquedaProveedorForm"
+                          class="busqueda-proveedor-wrapper">
+
+                        {% if request.GET.orden %}
+                            <input type="hidden" name="orden" value="{{ request.GET.orden }}">
+                        {% endif %}
+
+                        {% if estado_actual %}
+                            <input type="hidden" name="estado" value="{{ estado_actual }}">
+                        {% endif %}
+
+                        <button id="btnBusquedaProveedorToggle"
+                                type="button"
+                                class="btn-busqueda-toggle"
+                                aria-expanded="false"
+                                aria-label="Buscar proveedor">
+                            <i class="bi bi-search"></i>
+                        </button>
+
+                        <div id="busquedaProveedorBox" class="busqueda-proveedor-box">
+                            <input type="text"
+                                   id="busquedaProveedorInput"
+                                   name="q"
+                                   class="busqueda-proveedor-input"
+                                   placeholder="Buscar proveedor..."
+                                   value="{{ request.GET.q|default:'' }}"
+                                   autocomplete="off">
+                        </div>
+                    </form>
+
                 </div>
-
-                <!-- BUSCADOR -->
-                <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
-                    {% if request.GET.orden %}
-                        <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-                    {% endif %}
-
-                    {% if estado_actual %}
-                        <input type="hidden" name="estado" value="{{ estado_actual }}">
-                    {% endif %}
-
-                    <input type="text"
-                           name="q"
-                           class="form-control form-control-sm"
-                           placeholder="Buscar…"
-                           value="{{ request.GET.q }}">
-
-                    <button class="btn btn-outline-secondary btn-sm" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-
             </div>
-
-            <!-- TABLA -->
             {% if proveedores %}
             <div class="table-responsive">
                 <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>NIT</th>
-                            <th>Proveedor</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="{% sort_url 'nit' %}">NIT</a>
+                        </th>
+                        <th>
+                            <a href="{% sort_url 'proveedor' %}">Proveedor</a>
+                        </th>
+                        <th class="text-center">
+                            <a href="{% sort_url 'estado' %}">Estado</a>
+                        </th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
                     <tbody>
-
                         {% for proveedor in proveedores %}
                         <tr>
                             <td>{{ proveedor.nit }}</td>
                             <td>{{ proveedor.nombre_proveedor }}</td>
-
                             <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
+                                <span
+                                    id="estado-proveedor-{{ proveedor.pk }}"
+                                    class="estado-switch {% if proveedor.estado == 'activo' %}is-on{% else %}is-off{% endif %}"
+                                    aria-label="Estado del proveedor"
+                                    title="{% if proveedor.estado == 'activo' %}Activo{% else %}Desactivado{% endif %}">
+                                    <span class="switch-thumb"></span>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="acciones-proveedor">
 
-                                    <!-- VER DETALLES -->
                                     <button class="btn btn-link"
                                             data-bs-toggle="modal"
                                             data-bs-target="#modalDetalleProveedor"
@@ -144,7 +174,7 @@
                                             style="color: #382822;"
                                             title="Ver detalles"
                                             data-bs-placement="bottom">
-                                        <i class="bi bi-eye" style="font-size: 24px;"></i>
+                                        <i class="bi bi-eye"></i>
                                     </button>
 
                                     <button class="btn btn-link"
@@ -153,18 +183,29 @@
                                             style="color: #382822;"
                                             title="Editar"
                                             data-bs-placement="bottom">
-                                        <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                                        <i class="bi bi-pencil-square"></i>
                                     </button>
 
                                     {% if proveedor.estado == 'activo' %}
-                                    <button type="button"
-                                            class="btn-icon btn-eliminar js-eliminar-proveedor"
-                                            data-id="{{ proveedor.id }}">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
+                                        <button type="button"
+                                                class="btn btn-link btn-action-round js-eliminar-proveedor"
+                                                style="color:#382822;"
+                                                data-id="{{ proveedor.pk }}"
+                                                data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
+                                                data-url-eliminar="{% url 'proveedores:eliminar_proveedor' proveedor.pk %}"
+                                                data-url-desactivar="{% url 'proveedores:desactivar' proveedor.pk %}"
+                                                title="Eliminar proveedor">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
                                     {% else %}
-                                        <button type="button" class="btn btn-success btn-sm js-reactivar-proveedor" data-id="{{ proveedor.id }}">
-                                        Reactivar
+                                        <button type="button"
+                                                class="btn-reactivar-proveedor js-reactivar-proveedor"
+                                                data-id="{{ proveedor.id }}"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Reactivar"
+                                                aria-label="Reactivar proveedor">
+                                            <i class="bi bi-arrow-clockwise"></i>
                                         </button>
                                     {% endif %}
 
@@ -172,11 +213,9 @@
                             </td>
                         </tr>
                         {% endfor %}
-
                     </tbody>
                 #</table>
             </div>
-
             {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted">No hay proveedores registrados.</p>
@@ -186,64 +225,135 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalDetalleProveedor" tabindex="-1" aria-labelledby="modalDetalleProveedorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content shadow-lg border-0 proveedor-detail-modal">
 
-<!-- MODAL DETALLE -->
-<div class="modal fade" id="modalDetalleProveedor" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg">
-
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-truck"></i> Detalles del proveedor
-                </h5>
-                <button type="button" class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <p><strong>Proveedor:</strong> <span id="p-nombre"></span></p>
-                <p><strong>NIT:</strong> <span id="p-nit"></span></p>
-                <p><strong>Teléfono:</strong> <span id="p-telefono"></span></p>
-                <p><strong>Correo:</strong> <span id="p-correo"></span></p>
-                <p><strong>Estado:</strong> <span id="p-estado"></span></p>
-                <p><strong>Dirección:</strong> <span id="p-direccion"></span></p>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cerrar
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-<!-- Modal reutilizable -->
-<div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content ultra-card">
-
-      <div class="modal-header ultra-header">
-        <div class="d-flex align-items-center gap-2">
-          <span class="ultra-icon"><i class="bi bi-pencil-square"></i></span>
-          <div>
-            <div class="ultra-title" id="ajaxFormModalTitle">Formulario</div>
-            <div class="ultra-subtitle">Completa la información</div>
-          </div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      <div class="modal-header proveedor-detail-header">
+        <h5 class="modal-title" id="modalDetalleProveedorLabel">Detalle de proveedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <div class="modal-body p-4" id="ajaxFormModalBody"></div>
+      <div class="modal-body proveedor-detail-body">
+        <div class="row g-4 align-items-start">
+
+          <!-- LADO IZQUIERDO: VISUAL -->
+          <div class="col-lg-2 col-md-3">
+            <div class="proveedor-visual-card">
+              <div class="proveedor-visual-icon-wrap">
+                <div class="proveedor-visual-icon-bg">
+                  <i class="bi bi-truck proveedor-visual-icon"></i>
+                </div>
+              </div>
+
+              <div class="proveedor-visual-mini">
+                <span class="proveedor-mini-label">Proveedor</span>
+                <span class="proveedor-mini-badge" id="p-iniciales">PR</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- LADO DERECHO: INFO -->
+          <div class="col-lg-10 col-md-9">
+            <div class="proveedor-detail-main">
+              <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                  <h2 class="proveedor-detail-title mb-1" id="p-nombre">Proveedor</h2>
+                  <div class="proveedor-detail-subtitle">
+                    Información general del proveedor
+                  </div>
+                </div>
+
+                <div>
+                  <span class="badge proveedor-estado-badge" id="p-estado-badge">Activo</span>
+                </div>
+              </div>
+
+              <div class="row g-3 proveedor-info-grid">
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">NIT</span>
+                    <span class="proveedor-info-value" id="p-nit">—</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Estado</span>
+                    <span class="proveedor-info-value" id="p-estado">—</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Teléfono</span>
+                    <span class="proveedor-info-value" id="p-telefono">—</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Correo</span>
+                    <span class="proveedor-info-value" id="p-correo">—</span>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="proveedor-info-item">
+                    <span class="proveedor-info-label">Dirección</span>
+                    <span class="proveedor-info-value" id="p-direccion">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="proveedor-detail-section mt-4">
+                <h6 class="proveedor-section-title">Resumen</h6>
+                <p class="proveedor-section-text mb-0">
+                  Este proveedor se encuentra registrado en el sistema MONAAPP con su información comercial y de contacto disponible para gestión administrativa y compras.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
 
     </div>
   </div>
 </div>
+
+<div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content ultra-card">
+
+            <div class="modal-header ultra-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="ultra-icon"><i class="bi bi-pencil-square"></i></span>
+                    <div>
+                        <div class="ultra-title" id="ajaxFormModalTitle">Formulario</div>
+                        <div class="ultra-subtitle">Completa la información</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body p-4" id="ajaxFormModalBody"></div>
+
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
+
 {% block extra_js %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <script src="{% static 'proveedor/js/detalle_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/eliminar_proveedor.js' %}"></script>
 <script src="{% static 'proveedor/js/proveedor_formulario.js' %}"></script>
+<script src="{% static 'proveedor/js/proveedor.js' %}"></script>
 {% endblock %}

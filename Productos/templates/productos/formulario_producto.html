@@ -39,9 +39,15 @@
 
             <div class="col-md-6">
               <label class="form-label">Unidad</label>
-              {{ form.unidad_medida }}
-            </div>
 
+              <div class="select-pro">
+                {{ form.unidad_medida }}
+                <span class="select-icon">
+                  <i class="bi bi-chevron-down"></i>
+                </span>
+              </div>
+
+            </div>
             <div class="col-12">
               <label class="form-label">Descripción</label>
               {{ form.descripcion }}
@@ -108,7 +114,7 @@
             </div>
           </div>
 
-          <!-- ✅ SOLO uno -->
+          
           <div class="text-muted small mt-2" id="previewProductoImagenMsg"></div>
         </div>
       </div>

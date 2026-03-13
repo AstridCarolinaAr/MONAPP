@@ -315,6 +315,90 @@
   // Click global
   // =========================
   document.body.addEventListener("click", async (e) => {
+    // =========================
+    // Toggle del buscador de compras
+    // =========================
+    const btnBusquedaToggle = e.target.closest("#btnBusquedaToggle");
+    if (btnBusquedaToggle) {
+      e.preventDefault();
+
+      const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
+      const boxBusqueda = document.getElementById("busquedaComprasBox");
+      const inputBusqueda = document.getElementById("busquedaComprasInput");
+
+      if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda) {
+        console.warn("Buscador de compras: no se encontraron los elementos.");
+        return;
+      }
+
+      const estaAbierto = boxBusqueda.classList.contains("is-open");
+
+      const abrirBuscador = () => {
+        wrapperBusqueda.classList.add("is-open");
+        boxBusqueda.classList.add("is-open");
+        btnBusquedaToggle.setAttribute("aria-expanded", "true");
+
+        setTimeout(() => {
+          inputBusqueda.focus();
+          const len = inputBusqueda.value.length;
+          inputBusqueda.setSelectionRange(len, len);
+        }, 180);
+      };
+
+      const cerrarBuscador = () => {
+        wrapperBusqueda.classList.remove("is-open");
+        boxBusqueda.classList.remove("is-open");
+        btnBusquedaToggle.setAttribute("aria-expanded", "false");
+      };
+
+      if (estaAbierto) {
+        if (inputBusqueda.value.trim()) {
+          inputBusqueda.focus();
+          return;
+        }
+
+        cerrarBuscador();
+        return;
+      }
+
+      abrirBuscador();
+      return;
+    }
+      // =========================
+  // Cerrar buscador al hacer clic fuera o con Escape
+  // =========================
+  document.addEventListener("click", (e) => {
+    const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
+    const boxBusqueda = document.getElementById("busquedaComprasBox");
+    const inputBusqueda = document.getElementById("busquedaComprasInput");
+    const btnBusqueda = document.getElementById("btnBusquedaToggle");
+
+    if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda || !btnBusqueda) return;
+    if (!boxBusqueda.classList.contains("is-open")) return;
+    if (wrapperBusqueda.contains(e.target)) return;
+    if (inputBusqueda.value.trim()) return;
+
+    wrapperBusqueda.classList.remove("is-open");
+    boxBusqueda.classList.remove("is-open");
+    btnBusqueda.setAttribute("aria-expanded", "false");
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+
+    const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
+    const boxBusqueda = document.getElementById("busquedaComprasBox");
+    const inputBusqueda = document.getElementById("busquedaComprasInput");
+    const btnBusqueda = document.getElementById("btnBusquedaToggle");
+
+    if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda || !btnBusqueda) return;
+    if (inputBusqueda.value.trim()) return;
+
+    wrapperBusqueda.classList.remove("is-open");
+    boxBusqueda.classList.remove("is-open");
+    btnBusqueda.setAttribute("aria-expanded", "false");
+  });
+
     // abrir modal crear/editar
     const trigger = e.target.closest("[data-modal-url]");
     if (trigger) {
@@ -451,17 +535,11 @@
         if (data.success) {
           const fila = document.getElementById(`fila-compra-${id}`);
           if (fila) {
-            animarHaciaCaja(fila, {
-              id,
-              proveedor,
-              // si tu backend lo devuelve, perfecto (si no, cae en defaults)
-              fecha_anulada: data.fecha_anulada, // "YYYY-MM-DD"
-              fecha_creacion: data.fecha_creacion, // "YYYY-MM-DD"
-              usuario: data.usuario,
-              total: data.total,
-            });
+            fila.style.transition = "opacity .35s ease, transform .35s ease";
+            fila.style.opacity = "0";
+            fila.style.transform = "translateX(20px)";
+            setTimeout(() => fila.remove(), 350);
           }
-
           await Swal.fire({
             icon: "success",
             title: "Compra anulada",
@@ -575,362 +653,64 @@
     validateCompraForm(formModalEl);
   });
 })();
-
-// ======================================================
-// Animación anular (más lenta + premium) + agregar al modal
-// ======================================================
-function animarHaciaCaja(fila, dataCompra) {
-  // Si ya no tienes "anuladas-box", no pasa nada: removemos directo
-  const filaRect = fila.getBoundingClientRect();
-
-  const clon = fila.cloneNode(true);
-  clon.style.position = "fixed";
-  clon.style.left = filaRect.left + "px";
-  clon.style.top = filaRect.top + "px";
-  clon.style.width = filaRect.width + "px";
-  clon.style.transition = "all 1.1s cubic-bezier(.2,.8,.2,1)"; // 👈 más pro y lenta
-  clon.style.zIndex = 10000;
-  clon.style.background = "#f8d7da";
-  clon.style.borderRadius = "10px";
-  clon.style.boxShadow = "0 12px 30px rgba(0,0,0,.15)";
-
-  document.body.appendChild(clon);
-
-  requestAnimationFrame(() => {
-    clon.style.opacity = "0";
-    clon.style.transform = "translateY(30px) scale(0.92)";
-    clon.style.filter = "blur(1px)";
-  });
-
-  setTimeout(() => {
-    agregarAnulada(dataCompra);
-    clon.remove();
-    fila.remove();
-  }, 1150);
-}
-
-function agregarAnulada(dataCompra) {
-  // contador FAB
-  const contador = document.querySelector("#contador-anuladas");
-  if (contador) {
-    const cur = parseInt(contador.textContent || "0", 10) || 0;
-    contador.textContent = String(cur + 1);
-  }
-
-  const tbody = document.querySelector("#tbodyAnuladas");
-  if (!tbody) return;
-
-  // dataset.fecha debe ser fecha_anulada en Y-m-d para filtrar/ordenar
-  const fechaAnuladaYMD = dataCompra.fecha_anulada || dataCompra.fecha || "";
-  const fechaCreacionHuman = dataCompra.fecha_creacion_humana || dataCompra.fecha_creacion || "";
-  const fechaAnuladaHuman = dataCompra.fecha_anulada_humana || dataCompra.fecha_anulada || "";
-  const usuario = dataCompra.usuario || "";
-  const proveedor = dataCompra.proveedor || "";
-  const total = dataCompra.total || "";
-
-  const tr = document.createElement("tr");
-  tr.className = "anulada-row";
-  tr.dataset.fecha = fechaAnuladaYMD;
-
-  tr.innerHTML = `
-    <td>${dataCompra.id ?? ""}</td>
-    <td>${proveedor}</td>
-    <td>${fechaCreacionHuman}</td>
-    <td>${fechaAnuladaHuman}</td>
-    <td>${usuario}</td>
-    <td class="text-end">${total}</td>
-  `;
-
-  tbody.prepend(tr);
-
-  // al agregar, si el modal está abierto, re-aplicamos paginado/filtros
-  const modal = document.getElementById("modalAnuladas");
-  if (modal && modal.classList.contains("show")) {
-    modal.dispatchEvent(new Event("recalc-anuladas"));
-  }
-}
-
-// ======================================================
-// Modal anuladas: filtro + orden + búsqueda + SCROLL INFINITO + export + restaurar
-// ======================================================
 document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("modalAnuladas");
-  if (!modal) return;
+  const modalEl = document.getElementById("modalComprobanteCompra");
+  const modalBody = document.getElementById("comprobanteCompraBody");
+  const btnDescargar = document.getElementById("btnDescargarComprobante");
 
-  const desde = document.getElementById("anuladasDesde");
-  const hasta = document.getElementById("anuladasHasta");
-  const orden = document.getElementById("anuladasOrden");
-  const tbody = document.getElementById("tbodyAnuladas");
-  const wrap = document.getElementById("anuladasScrollWrap");
-  const vacio = document.getElementById("anuladasVacio");
-  const btnReset = document.getElementById("btnResetAnuladas");
-  const btnExcel = document.getElementById("btnExportExcel");
-  const btnPDF = document.getElementById("btnExportPDF");
+  if (!modalEl || !modalBody || !btnDescargar) return;
 
-  if (!desde || !hasta || !orden || !tbody || !wrap) return;
+  const comprobanteModal = new bootstrap.Modal(modalEl);
 
-  // ---- UI extra (buscador + contador)
-  function ensureUI() {
-    let search = document.getElementById("anuladasSearch");
-    let counter = document.getElementById("anuladasCounter");
+  let currentPdfUrl = null;
+  let currentExcelUrl = null;
 
-    if (!search) {
-      const row = modal.querySelector(".row.g-2.align-items-end.mb-3");
-      if (row) {
-        const col = document.createElement("div");
-        col.className = "col-12";
-        col.innerHTML = `
-          <label class="form-label mb-1">Buscar</label>
-          <input id="anuladasSearch" class="form-control" placeholder="Buscar por #, proveedor o usuario..." />
-          <div id="anuladasCounter" class="mt-1"></div>
-        `;
-        row.insertAdjacentElement("afterend", col);
-        search = document.getElementById("anuladasSearch");
-        counter = document.getElementById("anuladasCounter");
-      }
-    }
-
-    if (search && !search.dataset.bound) {
-      search.dataset.bound = "1";
-      search.addEventListener("input", () => {
-        visibles = 10;
-        render();
-        wrap.scrollTop = 0;
-      });
-    }
-
-    if (counter) counter.classList.add("text-muted");
-  }
-
-  function parseYMD(s) {
-    if (!s) return null;
-    const [y, m, d] = s.split("-").map(Number);
-    if (!y || !m || !d) return null;
-    return new Date(y, m - 1, d, 0, 0, 0, 0);
-  }
-
-  function getRows() {
-    return Array.from(tbody.querySelectorAll("tr.anulada-row"));
-  }
-
-  function getSearch() {
-    return (document.getElementById("anuladasSearch")?.value || "").trim().toLowerCase();
-  }
-
-  // ---- estado paginado (scroll infinito)
-  let visibles = 10;
-
-  function applyFilterAndHide(rows) {
-    const d1 = parseYMD(desde.value);
-    const d2raw = parseYMD(hasta.value);
-    const d2 = d2raw
-      ? new Date(d2raw.getFullYear(), d2raw.getMonth(), d2raw.getDate(), 23, 59, 59, 999)
-      : null;
-
-    const q = getSearch();
-    let count = 0;
-
-    rows.forEach((tr) => {
-      const f = parseYMD(tr.dataset.fecha);
-      let ok = true;
-
-      if (d1 && (!f || f < d1)) ok = false;
-      if (d2 && (!f || f > d2)) ok = false;
-
-     if (q) {
-  const isNumber = /^\d+$/.test(q);
-
-  if (isNumber) {
-    const id = String(tr.dataset.id || "");
-    if (id !== q) ok = false;
-  } else {
-    const prov = String(tr.dataset.proveedor || "");
-    const user = String(tr.dataset.usuario || "");
-    if (!prov.includes(q) && !user.includes(q)) ok = false;
-  }
-}
-
-      tr.classList.toggle("d-none", !ok);
-      if (ok) count++;
-    });
-
-    if (vacio) vacio.classList.toggle("d-none", count !== 0);
-    return count;
-  }
-
-  function applyOrder(rows) {
-    const visiblesRows = rows.filter((r) => !r.classList.contains("d-none"));
-    visiblesRows.sort((a, b) => {
-      const fa = parseYMD(a.dataset.fecha)?.getTime() ?? 0;
-      const fb = parseYMD(b.dataset.fecha)?.getTime() ?? 0;
-      return orden.value === "old" ? fa - fb : fb - fa;
-    });
-
-    const ocultas = rows.filter((r) => r.classList.contains("d-none"));
-    [...visiblesRows, ...ocultas].forEach((r) => tbody.appendChild(r));
-  }
-
-  function applyInfinite(rows, countVisibles) {
-    const counter = document.getElementById("anuladasCounter");
-    const visiblesRows = rows.filter((r) => !r.classList.contains("d-none"));
-
-    visiblesRows.forEach((tr, idx) => {
-      tr.style.display = idx < visibles ? "" : "none";
-    });
-    rows.filter((r) => r.classList.contains("d-none")).forEach((r) => (r.style.display = "none"));
-
-    if (counter) {
-      const showing = Math.min(visibles, visiblesRows.length);
-      counter.textContent = `Mostrando ${showing} de ${visiblesRows.length} (total: ${rows.length})`;
-    }
-  }
-
-  function currentQueryParams() {
-    // para export y para consistencia
-    const params = new URLSearchParams();
-    if (desde.value) params.set("desde", desde.value);
-    if (hasta.value) params.set("hasta", hasta.value);
-    if (orden.value) params.set("orden", orden.value);
-    const q = getSearch();
-    if (q) params.set("q", q);
-    return params;
-  }
-
-  function updateExportLinks() {
-    if (!btnExcel || !btnPDF) return;
-    const params = currentQueryParams().toString();
-    btnExcel.href = `/compras/anuladas/export/excel/?${params}`;
-    btnPDF.href = `/compras/anuladas/export/pdf/?${params}`;
-  }
-
-  function render() {
-    ensureUI();
-    const rows = getRows();
-    const countVisibles = applyFilterAndHide(rows);
-    applyOrder(rows);
-    applyInfinite(rows, countVisibles);
-    updateExportLinks();
-  }
-
-  // ---- eventos filtros
-  ["change", "input"].forEach((evt) => {
-    desde.addEventListener(evt, () => {
-      visibles = 10;
-      render();
-      wrap.scrollTop = 0;
-    });
-    hasta.addEventListener(evt, () => {
-      visibles = 10;
-      render();
-      wrap.scrollTop = 0;
-    });
-  });
-
-  orden.addEventListener("change", () => {
-    visibles = 10;
-    render();
-    wrap.scrollTop = 0;
-  });
-
-  if (btnReset) {
-    btnReset.addEventListener("click", () => {
-      desde.value = "";
-      hasta.value = "";
-      orden.value = "new";
-      const search = document.getElementById("anuladasSearch");
-      if (search) search.value = "";
-      visibles = 10;
-      render();
-      wrap.scrollTop = 0;
-    });
-  }
-
-  // ---- scroll infinito: cuando llegue casi al fondo => +10
-  wrap.addEventListener("scroll", () => {
-    const nearBottom = wrap.scrollTop + wrap.clientHeight >= wrap.scrollHeight - 60;
-    if (!nearBottom) return;
-
-    const visiblesRows = getRows().filter((r) => !r.classList.contains("d-none"));
-    if (visibles < visiblesRows.length) {
-      visibles += 10;
-      render();
-    }
-  });
-
-  // al abrir modal siempre arranca en 10
-  modal.addEventListener("shown.bs.modal", () => {
-    visibles = 10;
-    render();
-    wrap.scrollTop = 0;
-  });
-
-  // ======================================================
-  // Restaurar (AJAX)
-  // ======================================================
   document.body.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".js-restaurar-compra");
+    const btn = e.target.closest(".js-ver-comprobante");
     if (!btn) return;
 
     e.preventDefault();
+
     const url = btn.getAttribute("data-url");
-    if (!url) return;
+    currentPdfUrl = btn.getAttribute("data-pdf-url");
+    currentExcelUrl = btn.getAttribute("data-excel-url");
 
-    const tr = btn.closest("tr.anulada-row");
-    const id = tr?.dataset?.id;
-
-    const confirm = await Swal.fire({
-      title: "¿Restaurar compra?",
-      text: "Se reactivará la compra y volverá a afectar stock.",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sí, restaurar",
-      cancelButtonText: "Cancelar",
-    });
-    if (!confirm.isConfirmed) return;
+    modalBody.innerHTML = `<div class="text-center py-5 text-muted">Cargando comprobante...</div>`;
+    comprobanteModal.show();
 
     try {
-      btn.disabled = true;
-
       const res = await fetch(url, {
-        method: "POST",
+        method: "GET",
         credentials: "same-origin",
-        headers: {
-          "X-Requested-With": "XMLHttpRequest",
-          "X-CSRFToken": (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "",
-        },
+        headers: { "X-Requested-With": "XMLHttpRequest" }
       });
+
       const data = await res.json();
-
-      if (!data.success) {
-        btn.disabled = false;
-        Swal.fire("Error", data.message || "No se pudo restaurar.", "error");
-        return;
-      }
-
-      // quitar fila del modal
-      if (tr) tr.remove();
-
-      // bajar contador
-      const contador = document.getElementById("contador-anuladas");
-      if (contador) {
-        const cur = parseInt(contador.textContent || "0", 10) || 0;
-        contador.textContent = String(Math.max(0, cur - 1));
-      }
-
-      // opcional: recargar para que aparezca en tabla principal
-      await Swal.fire({
-        icon: "success",
-        title: "Compra restaurada",
-        timer: 1100,
-        showConfirmButton: false,
-      });
-
-      location.reload();
+      modalBody.innerHTML = data.success
+        ? data.html
+        : `<div class="alert alert-danger">No se pudo cargar el comprobante.</div>`;
     } catch (err) {
       console.error(err);
-      btn.disabled = false;
-      Swal.fire("Error", "Error del servidor.", "error");
+      modalBody.innerHTML = `<div class="alert alert-danger">Error cargando comprobante.</div>`;
     }
   });
 
+  btnDescargar.addEventListener("click", async () => {
+    const result = await Swal.fire({
+      title: "Descargar comprobante",
+      text: "¿En qué formato quieres descargarlo?",
+      icon: "question",
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: "PDF",
+      denyButtonText: "Excel",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed && currentPdfUrl) {
+      window.open(currentPdfUrl, "_blank");
+    } else if (result.isDenied && currentExcelUrl) {
+      window.open(currentExcelUrl, "_blank");
+    }
+  });
 });

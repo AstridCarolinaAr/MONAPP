@@ -11,15 +11,21 @@ from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.urls import reverse
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models.deletion import ProtectedError
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+from core.global_ordenamiento import sorting_context,apply_smart_sorting
+
+from .models import Proveedor
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
 
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
-    orden = request.GET.get("orden")
-    activo = Proveedor.objects.all()
-    proveedores = Proveedor.objects.all()
 
     # estado activo por defecto
     estado = request.GET.get("estado", "activo")
@@ -36,30 +42,25 @@ def lista_proveedores(request):
             Q(nit__icontains=q) |
             Q(correo_proveedor__icontains=q)
         )
-
-    # # CONTADOR (si luego lo usas)
-    # proveedores = proveedores.annotate(
-    #     total_entregas=Count("id")
-    #     total_entregas=Count("id")  
-    # )
-
-    # ORDENAMIENTO
-    ordenamientos = {
-        "nombre": "nombre_proveedor",
-        "nombre_desc": "-nombre_proveedor",
-        "entregas": "-total_entregas",
-    }
-
-    proveedores = proveedores.order_by(
-        ordenamientos.get(orden, "nombre_proveedor")
+    proveedores,sort_key,direction =apply_smart_sorting(
+        request,
+        proveedores,
+        default_sort="nombre_proveedor",
+        default_dir="asc",
+        aliases={
+            "nit": "nit",
+            "nombre": "nombre_proveedor",
+            "estado": "estado",
+        }
     )
-
     return render(
         request,
         "proveedor/lista_proveedor.html",
         {
             "proveedores": proveedores,
-            "estado_actual": estado
+            "estado_actual": estado,
+            "q": q,
+            **sorting_context(sort_key, direction),
         }
     )
 
@@ -145,51 +146,87 @@ def editar_proveedor(request, pk):
 
     return render(request, "proveedor/editar_proveedor.html", context)
 
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.db.models.deletion import ProtectedError
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
 
-from .models import Proveedor
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-@login_required
+
 @require_POST
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     try:
         proveedor.delete()
+
         if is_ajax(request):
-            return JsonResponse({"success": True, "message": "Proveedor eliminado."})
-        messages.success(request, "Proveedor eliminado.")
-        return JsonResponse({"success": True})
+            return JsonResponse({
+                "success": True,
+                "action": "deleted",
+                "id": pk,
+                "message": "Proveedor eliminado correctamente."
+            })
+
+        messages.success(request, "Proveedor eliminado correctamente.")
+        return redirect("Proveedores:lista_proveedores")
 
     except ProtectedError:
-        Proveedor.objects.filter(pk=proveedor.pk).update(estado="inactivo")
+        msg = (
+            "Este proveedor está relacionado con compras u otros registros. "
+            "No se puede eliminar, pero puedes desactivarlo."
+        )
 
-        msg = "Este proveedor está relacionado con compras u otros registros. Se marcó como INACTIVO."
         if is_ajax(request):
-            return JsonResponse({"success": False, "protected": True, "message": msg}, status=409)
-        messages.warning(request, msg)
-        return JsonResponse({"success": False, "protected": True, "message": msg}, status=409)
+            return JsonResponse({
+                "success": False,
+                "action": "confirm_deactivate",
+                "id": proveedor.pk,
+                "message": msg
+            }, status=409)
 
+        messages.warning(request, msg)
+        return redirect("Proveedores:lista_proveedores")
 
 @require_POST
 def reactivar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
-    proveedor.estado = "activo"
-    proveedor.save()
-    return JsonResponse({"status": "activated"})
 
+    if proveedor.estado != "activo":
+        proveedor.estado = "activo"
+        proveedor.save(update_fields=["estado"])
+
+    msg = "Proveedor reactivado correctamente."
+
+    if is_ajax(request):
+        return JsonResponse({
+            "success": True,
+            "action": "reactivated",
+            "id": proveedor.pk,
+            "estado": proveedor.estado,
+            "message": msg
+        })
+
+    messages.success(request, msg)
+    return redirect("Proveedores:lista_proveedores")
 
 @require_POST
 def desactivar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
-    proveedor.estado = "inactivo"
-    proveedor.save()
-    return JsonResponse({"status": "inactivated"})
+
+    if proveedor.estado != "inactivo":
+        proveedor.estado = "inactivo"
+        proveedor.save(update_fields=["estado"])
+
+    msg = "Proveedor desactivado correctamente."
+
+    if is_ajax(request):
+        return JsonResponse({
+            "success": True,
+            "action": "deactivated",
+            "id": proveedor.pk,
+            "estado": proveedor.estado,
+            "message": msg
+        })
+
+    messages.success(request, msg)
+    return redirect("Proveedores:lista_proveedores")

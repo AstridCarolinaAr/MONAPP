@@ -130,7 +130,6 @@ function wireSwalMoreButton() {
     btn.textContent = open ? "Ver más" : "Ocultar";
   });
 }
-
 document.addEventListener("click", async (e) => {
   const btn = e.target.closest('button[data-url].btn-action-round');
   if (!btn) return;

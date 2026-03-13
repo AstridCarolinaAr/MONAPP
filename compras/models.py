@@ -62,3 +62,7 @@ class DetalleCompra(models.Model):
     def anular(self):
         self.anulada=True
         self.fecha_anulada=timezone.now()
+    @property
+    def subtotal(self):
+        return (self.cantidad or  0)* (self.precio_unitario or 0)    
+        

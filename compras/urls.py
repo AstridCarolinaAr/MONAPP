@@ -9,5 +9,7 @@ urlpatterns = [
     path("editar/<int:pk>/", views.editar_compra, name="editar_compra"),
     path("detalle/<int:compra_id>/", views.detalle_compra, name="detalle_compra"),
     path("anular/<int:pk>/", views.anular_compra, name="anular_compra"),
-    path("restaurar/<int:pk>/", views.restaurar_compra, name="restaurar_compra"),
+    path("comprobante/<int:pk>/preview/", views.comprobante_compra_preview, name="comprobante_vista_previa"),
+    path("comprobante/<int:pk>/pdf/", views.comprobante_compra_pdf, name="comprobante_compra_pdf"),
+    path("comprobante/<int:pk>/excel/", views.comprobante_compra_excel, name="comprobante_compra_excel"),
     ]

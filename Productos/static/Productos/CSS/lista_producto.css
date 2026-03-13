@@ -25,7 +25,7 @@ h2 {
 }
 
 
-/* ✅ TABLA - HEREDA DE panel_admin_base.css */
+/* TABLA - HEREDA DE panel_admin_base.css */
 
 /* BOTONES */
 .btn-sm {
@@ -1039,19 +1039,3 @@ z-index:2000 !important;
   max-height: 420px;
   object-fit: cover; 
 }
-.btn-action-round {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s, color 0.3s;
-    text-decoration: none !important;
-    padding: 0;
-}
-.btn-action-round:hover {
-    background-color: rgba(99, 76, 64, 0.1);
-    color: #634c40 !important;
-}
-

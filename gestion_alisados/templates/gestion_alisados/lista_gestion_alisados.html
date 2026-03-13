@@ -4,6 +4,15 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'servicios:lista_servicios' %}">Servicios</a></li>
+<li class="breadcrumb-item active" aria-current="page">Gestion de datos</li>
+{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-file-earmark-text"></i> Gestion de datos
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>

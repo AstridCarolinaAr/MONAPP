@@ -6,45 +6,108 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Sum,F
+from django.db.models import Sum,F,Q
 from .models import Compra
 from .forms import CompraForm, DetalleCompraFormSet
 from inventario.models import Stock
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils import timezone
-import io
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import F
-from django.utils import timezone
-from openpyxl import Workbook
+import io
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from openpyxl import Workbook
+from .comprobante import(build_comprobante_pdf_response,build_comprobante_excel_response)
+from django.templatetags.static import static
+from django.utils.text import slugify
+from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
+
 
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
+@login_required
+def comprobante_compra(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario")
+        .prefetch_related("detalles__producto"),
+        pk=pk
+    )
 
+    return render(request, "compras/comprobante_compra.html", {
+        "compra": compra
+    })
 @ensure_csrf_cookie
 @login_required
 @require_http_methods(["GET"])
 def lista_compras(request):
-    qs = (
+    estado = request.GET.get("estado", "activas").strip()
+    fecha = request.GET.get("fecha", "").strip()
+    fecha_desde = request.GET.get("fecha_desde", "").strip()
+    fecha_hasta = request.GET.get("fecha_hasta", "").strip()
+    busqueda = request.GET.get("q", "").strip()
+
+    compras_qs = (
         Compra.objects.select_related("proveedor", "usuario")
         .prefetch_related("detalles__producto")
         .order_by("-id")
     )
 
-    compras_activas = qs.filter(anulada=False)
-    compras_anuladas = qs.filter(anulada=True).order_by("-fecha_anulada", "-id")
+    # Estado
+    if estado == "anuladas":
+        compras_qs = compras_qs.filter(anulada=True)
+    elif estado == "todas":
+        pass
+    else:
+        compras_qs = compras_qs.filter(anulada=False)
+        estado = "activas"
 
-    total_compras = compras_activas.aggregate(total=Sum("precio_total"))["total"] or 0
+    #  corregir rango invertido automáticamente
+    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
+        fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
+
+    # Fechas
+    if estado == "anuladas":
+        if fecha:
+            compras_qs = compras_qs.filter(fecha_anulada=fecha)
+        if fecha_desde:
+            compras_qs = compras_qs.filter(fecha_anulada__gte=fecha_desde)
+        if fecha_hasta:
+            compras_qs = compras_qs.filter(fecha_anulada__lte=fecha_hasta)
+    else:
+        if fecha:
+            compras_qs = compras_qs.filter(fecha=fecha)
+        if fecha_desde:
+            compras_qs = compras_qs.filter(fecha__gte=fecha_desde)
+        if fecha_hasta:
+            compras_qs = compras_qs.filter(fecha__lte=fecha_hasta)
+
+    # Búsqueda unificada compras
+    if busqueda:
+        filtros = (
+            Q(id__icontains=busqueda) |
+            Q(proveedor__id__icontains=busqueda) |
+            Q(proveedor__nombre_proveedor__icontains=busqueda) |
+            Q(usuario__username__icontains=busqueda) |
+            Q(usuario__id__icontains=busqueda)
+        )
+        compras_qs = compras_qs.filter(filtros)
+
+    total_compras = compras_qs.aggregate(total=Sum("precio_total"))["total"] or 0
 
     context = {
-        "compras": compras_activas,               
-        "compras_anuladas": compras_anuladas,     
+        "compras": compras_qs,
         "total_compras": total_compras,
+        "estado_actual": estado,
+        "fecha_actual": fecha,
+        "fecha_desde_actual": fecha_desde,
+        "fecha_hasta_actual": fecha_hasta,
+        "q_actual": busqueda,
     }
     return render(request, "compras/compra.html", context)
 
@@ -275,141 +338,51 @@ def anular_compra(request, pk):
         "message": "Compra anulada y stock revertido."
     })
     
-def _filtrar_anuladas(request):
-    qs = Compra.objects.filter(anulada=True)
 
-    desde = request.GET.get("desde") or ""
-    hasta = request.GET.get("hasta") or ""
-    orden = request.GET.get("orden") or "new"
-    q = (request.GET.get("q") or "").strip().lower()
-
-    if desde:
-        qs = qs.filter(fecha_anulada__gte=desde)
-    if hasta:
-        qs = qs.filter(fecha_anulada__lte=hasta)
-
-    if q:
-        # búsqueda simple (id, proveedor, usuario)
-        # Si proveedor es FK: proveedor__nombre__icontains
-        qs = qs.filter(
-            # id exacto si es número
-            # fallback a icontains
-        )
-        if q.isdigit():
-            qs = qs.filter(id=int(q))
-        else:
-            qs = qs.filter(
-                proveedor__nombre_proveedor__icontains=q
-            ) | qs.filter(usuario__username__icontains=q)
-
-    order_by = "fecha_anulada" if orden == "old" else "-fecha_anulada"
-    qs = qs.order_by(order_by)
-    return qs
-
-
+# =========================
+# Vista previa HTML del comprobante de compra
+# =========================
+# =========================
+# Vista previa HTML del comprobante de compra
+# =========================
 @login_required
-def export_anuladas_excel(request):
-    compras = _filtrar_anuladas(request)
-
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Anuladas"
-
-    ws.append(["ID", "Proveedor", "Fecha creación", "Fecha anulación", "Usuario", "Total"])
-
-    for c in compras:
-        ws.append([
-            c.id,
-            str(c.proveedor),
-            getattr(c, "fecha", ""),
-            getattr(c, "fecha_anulada", ""),
-            getattr(c.usuario, "username", ""),
-            float(c.precio_total or 0),
-        ])
-
-    bio = io.BytesIO()
-    wb.save(bio)
-    bio.seek(0)
-
-    resp = HttpResponse(
-        bio.getvalue(),
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+def comprobante_compra_preview(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        pk=pk
     )
-    resp["Content-Disposition"] = 'attachment; filename="compras_anuladas.xlsx"'
-    return resp
+
+    html = render_to_string(
+        "compras/comprobante_vista_previa.html",
+        {"compra": compra},
+        request=request
+    )
+    return JsonResponse({"success": True, "html": html})
 
 
+# ========================= compra comprobante pdf ========================
+# =========================
 @login_required
-def export_anuladas_pdf(request):
-    compras = _filtrar_anuladas(request)
+def comprobante_compra_pdf(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        pk=pk
+    )
 
-    buffer = io.BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-
-    y = height - 50
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(40, y, "Compras anuladas")
-    y -= 25
-
-    p.setFont("Helvetica", 9)
-    p.drawString(40, y, f"Generado: {timezone.now().strftime('%Y-%m-%d %H:%M')}")
-    y -= 20
-
-    p.setFont("Helvetica-Bold", 9)
-    p.drawString(40, y, "ID")
-    p.drawString(80, y, "Proveedor")
-    p.drawString(260, y, "Creación")
-    p.drawString(330, y, "Anulación")
-    p.drawString(400, y, "Usuario")
-    p.drawRightString(560, y, "Total")
-    y -= 15
-    p.setFont("Helvetica", 9)
-
-    for c in compras:
-      if y < 60:
-          p.showPage()
-          y = height - 50
-          p.setFont("Helvetica", 9)
-
-      p.drawString(40, y, str(c.id))
-      p.drawString(80, y, str(c.proveedor)[:28])
-      p.drawString(260, y, str(getattr(c, "fecha", ""))[:10])
-      p.drawString(330, y, str(getattr(c, "fecha_anulada", ""))[:10])
-      p.drawString(400, y, str(getattr(c.usuario, "username", ""))[:14])
-      p.drawRightString(560, y, f"${int(c.precio_total or 0):,}".replace(",", "."))
-      y -= 14
-
-    p.save()
-    buffer.seek(0)
-
-    resp = HttpResponse(buffer.getvalue(), content_type="application/pdf")
-    resp["Content-Disposition"] = 'attachment; filename="compras_anuladas.pdf"'
-    return resp
+    return render(
+        request,
+        "compras/comprobante_compra_pdf.html",
+        {"compra": compra},
+    )
 
 
+# =========================
+# Descarga Excel del comprobante de compra
+# =========================
 @login_required
-def restaurar_compra(request, pk):
-    if request.method != "POST":
-        return JsonResponse({"success": False, "message": "Método no permitido"}, status=405)
-
-    compra = Compra.objects.select_related("usuario", "proveedor").prefetch_related("detalles").filter(pk=pk).first()
-    if not compra:
-        return JsonResponse({"success": False, "message": "Compra no encontrada"}, status=404)
-
-    if not compra.anulada:
-        return JsonResponse({"success": False, "message": "Esta compra no está anulada."}, status=400)
-
-    with transaction.atomic():
-        compra.anulada = False
-        if hasattr(compra, "fecha_anulada"):
-            compra.fecha_anulada = None
-        compra.save(update_fields=["anulada"] + (["fecha_anulada"] if hasattr(compra, "fecha_anulada") else []))
-
-        for d in compra.detalles.all():
-            stock_obj, _ = Stock.objects.get_or_create(producto=d.producto)
-            Stock.objects.filter(pk=stock_obj.pk).update(
-                cantidad_actual=F("cantidad_actual") + (d.cantidad or 0)
-            )
-
-    return JsonResponse({"success": True, "message": "Compra restaurada"})
+def comprobante_compra_excel(request, pk):
+    compra = get_object_or_404(
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        pk=pk
+    )
+    return build_comprobante_excel_response(compra)

@@ -1,8 +1,8 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
 {% load humanize %}
-
-{% block title %}Gestión de Productos{% endblock %}
+{% load sort_tags %}
+{% block title %}Lista de Productos{% endblock %}
 
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active">Productos</li>
@@ -28,71 +28,74 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 productos-header-row">
+        <h2 class="mb-0">Gestión de Productos</h2>
 
-  <!-- FILTROS + BUSCADOR -->
+        <div class="productos-header-actions">
+        <form method="get" id="formBusquedaProductos">
+          <div id="busquedaProductosWrapper" class="busqueda-productos-wrapper">
+            <button
+              type="button"
+              id="btnBusquedaProductosToggle"
+              class="btn-busqueda-toggle"
+              aria-expanded="false"
+              aria-label="Abrir buscador"
+            >
+              <i class="bi bi-search"></i>
+            </button>
+
+            <div id="busquedaProductosBox" class="busqueda-productos-box">
+              <input
+                type="text"
+                name="q"
+                id="busquedaProductosInput"
+                class="busqueda-productos-input form-control"
+                placeholder="Buscar producto..."
+                value="{{ request.GET.q }}"
+              >
+            </div>
+          </div>
+        </form>
+            <a href="{% url 'productos:crear_producto' %}"
+              class="btn-pill-dark"
+              data-modal-url="{% url 'productos:crear_producto' %}"
+              data-modal-title="Nuevo producto">
+                <i class="bi bi-plus-circle"></i> Nuevo producto
+            </a>
+        </div>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
   <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
-
-    <!-- FILTRO -->
-    <div class="dropdown">
-      <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-funnel"></i> Filtrar
-      </button>
-      <ul class="dropdown-menu shadow-sm">
-        <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
-        <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
-        <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
-        <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
-
-        <li>
-          <button class="dropdown-item" type="button" id="btnFiltroLineas">
-            Filtrar por línea
+      <div class="dropdown">
+          <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-funnel"></i> Filtrar
           </button>
-        </li>
 
-        <li>
-          <hr class="dropdown-divider">
-        </li>
+          <ul class="dropdown-menu shadow-sm">
+              <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
+              <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
+              <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
+              <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
 
-        <li>
-          <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
-        </li>
-      </ul>
-    </div>
+              <li>
+                  <button class="dropdown-item" type="button" id="btnFiltroLineas">
+                      Filtrar por línea
+                  </button>
+              </li>
 
-    <!-- BUSCADOR -->
-    <form method="get" class="d-flex gap-2">
-      <input type="text" name="q" class="form-control" placeholder="Buscar producto..." value="{{ request.GET.q }}">
-      <button class="btn btn-outline-secondary" type="submit">
-        <i class="bi bi-search"></i>
-      </button>
-    </form>
+              <li><hr class="dropdown-divider"></li>
+
+              <li>
+                  <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
+              </li>
+          </ul>
+      </div>
   </div>
-
-  <!-- FILTRO POR LÍNEA -->
-  <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none mb-3">
-    <div class="filtro-lineas">
-
-      <a href="{% url 'productos:lista_productos' %}"
-        class="linea-chip {% if not linea_seleccionada %}active{% endif %}">
-        Todos
-      </a>
-
-      {% for item in productos_por_linea %}
-      <a href="?linea={{ item.linea }}" class="linea-chip {% if linea_seleccionada == item.linea %}active{% endif %}">
-        {{ item.linea }}
-        <span class="badge">{{ item.total }}</span>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-
-  {% if request.GET.q %}
-  <div class="alert alert-info py-2 mb-3">
-    Resultados para: <strong>{{ request.GET.q }}</strong>
-  </div>
-  {% endif %}
+    <!-- FILTRO POR LÍNEA -->
+    <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none mb-3">
+        <div class="filtro-lineas">
 
   <!-- TABLA -->
   <div class="table-responsive">
@@ -107,6 +110,21 @@
         </tr>
       </thead>
 
+        <th class="col-producto">
+          <a href="{% sort_url 'nombre' %}">PRODUCTO</a>
+        </th>
+
+        <th class="col-linea">
+          <a href="{% sort_url 'linea' %}">LÍNEA</a>
+        </th>
+
+        <th class="col-imagen">Imagen</th>
+
+        <th class="text-center">ESTADO</th>
+
+        <th class="col-acciones text-center">ACCIONES</th>
+      </tr>
+    </thead>
       <tbody>
         {% for producto in productos %}
         <tr>
@@ -115,8 +133,109 @@
           <td class="col-producto">
             <div class="fw-semibold">{{ producto.nombre }}</div>
 
-            {% if producto.stock_actual <= 1 %} <div class="stock-chip stock-critico">
-              {{ producto.stock_actual }} unidades — crítico
+            {% if producto.stock_actual <= 1 %}
+              <div class="stock-chip stock-critico">
+                {{ producto.stock_actual }} unidades — crítico
+              </div>
+            {% elif producto.stock_actual <= 15 %}
+              <div class="stock-chip stock-bajo">
+                {{ producto.stock_actual }} unidades — bajo
+              </div>
+            {% else %}
+              <div class="stock-chip stock-ok">
+                {{ producto.stock_actual }} unidades disponibles
+              </div>
+            {% endif %}
+          </td>
+
+          <td class="col-linea">
+            {% if producto.linea %}
+              {{ producto.linea }}
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+            <td class="text-center">
+              {% if producto.imagen %}
+                <img
+                  src="{{ producto.imagen.url }}"
+                  class="img-thumb js-img-zoom"
+                  data-src="{{ producto.imagen.url }}"
+                  alt="Imagen {{ producto.nombre }}"
+                >
+              {% elif producto.imagen_url %}
+                <img
+                  src="{{ producto.imagen_url }}"
+                  class="img-thumb js-img-zoom"
+                  data-src="{{ producto.imagen_url }}"
+                  alt="Imagen {{ producto.nombre }}"
+                >
+              {% else %}
+                <div class="img-placeholder">—</div>
+              {% endif %}
+            </td>
+          <td class="text-center">
+              <span class="estado-switch {% if producto.activo %}is-on{% else %}is-off{% endif %}">
+                  <span class="switch-thumb"></span>
+              </span>
+          </td>
+          <td class="col-acciones text-center">
+            <div class="acciones-wrap d-flex justify-content-center align-items-center gap-1">
+              <button type="button"
+                    class="btn btn-sm btn-link btn-action-round"
+                    style="color: #382822;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalDetalleProducto"
+                    data-codigo="{{ producto.codigo }}"
+                    data-nombre="{{ producto.nombre }}"
+                    data-marca="{{ producto.marca }}"
+                    data-precio="{{ producto.precio|intcomma }}"
+                    data-linea="{{ producto.linea }}"
+                    data-presentacion="{{ producto.presentacion }}"
+                    data-unidad="{{ producto.unidad_medida }}"
+                    data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
+                    data-descripcion="{{ producto.descripcion|default:'' }}"
+                    data-imagen="{% if producto.imagen %}{{producto.imagen.url}}{%elif producto.imagen_url%}{{producto.imagen_url}}{%endif %}"
+                    title="Ver detalles"
+                    data-bs-placement="bottom">
+              <i class="bi bi-eye" style="font-size: 24px;"></i>
+              </button>
+              <a href="{% url 'productos:editar_producto' producto.codigo %}"
+                 class="btn btn-link btn-action-round"
+                 style="color: #382822;"
+                 data-modal-url="{% url 'productos:editar_producto' producto.codigo %}"
+                 data-modal-title="Editar producto"
+                 title="Editar"
+                 data-bs-placement="bottom">
+                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+              </a>
+
+              <button type="button"
+                      class="btn btn-link btn-action-round"
+                      style="color: #382822;"
+                      data-url="{% url 'productos:eliminar_producto' producto.codigo %}"
+                      data-nombre="{{ producto.nombre|escapejs }}"
+                      data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
+                      title="{% if producto.activo %}Eliminar{% else %}Reactivar{% endif %}"
+                      data-bs-placement="bottom">
+                {% if producto.activo %}
+                  <i class="bi bi-trash3" style="font-size: 24px;"></i>
+                {% else %}
+                  <i class="bi bi-arrow-clockwise" style="font-size: 24px;"></i>
+                {% endif %}
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">
+            No hay productos registrados.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   {% elif producto.stock_actual <= 15 %} <div class="stock-chip stock-bajo">
     {{ producto.stock_actual }} unidades — bajo
@@ -282,6 +401,8 @@
   </div>
 </div>
 
+
+
 <!-- Modal reutilizable -->
 <div class="modal fade ultra-modal" id="ajaxFormModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -315,6 +436,101 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content detalle-pro-modal">
+
+      <div class="modal-header detalle-pro-header">
+        <h5 class="modal-title">Detalle de producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body detalle-pro-body">
+        <div class="detalle-pro-layout">
+
+          <!-- Lateral izquierdo -->
+          <aside class="detalle-pro-side">
+            <div class="detalle-pro-card">
+
+              <div class="detalle-pro-imgwrap">
+                <img id="dp-imagen" class="detalle-pro-img d-none" alt="Imagen del producto">
+                <div id="dp-noimg" class="detalle-pro-noimg">
+                  <i class="bi bi-box-seam"></i>
+                </div>
+              </div>
+
+              <div class="detalle-pro-divider"></div>
+
+              <div class="detalle-pro-side-label">Producto</div>
+              <div class="detalle-pro-avatar" id="dp-avatar">P</div>
+            </div>
+          </aside>
+
+          <!-- Contenido derecho -->
+          <section class="detalle-pro-main">
+            <div class="detalle-pro-topbar">
+              <div>
+                <h2 class="detalle-pro-title" id="dp-nombre">Producto</h2>
+                <div class="detalle-pro-subtitle">Información general del producto</div>
+              </div>
+
+              <div>
+                <span id="dp-estado" class="detalle-pro-badge">Activo</span>
+              </div>
+            </div>
+
+            <div class="detalle-pro-divider-line"></div>
+
+            <div class="detalle-pro-grid">
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Código</div>
+                <div class="detalle-pro-value" id="dp-codigo">—</div>
+              </div>
+
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Marca</div>
+                <div class="detalle-pro-value" id="dp-marca">—</div>
+              </div>
+
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Precio</div>
+                <div class="detalle-pro-value" id="dp-precio">—</div>
+              </div>
+
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Unidad</div>
+                <div class="detalle-pro-value" id="dp-unidad">—</div>
+              </div>
+
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Línea</div>
+                <div class="detalle-pro-value" id="dp-linea">—</div>
+              </div>
+
+              <div class="detalle-pro-field">
+                <div class="detalle-pro-label">Presentación</div>
+                <div class="detalle-pro-value" id="dp-presentacion">—</div>
+              </div>
+            </div>
+
+            <div class="detalle-pro-divider-line mt-3 mb-3"></div>
+
+            <div class="detalle-pro-summary">
+              <div class="detalle-pro-summary-title">Resumen</div>
+              <div class="detalle-pro-summary-text" id="dp-descripcion">
+                Sin descripción.
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="modal-footer detalle-pro-footer">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -323,6 +539,7 @@
 <script src="{% static 'Productos/js/producto_action.js' %}"></script>
 <script src="{% static 'Productos/js/lista_productos.js' %}"></script>
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
+<script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
 
 <script>
   console.log(" lista_productos: extra_js cargado");
