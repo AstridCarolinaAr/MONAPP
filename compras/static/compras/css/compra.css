@@ -79,10 +79,6 @@
   border: 1px solid rgba(16, 24, 40, .10) !important;
 }
 
-<<<<<<< HEAD
-
-
-=======
 #anuladas-box {
   position: fixed;
   bottom: 20px;
@@ -235,4 +231,3 @@
 #tablaAnuladas thead th{
   font-weight:700;
 }
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
