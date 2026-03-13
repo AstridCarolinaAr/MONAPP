@@ -1618,47 +1618,48 @@ a.btn-link:active i {
 .btn-link[data-label]:hover::after {
     opacity: 1;
 }
-/* Estados de productos */
-.estado-switch{
+/* Estados de productos / proveedores */
+.estado-switch {
     position: relative;
     display: inline-block;
-    width: 64px;
-    height: 32px;
+    width: 44px;
+    height: 22px;
     border-radius: 999px;
-    transition: all 0.25s ease;
     vertical-align: middle;
     box-sizing: border-box;
     pointer-events: none;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.estado-switch .switch-thumb{
+.estado-switch .switch-thumb {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 24px;
-    height: 24px;
+    top: 50%;
+    left: 2px;
+    width: 17px;
+    height: 17px;
     background: #ffffff;
     border-radius: 50%;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    transform: translateY(-50%);
+    transition: left 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 /* Estado activo */
-.estado-switch.is-on{
-    background: #22c55e;
-    border: 2px solid #22c55e;
+.estado-switch.is-on {
+    background: #6F4E37;
+    border: 1px solid #6F4E37;
 }
 
-.estado-switch.is-on .switch-thumb{
-    left: calc(100% - 27px);
+.estado-switch.is-on .switch-thumb {
+    left: calc(100% - 19px);
 }
 
 /* Estado inactivo */
-.estado-switch.is-off{
-    background: #ef4444;
-    border: 2px solid #ef4444;
+.estado-switch.is-off {
+    background: #B22222;
+    border: 1px solid #B22222;
 }
 
-.estado-switch.is-off .switch-thumb{
-    left: 3px;
+.estado-switch.is-off .switch-thumb {
+    left: 2px;
 }

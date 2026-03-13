@@ -1,3 +1,5 @@
+{%load static humanize%}
+
 <div class="invoice-sheet invoice-sheet-premium">
   <div
     class="invoice-watermark invoice-watermark-premium"
@@ -73,9 +75,9 @@
           {% for detalle in compra.detalles.all %}
           <tr>
             <td>{{ detalle.producto.nombre }}</td>
-            <td class="text-center">{{ detalle.cantidad }}</td>
-            <td class="text-end">${{ detalle.precio_unitario }}</td>
-            <td class="text-end">${{ detalle.subtotal }}</td>
+            <td class="text-center">{{ detalle.cantidad|intcomma }}</td>
+            <td class="text-end">${{ detalle.precio_unitario|floatformat:0|intcomma }}</td>
+            <td class="text-end">${{ detalle.subtotal|floatformat:0|intcomma }}</td>
           </tr>
           {% empty %}
           <tr>
@@ -92,13 +94,14 @@
       <table class="invoice-total-table-premium">
         <tr>
           <th>Total</th>
-          <td>${{ compra.precio_total }}</td>
+          <td>${{ compra.precio_total|floatformat:0|intcomma }}</td>
         </tr>
       </table>
     </div>
 
-    <div class="invoice-footer-premium">
+
+  </div>
+      <div class="invoice-footer-premium">
       <span>Generado por MonaApp / Monakeratina</span>
     </div>
-  </div>
 </div>

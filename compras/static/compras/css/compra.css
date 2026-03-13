@@ -383,6 +383,7 @@
   border-radius: 14px;
   box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
 } 
+
 /* ===== Filtros ===== */
 .filtro-compras {
   background: #fffaf6;
@@ -421,7 +422,7 @@
   border-radius: 10px;
   padding: 0 12px;
   font-size: 14px;
-  color: #382822;
+  color: #3B2822;
   background: #fff;
   transition: all 0.2s ease;
 }
@@ -505,10 +506,6 @@
   display: flex;
   justify-content: flex-end;
 }
-/* ===== Buscador desplegable de compras ===== */
-.filtro-item-busqueda-toggle {
-  grid-column: span 2;
-}
 
 /* ===== Label oculto solo visualmente ===== */
 .filtro-label-hidden {
@@ -522,62 +519,146 @@
   white-space: nowrap;
   border: 0;
 }
-
-/* ===== Contenedor del botón y la caja de búsqueda ===== */
+/* ===== Buscador desplegable animado ===== */
 .busqueda-compras-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  min-height: 42px;
+  --search-size: 46px;
+  --search-open-width: 430px;
+
+  position: relative;
+  width: var(--search-size);
+  height: var(--search-size);
+  min-height: var(--search-size);
+  transition: width 0.38s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ===== Botón de la lupa ===== */
+.busqueda-compras-wrapper.is-open {
+  width: min(100%, var(--search-open-width));
+}
+
+/* ===== Botón lupa ===== */
 .btn-busqueda-toggle {
-  width: 42px;
-  height: 42px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: var(--search-size);
+  height: var(--search-size);
   border: none;
-  border-radius: 12px;
-  background: #a67c52;
-  color: #ffffff;
+  border-radius: 999px;
+  background: #3B2822;
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(166, 124, 82, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 6px 16px rgba(59, 40, 34, 0.22);
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    background 0.28s ease;
+}
+/* animacion de lupa*/
+.btn-busqueda-toggle i {
+  display: inline-block;
+  transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.busqueda-compras-wrapper.is-open .btn-busqueda-toggle i {
+  transform: rotate(120deg) scale(1.1);
 }
 
 .btn-busqueda-toggle:hover {
-  background: #946b45;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(166, 124, 82, 0.28);
+  background: #4a342d;
+  box-shadow: 0 10px 22px rgba(59, 40, 34, 0.28);
 }
 
 .btn-busqueda-toggle:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.18);
 }
 
-.btn-busqueda-toggle i {
-  font-size: 16px;
-  line-height: 1;
+.busqueda-compras-wrapper.is-open .btn-busqueda-toggle {
+  transform: scale(1.04);
 }
 
-/* ===== Caja animada del input ===== */
+/* ===== Caja expandible ===== */
 .busqueda-compras-box {
-  width: 0;
-  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--search-size);
+  display: flex;
+  align-items: center;
+  padding-left: 58px;
+  padding-right: 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: #fffaf6;
   overflow: hidden;
-  transform: scaleX(0.96);
+  opacity: 0;
+  transform: scaleX(0.68);
   transform-origin: left center;
-  transition: width 0.28s ease, opacity 0.22s ease, transform 0.28s ease;
+  box-shadow: 0 0 0 rgba(59, 40, 34, 0);
+  pointer-events: none;
+  transition:
+    opacity 0.20s ease,
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
 }
 
-/* ===== Buscador desplegable de compras ===== */
-.filtro-item-busqueda {
-  grid-column: span 2;
+.busqueda-compras-wrapper.is-open .busqueda-compras-box,
+.busqueda-compras-box.is-open {
+  opacity: 1;
+  transform: scaleX(1);
+  border-color: #d8c3b5;
+  box-shadow: 0 10px 26px rgba(59, 40, 34, 0.14);
+  pointer-events: auto;
+}
+
+/* ===== Input del buscador ===== */
+.busqueda-compras-input {
+  width: 100%;
+  height: 100%;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: #382822;
+  opacity: 0;
+  transform: translateX(-12px);
+  transition:
+    opacity 0.18s ease 0.12s,
+    transform 0.28s ease 0.12s;
+}
+
+.busqueda-compras-wrapper.is-open .busqueda-compras-input,
+.busqueda-compras-box.is-open .busqueda-compras-input {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.busqueda-compras-input::placeholder {
+  color: #8b7465;
+}
+
+.busqueda-compras-input:focus {
+  outline: none;
+}
+
+/* ===== Estado focus del conjunto ===== */
+.busqueda-compras-wrapper.is-open:focus-within .busqueda-compras-box {
+  border-color: #a67c52;
+  box-shadow: 0 0 0 4px rgba(166, 124, 82, 0.12);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .busqueda-compras-wrapper.is-open {
+    width: 100%;
+  }
 }
 
 /* ===== Label oculto visualmente ===== */
@@ -608,7 +689,7 @@
   height: 42px;
   border: none;
   border-radius: 12px;
-  background: #a67c52;
+  background: #3B2822;
   color: #fff;
   display: inline-flex;
   align-items: center;

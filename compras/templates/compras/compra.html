@@ -71,7 +71,7 @@
     <div class="filtro-item filtro-item-busqueda">
       <label class="filtro-label filtro-label-hidden" for="busquedaComprasInput">Buscar</label>
 
-      <div class="busqueda-compras-wrapper" id="busquedaComprasWrapper">
+      <div class="busqueda-compras-wrapper{%if q_actual %} is-open {% endif %}" id="busquedaComprasWrapper">
         <button
           type="button"
           class="btn-busqueda-toggle"
@@ -96,6 +96,9 @@
       </div>
     </div>
 
+
+  </div>
+  
     <div class="filtro-item filtro-botones">
       <button type="submit" class="btn-filtro btn-filtrar">
         <i class="bi bi-funnel me-1"></i> Filtrar
@@ -105,8 +108,6 @@
         <i class="bi bi-arrow-clockwise me-1"></i> Limpiar
       </a>
     </div>
-
-  </div>
 </form>
 {% if compras %}
   <div class="table-responsive">

@@ -1,6 +1,5 @@
 
 {% extends 'core/panel_admin_base.html' %}
-
 {% block title %}Inventario{% endblock %}
 {% load static %}
 {% load sort_tags %}
@@ -22,7 +21,10 @@
             <small class="text-muted">Stock actual y estados de almacén</small>
         </div>
     </div>
-        <form method="get" class="d-flex align-items-center gap-2" style="max-width: 360px;">
+        <form method="get"
+            class="search-pill js-search-pill {% if q %}is-open{% endif %}"
+            style="width: 360px; max-width: 100%;">
+
             {% if estado_stock %}
                 <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
             {% endif %}
@@ -33,15 +35,23 @@
                 <input type="hidden" name="dir" value="{{ current_dir }}">
             {% endif %}
 
-            <input type="text"
-                name="q"
-                class="form-control form-control-sm"
-                placeholder="Buscar producto…"
-                value="{{ q }}">
+            <div class="search-pill__box">
+                <input
+                    type="text"
+                    name="q"
+                    class="search-pill__input"
+                    placeholder="Buscar producto..."
+                    value="{{ q }}"
+                    autocomplete="off"
+                >
 
-            <button class="btn btn-outline-secondary btn-sm" type="submit">
-                <i class="bi bi-search"></i>
-            </button>
+                <button class="search-pill__btn js-search-toggle"
+                        type="button"
+                        aria-label="Abrir búsqueda">
+                    <i class="bi bi-search search-pill__icon search-pill__icon--search"></i>
+                    <i class="bi bi-x-lg search-pill__icon search-pill__icon--close"></i>
+                </button>
+            </div>
         </form>
             <div class="dropdown mb-3">
                 <button class="btn btn-filter dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -145,4 +155,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'inventario/js/inventario.js' %}"></script>
 {% endblock %}

@@ -315,23 +315,41 @@
   // Click global
   // =========================
   document.body.addEventListener("click", async (e) => {
-
-      // =========================
+    // =========================
     // Toggle del buscador de compras
     // =========================
     const btnBusquedaToggle = e.target.closest("#btnBusquedaToggle");
     if (btnBusquedaToggle) {
       e.preventDefault();
 
+      const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
       const boxBusqueda = document.getElementById("busquedaComprasBox");
       const inputBusqueda = document.getElementById("busquedaComprasInput");
 
-      if (!boxBusqueda || !inputBusqueda) {
+      if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda) {
         console.warn("Buscador de compras: no se encontraron los elementos.");
         return;
       }
 
       const estaAbierto = boxBusqueda.classList.contains("is-open");
+
+      const abrirBuscador = () => {
+        wrapperBusqueda.classList.add("is-open");
+        boxBusqueda.classList.add("is-open");
+        btnBusquedaToggle.setAttribute("aria-expanded", "true");
+
+        setTimeout(() => {
+          inputBusqueda.focus();
+          const len = inputBusqueda.value.length;
+          inputBusqueda.setSelectionRange(len, len);
+        }, 180);
+      };
+
+      const cerrarBuscador = () => {
+        wrapperBusqueda.classList.remove("is-open");
+        boxBusqueda.classList.remove("is-open");
+        btnBusquedaToggle.setAttribute("aria-expanded", "false");
+      };
 
       if (estaAbierto) {
         if (inputBusqueda.value.trim()) {
@@ -339,22 +357,47 @@
           return;
         }
 
-        boxBusqueda.classList.remove("is-open");
-        btnBusquedaToggle.setAttribute("aria-expanded", "false");
+        cerrarBuscador();
         return;
       }
 
-      boxBusqueda.classList.add("is-open");
-      btnBusquedaToggle.setAttribute("aria-expanded", "true");
-
-      setTimeout(() => {
-        inputBusqueda.focus();
-        const len = inputBusqueda.value.length;
-        inputBusqueda.setSelectionRange(len, len);
-      }, 180);
-
+      abrirBuscador();
       return;
     }
+      // =========================
+  // Cerrar buscador al hacer clic fuera o con Escape
+  // =========================
+  document.addEventListener("click", (e) => {
+    const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
+    const boxBusqueda = document.getElementById("busquedaComprasBox");
+    const inputBusqueda = document.getElementById("busquedaComprasInput");
+    const btnBusqueda = document.getElementById("btnBusquedaToggle");
+
+    if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda || !btnBusqueda) return;
+    if (!boxBusqueda.classList.contains("is-open")) return;
+    if (wrapperBusqueda.contains(e.target)) return;
+    if (inputBusqueda.value.trim()) return;
+
+    wrapperBusqueda.classList.remove("is-open");
+    boxBusqueda.classList.remove("is-open");
+    btnBusqueda.setAttribute("aria-expanded", "false");
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+
+    const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
+    const boxBusqueda = document.getElementById("busquedaComprasBox");
+    const inputBusqueda = document.getElementById("busquedaComprasInput");
+    const btnBusqueda = document.getElementById("btnBusquedaToggle");
+
+    if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda || !btnBusqueda) return;
+    if (inputBusqueda.value.trim()) return;
+
+    wrapperBusqueda.classList.remove("is-open");
+    boxBusqueda.classList.remove("is-open");
+    btnBusqueda.setAttribute("aria-expanded", "false");
+  });
 
     // abrir modal crear/editar
     const trigger = e.target.closest("[data-modal-url]");

@@ -30,7 +30,9 @@
     margin-bottom: 0;
     border-collapse: collapse;
 }
-
+.styled-table td:last-child {
+    vertical-align: middle;
+}
 /* =============================
    TÍTULO
 ============================= */
@@ -96,7 +98,7 @@ h2 {
 }
 
 /* BOTONES DE ACCIÓN */
-.btn-sm {
+.table td .btn-sm:not(.js-reactivar-proveedor) {
     width: 22px;
     height: 22px;
     border-radius: 3px;
@@ -133,7 +135,33 @@ h2 {
 .btn-danger i {
     color: #c85c5c;
 }
+/* BOTÓN REACTIVAR */
+.btn-reactivar-proveedor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #6F4E37;
+    border-radius: 8px;
+    background: #6F4E37;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
 
+.btn-reactivar-proveedor i {
+    font-size: 14px;
+    line-height: 1;
+    color: #fff;
+}
+.btn-reactivar-proveedor:hover {
+    background: #5d412f;
+    border-color: #5d412f;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(111, 78, 55, 0.22);
+}
 /* =============================
    BOTÓN FILTRAR – ESTILO MONA
 ============================= */
@@ -482,4 +510,266 @@ h2 {
   .proveedor-visual-icon {
     font-size: 2.35rem;
   }
+}
+/* =============================
+   HEADER PROVEEDORES
+============================= */
+.proveedores-header {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.proveedores-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.proveedores-btn-add,
+a.proveedores-btn-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+/* =============================
+   TOOLBAR
+============================= */
+.proveedores-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.proveedores-toolbar__filter {
+    flex: 0 0 auto;
+}
+
+/* =============================
+   BUSCADOR COLAPSABLE
+   LUPA FIJA + BARRA HACIA LA IZQUIERDA
+============================= */
+.busqueda-proveedor-wrapper {
+    --search-size: 44px;
+    --search-open-width: 360px;
+
+    position: relative;
+    width: var(--search-size);
+    min-width: var(--search-size);
+    height: var(--search-size);
+    margin: 0;
+    overflow: visible;
+    flex: 0 0 auto;
+}
+
+/* ===== Botón lupa fijo a la derecha ===== */
+.btn-busqueda-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    z-index: 3;
+    width: var(--search-size);
+    height: var(--search-size);
+    border: none;
+    border-radius: 999px;
+    background: #3B2822;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(59, 40, 34, 0.22);
+    transition: background 0.28s ease, box-shadow 0.28s ease;
+    transform: none !important;
+}
+
+.btn-busqueda-toggle i {
+    display: inline-block;
+    transform: none !important;
+    transition: none !important;
+}
+
+.busqueda-proveedor-wrapper.is-open .btn-busqueda-toggle,
+.busqueda-proveedor-wrapper.is-open .btn-busqueda-toggle i {
+    transform: none !important;
+}
+
+.btn-busqueda-toggle:hover {
+    background: #4a342d;
+    box-shadow: 0 10px 22px rgba(59, 40, 34, 0.28);
+}
+
+.btn-busqueda-toggle:focus {
+    outline: none;
+}
+
+.busqueda-proveedor-wrapper.is-open .btn-busqueda-toggle {
+    background: #3B2822;
+    box-shadow: 0 6px 16px rgba(59, 40, 34, 0.22);
+}
+
+/* ===== Caja expandible hacia la izquierda ===== */
+.busqueda-proveedor-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    width: var(--search-open-width);
+    max-width: min(var(--search-open-width), calc(100vw - 40px));
+    height: var(--search-size);
+    display: flex;
+    align-items: center;
+    padding-left: 14px;
+    padding-right: 58px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: #fffaf6;
+    overflow: hidden;
+    opacity: 0;
+    transform: scaleX(0.68);
+    transform-origin: right center;
+    box-shadow: 0 0 0 rgba(59, 40, 34, 0);
+    pointer-events: none;
+    transition:
+        opacity 0.20s ease,
+        transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+.busqueda-proveedor-wrapper.is-open .busqueda-proveedor-box {
+    opacity: 1;
+    transform: scaleX(1);
+    border-color: #d8c3b5;
+    box-shadow: 0 10px 26px rgba(59, 40, 34, 0.14);
+    pointer-events: auto;
+}
+
+/* ===== Input ===== */
+.busqueda-proveedor-input {
+    width: 100%;
+    height: 100%;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #382822;
+    opacity: 0;
+    transform: translateX(12px);
+    transition:
+        opacity 0.18s ease 0.12s,
+        transform 0.28s ease 0.12s;
+}
+
+.busqueda-proveedor-wrapper.is-open .busqueda-proveedor-input {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.busqueda-proveedor-input::placeholder {
+    color: #8b7465;
+}
+
+.busqueda-proveedor-input:focus {
+    outline: none;
+}
+
+/* ===== Focus ===== */
+.busqueda-proveedor-wrapper.is-open:focus-within .busqueda-proveedor-box {
+    border-color: #a67c52;
+    box-shadow: 0 0 0 4px rgba(166, 124, 82, 0.12);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .proveedores-header-top,
+    .proveedores-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .proveedores-btn-add {
+        width: 100%;
+    }
+
+    .busqueda-proveedor-wrapper {
+        width: var(--search-size);
+        min-width: var(--search-size);
+        align-self: flex-end;
+    }
+
+    .busqueda-proveedor-box {
+        width: min(100vw - 32px, var(--search-open-width));
+        max-width: min(100vw - 32px, var(--search-open-width));
+    }
+}
+/* =============================
+   ACCIONES ALINEADAS
+============================= */
+.acciones-proveedor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 32px;
+}
+
+.acciones-proveedor > button,
+.acciones-proveedor > a {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Botones ver y editar */
+.acciones-proveedor .btn-link {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    text-decoration: none;
+}
+
+/* Íconos ver y editar */
+.acciones-proveedor .btn-link i {
+    font-size: 22px !important;
+    line-height: 1;
+    display: block;
+}
+
+/* Botón reactivar */
+.btn-reactivar-proveedor {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #6F4E37;
+    border-radius: 8px;
+    background: #6F4E37;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: static !important;
+    top: auto !important;
+}
+
+.btn-reactivar-proveedor i {
+    font-size: 14px;
+    line-height: 1;
+    display: block;
+    color: #fff;
 }

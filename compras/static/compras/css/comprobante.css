@@ -305,4 +305,104 @@
 .invoice-info-table tbody tr:first-child td {
   padding-top: 5mm;
   padding-bottom: 5mm;
-}   
+}
+/* ===== Ajustes solo para exportar PDF ===== */
+.invoice-sheet-premium {
+  box-sizing: border-box;
+}
+
+.pdf-export-sheet {
+  width: 198mm !important;
+  min-height: 279mm !important;
+  margin: 0 auto !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+}
+
+.pdf-export-sheet .premium-content {
+  padding: 14mm 14mm 12mm !important;
+}
+
+.pdf-export-sheet .invoice-brand-header {
+  margin-bottom: 8mm !important;
+}
+
+.pdf-export-sheet .invoice-brand-logo-premium {
+  width: 36mm !important;
+  margin-bottom: 3mm !important;
+}
+
+.pdf-export-sheet .invoice-title-premium {
+  font-size: 16pt !important;
+}
+
+.pdf-export-sheet .invoice-info-table-wrap {
+  margin-bottom: 6mm !important;
+}
+
+.pdf-export-sheet .invoice-table-premium th,
+.pdf-export-sheet .invoice-table-premium td {
+  padding-top: 2.4mm !important;
+  padding-bottom: 2.4mm !important;
+}
+
+.pdf-export-sheet .invoice-total-wrap-premium {
+  margin-top: 4mm !important;
+}
+
+.pdf-export-sheet .invoice-footer-premium {
+  margin-top: 6mm !important;
+}
+
+.pdf-export-sheet .invoice-watermark-premium {
+  opacity: 0.18 !important;
+}
+/* =========================
+  Vista limpia para imprimir
+========================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #d9d1c7;
+}
+
+.print-page-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+  }
+
+  .print-page-shell {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto;
+    display: block;
+  }
+
+  .invoice-preview-stage {
+    display: block !important;
+    width: 210mm !important;
+    margin: 0 auto !important;
+  }
+
+  .invoice-sheet-premium {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 !important;
+  }
+}

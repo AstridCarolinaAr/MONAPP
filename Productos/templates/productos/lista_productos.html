@@ -11,60 +11,70 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-    <!-- ENCABEZADO -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 productos-header-row">
         <h2 class="mb-0">Gestión de Productos</h2>
-        <a href="{% url 'productos:crear_producto' %}"
-           class="btn-pill-dark"
-           data-modal-url="{% url 'productos:crear_producto' %}"
-           data-modal-title="Nuevo producto">
-          <i class="bi bi-plus-circle"></i> Nuevo producto
-        </a>
-    </div>
 
-    <!-- FILTROS + BUSCADOR -->
-    <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
-
-        <!-- FILTRO -->
-        <div class="dropdown">
-        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-funnel"></i> Filtrar
-        </button>
-            <ul class="dropdown-menu shadow-sm">
-                <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
-                <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
-                <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
-                <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
-
-                <li>
-                    <button class="dropdown-item" type="button" id="btnFiltroLineas">
-                        Filtrar por línea
-                    </button>
-                </li>
-
-                <li><hr class="dropdown-divider"></li>
-
-                <li>
-                    <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- BUSCADOR -->
-        <form method="get" class="d-flex gap-2">
-            <input type="text"
-                   name="q"
-                   class="form-control"
-                   placeholder="Buscar producto..."
-                   value="{{ request.GET.q }}">
-            <button class="btn btn-outline-secondary" type="submit">
-                <i class="bi bi-search"></i>
+        <div class="productos-header-actions">
+        <form method="get" id="formBusquedaProductos">
+          <div id="busquedaProductosWrapper" class="busqueda-productos-wrapper">
+            <button
+              type="button"
+              id="btnBusquedaProductosToggle"
+              class="btn-busqueda-toggle"
+              aria-expanded="false"
+              aria-label="Abrir buscador"
+            >
+              <i class="bi bi-search"></i>
             </button>
+
+            <div id="busquedaProductosBox" class="busqueda-productos-box">
+              <input
+                type="text"
+                name="q"
+                id="busquedaProductosInput"
+                class="busqueda-productos-input form-control"
+                placeholder="Buscar producto..."
+                value="{{ request.GET.q }}"
+              >
+            </div>
+          </div>
         </form>
+            <a href="{% url 'productos:crear_producto' %}"
+              class="btn-pill-dark"
+              data-modal-url="{% url 'productos:crear_producto' %}"
+              data-modal-title="Nuevo producto">
+                <i class="bi bi-plus-circle"></i> Nuevo producto
+            </a>
+        </div>
     </div>
 
+  <!-- FILTROS -->
+  <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+      <div class="dropdown">
+          <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-funnel"></i> Filtrar
+          </button>
+
+          <ul class="dropdown-menu shadow-sm">
+              <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
+              <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
+              <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
+              <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
+
+              <li>
+                  <button class="dropdown-item" type="button" id="btnFiltroLineas">
+                      Filtrar por línea
+                  </button>
+              </li>
+
+              <li><hr class="dropdown-divider"></li>
+
+              <li>
+                  <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
+              </li>
+          </ul>
+      </div>
+  </div>
     <!-- FILTRO POR LÍNEA -->
     <div id="panelFiltroLineas" class="filtro-lineas-wrapper d-none mb-3">
         <div class="filtro-lineas">
@@ -227,23 +237,7 @@
     </table>
   </div>
 
-<style>
-    .btn-action-round {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.3s, color 0.3s;
-        text-decoration: none !important;
-        padding: 0;
-    }
-    .btn-action-round:hover {
-        background-color: rgba(99, 76, 64, 0.1);
-        color: #634c40 !important;
-    }
-</style>
+
 
 
 <!-- Modal reutilizable -->

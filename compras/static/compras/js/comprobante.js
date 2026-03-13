@@ -71,6 +71,7 @@
       wrapper.style.zIndex = "-1";
 
       const clone = comprobante.cloneNode(true);
+      clone.classList.add("pdf-export-sheet");
       clone.style.margin = "0";
       clone.style.boxShadow = "none";
       clone.style.border = "0";
@@ -86,13 +87,15 @@
           : "comprobante_compra.pdf";
 
         const opt = {
-          margin: 0,
+          margin: [4, 4, 4, 4],
           filename: filename,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: {
             scale: 2,
             useCORS: true,
             backgroundColor: "#f7f0e8",
+            scrollX: 0,
+            scrollY: 0,
           },
           jsPDF: {
             unit: "mm",
@@ -103,7 +106,6 @@
             mode: ["avoid-all", "css", "legacy"],
           },
         };
-
         await html2pdf().set(opt).from(clone).save();
       } finally {
         wrapper.remove();
