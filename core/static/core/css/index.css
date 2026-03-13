@@ -888,7 +888,7 @@ body.bg-black {
 .mona-footer {
     background-color: #000000; /* Fondo negro */
     color: #888888;            /* Texto gris suave para que no brille tanto */
-    padding: 3rem 1rem;
+    padding: 3rem 1rem 1.5rem;
     border-top: 1px solid #222; /* Una línea sutil arriba para separar */
     font-size: 0.9rem;
     text-align: center;        /* Todo centrado por defecto */
@@ -903,7 +903,7 @@ body.bg-black {
 }
 
 .mona-footer .copyright {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .mona-footer .footer-legal a {

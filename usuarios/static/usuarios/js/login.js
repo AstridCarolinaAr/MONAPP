@@ -1,101 +1,50 @@
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Script de login cargado"); // Para debug
+/* ─────────────────────────────────────────────────────────────────
+   login.js
+   JS compartido para: login.html, username_recovery.html
+───────────────────────────────────────────────────────────────── */
 
-  // ==================== TOGGLE PASSWORD ====================
-  const password = document.getElementById("password");
-  const eye = document.getElementById("togglePassword");
+document.addEventListener('DOMContentLoaded', function () {
 
-  if (password && eye) {
-    eye.addEventListener("mousedown", () => { password.type = "text"; });
-    eye.addEventListener("mouseup",   () => { password.type = "password"; });
-    eye.addEventListener("mouseleave",() => { password.type = "password"; });
-    eye.addEventListener("touchstart",(e) => { e.preventDefault(); password.type = "text"; });
-    eye.addEventListener("touchend",  (e) => { e.preventDefault(); password.type = "password"; });
-  }
+    /* ── Toggle visibilidad de contraseña ── */
+    const toggle = document.getElementById('togglePassword');
+    const passInput = document.getElementById('password');
+    if (toggle && passInput) {
+        toggle.addEventListener('click', () => {
+            const isPass = passInput.type === 'password';
+            passInput.type = isPass ? 'text' : 'password';
+            toggle.classList.toggle('bi-eye');
+            toggle.classList.toggle('bi-eye-slash');
+        });
+    }
 
-  // ==================== ANIMACIÓN DE BOLAS ====================
-  const canvas = document.getElementById("bolaCanvas");
-  
-  if (!canvas) {
-    console.log("Canvas no encontrado"); // Para debug
-    return;
-  }
+    /* ── Auto-cierre de alertas con barra de progreso ── */
+    document.querySelectorAll('.login-alert[data-autoclose]').forEach(el => {
+        const delay = parseInt(el.dataset.autoclose, 10);
+        if (isNaN(delay) || delay <= 0) return;
 
-  console.log("Canvas encontrado, iniciando animación"); // Para debug
-  const ctx = canvas.getContext("2d");
+        const bar = el.querySelector('.alert-progress-bar');
+        if (bar) {
+            bar.style.transition = `width ${delay}ms linear`;
+            requestAnimationFrame(() => { bar.style.width = '0%'; });
+        }
 
-  function resizeCanvas() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    console.log(`Canvas redimensionado: ${canvas.width}x${canvas.height}`); // Para debug
-  }
-
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
-
-  // Configuración de las bolas (MEJORADAS - MÁS VISIBLES)
-  const bolas = [];
-  const cantidad = 15; // Más bolas
-
-  for (let i = 0; i < cantidad; i++) {
-    bolas.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: 15 + Math.random() * 20, // Bolas más grandes (15-35px)
-      dx: (Math.random() - 0.5) * 0.6, // Movimiento más rápido
-      dy: (Math.random() - 0.5) * 0.6,
-      alpha: 0.4 + Math.random() * 0.35 // Más opacas (0.4-0.9)
-    });
-  }
-
-  console.log(`${cantidad} bolas creadas`); // Para debug
-
-  function dibujar() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    bolas.forEach(bola => {
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(255,255,255,${bola.alpha})`;
-      ctx.arc(bola.x, bola.y, bola.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      bola.x += bola.dx;
-      bola.y += bola.dy;
-
-      // Rebotar en los bordes
-      if (bola.x <= bola.r || bola.x >= canvas.width - bola.r) bola.dx *= -1;
-      if (bola.y <= bola.r || bola.y >= canvas.height - bola.r) bola.dy *= -1;
+        setTimeout(() => {
+            try { bootstrap.Alert.getOrCreateInstance(el).close(); }
+            catch (e) { el.remove(); }
+        }, delay);
     });
 
-    requestAnimationFrame(dibujar);
-  }
-
-  dibujar();
-  console.log("Animación iniciada"); // Para debug
-
-  // ==================== REDIMENSIONAR CANVAS AL ABRIR MODAL ====================
-  const loginModal = document.getElementById('loginModal');
-  if (loginModal) {
-    loginModal.addEventListener('shown.bs.modal', () => {
-      console.log("Modal abierto, redimensionando canvas"); // Para debug
-      resizeCanvas();
-      // Reiniciar posiciones de las bolas
-      bolas.forEach(bola => {
-        bola.x = Math.random() * canvas.width;
-        bola.y = Math.random() * canvas.height;
-      });
-    });
-  }
-
-  // ==================== AUTO-CERRAR ALERTAS EN MODAL ====================
-  const alerts = document.querySelectorAll('.login-modal-content .alert');
-  alerts.forEach(alert => {
-    setTimeout(() => {
-      const bsAlert = bootstrap.Alert.getInstance(alert);
-      if (bsAlert) {
-        bsAlert.close();
-      }
-    }, 5000);
-  });
+    /* ── Partículas flotantes de fondo ── */
+    const container = document.getElementById('particles');
+    if (container) {
+        for (let i = 0; i < 25; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'particle';
+            dot.style.left = Math.random() * 100 + '%';
+            dot.style.animationDuration = (4 + Math.random() * 8) + 's';
+            dot.style.animationDelay = (Math.random() * 5) + 's';
+            dot.style.width = dot.style.height = (2 + Math.random() * 4) + 'px';
+            container.appendChild(dot);
+        }
+    }
 });
