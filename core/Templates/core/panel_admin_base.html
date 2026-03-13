@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Panel{% endblock %}</title>
 
     {% load static %}
@@ -201,10 +202,16 @@
   </div>
 </div>
 
+<!-- OVERLAY MÓVIL -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- CONTENIDO -->
-<div class="main-content">
+<div class="main-content" id="mainContent">
 
     <div class="topbar">
+        <button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menú">
+            <i class="bi bi-list"></i>
+        </button>
         <h4 class="page-title">
             {% block page_title %}{% endblock %}
         </h4>
@@ -245,5 +252,19 @@
 
 {% block extra_js %}{% endblock %}
 
+<script>
+(function(){
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var btn     = document.getElementById('btnHamburger');
+    function open()  { sidebar.classList.add('active');    overlay.classList.add('active');    document.body.classList.add('sidebar-open'); }
+    function close() { sidebar.classList.remove('active'); overlay.classList.remove('active'); document.body.classList.remove('sidebar-open'); }
+    if (btn)     btn.addEventListener('click', function(){ sidebar.classList.contains('active') ? close() : open(); });
+    if (overlay) overlay.addEventListener('click', close);
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(function(l){ l.addEventListener('click', function(){ if(window.innerWidth<992) close(); }); });
+})();
+</script>
+
 </body>
 </html>
+

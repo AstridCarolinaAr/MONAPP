@@ -14,11 +14,8 @@ class ProductoWebForm(forms.ModelForm):
                 'placeholder': 'Nombre del producto',
                 'maxlength': '200',
             }),
-            'precio': forms.NumberInput(attrs={
+            'precio': forms.TextInput(attrs={
                 'class': 'form-control',
-                'step': '1',
-                'min': '100',
-                'max': '99999999',
                 'placeholder': 'Ej: 25000',
             }),
             'descripcion': forms.Textarea(attrs={

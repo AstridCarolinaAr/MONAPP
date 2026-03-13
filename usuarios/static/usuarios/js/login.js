@@ -6,11 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const eye = document.getElementById("togglePassword");
 
   if (password && eye) {
-    eye.addEventListener("mousedown", () => { password.type = "text"; });
-    eye.addEventListener("mouseup",   () => { password.type = "password"; });
-    eye.addEventListener("mouseleave",() => { password.type = "password"; });
-    eye.addEventListener("touchstart",(e) => { e.preventDefault(); password.type = "text"; });
-    eye.addEventListener("touchend",  (e) => { e.preventDefault(); password.type = "password"; });
+    eye.addEventListener("mousedown", () => { password.type = "text"; eye.innerHTML = '\u{1F440}'; });
+    eye.addEventListener("mouseup",   () => { password.type = "password"; eye.innerHTML = '<span class="closed-eyes"><span class="eye-closed"></span><span class="eye-closed"></span></span>'; });
+    eye.addEventListener("mouseleave",() => { password.type = "password"; eye.innerHTML = '<span class="closed-eyes"><span class="eye-closed"></span><span class="eye-closed"></span></span>'; });
+    eye.addEventListener("touchstart",(e) => { e.preventDefault(); password.type = "text"; eye.innerHTML = '\u{1F440}'; });
+    eye.addEventListener("touchend",  (e) => { e.preventDefault(); password.type = "password"; eye.innerHTML = '<span class="closed-eyes"><span class="eye-closed"></span><span class="eye-closed"></span></span>'; });
   }
 
   // ==================== ANIMACIÓN DE BOLAS ====================
@@ -81,6 +81,24 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Modal abierto, redimensionando canvas"); // Para debug
       resizeCanvas();
       // Reiniciar posiciones de las bolas
+      bolas.forEach(bola => {
+        bola.x = Math.random() * canvas.width;
+        bola.y = Math.random() * canvas.height;
+      });
+    });
+  }
+
+  // ==================== AUTO-CERRAR ALERTAS EN MODAL ====================
+  const alerts = document.querySelectorAll('.login-modal-content .alert');
+  alerts.forEach(alert => {
+    setTimeout(() => {
+      const bsAlert = bootstrap.Alert.getInstance(alert);
+      if (bsAlert) {
+        bsAlert.close();
+      }
+    }, 5000);
+  });
+});as bolas
       bolas.forEach(bola => {
         bola.x = Math.random() * canvas.width;
         bola.y = Math.random() * canvas.height;

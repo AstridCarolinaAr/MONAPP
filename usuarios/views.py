@@ -37,9 +37,7 @@ def login_view(request):
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
 
-        return render(request, 'usuarios/login.html')
-
-    return render(request, 'usuarios/login.html')
+    return redirect('/?login=1')
 
 
 

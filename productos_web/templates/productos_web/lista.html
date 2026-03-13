@@ -26,6 +26,22 @@
 .pw-table thead th:first-child { border-radius: 12px 0 0 0; }
 .pw-table thead th:last-child  { border-radius: 0 12px 0 0; }
 
+/* Columnas ordenables */
+th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+th[data-sort]:hover { opacity: .82; }
+th[data-sort]::after {
+    content: ' ⇅';
+    font-size: .75em;
+    opacity: .5;
+    margin-left: 4px;
+}
+th[data-sort].asc::after  { content: ' ↑'; opacity: 1; }
+th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
+
 .pw-table tbody tr {
     transition: background .2s;
 }
@@ -312,6 +328,63 @@
     color: #a04040;
     background: rgba(180,90,90,.1);
 }
+
+/* Animación shake para caracteres no permitidos */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Botón cerrar modal personalizado */
+.btn-cerrar-modal {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.btn-cerrar-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Icono de validación (check verde) */
+.pw-input-wrapper {
+    position: relative;
+}
+
+.pw-validation-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.pw-validation-icon.show {
+    opacity: 1;
+}
+
+.pw-validation-icon.valid {
+    color: #48bb78;
+}
+
+.pw-validation-icon.invalid {
+    color: #f56565;
+}
 </style>
 {% endblock %}
 
@@ -329,58 +402,6 @@
         </button>
     </div>
 
-    <!-- ───── FILTROS ───── -->
-    <form method="get" class="row g-2 align-items-center mb-4">
-
-        <!-- BÚSQUEDA -->
-        <div class="col-md-3">
-            <input type="text" name="q" class="form-control"
-                  placeholder="Buscar nombre de producto"
-                  value="{{ q|default:'' }}">
-        </div>
-
-        <!-- ESTADO VISIBILIDAD -->
-        <div class="col-md-2">
-            <select name="visible" class="form-select">
-                <option value="">Visibilidad</option>
-                <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visible</option>
-                <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Oculto</option>
-            </select>
-        </div>
-
-        <!-- ORDEN -->
-        <div class="col-md-2">
-            <select name="orden" class="form-select">
-                <option value="">Ordenar</option>
-                <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
-                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
-                <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio ↑</option>
-                <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio ↓</option>
-                <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Más antiguos</option>
-                <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Más recientes</option>
-            </select>
-        </div>
-
-        <!-- APLICAR -->
-        <div class="col-md-1">
-            <button class="btn btn-outline-secondary w-100" title="Aplicar filtros">
-                <i class="bi bi-filter"></i>
-            </button>
-        </div>
-
-        <!-- LIMPIAR -->
-        {% if q or visible_filter or orden %}
-        <div class="col-md-1">
-            <a href="{% url 'productos_web:lista' %}"
-              class="btn btn-outline-danger w-100"
-              title="Limpiar filtros">
-                <i class="bi bi-x-lg"></i>
-            </a>
-        </div>
-        {% endif %}
-
-    </form>
-
     <!-- ───── TABLA ───── -->
     <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
         <div class="card-body p-0">
@@ -389,10 +410,10 @@
                     <thead class="table-light">
                         <tr>
                             <th>Foto</th>
-                            <th>Nombre</th>
-                            <th>Precio</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
+                            <th data-sort="nombre">Nombre</th>
+                            <th data-sort="precio">Precio</th>
+                            <th data-sort="descripcion">Descripción</th>
+                            <th data-sort="estado">Estado</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
@@ -413,21 +434,16 @@
                             <td>
                                 <small class="text-muted">{{ p.descripcion|truncatewords:8|default:"—" }}</small>
                             </td>
-                            <td>
-                                {% if p.visible %}
-                                    <span class="badge bg-success-subtle text-success">Visible</span>
-                                {% else %}
-                                    <span class="badge bg-secondary-subtle text-secondary">Oculto</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end pw-actions">
-                                <label class="pw-switch me-2" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
+                            <td data-sort="{% if p.visible %}1{% else %}2{% endif %}">
+                                <label class="pw-switch" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
                                     <input type="checkbox"
                                            {% if p.visible %}checked{% endif %}
                                            data-toggle-url="{% url 'productos_web:toggle_visible' p.pk %}"
                                            data-nombre="{{ p.nombre }}">
                                     <span class="slider"></span>
                                 </label>
+                            </td>
+                            <td class="text-end pw-actions">
                                 <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-pw"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalDetallePW"
@@ -474,7 +490,9 @@
         <div class="modal-content">
             <div class="modal-header pw-header">
                 <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Agregar Producto Web</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-cerrar-modal" data-bs-dismiss="modal">
+                    &times;
+                </button>
             </div>
             <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -482,12 +500,18 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Nombre</label>
-                            {{ form.nombre }}
+                            <div class="pw-input-wrapper">
+                                {{ form.nombre }}
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_nombre_agregar"></i>
+                            </div>
                             <div class="pw-name-error" id="err_nombre_agregar"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Precio Público <small class="text-muted">(pesos colombianos)</small></label>
-                            {{ form.precio }}
+                            <div class="pw-input-wrapper">
+                                {{ form.precio }}
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_precio_agregar"></i>
+                            </div>
                             <span class="pw-cop-preview" id="cop_preview_agregar"></span>
                             <div class="pw-price-error" id="err_precio_agregar"></div>
                         </div>
@@ -532,7 +556,9 @@
         <div class="modal-content">
             <div class="modal-header" style="background:linear-gradient(135deg,#3a2a24,#2a1d18);color:#fff;">
                 <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Detalle del Producto</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-cerrar-modal" data-bs-dismiss="modal">
+                    &times;
+                </button>
             </div>
             <div class="modal-body">
                 <div class="row g-4">
@@ -589,17 +615,31 @@ const PW_TAGS_MAP = {
 
 if (PW_MESSAGES.length) {
     PW_MESSAGES.forEach(m => {
-        const tag  = Object.keys(PW_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
-        const opts = PW_TAGS_MAP[tag];
-        Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3500,
-            timerProgressBar: true,
-            background: opts.background,
-            color: opts.color,
-        }).fire({ icon: opts.icon, title: m.text });
+        if (m.tags.includes('created')) {
+            /* Popup centrado al crear */
+            Swal.fire({
+                icon: 'success',
+                title: '¡Producto creado!',
+                text: m.text,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#3a2a24',
+                background: '#fff',
+                color: '#3a2a24',
+                customClass: { popup: 'rounded-4' },
+            });
+        } else {
+            const tag  = Object.keys(PW_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
+            const opts = PW_TAGS_MAP[tag];
+            Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3500,
+                timerProgressBar: true,
+                background: opts.background,
+                color: opts.color,
+            }).fire({ icon: opts.icon, title: m.text });
+        }
     });
 }
 
@@ -699,36 +739,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }).format(Math.round(val));
 
     /* ── Helper genérico set/clear error ── */
-    function pwSetError(input, errEl, msg, validClass, invalidClass) {
+    function pwSetError(input, errEl, msg, validClass, invalidClass, iconEl) {
         if (msg) {
             input.classList.add(invalidClass);
             input.classList.remove(validClass);
             errEl.textContent = msg;
             errEl.classList.add('visible');
+            if (iconEl) {
+                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
+            }
         } else {
             input.classList.remove(invalidClass);
             input.classList.add(validClass);
             errEl.textContent = '';
             errEl.classList.remove('visible');
+            if (iconEl) {
+                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.add('show', 'valid', 'bi-check-lg');
+            }
         }
         return !msg;
     }
 
+    /* ── Bloquear caracteres no permitidos en nombre (tiempo real) ── */
+    function pwBloquearCaracteresNombre(e) {
+        // Solo permitir: letras, espacios, punto, coma, guion, paréntesis (SIN NÚMEROS)
+        const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]$/;
+        
+        // Si es un carácter especial del teclado (backspace, delete, flechas, etc.), permitir
+        if (e.key.length > 1) return;
+        
+        // Si el carácter no está permitido, bloquear
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            // Mostrar feedback visual rápido
+            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
     /* ── Validar nombre ── */
-    function pwValidarNombre(input, errEl) {
+    function pwValidarNombre(input, errEl, iconEl) {
         const v = input.value.trim();
-        // Regex: letras (incluyendo tildes/ñ), números, espacios y -.,()&+/#*!?:'"
-        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.,\(\)&\+\/\#\*\!\?:\'"]+$/;
+        // Regex: letras (incluyendo tildes/ñ), espacios, punto, coma, guion, paréntesis (SIN NÚMEROS)
+        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]+$/;
         let msg = '';
         if (!v)                msg = 'El nombre es obligatorio.';
         else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
-        else if (!REG.test(v))     msg = 'Caracteres no permitidos. Use letras, números y -.,()&+/#*!?:\'"';
-        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name');
+        else if (!REG.test(v))     msg = 'Solo se permiten letras, espacios y los caracteres: . , - ( )';
+        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
+    }
+
+    /* ── Bloquear caracteres no numéricos en precio (tiempo real) ── */
+    function pwBloquearCaracteresPrecio(e) {
+        // Solo permitir: números, backspace, delete, flechas, tab
+        const permitidos = /^[0-9]$/;
+        
+        // Si es un carácter especial del teclado (backspace, delete, flechas, etc.), permitir
+        if (e.key.length > 1) return;
+        
+        // Si el carácter no es un número, bloquear
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            // Mostrar feedback visual rápido
+            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
     }
 
     /* ── Validar precio COP ── */
-    function pwValidarPrecio(input, errEl, previewEl) {
+    function pwValidarPrecio(input, errEl, previewEl, iconEl) {
         const raw  = input.value.trim();
         const val  = parseFloat(raw);
         const decs = raw.includes('.') ? raw.split('.')[1].length : 0;
@@ -740,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (val > 99999999) msg = 'El precio máximo es $99.999.999 COP.';
         else if (decs > 0)     msg = 'El precio debe ser un valor entero (sin centavos) en pesos colombianos.';
 
-        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price');
+        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price', iconEl);
 
         /* Preview COP */
         if (previewEl) {
@@ -805,10 +889,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const ag = {
         nombre:     document.querySelector('#modalAgregar [name="nombre"]'),
         errNombre:  document.getElementById('err_nombre_agregar'),
+        iconNombre: document.getElementById('icon_nombre_agregar'),
         desc:       document.querySelector('#modalAgregar [name="descripcion"]'),
         ctrDesc:    document.getElementById('char_desc_agregar'),
         precio:     document.querySelector('#modalAgregar [name="precio"]'),
         errPrecio:  document.getElementById('err_precio_agregar'),
+        iconPrecio: document.getElementById('icon_precio_agregar'),
         copPrev:    document.getElementById('cop_preview_agregar'),
         img:        document.querySelector('#dropzoneAgregar input[type="file"]'),
         errImg:     document.getElementById('err_img_agregar'),
@@ -818,15 +904,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Bindings */
     if (ag.nombre) {
-        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre));
-        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre));
+        ag.nombre.addEventListener('keydown', pwBloquearCaracteresNombre);
+        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
+        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
     }
     if (ag.desc && ag.ctrDesc) {
         ag.desc.addEventListener('input', () => pwActualizarContador(ag.desc, ag.ctrDesc, 500));
     }
     if (ag.precio) {
-        ag.precio.addEventListener('input', () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev));
-        ag.precio.addEventListener('blur',  () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev));
+        ag.precio.addEventListener('keydown', pwBloquearCaracteresPrecio);
+        ag.precio.addEventListener('input', () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev, ag.iconPrecio));
+        ag.precio.addEventListener('blur',  () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev, ag.iconPrecio));
     }
     if (ag.img) {
         ag.img.addEventListener('change', () => pwValidarImagen(ag.img, ag.errImg, ag.prevImg));
@@ -836,8 +924,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formAgregar = document.querySelector('#modalAgregar form');
     if (formAgregar) {
         formAgregar.addEventListener('submit', function (e) {
-            const ok1 = ag.nombre ? pwValidarNombre(ag.nombre, ag.errNombre) : true;
-            const ok2 = ag.precio ? pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev) : true;
+            const ok1 = ag.nombre ? pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre) : true;
+            const ok2 = ag.precio ? pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev, ag.iconPrecio) : true;
             const ok3 = ag.img    ? pwValidarImagen(ag.img, ag.errImg, ag.prevImg) : true;
             if (!ok1 || !ok2 || !ok3) {
                 e.preventDefault();
@@ -893,5 +981,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/* ── Sort en cliente para pw-tabla ── */
+(function () {
+    var tabla = document.getElementById('pw-tabla');
+    if (!tabla) return;
+    var tbody = tabla.querySelector('tbody');
+    var lastCol = null, asc = true;
+
+    function cellVal(tr, col) {
+        var td = tr.querySelectorAll('td')[col];
+        if (!td) return '';
+        var txt = td.hasAttribute('data-sort') ? td.getAttribute('data-sort') : td.textContent.trim();
+        var num = parseFloat(txt.replace(/[^0-9.\-]/g, ''));
+        return isNaN(num) ? txt.toLowerCase() : num;
+    }
+
+    tabla.querySelectorAll('th[data-sort]').forEach(function(th) {
+        th.addEventListener('click', function () {
+            var ths = Array.from(tabla.querySelectorAll('thead th'));
+            var col = ths.indexOf(th);
+            if (lastCol === col) { asc = !asc; } else { asc = true; lastCol = col; }
+            tabla.querySelectorAll('th[data-sort]').forEach(function(h) { h.classList.remove('asc','desc'); });
+            th.classList.add(asc ? 'asc' : 'desc');
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort(function(a, b) {
+                var va = cellVal(a, col), vb = cellVal(b, col);
+                if (va < vb) return asc ? -1 : 1;
+                if (va > vb) return asc ?  1 : -1;
+                return 0;
+            });
+            rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+    });
+})();
 </script>
 {% endblock %}

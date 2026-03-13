@@ -53,7 +53,7 @@ def crear_promocion(request):
         form = PromocionForm(request.POST, request.FILES)
         if form.is_valid():
             promocion = form.save()
-            messages.success(request, f'Promoción "{promocion.nombre}" creada exitosamente.')
+            messages.success(request, f'Promoción "{promocion.nombre}" creada exitosamente.', extra_tags='created')
             return redirect('promociones:lista')
         else:
             messages.error(request, 'Corrige los errores del formulario.')

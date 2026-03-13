@@ -52,9 +52,9 @@
         {% endfor %}
       {% endif %}
 
-      <!-- ═══════ FORMULARIO LOGIN (panel principal) ═══════ -->
-      <div id="panelLogin">
-        <form method="post" id="loginForm" autocomplete="off">
+      <!-- ═══════ FORMULARIO LOGIN ═══════ -->
+      <form method="post" id="loginForm" autocomplete="off">
+
           {% csrf_token %}
 
           <div class="input-icon-wrapper">
@@ -65,7 +65,12 @@
           <div class="input-icon-wrapper password-wrapper">
             <i class="bi bi-lock"></i>
             <input type="password" id="password" name="password" placeholder="Contraseña" required>
-            <span id="togglePassword" class="toggle-eye">&#128064;</span>
+            <span id="togglePassword" class="toggle-eye">
+              <span class="closed-eyes">
+                <span class="eye-closed"></span>
+                <span class="eye-closed"></span>
+              </span>
+            </span>
           </div>
 
           <button type="submit" class="btn-login">
@@ -94,7 +99,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const passInput = document.getElementById('password');
   if (toggle && passInput) {
     toggle.addEventListener('click', () => {
-      passInput.type = passInput.type === 'password' ? 'text' : 'password';
+      const closedEyes = toggle.querySelector('.closed-eyes');
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        toggle.innerHTML = '\u{1F440}';
+      } else {
+        passInput.type = 'password';
+        toggle.innerHTML = '<span class="closed-eyes"><span class="eye-closed"></span><span class="eye-closed"></span></span>';
+      }
     });
   }
 

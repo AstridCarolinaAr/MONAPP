@@ -53,7 +53,7 @@ def crear_producto_web(request):
         form = ProductoWebForm(request.POST, request.FILES)
         if form.is_valid():
             producto = form.save()
-            messages.success(request, f'Producto "{producto.nombre}" creado exitosamente.')
+            messages.success(request, f'Producto "{producto.nombre}" creado exitosamente.', extra_tags='created')
             return redirect('productos_web:lista')
         else:
             messages.error(request, 'Corrige los errores del formulario.')

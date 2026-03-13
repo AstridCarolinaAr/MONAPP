@@ -136,6 +136,64 @@
     border-color: #6ba06a !important;
     box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
 }
+
+/* ── Validaciones en tiempo real ── */
+.promo-field-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.promo-field-error.visible { display: block; }
+.form-control.is-invalid-promo {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
+}
+.form-control.is-valid-promo {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
+}
+.promo-char-count {
+    font-size: .78rem;
+    color: #9a8579;
+    text-align: right;
+    margin-top: 3px;
+    display: block;
+}
+.promo-char-count.near-limit { color: #a0715a; }
+.promo-char-count.at-limit   { color: #dc3545; font-weight: 600; }
+
+/* ── Iconos de validación (chulito verde) ── */
+.promo-input-wrapper {
+    position: relative;
+}
+.promo-validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.promo-validation-icon.show {
+    opacity: 1;
+}
+.promo-validation-icon.valid {
+    color: #198754;
+}
+.promo-validation-icon.invalid {
+    color: #dc3545;
+}
+
+/* Animación shake para caracteres no permitidos */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
 </style>
 {% endblock %}
 
@@ -157,11 +215,14 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nombre</label>
-                        {{ form.nombre }}
+                        <div class="promo-input-wrapper">
+                            {{ form.nombre }}
+                            <i class="bi bi-check-lg promo-validation-icon" id="icon_nombre_form"></i>
+                        </div>
                         {% if form.nombre.errors %}
                             <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
                         {% endif %}
-                        <div class="promo-name-error" id="err_nombre_promo_form"></div>
+                        <div class="promo-field-error" id="err_nombre_promo_form"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Etiqueta</label>
@@ -176,13 +237,18 @@
                         {% if form.descripcion.errors %}
                             <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
                         {% endif %}
+                        <small class="promo-char-count" id="char_desc_form"></small>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Descuento (%)</label>
-                        {{ form.porcentaje_descuento }}
+                        <div class="promo-input-wrapper">
+                            {{ form.porcentaje_descuento }}
+                            <i class="bi bi-check-lg promo-validation-icon" id="icon_descuento_form"></i>
+                        </div>
                         {% if form.porcentaje_descuento.errors %}
                             <div class="text-danger small mt-1">{{ form.porcentaje_descuento.errors.0 }}</div>
                         {% endif %}
+                        <div class="promo-field-error" id="err_descuento_form"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Fecha de Inicio</label>
@@ -278,50 +344,114 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
 
-    /* ── Validar nombre (solo letras y espacios) ── */
-    function validarNombrePromo(input, errEl) {
-        const v = input.value.trim();
-        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
-        let msg = '';
-        if (!v)                msg = 'El nombre es obligatorio.';
-        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
-        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
-        else if (!REG.test(v))     msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+    /* ══════════════════════════════════════════════════════
+       VALIDACIONES EN TIEMPO REAL — Promociones (form)
+       - Nombre:      obligatorio · 2-200 chars · solo letras y espacios
+       - Descripción: máx 500 chars · contador
+       - Descuento:   >0 · ≤100 · solo números
+    ══════════════════════════════════════════════════════ */
+
+    /* Helper: poner/quitar error en un campo con ícono */
+    function promoErr(input, errEl, msg, iconEl) {
         if (msg) {
-            input.classList.add('is-invalid-name');
-            input.classList.remove('is-valid-name');
+            input.classList.add('is-invalid-promo');
+            input.classList.remove('is-valid-promo');
             errEl.textContent = msg;
             errEl.classList.add('visible');
+            if (iconEl) {
+                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
+            }
         } else {
-            input.classList.remove('is-invalid-name');
-            input.classList.add('is-valid-name');
+            input.classList.remove('is-invalid-promo');
+            input.classList.add('is-valid-promo');
             errEl.textContent = '';
             errEl.classList.remove('visible');
+            if (iconEl) {
+                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.add('show', 'valid', 'bi-check-lg');
+            }
         }
         return !msg;
     }
 
-    const nombreInput = document.getElementById('id_nombre');
-    const errNombre   = document.getElementById('err_nombre_promo_form');
-    if (nombreInput && errNombre) {
-        nombreInput.addEventListener('input', () => validarNombrePromo(nombreInput, errNombre));
-        nombreInput.addEventListener('blur',  () => validarNombrePromo(nombreInput, errNombre));
-        nombreInput.closest('form').addEventListener('submit', function(e) {
-            if (!validarNombrePromo(nombreInput, errNombre)) {
-                e.preventDefault();
-                nombreInput.focus();
-            }
-        });
+    /* ── Bloquear caracteres no permitidos en nombre (tiempo real) ── */
+    function bloquearCaracteresNombre(e) {
+        const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
+        if (e.key.length > 1) return;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
     }
 
-    /* ── Filtro nombre: impedir números y signos en tiempo real ── */
-    const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
-    if (nombreInput) {
-        nombreInput.addEventListener('keypress', function (e) {
-            if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-                if (!NOMBRE_ALLOWED.test(e.key)) e.preventDefault();
-            }
-        });
+    /* ── Bloquear caracteres no numéricos y valores > 100 en descuento (tiempo real) ── */
+    function bloquearCaracteresDescuento(e) {
+        const permitidos = /^[0-9]$/;
+        if (e.key.length > 1) return;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            e.target.style.animation = 'shake 0.3s';
+            setTimeout(() => { e.target.style.animation = ''; }, 300);
+            return;
+        }
+        /* Simular el valor resultante y bloquearlo si supera 100 */
+        const input = e.target;
+        const start = input.selectionStart;
+        const end   = input.selectionEnd;
+        const next  = input.value.slice(0, start) + e.key + input.value.slice(end);
+        if (parseFloat(next) > 100) {
+            e.preventDefault();
+            input.value = '100';
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    /* ── Validar nombre (solo letras y espacios) ── */
+    const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
+    function validarNombrePromo(input, errEl, iconEl) {
+        const v = input.value.trim();
+        let msg = '';
+        if (!v)                    msg = 'El nombre es obligatorio.';
+        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
+        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
+        else if (!PROMO_REG.test(v)) msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+        return promoErr(input, errEl, msg, iconEl);
+    }
+
+    /* ── Validar descuento ── */
+    function validarDescuentoPromo(input, errEl, iconEl) {
+        const raw = input.value.trim();
+        const val = parseFloat(raw);
+        let msg = '';
+        if (!raw)               msg = 'El descuento es obligatorio.';
+        else if (isNaN(val))    msg = 'Ingresa un número válido.';
+        else if (val < 1)       msg = 'El descuento mínimo es 1%.';
+        else if (val > 100)     msg = 'El descuento no puede superar el 100%.';
+        return promoErr(input, errEl, msg, iconEl);
+    }
+
+    /* ── Contador descripción ── */
+    function promoContador(textarea, contEl, max) {
+        const len = textarea.value.length;
+        if (len > max) textarea.value = textarea.value.substring(0, max);
+        contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
+        contEl.className = 'promo-char-count' +
+            (len >= max        ? ' at-limit'   :
+             len >= max * 0.85 ? ' near-limit' : '');
+    }
+
+    /* ── Conectar: Nombre ── */
+    const nombreInput    = document.getElementById('id_nombre');
+    const errNombre      = document.getElementById('err_nombre_promo_form');
+    const iconNombre     = document.getElementById('icon_nombre_form');
+    if (nombreInput && errNombre) {
+        nombreInput.addEventListener('keydown', bloquearCaracteresNombre);
+        nombreInput.addEventListener('input', () => validarNombrePromo(nombreInput, errNombre, iconNombre));
+        nombreInput.addEventListener('blur',  () => validarNombrePromo(nombreInput, errNombre, iconNombre));
         nombreInput.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto = (e.clipboardData || window.clipboardData).getData('text');
@@ -336,6 +466,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.value = limpio;
                 this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
             }
+        });
+    }
+
+    /* ── Conectar: Descuento ── */
+    const descuentoInput = document.getElementById('id_porcentaje_descuento');
+    const errDescuento   = document.getElementById('err_descuento_form');
+    const iconDescuento  = document.getElementById('icon_descuento_form');
+    if (descuentoInput) {
+        descuentoInput.addEventListener('keydown', bloquearCaracteresDescuento);
+        descuentoInput.addEventListener('input', function () {
+            /* Recortar si se pegó o modificó un valor > 100 */
+            const val = parseFloat(this.value);
+            if (!isNaN(val) && val > 100) this.value = '100';
+            validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento);
+        });
+        descuentoInput.addEventListener('blur',  () => validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento));
+        descuentoInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            const num   = parseFloat(texto.replace(/[^0-9]/g, ''));
+            this.value  = isNaN(num) ? '' : String(Math.min(num, 100));
+            validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento);
+        });
+    }
+
+    /* ── Conectar: Descripción (contador) ── */
+    const descInput = document.getElementById('id_descripcion');
+    const charDesc  = document.getElementById('char_desc_form');
+    if (descInput && charDesc) {
+        promoContador(descInput, charDesc, 500);
+        descInput.addEventListener('input', () => promoContador(descInput, charDesc, 500));
+    }
+
+    /* ── Validación al enviar ── */
+    const formEl = document.querySelector('form');
+    if (formEl) {
+        formEl.addEventListener('submit', function(e) {
+            let ok = true;
+            if (nombreInput && errNombre && !validarNombrePromo(nombreInput, errNombre, iconNombre)) {
+                ok = false;
+                nombreInput.focus();
+            }
+            if (descuentoInput && errDescuento && !validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento)) {
+                if (ok) { descuentoInput.focus(); ok = false; }
+            }
+            if (!ok) e.preventDefault();
         });
     }
 });

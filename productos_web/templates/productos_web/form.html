@@ -74,7 +74,7 @@
 }
 /* Validación de precio */
 .pw-price-error {
-    color: #a0715a;
+    color: #dc3545;
     font-size: .82rem;
     margin-top: 4px;
     display: none;
@@ -83,12 +83,85 @@
     display: block;
 }
 .form-control.is-invalid-price {
-    border-color: #a0715a !important;
-    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
 }
 .form-control.is-valid-price {
-    border-color: #6ba06a !important;
-    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
+}
+
+/* Validación nombre */
+.pw-name-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-name-error.visible { display: block; }
+.form-control.is-invalid-name {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
+}
+.form-control.is-valid-name {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
+}
+
+/* Contador descripción */
+.pw-char-count {
+    font-size: .78rem;
+    color: #9a8579;
+    text-align: right;
+    margin-top: 3px;
+    display: block;
+}
+.pw-char-count.near-limit { color: #a0715a; }
+.pw-char-count.at-limit   { color: #dc3545; font-weight: 600; }
+
+/* Precio COP preview */
+.pw-cop-preview {
+    font-size: .88rem;
+    font-weight: 700;
+    color: #3d7a4e;
+    background: rgba(107,176,122,.1);
+    border-radius: 8px;
+    padding: 3px 10px;
+    margin-top: 5px;
+    display: none;
+}
+.pw-cop-preview.visible { display: inline-block; }
+
+/* ── Iconos de validación (chulito verde) ── */
+.pw-input-wrapper {
+    position: relative;
+}
+.pw-validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.pw-validation-icon.show {
+    opacity: 1;
+}
+.pw-validation-icon.valid {
+    color: #198754;
+}
+.pw-validation-icon.invalid {
+    color: #dc3545;
+}
+
+/* Animación shake para caracteres no permitidos */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 </style>
 {% endblock %}
@@ -115,17 +188,25 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nombre</label>
-                        {{ form.nombre }}
+                        <div class="pw-input-wrapper">
+                            {{ form.nombre }}
+                            <i class="bi bi-check-lg pw-validation-icon" id="icon_nombre_form"></i>
+                        </div>
                         {% if form.nombre.errors %}
                             <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
                         {% endif %}
+                        <div class="pw-name-error" id="err_nombre_form"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Precio Público ($)</label>
-                        {{ form.precio }}
+                        <div class="pw-input-wrapper">
+                            {{ form.precio }}
+                            <i class="bi bi-check-lg pw-validation-icon" id="icon_precio_form"></i>
+                        </div>
                         {% if form.precio.errors %}
                             <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
                         {% endif %}
+                        <span class="pw-cop-preview" id="cop_preview_form"></span>
                         <div class="pw-price-error" id="err_precio_form"></div>
                     </div>
                     <div class="col-12">
@@ -134,6 +215,7 @@
                         {% if form.descripcion.errors %}
                             <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
                         {% endif %}
+                        <small class="pw-char-count" id="char_desc_form"></small>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
@@ -194,71 +276,171 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
 
-    /* ── Validación de precio ── */
-    function validarPrecio(input, errorEl, submitBtn) {
-        const val = parseFloat(input.value);
-        const isEmpty = input.value.trim() === '';
-        const decimals = input.value.includes('.') ? input.value.split('.')[1].length : 0;
-        let msg = '';
-        if (isEmpty)          msg = 'El precio es obligatorio.';
-        else if (isNaN(val))  msg = 'Ingresa un número válido.';
-        else if (val <= 0)    msg = 'El precio debe ser mayor a $0.';
-        else if (val > 9999999.99) msg = 'El precio no puede superar $9,999,999.99.';
-        else if (decimals > 2)    msg = 'Máximo 2 decimales permitidos.';
+    /* ══════════════════════════════════════════════════════
+       VALIDACIONES EN TIEMPO REAL — Productos Web (form)
+       - Nombre:      obligatorio · 2-200 chars · solo letras y caracteres permitidos
+       - Precio:      COP · mín $100 · máx $99.999.999 · entero
+       - Descripción: máx 500 chars · contador
+    ══════════════════════════════════════════════════════ */
 
+    /* ── Formato COP (es-CO, pesos enteros) ── */
+    const fmtCOP = val =>
+        new Intl.NumberFormat('es-CO', {
+            style: 'currency', currency: 'COP',
+            minimumFractionDigits: 0, maximumFractionDigits: 0,
+        }).format(Math.round(val));
+
+    /* ── Helper genérico set/clear error ── */
+    function pwSetError(input, errEl, msg, validClass, invalidClass, iconEl) {
         if (msg) {
-            input.classList.add('is-invalid-price');
-            input.classList.remove('is-valid-price');
-            errorEl.textContent = msg;
-            errorEl.classList.add('visible');
-            if (submitBtn) submitBtn.disabled = true;
+            input.classList.add(invalidClass);
+            input.classList.remove(validClass);
+            errEl.textContent = msg;
+            errEl.classList.add('visible');
+            if (iconEl) {
+                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
+            }
         } else {
-            input.classList.remove('is-invalid-price');
-            input.classList.add('is-valid-price');
-            errorEl.textContent = '';
-            errorEl.classList.remove('visible');
-            if (submitBtn) submitBtn.disabled = false;
+            input.classList.remove(invalidClass);
+            input.classList.add(validClass);
+            errEl.textContent = '';
+            errEl.classList.remove('visible');
+            if (iconEl) {
+                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.add('show', 'valid', 'bi-check-lg');
+            }
         }
         return !msg;
     }
 
-    const precioInput = document.getElementById('id_precio');
-    const errPrecio   = document.getElementById('err_precio_form');
-    const btnSubmit   = document.querySelector('[type="submit"]');
-    if (precioInput) {
-        precioInput.addEventListener('input', () => validarPrecio(precioInput, errPrecio, btnSubmit));
-        precioInput.addEventListener('blur',  () => validarPrecio(precioInput, errPrecio, btnSubmit));
-        precioInput.closest('form').addEventListener('submit', function(e) {
-            if (!validarPrecio(precioInput, errPrecio, btnSubmit)) {
-                e.preventDefault();
-                precioInput.focus();
-            }
-        });
+    /* ── Bloquear caracteres no permitidos en nombre (tiempo real) ── */
+    function bloquearCaracteresNombre(e) {
+        const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]$/;
+        if (e.key.length > 1) return;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
     }
 
-    /* ── Filtro nombre: impedir números y signos ── */
-    const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
-    const nombreInput = document.getElementById('id_nombre');
-    if (nombreInput) {
-        nombreInput.addEventListener('keypress', function (e) {
-            if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-                if (!NOMBRE_ALLOWED.test(e.key)) e.preventDefault();
+    /* ── Validar nombre ── */
+    function pwValidarNombre(input, errEl, iconEl) {
+        const v = input.value.trim();
+        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]+$/;
+        let msg = '';
+        if (!v)                msg = 'El nombre es obligatorio.';
+        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
+        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
+        else if (!REG.test(v))     msg = 'Solo se permiten letras, espacios y los caracteres: . , - ( )';
+        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
+    }
+
+    /* ── Bloquear caracteres no numéricos en precio (tiempo real) ── */
+    function bloquearCaracteresPrecio(e) {
+        const permitidos = /^[0-9]$/;
+        if (e.key.length > 1) return;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    /* ── Validar precio COP ── */
+    function pwValidarPrecio(input, errEl, previewEl, iconEl) {
+        const raw  = input.value.trim();
+        const val  = parseFloat(raw);
+        const decs = raw.includes('.') ? raw.split('.')[1].length : 0;
+        let msg = '';
+        if (!raw)              msg = 'El precio es obligatorio.';
+        else if (isNaN(val))   msg = 'Ingresa un número válido.';
+        else if (val < 100)    msg = 'El precio mínimo es $100 COP.';
+        else if (val > 99999999) msg = 'El precio máximo es $99.999.999 COP.';
+        else if (decs > 0)     msg = 'El precio debe ser un valor entero (sin centavos) en pesos colombianos.';
+        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price', iconEl);
+        if (previewEl) {
+            if (!msg && raw) {
+                previewEl.textContent = fmtCOP(val);
+                previewEl.classList.add('visible');
+            } else {
+                previewEl.textContent = '';
+                previewEl.classList.remove('visible');
             }
-        });
+        }
+        return ok;
+    }
+
+    /* ── Contador descripción ── */
+    function pwContador(textarea, contEl, max) {
+        const len = textarea.value.length;
+        if (len > max) textarea.value = textarea.value.substring(0, max);
+        contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
+        contEl.className = 'pw-char-count' +
+            (len >= max        ? ' at-limit'   :
+             len >= max * 0.85 ? ' near-limit' : '');
+    }
+
+    /* ── Conectar: Nombre ── */
+    const nombreInput  = document.getElementById('id_nombre');
+    const errNombre    = document.getElementById('err_nombre_form');
+    const iconNombre   = document.getElementById('icon_nombre_form');
+    if (nombreInput && errNombre) {
+        nombreInput.addEventListener('keydown', bloquearCaracteresNombre);
+        nombreInput.addEventListener('input', () => pwValidarNombre(nombreInput, errNombre, iconNombre));
+        nombreInput.addEventListener('blur',  () => pwValidarNombre(nombreInput, errNombre, iconNombre));
         nombreInput.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto = (e.clipboardData || window.clipboardData).getData('text');
-            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
             document.execCommand('insertText', false, limpio);
         });
         nombreInput.addEventListener('input', function () {
             const pos = this.selectionStart;
             const original = this.value;
-            const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+            const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
             if (limpio !== original) {
                 this.value = limpio;
                 this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
             }
+        });
+    }
+
+    /* ── Conectar: Precio ── */
+    const precioInput  = document.getElementById('id_precio');
+    const errPrecio    = document.getElementById('err_precio_form');
+    const copPreview   = document.getElementById('cop_preview_form');
+    const iconPrecio   = document.getElementById('icon_precio_form');
+    if (precioInput && errPrecio) {
+        precioInput.addEventListener('keydown', bloquearCaracteresPrecio);
+        precioInput.addEventListener('input', () => pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio));
+        precioInput.addEventListener('blur',  () => pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio));
+    }
+
+    /* ── Conectar: Descripción (contador) ── */
+    const descInput = document.getElementById('id_descripcion');
+    const charDesc  = document.getElementById('char_desc_form');
+    if (descInput && charDesc) {
+        pwContador(descInput, charDesc, 500);
+        descInput.addEventListener('input', () => pwContador(descInput, charDesc, 500));
+    }
+
+    /* ── Validación al enviar ── */
+    const formEl = document.querySelector('form');
+    if (formEl) {
+        formEl.addEventListener('submit', function(e) {
+            let ok = true;
+            if (nombreInput && errNombre && !pwValidarNombre(nombreInput, errNombre, iconNombre)) {
+                ok = false;
+                nombreInput.focus();
+            }
+            if (precioInput && errPrecio && !pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio)) {
+                if (ok) { precioInput.focus(); ok = false; }
+            }
+            if (!ok) e.preventDefault();
         });
     }
 });

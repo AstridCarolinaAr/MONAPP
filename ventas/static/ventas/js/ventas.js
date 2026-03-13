@@ -225,16 +225,16 @@ document.addEventListener("DOMContentLoaded", function() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${item.nombre}</td>
-        <td class="text-end">$${item.precio.toFixed(2)}</td>
+        <td class="text-end">${window.formatCOP(item.precio)}</td>
         <td class="text-center">${item.cantidad}</td>
-        <td class="text-end">$${item.subtotal.toFixed(2)}</td>
+        <td class="text-end">${window.formatCOP(item.subtotal)}</td>
         <td class="text-center">
           <button type="button" class="btn btn-sm btn-danger" onclick="eliminarItem(${i})">✖</button>
         </td>
       `;
       tablaItems.appendChild(tr);
     });
-    totalVenta.textContent = total.toFixed(2);
+    totalVenta.textContent = window.formatCOP(total);
   }
 
   window.eliminarItem = (i) => {

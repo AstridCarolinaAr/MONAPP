@@ -23,12 +23,10 @@ class PromocionForm(forms.ModelForm):
             'etiqueta': forms.Select(attrs={
                 'class': 'form-select',
             }),
-            'porcentaje_descuento': forms.NumberInput(attrs={
+            'porcentaje_descuento': forms.TextInput(attrs={
                 'class': 'form-control',
-                'step': '0.01',
-                'min': '0.01',
-                'max': '100',
-                'placeholder': 'Ej: 15.00',
+                'inputmode': 'numeric',
+                'placeholder': 'Ej: 15',
             }),
             'fecha_inicio': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -90,8 +88,8 @@ class PromocionForm(forms.ModelForm):
         pct = self.cleaned_data.get('porcentaje_descuento')
         if pct is None:
             raise forms.ValidationError('El porcentaje de descuento es obligatorio.')
-        if pct <= Decimal('0'):
-            raise forms.ValidationError('El descuento debe ser mayor a 0%.')
+        if pct < Decimal('1'):
+            raise forms.ValidationError('El descuento mínimo es 1%.')
         if pct > Decimal('100'):
             raise forms.ValidationError('El descuento no puede superar el 100%.')
         if pct != pct.quantize(Decimal('0.01')):

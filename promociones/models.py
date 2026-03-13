@@ -37,7 +37,7 @@ class Promocion(models.Model):
         max_digits=5,
         decimal_places=2,
         verbose_name='% de Descuento',
-        help_text='Valor entre 0 y 100',
+        help_text='Valor entre 1 y 100',
     )
     fecha_inicio = models.DateField(
         verbose_name='Fecha de Inicio',
