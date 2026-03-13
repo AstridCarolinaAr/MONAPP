@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'productos_web',
     'compras.apps.ComprasConfig',
     'bootstrap5',
-    'gestion_datos',
     'promociones',
     'Gestion',
     'servicios_web',

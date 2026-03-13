@@ -33,7 +33,6 @@ urlpatterns = [
     path('gestion-alisados/', include('gestion_alisados.urls')),
     path('productos-web/', include('productos_web.urls')),
     path("compras/", include("compras.urls")),
-    path('gestion-datos/', include('gestion_datos.urls')),
     path('promociones/', include('promociones.urls')),
     path('gestion/', include('Gestion.urls')),
     path('servicios_web/', include('servicios_web.urls')),
