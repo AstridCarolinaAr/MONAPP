@@ -15,8 +15,24 @@ from decimal import Decimal
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.apps import apps
+from django.db.models.functions import TruncDate
+from datetime import datetime
+from io import BytesIO
+from django.http import HttpResponse
+from django.utils.dateparse import parse_date
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.chart import BarChart, LineChart, Reference
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph, Image as RLImage
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 Personal = apps.get_model("personal", "Personal")
+
 
 def lista_ventas(request):
     q = request.GET.get("q", "").strip()
@@ -25,14 +41,13 @@ def lista_ventas(request):
     direction = request.GET.get("dir", "desc").strip()
 
     ventas = (
-        Venta.objects
-        .select_related("cliente")
+        Venta.objects.select_related("cliente")
         .prefetch_related("detalles__producto", "detalles__servicio")
         .annotate(
             total_orden=Coalesce(
                 Sum("detalles__subtotal"),
                 Value(0),
-                output_field=DecimalField(max_digits=12, decimal_places=2)
+                output_field=DecimalField(max_digits=12, decimal_places=2),
             )
         )
         .all()
@@ -53,19 +68,23 @@ def lista_ventas(request):
         direction = "desc"
 
     if sort == "codigo_venta":
-        ventas = ventas.order_by("codigo_venta" if direction == "asc" else "-codigo_venta")
+        ventas = ventas.order_by(
+            "codigo_venta" if direction == "asc" else "-codigo_venta"
+        )
 
     elif sort == "cliente":
         ventas = ventas.order_by(
             "cliente__nombre" if direction == "asc" else "-cliente__nombre",
-            "cliente__apellido" if direction == "asc" else "-cliente__apellido"
+            "cliente__apellido" if direction == "asc" else "-cliente__apellido",
         )
 
     elif sort == "estado":
         ventas = ventas.order_by("estado" if direction == "asc" else "-estado")
 
     elif sort == "total":
-        ventas = ventas.order_by("total_orden" if direction == "asc" else "-total_orden")
+        ventas = ventas.order_by(
+            "total_orden" if direction == "asc" else "-total_orden"
+        )
 
     else:
         sort = "fecha"
@@ -82,21 +101,24 @@ def lista_ventas(request):
             "direction": direction,
         },
     )
-    
+
+
 @require_POST
 def toggle_estado_venta(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
     venta.estado = "anulada" if venta.estado == "activa" else "activa"
     venta.save()
     messages.success(
-        request,
-        f"Estado actualizado correctamente: {venta.estado.upper()}"
+        request, f"Estado actualizado correctamente: {venta.estado.upper()}"
     )
 
     return redirect("ventas:lista")
 
+
 def es_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
 def render_crear_venta(request, form, productos_stock, servicios, personal, status=200):
     """
     - Si es AJAX: retorna HTML parcial para meterlo dentro del modal.
@@ -111,16 +133,22 @@ def render_crear_venta(request, form, productos_stock, servicios, personal, stat
                 "servicios": servicios,
                 "personal": personal,
             },
-            request=request
+            request=request,
         )
         return JsonResponse({"success": False, "html": html}, status=status)
 
-    return render(request, "ventas/crear_venta.html", {
-        "form": form,
-        "productos_stock": productos_stock,
-        "servicios": servicios,
-        "personal": personal,
-    }, status=status)
+    return render(
+        request,
+        "ventas/crear_venta.html",
+        {
+            "form": form,
+            "productos_stock": productos_stock,
+            "servicios": servicios,
+            "personal": personal,
+        },
+        status=status,
+    )
+
 
 @transaction.atomic
 def crear_venta(request):
@@ -129,21 +157,28 @@ def crear_venta(request):
     productos_stock = []
 
     for p in productos:
-        entradas = DetalleCompra.objects.filter(
-            producto=p
-        ).aggregate(total=Sum("cantidad"))["total"] or 0
+        entradas = (
+            DetalleCompra.objects.filter(producto=p).aggregate(total=Sum("cantidad"))[
+                "total"
+            ]
+            or 0
+        )
 
-        salidas = DetalleVenta.objects.filter(
-            producto=p,
-            venta__estado='activa'
-        ).aggregate(total=Sum("cantidad"))["total"] or 0
+        salidas = (
+            DetalleVenta.objects.filter(producto=p, venta__estado="activa").aggregate(
+                total=Sum("cantidad")
+            )["total"]
+            or 0
+        )
 
         stock_real = entradas - salidas
 
         productos_stock.append({"producto": p, "stock": stock_real})
 
     servicios = Servicio.objects.all()
-    personal = Personal.objects.filter(rol='Colaborador', activo=True).order_by('nombres', 'apellidos')
+    personal = Personal.objects.filter(rol="Colaborador", activo=True).order_by(
+        "nombres", "apellidos"
+    )
     if request.method == "POST":
         print(">>> POST LLEGÓ")
         form = VentaForm(request.POST)
@@ -155,47 +190,68 @@ def crear_venta(request):
 
         # 1) Validar items_json
         if not items_json:
-            messages.error(request, "No se recibieron items. Agrega al menos 1 producto o servicio.")
-            return render(request, "ventas/crear_venta.html", {
-                "form": form,
-                "productos_stock": productos_stock,
-                "servicios": servicios,
-                "personal": personal,
-            })
+            messages.error(
+                request,
+                "No se recibieron items. Agrega al menos 1 producto o servicio.",
+            )
+            return render(
+                request,
+                "ventas/crear_venta.html",
+                {
+                    "form": form,
+                    "productos_stock": productos_stock,
+                    "servicios": servicios,
+                    "personal": personal,
+                },
+            )
 
         # 2) Convertir JSON a lista
         try:
             items = json.loads(items_json)
         except json.JSONDecodeError:
             messages.error(request, "El JSON de items llegó dañado. Revisa ventas.js.")
-            return render(request, "ventas/crear_venta.html", {
-                "form": form,
-                "productos_stock": productos_stock,
-                "servicios": servicios,
-                "personal": personal,
-            })
+            return render(
+                request,
+                "ventas/crear_venta.html",
+                {
+                    "form": form,
+                    "productos_stock": productos_stock,
+                    "servicios": servicios,
+                    "personal": personal,
+                },
+            )
 
         print(">>> items PARSEADOS:", items)
 
         # 3) Debe haber items
         if not items:
-            messages.error(request, "Agrega al menos 1 producto o servicio antes de guardar.")
-            return render(request, "ventas/crear_venta.html", {
-                "form": form,
-                "productos_stock": productos_stock,
-                "servicios": servicios,
-                "personal": personal,
-            })
+            messages.error(
+                request, "Agrega al menos 1 producto o servicio antes de guardar."
+            )
+            return render(
+                request,
+                "ventas/crear_venta.html",
+                {
+                    "form": form,
+                    "productos_stock": productos_stock,
+                    "servicios": servicios,
+                    "personal": personal,
+                },
+            )
 
         # 4) Validar formulario
         if not form.is_valid():
             messages.error(request, "Formulario inválido. Revisa los campos.")
-            return render(request, "ventas/crear_venta.html", {
-                "form": form,
-                "productos_stock": productos_stock,
-                "servicios": servicios,
-                "personal": personal,
-            })
+            return render(
+                request,
+                "ventas/crear_venta.html",
+                {
+                    "form": form,
+                    "productos_stock": productos_stock,
+                    "servicios": servicios,
+                    "personal": personal,
+                },
+            )
 
         # ===============================
         # CREAR VENTA
@@ -211,7 +267,9 @@ def crear_venta(request):
             base = it0.get("id", "")
         else:
             base = it0.get("id_servicio", "")
-        venta.codigo_producto = str(base) if len(items) == 1 else f"{base} (+{len(items)-1})"
+        venta.codigo_producto = (
+            str(base) if len(items) == 1 else f"{base} (+{len(items) - 1})"
+        )
 
         venta.save()
 
@@ -223,14 +281,27 @@ def crear_venta(request):
                 codigo = item.get("id")
                 if not codigo:
                     continue
-                    entradas = DetalleCompra.objects.filter(
-                        producto=Producto
-                    ).aggregate(total=Sum("cantidad"))["total"] or 0
+                    entradas = (
+                        DetalleCompra.objects.filter(producto=Producto).aggregate(
+                            total=Sum("cantidad")
+                        )["total"]
+                        or 0
+                    )
 
                 producto = Producto.objects.select_for_update().get(codigo=codigo)
 
-                entradas = DetalleCompra.objects.filter(producto=producto).aggregate(total=Sum("cantidad"))["total"] or 0
-                salidas = DetalleVenta.objects.filter(producto=producto, venta__estado="activa").aggregate(total=Sum("cantidad"))["total"] or 0
+                entradas = (
+                    DetalleCompra.objects.filter(producto=producto).aggregate(
+                        total=Sum("cantidad")
+                    )["total"]
+                    or 0
+                )
+                salidas = (
+                    DetalleVenta.objects.filter(
+                        producto=producto, venta__estado="activa"
+                    ).aggregate(total=Sum("cantidad"))["total"]
+                    or 0
+                )
                 stock_real = entradas - salidas
 
                 if int(item["cantidad"]) > stock_real:
@@ -258,7 +329,7 @@ def crear_venta(request):
                 )
 
         if es_ajax(request):
-         return JsonResponse({"success": True})
+            return JsonResponse({"success": True})
 
         messages.success(request, "Venta registrada correctamente.")
         return redirect("ventas:lista")
@@ -274,17 +345,20 @@ def crear_venta(request):
                 "servicios": servicios,
                 "personal": personal,
             },
-            request=request
+            request=request,
         )
         return JsonResponse({"success": True, "html": html})
 
-    return render(request, "ventas/crear_venta.html", {
-        "form": form,
-        "productos_stock": productos_stock,
-        "servicios": servicios,
-        "personal": personal,
-    })
-
+    return render(
+        request,
+        "ventas/crear_venta.html",
+        {
+            "form": form,
+            "productos_stock": productos_stock,
+            "servicios": servicios,
+            "personal": personal,
+        },
+    )
 
 
 def editar_venta_modal(request, pk):
@@ -295,7 +369,9 @@ def editar_venta_modal(request, pk):
     detalles_servicios = venta.detalles.filter(servicio__isnull=False)
 
     servicios = Servicio.objects.all()
-    personal = Personal.objects.filter(rol='Colaborador', activo=True).order_by('nombres', 'apellidos')
+    personal = Personal.objects.filter(rol="Colaborador", activo=True).order_by(
+        "nombres", "apellidos"
+    )
     if request.method == "POST":
         # --- PRODUCTOS ---
         for det in detalles_productos:
@@ -331,13 +407,18 @@ def editar_venta_modal(request, pk):
         return JsonResponse({"ok": True})
 
     # GET: render del modal
-    return render(request, "ventas/form_editar_venta.html", {
-        "venta": venta,
-        "detalles_productos": detalles_productos,
-        "detalles_servicios": detalles_servicios,
-        "servicios": servicios,
-        "personal": personal,
-    })
+    return render(
+        request,
+        "ventas/form_editar_venta.html",
+        {
+            "venta": venta,
+            "detalles_productos": detalles_productos,
+            "detalles_servicios": detalles_servicios,
+            "servicios": servicios,
+            "personal": personal,
+        },
+    )
+
 
 def detalle_venta_json(request, pk):
     venta = get_object_or_404(
@@ -346,7 +427,7 @@ def detalle_venta_json(request, pk):
             "detalles__servicio",
             "detalles__colaborador_servicio",
         ),
-        pk=pk
+        pk=pk,
     )
 
     detalles = []
@@ -361,14 +442,18 @@ def detalle_venta_json(request, pk):
             nombre_item = d.servicio.nombre
             tipo = "Servicio"
 
-        detalles.append({
-            "tipo": tipo,
-            "nombre": nombre_item,
-            "cantidad": d.cantidad,
-            "precio_unitario": str(d.precio_unitario),
-            "subtotal": str(d.subtotal),
-            "colaborador": str(d.colaborador_servicio) if d.colaborador_servicio else "",
-        })
+        detalles.append(
+            {
+                "tipo": tipo,
+                "nombre": nombre_item,
+                "cantidad": d.cantidad,
+                "precio_unitario": str(d.precio_unitario),
+                "subtotal": str(d.subtotal),
+                "colaborador": str(d.colaborador_servicio)
+                if d.colaborador_servicio
+                else "",
+            }
+        )
 
     data = {
         "id": venta.id,
@@ -382,19 +467,19 @@ def detalle_venta_json(request, pk):
 
     return JsonResponse(data)
 
+
 @transaction.atomic
 def anular_venta(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
 
-    if venta.estado == 'anulada':
-        return redirect('ventas:lista')
+    if venta.estado == "anulada":
+        return redirect("ventas:lista")
 
     if request.method == "POST":
-        venta.estado = 'anulada'
+        venta.estado = "anulada"
         venta.save()
 
-    return redirect('ventas:lista')
-
+    return redirect("ventas:lista")
 
 
 def clean(self):
@@ -403,3 +488,523 @@ def clean(self):
 
     if self.precio_unitario <= 0:
         raise ValidationError("El precio debe ser mayor a 0")
+
+
+# def reporte_ventas(request):
+#     fecha_inicio = request.GET.get("fecha_inicio", "").strip()
+#     fecha_fin = request.GET.get("fecha_fin", "").strip()
+#     fecha_inicio_comp = request.GET.get("fecha_inicio_comp", "").strip()
+#     fecha_fin_comp = request.GET.get("fecha_fin_comp", "").strip()
+
+#     incluir_total = request.GET.get("incluir_total") == "1"
+#     incluir_tabla = request.GET.get("incluir_tabla") == "1"
+#     incluir_grafica = request.GET.get("incluir_grafica") == "1"
+#     comparativo = request.GET.get("comparativo") == "1"
+
+#     ventas = (
+#         Venta.objects
+#         .select_related("cliente")
+#         .prefetch_related("detalles__producto", "detalles__servicio")
+#         .annotate(
+#             total_orden=Coalesce(
+#                 Sum("detalles__subtotal"),
+#                 Value(0),
+#                 output_field=DecimalField(max_digits=12, decimal_places=2)
+#             )
+#         )
+#         .order_by("fecha")
+#     )
+
+#     ventas_comp = Venta.objects.none()
+
+#     if fecha_inicio and fecha_fin:
+#         ventas = ventas.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+
+#     if comparativo and fecha_inicio_comp and fecha_fin_comp:
+#         ventas_comp = (
+#             Venta.objects
+#             .select_related("cliente")
+#             .prefetch_related("detalles__producto", "detalles__servicio")
+#             .annotate(
+#                 total_orden=Coalesce(
+#                     Sum("detalles__subtotal"),
+#                     Value(0),
+#                     output_field=DecimalField(max_digits=12, decimal_places=2)
+#                 )
+#             )
+#             .filter(fecha__date__range=[fecha_inicio_comp, fecha_fin_comp])
+#             .order_by("fecha")
+#         )
+
+#     total_principal = ventas.aggregate(
+#         total=Coalesce(
+#             Sum("detalles__subtotal"),
+#             Value(0),
+#             output_field=DecimalField(max_digits=12, decimal_places=2)
+#         )
+#     )["total"]
+
+#     total_comparativo = 0
+#     if comparativo and fecha_inicio_comp and fecha_fin_comp:
+#         total_comparativo = ventas_comp.aggregate(
+#             total=Coalesce(
+#                 Sum("detalles__subtotal"),
+#                 Value(0),
+#                 output_field=DecimalField(max_digits=12, decimal_places=2)
+#             )
+#         )["total"]
+
+#     grafica_principal_labels = []
+#     grafica_principal_data = []
+
+#     if incluir_grafica:
+#         grafica_principal = (
+#             ventas
+#             .annotate(dia=TruncDate("fecha"))
+#             .values("dia")
+#             .annotate(total=Coalesce(
+#                 Sum("detalles__subtotal"),
+#                 Value(0),
+#                 output_field=DecimalField(max_digits=12, decimal_places=2)
+#             ))
+#             .order_by("dia")
+#         )
+
+#         grafica_principal_labels = [
+#             item["dia"].strftime("%d/%m/%Y") for item in grafica_principal if item["dia"]
+#         ]
+#         grafica_principal_data = [float(item["total"]) for item in grafica_principal]
+
+#     grafica_comp_labels = []
+#     grafica_comp_data = []
+
+#     if incluir_grafica and comparativo and fecha_inicio_comp and fecha_fin_comp:
+#         grafica_comp = (
+#             ventas_comp
+#             .annotate(dia=TruncDate("fecha"))
+#             .values("dia")
+#             .annotate(total=Coalesce(
+#                 Sum("detalles__subtotal"),
+#                 Value(0),
+#                 output_field=DecimalField(max_digits=12, decimal_places=2)
+#             ))
+#             .order_by("dia")
+#         )
+
+#         grafica_comp_labels = [
+#             item["dia"].strftime("%d/%m/%Y") for item in grafica_comp if item["dia"]
+#         ]
+#         grafica_comp_data = [float(item["total"]) for item in grafica_comp]
+
+#     return render(
+#         request,
+#         "ventas/reporte_ventas.html",
+#         {
+#             "ventas": ventas,
+#             "ventas_comp": ventas_comp,
+#             "fecha_inicio": fecha_inicio,
+#             "fecha_fin": fecha_fin,
+#             "fecha_inicio_comp": fecha_inicio_comp,
+#             "fecha_fin_comp": fecha_fin_comp,
+#             "incluir_total": incluir_total,
+#             "incluir_tabla": incluir_tabla,
+#             "incluir_grafica": incluir_grafica,
+#             "comparativo": comparativo,
+#             "total_principal": total_principal,
+#             "total_comparativo": total_comparativo,
+#             "grafica_principal_labels": grafica_principal_labels,
+#             "grafica_principal_data": grafica_principal_data,
+#             "grafica_comp_labels": grafica_comp_labels,
+#             "grafica_comp_data": grafica_comp_data,
+#         },
+#     )
+COLUMNAS_REPORTE_VENTAS = {
+    "codigo_venta": "Código venta",
+    "cliente": "Cliente",
+    "productos_servicios": "Productos / Servicios",
+    "fecha": "Fecha",
+    "total": "Total",
+    "estado": "Estado",
+}
+
+
+def construir_queryset_reporte_ventas(request):
+    fecha_inicio = request.GET.get("fecha_inicio", "").strip()
+    fecha_fin = request.GET.get("fecha_fin", "").strip()
+    fecha_inicio_comp = request.GET.get("fecha_inicio_comp", "").strip()
+    fecha_fin_comp = request.GET.get("fecha_fin_comp", "").strip()
+
+    incluir_total = request.GET.get("incluir_total") == "1"
+    incluir_grafica = request.GET.get("incluir_grafica") == "1"
+    comparativo = request.GET.get("comparativo") == "1"
+    tipo_grafica = request.GET.get("tipo_grafica", "bar").strip()
+    columnas = request.GET.getlist("columnas")
+
+    ventas = (
+        Venta.objects.select_related("cliente")
+        .prefetch_related("detalles__producto", "detalles__servicio")
+        .annotate(
+            total_orden=Coalesce(
+                Sum("detalles__subtotal"),
+                Value(0),
+                output_field=DecimalField(max_digits=12, decimal_places=2),
+            )
+        )
+        .order_by("fecha")
+    )
+
+    if fecha_inicio and fecha_fin:
+        ventas = ventas.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+
+    ventas_comp = Venta.objects.none()
+    if comparativo and fecha_inicio_comp and fecha_fin_comp:
+        ventas_comp = (
+            Venta.objects.select_related("cliente")
+            .prefetch_related("detalles__producto", "detalles__servicio")
+            .annotate(
+                total_orden=Coalesce(
+                    Sum("detalles__subtotal"),
+                    Value(0),
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                )
+            )
+            .filter(fecha__date__range=[fecha_inicio_comp, fecha_fin_comp])
+            .order_by("fecha")
+        )
+
+    total_principal = ventas.aggregate(
+        total=Coalesce(
+            Sum("detalles__subtotal"),
+            Value(0),
+            output_field=DecimalField(max_digits=12, decimal_places=2),
+        )
+    )["total"]
+
+    total_comparativo = 0
+    if comparativo and fecha_inicio_comp and fecha_fin_comp:
+        total_comparativo = ventas_comp.aggregate(
+            total=Coalesce(
+                Sum("detalles__subtotal"),
+                Value(0),
+                output_field=DecimalField(max_digits=12, decimal_places=2),
+            )
+        )["total"]
+
+    grafica_principal_labels = []
+    grafica_principal_data = []
+    if incluir_grafica:
+        grafica_principal = (
+            ventas.annotate(dia=TruncDate("fecha"))
+            .values("dia")
+            .annotate(
+                total=Coalesce(
+                    Sum("detalles__subtotal"),
+                    Value(0),
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                )
+            )
+            .order_by("dia")
+        )
+        grafica_principal_labels = [
+            item["dia"].strftime("%d/%m/%Y")
+            for item in grafica_principal
+            if item["dia"]
+        ]
+        grafica_principal_data = [float(item["total"]) for item in grafica_principal]
+
+    grafica_comp_labels = []
+    grafica_comp_data = []
+    if incluir_grafica and comparativo and fecha_inicio_comp and fecha_fin_comp:
+        grafica_comp = (
+            ventas_comp.annotate(dia=TruncDate("fecha"))
+            .values("dia")
+            .annotate(
+                total=Coalesce(
+                    Sum("detalles__subtotal"),
+                    Value(0),
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                )
+            )
+            .order_by("dia")
+        )
+        grafica_comp_labels = [
+            item["dia"].strftime("%d/%m/%Y") for item in grafica_comp if item["dia"]
+        ]
+        grafica_comp_data = [float(item["total"]) for item in grafica_comp]
+
+    return {
+        "ventas": ventas,
+        "ventas_comp": ventas_comp,
+        "fecha_inicio": fecha_inicio,
+        "fecha_fin": fecha_fin,
+        "fecha_inicio_comp": fecha_inicio_comp,
+        "fecha_fin_comp": fecha_fin_comp,
+        "incluir_total": incluir_total,
+        "incluir_grafica": incluir_grafica,
+        "comparativo": comparativo,
+        "tipo_grafica": tipo_grafica,
+        "columnas": columnas,
+        "total_principal": total_principal,
+        "total_comparativo": total_comparativo,
+        "grafica_principal_labels": grafica_principal_labels,
+        "grafica_principal_data": grafica_principal_data,
+        "grafica_comp_labels": grafica_comp_labels,
+        "grafica_comp_data": grafica_comp_data,
+    }
+
+
+
+def obtener_valor_columna_venta(venta, columna):
+    if columna == "codigo_venta":
+        return venta.codigo_venta
+    if columna == "cliente":
+        return str(venta.cliente)
+    if columna == "productos_servicios":
+        items = []
+        for d in venta.detalles.all():
+            nombre = ""
+            if d.producto:
+                nombre = d.producto.nombre
+            elif d.servicio:
+                nombre = d.servicio.nombre
+            if nombre:
+                items.append(f"{nombre} x{d.cantidad}")
+        return ", ".join(items) if items else "Sin detalles"
+    if columna == "fecha":
+        return venta.fecha.strftime("%d/%m/%Y %H:%M") if venta.fecha else ""
+    if columna == "total":
+        return f"{venta.total:.2f}"
+    if columna == "estado":
+        return venta.estado.title()
+    return ""
+
+
+def vista_previa_reporte_ventas(request):
+    data = construir_queryset_reporte_ventas(request)
+    html = render_to_string(
+        "ventas/partials/reporte_ventas_preview.html",
+        {
+            **data,
+            "columnas_map": COLUMNAS_REPORTE_VENTAS,
+        },
+        request=request,
+    )
+
+    return JsonResponse(
+        {
+            "html": html,
+            "grafica_principal_labels": data["grafica_principal_labels"],
+            "grafica_principal_data": data["grafica_principal_data"],
+            "grafica_comp_labels": data["grafica_comp_labels"],
+            "grafica_comp_data": data["grafica_comp_data"],
+            "incluir_grafica": data["incluir_grafica"],
+            "comparativo": data["comparativo"],
+            "tipo_grafica": data["tipo_grafica"],
+            "fecha_inicio": data["fecha_inicio"],
+            "fecha_fin": data["fecha_fin"],
+            "fecha_inicio_comp": data["fecha_inicio_comp"],
+            "fecha_fin_comp": data["fecha_fin_comp"],
+        }
+    )
+
+
+def exportar_reporte_ventas(request):
+    data = construir_queryset_reporte_ventas(request)
+    formato = request.GET.get("formato", "pdf").strip().lower()
+    columnas = data["columnas"] or [
+        "codigo_venta",
+        "cliente",
+        "fecha",
+        "total",
+        "estado",
+    ]
+
+    if formato == "excel":
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Reporte Ventas"
+
+        encabezados = [COLUMNAS_REPORTE_VENTAS[c] for c in columnas]
+        ws.append(encabezados)
+
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+
+        for venta in data["ventas"]:
+            ws.append([obtener_valor_columna_venta(venta, c) for c in columnas])
+
+        if data["incluir_total"]:
+            ws.append([])
+            ws.append(["Total rango principal", f"{data['total_principal']:.2f}"])
+            if data["comparativo"]:
+                ws.append(
+                    ["Total rango comparativo", f"{data['total_comparativo']:.2f}"]
+                )
+
+        if data["incluir_grafica"] and data["grafica_principal_labels"]:
+            ws_chart = wb.create_sheet("Gráfica")
+            ws_chart.append(["Fecha", "Total"])
+            for lbl, val in zip(data["grafica_principal_labels"], data["grafica_principal_data"]):
+                ws_chart.append([lbl, val])
+
+            tipo = data.get("tipo_grafica", "bar")
+            chart = LineChart() if tipo == "line" else BarChart()
+            chart.title = "Ventas — rango principal"
+            chart.y_axis.title = "Total ($)"
+            chart.x_axis.title = "Fecha"
+            chart.style = 10
+
+            data_ref = Reference(ws_chart, min_col=2, min_row=1, max_row=len(data["grafica_principal_labels"]) + 1)
+            cats_ref = Reference(ws_chart, min_col=1, min_row=2, max_row=len(data["grafica_principal_labels"]) + 1)
+            chart.add_data(data_ref, titles_from_data=True)
+            chart.set_categories(cats_ref)
+            chart.shape = 4
+            ws_chart.add_chart(chart, "D2")
+
+            if data["comparativo"] and data["grafica_comp_labels"]:
+                ws_chart2 = wb.create_sheet("Gráfica comparativo")
+                ws_chart2.append(["Fecha", "Total"])
+                for lbl, val in zip(data["grafica_comp_labels"], data["grafica_comp_data"]):
+                    ws_chart2.append([lbl, val])
+
+                chart2 = LineChart() if tipo == "line" else BarChart()
+                chart2.title = "Ventas — rango comparativo"
+                chart2.y_axis.title = "Total ($)"
+                chart2.style = 10
+                data_ref2 = Reference(ws_chart2, min_col=2, min_row=1, max_row=len(data["grafica_comp_labels"]) + 1)
+                cats_ref2 = Reference(ws_chart2, min_col=1, min_row=2, max_row=len(data["grafica_comp_labels"]) + 1)
+                chart2.add_data(data_ref2, titles_from_data=True)
+                chart2.set_categories(cats_ref2)
+                ws_chart2.add_chart(chart2, "D2")
+
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        response = HttpResponse(
+            output.read(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = 'attachment; filename="reporte_ventas.xlsx"'
+        return response
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    styles = getSampleStyleSheet()
+    elements = []
+
+    elements.append(Paragraph("Reporte de Ventas", styles["Title"]))
+    elements.append(Spacer(1, 12))
+    elements.append(
+        Paragraph(
+            f"Rango principal: {data['fecha_inicio']} a {data['fecha_fin']}",
+            styles["Normal"],
+        )
+    )
+    if data["comparativo"]:
+        elements.append(
+            Paragraph(
+                f"Rango comparativo: {data['fecha_inicio_comp']} a {data['fecha_fin_comp']}",
+                styles["Normal"],
+            )
+        )
+    elements.append(Spacer(1, 12))
+
+    tabla_data = [[COLUMNAS_REPORTE_VENTAS[c] for c in columnas]]
+    for venta in data["ventas"]:
+        tabla_data.append([obtener_valor_columna_venta(venta, c) for c in columnas])
+
+    tabla = Table(tabla_data, repeatRows=1)
+    tabla.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#8d604a")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("FONTSIZE", (0, 0), (-1, -1), 8),
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [colors.whitesmoke, colors.lightgrey],
+                ),
+            ]
+        )
+    )
+    elements.append(tabla)
+
+    if data["incluir_total"]:
+        elements.append(Spacer(1, 12))
+        elements.append(
+            Paragraph(
+                f"Total rango principal: {data['total_principal']:.2f}",
+                styles["Heading3"],
+            )
+        )
+        if data["comparativo"]:
+            elements.append(
+                Paragraph(
+                    f"Total rango comparativo: {data['total_comparativo']:.2f}",
+                    styles["Heading3"],
+                )
+            )
+
+    if data["incluir_grafica"] and data["grafica_principal_labels"]:
+        elements.append(Spacer(1, 16))
+        elements.append(Paragraph("Gráfica de ventas — rango principal", styles["Heading3"]))
+        elements.append(Spacer(1, 6))
+
+        fig, ax = plt.subplots(figsize=(9, 3.5))
+        tipo = data.get("tipo_grafica", "bar")
+        labels = data["grafica_principal_labels"]
+        valores = data["grafica_principal_data"]
+
+        if tipo == "line":
+            ax.plot(labels, valores, marker="o", color="#8d604a", linewidth=1.8)
+        else:
+            ax.bar(labels, valores, color="#8d604a")
+
+        ax.set_ylabel("Total ($)")
+        ax.tick_params(axis="x", rotation=45, labelsize=7)
+        ax.tick_params(axis="y", labelsize=8)
+        plt.tight_layout()
+
+        img_buf = BytesIO()
+        fig.savefig(img_buf, format="png", dpi=120)
+        plt.close(fig)
+        img_buf.seek(0)
+        elements.append(RLImage(img_buf, width=560, height=220))
+
+        if data["comparativo"] and data["grafica_comp_labels"]:
+            elements.append(Spacer(1, 16))
+            elements.append(Paragraph("Gráfica de ventas — rango comparativo", styles["Heading3"]))
+            elements.append(Spacer(1, 6))
+
+            fig2, ax2 = plt.subplots(figsize=(9, 3.5))
+            labels2 = data["grafica_comp_labels"]
+            valores2 = data["grafica_comp_data"]
+
+            if tipo == "line":
+                ax2.plot(labels2, valores2, marker="o", color="#4a7c8d", linewidth=1.8)
+            else:
+                ax2.bar(labels2, valores2, color="#4a7c8d")
+
+            ax2.set_ylabel("Total ($)")
+            ax2.tick_params(axis="x", rotation=45, labelsize=7)
+            ax2.tick_params(axis="y", labelsize=8)
+            plt.tight_layout()
+
+            img_buf2 = BytesIO()
+            fig2.savefig(img_buf2, format="png", dpi=120)
+            plt.close(fig2)
+            img_buf2.seek(0)
+            elements.append(RLImage(img_buf2, width=560, height=220))
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.read(), content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="reporte_ventas.pdf"'
+    return response
