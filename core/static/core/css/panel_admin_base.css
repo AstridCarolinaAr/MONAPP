@@ -35,7 +35,17 @@
     --shadow-lg: 0 9px 30px rgba(0, 0, 0, .18);
 
     --transition-speed: 0.3s;
-}
+
+    /*PARTE DE SELECTOR DE COLOR */
+    --select-text-color: #3a2a24;
+    --select-border-color: #ddd;
+    --select-focus-border: #8d604a;
+    --select-focus-shadow: rgba(141, 96, 74, 0.18);
+    --select-option-hover-bg: #7a4f35;
+    --select-option-hover-color: #fff;
+    --select-dropdown-border: rgba(58, 42, 36, 0.25);
+    --select-selected-color: #3a2a24;
+    }
 
 
 /* ==================== LAYOUT GENERAL ==================== */
@@ -1153,21 +1163,155 @@
     margin-bottom: 3px;
 }
 
-/* Inputs */
-.form-control,
+/* PARTE DE SELECTOR DE COLOR */
+    .form-control,
 .form-select {
     border-radius: 3px;
     padding: 3px 6px;
     font-size: 0.9rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--select-border-color);
     transition: all .2s ease;
+}
+
+/* Select nativo fallback */
+.form-select {
+    color: var(--select-text-color);
 }
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #a47148;
-    box-shadow: 0 0 0 2px rgba(164, 113, 72, .15);
+    border-color: var(--select-focus-border);
+    box-shadow: 0 0 0 2px var(--select-focus-shadow);
 }
+
+.form-select option:checked {
+    background-color: var(--select-option-hover-bg);
+    color: var(--select-option-hover-color);
+}
+
+/* =========================
+   TOM SELECT GLOBAL
+========================= */
+.ts-wrapper {
+    font-size: 0.9rem;
+}
+
+.ts-wrapper.single .ts-control,
+.ts-wrapper.multi .ts-control {
+    border-radius: 3px !important;
+    border: 1px solid var(--select-border-color) !important;
+    color: var(--select-text-color) !important;
+    box-shadow: none !important;
+    transition: all .2s ease !important;
+    min-height: calc(1.5em + 0.75rem + 2px);
+}
+
+.ts-wrapper.single .ts-control {
+    padding: 3px 32px 3px 6px !important;
+}
+
+.ts-wrapper.multi .ts-control {
+    padding: 3px 6px !important;
+}
+
+.ts-control .item,
+.ts-control input,
+.ts-control .placeholder {
+    color: var(--select-text-color) !important;
+}
+
+.ts-control .placeholder {
+    opacity: .7;
+}
+
+.ts-wrapper.focus .ts-control,
+.ts-control.focus {
+    border-color: var(--select-focus-border) !important;
+    box-shadow: 0 0 0 2px var(--select-focus-shadow) !important;
+}
+
+.ts-dropdown {
+    border: 1px solid var(--select-dropdown-border) !important;
+    border-radius: 0 0 10px 10px !important;
+    z-index: 2000 !important;
+}
+
+.ts-dropdown .option {
+    color: var(--select-text-color) !important;
+}
+
+.ts-dropdown .option.active,
+.ts-dropdown .option:hover {
+    background: var(--select-option-hover-bg) !important;
+    color: var(--select-option-hover-color) !important;
+}
+
+/* La opción seleccionada no se queda café si no está hover */
+.ts-dropdown .option.selected {
+    background: transparent !important;
+    color: var(--select-selected-color) !important;
+}
+
+.ts-dropdown .option.selected.active,
+.ts-dropdown .option.selected:hover {
+    background: var(--select-option-hover-bg) !important;
+    color: var(--select-option-hover-color) !important;
+}
+
+/* Estados de validación */
+.ts-wrapper.is-invalid .ts-control {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.12) !important;
+}
+
+.ts-wrapper.is-valid .ts-control {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.12) !important;
+}
+
+/* Disabled */
+.ts-wrapper.disabled .ts-control,
+.ts-control.disabled {
+    background-color: #e9ecef !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
+
+.form-select option:checked {
+    background-color: var(--select-option-bg);
+    color: var(--select-option-color);
+}
+
+/* Tom Select global */
+.ts-control {
+    border-radius: 3px;
+    border-color: var(--select-border-color) !important;
+}
+
+.ts-control.focus {
+    border-color: var(--select-focus-border) !important;
+    box-shadow: 0 0 0 2px var(--select-focus-shadow) !important;
+}
+
+.ts-dropdown {
+    border-color: var(--select-dropdown-border) !important;
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+    background: var(--select-option-bg) !important;
+    color: var(--select-option-color) !important;
+}
+
+.ts-dropdown .selected {
+    background: var(--select-option-bg) !important;
+    color: var(--select-option-color) !important;
+}
+
+.ts-control .item {
+    color: var(--select-text-color) !important;
+}
+
 
 /* Textarea */
 textarea.form-control {

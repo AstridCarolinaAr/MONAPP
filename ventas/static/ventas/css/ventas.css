@@ -28,7 +28,7 @@ input:disabled {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 4px;
-  background: rgba(58,42,36,.05);
+  background: rgba(105, 29, 2, 0.05);
   color: #3a2a24;
   font-size: 12px;
 }
@@ -39,45 +39,51 @@ input:disabled {
   text-decoration: underline;
 }
 
-/* =====================================================
-   TABLA LISTA VENTAS - Hereda de panel_admin_base.css
-===================================================== */
 
-/* =====================================================
-   TABLA DETALLE VENTA - Hereda de panel_admin_base.css
-===================================================== */
-
-/* =====================================================
-   BOTÓN PRINCIPAL PILL
-===================================================== */
 
 .btn-pill-dark {
   display: inline-flex;
   padding: 3px 5px;
   border-radius: 995px;
-  background: linear-gradient(90deg, #3a2a24, #1f1412);
+  background: linear-gradient(90deg, #3a2a24, #4b2f2a);
   color: #fff !important;
   text-decoration: none !important;
   font-weight: 700;
-  box-shadow: 0 3px 15px rgba(0,0,0,.18);
+  box-shadow: 0 3px 15px rgba(117, 36, 36, 0.18);
   border: 0;
   transition: .2s ease;
   font-size: 12px
 }
 
-/* .btn-pill-dark:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+.btn-guardar-venta {
+    background-color: #8B5E3C !important;
+    border-color: #8B5E3C !important;
+    color: #fff !important;
 }
-  height: 15rk .icon {
-  width: 15px;
-  height: 15px;
-  border-radius: 995px;
-  display: grid;
-  place-items: center;
-  background: rgba(255,255,255,.15);
-  font-weight: 900;
-} */
+
+.btn-guardar-venta:hover {
+    background-color: #6f472d !important;
+    border-color: #6f472d !important;
+    color: #fff !important;
+}
+
+.btn-guardar-venta:focus,
+.btn-guardar-venta:active {
+    background-color: #6f472d !important;
+    border-color: #6f472d !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 0.2rem rgba(139, 94, 60, 0.25) !important;
+}
+
+.btn-guardar-venta:disabled,
+.btn-guardar-venta.disabled {
+    background-color: #c0bcb9 !important;
+    border-color: #d6d0ca !important;
+    color: #fff !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+}
+
 
 /* =====================================================
    SWITCH ESTADO
@@ -115,7 +121,7 @@ input:disabled {
   background: #fff;
   transition: .25s;
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+  box-shadow: 0 1px 2px rgba(87, 3, 3, 0.25);
 }
 
 .sw__input:checked + .sw__slider {
@@ -140,80 +146,103 @@ input:disabled {
 }
 
 /* =====================================================
-   BOTÓN AGREGAR VERDE
+   BOTÓN AGREGAR 
 ===================================================== */
 
 .btn-agregar-verde {
-  background-color: #198754;
-  border-color: #198754;
+  background-color: #3a2a24;
+  border-color: #3a2a24;
   color: #fff;
   transition: .2s ease;
 }
 
 .btn-agregar-verde:hover {
-  background-color: #157347;
-  border-color: #157347;
+  background-color: #2b2b2b;
+  border-color: #3a2a24;
 }
 
-/* =====================================================
-   SELECT COLOR CAFÉ
-===================================================== */
-
-.form-select {
-  color: #3b2323;
+.btn-accion-venta {
+    background: transparent;
+    border: none;
+    padding: 6px 8px;
+    margin-left: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #5c3b2e !important;
+    font-size: 1.25rem;
+    line-height: 1;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
 }
 
-.form-select:focus {
-  border-color: #4b2e2e;
-  box-shadow: 0 0 0 0.25rem rgba(75, 46, 46, 0.25);
+.btn-accion-venta i {
+    color: inherit !important;
+    font-size: 1.2rem;
+    display: inline-block;
 }
 
-.form-select option:checked {
-  background-color: #4b2e2e;
-  color: #fff;
+.btn-accion-venta:hover {
+    background-color: rgba(92, 59, 46, 0.10);
+    color: #382822 !important;
+    transform: scale(1.05);
 }
 
-/* =====================================================
-   TOTAL RESALTADO
-===================================================== */
-
-/* =====================================================
-   TOM SELECT - ESTILO CAFÉ (sin azul)
-===================================================== */
-
-/* Caja */
-.ts-control {
-  border-radius: 3px;
-  border-color: #4b2e2e !important;
+.btn-accion-venta:focus,
+.btn-accion-venta:active {
+    outline: none;
+    box-shadow: none;
 }
 
-.ts-control.focus {
-  border-color: #4b2e2e !important;
-  box-shadow: 0 0 0 0.25rem rgba(75, 46, 46, 0.25) !important;
+.btn-ver-detalle {
+    color: #6b4a3b !important;
 }
 
-/* Dropdown */
-.ts-dropdown {
-  border-color: rgba(58,42,36,.25) !important;
+.btn-editar {
+    color: #8a5a44 !important;
+}
+/* Acciones de ventas heredando estilo visual base */
+td .btn-ver-detalle,
+td .btn-editar {
+    background: transparent;
+    border: none;
+    color: #5b3a29 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    padding: 0;
 }
 
-/* Hover (mouse encima) */
-.ts-dropdown .option:hover,
-.ts-dropdown .option.active {
-  background: #3a2a24 !important;
-  color: #fff !important;
+td .btn-ver-detalle i,
+td .btn-editar i {
+    font-size: 1.1rem;
+    color: inherit !important;
+    transition: all 0.2s ease;
 }
 
-/* Opción seleccionada */
-.ts-dropdown .selected {
-  background: #4b2e2e !important;
-  color: #fff !important;
+/* Hover */
+td .btn-ver-detalle:hover,
+td .btn-editar:hover {
+    background: rgba(91, 58, 41, 0.12);
+    color: #382822 !important;
+    transform: translateY(-1px);
 }
 
-/* Texto en control */
-.ts-control .item {
-  color: #3a2a24 !important;
+/* Focus */
+td .btn-ver-detalle:focus,
+td .btn-editar:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.15rem rgba(91, 58, 41, 0.18);
 }
 
-
-
+/* Activo */
+td .btn-ver-detalle:active,
+td .btn-editar:active {
+    transform: scale(0.96);
+}
