@@ -1,33 +1,40 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Sum, Value, DecimalField
+from django.db.models.functions import Coalesce
 from .models import Venta, DetalleVenta
 from compras.models import DetalleCompra
 from django.contrib import messages
 from .forms import VentaForm
-from Productos.models import Producto  
+from Productos.models import Producto
 from django.core.exceptions import ValidationError
 import json
 from django.db import transaction
-from servicios.models import Servicio  
-from django.db.models import Sum
+from servicios.models import Servicio
 from django.http import JsonResponse
 from decimal import Decimal
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.apps import apps
+
 Personal = apps.get_model("personal", "Personal")
-
-
-
 
 def lista_ventas(request):
     q = request.GET.get("q", "").strip()
     estado = request.GET.get("estado", "activa").strip()
+    sort = request.GET.get("sort", "fecha").strip()
+    direction = request.GET.get("dir", "desc").strip()
 
     ventas = (
         Venta.objects
         .select_related("cliente")
         .prefetch_related("detalles__producto", "detalles__servicio")
+        .annotate(
+            total_orden=Coalesce(
+                Sum("detalles__subtotal"),
+                Value(0),
+                output_field=DecimalField(max_digits=12, decimal_places=2)
+            )
+        )
         .all()
     )
 
@@ -40,8 +47,29 @@ def lista_ventas(request):
 
     if estado:
         ventas = ventas.filter(estado=estado)
-        
-    ventas = ventas.order_by("-fecha")
+
+    # ==================== ORDENAMIENTO ====================
+    if direction not in ["asc", "desc"]:
+        direction = "desc"
+
+    if sort == "codigo_venta":
+        ventas = ventas.order_by("codigo_venta" if direction == "asc" else "-codigo_venta")
+
+    elif sort == "cliente":
+        ventas = ventas.order_by(
+            "cliente__nombre" if direction == "asc" else "-cliente__nombre",
+            "cliente__apellido" if direction == "asc" else "-cliente__apellido"
+        )
+
+    elif sort == "estado":
+        ventas = ventas.order_by("estado" if direction == "asc" else "-estado")
+
+    elif sort == "total":
+        ventas = ventas.order_by("total_orden" if direction == "asc" else "-total_orden")
+
+    else:
+        sort = "fecha"
+        ventas = ventas.order_by("fecha" if direction == "asc" else "-fecha")
 
     return render(
         request,
@@ -50,6 +78,8 @@ def lista_ventas(request):
             "ventas": ventas,
             "q": q,
             "estado": estado,
+            "sort": sort,
+            "direction": direction,
         },
     )
     
@@ -64,9 +94,9 @@ def toggle_estado_venta(request, venta_id):
     )
 
     return redirect("ventas:lista")
+
 def es_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
-
 def render_crear_venta(request, form, productos_stock, servicios, personal, status=200):
     """
     - Si es AJAX: retorna HTML parcial para meterlo dentro del modal.
@@ -113,8 +143,7 @@ def crear_venta(request):
         productos_stock.append({"producto": p, "stock": stock_real})
 
     servicios = Servicio.objects.all()
-    personal = Personal.objects.filter(rol='COL', activo=True).order_by('nombres', 'apellidos')
-
+    personal = Personal.objects.filter(rol='Colaborador', activo=True).order_by('nombres', 'apellidos')
     if request.method == "POST":
         print(">>> POST LLEGÓ")
         form = VentaForm(request.POST)
@@ -228,10 +257,10 @@ def crear_venta(request):
                     subtotal=Decimal(str(item.get("subtotal", item["precio"]))),
                 )
 
-        messages.success(request, "Venta registrada correctamente.")
         if es_ajax(request):
-            return JsonResponse({"success": True})
+         return JsonResponse({"success": True})
 
+        messages.success(request, "Venta registrada correctamente.")
         return redirect("ventas:lista")
 
     # GET
@@ -266,8 +295,7 @@ def editar_venta_modal(request, pk):
     detalles_servicios = venta.detalles.filter(servicio__isnull=False)
 
     servicios = Servicio.objects.all()
-    personal = Personal.objects.filter(rol='COL', activo=True).order_by('nombres', 'apellidos')
-
+    personal = Personal.objects.filter(rol='Colaborador', activo=True).order_by('nombres', 'apellidos')
     if request.method == "POST":
         # --- PRODUCTOS ---
         for det in detalles_productos:
@@ -312,19 +340,44 @@ def editar_venta_modal(request, pk):
     })
 
 def detalle_venta_json(request, pk):
-    venta = get_object_or_404(Venta, pk=pk)
+    venta = get_object_or_404(
+        Venta.objects.select_related("cliente").prefetch_related(
+            "detalles__producto",
+            "detalles__servicio",
+            "detalles__colaborador_servicio",
+        ),
+        pk=pk
+    )
+
+    detalles = []
+    for d in venta.detalles.all():
+        nombre_item = ""
+        tipo = ""
+
+        if d.producto:
+            nombre_item = d.producto.nombre
+            tipo = "Producto"
+        elif d.servicio:
+            nombre_item = d.servicio.nombre
+            tipo = "Servicio"
+
+        detalles.append({
+            "tipo": tipo,
+            "nombre": nombre_item,
+            "cantidad": d.cantidad,
+            "precio_unitario": str(d.precio_unitario),
+            "subtotal": str(d.subtotal),
+            "colaborador": str(d.colaborador_servicio) if d.colaborador_servicio else "",
+        })
 
     data = {
         "id": venta.id,
-        "codigo_venta": getattr(venta, "codigo_venta", ""),
-        "cliente": str(getattr(venta, "cliente", "")),
-        "codigo_producto": getattr(venta, "codigo_producto", ""),
-        "fecha": venta.fecha.strftime("%d/%m/%Y %H:%M") if getattr(venta, "fecha", None) else "",
-        "precio_unitario": str(getattr(venta, "precio_unitario", "")),
-        "cantidad": str(getattr(venta, "cantidad", "")),
-        "subtotal": str(getattr(venta, "subtotal", "")),
-        "estado": getattr(venta, "estado", ""),
-        "observaciones": getattr(venta, "observaciones", ""),
+        "codigo_venta": venta.codigo_venta,
+        "cliente": str(venta.cliente),
+        "fecha": venta.fecha.strftime("%d/%m/%Y %H:%M") if venta.fecha else "",
+        "estado": venta.estado,
+        "total": str(venta.total),
+        "detalles": detalles,
     }
 
     return JsonResponse(data)

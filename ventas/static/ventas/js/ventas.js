@@ -529,13 +529,43 @@ document.addEventListener("click", async function (e) {
 
       const v = await res.json();
 
+      const filas = (v.detalles || []).map(d => `
+        <tr>
+          <td>${d.tipo || "-"}</td>
+          <td>${d.nombre || "-"}</td>
+          <td class="text-center">${d.cantidad || 0}</td>
+          <td class="text-end">$${d.precio_unitario || "0.00"}</td>
+          <td class="text-end">$${d.subtotal || "0.00"}</td>
+        </tr>
+      `).join("");
+
       cont.innerHTML = `
-        <div class="row g-3">
+        <div class="row g-2 mb-3">
           <div class="col-md-6"><strong>Código venta:</strong> ${v.codigo_venta || "-"}</div>
           <div class="col-md-6"><strong>Fecha:</strong> ${v.fecha || "-"}</div>
           <div class="col-md-6"><strong>Cliente:</strong> ${v.cliente || "-"}</div>
           <div class="col-md-6"><strong>Estado:</strong> ${v.estado || "-"}</div>
-          ${v.observaciones ? `<div class="col-12"><strong>Observaciones:</strong><br>${v.observaciones}</div>` : ""}
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Nombre</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-end">Precio</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filas || `<tr><td colspan="5" class="text-center text-muted">Sin detalles</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-end fw-bold mt-2">
+          Total: $${v.total || "0.00"}
         </div>
       `;
     } catch (err) {

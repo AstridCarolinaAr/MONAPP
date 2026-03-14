@@ -149,8 +149,7 @@ h2 {
     transition: all .2s ease;
 }
 
-.producto-form .form-control:focus,
-.producto-form .form-select:focus {
+.producto-form .form-control:focus {
     border-color: #b07a50;
     box-shadow: 0 0 0 2px rgba(176, 122, 80, 0.15);
 }
@@ -279,7 +278,7 @@ h2 {
 }
 
 .producto-form .form-control:focus,
-.producto-form .form-select:focus {
+.producto-form .form-control:focus {
   border-color: #b07a50;
   box-shadow: 0 0 0 2px rgba(176,122,80,.15);
 }
