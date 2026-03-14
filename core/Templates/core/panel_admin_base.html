@@ -236,8 +236,8 @@
     </div>
 
     <!-- ================= CONTENIDO (UNA SOLA VEZ) ================= -->
-    <div class="main-content">
-        <div class="page-bg">
+        <div id="main-content" class="main-content">      
+     <div class="page-bg">
             <div class="page-container">
                 <div class="page-card">
 
@@ -334,11 +334,9 @@
 
     <!-- SweetAlert2 (tu archivo tenía 2 formas; dejo UNA sola porque ya lo cargas arriba) -->
     {# <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script> #}
-
-    {% block extra_js %}
-        <script src="{% static 'core/js/panel_admin_base.js' %}"></script>
-    {% endblock %}
-
+    
+    <script src="{% static 'core/js/panel_admin_base.js' %}?v=150"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 
 </html>

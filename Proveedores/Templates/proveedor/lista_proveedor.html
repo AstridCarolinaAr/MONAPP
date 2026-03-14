@@ -14,113 +14,95 @@
 
 {% block content %}
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-<div class="container-fluid">
 
-    <div class="card shadow-sm card-proveedores">
-        <div class="card-body">
 
-            <div class="proveedores-header mb-4">
-                <div class="proveedores-header-top">
-                    <div>
-                        <h4 class="mb-0">Listado de Proveedores</h4>
-                        <small class="text-muted">
-                            Total: {{ proveedores|length }}
-                            proveedor{{ proveedores|length|pluralize:"es" }}
-                        </small>
-                    </div>
+<div class="card-body">
 
-                    <a href="{% url 'proveedores:crear_proveedor' %}"
-                       class="btn-pill-dark proveedores-btn-add"
-                       data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-                       data-modal-title="Crear Proveedor">
-                        Crear Proveedor
-                    </a>
-                </div>
-
-                <div class="proveedores-toolbar">
-
-                    <div class="dropdown proveedores-toolbar__filter">
-                        <button class="btn btn-filter dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown">
-                            <i class="bi bi-funnel"></i>
-
-                            {% if request.GET.orden == 'nombre' %}
-                                Nombre A–Z
-                            {% elif request.GET.orden == 'nombre_desc' %}
-                                Nombre Z–A
-                            {% else %}
-                                Filtrar
-                            {% endif %}
-                        </button>
-
-                        <ul class="dropdown-menu shadow-sm">
-                            <li>
-                                <a class="dropdown-item"
-                                   href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
-                                    Nombre A–Z
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item"
-                                   href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
-                                    Nombre Z–A
-                                </a>
-                            </li>
-
-                            <li><hr class="dropdown-divider"></li>
-
-                            <li class="px-3 pb-2">
-                                <a href="?estado=activo" class="btn btn-success w-100 mb-1">
-                                    Activos
-                                </a>
-                                <a href="?estado=inactivo" class="btn btn-secondary w-100">
-                                    Inactivos
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item text-danger" href="?">
-                                    Quitar filtros
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <form method="get"
-                          id="busquedaProveedorForm"
-                          class="busqueda-proveedor-wrapper">
-
-                        {% if request.GET.orden %}
-                            <input type="hidden" name="orden" value="{{ request.GET.orden }}">
-                        {% endif %}
-
-                        {% if estado_actual %}
-                            <input type="hidden" name="estado" value="{{ estado_actual }}">
-                        {% endif %}
-
-                        <button id="btnBusquedaProveedorToggle"
-                                type="button"
-                                class="btn-busqueda-toggle"
-                                aria-expanded="false"
-                                aria-label="Buscar proveedor">
-                            <i class="bi bi-search"></i>
-                        </button>
-
-                        <div id="busquedaProveedorBox" class="busqueda-proveedor-box">
-                            <input type="text"
-                                   id="busquedaProveedorInput"
-                                   name="q"
-                                   class="busqueda-proveedor-input"
-                                   placeholder="Buscar proveedor..."
-                                   value="{{ request.GET.q|default:'' }}"
-                                   autocomplete="off">
-                        </div>
-                    </form>
-
-                </div>
+    <div class="proveedores-header mb-4">
+        <div class="proveedores-header-top">
+            <div>
+                <h4 class="mb-0">Listado de Proveedores</h4>
+                <small class="text-muted">
+                    Total: {{ proveedores|length }}
+                    proveedor{{ proveedores|length|pluralize:"es" }}
+                </small>
             </div>
+
+            <a href="{% url 'proveedores:crear_proveedor' %}"
+               class="btn-pill-dark proveedores-btn-add"
+               data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+               data-modal-title="Crear Proveedor">
+                Crear Proveedor
+            </a>
+        </div>
+
+        <div class="proveedores-toolbar">
+            <div class="dropdown proveedores-toolbar__filter">
+                <button class="btn btn-filter dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown">
+                    <i class="bi bi-funnel"></i>
+
+                    {% if request.GET.orden == 'nombre' %}
+                        Nombre A–Z
+                    {% elif request.GET.orden == 'nombre_desc' %}
+                        Nombre Z–A
+                    {% else %}
+                        Filtrar
+                    {% endif %}
+                </button>
+
+                <ul class="dropdown-menu shadow-sm">
+                    <li>
+                        <a class="dropdown-item"
+                           href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                            Nombre A–Z
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item"
+                           href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                            Nombre Z–A
+                        </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li class="px-3 pb-2">
+                        <a href="?estado=activo" class="btn btn-success w-100 mb-1">
+                            Activos
+                        </a>
+                        <a href="?estado=inactivo" class="btn btn-secondary w-100">
+                            Inactivos
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item text-danger" href="?">
+                            Quitar filtros
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="proveedores-busqueda-wrap">
+            <form method="get" class="proveedores-busqueda-form">
+                {% if estado_stock %}
+                    <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+                {% endif %}
+                {% if current_sort %}
+                    <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% endif %}
+                {% if current_dir %}
+                    <input type="hidden" name="dir" value="{{ current_dir }}">
+                {% endif %}
+
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar proveedor...' search_value=q name='q' modo='inline' %}
+            </form>
+        </div>
+    </div>
             {% if proveedores %}
             <div class="table-responsive">
                 <table class="styled-table">
@@ -217,7 +199,7 @@
 
         </div>
     </div>
-</div>
+
 <div class="modal fade" id="modalDetalleProveedor" tabindex="-1" aria-labelledby="modalDetalleProveedorLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content shadow-lg border-0 proveedor-detail-modal">

@@ -773,3 +773,66 @@ a.proveedores-btn-add {
     display: block;
     color: #fff;
 }
+.proveedores-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.proveedores-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.proveedores-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.proveedores-busqueda-wrap {
+    width: 100%;
+    max-width: 380px;
+}
+
+.proveedores-busqueda-form {
+    width: 100%;
+}
+
+.proveedores-busqueda-form input[type="text"],
+.proveedores-busqueda-form input[type="search"] {
+    height: 42px;
+}
+
+.proveedores-busqueda-form .btn,
+.proveedores-busqueda-form button,
+.proveedores-busqueda-form [type="submit"] {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    padding: 0;
+    margin: 0 !important;
+    position: static !important;
+    transform: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+    .proveedores-header-top {
+        align-items: stretch;
+    }
+
+    .proveedores-btn-add {
+        width: 100%;
+    }
+
+    .proveedores-busqueda-wrap {
+        max-width: 100%;
+    }
+}

@@ -29,13 +29,6 @@
 
 <!-- FILTROS -->
 <form method="get" class="row g-2 mb-3">
-  <div class="col-md-4">
-    <input type="text"
-           name="q"
-           class="form-control"
-           placeholder="Buscar venta o cliente"
-           value="{{ q }}">
-  </div>
 
   <div class="col-md-3">
     <select name="estado" class="form-select">
@@ -48,6 +41,19 @@
   <div class="col-md-2">
     <button class="btn btn-outline-secondary w-100">Filtrar</button>
   </div>
+  <form method="get" style="width: 360px; max-width: 100%;">
+    {% if estado_stock %}
+        <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+    {% endif %}
+    {% if current_sort %}
+        <input type="hidden" name="sort" value="{{ current_sort }}">
+    {% endif %}
+    {% if current_dir %}
+        <input type="hidden" name="dir" value="{{ current_dir }}">
+    {% endif %}
+
+    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+</form>
 </form>
 
 <!-- TABLA -->

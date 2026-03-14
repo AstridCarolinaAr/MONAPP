@@ -21,10 +21,7 @@
             <small class="text-muted">Stock actual y estados de almacén</small>
         </div>
     </div>
-        <form method="get"
-            class="search-pill js-search-pill {% if q %}is-open{% endif %}"
-            style="width: 360px; max-width: 100%;">
-
+        <form method="get" style="width: 360px; max-width: 100%;">
             {% if estado_stock %}
                 <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
             {% endif %}
@@ -35,23 +32,7 @@
                 <input type="hidden" name="dir" value="{{ current_dir }}">
             {% endif %}
 
-            <div class="search-pill__box">
-                <input
-                    type="text"
-                    name="q"
-                    class="search-pill__input"
-                    placeholder="Buscar producto..."
-                    value="{{ q }}"
-                    autocomplete="off"
-                >
-
-                <button class="search-pill__btn js-search-toggle"
-                        type="button"
-                        aria-label="Abrir búsqueda">
-                    <i class="bi bi-search search-pill__icon search-pill__icon--search"></i>
-                    <i class="bi bi-x-lg search-pill__icon search-pill__icon--close"></i>
-                </button>
-            </div>
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
         </form>
             <div class="dropdown mb-3">
                 <button class="btn btn-filter dropdown-toggle" type="button" data-bs-toggle="dropdown">

@@ -185,42 +185,90 @@
     .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
         box-shadow: 0 0 0 3px rgba(99, 76, 64, 0.2);
     }
+.personal-search-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 18px;
+}
+
+.personal-search-form {
+    display: block;
+    width: 100%;
+}
+
+.personal-search-form .personal-form-group {
+    width: 100%;
+    max-width: 870px;
+    margin-bottom: 0;
+}
+
+.personal-search-global-wrap {
+    display: block;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.personal-search-global-form {
+    width: 100%;
+    max-width: 380px;
+}
+
+.personal-search-global-form input[type="text"],
+.personal-search-global-form input[type="search"] {
+    height: 42px;
+}
+
+.personal-search-global-form .btn,
+.personal-search-global-form button,
+.personal-search-global-form [type="submit"] {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    padding: 0;
+    margin: 0 !important;
+    position: static !important;
+    transform: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+    .personal-search-form .personal-form-group,
+    .personal-search-global-form {
+        max-width: 100%;
+    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="personal-wrapper">
-    <div class="personal-container">
-        <!-- Header -->
-        <div class="personal-header">
-            <h1>
-                <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
-            </h1>
-            {% if puede_modificar %}
-            <button type="button" class="btn-pill-dark" onclick="abrirModalPersonal()">
-                <i class="bi bi-plus-circle"></i> Nuevo personal
-            </button>
-            {% endif %}
+<div class="personal-search-card">
+    <form method="get" class="personal-search-form">
+        <div class="personal-form-group mb-0">
+            <label class="personal-form-label">Filtrar por</label>
+            {{ form.filtro }}
         </div>
+    </form>
 
-        <!-- Formulario de búsqueda -->
-        <div class="personal-search-card">
-            <form method="get" class="personal-search-form">
-                <div class="personal-form-group" style="margin-bottom: 0;">
-                    <label class="personal-form-label">Buscar</label>
-                    {{ form.busqueda }}
-                </div>
-                <div class="personal-form-group" style="margin-bottom: 0;">
-                    <label class="personal-form-label">Filtrar por</label>
-                    {{ form.filtro }}
-                </div>
-                <div>
-                    <button type="submit" class="personal-btn info" style="width: 100%;">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div class="personal-search-global-wrap">
+        <form method="get" class="personal-search-global-form">
+            {% if estado_stock %}
+                <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+            {% endif %}
+            {% if current_sort %}
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            {% endif %}
+            {% if current_dir %}
+                <input type="hidden" name="dir" value="{{ current_dir }}">
+            {% endif %}
+
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar personal...' search_value=q name='q' modo='inline' %}
+        </form>
+    </div>
+</div>
 
         <!-- Tabla de personal -->
         <div class="personal-table-wrapper">

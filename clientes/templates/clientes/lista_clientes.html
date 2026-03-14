@@ -11,90 +11,94 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="container-fluid px-4 py-4">
 
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h3 class="mb-0 fw-semibold">Clientes</h3>
             <small class="text-muted">Gestión de clientes registrados</small>
         </div>
-            <button class="btn-pill-dark"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalCrearCliente">
-                <i class="bi bi-plus-circle"></i> Nuevo cliente
-            </button>
+
+        <button class="btn-pill-dark"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCrearCliente">
+            <i class="bi bi-plus-circle"></i> Nuevo cliente
+        </button>
     </div>
 
+    <!-- Panel de filtros -->
+    <form method="get" class="clientes-panel mb-4">
 
-    <form method="get" class="row g-2 align-items-center mb-4">
+        <div class="row g-3 align-items-end clientes-filtros-row">
+            <!-- CÓDIGO -->
+            <div class="col-xl-3 col-lg-3 col-md-6">
+                <label class="form-label clientes-label">Código</label>
+                <input type="text"
+                       name="codigo"
+                       class="form-control"
+                       placeholder="Código cliente"
+                       value="{{ codigo|default:'' }}">
+            </div>
 
-        <!-- BÚSQUEDA GENERAL -->
-        <div class="col-md-3">
-            <input type="text" name="q" class="form-control"
-                  placeholder="Buscar nombre o documento"
-                  value="{{ q|default:'' }}">
+            <!-- ESTADO -->
+            <div class="col-xl-2 col-lg-3 col-md-6">
+                <label class="form-label clientes-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+
+            <!-- EDAD -->
+            <div class="col-xl-2 col-lg-2 col-md-6">
+                <label class="form-label clientes-label">Edad</label>
+                <select name="edad" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
+                    <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
+                </select>
+            </div>
+
+            <!-- ORDEN -->
+            <div class="col-xl-3 col-lg-2 col-md-6">
+                <label class="form-label clientes-label">Ordenar</label>
+                <select name="orden" class="form-select">
+                    <option value="">Seleccionar</option>
+                    <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
+                    <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z-A</option>
+                    <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A-Z</option>
+                    <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z-A</option>
+                    <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
+                    <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
+                </select>
+            </div>
+
+            <!-- ACCIONES -->
+            <div class="col-xl-2 col-lg-2 col-md-12">
+                <div class="clientes-acciones">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="bi bi-filter"></i>
+                    </button>
+
+                    {% if q or estado or codigo or edad or orden %}
+                    <a href="{% url 'clientes:lista' %}" class="btn btn-outline-danger">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <!-- CÓDIGO -->
-        <div class="col-md-2">
-            <input type="text" name="codigo" class="form-control"
-                  placeholder="Código cliente"
-                  value="{{ codigo|default:'' }}">
+        <!-- BUSCADOR GLOBAL DEBAJO -->
+        <div class="clientes-busqueda-wrap">
+            <div class="clientes-busqueda-global">
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
+            </div>
         </div>
-
-        <!-- ESTADO -->
-        <div class="col-md-2">
-            <select name="estado" class="form-select">
-                <option value="">Estado</option>
-                <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
-                <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
-            </select>
-        </div>
-
-        <!-- EDAD -->
-        <div class="col-md-2">
-            <select name="edad" class="form-select">
-                <option value="">Edad</option>
-                <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
-                <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
-            </select>
-        </div>
-
-        <!-- ORDEN -->
-        <div class="col-md-2">
-            <select name="orden" class="form-select">
-                <option value="">Ordenar</option>
-                <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
-                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
-                <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A–Z</option>
-                <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z–A</option>
-                <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
-                <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
-            </select>
-        </div>
-
-        <!-- APLICAR -->
-        <div class="col-md-1">
-            <button class="btn btn-outline-secondary w-100">
-                <i class="bi bi-filter"></i>
-            </button>
-        </div>
-
-        <!--  LIMPIAR -->
-        {% if q or estado or codigo or edad or orden %}
-        <div class="col-md-1">
-            <a href="{% url 'clientes:lista' %}"
-              class="btn btn-outline-danger w-100">
-                <i class="bi bi-x-lg"></i>
-            </a>
-        </div>
-        {% endif %}
 
     </form>
-
-
 
     <!-- Card -->
     <div class="card border-0 shadow-sm">

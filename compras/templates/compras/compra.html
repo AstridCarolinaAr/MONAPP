@@ -38,6 +38,7 @@
     <span>Total compras registradas</span>
     <strong>${{ total_compras|floatformat:2 }}</strong>
   </div>
+
 <form method="get" class="filtro-compras mb-4">
   <div class="filtro-compras-grid">
 
@@ -66,38 +67,12 @@
     </div>
 
     <!-- ========================= -->
-    <!-- Buscador desplegable de compras -->
+    <!-- Buscador desplegable ACTUALIZADO -->
     <!-- ========================= -->
     <div class="filtro-item filtro-item-busqueda">
-      <label class="filtro-label filtro-label-hidden" for="busquedaComprasInput">Buscar</label>
-
-      <div class="busqueda-compras-wrapper{%if q_actual %} is-open {% endif %}" id="busquedaComprasWrapper">
-        <button
-          type="button"
-          class="btn-busqueda-toggle"
-          id="btnBusquedaToggle"
-          aria-label="Abrir búsqueda"
-          aria-expanded="{% if q_actual %}true{% else %}false{% endif %}"
-          aria-controls="busquedaComprasBox">
-          <i class="bi bi-search"></i>  
-        </button>
-
-        <div
-          class="busqueda-compras-box {% if q_actual %}is-open{% endif %}"
-          id="busquedaComprasBox">
-          <input
-            type="text"
-            name="q"
-            id="busquedaComprasInput"
-            class="filtro-input busqueda-compras-input"
-            value="{{ q_actual }}"
-            placeholder="ID compra, ID proveedor, proveedor o usuario">
-        </div>
-      </div>
+      <label class="filtro-label filtro-label-hidden">Buscar</label>
+      {% include 'core/componentes/busqueda_global.html' with placeholder='ID compra, ID proveedor, proveedor o usuario' search_value=q_actual name='q' modo='inline' %}
     </div>
-
-
-  </div>
   
     <div class="filtro-item filtro-botones">
       <button type="submit" class="btn-filtro btn-filtrar">
@@ -108,7 +83,9 @@
         <i class="bi bi-arrow-clockwise me-1"></i> Limpiar
       </a>
     </div>
+  </div>
 </form>
+
 {% if compras %}
   <div class="table-responsive">
     <table class="styled-table">
@@ -230,6 +207,7 @@
 </div>
 {% include "compras/comprobante_compra.html" %}
 {% endblock %}
+
 {% block extra_js %}
   {{ block.super }}
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

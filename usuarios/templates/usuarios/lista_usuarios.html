@@ -143,8 +143,21 @@
             <i class="bi bi-plus-circle"></i> Nuevo Usuario
         </button>
         {% endif %}
+        
     </div>
+<form method="get" style="width: 360px; max-width: 100%;">
+    {% if estado_stock %}
+        <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+    {% endif %}
+    {% if current_sort %}
+        <input type="hidden" name="sort" value="{{ current_sort }}">
+    {% endif %}
+    {% if current_dir %}
+        <input type="hidden" name="dir" value="{{ current_dir }}">
+    {% endif %}
 
+    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+</form>
     <!-- Tabla -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
@@ -190,37 +203,21 @@
                         <td class="text-end">
                             {% if puede_modificar %}
                             <button type="button"
-<<<<<<< HEAD
                                     class="btn btn-link"
                                     onclick="abrirModalEditarUsuario({{ usuario.id }})"
                                     title="Editar"
                                     data-bs-placement="bottom">
                                 <i class="bi bi-pencil-square" style="color: #382822; font-size: 24px;"></i>
-=======
-                                    class="btn btn-sm btn-primary btn-editar-usuario"
-                                    data-bs-toggle="tooltip"
-                                    title="Editar usuario"
-                                    data-usuario-id="{{ usuario.id }}">
-                                <i class="bi bi-pencil-square"></i>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                             </button>
                             {% endif %}
 
                             {% if es_administrador %}
                             <button type="button" 
-<<<<<<< HEAD
                                     class="btn btn-link"
                                     onclick="abrirModalEliminarUsuario({{ usuario.id }})"
                                     title="Eliminar"
                                     data-bs-placement="bottom">
                                 <i class="bi bi-trash3" style="color: #382822; font-size: 24px;"></i>
-=======
-                                    class="btn btn-sm btn-danger btn-eliminar-usuario"
-                                    data-bs-toggle="tooltip"
-                                    title="Eliminar usuario"
-                                    data-usuario-id="{{ usuario.id }}">
-                                <i class="bi bi-trash-fill"></i>
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                             </button>
                             {% endif %}
                             
