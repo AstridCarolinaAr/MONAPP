@@ -246,3 +246,61 @@ td .btn-ver-detalle:active,
 td .btn-editar:active {
     transform: scale(0.96);
 }
+.report-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(141, 96, 74, 0.18);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 56px;
+}
+
+.report-option:hover {
+  background: rgba(141, 96, 74, 0.06);
+  border-color: rgba(141, 96, 74, 0.35);
+}
+
+.report-option input[type="checkbox"],
+.report-option input[type="radio"] {
+  display: none;
+}
+
+.report-option input[type="checkbox"]:checked + .report-circle::after,
+.report-option input[type="radio"]:checked + .report-circle::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #8d604a;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+.report-circle {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #8d604a;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.report-option input[type="checkbox"]:checked + .report-circle::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #8d604a;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+
+.report-label-text {
+  font-weight: 500;
+  color: #3a2a24;
+}

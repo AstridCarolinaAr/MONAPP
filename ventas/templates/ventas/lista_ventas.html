@@ -12,18 +12,38 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 {% endblock %}
 
-{% block title %}Ventas{% endblock %}
-{% block page_icon %}<i class="bi bi-cart page-icon"></i>{% endblock %}
-{% block page_title %}Ventas{% endblock %}
-{% block page_subtitle %}Gestión de ventas registradas{% endblock %}
+{% block title %}
+Ventas
+{% endblock %}
+
+{% block page_icon %}
+<i class="bi bi-cart page-icon"></i>
+{% endblock %}
+
+{% block page_title %}
+Ventas
+{% endblock %}
+
+{% block page_subtitle %}
+Gestión de ventas registradas
+{% endblock %}
 
 {% block page_actions %}
-<button type="button"
-        class="btn-pill-dark"
-        id="btnNuevaVenta"
-        data-url="{% url 'ventas:crear' %}">
-  <i class="bi bi-plus-circle"></i> Nueva venta
-</button>
+<div class="d-flex gap-2">
+  <button type="button"
+          class="btn-pill-dark"
+          id="btnNuevaVenta"
+          data-url="{% url 'ventas:crear' %}">
+    <i class="bi bi-plus-circle"></i> Nueva venta
+  </button>
+
+  <button type="button"
+          class="btn-pill-dark"
+          data-bs-toggle="modal"
+          data-bs-target="#modalReporteVentas">
+    <i class="bi bi-bar-chart-line"></i> Reporte
+  </button>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -31,18 +51,26 @@
 <!-- FILTROS -->
 <form method="get" class="row g-2 mb-3">
   <div class="col-md-4">
-    <input type="text"
-           name="q"
-           class="form-control"
-           placeholder="Buscar venta o cliente"
-           value="{{ q }}">
+    <input
+      type="text"
+      name="q"
+      class="form-control"
+      placeholder="Buscar venta o cliente"
+      value="{{ q }}"
+    />
   </div>
 
   <div class="col-md-3">
     <select name="estado" class="form-select">
-      <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
-      <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
-            <option value="">Todas</option>
+      <option value="activa" {% if estado == 'activa' %}selected{% endif %}>
+        Activa
+      </option>
+      <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>
+        Anulada
+      </option>
+      <option value="" {% if not estado %}selected{% endif %}>
+        Todas
+      </option>
     </select>
   </div>
 
@@ -54,63 +82,74 @@
 <!-- TABLA -->
 <div class="table-card">
   <table class="table table-hover align-middle mb-0 styled-table">
-   <thead>
-    <tr>
-      <th>
-        <a href="?q={{ q }}&estado={{ estado }}&sort=codigo_venta&dir={% if sort == 'codigo_venta' and direction == 'asc' %}desc{% else %}asc{% endif %}"
-          class="text-decoration-none text-white">
-          Código venta
-          {% if sort == 'codigo_venta' %}
-            <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
-          {% endif %}
-        </a>
-      </th>
+    <thead>
+      <tr>
+        <th>
+          <a
+            href="?q={{ q }}&estado={{ estado }}&sort=codigo_venta&dir={% if sort == 'codigo_venta' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            class="text-decoration-none text-white"
+          >
+            Código venta
+            {% if sort == 'codigo_venta' %}
+              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% endif %}
+          </a>
+        </th>
 
-      <th>
-        <a href="?q={{ q }}&estado={{ estado }}&sort=cliente&dir={% if sort == 'cliente' and direction == 'asc' %}desc{% else %}asc{% endif %}"
-          class="text-decoration-none text-white">
-          Cliente
-          {% if sort == 'cliente' %}
-            <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
-          {% endif %}
-        </a>
-      </th>
+        <th>
+          <a
+            href="?q={{ q }}&estado={{ estado }}&sort=cliente&dir={% if sort == 'cliente' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            class="text-decoration-none text-white"
+          >
+            Cliente
+            {% if sort == 'cliente' %}
+              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% endif %}
+          </a>
+        </th>
 
-      <th class="text-white">Productos / Servicios</th>
+        <th class="text-white">Productos / Servicios</th>
 
-      <th>
-        <a href="?q={{ q }}&estado={{ estado }}&sort=fecha&dir={% if sort == 'fecha' and direction == 'asc' %}desc{% else %}asc{% endif %}"
-          class="text-decoration-none text-white">
-          Fecha
-          {% if sort == 'fecha' %}
-            <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
-          {% endif %}
-        </a>
-      </th>
+        <th>
+          <a
+            href="?q={{ q }}&estado={{ estado }}&sort=fecha&dir={% if sort == 'fecha' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            class="text-decoration-none text-white"
+          >
+            Fecha
+            {% if sort == 'fecha' %}
+              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% endif %}
+          </a>
+        </th>
 
-      <th>
-        <a href="?q={{ q }}&estado={{ estado }}&sort=total&dir={% if sort == 'total' and direction == 'asc' %}desc{% else %}asc{% endif %}"
-          class="text-decoration-none text-white">
-          Total
-          {% if sort == 'total' %}
-            <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
-          {% endif %}
-        </a>
-      </th>
+        <th>
+          <a
+            href="?q={{ q }}&estado={{ estado }}&sort=total&dir={% if sort == 'total' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            class="text-decoration-none text-white"
+          >
+            Total
+            {% if sort == 'total' %}
+              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% endif %}
+          </a>
+        </th>
 
-      <th class="text-center">
-        <a href="?q={{ q }}&estado={{ estado }}&sort=estado&dir={% if sort == 'estado' and direction == 'asc' %}desc{% else %}asc{% endif %}"
-          class="text-decoration-none text-white">
-          Estado
-          {% if sort == 'estado' %}
-            <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
-          {% endif %}
-        </a>
-      </th>
+        <th class="text-center">
+          <a
+            href="?q={{ q }}&estado={{ estado }}&sort=estado&dir={% if sort == 'estado' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            class="text-decoration-none text-white"
+          >
+            Estado
+            {% if sort == 'estado' %}
+              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% endif %}
+          </a>
+        </th>
 
-      <th class="text-end text-white">Acciones</th>
-    </tr>
-  </thead>
+        <th class="text-end text-white">Acciones</th>
+      </tr>
+    </thead>
+
     <tbody>
       {% for venta in ventas %}
       <tr>
@@ -120,8 +159,13 @@
         <td>
           {% for d in venta.detalles.all %}
             <div>
-              {% if d.producto %}{{ d.producto.nombre }}{% endif %}
-              {% if d.servicio %}{{ d.servicio.nombre }}{% endif %}
+              {% if d.producto %}
+                {{ d.producto.nombre }}
+              {% elif d.servicio %}
+                {{ d.servicio.nombre }}
+              {% else %}
+                <span class="text-muted">Ítem sin nombre</span>
+              {% endif %}
               <span class="text-muted">x{{ d.cantidad }}</span>
             </div>
           {% empty %}
@@ -131,22 +175,24 @@
 
         <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
 
-        <td class="fw-semibold">
-          $ {{ venta.total|intcomma }}
-        </td>
+        <td class="fw-semibold">$ {{ venta.total|intcomma }}</td>
 
         <!-- SWITCH ESTADO -->
         <td class="text-center">
-          <form method="post"
-                action="{% url 'ventas:toggle_estado' venta.id %}"
-                class="d-inline form-toggle-estado">
+          <form
+            method="post"
+            action="{% url 'ventas:toggle_estado' venta.id %}"
+            class="d-inline form-toggle-estado"
+          >
             {% csrf_token %}
 
             <label class="sw">
-              <input type="checkbox"
-                     class="sw__input toggle-estado"
-                     {% if venta.estado == 'activa' %}checked{% endif %}
-                     data-estado="{{ venta.estado }}">
+              <input
+                type="checkbox"
+                class="sw__input toggle-estado"
+                {% if venta.estado == 'activa' %}checked{% endif %}
+                data-estado="{{ venta.estado }}"
+              />
               <span class="sw__slider"></span>
             </label>
           </form>
@@ -154,21 +200,25 @@
 
         <!-- ACCIONES -->
         <td class="text-end">
-          <button type="button"
-                  class="btn-ver-detalle"
-                  data-url="{% url 'ventas:detalle_json' venta.id %}"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalDetalleVenta"
-                  title="Ver detalles">
+          <button
+            type="button"
+            class="btn-ver-detalle"
+            data-url="{% url 'ventas:detalle_json' venta.id %}"
+            data-bs-toggle="modal"
+            data-bs-target="#modalDetalleVenta"
+            title="Ver detalles"
+          >
             <i class="bi bi-eye"></i>
           </button>
 
-          <button type="button"
-                  class="btn-editar"
-                  data-url="{% url 'ventas:editar_modal' venta.id %}"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalEditarVenta"
-                  title="Editar">
+          <button
+            type="button"
+            class="btn-editar"
+            data-url="{% url 'ventas:editar_modal' venta.id %}"
+            data-bs-toggle="modal"
+            data-bs-target="#modalEditarVenta"
+            title="Editar"
+          >
             <i class="bi bi-pencil-square"></i>
           </button>
         </td>
@@ -190,7 +240,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Detalle de venta</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body" id="contenidoDetalleVenta">
         <div class="text-center text-muted py-4">Selecciona una venta…</div>
@@ -205,7 +259,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Editar venta</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body" id="contenidoEditarVenta">
         <div class="text-center text-muted py-4">Cargando…</div>
@@ -213,13 +271,18 @@
     </div>
   </div>
 </div>
+
 <!-- MODAL NUEVA VENTA -->
 <div class="modal fade" id="modalNuevaVenta" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Nueva venta</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
 
       <div class="modal-body" id="contenidoNuevaVenta">
@@ -229,8 +292,274 @@
   </div>
 </div>
 
+<!-- MODAL CONFIGURAR REPORTE -->
+<div
+  class="modal fade"
+  id="modalReporteVentas"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formReporteVentas">
+        <div class="modal-header">
+          <h5 class="modal-title">Configurar reporte de ventas</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <h6 class="mb-3">Columnas a incluir</h6>
+
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="columnas"
+                      value="codigo_venta"
+                      checked
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Código venta</span>
+                  </label>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="columnas"
+                      value="cliente"
+                      checked
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Cliente</span>
+                  </label>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="columnas"
+                      value="productos_servicios"
+                      checked
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Productos / Servicios</span>
+                  </label>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="columnas"
+                      value="fecha"
+                      checked
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Fecha</span>
+                  </label>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="columnas"
+                      value="total"
+                      checked
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Total</span>
+                  </label>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="columnas"
+                      value="estado"
+                      checked
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Estado</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <h6 class="mb-3">Rango principal</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Fecha inicial</label>
+                  <input
+                    type="date"
+                    name="fecha_inicio"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Fecha final</label>
+                  <input
+                    type="date"
+                    name="fecha_fin"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <h6 class="mt-4 mb-3">Opciones adicionales</h6>
+              <div class="row g-2">
+                <div class="col-12">
+                  <label class="report-option">
+                    <input type="checkbox" name="incluir_total" value="1" />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Calcular total de ventas entre fechas</span>
+                  </label>
+                </div>
+
+                <div class="col-12">
+                  <label class="report-option">
+                    <input type="checkbox" name="incluir_grafica" value="1" />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Mostrar gráfica diaria</span>
+                  </label>
+                </div>
+
+                <div class="col-12 d-none" id="bloqueTipoGraficaVentas">
+                  <label class="form-label mt-2">Tipo de gráfica</label>
+                  <select name="tipo_grafica" class="form-select">
+                    <option value="bar">Barras</option>
+                    <option value="line">Líneas</option>
+                    <option value="pie">Torta</option>
+                    <option value="funnel">Embudo</option>
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <label class="report-option">
+                    <input
+                      type="checkbox"
+                      name="comparativo"
+                      value="1"
+                      id="checkComparativoVentas"
+                    />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Hacer comparativo</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="row g-3 mt-2 d-none" id="bloqueComparativoVentas">
+                <div class="col-12">
+                  <h6 class="mb-1">Rango comparativo</h6>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Fecha inicial comparativa</label>
+                  <input
+                    type="date"
+                    name="fecha_inicio_comp"
+                    class="form-control"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Fecha final comparativa</label>
+                  <input
+                    type="date"
+                    name="fecha_fin_comp"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+
+              <h6 class="mt-4 mb-3">Formato de salida</h6>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input type="radio" name="formato" value="pdf" checked />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">PDF</span>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <label class="report-option">
+                    <input type="radio" name="formato" value="excel" />
+                    <span class="report-circle"></span>
+                    <span class="report-label-text">Excel</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-dark"
+            id="btnVistaPreviaReporte"
+          >
+            <i class="bi bi-eye me-1"></i> Vista previa
+          </button>
+          <button type="submit" class="btn btn-guardar-venta">
+            <i class="bi bi-download me-1"></i> Generar archivo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VISTA PREVIA REPORTE -->
+<div
+  class="modal fade"
+  id="modalVistaPreviaReporte"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Vista previa del reporte</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body" id="contenidoVistaPreviaReporte">
+        <div class="text-center text-muted py-5">
+          Configura el reporte y pulsa “Vista previa”.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'ventas/js/ventas.js' %}"></script>
 {% endblock %}
