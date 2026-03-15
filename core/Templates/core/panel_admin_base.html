@@ -15,7 +15,7 @@
 </head>
 
 {# ─── La clase sidebar-collapsed en body controla el handle y el main-content ─── #}
-<body class="dashboard-body">
+<body class="dashboard-body sidebar-collapsed">
 
     <!-- ================================ MODAL CONSENTIMIENTO ================================ -->
     <div class="modal fade" id="modalConsentimiento" tabindex="-1"
@@ -357,10 +357,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            if (typeo   f SiennaAccessibility !== 'undefined') SiennaAccessibility.init();
+            if (typeof SiennaAccessibility !== 'undefined')
         });
     </script>
-    <script src="{% static 'core/js/panel_admin_base.js' %}?v=6.1"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

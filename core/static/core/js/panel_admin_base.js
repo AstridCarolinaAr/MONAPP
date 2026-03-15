@@ -13,38 +13,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ==================== SIDEBAR ====================
 function initSidebar() {
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
+    const sidebar       = document.getElementById('sidebar');
+    const mainContent   = document.getElementById('main-content');
+    const sidebarToggle = document.getElementById('sidebar-toggle'); // 
+    const handle        = document.getElementById('sidebar-handle'); // 
 
-    if (!sidebar || !mainContent || !sidebarToggle) return;
+    if (!sidebar || !mainContent) return;
 
-    sidebarToggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-
+    // ── Función central de toggle ──
+    function toggleSidebar() {
         if (window.innerWidth <= 991) {
+            
             sidebar.classList.toggle('active');
+            document.body.classList.toggle('sidebar-mobile-open');
         } else {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            // Desktop: colapsar/expandir
+            const isNowCollapsed = sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded', isNowCollapsed);
+            document.body.classList.toggle('sidebar-collapsed', isNowCollapsed); 
+            localStorage.setItem('sidebarCollapsed', isNowCollapsed);
         }
-    });
+    }
 
+    // ── Conectar el handle (flecha lateral) ──
+    if (handle) {
+        handle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // ── Conectar botón del topbar  ──
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // ── Restaurar estado guardado ──
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
     if (sidebarCollapsed === 'true' && window.innerWidth > 991) {
         sidebar.classList.add('collapsed');
         mainContent.classList.add('expanded');
+        document.body.classList.add('sidebar-collapsed'); 
     }
 
+    // ── Cerrar en móvil al hacer clic fuera ──
     document.addEventListener('click', function (e) {
         if (window.innerWidth > 991) return;
         if (!sidebar.classList.contains('active')) return;
-        if (sidebar.contains(e.target) || sidebarToggle.contains(e.target)) return;
-
+        if (sidebar.contains(e.target) || (handle && handle.contains(e.target))) return;
         sidebar.classList.remove('active');
+        document.body.classList.remove('sidebar-mobile-open');
     });
 }
 
