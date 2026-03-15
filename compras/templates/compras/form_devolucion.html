@@ -1,8 +1,9 @@
-<div>TEMPLATE-DEVOLUCION-REAL</div>
+
 <form method="post"
       action="{{ action_url }}"
       id="formDevolucionCompra"
-      data-modo="{{ modo }}">
+      data-modo="{{ modo }}"
+      data-detalles-url="{% url 'compras:cargar_detalles_compra' %}">
   {% csrf_token %}
 
   <div id="devolucionErroresGenerales" class="alert alert-danger d-none mb-3"></div>

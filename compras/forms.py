@@ -199,6 +199,7 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
             return
 
         hay_detalle = False
+        acumulado_por_detalle = {}
 
         for form in self.forms:
             if not hasattr(form, "cleaned_data"):
@@ -208,14 +209,49 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
                 continue
 
             detalle_compra = form.cleaned_data.get("detalle_compra")
-            cantidad = form.cleaned_data.get("cantidad")
+            cantidad = form.cleaned_data.get("cantidad") or 0
 
-            if detalle_compra and cantidad and cantidad > 0:
+            if not detalle_compra and not cantidad:
+                continue
+
+            if detalle_compra and cantidad > 0:
                 hay_detalle = True
-                break
+                acumulado_por_detalle[detalle_compra.pk] = (
+                    acumulado_por_detalle.get(detalle_compra.pk, 0) + cantidad
+                )
 
         if not hay_detalle:
             raise forms.ValidationError("Debes agregar al menos un producto a devolver.")
+
+        for form in self.forms:
+            if not hasattr(form, "cleaned_data"):
+                continue
+
+            if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                continue
+
+            detalle_compra = form.cleaned_data.get("detalle_compra")
+            if not detalle_compra:
+                continue
+
+            total_en_formset = acumulado_por_detalle.get(detalle_compra.pk, 0)
+
+            qs_devueltas = DetalleDevolucionCompra.objects.filter(
+                detalle_compra=detalle_compra,
+                devolucion__anulada=False
+            )
+
+            if form.instance.pk:
+                qs_devueltas = qs_devueltas.exclude(pk=form.instance.pk)
+
+            cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
+            disponible_para_devolver = max((detalle_compra.cantidad or 0) - cantidad_ya_devuelta, 0)
+
+            if total_en_formset > disponible_para_devolver:
+                form.add_error(
+                    "cantidad",
+                    f"Entre todas las filas solo puedes devolver hasta {disponible_para_devolver} unidad(es) de este producto."
+                )
 
 
 DetalleDevolucionCompraFormSet = inlineformset_factory(

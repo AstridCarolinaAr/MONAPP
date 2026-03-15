@@ -3,18 +3,19 @@
   // Inicializar comprobante
   // =========================
   function initComprobante() {
-    const modalElement = document.getElementById("modalComprobante");
-    const previewBody = document.getElementById("comprobantePreviewBody");
-    const btnDescargar = document.getElementById("btnDescargarComprobante");
+  const modalElement = document.getElementById("modalComprobante");
+  const modalTitle = document.getElementById("modalComprobanteTitle");
+  const previewBody = document.getElementById("comprobantePreviewBody");
+  const btnDescargar = document.getElementById("btnDescargarComprobante");
 
     if (!modalElement || !previewBody || !btnDescargar) {
       console.error("No se encontraron los elementos del comprobante.");
       return;
     }
 
-    let currentCompraId = "";
+    let currentDocId = "";
     let currentExcelUrl = "";
-
+    let currentDownloadName = "comprobante";
     const loadingHTML = `
       <div class="comprobante-loading">
         <div class="spinner-border" role="status"></div>
@@ -81,11 +82,9 @@
 
       try {
         await waitForImages(clone);
-
-        const filename = currentCompraId
-          ? `comprobante_compra_${currentCompraId}.pdf`
-          : "comprobante_compra.pdf";
-
+        const filename = currentDocId
+          ? `${currentDownloadName}_${currentDocId}.pdf`
+          : `${currentDownloadName}.pdf`;
         const opt = {
           margin: [4, 4, 4, 4],
           filename: filename,
@@ -118,12 +117,18 @@
     document.addEventListener("click", async function (event) {
       const trigger = event.target.closest(".js-open-comprobante");
       if (!trigger) return;
-
       const previewUrl = trigger.dataset.previewUrl;
       const excelUrl = trigger.dataset.excelUrl;
-      currentCompraId = trigger.dataset.compraId || "";
-      currentExcelUrl = excelUrl || "";
+      const modalCustomTitle = trigger.dataset.modalTitle;
+      const downloadName = trigger.dataset.downloadName;
 
+      currentDocId = trigger.dataset.compraId || trigger.dataset.devolucionId || "";
+      currentExcelUrl = excelUrl || "";
+      currentDownloadName = downloadName || "comprobante";
+
+      if (modalTitle) {
+        modalTitle.textContent = modalCustomTitle || "Comprobante";
+      }
       previewBody.innerHTML = loadingHTML;
 
       try {
@@ -157,7 +162,7 @@
     // =========================
     // Descargar PDF o Excel
     // =========================
-    btnDescargar.addEventListener("click", async function () {
+        btnDescargar.addEventListener("click", async function () {
       if (!previewBody.querySelector(".invoice-sheet-premium")) {
         Swal.fire({
           icon: "warning",
@@ -167,23 +172,42 @@
         return;
       }
 
-      const result = await Swal.fire({
-        title: "Descargar comprobante",
-        text: "Selecciona el formato",
-        icon: "question",
-        showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonText: "PDF",
-        denyButtonText: "Excel",
-        cancelButtonText: "Cancelar",
-        reverseButtons: true,
-        buttonsStyling: false,
-        customClass: {
-          confirmButton: "btn btn-danger me-2",
-          denyButton: "btn btn-success me-2",
-          cancelButton: "btn btn-secondary",
-        },
-      });
+      let result;
+
+      if (currentExcelUrl) {
+        result = await Swal.fire({
+          title: "Descargar comprobante",
+          text: "Selecciona el formato",
+          icon: "question",
+          showCancelButton: true,
+          showDenyButton: true,
+          confirmButtonText: "PDF",
+          denyButtonText: "Excel",
+          cancelButtonText: "Cancelar",
+          reverseButtons: true,
+          buttonsStyling: false,
+          customClass: {
+            confirmButton: "btn btn-danger me-2",
+            denyButton: "btn btn-success me-2",
+            cancelButton: "btn btn-secondary",
+          },
+        });
+      } else {
+        result = await Swal.fire({
+          title: "Descargar comprobante",
+          text: "Se descargará en PDF.",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "PDF",
+          cancelButtonText: "Cancelar",
+          reverseButtons: true,
+          buttonsStyling: false,
+          customClass: {
+            confirmButton: "btn btn-danger me-2",
+            cancelButton: "btn btn-secondary",
+          },
+        });
+      }
 
       if (result.isConfirmed) {
         try {
@@ -218,7 +242,8 @@
         window.location.href = currentExcelUrl;
       }
     });
-  }
+
+      }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initComprobante);

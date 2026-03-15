@@ -1,3 +1,5 @@
+from django.db import transaction, IntegrityError
+from django.core.exceptions import ValidationError
 from .models import Stock, MovimientoStock
 
 
@@ -11,17 +13,27 @@ def aplicar_movimiento_stock(
     devolucion=None,
     observacion=""
 ):
-    stock_obj = (
-        Stock.objects.select_for_update()
-        .filter(producto=producto)
-        .first()
-    )
+    if delta == 0:
+        return Stock.objects.filter(producto=producto).first()
 
-    if not stock_obj:
-        stock_obj = Stock.objects.create(producto=producto, cantidad_actual=0)
+    try:
+        stock_obj, _ = Stock.objects.get_or_create(
+            producto=producto,
+            defaults={"cantidad_actual": 0}
+        )
+    except IntegrityError:
+        stock_obj = Stock.objects.get(producto=producto)
+
+    stock_obj = Stock.objects.select_for_update().get(pk=stock_obj.pk)
 
     stock_anterior = stock_obj.cantidad_actual or 0
     stock_posterior = stock_anterior + delta
+
+    if stock_posterior < 0:
+        raise ValidationError(
+            f"El stock no puede quedar negativo para {producto.nombre}. "
+            f"Actual: {stock_anterior}, movimiento: {delta}."
+        )
 
     stock_obj.cantidad_actual = stock_posterior
     stock_obj.save(update_fields=["cantidad_actual", "actualizado_en"])

@@ -280,6 +280,7 @@
   let detalleModal = null;
   const detalleModalEl = document.getElementById("modalDetalleCompra");
   const detalleBodyEl = document.getElementById("detalleCompraBody");
+  const detalleTitleEl = document.getElementById("modalDetalleCompraTitle");
   if (detalleModalEl) detalleModal = new bootstrap.Modal(detalleModalEl);
 
   async function openFormModal(url, title) {
@@ -333,6 +334,10 @@
       const url = btnDetalle.getAttribute("data-url");
       if (!url) return;
 
+      if (detalleTitleEl) {
+        detalleTitleEl.textContent = "Detalle de compra";
+      }
+
       detalleBodyEl.innerHTML = `<div class="text-muted">Cargando...</div>`;
       detalleModal.show();
 
@@ -343,6 +348,7 @@
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+
         detalleBodyEl.innerHTML =
           data.success && data.html
             ? data.html

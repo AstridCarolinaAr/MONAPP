@@ -1,56 +1,34 @@
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import JsonResponse
-from django.urls import reverse
-from django.template.loader import render_to_string
-from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.db.models import Sum,F,Q
-from .models import Compra, DevolucionCompra
+from django.db.models import Count, Q, Sum
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from django.templatetags.static import static
+from django.urls import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST, require_http_methods
+
+from . import services
+from .comprobante import build_comprobante_excel_response
 from .forms import (
     CompraForm,
     DetalleCompraFormSet,
     DevolucionCompraForm,
     DetalleDevolucionCompraFormSet,
 )
-from inventario.models import Stock
-from Productos.models import Producto
+from .models import Compra, DevolucionCompra
 
-from inventario.services import aplicar_movimiento_stock
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.utils import timezone
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-import io
-from django.http import JsonResponse, HttpResponse
-from django.template.loader import render_to_string
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from openpyxl import Workbook
-from .comprobante import(build_comprobante_pdf_response,build_comprobante_excel_response)
-from django.templatetags.static import static
-from django.utils.text import slugify
-from django.http import HttpResponse, JsonResponse
-from django.template.loader import render_to_string
-
-
+# =========================
+# Helpers
+# =========================
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-@login_required
-def comprobante_compra(request, pk):
-    compra = get_object_or_404(
-        Compra.objects.select_related("proveedor", "usuario")
-        .prefetch_related("detalles__producto"),
-        pk=pk
-    )
 
-    return render(request, "compras/comprobante_compra.html", {
-        "compra": compra
-    })
-    
+# =========================
+# Listado principal
+# =========================
 @ensure_csrf_cookie
 @login_required
 @require_http_methods(["GET"])
@@ -128,8 +106,16 @@ def lista_compras(request):
         tipo = "compras"
 
         compras_qs = (
-            Compra.objects.select_related("proveedor", "usuario")
+            Compra.objects
+            .select_related("proveedor", "usuario")
             .prefetch_related("detalles__producto")
+            .annotate(
+                devoluciones_activas_count=Count(
+                    "devoluciones",
+                    filter=Q(devoluciones__anulada=False),
+                    distinct=True
+                )
+            )
             .order_by("-id")
         )
 
@@ -181,6 +167,10 @@ def lista_compras(request):
 
     return render(request, "compras/compra.html", context)
 
+
+# =========================
+# Detalle de compra
+# =========================
 @login_required
 @require_http_methods(["GET"])
 def detalle_compra(request, compra_id):
@@ -197,7 +187,7 @@ def detalle_compra(request, compra_id):
         subtotal = float(d.cantidad) * float(d.precio_unitario)
         total_calc += subtotal
         detalles_calc.append({
-            "producto": d.producto.nombre,  
+            "producto": d.producto.nombre,
             "cantidad": d.cantidad,
             "precio_unitario": float(d.precio_unitario),
             "subtotal": subtotal,
@@ -209,6 +199,8 @@ def detalle_compra(request, compra_id):
         request=request
     )
     return JsonResponse({"success": True, "html": html})
+
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def crear_compra(request):
@@ -217,36 +209,11 @@ def crear_compra(request):
         formset = DetalleCompraFormSet(request.POST, prefix="detalles")
 
         if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                compra = form.save(commit=False)
-                compra.usuario = request.user
-
-                total = 0
-                for f in formset:
-                    if not f.cleaned_data or f.cleaned_data.get("DELETE") or not f.has_changed():
-                        continue
-                    cant = f.cleaned_data.get("cantidad") or 0
-                    pu = f.cleaned_data.get("precio_unitario") or 0
-                    total += cant * pu
-
-                compra.precio_total = total
-                compra.save()
-
-                formset.instance = compra
-                detalles = formset.save(commit=False)
-                for d in detalles:
-                    d.compra = compra
-                    d.save()
-
-                    aplicar_movimiento_stock(
-                        producto=d.producto,
-                        delta=(d.cantidad or 0),
-                        tipo_movimiento="COMPRA_ENTRADA",
-                        usuario=request.user,
-                        compra=compra,
-                        observacion=f"Registro de compra #{compra.id}"
-                    )
-                formset.save_m2m()
+            services.registrar_compra(
+                form=form,
+                formset=formset,
+                usuario=request.user,
+            )
 
             messages.success(request, "Compra registrada correctamente.")
             if is_ajax(request):
@@ -258,8 +225,9 @@ def crear_compra(request):
             "formset": formset,
             "action_url": reverse("compras:crear_compra"),
             "compra": None,
+            "modo": "crear",
         }
-        context ["modo"]="crear"
+
         if is_ajax(request):
             html = render_to_string("compras/formulario_crear_compra.html", context, request=request)
             return JsonResponse({"success": False, "html": html})
@@ -279,75 +247,42 @@ def crear_compra(request):
         return JsonResponse({"success": True, "html": html})
 
     return render(request, "compras/crear_compra.html", context)
-
-
 @login_required
 @require_http_methods(["GET", "POST"])
 def editar_compra(request, pk):
     compra = get_object_or_404(Compra, pk=pk)
 
-    if compra.anulada:
+    try:
+        services.validar_compra_editable(compra)
+    except services.CompraServiceError as exc:
         if is_ajax(request):
             return JsonResponse(
-                {"success": False, "message": "No se puede editar una compra anulada."},
+                {"success": False, "message": str(exc)},
                 status=400
             )
-        # no-ajax
+
         return render(request, "compras/formulario_editar.html", {
             "compra": compra,
             "form": CompraForm(instance=compra),
             "formset": DetalleCompraFormSet(instance=compra),
             "modo": "editar",
             "action_url": reverse("compras:editar_compra", args=[compra.pk]),
-            "error": "No se puede editar una compra anulada."
+            "error": str(exc)
         })
 
-    PREFIX = "detalles"  
+    prefix = "detalles"
 
     if request.method == "POST":
         form = CompraForm(request.POST, instance=compra)
-        formset = DetalleCompraFormSet(request.POST, instance=compra, prefix=PREFIX)
+        formset = DetalleCompraFormSet(request.POST, instance=compra, prefix=prefix)
 
         if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                old_map = dict(
-                    compra.detalles.values("producto_id")
-                    .annotate(total=Sum("cantidad"))
-                    .values_list("producto_id", "total")
-                )
-
-                compra = form.save()
-                formset.save()
-
-                total = 0
-                for d in compra.detalles.all():
-                    total += d.cantidad * d.precio_unitario
-                compra.precio_total = total
-                compra.save(update_fields=["precio_total"])
-
-                new_map = dict(
-                    compra.detalles.values("producto_id")
-                    .annotate(total=Sum("cantidad"))
-                    .values_list("producto_id", "total")
-                )
-
-                producto_ids = set(old_map.keys()) | set(new_map.keys())
-            producto_obj = compra.detalles.filter(producto_id=pid).select_related("producto").first()
-            if producto_obj:
-                producto_ref = producto_obj.producto
-            else:
-                from Productos.models import Producto
-                producto_ref = Producto.objects.get(pk=pid)
-
-            aplicar_movimiento_stock(
-                producto=producto_ref,
-                delta=delta,
-                tipo_movimiento="COMPRA_EDICION",
-                usuario=request.user,
+            services.editar_compra(
                 compra=compra,
-                observacion=f"Edición de compra #{compra.id}"
+                form=form,
+                formset=formset,
+                usuario=request.user,
             )
-
             return JsonResponse({"success": True, "message": "Se editó correctamente"})
 
         print("=== EDITAR INVALIDA ===")
@@ -369,7 +304,7 @@ def editar_compra(request, pk):
         return JsonResponse({"success": False, "html": html}, status=400)
 
     form = CompraForm(instance=compra)
-    formset = DetalleCompraFormSet(instance=compra, prefix=PREFIX)
+    formset = DetalleCompraFormSet(instance=compra, prefix=prefix)
 
     context = {
         "form": form,
@@ -385,53 +320,46 @@ def editar_compra(request, pk):
 
     return render(request, "compras/formulario_editar.html", context)
 
-
 @login_required
 @require_POST
 def anular_compra(request, pk):
-    compra = get_object_or_404(Compra, pk=pk)
+    compra = get_object_or_404(
+        Compra.objects.prefetch_related("detalles__producto"),
+        pk=pk
+    )
 
-    if compra.anulada:
-        return JsonResponse({"status": "already", "message": "La compra ya estaba anulada."})
-
-    with transaction.atomic():
-
-        qtys = (
-            compra.detalles.values("producto_id")
-            .annotate(total=Sum("cantidad"))
-            .values_list("producto_id", "total")
-        )
-
-        producto_ref = Producto.objects.get(pk=pid)
-
-        aplicar_movimiento_stock(
-            producto=producto_ref,
-            delta=-(total or 0),
-            tipo_movimiento="COMPRA_ANULACION",
-            usuario=request.user,
+    try:
+        services.anular_compra(
             compra=compra,
-            observacion=f"Anulación de compra #{compra.id}"
+            usuario=request.user,
         )
-        compra.fecha_anulada=timezone.now()    
-        compra.anulada = True
-        compra.save(update_fields=["anulada","fecha_anulada"])
+    except services.CompraServiceError as exc:
+        if str(exc) == "La compra ya estaba anulada.":
+            return JsonResponse({
+                "status": "already",
+                "message": str(exc)
+            })
+
+        return JsonResponse({
+            "success": False,
+            "message": str(exc)
+        }, status=400)
 
     return JsonResponse({
         "success": True,
         "message": "Compra anulada y stock revertido."
     })
-    
+
 
 # =========================
-# Vista previa HTML del comprobante de compra
+# Comprobantes de compra
 # =========================
-# =========================
-# Vista previa HTML del comprobante de compra
-# =========================
+
 @login_required
 def comprobante_compra_preview(request, pk):
     compra = get_object_or_404(
-        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        Compra.objects.select_related("proveedor", "usuario")
+        .prefetch_related("detalles__producto"),
         pk=pk
     )
 
@@ -443,35 +371,19 @@ def comprobante_compra_preview(request, pk):
     return JsonResponse({"success": True, "html": html})
 
 
-# ========================= compra comprobante pdf ========================
-# =========================
-@login_required
-def comprobante_compra_pdf(request, pk):
-    compra = get_object_or_404(
-        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
-        pk=pk
-    )
 
-    return render(
-        request,
-        "compras/comprobante_compra_pdf.html",
-        {"compra": compra},
-    )
-
-
-# =========================
-# Descarga Excel del comprobante de compra
-# =========================
 @login_required
 def comprobante_compra_excel(request, pk):
     compra = get_object_or_404(
-        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__producto"),
+        Compra.objects.select_related("proveedor", "usuario")
+        .prefetch_related("detalles__producto"),
         pk=pk
     )
     return build_comprobante_excel_response(compra)
 
+
 # =========================
-#devolucion de compra
+# Devoluciones de compra
 # =========================
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -492,42 +404,11 @@ def crear_devolucion_compra(request):
         )
 
         if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                devolucion = form.save(commit=False)
-                devolucion.usuario = request.user
-                devolucion.proveedor = devolucion.compra.proveedor
-                devolucion.total = 0
-                devolucion.save()
-
-                total = 0
-        for f in formset:
-            if not f.cleaned_data or f.cleaned_data.get("DELETE") or not f.has_changed():
-                continue
-
-            detalle_compra = f.cleaned_data.get("detalle_compra")
-            cantidad = f.cleaned_data.get("cantidad") or 0
-
-            if not detalle_compra or not cantidad:
-                continue
-
-            detalle_dev = f.save(commit=False)
-            detalle_dev.devolucion = devolucion
-            detalle_dev.producto = detalle_compra.producto
-            detalle_dev.precio_unitario = detalle_compra.precio_unitario
-            detalle_dev.save()
-
-            aplicar_movimiento_stock(
-                producto=detalle_dev.producto,
-                delta=-(cantidad or 0),
-                tipo_movimiento="DEV_COMPRA_SALIDA",
+            services.registrar_devolucion_compra(
+                form=form,
+                formset=formset,
                 usuario=request.user,
-                devolucion=devolucion,
-                observacion=f"Registro de devolución #{devolucion.id}"
             )
-
-            total += detalle_dev.subtotal
-            devolucion.total = total
-            devolucion.save(update_fields=["total"])
 
             messages.success(request, "Devolución registrada correctamente.")
             if is_ajax(request):
@@ -574,6 +455,7 @@ def crear_devolucion_compra(request):
 
     return render(request, "compras/crear_devolucion.html", context)
 
+
 @login_required
 @require_http_methods(["GET"])
 def cargar_detalles_compra(request):
@@ -586,16 +468,35 @@ def cargar_detalles_compra(request):
 
     detalles = []
     for d in compra.detalles.select_related("producto").all().order_by("producto__nombre"):
+        cantidad_ya_devuelta = (
+            d.detalles_devolucion
+            .filter(devolucion__anulada=False)
+            .aggregate(total=Sum("cantidad"))["total"] or 0
+        )
+
+        disponible = max((d.cantidad or 0) - cantidad_ya_devuelta, 0)
+
+        if disponible <= 0:
+            continue
+
         detalles.append({
             "id": d.id,
-            "texto": f"{d.producto.nombre} - Cantidad comprada: {d.cantidad} - Precio: ${d.precio_unitario}",
+            "texto": (
+                f"{d.producto.nombre} | "
+                f"Comprado: {d.cantidad} | "
+                f"Devuelto: {cantidad_ya_devuelta} | "
+                f"Disponible: {disponible} | "
+                f"Precio: ${d.precio_unitario}"
+            ),
             "precio_unitario": int(d.precio_unitario or 0),
+            "disponible": disponible,
         })
+
     return JsonResponse({
         "success": True,
         "detalles": detalles,
     })
-    
+
 @login_required
 @require_POST
 def anular_devolucion_compra(request, pk):
@@ -604,93 +505,43 @@ def anular_devolucion_compra(request, pk):
         pk=pk
     )
 
-    if devolucion.anulada:
+    try:
+        services.anular_devolucion_compra(
+            devolucion=devolucion,
+            usuario=request.user,
+        )
+    except services.CompraServiceError as exc:
         return JsonResponse({
             "success": False,
-            "message": "La devolución ya estaba anulada."
+            "message": str(exc)
         })
-
-    with transaction.atomic():
-        for d in devolucion.detalles.all():
-            aplicar_movimiento_stock(
-                producto=d.producto,
-                delta=(d.cantidad or 0),
-                tipo_movimiento="DEV_COMPRA_ANULACION",
-                usuario=request.user,
-                devolucion=devolucion,
-                observacion=f"Anulación de devolución #{devolucion.id}"
-        )
-        devolucion.anulada = True
-        devolucion.fecha_anulada = timezone.now().date()
-        devolucion.anulada_en = timezone.now()
-        devolucion.save(update_fields=["anulada", "fecha_anulada", "anulada_en"])
 
     return JsonResponse({
         "success": True,
         "message": "Devolución anulada y stock restaurado."
     })
-    
+
+# =========================
+# Comprobante de devolución
+# =========================
 @login_required
 @require_http_methods(["GET"])
-def lista_devoluciones_compra(request):
-    estado = request.GET.get("estado", "activas").strip()
-    fecha = request.GET.get("fecha", "").strip()
-    fecha_desde = request.GET.get("fecha_desde", "").strip()
-    fecha_hasta = request.GET.get("fecha_hasta", "").strip()
-    busqueda = request.GET.get("q", "").strip()
-
-    devoluciones_qs = (
+def comprobante_devolucion_compra_preview(request, pk):
+    devolucion = get_object_or_404(
         DevolucionCompra.objects
         .select_related("compra", "proveedor", "usuario")
-        .prefetch_related("detalles__producto")
-        .order_by("-id")
+        .prefetch_related("detalles__producto"),
+        pk=pk
     )
 
-    if estado == "anuladas":
-        devoluciones_qs = devoluciones_qs.filter(anulada=True)
-    elif estado == "todas":
-        pass
-    else:
-        devoluciones_qs = devoluciones_qs.filter(anulada=False)
-        estado = "activas"
-
-    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
-        fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
-
-    if estado == "anuladas":
-        if fecha:
-            devoluciones_qs = devoluciones_qs.filter(fecha_anulada=fecha)
-        if fecha_desde:
-            devoluciones_qs = devoluciones_qs.filter(fecha_anulada__gte=fecha_desde)
-        if fecha_hasta:
-            devoluciones_qs = devoluciones_qs.filter(fecha_anulada__lte=fecha_hasta)
-    else:
-        if fecha:
-            devoluciones_qs = devoluciones_qs.filter(fecha=fecha)
-        if fecha_desde:
-            devoluciones_qs = devoluciones_qs.filter(fecha__gte=fecha_desde)
-        if fecha_hasta:
-            devoluciones_qs = devoluciones_qs.filter(fecha__lte=fecha_hasta)
-
-    if busqueda:
-        filtros = (
-            Q(id__icontains=busqueda) |
-            Q(compra__id__icontains=busqueda) |
-            Q(proveedor__nombre_proveedor__icontains=busqueda) |
-            Q(usuario__username__icontains=busqueda)
-        )
-        devoluciones_qs = devoluciones_qs.filter(filtros)
-
-    total_devoluciones = devoluciones_qs.aggregate(total=Sum("total"))["total"] or 0
-
-    context = {
-        "devoluciones": devoluciones_qs,
-        "total_devoluciones": total_devoluciones,
-        "estado_actual": estado,
-        "fecha_actual": fecha,
-        "fecha_desde_actual": fecha_desde,
-        "fecha_hasta_actual": fecha_hasta,
-        "q_actual": busqueda,
-    }
-
-    return render(request, "compras/devoluciones_compra.html", context)
+    html = render_to_string(
+        "compras/detalle_devolucion_compra.html",
+        {
+            "d": devolucion,
+            "titulo_documento": "Comprobante de devolución de compra",
+            "logo_src": static("compras/img/logo_monakeratina.png"),
+            "watermark_src": static("compras/img/logo_monakeratina_watermark.png"),
+        },
+        request=request
+    )
+    return JsonResponse({"success": True, "html": html})
