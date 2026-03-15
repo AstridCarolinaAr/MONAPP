@@ -606,85 +606,51 @@ document.addEventListener("click", async function (e) {
   if (btnEditar) {
     const url = btnEditar.dataset.url;
     const cont = document.getElementById("contenidoEditarVenta");
-    if (!cont) return;
+    const modalEl = document.getElementById("modalEditarVenta");
+    if (!cont || !modalEl) return;
 
-    cont.innerHTML = `<div class="text-center text-muted py-4">Cargando...</div>`;
+    cont.innerHTML = '<div class="text-center text-muted py-4">Cargando...</div>';
 
     try {
       const res = await fetch(url, { headers: esAjaxRequestHeaders() });
       if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
 
-      const html = await res.text();
-      cont.innerHTML = html;
+      cont.innerHTML = data.html || "";
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
     } catch (err) {
-      cont.innerHTML = `<div class="alert alert-danger mb-0">No se pudo cargar el formulario: ${err.message}</div>`;
+      cont.innerHTML = '<div class="alert alert-danger mb-0">No se pudo cargar: ' + err.message + '</div>';
     }
   }
 });
 
-// Recalcular PRODUCTOS (editar)
-document.addEventListener("input", (e) => {
-  const cant = e.target.closest(".js-prod-cant");
-  const precio = e.target.closest(".js-prod-precio");
-  if (!cant && !precio) return;
+function precargarItemsEdicion(form, items) {
+  if (!items || !items.length) return;
+  var tablaBody = form.querySelector("#tablaItems tbody");
+  var itemsInput = form.querySelector("#itemsInput");
+  var totalEl = form.querySelector("#totalVenta");
+  if (!tablaBody || !itemsInput) return;
 
-  const id = (cant || precio).dataset.detalle;
-  const c = document.querySelector(`.js-prod-cant[data-detalle="${id}"]`);
-  const p = document.querySelector(`.js-prod-precio[data-detalle="${id}"]`);
-  const s = document.querySelector(`.js-prod-subtotal[data-detalle="${id}"]`);
+  // Inyectar ítems directamente en el input hidden y renderizar la tabla
+  itemsInput.value = JSON.stringify(items);
 
-  const subtotal = toNum(c.value) * toNum(p.value);
-  if (s) s.value = money(subtotal);
-});
+  var total = 0;
+  tablaBody.innerHTML = "";
+  items.forEach(function(item, i) {
+    total += item.subtotal || 0;
+    var tr = document.createElement("tr");
+    tr.innerHTML = '<td>' + item.nombre + '</td>'
+      + '<td class="text-end">$' + (item.precio||0).toFixed(2) + '</td>'
+      + '<td class="text-center">' + (item.cantidad||1) + '</td>'
+      + '<td class="text-end">$' + (item.subtotal||0).toFixed(2) + '</td>'
+      + '<td class="text-center"><button type="button" class="btn btn-sm btn-danger" data-index="' + i + '">✖</button></td>';
+    tablaBody.appendChild(tr);
+  });
+  if (totalEl) totalEl.textContent = total.toFixed(2);
+}
 
-// Recalcular SERVICIOS (editar)
-document.addEventListener("change", (e) => {
-  const selServ = e.target.closest(".js-serv-servicio");
-  if (!selServ) return;
-
-  const id = selServ.dataset.detalle;
-  const opt = selServ.options[selServ.selectedIndex];
-  const precio = toNum(opt.dataset.precio);
-
-  const precioInput = document.querySelector(
-    `.js-serv-precio[data-detalle="${id}"]`,
-  );
-  const cantInput = document.querySelector(
-    `.js-serv-cant[data-detalle="${id}"]`,
-  );
-  const subInput = document.querySelector(
-    `.js-serv-subtotal[data-detalle="${id}"]`,
-  );
-
-  if (precioInput) precioInput.value = money(precio);
-  const subtotal = toNum(cantInput.value) * precio;
-  if (subInput) subInput.value = money(subtotal);
-});
-
-document.addEventListener("input", (e) => {
-  const cantServ = e.target.closest(".js-serv-cant");
-  if (!cantServ) return;
-
-  const id = cantServ.dataset.detalle;
-  const selServ = document.querySelector(
-    `.js-serv-servicio[data-detalle="${id}"]`,
-  );
-  const opt = selServ.options[selServ.selectedIndex];
-  const precio = toNum(opt.dataset.precio);
-
-  const precioInput = document.querySelector(
-    `.js-serv-precio[data-detalle="${id}"]`,
-  );
-  const subInput = document.querySelector(
-    `.js-serv-subtotal[data-detalle="${id}"]`,
-  );
-
-  if (precioInput) precioInput.value = money(precio);
-  const subtotal = toNum(cantServ.value) * precio;
-  if (subInput) subInput.value = money(subtotal);
-});
-
-// Submit EDITAR (AJAX)
+// Submit EDITAR
 document.addEventListener("submit", async function (e) {
   const form = e.target;
   if (!form.matches("#formEditarVenta")) return;
@@ -693,37 +659,135 @@ document.addEventListener("submit", async function (e) {
 
   const url = form.action;
   const cont = document.getElementById("contenidoEditarVenta");
-  const body = new FormData(form);
 
   try {
     const res = await fetch(url, {
       method: "POST",
-      body,
       headers: esAjaxRequestHeaders(),
+      body: new FormData(form),
     });
-
     if (!res.ok) throw new Error("HTTP " + res.status);
-
     const data = await res.json();
 
     if (data.ok) {
       const modalEl = document.getElementById("modalEditarVenta");
-      if (modalEl && window.bootstrap) {
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        if (modal) modal.hide();
-      }
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      await Swal.fire({
+        icon: "success",
+        title: "Venta actualizada",
+        timer: 1400,
+        showConfirmButton: false,
+      });
       location.reload();
     } else {
-      if (cont)
-        cont.innerHTML =
-          data.html ||
-          "<div class='alert alert-danger'>Formulario inválido.</div>";
+      Swal.fire({ icon: "error", title: "Error", text: data.error || "No se pudo guardar." });
     }
   } catch (err) {
-    if (cont)
-      cont.innerHTML = `<div class="alert alert-danger mb-0">Error al guardar: ${err.message}</div>`;
+    Swal.fire({ icon: "error", title: "Error", text: err.message });
   }
 });
+// Recalcular subtotal productos (editar)
+document.addEventListener("input", function(e) {
+  const cant = e.target.closest(".js-prod-cant");
+  const precio = e.target.closest(".js-prod-precio");
+  if (!cant && !precio) return;
+
+  const id = (cant || precio).dataset.detalle;
+  const c = document.querySelector('.js-prod-cant[data-detalle="' + id + '"]');
+  const p = document.querySelector('.js-prod-precio[data-detalle="' + id + '"]');
+  const s = document.querySelector('.js-prod-subtotal[data-detalle="' + id + '"]');
+
+  if (cant) {
+    var stock = parseInt(cant.dataset.stock || "0");
+    var val = parseInt(cant.value) || 0;
+    var errEl = document.querySelector('.err-stock-' + id);
+    if (val > stock) {
+      cant.classList.add("is-invalid");
+      if (errEl) errEl.classList.remove("d-none");
+    } else {
+      cant.classList.remove("is-invalid");
+      if (errEl) errEl.classList.add("d-none");
+    }
+  }
+
+  if (c && p && s) {
+    var subtotal = (parseFloat(c.value) || 0) * (parseFloat(p.value) || 0);
+    s.value = subtotal.toFixed(2);
+    recalcTotalEditar();
+  }
+});
+
+// Cambiar producto en editar: actualizar precio, stock y subtotal
+document.addEventListener("change", function(e) {
+  const sel = e.target.closest(".js-prod-select");
+  if (!sel) return;
+  var id = sel.dataset.detalle;
+  var opt = sel.options[sel.selectedIndex];
+  var nuevoPrecio = parseFloat(opt.dataset.precio) || 0;
+  var nuevoStock = parseInt(opt.dataset.stock) || 0;
+
+  var precioInput = document.querySelector('.js-prod-precio[data-detalle="' + id + '"]');
+  var cantInput   = document.querySelector('.js-prod-cant[data-detalle="' + id + '"]');
+  var subInput    = document.querySelector('.js-prod-subtotal[data-detalle="' + id + '"]');
+  var errEl       = document.querySelector('.err-stock-' + id);
+
+  if (precioInput) precioInput.value = nuevoPrecio.toFixed(2);
+  if (cantInput) {
+    cantInput.dataset.stock = nuevoStock;
+    cantInput.max = nuevoStock;
+    var cant = parseInt(cantInput.value) || 1;
+    if (cant > nuevoStock) {
+      cantInput.value = nuevoStock;
+      cant = nuevoStock;
+    }
+    cantInput.classList.remove("is-invalid");
+    if (errEl) errEl.classList.add("d-none");
+    if (subInput) subInput.value = (cant * nuevoPrecio).toFixed(2);
+  }
+  recalcTotalEditar();
+});
+
+// Recalcular subtotal servicios (editar)
+document.addEventListener("change", function(e) {
+  const sel = e.target.closest(".js-serv-servicio");
+  if (!sel) return;
+  const id = sel.dataset.detalle;
+  const opt = sel.options[sel.selectedIndex];
+  const precio = parseFloat(opt.dataset.precio) || 0;
+  const precioInput = document.querySelector('.js-serv-precio[data-detalle="' + id + '"]');
+  const cantInput = document.querySelector('.js-serv-cant[data-detalle="' + id + '"]');
+  const subInput = document.querySelector('.js-serv-subtotal[data-detalle="' + id + '"]');
+  if (precioInput) precioInput.value = precio.toFixed(2);
+  if (cantInput && subInput) {
+    subInput.value = ((parseFloat(cantInput.value) || 1) * precio).toFixed(2);
+    recalcTotalEditar();
+  }
+});
+
+document.addEventListener("input", function(e) {
+  const cant = e.target.closest(".js-serv-cant");
+  if (!cant) return;
+  const id = cant.dataset.detalle;
+  const precioInput = document.querySelector('.js-serv-precio[data-detalle="' + id + '"]');
+  const subInput = document.querySelector('.js-serv-subtotal[data-detalle="' + id + '"]');
+  if (precioInput && subInput) {
+    subInput.value = ((parseFloat(cant.value) || 0) * (parseFloat(precioInput.value) || 0)).toFixed(2);
+    recalcTotalEditar();
+  }
+});
+
+function recalcTotalEditar() {
+  var total = 0;
+  document.querySelectorAll(".js-prod-subtotal, .js-serv-subtotal").forEach(function(el) {
+    total += parseFloat(el.value) || 0;
+  });
+  var totalEl = document.getElementById("totalEditar");
+  if (totalEl) totalEl.textContent = "$ " + total.toLocaleString("es-CO", {minimumFractionDigits:2});
+}
+
+// Eliminar función precargarItemsEdicion si existe (ya no se usa)
+
 
 // ============================================================
 // 4) CONFIRMAR CAMBIO DE ESTADO (SWITCH) - CAPTURA

@@ -217,8 +217,6 @@ Ventas
             type="button"
             class="btn-editar"
             data-url="{% url 'ventas:editar_modal' venta.id %}"
-            data-bs-toggle="modal"
-            data-bs-target="#modalEditarVenta"
             title="Editar"
           >
             <i class="bi bi-pencil-square"></i>
@@ -252,14 +250,10 @@ Ventas
 <!-- MODAL DETALLE -->
 <div class="modal fade" id="modalDetalleVenta" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Detalle de venta</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
+    <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-eye me-2"></i>Detalle de venta</h5>
+        <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
       </div>
       <div class="modal-body" id="contenidoDetalleVenta">
         <div class="text-center text-muted py-4">Selecciona una venta…</div>
@@ -270,15 +264,11 @@ Ventas
 
 <!-- MODAL EDITAR -->
 <div class="modal fade" id="modalEditarVenta" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Editar venta</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-pencil-square me-2"></i>Editar venta</h5>
+        <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
       </div>
       <div class="modal-body" id="contenidoEditarVenta">
         <div class="text-center text-muted py-4">Cargando…</div>
@@ -290,14 +280,10 @@ Ventas
 <!-- MODAL NUEVA VENTA -->
 <div class="modal fade" id="modalNuevaVenta" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Nueva venta</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
+    <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-plus-circle me-2"></i>Nueva venta</h5>
+        <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
       </div>
 
       <div class="modal-body" id="contenidoNuevaVenta">
@@ -315,15 +301,11 @@ Ventas
   aria-hidden="true"
 >
   <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
       <form id="formReporteVentas">
-        <div class="modal-header">
-          <h5 class="modal-title">Configurar reporte de ventas</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+        <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+          <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-bar-chart-line me-2"></i>Configurar reporte de ventas</h5>
+          <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
         </div>
 
         <div class="modal-body">
@@ -562,14 +544,10 @@ Ventas
   <div
     class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered"
   >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Vista previa del reporte</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
+    <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-eye me-2"></i>Vista previa del reporte</h5>
+        <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
       </div>
       <div class="modal-body" id="contenidoVistaPreviaReporte">
         <div class="text-center text-muted py-5">

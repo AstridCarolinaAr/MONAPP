@@ -407,63 +407,151 @@ def crear_venta(request):
 
 
 def editar_venta_modal(request, pk):
-    venta = get_object_or_404(Venta, pk=pk)
-
-    # separamos detalles
-    detalles_productos = venta.detalles.filter(producto__isnull=False)
-    detalles_servicios = venta.detalles.filter(servicio__isnull=False)
-
-    servicios = Servicio.objects.all()
-    personal = Personal.objects.filter(rol="Colaborador", activo=True).order_by(
-        "nombres", "apellidos"
+    venta = get_object_or_404(
+        Venta.objects.select_related("cliente")
+        .prefetch_related("detalles__producto", "detalles__devoluciones", "detalles__servicio"),
+        pk=pk,
     )
-    if request.method == "POST":
-        # --- PRODUCTOS ---
-        for det in detalles_productos:
-            cantidad = request.POST.get(f"prod_cant_{det.id}")
-            precio = request.POST.get(f"prod_precio_{det.id}")
 
-            if cantidad is not None and precio is not None:
-                det.cantidad = int(cantidad)
-                det.precio_unitario = Decimal(precio)
+    detalles_productos = venta.detalles.filter(producto__isnull=False).select_related("producto")
+    detalles_servicios = venta.detalles.filter(servicio__isnull=False).select_related("servicio")
+    servicios = Servicio.objects.all()
+    personal = Personal.objects.filter(rol="Colaborador", activo=True).order_by("nombres", "apellidos")
+
+    # Stock disponible para cada producto de la venta (excluyendo esta venta)
+    stock_por_producto = {}
+    for det in detalles_productos:
+        p = det.producto
+        entradas = DetalleCompra.objects.filter(producto=p).aggregate(t=Sum("cantidad"))["t"] or 0
+        salidas = (
+            DetalleVenta.objects.filter(producto=p, venta__estado="activa")
+            .exclude(venta=venta)
+            .aggregate(t=Sum("cantidad"))["t"] or 0
+        )
+        devuelto = (
+            DetalleDevolucion.objects.filter(
+                detalle_venta__producto=p,
+                detalle_venta__venta__estado="activa",
+            ).aggregate(t=Sum("cantidad_devuelta"))["t"] or 0
+        )
+        # Stock real + lo que ya tiene esta venta (porque se va a editar)
+        ya_tiene = det.cantidad_disponible_devolver
+        stock_por_producto[det.id] = entradas - salidas + devuelto + ya_tiene
+
+    if request.method == "POST":
+        errores = []
+        with transaction.atomic():
+            # 1) Restaurar stock de los productos actuales
+            for det in detalles_productos:
+                Stock.objects.filter(producto=det.producto).update(
+                    cantidad_actual=F("cantidad_actual") + det.cantidad_disponible_devolver
+                )
+
+            # 2) Guardar cambios de productos
+            for det in detalles_productos:
+                cant_str = request.POST.get(f"prod_cant_{det.id}")
+                precio_str = request.POST.get(f"prod_precio_{det.id}")
+                nuevo_codigo = request.POST.get(f"prod_codigo_{det.id}")
+                if cant_str is None or precio_str is None:
+                    continue
+
+                nueva_cantidad = int(cant_str)
+                nuevo_precio = Decimal(precio_str)
+
+                # Cambio de producto si seleccionó uno diferente
+                if nuevo_codigo and nuevo_codigo != det.producto.codigo:
+                    det.producto = Producto.objects.get(codigo=nuevo_codigo)
+
+                # Validar stock del producto (puede ser el nuevo)
+                ent = DetalleCompra.objects.filter(producto=det.producto).aggregate(t=Sum("cantidad"))["t"] or 0
+                sal = (
+                    DetalleVenta.objects.filter(producto=det.producto, venta__estado="activa")
+                    .exclude(venta=venta)
+                    .aggregate(t=Sum("cantidad"))["t"] or 0
+                )
+                dev = (
+                    DetalleDevolucion.objects.filter(
+                        detalle_venta__producto=det.producto,
+                        detalle_venta__venta__estado="activa",
+                    ).aggregate(t=Sum("cantidad_devuelta"))["t"] or 0
+                )
+                disponible = ent - sal + dev
+                if nueva_cantidad > disponible:
+                    nombre = det.producto.nombre
+                    return JsonResponse(
+                        {"ok": False, "error": f"Stock insuficiente para '{nombre}'. Disponible: {disponible}."},
+                        status=400
+                    )
+
+                det.cantidad = nueva_cantidad
+                det.precio_unitario = nuevo_precio
                 det.subtotal = det.cantidad * det.precio_unitario
                 det.save()
 
-        # --- SERVICIOS ---
-        for det in detalles_servicios:
-            cantidad = request.POST.get(f"serv_cant_{det.id}")
-            servicio_id = request.POST.get(f"serv_servicio_{det.id}")
-            personal_id = request.POST.get(f"serv_personal_{det.id}")
+                # 3) Descontar el nuevo stock
+                Stock.objects.filter(producto=det.producto).update(
+                    cantidad_actual=F("cantidad_actual") - nueva_cantidad
+                )
 
-            if cantidad is not None:
-                det.cantidad = int(cantidad)
+            # 4) Guardar cambios de servicios
+            for det in detalles_servicios:
+                cant_str = request.POST.get(f"serv_cant_{det.id}")
+                serv_id = request.POST.get(f"serv_servicio_{det.id}")
+                pers_id = request.POST.get(f"serv_personal_{det.id}")
 
-            if servicio_id:
-                det.servicio = Servicio.objects.get(pk=servicio_id)
+                if serv_id:
+                    det.servicio = Servicio.objects.get(pk=serv_id)
+                if pers_id:
+                    det.colaborador_servicio = Personal.objects.get(pk=pers_id)
+                if cant_str:
+                    det.cantidad = int(cant_str)
 
-            if personal_id:
-                det.colaborador_servicio = Personal.objects.get(pk=personal_id)
-
-            # precio NO editable: lo tomamos del servicio
-            det.precio_unitario = det.servicio.precio
-            det.subtotal = det.cantidad * det.precio_unitario
-            det.save()
+                det.precio_unitario = det.servicio.precio
+                det.subtotal = det.cantidad * det.precio_unitario
+                det.save()
 
         return JsonResponse({"ok": True})
 
-    # GET: render del modal
-    return render(
-        request,
-        "ventas/form_editar_venta.html",
-        {
-            "venta": venta,
-            "detalles_productos": detalles_productos,
-            "detalles_servicios": detalles_servicios,
-            "servicios": servicios,
-            "personal": personal,
-        },
-    )
+    # GET — anotar cada detalle con su stock para usarlo directo en el template
+    for det in detalles_productos:
+        det.stock_disponible = stock_por_producto.get(det.id, 0)
 
+    # Lista completa de productos con su stock (para el select de cambio de producto)
+    todos_productos = Producto.objects.all()
+    todos_stock = []
+    for p in todos_productos:
+        entradas = DetalleCompra.objects.filter(producto=p).aggregate(t=Sum("cantidad"))["t"] or 0
+        salidas = (
+            DetalleVenta.objects.filter(producto=p, venta__estado="activa")
+            .exclude(venta=venta)
+            .aggregate(t=Sum("cantidad"))["t"] or 0
+        )
+        devuelto = (
+            DetalleDevolucion.objects.filter(
+                detalle_venta__producto=p,
+                detalle_venta__venta__estado="activa",
+            ).aggregate(t=Sum("cantidad_devuelta"))["t"] or 0
+        )
+        # Si este producto ya está en la venta, sumar lo que tiene
+        det_actual = detalles_productos.filter(producto=p).first()
+        ya_tiene = det_actual.cantidad_disponible_devolver if det_actual else 0
+        s = entradas - salidas + devuelto + ya_tiene
+        todos_stock.append({"producto": p, "stock": s})
+
+    ctx = {
+        "venta": venta,
+        "detalles_productos": detalles_productos,
+        "detalles_servicios": detalles_servicios,
+        "servicios": servicios,
+        "personal": personal,
+        "todos_stock": todos_stock,
+    }
+
+    if es_ajax(request):
+        html = render_to_string("ventas/form_editar_venta.html", ctx, request=request)
+        return JsonResponse({"success": True, "html": html})
+
+    return render(request, "ventas/form_editar_venta.html", ctx)
 
 def detalle_venta_json(request, pk):
     venta = get_object_or_404(
