@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
-from .models import Venta, DetalleVenta
+from .models import Venta, DetalleVenta, DevolucionVenta, DetalleDevolucion
+from inventario.models import Stock
+from django.db.models import F
 from compras.models import DetalleCompra
 from django.contrib import messages
 from .forms import VentaForm
@@ -105,14 +107,38 @@ def lista_ventas(request):
 
 @require_POST
 def toggle_estado_venta(request, venta_id):
-    venta = get_object_or_404(Venta, id=venta_id)
-    venta.estado = "anulada" if venta.estado == "activa" else "activa"
-    venta.save()
+    venta = get_object_or_404(
+        Venta.objects.prefetch_related("detalles__producto", "detalles__devoluciones"),
+        id=venta_id
+    )
+    nuevo_estado = "anulada" if venta.estado == "activa" else "activa"
+
+    with transaction.atomic():
+        for detalle in venta.detalles.all():
+            if not detalle.producto:
+                continue
+            if nuevo_estado == "anulada":
+                # Restaurar solo lo que no fue devuelto aún
+                cantidad_restante = detalle.cantidad_disponible_devolver
+                if cantidad_restante > 0:
+                    Stock.objects.filter(producto=detalle.producto).update(
+                        cantidad_actual=F("cantidad_actual") + cantidad_restante
+                    )
+            else:
+                # Vuelve a activa: descontar lo que no había sido devuelto
+                cantidad_restante = detalle.cantidad_disponible_devolver
+                if cantidad_restante > 0:
+                    Stock.objects.filter(producto=detalle.producto).update(
+                        cantidad_actual=F("cantidad_actual") - cantidad_restante
+                    )
+        venta.estado = nuevo_estado
+        venta.save()
+
     messages.success(
         request, f"Estado actualizado correctamente: {venta.estado.upper()}"
     )
-
-    return redirect("ventas:lista")
+    from django.urls import reverse
+    return redirect(reverse("ventas:lista") + "?estado=activa")
 
 
 def es_ajax(request):
@@ -171,7 +197,15 @@ def crear_venta(request):
             or 0
         )
 
-        stock_real = entradas - salidas
+        devuelto = (
+            DetalleDevolucion.objects.filter(
+                detalle_venta__producto=p,
+                detalle_venta__venta__estado="activa",
+            ).aggregate(total=Sum("cantidad_devuelta"))["total"]
+            or 0
+        )
+
+        stock_real = entradas - salidas + devuelto
 
         productos_stock.append({"producto": p, "stock": stock_real})
 
@@ -302,7 +336,14 @@ def crear_venta(request):
                     ).aggregate(total=Sum("cantidad"))["total"]
                     or 0
                 )
-                stock_real = entradas - salidas
+                devuelto_prod = (
+                    DetalleDevolucion.objects.filter(
+                        detalle_venta__producto=producto,
+                        detalle_venta__venta__estado="activa",
+                    ).aggregate(total=Sum("cantidad_devuelta"))["total"]
+                    or 0
+                )
+                stock_real = entradas - salidas + devuelto_prod
 
                 if int(item["cantidad"]) > stock_real:
                     raise ValidationError(f"Stock insuficiente para {producto.nombre}")
@@ -313,6 +354,10 @@ def crear_venta(request):
                     precio_unitario=Decimal(str(item["precio"])),
                     cantidad=int(item["cantidad"]),
                     subtotal=Decimal(str(item["subtotal"])),
+                )
+                # Descontar del Stock
+                Stock.objects.filter(producto=producto).update(
+                    cantidad_actual=F("cantidad_actual") - int(item["cantidad"])
                 )
 
             elif item.get("tipo") == "servicio":
@@ -470,16 +515,28 @@ def detalle_venta_json(request, pk):
 
 @transaction.atomic
 def anular_venta(request, venta_id):
-    venta = get_object_or_404(Venta, id=venta_id)
+    venta = get_object_or_404(
+        Venta.objects.prefetch_related("detalles__producto", "detalles__devoluciones"),
+        id=venta_id
+    )
 
     if venta.estado == "anulada":
-        return redirect("ventas:lista")
+        from django.urls import reverse
+        return redirect(reverse("ventas:lista") + "?estado=activa")
 
     if request.method == "POST":
+        for detalle in venta.detalles.all():
+            if detalle.producto:
+                cantidad_restante = detalle.cantidad_disponible_devolver
+                if cantidad_restante > 0:
+                    Stock.objects.filter(producto=detalle.producto).update(
+                        cantidad_actual=F("cantidad_actual") + cantidad_restante
+                    )
         venta.estado = "anulada"
         venta.save()
 
-    return redirect("ventas:lista")
+    from django.urls import reverse
+    return redirect(reverse("ventas:lista") + "?estado=activa")
 
 
 def clean(self):
@@ -1008,3 +1065,168 @@ def exportar_reporte_ventas(request):
     response = HttpResponse(buffer.read(), content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="reporte_ventas.pdf"'
     return response
+
+# ============================================================
+# DEVOLUCIÓN DE VENTAS
+# ============================================================
+
+
+def devolucion_venta_json(request, venta_id):
+    """
+    GET: Devuelve en JSON los ítems de la venta con cuánto se puede devolver.
+    """
+    venta = get_object_or_404(
+        Venta.objects.select_related("cliente")
+        .prefetch_related("detalles__producto", "detalles__servicio", "detalles__devoluciones"),
+        id=venta_id
+    )
+
+    # Validaciones de negocio
+    if venta.estado == "anulada":
+        return JsonResponse({"error": "No se puede devolver una venta anulada."}, status=400)
+
+    items = []
+    for d in venta.detalles.all():
+        ya_devuelto = d.cantidad_devuelta
+        disponible = d.cantidad_disponible_devolver
+
+        nombre = ""
+        tipo = ""
+        if d.producto:
+            nombre = d.producto.nombre
+            tipo = "producto"
+        elif d.servicio:
+            nombre = d.servicio.nombre
+            tipo = "servicio"
+
+        items.append({
+            "detalle_id": d.id,
+            "nombre": nombre,
+            "tipo": tipo,
+            "precio_unitario": float(d.precio_unitario),
+            "cantidad_original": d.cantidad,
+            "ya_devuelto": ya_devuelto,
+            "disponible": disponible,
+        })
+
+    return JsonResponse({
+        "venta_id": venta.id,
+        "codigo_venta": venta.codigo_venta,
+        "cliente": str(venta.cliente),
+        "total_venta": float(venta.total),
+        "total_ya_devuelto": float(venta.total_devuelto),
+        "items": items,
+    })
+
+
+@transaction.atomic
+def registrar_devolucion(request, venta_id):
+    """
+    POST: Registra la devolución con validaciones completas.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido."}, status=405)
+
+    venta = get_object_or_404(
+        Venta.objects.select_related("cliente")
+        .prefetch_related("detalles__devoluciones"),
+        id=venta_id
+    )
+
+    # ── Validación 1: venta activa ──────────────────────────
+    if venta.estado == "anulada":
+        return JsonResponse({"error": "No se puede devolver una venta anulada."}, status=400)
+
+    # ── Leer body JSON ──────────────────────────────────────
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Datos inválidos."}, status=400)
+
+    motivo = body.get("motivo", "").strip()
+    items_devolver = body.get("items", [])  # [{detalle_id, cantidad}]
+
+    # ── Validación 2: motivo obligatorio ────────────────────
+    if not motivo:
+        return JsonResponse({"error": "El motivo de devolución es obligatorio."}, status=400)
+
+    # ── Validación 3: al menos un ítem ─────────────────────
+    if not items_devolver:
+        return JsonResponse({"error": "Selecciona al menos un ítem para devolver."}, status=400)
+
+    # ── Validación 4: ítem por ítem ─────────────────────────
+    detalles_map = {d.id: d for d in venta.detalles.all()}
+    lineas_validadas = []
+    total_devolucion = Decimal("0")
+
+    for item in items_devolver:
+        detalle_id = item.get("detalle_id")
+        try:
+            cantidad = int(item.get("cantidad", 0))
+        except (TypeError, ValueError):
+            return JsonResponse({"error": f"Cantidad inválida en ítem {detalle_id}."}, status=400)
+
+        if cantidad <= 0:
+            continue  # el usuario dejó 0, ignorar silenciosamente
+
+        # Existe en esta venta
+        if detalle_id not in detalles_map:
+            return JsonResponse({"error": f"El ítem {detalle_id} no pertenece a esta venta."}, status=400)
+
+        detalle = detalles_map[detalle_id]
+        disponible = detalle.cantidad_disponible_devolver
+
+        # No superar disponible
+        if cantidad > disponible:
+            nombre = detalle.producto.nombre if detalle.producto else (
+                detalle.servicio.nombre if detalle.servicio else f"ítem #{detalle_id}"
+            )
+            return JsonResponse({
+                "error": f"'{nombre}': se intenta devolver {cantidad} pero solo hay {disponible} disponibles para devolución."
+            }, status=400)
+
+        subtotal = detalle.precio_unitario * cantidad
+        total_devolucion += subtotal
+        lineas_validadas.append((detalle, cantidad, subtotal))
+
+    if not lineas_validadas:
+        return JsonResponse({"error": "Ingresa al menos una cantidad mayor a 0."}, status=400)
+
+    # ── Crear devolución ────────────────────────────────────
+    devolucion = DevolucionVenta.objects.create(
+        venta=venta,
+        motivo=motivo,
+        total_devuelto=total_devolucion,
+    )
+
+    for detalle, cantidad, subtotal in lineas_validadas:
+        DetalleDevolucion.objects.create(
+            devolucion=devolucion,
+            detalle_venta=detalle,
+            cantidad_devuelta=cantidad,
+            subtotal_devuelto=subtotal,
+        )
+        # Restaurar stock si es producto
+        if detalle.producto:
+            Stock.objects.filter(producto=detalle.producto).update(
+                cantidad_actual=F("cantidad_actual") + cantidad
+            )
+
+    # ── Anulación automática si todos los ítems fueron devueltos ──
+    venta_anulada = False
+    todos_devueltos = all(
+        d.cantidad_disponible_devolver == 0
+        for d in venta.detalles.all()
+    )
+    if todos_devueltos:
+        venta.estado = "anulada"
+        venta.save(update_fields=["estado"])
+        venta_anulada = True
+
+    return JsonResponse({
+        "ok": True,
+        "codigo_devolucion": devolucion.codigo_devolucion,
+        "total_devuelto": float(total_devolucion),
+        "venta_anulada": venta_anulada,
+        "mensaje": f"Devolución {devolucion.codigo_devolucion} registrada por ${total_devolucion:.2f}.",
+    })

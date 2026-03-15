@@ -875,6 +875,130 @@ document.addEventListener("change", function (e) {
   }
 });
 
+
+// ============================================================
+// VALIDACION DE FECHAS — REPORTE
+// ============================================================
+
+function hoy() {
+  return new Date(new Date().toDateString());
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  var parts = str.split("-");
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function setFieldError(inputId, errId, msg) {
+  var inp = document.getElementById(inputId);
+  var err = document.getElementById(errId);
+  if (!inp) return;
+  if (msg) {
+    inp.classList.add("is-invalid");
+    if (err) { err.textContent = msg; }
+  } else {
+    inp.classList.remove("is-invalid");
+    if (err) { err.textContent = ""; }
+  }
+}
+
+function clearAllDateErrors() {
+  ["id_fecha_inicio","id_fecha_fin","id_fecha_inicio_comp","id_fecha_fin_comp"].forEach(function(id) {
+    setFieldError(id, "err_" + id.replace("id_",""), null);
+  });
+}
+
+function validarFechasReporte(form) {
+  clearAllDateErrors();
+  var errores = [];
+
+  var fi   = form.querySelector('[name="fecha_inicio"]').value;
+  var ff   = form.querySelector('[name="fecha_fin"]').value;
+  var esComparativo = form.querySelector('[name="comparativo"]') && form.querySelector('[name="comparativo"]').checked;
+  var fic  = esComparativo ? form.querySelector('[name="fecha_inicio_comp"]').value : "";
+  var ffc  = esComparativo ? form.querySelector('[name="fecha_fin_comp"]').value : "";
+
+  var today = hoy();
+  var dFi  = parseDate(fi);
+  var dFf  = parseDate(ff);
+  var dFic = parseDate(fic);
+  var dFfc = parseDate(ffc);
+
+  // ── Rango principal ────────────────────────────────────
+  if (!fi) {
+    setFieldError("id_fecha_inicio", "err_fecha_inicio", "La fecha inicial es obligatoria.");
+    errores.push("fecha_inicio");
+  }
+  if (!ff) {
+    setFieldError("id_fecha_fin", "err_fecha_fin", "La fecha final es obligatoria.");
+    errores.push("fecha_fin");
+  }
+
+  if (dFf && dFf > today) {
+    setFieldError("id_fecha_fin", "err_fecha_fin", "La fecha final no puede ser posterior a hoy.");
+    errores.push("fecha_fin_futura");
+  }
+  if (dFi && dFi > today) {
+    setFieldError("id_fecha_inicio", "err_fecha_inicio", "La fecha inicial no puede ser posterior a hoy.");
+    errores.push("fecha_inicio_futura");
+  }
+  if (dFi && dFf && dFi > dFf) {
+    setFieldError("id_fecha_inicio", "err_fecha_inicio", "La fecha inicial no puede ser posterior a la fecha final.");
+    errores.push("rango_inv");
+  }
+  if (dFi && dFf && dFi.getTime() === dFf.getTime()) {
+    setFieldError("id_fecha_fin", "err_fecha_fin", "La fecha final no puede ser igual a la fecha inicial.");
+    errores.push("mismo_dia");
+  }
+
+  // ── Rango comparativo ──────────────────────────────────
+  if (esComparativo) {
+    if (!fic) {
+      setFieldError("id_fecha_inicio_comp", "err_fecha_inicio_comp", "La fecha inicial comparativa es obligatoria.");
+      errores.push("fic_vacia");
+    }
+    if (!ffc) {
+      setFieldError("id_fecha_fin_comp", "err_fecha_fin_comp", "La fecha final comparativa es obligatoria.");
+      errores.push("ffc_vacia");
+    }
+    if (dFfc && dFfc > today) {
+      setFieldError("id_fecha_fin_comp", "err_fecha_fin_comp", "La fecha final comparativa no puede ser posterior a hoy.");
+      errores.push("ffc_futura");
+    }
+    if (dFic && dFic > today) {
+      setFieldError("id_fecha_inicio_comp", "err_fecha_inicio_comp", "La fecha inicial comparativa no puede ser posterior a hoy.");
+      errores.push("fic_futura");
+    }
+    if (dFic && dFfc && dFic > dFfc) {
+      setFieldError("id_fecha_inicio_comp", "err_fecha_inicio_comp", "La fecha inicial comparativa no puede ser posterior a la final.");
+      errores.push("comp_rango_inv");
+    }
+    if (dFic && dFfc && dFic.getTime() === dFfc.getTime()) {
+      setFieldError("id_fecha_fin_comp", "err_fecha_fin_comp", "Las fechas comparativas no pueden ser iguales.");
+      errores.push("comp_mismo_dia");
+    }
+    // Rango comparativo no puede ser igual al principal
+    if (dFi && dFf && dFic && dFfc &&
+        dFi.getTime() === dFic.getTime() && dFf.getTime() === dFfc.getTime()) {
+      setFieldError("id_fecha_inicio_comp", "err_fecha_inicio_comp", "El rango comparativo no puede ser idéntico al rango principal.");
+      setFieldError("id_fecha_fin_comp", "err_fecha_fin_comp", "El rango comparativo no puede ser idéntico al rango principal.");
+      errores.push("comp_igual_principal");
+    }
+  }
+
+  return errores.length === 0;
+}
+
+// Validacion en tiempo real al cambiar cualquier fecha
+document.addEventListener("change", function(e) {
+  var names = ["fecha_inicio","fecha_fin","fecha_inicio_comp","fecha_fin_comp"];
+  var matched = names.some(function(n) { return e.target.name === n; });
+  if (!matched) return;
+  var form = document.getElementById("formReporteVentas");
+  if (form) validarFechasReporte(form);
+});
+
 document.addEventListener("click", async function (e) {
   const btnPreview = e.target.closest("#btnVistaPreviaReporte");
   if (!btnPreview) return;
@@ -890,6 +1014,16 @@ document.addEventListener("click", async function (e) {
     Swal.fire({
       icon: "warning",
       title: "Selecciona al menos una columna",
+    });
+    return;
+  }
+
+  if (!validarFechasReporte(form)) {
+    Swal.fire({
+      icon: "warning",
+      title: "Revisa las fechas",
+      text: "Corrige los errores en las fechas antes de continuar.",
+      confirmButtonColor: "#8d604a",
     });
     return;
   }
@@ -984,6 +1118,16 @@ document.addEventListener("submit", function (e) {
     return;
   }
 
+  if (!validarFechasReporte(form)) {
+    Swal.fire({
+      icon: "warning",
+      title: "Revisa las fechas",
+      text: "Corrige los errores en las fechas antes de continuar.",
+      confirmButtonColor: "#8d604a",
+    });
+    return;
+  }
+
   const params = new URLSearchParams(new FormData(form));
   window.location.href = `/ventas/reporte/exportar/?${params.toString()}`;
 });
@@ -1000,3 +1144,248 @@ document.addEventListener("change", function (e) {
     bloqueTipo.classList.add("d-none");
   }
 });
+// ============================================================
+// 6) DEVOLUCION DE VENTAS
+// ============================================================
+
+let _urlRegistrarDevolucion = null;
+
+document.addEventListener("click", async function (e) {
+  const btn = e.target.closest(".btn-devolucion");
+  if (!btn) return;
+
+  _urlRegistrarDevolucion = btn.dataset.urlRegistrar;
+
+  const cont   = document.getElementById("contenidoDevolucion");
+  const footer = document.getElementById("footerDevolucion");
+  if (!cont || !footer) return;
+
+  cont.innerHTML = '<div class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Cargando items...</div>';
+  footer.classList.add("d-none");
+
+  try {
+    const res = await fetch(btn.dataset.url);
+    if (!res.ok) {
+      const err = await res.json().catch(function() { return {}; });
+      throw new Error(err.error || "HTTP " + res.status);
+    }
+    const data = await res.json();
+
+    // Validar: si todos los items son servicios, mostrar SweetAlert sin abrir modal
+    var soloServicios = data.items.length > 0 && data.items.every(function(i) { return i.tipo === "servicio"; });
+    if (soloServicios) {
+      Swal.fire({
+        icon: "info",
+        title: "No aplica devolucion",
+        html: "Esta venta solo contiene <strong>servicios</strong>.<br>Los servicios ya realizados no pueden ser devueltos.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#8d604a",
+      });
+      return;
+    }
+
+    // Abrir modal solo si hay productos devolvibles
+    var modalEl = document.getElementById("modalDevolucion");
+    var modal = new bootstrap.Modal(modalEl);
+    renderFormDevolucion(cont, footer, data);
+    modal.show();
+  } catch (err) {
+    cont.innerHTML = '<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-1"></i>' + err.message + '</div>';
+  }
+});
+
+
+function renderFormDevolucion(cont, footer, data) {
+  var yaDevueltoHtml = "";
+  if (data.total_ya_devuelto > 0) {
+    yaDevueltoHtml = '<div class="d-flex align-items-center gap-2 p-2 rounded-3 mb-3" style="background:rgba(141,96,74,0.08);border:1px solid rgba(141,96,74,0.2)">'
+      + '<i class="bi bi-info-circle" style="color:#8d604a;font-size:1rem"></i>'
+      + '<span style="color:#3a2117;font-size:.875rem">Esta venta ya tiene devoluciones previas por <strong>$' + data.total_ya_devuelto.toFixed(2) + '</strong>.</span>'
+      + '</div>';
+  }
+
+  var filas = data.items.map(function(item) {
+    var esServicio = item.tipo === "servicio";
+    var sinStock = item.disponible === 0;
+    var tipoIcon = !esServicio
+      ? '<i class="bi bi-box-seam me-1" style="color:#8d604a"></i>'
+      : '<i class="bi bi-scissors me-1" style="color:#8d604a"></i>';
+
+    var disponibleBadge, accion, trOpacity;
+
+    if (esServicio) {
+      disponibleBadge = '<span class="text-muted small">—</span>';
+      accion = '<span class="badge rounded-pill" style="background:rgba(100,100,100,0.09);color:#6c757d;font-size:.75rem">No aplica</span>';
+      trOpacity = "opacity:.5";
+    } else if (sinStock) {
+      disponibleBadge = '<span class="badge rounded-pill" style="background:rgba(141,96,74,0.12);color:#8d604a;font-weight:600">0</span>';
+      accion = '<span class="badge rounded-pill" style="background:rgba(141,96,74,0.10);color:#8d604a;font-size:.75rem">Completado</span>';
+      trOpacity = "opacity:.55";
+    } else {
+      disponibleBadge = '<span class="badge rounded-pill" style="background:rgba(22,101,52,0.10);color:#166534;font-weight:600">' + item.disponible + '</span>';
+      accion = '<input type="number" class="form-control form-control-sm text-center input-cant-dev" data-detalle="' + item.detalle_id + '" data-precio="' + item.precio_unitario + '" data-disponible="' + item.disponible + '" min="0" max="' + item.disponible + '" value="0" style="width:80px;margin:auto;border-color:rgba(141,96,74,0.3)">';
+      trOpacity = "";
+    }
+
+    return '<tr style="' + trOpacity + '">'
+      + '<td class="fw-medium">' + tipoIcon + item.nombre + '</td>'
+      + '<td class="text-center">' + (esServicio ? '<span class="text-muted small">—</span>' : item.cantidad_original) + '</td>'
+      + '<td class="text-center text-muted">' + (esServicio ? '<span class="text-muted small">—</span>' : item.ya_devuelto) + '</td>'
+      + '<td class="text-center">' + disponibleBadge + '</td>'
+      + '<td class="text-end fw-medium">$' + item.precio_unitario.toFixed(2) + '</td>'
+      + '<td class="text-center" style="width:120px">' + accion + '</td>'
+      + '</tr>';
+  }).join("");
+
+  cont.innerHTML = '<div class="d-flex flex-wrap gap-3 mb-3 p-3 rounded-3" style="background:rgba(141,96,74,0.06);border:1px solid rgba(141,96,74,0.15)">'
+    + '<div><span class="text-muted small d-block" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">Venta</span><strong style="color:#3a2117">' + data.codigo_venta + '</strong></div>'
+    + '<div><span class="text-muted small d-block" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">Cliente</span><strong style="color:#3a2117">' + data.cliente + '</strong></div>'
+    + '<div><span class="text-muted small d-block" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">Total venta</span><strong style="color:#3a2117">$' + data.total_venta.toFixed(2) + '</strong></div>'
+    + '</div>'
+    + yaDevueltoHtml
+    + '<div class="table-responsive mb-3">'
+    + '<table class="table table-sm table-hover align-middle mb-0">'
+    + '<thead><tr style="background:linear-gradient(90deg,#3a2a24,#4b2f2a)">'
+    + '<th style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Item</th>'
+    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Vendido</th>'
+    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Ya devuelto</th>'
+    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Disponible</th>'
+    + '<th class="text-end" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Precio unit.</th>'
+    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Cant. a devolver</th>'
+    + '</tr></thead>'
+    + '<tbody>' + filas + '</tbody>'
+    + '<tfoot><tr style="background:rgba(141,96,74,0.06)">'
+    + '<td colspan="5" class="text-end fw-semibold" style="color:#3a2117;font-size:.9rem">Total a devolver:</td>'
+    + '<td class="text-center fw-bold" id="subtotalDevolucion" style="color:#8d604a;font-size:1rem">$0.00</td>'
+    + '</tr></tfoot>'
+    + '</table></div>'
+    + '<div class="mb-1">'
+    + '<label class="form-label fw-semibold mb-1" style="color:#3a2117;font-size:.875rem">Motivo de devolucion <span class="text-danger">*</span></label>'
+    + '<textarea id="motivoDevolucion" class="form-control" rows="2" maxlength="500" placeholder="Ej: producto defectuoso, error en pedido..." style="border-color:rgba(141,96,74,0.3);border-radius:10px;resize:none"></textarea>'
+    + '<div class="invalid-feedback" id="motivoDevolucionError">El motivo es obligatorio.</div>'
+    + '</div>';
+
+  footer.classList.remove("d-none");
+
+  cont.querySelectorAll(".input-cant-dev").forEach(function(inp) {
+    inp.addEventListener("input", function() {
+      recalcularSubtotalDevolucion(cont);
+    });
+  });
+}
+
+
+function recalcularSubtotalDevolucion(cont) {
+  var total = 0;
+  cont.querySelectorAll(".input-cant-dev").forEach(function(inp) {
+    var cant = parseInt(inp.value) || 0;
+    var precio = parseFloat(inp.dataset.precio) || 0;
+    if (cant > parseInt(inp.dataset.disponible)) {
+      inp.value = inp.dataset.disponible;
+      cant = parseInt(inp.dataset.disponible);
+    }
+    total += cant * precio;
+  });
+  var el = document.getElementById("subtotalDevolucion");
+  if (el) el.textContent = "$" + total.toFixed(2);
+}
+
+
+document.addEventListener("click", async function (e) {
+  const btn = e.target.closest("#btnConfirmarDevolucion");
+  if (!btn) return;
+
+  const cont   = document.getElementById("contenidoDevolucion");
+  const motivo = document.getElementById("motivoDevolucion");
+
+  if (!motivo || !motivo.value.trim()) {
+    if (motivo) motivo.classList.add("is-invalid");
+    if (motivo) motivo.focus();
+    return;
+  }
+  motivo.classList.remove("is-invalid");
+
+  var items = [];
+  cont.querySelectorAll(".input-cant-dev").forEach(function(inp) {
+    var cant = parseInt(inp.value) || 0;
+    if (cant > 0) {
+      items.push({ detalle_id: parseInt(inp.dataset.detalle), cantidad: cant });
+    }
+  });
+
+  if (items.length === 0) {
+    if (typeof Swal !== "undefined") {
+      Swal.fire({ icon: "warning", title: "Ingresa al menos una cantidad mayor a 0." });
+    }
+    return;
+  }
+
+  var subtotalEl = document.getElementById("subtotalDevolucion");
+  var subtotal = subtotalEl ? subtotalEl.textContent : "";
+
+  var confirm = await Swal.fire({
+    icon: "warning",
+    title: "Confirmar devolucion",
+    html: "Se registrara una devolucion por <strong>" + subtotal + "</strong>.<br>Esta accion no se puede deshacer.",
+    showCancelButton: true,
+    confirmButtonText: "Si, registrar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#f0a500",
+    reverseButtons: true,
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+
+  try {
+    var csrfToken = (document.querySelector("[name=csrfmiddlewaretoken]") || {}).value || getCookie("csrftoken");
+
+    const res = await fetch(_urlRegistrarDevolucion, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify({ motivo: motivo.value.trim(), items: items }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.ok) {
+      var modalEl = document.getElementById("modalDevolucion");
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+
+      var extraMsg = data.venta_anulada
+        ? "<br><span class=\"badge bg-warning text-dark mt-2\">Venta anulada automaticamente</span>"
+        : "";
+      await Swal.fire({
+        icon: "success",
+        title: "Devolucion registrada",
+        html: "<strong>" + data.codigo_devolucion + "</strong><br>Total devuelto: <strong>$" + data.total_devuelto.toFixed(2) + "</strong>" + extraMsg,
+        timer: 3000,
+        showConfirmButton: false,
+      });
+
+      location.reload();
+    } else {
+      Swal.fire({ icon: "error", title: "Error", text: data.error || "No se pudo registrar la devolucion." });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Confirmar devolucion';
+    }
+  } catch (err) {
+    Swal.fire({ icon: "error", title: "Error de conexion", text: err.message });
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Confirmar devolucion';
+  }
+});
+
+
+function getCookie(name) {
+  var value = "; " + document.cookie;
+  var parts = value.split("; " + name + "=");
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return "";
+}
