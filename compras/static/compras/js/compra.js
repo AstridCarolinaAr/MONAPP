@@ -303,10 +303,13 @@
       result.type === "json"
         ? result.data.html || `<div class="alert alert-danger">No se pudo cargar.</div>`
         : result.data;
-
+        
     qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
     calcularTotal(formModalEl);
     validateCompraForm(formModalEl);
+    setTimeout(() => {
+      window.initDevolucionForm?.(formModalEl);
+    }, 0);
   }
 
   document.body.addEventListener("click", async (e) => {
@@ -511,7 +514,15 @@
     if (!form) return;
 
     e.preventDefault();
-    if (!validateCompraForm(form)) return;
+  let ok = true;
+
+  if (form.id === "formCompra") {
+    ok = validateCompraForm(form);
+  } else if (form.id === "formDevolucionCompra") {
+    ok = window.validateDevolucionForm ? window.validateDevolucionForm(form) : true;
+  }
+
+if (!ok) return;
 
     qsa(form, 'input[name$="-precio_unitario"]').forEach((inp) => {
       inp.value = unformatCOP(inp.value);
@@ -552,6 +563,7 @@
       qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
       calcularTotal(formModalEl);
       validateCompraForm(formModalEl);
+      window.initDevolucionForm?.(formModalEl);
       return;
     }
 
