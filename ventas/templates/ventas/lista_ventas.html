@@ -31,7 +31,7 @@ Ventas
 {% endblock %}
 
 {% block page_actions %}
-<div class="d-flex gap-2">
+<div class="d-flex gap-2 anim-from-top">
   <button type="button"
           class="btn-pill-dark"
           id="btnNuevaVenta"
@@ -51,7 +51,7 @@ Ventas
 {% block content %}
 
 <!-- FILTROS -->
-<form method="get" class="row g-2 mb-3">
+<form method="get" class="row g-2 mb-3 anim-from-bottom" style="animation-delay:.08s">
   <div class="col-md-4">
     <input
       type="text"
@@ -82,7 +82,7 @@ Ventas
 </form>
 
 <!-- TABLA -->
-<div class="table-card">
+<div class="table-card anim-from-bottom" style="animation-delay:.18s">
   <table class="table table-hover align-middle mb-0 styled-table">
     <thead>
       <tr>
@@ -584,11 +584,13 @@ Ventas
 <div class="modal fade" id="modalDevolucion" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
-      <div class="modal-header" style="background:linear-gradient(90deg,#3a2117,#4b2f2a);border:none;padding:18px 24px;">
+      <div class="modal-header dev-modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
         <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;">
           <i class="bi bi-arrow-return-left me-2"></i>Registrar devolución
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar">
+          <span class="btn-close-dev__icon">✕</span>
+        </button>
       </div>
       <div class="modal-body" id="contenidoDevolucion" style="padding:24px;">
         <div class="text-center text-muted py-4">Cargando…</div>

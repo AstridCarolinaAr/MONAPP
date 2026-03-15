@@ -29,12 +29,12 @@ input:disabled {
   padding: 6px 12px;
   border-radius: 4px;
   background: rgba(105, 29, 2, 0.05);
-  color: #3a2a24;
+  color: #2c0909;
   font-size: 12px;
 }
 
 .empty-state a {
-  color: #3a2a24;
+  color: #2c0909;
   font-weight: 700;
   text-decoration: underline;
 }
@@ -57,20 +57,20 @@ input:disabled {
 
 .btn-guardar-venta {
     background-color: #8B5E3C !important;
-    border-color: #8B5E3C !important;
+    border-color: #2c0909 !important;
     color: #fff !important;
 }
 
 .btn-guardar-venta:hover {
     background-color: #6f472d !important;
-    border-color: #6f472d !important;
+    border-color: #2c0909 !important;
     color: #fff !important;
 }
 
 .btn-guardar-venta:focus,
 .btn-guardar-venta:active {
     background-color: #6f472d !important;
-    border-color: #6f472d !important;
+    border-color: #2c0909 !important;
     color: #fff !important;
     box-shadow: 0 0 0 0.2rem rgba(139, 94, 60, 0.25) !important;
 }
@@ -92,8 +92,8 @@ input:disabled {
 .sw {
   position: relative;
   display: inline-block;
-  width: 52px;
-  height: 23px;
+  width: 36px;
+  height: 18px;
 }
 
 .sw__input {
@@ -106,30 +106,30 @@ input:disabled {
   position: absolute;
   inset: 0;
   cursor: pointer;
-  background: rgba(141, 96, 74, 0.45);
-  transition: .25s;
-  border-radius: 995px;
+  background:#9b6a57 ;
+  transition: .22s;
+  border-radius: 999px;
 }
 
 .sw__slider:before {
   content: "";
   position: absolute;
-  width: 15px;
-  height: 15px;
-  left: 2px;
-  top: 2px;
+  width: 12px;
+  height: 12px;
+  left: 3px;
+  top: 3px;
   background: #fff;
-  transition: .25s;
+  transition: .22s;
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(87, 3, 3, 0.25);
+  box-shadow: 0 1px 3px rgba(58, 33, 23, 0.22);
 }
 
 .sw__input:checked + .sw__slider {
-  background:  rgba(141, 96, 74, 0.95);
+  background: #2c0909;
 }
 
 .sw__input:checked + .sw__slider:before {
-  transform: translateX(10px);
+  transform: translateX(18px);
 }
 
 /* =====================================================
@@ -195,56 +195,59 @@ input:disabled {
     box-shadow: none;
 }
 
-.btn-ver-detalle {
-    color: #6b4a3b !important;
-}
-
+.btn-ver-detalle,
 .btn-editar {
-    color: #8a5a44 !important;
+    color: #2c0909 !important;
 }
 /* Acciones de ventas heredando estilo visual base */
 td .btn-ver-detalle,
-td .btn-editar {
+td .btn-editar,
+td .btn-devolucion {
     background: transparent;
     border: none;
-    color: #5b3a29 !important;
+    color: #2c0909 !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 10px;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
     text-decoration: none !important;
     padding: 0;
+    cursor: pointer;
 }
 
 td .btn-ver-detalle i,
-td .btn-editar i {
-    font-size: 1.1rem;
+td .btn-editar i,
+td .btn-devolucion i {
+    font-size: 1.05rem;
     color: inherit !important;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
 }
 
 /* Hover */
 td .btn-ver-detalle:hover,
-td .btn-editar:hover {
-    background: rgba(91, 58, 41, 0.12);
-    color: #382822 !important;
+td .btn-editar:hover,
+td .btn-devolucion:hover {
+    background: rgba(138, 90, 68, 0.12);
+    color: #2c0909 !important;
     transform: translateY(-1px);
 }
 
 /* Focus */
 td .btn-ver-detalle:focus,
-td .btn-editar:focus {
+td .btn-editar:focus,
+td .btn-devolucion:focus {
     outline: none;
-    box-shadow: 0 0 0 0.15rem rgba(91, 58, 41, 0.18);
+    box-shadow: 0 0 0 0.15rem rgba(138, 90, 68, 0.18);
 }
 
 /* Activo */
 td .btn-ver-detalle:active,
-td .btn-editar:active {
-    transform: scale(0.96);
+td .btn-editar:active,
+td .btn-devolucion:active {
+    transform: scale(0.94);
 }
 .report-option {
   display: flex;
@@ -261,7 +264,7 @@ td .btn-editar:active {
 
 .report-option:hover {
   background: rgba(141, 96, 74, 0.06);
-  border-color: rgba(141, 96, 74, 0.35);
+  border-color: #2c0909;
 }
 
 .report-option input[type="checkbox"],
@@ -274,7 +277,7 @@ td .btn-editar:active {
   content: "";
   width: 8px;
   height: 8px;
-  background: #8d604a;
+  background: #2c0909;
   border-radius: 50%;
   position: absolute;
   top: 3px;
@@ -283,7 +286,7 @@ td .btn-editar:active {
 .report-circle {
   width: 18px;
   height: 18px;
-  border: 2px solid #8d604a;
+  border: 2px solid #2c0909;
   border-radius: 50%;
   position: relative;
   flex-shrink: 0;
@@ -293,7 +296,7 @@ td .btn-editar:active {
   content: "";
   width: 8px;
   height: 8px;
-  background: #8d604a;
+  background: #2c0909;
   border-radius: 50%;
   position: absolute;
   top: 3px;
@@ -304,38 +307,6 @@ td .btn-editar:active {
   font-weight: 500;
   color: #3a2a24;
 }
-/* ── Botón devolución ── */
-td .btn-devolucion {
-  background: transparent;
-  border: none;
-  color: #8a5a44;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  padding: 0;
-  cursor: pointer;
-}
-td .btn-devolucion i {
-  font-size: 1.1rem;
-  color: inherit;
-}
-td .btn-devolucion:hover {
-  background: rgba(91, 58, 41, 0.12);
-  color: #382822;
-  transform: translateY(-1px);
-}
-td .btn-devolucion:focus {
-  outline: none;
-  box-shadow: 0 0 0 0.15rem rgba(91, 58, 41, 0.18);
-}
-td .btn-devolucion:active {
-  transform: scale(0.96);
-}
-
 /* Tabla del modal de devolución */
 #contenidoDevolucion .table thead th {
   font-size: 0.78rem;
@@ -344,11 +315,11 @@ td .btn-devolucion:active {
   font-weight: 600;
 }
 #contenidoDevolucion .input-cant-dev:focus {
-  border-color: #8d604a;
+  border-color: #2c0909;
   box-shadow: 0 0 0 0.2rem rgba(141, 96, 74, 0.2);
 }
 #contenidoDevolucion #motivoDevolucion:focus {
-  border-color: #8d604a;
+  border-color: #2c0909;
   box-shadow: 0 0 0 0.2rem rgba(141, 96, 74, 0.2);
 }
 
@@ -401,6 +372,99 @@ td .btn-devolucion:active {
   .ventas-cart-icon,
   .ventas-title-text,
   .ventas-subtitle-anim {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+/* ============================================================
+   MODAL DEVOLUCIÓN — HEADER Y BOTÓN X CON GIRO
+============================================================ */
+
+/* Botón X personalizado */
+.btn-close-dev {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-close-dev:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.btn-close-dev:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.25);
+}
+
+.btn-close-dev__icon {
+  display: inline-block;
+  color: rgba(255,255,255,0.85);
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 300;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+  /* Estado base: listo para girar antihorario si viene del hover */
+  transform: rotate(0deg);
+}
+
+/* Al pasar el mouse: giro horario 90° */
+.btn-close-dev:hover .btn-close-dev__icon {
+  transform: rotate(90deg);
+  color: #fff;
+}
+
+/* Al quitar el mouse: vuelve antihorario (vía JS) */
+.btn-close-dev__icon.spin-back {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transform: rotate(-90deg) !important;
+}
+
+/* Tras volver, reset sin animación */
+.btn-close-dev__icon.spin-reset {
+  transition: none !important;
+  transform: rotate(0deg) !important;
+}
+
+/* ============================================================
+   ANIMACIONES DE ENTRADA — PÁGINA VENTAS
+============================================================ */
+
+/* Desde arriba (botones Nueva venta / Reporte) */
+.anim-from-top {
+  opacity: 0;
+  animation: slide-from-top 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+
+/* Desde abajo (filtros, tabla y cualquier otro bloque) */
+.anim-from-bottom {
+  opacity: 0;
+  animation: slide-from-bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slide-from-top {
+  0%   { opacity: 0; transform: translateY(-22px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-from-bottom {
+  0%   { opacity: 0; transform: translateY(22px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-from-top,
+  .anim-from-bottom {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

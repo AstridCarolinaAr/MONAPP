@@ -1245,13 +1245,13 @@ function renderFormDevolucion(cont, footer, data) {
     + yaDevueltoHtml
     + '<div class="table-responsive mb-3">'
     + '<table class="table table-sm table-hover align-middle mb-0">'
-    + '<thead><tr style="background:linear-gradient(90deg,#3a2a24,#4b2f2a)">'
-    + '<th style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Item</th>'
-    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Vendido</th>'
-    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Ya devuelto</th>'
-    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Disponible</th>'
-    + '<th class="text-end" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Precio unit.</th>'
-    + '<th class="text-center" style="color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Cant. a devolver</th>'
+    + '<thead><tr>'
+    + '<th style="background:#2c0909;color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Item</th>'
+    + '<th class="text-center" style="background:#2c0909;color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Vendido</th>'
+    + '<th class="text-center" style="background:#2c0909;color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Ya devuelto</th>'
+    + '<th class="text-center" style="background:#2c0909;color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Disponible</th>'
+    + '<th class="text-end" style="background:#2c0909;color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Precio unit.</th>'
+    + '<th class="text-center" style="background:#2c0909;color:#fff;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:10px 12px">Cant. a devolver</th>'
     + '</tr></thead>'
     + '<tbody>' + filas + '</tbody>'
     + '<tfoot><tr style="background:rgba(141,96,74,0.06)">'
@@ -1389,3 +1389,30 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(";").shift();
   return "";
 }
+
+// ============================================================
+// BOTÓN X MODAL DEVOLUCIÓN — GIRO HORARIO/ANTIHORARIO
+// ============================================================
+document.addEventListener("mouseleave", function(e) {
+  if (!e.target.closest) return;
+  var btn = e.target.closest(".btn-close-dev");
+  if (!btn) return;
+  var icon = btn.querySelector(".btn-close-dev__icon");
+  if (!icon) return;
+
+  // Quitar clase hover-like y aplicar giro antihorario
+  icon.classList.remove("spin-reset");
+  icon.classList.add("spin-back");
+
+  // Después de la transición, resetear a 0 sin animación
+  setTimeout(function() {
+    icon.classList.remove("spin-back");
+    icon.classList.add("spin-reset");
+    // Micro-tick para que el browser procese el cambio
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        icon.classList.remove("spin-reset");
+      });
+    });
+  }, 360);
+}, true);
