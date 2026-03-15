@@ -26,177 +26,153 @@ Gestión de clientes registrados
 {% endblock %}
 
 {% block content %}
+<div class="container-fluid px-4 py-4">
 
-<form method="get" class="row g-2 align-items-center mb-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="mb-0 fw-semibold">Clientes</h3>
+            <small class="text-muted">Gestión de clientes registrados</small>
+        </div>
 
-    <div class="col-md-3">
-        <input type="text"
-               name="q"
-               class="form-control"
-               placeholder="Buscar nombre o documento"
-               value="{{ q|default:'' }}">
-    </div>
-
-    <div class="col-md-2">
-        <input type="text"
-               name="codigo"
-               class="form-control"
-               placeholder="Código cliente"
-               value="{{ codigo|default:'' }}">
-    </div>
-
-    <div class="col-md-2">
-        <select name="estado" class="form-select">
-            <option value="">Estado</option>
-            <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
-            <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
-        </select>
-    </div>
-
-    <div class="col-md-2">
-        <select name="edad" class="form-select">
-            <option value="">Edad</option>
-            <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
-            <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
-        </select>
-    </div>
-
-
-    
-    <div class="col-md-1">
-        <button class="btn btn-outline-secondary w-100" title="Aplicar filtros">
-            <i class="bi bi-filter"></i>
+        <button class="btn-pill-dark"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCrearCliente">
+            <i class="bi bi-plus-circle"></i> Nuevo cliente
         </button>
     </div>
 
-    {% if q or estado or codigo or edad or orden %}
-    <div class="col-md-1">
-        <a href="{% url 'clientes:lista' %}"
-           class="btn btn-outline-danger w-100"
-           title="Limpiar filtros">
-            <i class="bi bi-x-lg"></i>
-        </a>
-    </div>
-    {% endif %}
-</form>
+    <!-- Panel de filtros -->
+    <form method="get" class="clientes-panel mb-4">
 
-<div class="table-responsive">
-    <table class="table styled-table table-hover align-middle w-100">
-        <thead>
-            <tr>
-                <th>
-                    <a href="?q={{ q|urlencode }}&codigo={{ codigo|urlencode }}&estado={{ estado|urlencode }}&edad={{ edad|urlencode }}&orden={% if orden == 'codigo_asc' %}codigo_desc{% else %}codigo_asc{% endif %}"
-                    class="text-decoration-none text-white d-inline-flex align-items-center gap-1">
-                        Código
-                        {% if orden == 'codigo_asc' %}
-                            <span>↑</span>
-                        {% elif orden == 'codigo_desc' %}
-                            <span>↓</span>
-                        {% endif %}
+        <div class="row g-3 align-items-end clientes-filtros-row">
+            <!-- CÓDIGO -->
+            <div class="col-xl-3 col-lg-3 col-md-6">
+                <label class="form-label clientes-label">Código</label>
+                <input type="text"
+                       name="codigo"
+                       class="form-control"
+                       placeholder="Código cliente"
+                       value="{{ codigo|default:'' }}">
+            </div>
+
+            <!-- ESTADO -->
+            <div class="col-xl-2 col-lg-3 col-md-6">
+                <label class="form-label clientes-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+
+            <!-- EDAD -->
+            <div class="col-xl-2 col-lg-2 col-md-6">
+                <label class="form-label clientes-label">Edad</label>
+                <select name="edad" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
+                    <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
+                </select>
+            </div>
+
+            <!-- ORDEN -->
+            <div class="col-xl-3 col-lg-2 col-md-6">
+                <label class="form-label clientes-label">Ordenar</label>
+                <select name="orden" class="form-select">
+                    <option value="">Seleccionar</option>
+                    <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
+                    <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z-A</option>
+                    <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A-Z</option>
+                    <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z-A</option>
+                    <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
+                    <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
+                </select>
+            </div>
+
+            <!-- ACCIONES -->
+            <div class="col-xl-2 col-lg-2 col-md-12">
+                <div class="clientes-acciones">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="bi bi-filter"></i>
+                    </button>
+
+                    {% if q or estado or codigo or edad or orden %}
+                    <a href="{% url 'clientes:lista' %}" class="btn btn-outline-danger">
+                        <i class="bi bi-x-lg"></i>
                     </a>
-                </th>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-                <th>
-                    <a href="?q={{ q|urlencode }}&codigo={{ codigo|urlencode }}&estado={{ estado|urlencode }}&edad={{ edad|urlencode }}&orden={% if orden == 'nombre_asc' %}nombre_desc{% else %}nombre_asc{% endif %}"
-                    class="text-decoration-none text-white d-inline-flex align-items-center gap-1">
-                        Cliente
-                        {% if orden == 'nombre_asc' %}
-                            <span>↑</span>
-                        {% elif orden == 'nombre_desc' %}
-                            <span>↓</span>
-                        {% endif %}
-                    </a>
-                </th>
+        <!-- BUSCADOR GLOBAL DEBAJO -->
+        <div class="clientes-busqueda-wrap">
+            <div class="clientes-busqueda-global">
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
+            </div>
+        </div>
 
-                <th>
-                    <a href="?q={{ q|urlencode }}&codigo={{ codigo|urlencode }}&estado={{ estado|urlencode }}&edad={{ edad|urlencode }}&orden={% if orden == 'documento_asc' %}documento_desc{% else %}documento_asc{% endif %}"
-                    class="text-decoration-none text-white d-inline-flex align-items-center gap-1">
-                        Documento
-                        {% if orden == 'documento_asc' %}
-                            <span>↑</span>
-                        {% elif orden == 'documento_desc' %}
-                            <span>↓</span>
-                        {% endif %}
-                    </a>
-                </th>
+    </form>
 
-                <th>
-                    <a href="?q={{ q|urlencode }}&codigo={{ codigo|urlencode }}&estado={{ estado|urlencode }}&edad={{ edad|urlencode }}&orden={% if orden == 'telefono_asc' %}telefono_desc{% else %}telefono_asc{% endif %}"
-                    class="text-decoration-none text-white d-inline-flex align-items-center gap-1">
-                        Teléfono
-                        {% if orden == 'telefono_asc' %}
-                            <span>↑</span>
-                        {% elif orden == 'telefono_desc' %}
-                            <span>↓</span>
-                        {% endif %}
-                    </a>
-                </th>
+    <!-- Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Cliente</th>
+                            <th>Documento</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
+                            <td>
+                                {{ cliente.nombre }} {{ cliente.apellido }}<br>
+                                <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
+                            </td>
+                            <td>
+                                {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
+                            </td>
+                            <td>{{ cliente.telefono|default:"—" }}</td>
+                            <td>
+                                {% if cliente.estado == 'activo' %}
+                                    <span class="badge bg-success-subtle text-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'clientes:editar' cliente.id %}"
+                                    class="btn btn-link"
+                                    style="color: #382822;"
+                                    title="Editar"
+                                    data-bs-placement="bottom">
+                                        <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                                </a>
+                                <button class="btn btn-link"
+                                        style="color: #382822;"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalDetalleCliente{{ cliente.id }}"
+                                        title="Ver detalles"
+                                        data-bs-placement="bottom">
+                                    <i class="bi bi-eye" style="font-size: 24px;"></i>
+                                </button>
 
-                <th>
-                    <a href="?q={{ q|urlencode }}&codigo={{ codigo|urlencode }}&estado={{ estado|urlencode }}&edad={{ edad|urlencode }}&orden={% if orden == 'estado_asc' %}estado_desc{% else %}estado_asc{% endif %}"
-                    class="text-decoration-none text-white d-inline-flex align-items-center gap-1">
-                        Estado
-                        {% if orden == 'estado_asc' %}
-                            <span>↑</span>
-                        {% elif orden == 'estado_desc' %}
-                            <span>↓</span>
-                        {% endif %}
-                    </a>
-                </th>
+                                <!-- ✅ AQUÍ VA EL MODAL DE DETALLES -->
+                                <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
 
-                <th class="text-end">Acciones</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for cliente in clientes %}
-            <tr>
-                <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
-                <td>
-                    {{ cliente.nombre }} {{ cliente.apellido }}<br>
-                    <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
-                </td>
-                <td>{{ cliente.tipo_documento }} {{ cliente.numero_documento }}</td>
-                <td>{{ cliente.telefono|default:"—" }}</td>
-                <td>
-                    <div class="form-check form-switch d-flex justify-content-center m-0">
-                        <input class="form-check-input switch-estado-cliente"
-                            type="checkbox"
-                            role="switch"
-                            data-url="{% url 'clientes:cambiar_estado' cliente.id %}"
-                            {% if cliente.estado == 'activo' %}checked{% endif %}>
-                    </div>
-                </td>
-                
-                <td class="text-end">
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{% url 'clientes:editar' cliente.id %}"
-                           class="btn btn-link p-0"
-                           title="Editar cliente">
-                            <i class="bi bi-pencil-square" style="color: #382822; font-size: 24px;"></i>
-                        </a>
-
-                        <button class="btn btn-link p-0"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalDetalleCliente{{ cliente.id }}"
-                                title="Ver detalles">
-                            <i class="bi bi-eye" style="color: #382822; font-size: 24px;"></i>
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-link p-0 btn-eliminar-cliente"
-                                data-es-admin="{{ user.is_staff|yesno:'true,false' }}"
-                                data-modal-id="modalEliminarCliente{{ cliente.id }}"
-                                title="Eliminar">
-                            <i class="bi bi-trash3" style="color: #3c1e14; font-size: 24px;"></i>
-                        </button>
-                    </div>
-
-                    <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
                                         <i class="bi bi-person-badge me-2"></i>
                                         Detalles del cliente
                                     </h5>

@@ -101,7 +101,7 @@
   }
 
   // =========================
-  // Formset renumerar (si borras nodos)
+  // Formset renumerar
   // =========================
   function renumerarForms(container, prefix) {
     const items = Array.from(container.querySelectorAll(".detalle-item"));
@@ -122,7 +122,7 @@
   }
 
   // =========================
-  // Feedback bootstrap (rojo/verde)
+  // Feedback bootstrap
   // =========================
   function hideGeneralErrors(form) {
     const box = qs(form, "#compraErroresGenerales");
@@ -192,7 +192,6 @@
 
     const modo = form.dataset.modo || "crear";
 
-    // proveedor
     const proveedor = qs(form, "#id_proveedor");
     if (proveedor) {
       if (!proveedor.value) {
@@ -203,7 +202,6 @@
       }
     }
 
-    // validar filas
     const usados = new Map();
     let hayProductoReal = false;
 
@@ -282,6 +280,7 @@
   let detalleModal = null;
   const detalleModalEl = document.getElementById("modalDetalleCompra");
   const detalleBodyEl = document.getElementById("detalleCompraBody");
+  const detalleTitleEl = document.getElementById("modalDetalleCompraTitle");
   if (detalleModalEl) detalleModal = new bootstrap.Modal(detalleModalEl);
 
   async function openFormModal(url, title) {
@@ -305,100 +304,16 @@
       result.type === "json"
         ? result.data.html || `<div class="alert alert-danger">No se pudo cargar.</div>`
         : result.data;
-
+        
     qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
     calcularTotal(formModalEl);
     validateCompraForm(formModalEl);
+    setTimeout(() => {
+      window.initDevolucionForm?.(formModalEl);
+    }, 0);
   }
 
-  // =========================
-  // Click global
-  // =========================
   document.body.addEventListener("click", async (e) => {
-    // =========================
-    // Toggle del buscador de compras
-    // =========================
-    const btnBusquedaToggle = e.target.closest("#btnBusquedaToggle");
-    if (btnBusquedaToggle) {
-      e.preventDefault();
-
-      const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
-      const boxBusqueda = document.getElementById("busquedaComprasBox");
-      const inputBusqueda = document.getElementById("busquedaComprasInput");
-
-      if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda) {
-        console.warn("Buscador de compras: no se encontraron los elementos.");
-        return;
-      }
-
-      const estaAbierto = boxBusqueda.classList.contains("is-open");
-
-      const abrirBuscador = () => {
-        wrapperBusqueda.classList.add("is-open");
-        boxBusqueda.classList.add("is-open");
-        btnBusquedaToggle.setAttribute("aria-expanded", "true");
-
-        setTimeout(() => {
-          inputBusqueda.focus();
-          const len = inputBusqueda.value.length;
-          inputBusqueda.setSelectionRange(len, len);
-        }, 180);
-      };
-
-      const cerrarBuscador = () => {
-        wrapperBusqueda.classList.remove("is-open");
-        boxBusqueda.classList.remove("is-open");
-        btnBusquedaToggle.setAttribute("aria-expanded", "false");
-      };
-
-      if (estaAbierto) {
-        if (inputBusqueda.value.trim()) {
-          inputBusqueda.focus();
-          return;
-        }
-
-        cerrarBuscador();
-        return;
-      }
-
-      abrirBuscador();
-      return;
-    }
-      // =========================
-  // Cerrar buscador al hacer clic fuera o con Escape
-  // =========================
-  document.addEventListener("click", (e) => {
-    const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
-    const boxBusqueda = document.getElementById("busquedaComprasBox");
-    const inputBusqueda = document.getElementById("busquedaComprasInput");
-    const btnBusqueda = document.getElementById("btnBusquedaToggle");
-
-    if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda || !btnBusqueda) return;
-    if (!boxBusqueda.classList.contains("is-open")) return;
-    if (wrapperBusqueda.contains(e.target)) return;
-    if (inputBusqueda.value.trim()) return;
-
-    wrapperBusqueda.classList.remove("is-open");
-    boxBusqueda.classList.remove("is-open");
-    btnBusqueda.setAttribute("aria-expanded", "false");
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-
-    const wrapperBusqueda = document.getElementById("busquedaComprasWrapper");
-    const boxBusqueda = document.getElementById("busquedaComprasBox");
-    const inputBusqueda = document.getElementById("busquedaComprasInput");
-    const btnBusqueda = document.getElementById("btnBusquedaToggle");
-
-    if (!wrapperBusqueda || !boxBusqueda || !inputBusqueda || !btnBusqueda) return;
-    if (inputBusqueda.value.trim()) return;
-
-    wrapperBusqueda.classList.remove("is-open");
-    boxBusqueda.classList.remove("is-open");
-    btnBusqueda.setAttribute("aria-expanded", "false");
-  });
-
     // abrir modal crear/editar
     const trigger = e.target.closest("[data-modal-url]");
     if (trigger) {
@@ -419,6 +334,10 @@
       const url = btnDetalle.getAttribute("data-url");
       if (!url) return;
 
+      if (detalleTitleEl) {
+        detalleTitleEl.textContent = "Detalle de compra";
+      }
+
       detalleBodyEl.innerHTML = `<div class="text-muted">Cargando...</div>`;
       detalleModal.show();
 
@@ -429,6 +348,7 @@
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+
         detalleBodyEl.innerHTML =
           data.success && data.html
             ? data.html
@@ -468,7 +388,7 @@
       return;
     }
 
-    // eliminar fila (marcar DELETE)
+    // eliminar fila
     const btnX = e.target.closest(".btn-eliminar-item");
     if (btnX) {
       e.preventDefault();
@@ -500,14 +420,13 @@
       return;
     }
 
-    // anular compra (AJAX)
+    // anular compra
     const btnAnular = e.target.closest(".js-anular-compra");
     if (btnAnular) {
       e.preventDefault();
 
       const url = btnAnular.getAttribute("data-url");
       const id = btnAnular.getAttribute("data-id");
-      const proveedor = btnAnular.getAttribute("data-proveedor");
       if (!url) return;
 
       const confirm = await Swal.fire({
@@ -558,7 +477,7 @@
   });
 
   // =========================
-  // Tiempo real (total + validación)
+  // Tiempo real
   // =========================
   document.addEventListener("input", (e) => {
     if (
@@ -594,16 +513,23 @@
   });
 
   // =========================
-  // Submit AJAX del modal
+  // Submit AJAX
   // =========================
   document.body.addEventListener("submit", async (e) => {
     const form = e.target.closest("#ajaxFormModal form");
     if (!form) return;
 
     e.preventDefault();
-    if (!validateCompraForm(form)) return;
+  let ok = true;
 
-    // quitar formato COP antes de enviar
+  if (form.id === "formCompra") {
+    ok = validateCompraForm(form);
+  } else if (form.id === "formDevolucionCompra") {
+    ok = window.validateDevolucionForm ? window.validateDevolucionForm(form) : true;
+  }
+
+if (!ok) return;
+
     qsa(form, 'input[name$="-precio_unitario"]').forEach((inp) => {
       inp.value = unformatCOP(inp.value);
     });
@@ -643,74 +569,13 @@
       qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
       calcularTotal(formModalEl);
       validateCompraForm(formModalEl);
+      window.initDevolucionForm?.(formModalEl);
       return;
     }
 
-    // fallback HTML
     formModalBodyEl.innerHTML = result.data;
     qsa(formModalEl, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
     calcularTotal(formModalEl);
     validateCompraForm(formModalEl);
   });
 })();
-document.addEventListener("DOMContentLoaded", () => {
-  const modalEl = document.getElementById("modalComprobanteCompra");
-  const modalBody = document.getElementById("comprobanteCompraBody");
-  const btnDescargar = document.getElementById("btnDescargarComprobante");
-
-  if (!modalEl || !modalBody || !btnDescargar) return;
-
-  const comprobanteModal = new bootstrap.Modal(modalEl);
-
-  let currentPdfUrl = null;
-  let currentExcelUrl = null;
-
-  document.body.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".js-ver-comprobante");
-    if (!btn) return;
-
-    e.preventDefault();
-
-    const url = btn.getAttribute("data-url");
-    currentPdfUrl = btn.getAttribute("data-pdf-url");
-    currentExcelUrl = btn.getAttribute("data-excel-url");
-
-    modalBody.innerHTML = `<div class="text-center py-5 text-muted">Cargando comprobante...</div>`;
-    comprobanteModal.show();
-
-    try {
-      const res = await fetch(url, {
-        method: "GET",
-        credentials: "same-origin",
-        headers: { "X-Requested-With": "XMLHttpRequest" }
-      });
-
-      const data = await res.json();
-      modalBody.innerHTML = data.success
-        ? data.html
-        : `<div class="alert alert-danger">No se pudo cargar el comprobante.</div>`;
-    } catch (err) {
-      console.error(err);
-      modalBody.innerHTML = `<div class="alert alert-danger">Error cargando comprobante.</div>`;
-    }
-  });
-
-  btnDescargar.addEventListener("click", async () => {
-    const result = await Swal.fire({
-      title: "Descargar comprobante",
-      text: "¿En qué formato quieres descargarlo?",
-      icon: "question",
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: "PDF",
-      denyButtonText: "Excel",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (result.isConfirmed && currentPdfUrl) {
-      window.open(currentPdfUrl, "_blank");
-    } else if (result.isDenied && currentExcelUrl) {
-      window.open(currentExcelUrl, "_blank");
-    }
-  });
-});
