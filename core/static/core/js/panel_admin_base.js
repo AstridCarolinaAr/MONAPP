@@ -1,67 +1,263 @@
-/* =============================================================
-   SIDEBAR HANDLE — panel_admin_base.js
-   Pega este bloque en tu archivo panel_admin_base.js
-   (o reemplaza la lógica de sidebar que ya tengas)
-   ============================================================= */
-
+console.log('ARCHIVO NUEVO REAL');
 document.addEventListener('DOMContentLoaded', function () {
+    initSidebar();
+    initAlerts();
+    initActiveLinks();
+    initTooltips();
+    initAccessibility();
+    initDashboardChart();
+    initSearchToggle();
 
-    const sidebar     = document.getElementById('sidebar');
-    const handle      = document.getElementById('sidebar-handle');
-    const mainContent = document.getElementById('main-content');
-    const body        = document.body;
+    console.log('Dashboard inicializado correctamente');
+});
 
-    if (!sidebar || !handle) return;
+// ==================== SIDEBAR ====================
+function initSidebar() {
+    const sidebar       = document.getElementById('sidebar');
+    const mainContent   = document.getElementById('main-content');
+    const sidebarToggle = document.getElementById('sidebar-toggle'); // 
+    const handle        = document.getElementById('sidebar-handle'); // 
 
-    /* ── Leer estado guardado ── */
-    const STORAGE_KEY = 'sidebar_collapsed';
-    const wasCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+    if (!sidebar || !mainContent) return;
 
-    /* ── Aplicar estado inicial ── */
-    function applyState(collapsed, animate) {
-        if (!animate) {
-            sidebar.style.transition  = 'none';
-            handle.style.transition   = 'none';
-            if (mainContent) mainContent.style.transition = 'none';
-        }
-
-        if (collapsed) {
-            sidebar.classList.add('collapsed');
-            sidebar.classList.remove('pinned-open');
-            body.classList.add('sidebar-collapsed');
-            if (mainContent) mainContent.classList.add('expanded');
+    // ── Función central de toggle ──
+    function toggleSidebar() {
+        if (window.innerWidth <= 991) {
+            
+            sidebar.classList.toggle('active');
+            document.body.classList.toggle('sidebar-mobile-open');
         } else {
-            sidebar.classList.remove('collapsed');
-            body.classList.remove('sidebar-collapsed');
-            if (mainContent) mainContent.classList.remove('expanded');
-        }
-
-        if (!animate) {
-            /* Forzar reflow antes de restaurar la transición */
-            void sidebar.offsetWidth;
-            sidebar.style.transition  = '';
-            handle.style.transition   = '';
-            if (mainContent) mainContent.style.transition = '';
+            // Desktop: colapsar/expandir
+            const isNowCollapsed = sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded', isNowCollapsed);
+            document.body.classList.toggle('sidebar-collapsed', isNowCollapsed); 
+            localStorage.setItem('sidebarCollapsed', isNowCollapsed);
         }
     }
 
-    /* Aplica sin animación en la carga (evita el "salto" visual) */
-    applyState(wasCollapsed, false);
+    // ── Conectar el handle (flecha lateral) ──
+    if (handle) {
+        handle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
 
-    /* ── Toggle al hacer clic en el handle ── */
-    handle.addEventListener('click', function () {
-        const isCollapsed = sidebar.classList.contains('collapsed');
-        applyState(!isCollapsed, true);                 /* ahora sí con animación */
-        localStorage.setItem(STORAGE_KEY, String(!isCollapsed));
-    });
+    // ── Conectar botón del topbar  ──
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
 
-    /* ── Móvil: clic fuera del sidebar lo cierra ── */
+    // ── Restaurar estado guardado ──
+    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+    if (sidebarCollapsed === 'true' && window.innerWidth > 991) {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('expanded');
+        document.body.classList.add('sidebar-collapsed'); 
+    }
+
+    // ── Cerrar en móvil al hacer clic fuera ──
     document.addEventListener('click', function (e) {
         if (window.innerWidth > 991) return;
-        if (!sidebar.contains(e.target) && e.target !== handle && !handle.contains(e.target)) {
-            sidebar.classList.remove('active');
-            body.classList.remove('sidebar-mobile-open');
+        if (!sidebar.classList.contains('active')) return;
+        if (sidebar.contains(e.target) || (handle && handle.contains(e.target))) return;
+        sidebar.classList.remove('active');
+        document.body.classList.remove('sidebar-mobile-open');
+    });
+}
+
+// ==================== ALERTAS ====================
+function initAlerts() {
+    const alerts = document.querySelectorAll('.alert');
+
+    alerts.forEach(function (alert) {
+        setTimeout(function () {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    });
+}
+
+// ==================== LINK ACTIVO ====================
+function initActiveLinks() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+
+    navLinks.forEach(function (link) {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
         }
     });
 
-});
+    document.querySelectorAll('.submenu').forEach(function (submenu) {
+        const activeChild = submenu.querySelector('.nav-link.active');
+        if (activeChild) {
+            submenu.classList.add('show');
+            const toggle = submenu.previousElementSibling;
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.classList.add('active');
+            }
+        }
+    });
+}
+
+// ==================== TOOLTIPS ====================
+function initTooltips() {
+    if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) return;
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(function (el) {
+        new bootstrap.Tooltip(el);
+    });
+}
+
+// ==================== ACCESIBILIDAD ====================
+function initAccessibility() {
+    if (typeof SiennaAccessibility !== 'undefined') {
+        SiennaAccessibility.init();
+    }
+}
+
+// ==================== CHART ====================
+function initDashboardChart() {
+    window.initDashboardChart = function (canvasId, data, options) {
+        const ctx = document.getElementById(canvasId);
+        if (ctx && typeof Chart !== 'undefined') {
+            new Chart(ctx, {
+                type: data.type || 'bar',
+                data: data,
+                options: options || {}
+            });
+        }
+    };
+}
+// =========================
+// TOGGLE BÚSQUEDA GLOBAL
+// =========================
+function initSearchToggle() {
+    const wrappers = document.querySelectorAll('.search-toggle-wrapper');
+    console.log('buscadores encontrados:', wrappers.length);
+
+    wrappers.forEach(function (wrapper) {
+        const btn = wrapper.querySelector('.btn-search-toggle');
+        const box = wrapper.querySelector('.search-toggle-box');
+        const input = wrapper.querySelector('.search-toggle-input');
+
+        if (!btn || !box || !input) return;
+
+        function openSearch() {
+            wrapper.classList.add('is-open');
+            box.classList.add('is-open');
+            btn.setAttribute('aria-expanded', 'true');
+
+            setTimeout(function () {
+                input.focus();
+                const len = input.value.length;
+                input.setSelectionRange(len, len);
+            }, 200);
+        }
+
+        function closeSearch() {
+            wrapper.classList.remove('is-open');
+            box.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+
+        function animateButton() {
+            btn.classList.add('rotating');
+            setTimeout(function () {
+                btn.classList.remove('rotating');
+            }, 600);
+        }
+
+        // Si ya viene con texto desde Django
+        if (input.value.trim()) {
+            openSearch();
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            animateButton();
+
+            if (wrapper.classList.contains('is-open')) {
+                if (!input.value.trim()) {
+                    closeSearch();
+                } else {
+                    input.focus();
+                }
+            } else {
+                openSearch();
+            }
+        });
+
+        input.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+
+        input.addEventListener('input', function () {
+            if (input.value.trim()) {
+                wrapper.classList.add('is-open');
+                box.classList.add('is-open');
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!wrapper.classList.contains('is-open')) return;
+            if (wrapper.contains(e.target)) return;
+            if (input.value.trim()) return;
+
+            closeSearch();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            if (!wrapper.classList.contains('is-open')) return;
+            if (input.value.trim()) return;
+
+            closeSearch();
+        });
+    });
+}
+
+// ==================== FUNCIONES GLOBALES ====================
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    const messagesContainer =
+        document.querySelector('.messages-container') ||
+        document.querySelector('.content-wrapper');
+
+    if (messagesContainer) {
+        messagesContainer.insertBefore(alertDiv, messagesContainer.firstChild);
+
+        setTimeout(function () {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bsAlert = new bootstrap.Alert(alertDiv);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+}
+
+function confirmAction(message) {
+    console.warn('confirmAction() is deprecated. Use data-confirm attributes. Falling back to window.confirm for legacy code.');
+    return confirm(message || '¿Estás seguro de realizar esta acción?');
+}
+
+window.showNotification = showNotification;
+window.confirmAction = confirmAction;

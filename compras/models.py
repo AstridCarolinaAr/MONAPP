@@ -59,10 +59,72 @@ class DetalleCompra(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} x {self.cantidad}"
-    def anular(self):
-        self.anulada=True
-        self.fecha_anulada=timezone.now()
+    # def anular(self):
+    #     self.anulada=True
+    #     self.fecha_anulada=timezone.now()
     @property
     def subtotal(self):
         return (self.cantidad or  0)* (self.precio_unitario or 0)    
-        
+class DevolucionCompra(models.Model):
+    fecha = models.DateField(auto_now_add=True)
+
+    compra = models.ForeignKey(
+        Compra,
+        on_delete=models.PROTECT,
+        related_name="devoluciones"
+    )
+
+    proveedor = models.ForeignKey(
+        Proveedor,
+        on_delete=models.PROTECT,
+        related_name="devoluciones_compra"
+    )
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    motivo = models.CharField(max_length=150, blank=True)
+    observacion = models.TextField(blank=True)
+
+    total = models.DecimalField(max_digits=18, decimal_places=0, default=0)
+
+    anulada = models.BooleanField(default=False)
+    fecha_anulada = models.DateField(null=True, blank=True)
+    anulada_en = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Devolución compra #{self.id} - Compra #{self.compra.id}"
+
+
+class DetalleDevolucionCompra(models.Model):
+    devolucion = models.ForeignKey(
+        DevolucionCompra,
+        on_delete=models.PROTECT,
+        related_name="detalles"
+    )
+
+    detalle_compra = models.ForeignKey(
+        DetalleCompra,
+        on_delete=models.PROTECT,
+        related_name="detalles_devolucion"
+    )
+
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT,
+        related_name="detalles_devolucion_compra"
+    )
+
+    cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=16, decimal_places=0)
+
+    def __str__(self):
+        return f"{self.producto.nombre} x {self.cantidad}"
+
+    @property
+    def subtotal(self):
+        return (self.cantidad or 0) * (self.precio_unitario or 0)

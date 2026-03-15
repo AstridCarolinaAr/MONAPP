@@ -359,13 +359,7 @@
 
     <!-- ───── FILTROS ───── -->
     <form method="get" class="row g-2 align-items-center mb-4">
-
-        <!-- BÚSQUEDA -->
-        <div class="col-md-3">
-            <input type="text" name="q" class="form-control"
-                  placeholder="Buscar nombre de producto"
-                  value="{{ q|default:'' }}">
-        </div>
+2
 
         <!-- ESTADO VISIBILIDAD -->
         <div class="col-md-2">
@@ -408,7 +402,19 @@
         {% endif %}
 
     </form>
+<form method="get" style="width: 360px; max-width: 100%;">
+    {% if estado_stock %}
+        <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+    {% endif %}
+    {% if current_sort %}
+        <input type="hidden" name="sort" value="{{ current_sort }}">
+    {% endif %}
+    {% if current_dir %}
+        <input type="hidden" name="dir" value="{{ current_dir }}">
+    {% endif %}
 
+    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+</form>
     <!-- ───── TABLA ───── -->
     <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
         <div class="card-body p-0">
