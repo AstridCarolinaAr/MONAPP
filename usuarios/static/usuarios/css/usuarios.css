@@ -224,6 +224,9 @@
     .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
         box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
     }
+}
+
+/* Estilos para la barra de filtrado movidos al html para igualar a Personal */
 
     /* Estilo café para el switch del modal de editar usuario */
     .form-switch .form-check-input {

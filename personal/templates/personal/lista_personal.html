@@ -476,6 +476,13 @@
         return cookieValue;
     }
     
+    // Función para enviar el formulario de filtro cuando cambia
+    function enviarFormularioFiltro(form) {
+        if (form) {
+            form.submit();
+        }
+    }
+    
     // Funciones para manejar el modal
     function abrirModalPersonal() {
         const modal = document.getElementById('modalPersonal');
