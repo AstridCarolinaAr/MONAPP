@@ -1,7 +1,3 @@
-/* ============================================================
-   MONA KERATINA — DASHBOARD CSS
-   Limpio, sin duplicados, sidebar handle mejorado
-   ============================================================ */
 
 /* ==================== VARIABLES ==================== */
 :root {
@@ -257,20 +253,17 @@
 
 
 /* ==================== SIDEBAR HANDLE (FLECHA) ==================== */
-/*
-   El handle va en el HTML como hermano del .sidebar, NO dentro de él.
-   Usa position:fixed. El JS solo necesita togglear la clase
-   .sidebar-collapsed en el <body> al colapsar/expandir.
+/* Este bloque asume que el botón #sidebar-handle está DENTRO de .sidebar */
 
-   HTML esperado:
-     <nav class="sidebar">...</nav>
-     <button class="sidebar-handle"><i class="fas fa-chevron-left"></i></button>
-     <div class="main-content">...</div>
-*/
+.sidebar {
+    overflow-x: visible !important;
+}
+
 .sidebar-handle {
-    position: fixed;
+    position: absolute;
     top: 50%;
-    left: var(--sidebar-width);           /* abierto por defecto */
+    right: -1px;
+    left: auto;
     transform: translateY(-50%);
 
     width: 22px;
@@ -293,55 +286,63 @@
     -webkit-tap-highlight-color: transparent;
 
     transition:
-        left       var(--transition-speed) cubic-bezier(.4,0,.2,1),
-        background .22s ease,
-        box-shadow .22s ease;
+        background var(--transition-speed) ease,
+        box-shadow var(--transition-speed) ease;
 }
 
-/* Ícono */
+/* ícono */
 .sidebar-handle i {
     font-size: 13px;
     color: #c8a48c;
     pointer-events: none;
-    transition: transform .28s cubic-bezier(.4,0,.2,1), color .22s ease;
+    transform-origin: center;
+    transition:
+        transform var(--transition-speed) cubic-bezier(.4,0,.2,1),
+        color .22s ease;
 }
 
-/* Hover */
+/* hover */
 .sidebar-handle:hover {
     background: linear-gradient(180deg, #4a3530 0%, #33221c 100%);
     box-shadow: 4px 0 14px rgba(0,0,0,.38);
 }
-.sidebar-handle:hover i { color: #f0c8b0; }
 
-/* ── Sidebar COLAPSADO: mover handle y rotar flecha ── */
-body.sidebar-collapsed .sidebar-handle {
-    left: var(--sidebar-collapsed-width);
+.sidebar-handle:hover i {
+    color: #f0c8b0;
 }
-body.sidebar-collapsed .sidebar-handle i {
+
+/* escritorio cerrado */
+.sidebar.collapsed:not(.expanded-by-hover):not(.pinned-open) .sidebar-handle i {
+    transform: rotate(0deg);
+}
+
+/* escritorio abierto */
+.sidebar.pinned-open .sidebar-handle i {
     transform: rotate(180deg);
 }
 
-/* ── Móvil: sidebar oculto con transform, handle arranca en 0 ── */
+/* móvil */
 @media (max-width: 991px) {
     .sidebar-handle {
-        left: 0;
+        right: -1px;
+        width: 22px;
+        height: 60px;
     }
-    /* Cuando el sidebar móvil está visible */
-    body.sidebar-mobile-open .sidebar-handle {
-        left: var(--sidebar-width);
-    }
-    body.sidebar-mobile-open .sidebar-handle i {
+
+    .sidebar.active .sidebar-handle i {
         transform: rotate(180deg);
     }
 }
 
-/* Pulse sutil al cargar */
+/* pulse opcional */
 @keyframes handle-pulse {
     0%, 100% { box-shadow: 3px 0 10px rgba(0,0,0,.28); }
-    50%       { box-shadow: 3px 0 18px rgba(141,96,74,.5); }
+    50%      { box-shadow: 3px 0 18px rgba(141,96,74,.5); }
 }
-.sidebar-handle.pulse { animation: handle-pulse 2s ease 1s 2; }
 
+.sidebar-handle.pulse {
+    animation: handle-pulse 2s ease 1s 2;
+}
 
 /* ==================== MAIN CONTENT ==================== */
 .main-content {
@@ -843,16 +844,6 @@ textarea.form-control { min-height: 19px; resize: vertical; }
     .page-container { width: 100%; padding: 16px 10px; }
 }
 
-@media (max-width: 576px) {
-    .search-box  { display: none; }
-    .topbar-right { gap: 3px; }
-    .btn-icon    { width: 30px; height: 30px; font-size: 12px; }
-    .notification-dropdown { width: 260px; }
-    .page-title  { font-size: 20px; }
-    .page-subtitle { font-size: 11px; }
-    .page-card   { padding: 12px; }
-    .sidebar-nav .nav-link { font-size: 14px; }
-}
 /* ===============================
    BARRA – ACCIÓN NO PERMITIDA
 ================================ */
