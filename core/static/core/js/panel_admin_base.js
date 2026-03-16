@@ -52,11 +52,18 @@ function initSidebar() {
     }
 
     // ── Restaurar estado guardado ──
+    // Default: sidebar abierto. Solo colapsar si el usuario lo cerró manualmente.
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
     if (sidebarCollapsed === 'true' && window.innerWidth > 991) {
         sidebar.classList.add('collapsed');
         mainContent.classList.add('expanded');
-        document.body.classList.add('sidebar-collapsed'); 
+        document.body.classList.add('sidebar-collapsed');
+    } else {
+        // Asegurar que empiece abierto (quitar cualquier clase residual)
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('expanded');
+        document.body.classList.remove('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', 'false');
     }
 
     // ── Cerrar en móvil al hacer clic fuera ──
