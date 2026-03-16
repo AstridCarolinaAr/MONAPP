@@ -184,6 +184,9 @@
     </div>
 </div>
 
+<!-- Contenedor para achicar la ventana emergente principal -->
+<div style="max-width: 750px; min-width: 350px; width: 60vw; max-height: 90vh; margin: 0 auto; background: #fff; border-radius: 18px; box-shadow: 0 4px 32px rgba(0,0,0,0.18); padding: 24px 18px; overflow-y: auto;">
+
 <form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" novalidate>
                         {% csrf_token %}
                         
@@ -603,6 +606,7 @@
                             </div>
                         </div>
                     </form>
+</div>
                 </div>
             </div>
         </div>

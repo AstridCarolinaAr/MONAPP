@@ -13,9 +13,20 @@
 <style>
     /* Estilos para el modal grande */
     .modal-fullscreen-custom {
-        max-width: 95%;
-        width: 95%;
-        margin: 1.75rem auto;
+        max-width: 600px;
+        width: 70vw;
+        min-width: 320px;
+        margin: 2.5rem auto;
+        border-radius: 18px;
+        padding: 0;
+    }
+    .modal-content {
+        border-radius: 18px;
+        margin: 0;
+        padding: 0;
+    }
+    .modal-body {
+        padding: 0 0.5rem 1rem 0.5rem;
     }
     
     .section-title {
@@ -179,7 +190,7 @@
 
 <!-- MODAL PRINCIPAL: Formulario de Gestion de datos -->
 <div class="modal fade" id="modalGestionAlisado" tabindex="-1" aria-labelledby="modalGestionAlisadoLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-fullscreen-custom modal-dialog-scrollable">
+    <div class="modal-dialog modal-fullscreen-custom" style="max-width:600px !important;width:70vw !important;min-width:320px !important;margin:2.5rem auto !important;">
         <div class="modal-content">
             <div class="modal-header text-white" style="background-color: #634c40;">
                 <h5 class="modal-title" id="modalGestionAlisadoLabel">
