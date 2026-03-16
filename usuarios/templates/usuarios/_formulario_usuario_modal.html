@@ -92,6 +92,23 @@
             <input type="text" name="telefono" id="telefono" class="form-control" placeholder="Teléfono (opcional)">
             <div class="invalid-feedback"></div>
         </div>
+        
+        <!-- WhatsApp API Key -->
+        <div class="col-md-6">
+            <label class="form-label">
+                {{ form.whatsapp_key.label }}
+                <i class="bi bi-whatsapp text-success ms-1"></i>
+            </label>
+            <input type="text" name="whatsapp_key" id="whatsapp_key" class="form-control" 
+                placeholder="Ej: 1234567">
+            <small class="text-muted d-block mt-1">
+                <i class="bi bi-info-circle"></i>
+                Envía <strong>"I allow callmebot to send me messages"</strong> 
+                al <strong>+34 644 59 78 75</strong> por WhatsApp y pega aquí la clave que te respondan.
+                Solo aplica para roles Administrador y Auxiliar.
+            </small>
+            <div class="invalid-feedback"></div>
+        </div>
 
         <!-- Foto de Perfil -->
         <div class="col-12">

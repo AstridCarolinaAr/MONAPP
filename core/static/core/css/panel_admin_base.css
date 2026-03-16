@@ -4,6 +4,20 @@
    ============================================================ */
 
 /* ==================== VARIABLES ==================== */
+
+/* ── TOPBAR NOTIFICACIONES ── */
+/* ── TOPBAR NOTIFICACIONES ── */
+.topbar-notif {
+    position: fixed;
+    top: 12px;
+    right: 20px;
+    z-index: 1100;
+}
+
+.topbar-notif-right {
+    display: flex;
+    align-items: center;
+}
 :root {
     /* Paleta */
     --mona-brown:       rgba(141, 96, 74, 0.95);

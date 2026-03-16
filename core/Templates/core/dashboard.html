@@ -1,218 +1,570 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Panel Administrativo{% endblock %}
+{% block title %}Dashboard — MONAPP{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c1: #3a2218;
+  --c2: #5a3828;
+  --c3: #7a4f2d;
+  --gold: #c9a86c;
+  --gold2: #e8c98a;
+  --cream: #f5f0e8;
+  --rose: #cd9b85;
+  --sage: #6b9b85;
+  --r: #e74c3c;
+  --w: #e67e22;
+  --g: #27ae60;
+  --b: #2980b9;
+  --glass: rgba(255,255,255,0.06);
+  --gborder: rgba(201,169,110,0.18);
+  --page-bg: #f0ebe3;
+}
+
+.db {
+  background: var(--page-bg);
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #1a0e08;
+  padding-bottom: 60px;
+  position: relative;
+}
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--c1) 0%, #2a1810 40%, var(--c2) 100%);
+  padding: 36px 40px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,.12) 0%, transparent 65%);
+  top: -200px; right: -150px;
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 20px;
+}
+.hero-eyebrow {
+  font-size: 10px; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold);
+  opacity: .75; margin-bottom: 8px;
+}
+.hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem,4vw,3.2rem);
+  font-style: italic; font-weight: 400;
+  color: var(--cream); line-height: 1.05;
+  margin-bottom: 6px;
+}
+.hero-role {
+  font-size: 10px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--rose);
+  font-weight: 500;
+}
+.hero-right { text-align: right; }
+.hero-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem,3.5vw,2.8rem);
+  color: var(--gold); letter-spacing: 2px;
+  line-height: 1; margin-bottom: 4px;
+}
+.hero-date { font-size: 11px; color: rgba(245,240,232,.4); }
+
+/* ── BODY ── */
+.db-body { padding: 28px 32px 0; }
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 14px; margin-bottom: 28px;
+}
+.kpi {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px 18px;
+  border: 1px solid rgba(58,34,24,.07);
+  box-shadow: 0 2px 12px rgba(58,34,24,.06);
+  position: relative; overflow: hidden;
+  transition: transform .25s, box-shadow .25s;
+  cursor: default;
+}
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  transition: transform .4s;
+}
+.kpi:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(58,34,24,.12); }
+.kpi:hover::before { transform: scale(1.4); }
+
+.kpi--brown::before  { background: rgba(90,56,40,.08); }
+.kpi--gold::before   { background: rgba(201,169,110,.1); }
+.kpi--sage::before   { background: rgba(107,155,133,.1); }
+.kpi--red::before    { background: rgba(231,76,60,.08); }
+.kpi--blue::before   { background: rgba(41,128,185,.08); }
+
+.kpi-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 14px;
+}
+.kpi--brown .kpi-icon { background: rgba(90,56,40,.1);    color: var(--c2); }
+.kpi--gold  .kpi-icon { background: rgba(201,169,110,.15); color: #a07830; }
+.kpi--sage  .kpi-icon { background: rgba(107,155,133,.12); color: var(--sage); }
+.kpi--red   .kpi-icon { background: rgba(231,76,60,.1);    color: var(--r); }
+.kpi--blue  .kpi-icon { background: rgba(41,128,185,.1);   color: var(--b); }
+
+.kpi-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem; font-weight: 600;
+  color: #1a0e08; line-height: 1;
+  margin-bottom: 4px; letter-spacing: -.5px;
+}
+.kpi-lbl {
+  font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #9a8070;
+  font-weight: 500;
+}
+
+/* ── GRID ── */
+.row { display: grid; gap: 18px; margin-bottom: 18px; }
+.row-3 { grid-template-columns: repeat(3,1fr); }
+.row-2 { grid-template-columns: 5fr 7fr; }
+.row-2b { grid-template-columns: 1fr 1fr; }
+@media (max-width: 1050px) {
+  .row-3, .row-2, .row-2b { grid-template-columns: 1fr; }
+}
+
+/* ── CARD ── */
+.card {
+  background: #fff;
+  border-radius: 22px;
+  border: 1px solid rgba(58,34,24,.07);
+  box-shadow: 0 2px 12px rgba(58,34,24,.05);
+  overflow: hidden;
+  transition: box-shadow .25s;
+}
+.card:hover { box-shadow: 0 6px 24px rgba(58,34,24,.1); }
+
+.card-head {
+  padding: 16px 20px 13px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(58,34,24,.06);
+}
+.card-title {
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; font-weight: 600;
+  color: var(--c2);
+  display: flex; align-items: center; gap: 7px;
+}
+.card-title i { font-size: 12px; color: var(--gold); }
+
+.chip {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px;
+  letter-spacing: .5px;
+}
+.chip-brown  { background: rgba(90,56,40,.1);    color: var(--c2); }
+.chip-red    { background: rgba(231,76,60,.1);   color: #b03020; }
+.chip-warn   { background: rgba(230,126,34,.12); color: #b06010; }
+.chip-sage   { background: rgba(107,155,133,.12);color: #3a7060; }
+.chip-gold   { background: rgba(201,169,110,.15);color: #806030; }
+
+.card-body { padding: 16px 20px; }
+
+/* ── QUICK ACTIONS ── */
+.qa {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px,1fr));
+  gap: 10px;
+}
+.qa-btn {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  padding: 16px 10px;
+  background: var(--page-bg);
+  border: 1px solid rgba(58,34,24,.08);
+  border-radius: 16px;
+  text-decoration: none; color: #3a2218;
+  font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; font-weight: 600;
+  transition: all .22s; text-align: center;
+  cursor: pointer;
+}
+.qa-btn:hover {
+  background: var(--c1);
+  color: var(--cream);
+  border-color: var(--c1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(58,34,24,.2);
+  text-decoration: none;
+}
+.qa-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: background .22s;
+}
+.qa-btn:hover .qa-icon { background: rgba(255,255,255,.12) !important; }
+
+/* ── LIST ITEMS ── */
+.li {
+  display: flex; align-items: center;
+  gap: 12px; padding: 11px 0;
+  border-bottom: 1px solid rgba(58,34,24,.05);
+}
+.li:last-child { border-bottom: none; padding-bottom: 0; }
+.li:first-child { padding-top: 0; }
+
+.av {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; flex-shrink: 0;
+}
+.av-brown { background: rgba(90,56,40,.12);    color: var(--c2);   border: 1px solid rgba(90,56,40,.2); }
+.av-gold  { background: rgba(201,169,110,.15); color: #806030;     border: 1px solid rgba(201,169,110,.25); }
+.av-sage  { background: rgba(107,155,133,.12); color: #3a7060;     border: 1px solid rgba(107,155,133,.2); }
+.av-red   { background: rgba(231,76,60,.1);    color: #b03020;     border: 1px solid rgba(231,76,60,.2); }
+.av-rose  { background: rgba(205,155,133,.12); color: #805040;     border: 1px solid rgba(205,155,133,.2); }
+
+.li-info { flex: 1; min-width: 0; }
+.li-name {
+  font-size: 13px; font-weight: 600;
+  color: #1a0e08;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+.li-sub { font-size: 11px; color: #9a8070; }
+
+.pill {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.p-gold  { background: rgba(201,169,110,.15); color: #806030; }
+.p-red   { background: rgba(231,76,60,.1);    color: #b03020; }
+.p-warn  { background: rgba(230,126,34,.12);  color: #b06010; }
+.p-sage  { background: rgba(107,155,133,.12); color: #3a7060; }
+.p-rose  { background: rgba(205,155,133,.12); color: #805040; }
+.p-brown { background: rgba(90,56,40,.1);     color: var(--c2); }
+
+/* ── STOCK BAR ── */
+.sbar { margin-top: 5px; }
+.sbar-track {
+  height: 3px; background: rgba(58,34,24,.08);
+  border-radius: 999px; overflow: hidden;
+}
+.sbar-fill { height: 100%; border-radius: 999px; }
+.sf-red  { background: linear-gradient(90deg,#c0392b,#e74c3c); }
+.sf-warn { background: linear-gradient(90deg,#d68910,#e67e22); }
+.sf-ok   { background: linear-gradient(90deg,#1e8449,#27ae60); }
+
+/* ── EMPTY ── */
+.empty {
+  text-align: center; padding: 28px 0;
+  color: #c0a898;
+}
+.empty i { font-size: 28px; display: block; margin-bottom: 8px; opacity: .5; }
+.empty p { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+
+/* ── ANIM ── */
+@keyframes up {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.hero  { animation: up .5s ease both; }
+.kpi   { animation: up .4s ease both; }
+.kpi:nth-child(1){animation-delay:.04s}
+.kpi:nth-child(2){animation-delay:.08s}
+.kpi:nth-child(3){animation-delay:.12s}
+.kpi:nth-child(4){animation-delay:.16s}
+.kpi:nth-child(5){animation-delay:.20s}
+.card  { animation: up .45s ease both .25s; }
+</style>
 {% endblock %}
 
+{% block breadcrumb %}{% endblock %}
+{% block page_icon %}{% endblock %}
+{% block page_title %}{% endblock %}
+{% block page_subtitle %}{% endblock %}
+
 {% block content %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-<div class="container-fluid py-4">
+<div class="db">
 
-    <!-- Header de Bienvenida -->
-    <div class="welcome-header">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <div class="greeting">BIENVENIDO DE VUELTA</div>
-                <div class="username">{{ user.get_full_name|default:user.username }}</div>
-                <div class="role">
-                    {% if user.is_superuser %}SUPERADMINISTRADOR
-                    {% elif user.is_staff %}ADMINISTRADOR
-                    {% else %}USUARIO{% endif %}
-                </div>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="time" id="currentTime">00:00:00</div>
-                <div class="date">{{ "now"|date:"l, d de F Y" }}</div>
-            </div>
-        </div>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-eyebrow">Panel de administración</p>
+        <h1 class="hero-name">{{ user.first_name|default:user.username }}</h1>
+        <p class="hero-role">
+          {% if user.is_superuser %}Superadministrador
+          {% else %}{% for g in user.groups.all %}{{ g.name }}{% endfor %}{% endif %}
+        </p>
+      </div>
+      <div class="hero-right">
+        <div class="hero-time" id="dash-clock">--:--:--</div>
+        <div class="hero-date" id="dash-date"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="db-body">
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi kpi--brown">
+        <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
+        <div class="kpi-val">{{ total_productos|default:"0" }}</div>
+        <div class="kpi-lbl">Productos</div>
+      </div>
+      <div class="kpi kpi--gold">
+        <div class="kpi-icon"><i class="bi bi-person-heart"></i></div>
+        <div class="kpi-val">{{ total_clientes|default:"0" }}</div>
+        <div class="kpi-lbl">Clientes</div>
+      </div>
+      <div class="kpi kpi--sage">
+        <div class="kpi-icon"><i class="bi bi-cart-check"></i></div>
+        <div class="kpi-val">{{ total_ventas|default:"0" }}</div>
+        <div class="kpi-lbl">Ventas</div>
+      </div>
+      <div class="kpi kpi--red">
+        <div class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="kpi-val">{{ productos_sin_stock|default:"0" }}</div>
+        <div class="kpi-lbl">Sin stock</div>
+      </div>
+      <div class="kpi kpi--blue">
+        <div class="kpi-icon"><i class="bi bi-people"></i></div>
+        <div class="kpi-val">{{ total_usuarios|default:"0" }}</div>
+        <div class="kpi-lbl">Usuarios</div>
+      </div>
     </div>
 
-    <!-- Tarjetas de Estadísticas -->
-    <div class="row g-3 mb-4">
-        <div class="col-lg-3 col-md-6">
-            <div class="stat-card">
-                <div class="icon" style="background-color: #6b3a2a;">
-                    <i class="bi bi-people-fill"></i>
-                </div>
-                <h3 class="number">{{ total_usuarios }}</h3>
-                <p class="label">Usuarios Totales</p>
-            </div>
+    <!-- ACCIONES RÁPIDAS -->
+    <div class="row" style="margin-bottom:18px;">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-lightning-charge-fill"></i>Acciones Rápidas</span>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="stat-card">
-                <div class="icon" style="background-color: #48bb78;">
-                    <i class="bi bi-person-check-fill"></i>
-                </div>
-                <h3 class="number">{{ usuarios_activos }}</h3>
-                <p class="label">Usuarios Activos</p>
-            </div>
+        <div class="card-body">
+          <div class="qa">
+            <a href="{% url 'productos:lista_productos' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(90,56,40,.1);color:var(--c2);"><i class="bi bi-box-seam"></i></div>
+              Productos
+            </a>
+            <a href="{% url 'ventas:lista' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(107,155,133,.1);color:var(--sage);"><i class="bi bi-cart"></i></div>
+              Ventas
+            </a>
+            <a href="{% url 'clientes:lista' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(201,169,110,.12);color:#806030;"><i class="bi bi-person-heart"></i></div>
+              Clientes
+            </a>
+            <a href="{% url 'inventario:inventario_lista' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(41,128,185,.1);color:var(--b);"><i class="bi bi-archive"></i></div>
+              Inventario
+            </a>
+            <a href="{% url 'compras:lista_compras' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(39,174,96,.1);color:var(--g);"><i class="bi bi-bag-check"></i></div>
+              Compras
+            </a>
+            <a href="{% url 'servicios:lista_servicios' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(155,89,182,.1);color:#8e44ad;"><i class="bi bi-stars"></i></div>
+              Servicios
+            </a>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(231,76,60,.1);color:var(--r);"><i class="bi bi-shield-lock"></i></div>
+              Usuarios
+            </a>
+            <a href="{% url 'personal:lista_personal' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(230,126,34,.1);color:var(--w);"><i class="bi bi-person-badge"></i></div>
+              Personal
+            </a>
+            <a href="{% url 'proveedores:lista_proveedor' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(52,73,94,.1);color:#34495e;"><i class="bi bi-truck"></i></div>
+              Proveedores
+            </a>
+            <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="qa-btn">
+              <div class="qa-icon" style="background:rgba(205,155,133,.12);color:#805040;"><i class="bi bi-database"></i></div>
+              Gestión
+            </a>
+          </div>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="stat-card">
-                <div class="icon" style="background-color: #b8944d;">
-                    <i class="bi bi-shield-fill"></i>
-                </div>
-                <h3 class="number">{{ usuarios_staff }}</h3>
-                <p class="label">Administradores</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="stat-card">
-                <div class="icon" style="background-color: #4299e1;">
-                    <i class="bi bi-person-plus-fill"></i>
-                </div>
-                <h3 class="number">{{ nuevos_usuarios_mes }}</h3>
-                <p class="label">Nuevos Este Mes</p>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Botones de Acceso Rápido -->
-    <div class="mb-4" style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 10px;">
-        <div class="d-inline-flex gap-2">
-            <a href="{% url 'clientes:lista' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #a67c52;">
-                    <i class="bi bi-person-vcard"></i>
-                </div>
-                <p class="label">Clientes</p>
-            </a>
-            <a href="{% url 'productos:lista_productos' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #5a9fd4;">
-                    <i class="bi bi-box-seam"></i>
-                </div>
-                <p class="label">Productos</p>
-            </a>
-            <a href="{% url 'ventas:lista' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #48bb78;">
-                    <i class="bi bi-cart3"></i>
-                </div>
-                <p class="label">Ventas</p>
-            </a>
-            <a href="{% url 'inventario:inventario_lista' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #ed8936;">
-                    <i class="bi bi-gear"></i>
-                </div>
-                <p class="label">Inventario</p>
-            </a>
-            <a href="{% url 'servicios:lista_servicios' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #b794f6;">
-                    <i class="bi bi-stars"></i>
-                </div>
-                <p class="label">Servicios</p>
-            </a>
-            <a href="{% url 'personal:lista_personal' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #f56565;">
-                    <i class="bi bi-people"></i>
-                </div>
-                <p class="label">Personal</p>
-            </a>
-            <a href="{% url 'proveedores:lista_proveedor' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #81c784;">
-                    <i class="bi bi-truck"></i>
-                </div>
-                <p class="label">Proveedores</p>
-            </a>
-            <a href="{% url 'usuarios:lista_usuarios' %}" class="action-btn-card" style="display: inline-block; width: 110px;">
-                <div class="icon" style="background-color: #5b67ca;">
-                    <i class="bi bi-unlock-fill"></i>
-                </div>
-                <p class="label">Usuarios</p>
-            </a>
-        </div>
-    </div>
+    <!-- FILA 3 CARDS -->
+    <div class="row row-3">
 
-    <!-- Secciones de Información -->
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card" style="border:none; border-radius:12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <div class="card-header text-dark fw-semibold" style="background-color: #fef3c7; border:none; border-radius:12px 12px 0 0;">
-                    <i class="bi bi-balloon-heart me-2"></i>
-                    CUMPLEAÑOS DE HOY
-                </div>
-                <div class="card-body">
-                    {% if clientes_cumple_hoy %}
-                        <ul class="list-group list-group-flush">
-                            {% for item in clientes_cumple_hoy %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center" style="border:none; padding: 12px 0;">
-                                    <span>
-                                        <i class="bi bi-person-circle me-2"></i>
-                                        {{ item.cliente.nombre }} {{ item.cliente.apellido }}
-                                    </span>
-                                    <span class="badge" style="background-color: #48bb78;">
-                                        🎉 {{ item.edad }} años
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted mb-0 text-center py-3">
-                            <i class="bi bi-calendar-x" style="font-size: 2rem;"></i><br>
-                            No hay clientes cumpliendo años hoy 🎈
-                        </p>
-                    {% endif %}
-                </div>
+      <!-- Cumpleaños -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>Cumpleaños Hoy</span>
+          {% if cumpleanios_hoy %}<span class="chip chip-gold">{{ cumpleanios_hoy|length }}</span>{% endif %}
+        </div>
+        <div class="card-body">
+          {% if cumpleanios_hoy %}
+            {% for p in cumpleanios_hoy %}
+            <div class="li">
+              <div class="av av-gold">{{ p.nombre|slice:":2"|upper }}</div>
+              <div class="li-info">
+                <div class="li-name">{{ p.nombre }}</div>
+                <div class="li-sub">{{ p.cargo|default:"Cliente" }}</div>
+              </div>
+              <span class="pill p-gold">🎂 {{ p.edad }} años</span>
             </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><i class="bi bi-balloon"></i><p>Sin cumpleaños hoy</p></div>
+          {% endif %}
         </div>
+      </div>
 
-        <div class="col-md-6">
-            <div class="card" style="border:none; border-radius:12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <div class="card-header text-white fw-semibold" style="background: linear-gradient(135deg, #3a2a24 0%, #2a1d18 100%); border:none; border-radius:12px 12px 0 0;">
-                    <i class="bi bi-person-plus me-2"></i>
-                    ÚLTIMOS USUARIOS REGISTRADOS
+      <!-- Stock crítico -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-exclamation-octagon-fill"></i>Stock Crítico</span>
+          {% if productos_criticos %}<span class="chip chip-red">{{ productos_criticos|length }}</span>{% endif %}
+        </div>
+        <div class="card-body">
+          {% if productos_criticos %}
+            {% for item in productos_criticos %}
+            <div class="li">
+              <div class="av {% if item.cantidad == 0 %}av-red{% else %}av-rose{% endif %}">
+                <i class="bi {% if item.cantidad == 0 %}bi-x{% else %}bi-exclamation{% endif %}"></i>
+              </div>
+              <div class="li-info">
+                <div class="li-name">{{ item.nombre }}</div>
+                <div class="sbar">
+                  <div class="sbar-track">
+                    <div class="sbar-fill {% if item.cantidad == 0 %}sf-red{% else %}sf-warn{% endif %}"
+                         style="width:{% if item.cantidad == 0 %}100{% else %}{{ item.porcentaje }}{% endif %}%"></div>
+                  </div>
                 </div>
-                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                    {% if ultimos_usuarios %}
-                        <ul class="list-group list-group-flush">
-                            {% for usuario in ultimos_usuarios %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center" style="border:none; padding: 12px 0;">
-                                    <div>
-                                        <div style="font-weight: 600; color: #2c3e50;">{{ usuario.username }}</div>
-                                        <small class="text-muted">{{ usuario.date_joined|date:"d/m/Y H:i" }}</small>
-                                    </div>
-                                    {% if usuario.is_active %}
-                                        <span class="badge bg-success">Activo</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Inactivo</span>
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted mb-0 text-center py-3">No hay usuarios registrados aún.</p>
-                    {% endif %}
-                </div>
+              </div>
+              <span class="pill {% if item.cantidad == 0 %}p-red{% else %}p-warn{% endif %}">
+                {{ item.cantidad }} uds
+              </span>
             </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><i class="bi bi-check-circle"></i><p>Stock al día</p></div>
+          {% endif %}
         </div>
+      </div>
+
+      <!-- Últimos usuarios -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-person-plus-fill"></i>Últimos Usuarios</span>
+        </div>
+        <div class="card-body">
+          {% if ultimos_usuarios %}
+            {% for u in ultimos_usuarios %}
+            <div class="li">
+              <div class="av av-brown">
+                {{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}
+              </div>
+              <div class="li-info">
+                <div class="li-name">{{ u.get_full_name|default:u.username }}</div>
+                <div class="li-sub">{% for g in u.groups.all %}{{ g.name }}{% endfor %}</div>
+              </div>
+              <span class="pill {% if u.is_active %}p-sage{% else %}p-red{% endif %}">
+                {% if u.is_active %}Activo{% else %}Inactivo{% endif %}
+              </span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><i class="bi bi-people"></i><p>Sin usuarios</p></div>
+          {% endif %}
+        </div>
+      </div>
+
     </div>
 
-    <!-- ── WIDGETS / ÁREA DE CONTENIDO DINÁMICO (del primer template) ── -->
-    <div class="dash-card" style="margin-bottom:22px;">
-        <div class="dash-card-head" style="background:linear-gradient(135deg,#6b3a2a,#8b5e3c);color:#fff;">
-            <i class="bi bi-grid-1x2-fill"></i>
-            Área de widgets
-        </div>
-        <div class="dash-card-body">
-            <p class="text-muted mb-0">
-                Área de widgets: agrega aquí información relevante del sistema (ventas, inventario, productos, etc.).
-            </p>
-        </div>
-    </div>
+    <!-- FILA VENTAS + COMPRAS -->
+    <div class="row row-2b">
 
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-receipt-cutoff"></i>Últimas Ventas</span>
+          <a href="{% url 'ventas:lista' %}" class="chip chip-sage" style="text-decoration:none;">Ver todas →</a>
+        </div>
+        <div class="card-body">
+          {% if ultimas_ventas %}
+            {% for v in ultimas_ventas %}
+            <div class="li">
+              <div class="av av-sage"><i class="bi bi-bag"></i></div>
+              <div class="li-info">
+                <div class="li-name">{{ v.cliente|default:"Cliente" }}</div>
+                <div class="li-sub">{{ v.fecha|date:"d M Y" }}</div>
+              </div>
+              <span class="pill p-sage">${{ v.total|floatformat:0 }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><i class="bi bi-cart"></i><p>Sin ventas recientes</p></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-bag-check-fill"></i>Últimas Compras</span>
+          <a href="{% url 'compras:lista_compras' %}" class="chip chip-brown" style="text-decoration:none;">Ver todas →</a>
+        </div>
+        <div class="card-body">
+          {% if ultimas_compras %}
+            {% for c in ultimas_compras %}
+            <div class="li">
+              <div class="av av-gold"><i class="bi bi-truck"></i></div>
+              <div class="li-info">
+                <div class="li-name">{{ c.proveedor|default:"Proveedor" }}</div>
+                <div class="li-sub">{{ c.fecha|date:"d M Y" }}</div>
+              </div>
+              <span class="pill p-gold">${{ c.total|floatformat:0 }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><i class="bi bi-bag-check"></i><p>Sin compras recientes</p></div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script>
-// Reloj en tiempo real
-function updateTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
-}
-updateTime();
-setInterval(updateTime, 1000);
+(function(){
+  const cl = document.getElementById('dash-clock');
+  const dl = document.getElementById('dash-date');
+  const D  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const M  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  function p(n){return String(n).padStart(2,'0');}
+  function tick(){
+    const n = new Date();
+    if(cl) cl.textContent = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+    if(dl) dl.textContent = D[n.getDay()]+', '+n.getDate()+' de '+M[n.getMonth()]+' '+n.getFullYear();
+  }
+  tick(); setInterval(tick,1000);
+})();
 </script>
 {% endblock %}
