@@ -318,26 +318,7 @@ h2 {
 
 
 
-.form-validated{
-  position: relative;
-}
-.form-validated .valid-check{
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  pointer-events: none;
-}
-.form-validated.is-ok .valid-check{
-  opacity: 1;
-}
 
-/* deja espacio para el ícono */
-.form-validated input.form-control,
-.form-validated select.form-select{
-  padding-right: 2.2rem;
-}
 /* =========================
    DETALLE PROVEEDOR MODAL
 ========================= */
@@ -347,14 +328,20 @@ h2 {
 }
 
 .proveedor-detail-header {
-  background: #f8f5f2;
-  border-bottom: 1px solid #eee4dc;
+  background: linear-gradient(90deg, #2a0703 0%, #402019 38%, #5a3529 70%, #6f4938 100%);
+  border-bottom: none;
+  padding: 18px 24px;
 }
 
 .proveedor-detail-header .modal-title {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #382822;
+  color: #fff;
+}
+
+.proveedor-detail-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: .95;
 }
 
 .proveedor-detail-body {
@@ -844,51 +831,131 @@ a.proveedores-btn-add {
         max-width: 100%;
     }
 }
-.form-validated .valid-check {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  pointer-events: none;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+
+/* ===============================
+   VALIDACIÓN PROVEEDOR
+   SOLO CHULO, SIN CÍRCULO, SIN FONDO
+================================= */
+#ajaxFormModal #proveedorForm .form-validated {
+    position: relative;
 }
 
-.form-validated.is-ok .valid-check {
-  opacity: 1;
+#ajaxFormModal #proveedorForm .form-validated input,
+#ajaxFormModal #proveedorForm .form-validated select,
+#ajaxFormModal #proveedorForm .form-validated textarea,
+#ajaxFormModal #proveedorForm .form-validated .form-control,
+#ajaxFormModal #proveedorForm .form-validated .form-select {
+    padding-right: 30px !important;
 }
 
-.valid-check-svg {
-  width: 14px;
-  height: 14px;
-  fill: #198754;
-  display: block;
-}
-/* Quitar fondo y borde café del input válido */
-.form-grid input.is-valid,
-.form-grid select.is-valid,
-.form-control.is-valid,
-.form-select.is-valid,
-input.is-valid,
-select.is-valid {
-    background-image: none !important;
-    background-color: #fff !important;
-    border-color: #d6cfc9 !important;
-    box-shadow: none !important;
-}
+/* chulo personalizado */
+#ajaxFormModal #proveedorForm .form-validated .valid-check {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none;
 
-/* Solo el chulo, verde puro */
-.valid-check-icon {
-    color: #2ecc71 !important;
-    font-size: 16px !important;
-    line-height: 1 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
     background: transparent !important;
-    border: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
-    -webkit-text-fill-color: #2ecc71 !important;
+    outline: none !important;
+}
+
+#ajaxFormModal #proveedorForm .form-validated.is-ok .valid-check {
+    opacity: 1;
+}
+
+#ajaxFormModal #proveedorForm .form-validated .valid-check svg,
+#ajaxFormModal #proveedorForm .valid-check-svg {
+    display: block !important;
+    width: 14px !important;
+    height: 14px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* error */
+#ajaxFormModal #proveedorForm input.is-invalid,
+#ajaxFormModal #proveedorForm select.is-invalid,
+#ajaxFormModal #proveedorForm textarea.is-invalid,
+#ajaxFormModal #proveedorForm .form-control.is-invalid,
+#ajaxFormModal #proveedorForm .form-select.is-invalid {
+    border-color: #c0392b !important;
+    background-color: #fffafa !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* MATA cualquier validación visual positiva de Bootstrap */
+#ajaxFormModal #proveedorForm input,
+#ajaxFormModal #proveedorForm select,
+#ajaxFormModal #proveedorForm textarea,
+#ajaxFormModal #proveedorForm .form-control,
+#ajaxFormModal #proveedorForm .form-select,
+#ajaxFormModal #proveedorForm input.is-valid,
+#ajaxFormModal #proveedorForm select.is-valid,
+#ajaxFormModal #proveedorForm textarea.is-valid,
+#ajaxFormModal #proveedorForm .form-control.is-valid,
+#ajaxFormModal #proveedorForm .form-select.is-valid,
+#ajaxFormModal #proveedorForm input:valid,
+#ajaxFormModal #proveedorForm select:valid,
+#ajaxFormModal #proveedorForm textarea:valid,
+#ajaxFormModal #proveedorForm .form-control:valid,
+#ajaxFormModal #proveedorForm .form-select:valid,
+#ajaxFormModal #proveedorForm.was-validated input:valid,
+#ajaxFormModal #proveedorForm.was-validated select:valid,
+#ajaxFormModal #proveedorForm.was-validated textarea:valid,
+#ajaxFormModal #proveedorForm.was-validated .form-control:valid,
+#ajaxFormModal #proveedorForm.was-validated .form-select:valid {
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+#ajaxFormModal #proveedorForm input.is-valid,
+#ajaxFormModal #proveedorForm select.is-valid,
+#ajaxFormModal #proveedorForm textarea.is-valid,
+#ajaxFormModal #proveedorForm .form-control.is-valid,
+#ajaxFormModal #proveedorForm .form-select.is-valid,
+#ajaxFormModal #proveedorForm input:valid,
+#ajaxFormModal #proveedorForm select:valid,
+#ajaxFormModal #proveedorForm textarea:valid,
+#ajaxFormModal #proveedorForm .form-control:valid,
+#ajaxFormModal #proveedorForm .form-select:valid,
+#ajaxFormModal #proveedorForm.was-validated input:valid,
+#ajaxFormModal #proveedorForm.was-validated select:valid,
+#ajaxFormModal #proveedorForm.was-validated textarea:valid,
+#ajaxFormModal #proveedorForm.was-validated .form-control:valid,
+#ajaxFormModal #proveedorForm.was-validated .form-select:valid {
+    border-color: #d6cfc9 !important;
+    background-color: #fff !important;
+}
+
+/* feedback */
+#ajaxFormModal #proveedorForm .invalid-feedback,
+#ajaxFormModal #proveedorForm .form-error,
+#ajaxFormModal #proveedorForm .text-danger.small {
+    font-size: 12px;
+    line-height: 1.2;
+    color: #c0392b !important;
+    margin-top: 4px;
 }

@@ -380,25 +380,9 @@ h2 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.switch-wrap{
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
 
-.switch-wrap input[type="checkbox"]{
-  appearance: none;
-  -webkit-appearance: none;
-  width: 40px;
-  height: 30px;
-  border-radius: 995px;
-  background: #e9edf2;
-  border: 1px solid #d8dde3;
-  position: relative;
-  cursor: pointer;
-  transition: background .18s ease, border-color .18s ease;
-}
+
+
 
 .switch-wrap input[type="checkbox"]::after{
   content: "";
@@ -415,10 +399,9 @@ h2 {
 }
 
 .switch-wrap input[type="checkbox"]:checked{
-  background: rgba(176,122,80,.35);
-  border-color: rgba(176,122,80,.55);
+  background: #3a1a12;
+  border-color: #6f472d;
 }
-
 .switch-wrap input[type="checkbox"]:checked::after{
   left: 23px;
 }
@@ -512,7 +495,7 @@ h2 {
   pointer-events: none;
 }
 .form_validated.is-ok .valid-check{
-  display: inline-block;
+  display: inline-block
 }
 
 /* Dropzone  */
@@ -812,10 +795,14 @@ z-index:2000 !important;
   --mona-dark: #3b2f2f;
 
   /* Mona café */
-  --mona-brown: #7a4f35;
-  --mona-brown-2: #6f3f28;
-  --pill-bg: rgba(122,79,53,.10);
-  --pill-brd: rgba(122,79,53,.25);
+  --mona-brown: #3a1a12;
+  --mona-brown-2: #3a1a12;
+  --pill-bg: rgba(58,26,18,.10);
+  --pill-brd: rgba(58,26,18,.22);
+}
+.estado-opt.is-active{
+  background: #3a1a12;
+  color: #fff;
 }
 
 /* ===== inputs base ===== */
@@ -1408,4 +1395,104 @@ z-index:2000 !important;
 
 .detalle-pro-header .btn-close:focus {
   box-shadow: none;
+}
+
+/* =========================================================
+   SWITCH ESTADO - TABLA PRODUCTOS
+========================================================= */
+
+.styled-table td .estado-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: #8b5e3c;
+  border: 1px solid #6f472d;
+  vertical-align: middle;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Bola */
+.styled-table td .estado-switch .switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  transition: left 0.18s ease;
+}
+
+/* Activo: oscuro estilo ventas */
+.styled-table td .estado-switch.is-on {
+  background: #2c0909;
+  border-color: #2c0909;
+}
+
+.styled-table td .estado-switch.is-on .switch-thumb {
+  left: 18px;
+}
+
+/* Inactivo */
+.styled-table td .estado-switch.is-off {
+  background: #8b5e3c;
+  border-color: #6f472d;
+}
+
+.styled-table td .estado-switch.is-off .switch-thumb {
+  left: 2px;
+}
+
+/* =========================================================
+   SWITCH ESTADO - TABLA PRODUCTOS
+========================================================= */
+
+.styled-table td .estado-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: #2c0909;
+  border: 1px solid #2c0909;
+  vertical-align: middle;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.styled-table td .estado-switch .switch-thumb {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  transform: translateY(-50%);
+  transition: left 0.18s ease;
+}
+
+/* Activo */
+.styled-table td .estado-switch.is-on {
+  background: #2c0909;
+  border-color: #2c0909;
+}
+
+.styled-table td .estado-switch.is-on .switch-thumb {
+  left: 20px;
+}
+
+/* Inactivo */
+.styled-table td .estado-switch.is-off {
+  background: #8b5e3c;
+  border-color: #6f472d;
+}
+
+.styled-table td .estado-switch.is-off .switch-thumb {
+  left: 2px;
 }
