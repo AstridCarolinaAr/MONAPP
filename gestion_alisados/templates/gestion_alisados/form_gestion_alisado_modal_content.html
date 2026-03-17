@@ -173,7 +173,7 @@
 </style>
 
 <!-- Indicador de progreso -->
-<div class="progress-steps">
+<div class="progress-steps" style="margin-bottom: 20px;">
     <div class="step-item active" data-step="1">
         <div class="step-circle">1</div>
         <div class="step-label">Información General</div>
@@ -183,9 +183,6 @@
         <div class="step-label">Características y Cuidados</div>
     </div>
 </div>
-
-<!-- Contenedor para achicar la ventana emergente principal -->
-<div style="max-width: 750px; min-width: 350px; width: 60vw; max-height: 90vh; margin: 0 auto; background: #fff; border-radius: 18px; box-shadow: 0 4px 32px rgba(0,0,0,0.18); padding: 24px 18px; overflow-y: auto;">
 
 <form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" novalidate>
                         {% csrf_token %}
@@ -586,32 +583,7 @@
                         </div>
                         
                         </div><!-- Fin del Paso 2 -->
-                        
-                        <!-- Botones de navegación -->
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary" id="btnCancelar">
-                                <i class="bi bi-arrow-left"></i> Cancelar
-                            </a>
-                            
-                            <div>
-                                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
-                                    <i class="bi bi-arrow-left"></i> Anterior
-                                </button>
-                                <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40;">
-                                    Siguiente <i class="bi bi-arrow-right"></i>
-                                </button>
-                                <button type="button" class="btn text-white" id="btnGuardar" style="display: none; background-color: #634c40; border-color: #634c40;">
-                                    <i class="bi bi-save"></i> Guardar
-                                </button>
-                            </div>
-                        </div>
                     </form>
-</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal de Consentimiento Informado -->
 <div class="modal fade" id="modalConsentimiento" tabindex="-1" aria-labelledby="modalConsentimientoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">

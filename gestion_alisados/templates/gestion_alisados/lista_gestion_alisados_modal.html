@@ -16,17 +16,26 @@
         max-width: 600px;
         width: 70vw;
         min-width: 320px;
-        margin: 2.5rem auto;
+        margin: auto;
         border-radius: 18px;
         padding: 0;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1060;
     }
     .modal-content {
         border-radius: 18px;
         margin: 0;
         padding: 0;
+        max-height: 85vh !important;
+        height: auto !important;
     }
     .modal-body {
-        padding: 0 0.5rem 1rem 0.5rem;
+        padding: 0.5rem !important;
+        max-height: 75vh;
+        overflow-y: auto;
     }
     
     .section-title {
@@ -122,135 +131,41 @@
     }
     
     .modal-body-scrollable {
-        max-height: calc(100vh - 250px);
+        max-height: 70vh;
         overflow-y: auto;
+    }
+    
+    /* Estilos compactos para header y footer */
+    .modal-header {
+        padding: 1rem !important;
+    }
+    .modal-footer {
+        padding: 0.75rem !important;
+    }
+</style>
+<style>
+    /* Fondo del overlay del modal más oscuro y translúcido */
+    .modal-backdrop.show {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        backdrop-filter: blur(5px) !important;
+    }
+    
+    /* Efecto blur en el contenido de fondo */
+    body.modal-open > *:not(.modal) {
+        filter: blur(2px);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="card shadow">
-        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
-            <h4 class="mb-0">Gestion de datos</h4>
-            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalGestionAlisado">
-                <i class="bi bi-plus-circle"></i> Nueva Gestión
-            </button>
-        </div>
-        <div class="card-body">
-            {% if gestiones %}
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Fecha y Hora</th>
-                                <th>Cliente</th>
-                                <th>Profesional</th>
-                                <th>Tipo de Alisado</th>
-                                <th>Precio</th>
-                                <th>Saldo Pendiente</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for gestion in gestiones %}
-                            <tr>
-                                <td>{{ gestion.fecha_hora|date:"d/m/Y H:i" }}</td>
-                                <td>{{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</td>
-                                <td>{{ gestion.procedimiento_realizado_por }}</td>
-                                <td>{{ gestion.tipo_alisado }}</td>
-                                <td>${{ gestion.precio_alisado|intcomma }} COP</td>
-                                <td>
-                                    {% if gestion.saldo_pendiente > 0 %}
-                                        <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Pagado</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-info" title="Ver detalles">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-warning" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- MODAL PRINCIPAL: Formulario de Gestion de datos -->
-<div class="modal fade" id="modalGestionAlisado" tabindex="-1" aria-labelledby="modalGestionAlisadoLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-fullscreen-custom" style="max-width:600px !important;width:70vw !important;min-width:320px !important;margin:2.5rem auto !important;">
-        <div class="modal-content">
-            <div class="modal-header text-white" style="background-color: #634c40;">
-                <h5 class="modal-title" id="modalGestionAlisadoLabel">
-                    <i class="bi bi-file-earmark-plus"></i> Gestion de datos
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body modal-body-scrollable">
-                <!-- Indicador de progreso -->
-                <div class="progress-steps">
-                    <div class="step-item active" data-step="1">
-                        <div class="step-circle">1</div>
-                        <div class="step-label">Información General</div>
-                    </div>
-                    <div class="step-item" data-step="2">
-                        <div class="step-circle">2</div>
-                        <div class="step-label">Características y Cuidados</div>
-                    </div>
-                </div>
-                
-                <form method="post" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" id="gestionAlisadoForm">
-                    {% csrf_token %}
-                    
-                    <!-- PASO 1: Información General -->
-                    <div class="form-step active" id="step1">
-                        {% include 'servicios/partials/form_alisado_paso1.html' %}
-                    </div>
-                    
-                    <!-- PASO 2: Características y Cuidados -->
-                    <div class="form-step" id="step2">
-                        {% include 'servicios/partials/form_alisado_paso2.html' %}
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Cancelar
-                </button>
-                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
-                    <i class="bi bi-arrow-left"></i> Anterior
-                </button>
-                <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40;">
-                    Siguiente <i class="bi bi-arrow-right"></i>
-                </button>
-                <button type="button" class="btn text-white" id="btnGuardarModal" style="display: none; background-color: #634c40; border-color: #634c40;">
-                    <i class="bi bi-save"></i> Guardar Gestión
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Consentimiento (incluido aquí también) -->
-{% include 'servicios/partials/modal_consentimiento.html' %}
-
-<!-- Modal de Nuevo Cliente -->
-{% include 'servicios/partials/modal_nuevo_cliente.html' %}
-
+<!-- Este archivo no se utiliza - el modal está en lista_gestion_alisados.html -->
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'servicios/js/form_alisado_modal.js' %}"></script>
 {% endblock %}
