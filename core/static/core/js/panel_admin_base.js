@@ -33,10 +33,35 @@ function initSidebar() {
         }
     });
 
+    // ── Conectar el handle (flecha lateral) ──
+    if (handle) {
+        handle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // ── Conectar botón del topbar  ──
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // ── Restaurar estado guardado ──
+    // Default: sidebar abierto. Solo colapsar si el usuario lo cerró manualmente.
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
     if (sidebarCollapsed === 'true' && window.innerWidth > 991) {
         sidebar.classList.add('collapsed');
         mainContent.classList.add('expanded');
+        document.body.classList.add('sidebar-collapsed');
+    } else {
+        // Asegurar que empiece abierto (quitar cualquier clase residual)
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('expanded');
+        document.body.classList.remove('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', 'false');
     }
 
     document.addEventListener('click', function (e) {

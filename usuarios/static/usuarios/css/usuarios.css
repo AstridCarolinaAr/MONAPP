@@ -32,10 +32,7 @@
 .styled-table td {
     padding: 16px 20px;
 }
-.btn {
-    background :#6D5C5C;
-    color:rgb(232, 231, 233);
-}
+
 
 
     /* Estilos para el modal */
@@ -99,12 +96,12 @@
     
     .modal-usuario-header {
         padding: 24px 32px;
-        background: linear-gradient(135deg, #634c40 0%, #7d5e4f 100%);
+        background: linear-gradient(135deg, #1a0a0a 0%, #3a2117 60%, #4b2f2a 100%);
         color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 3px solid #d4a574;
+        border-bottom: 3px solid #6b4423;
     }
     
     .modal-usuario-header h3 {
@@ -162,12 +159,12 @@
     }
     
     .modal-usuario-body::-webkit-scrollbar-thumb {
-        background: #634c40;
+        background: #4b2f2a;
         border-radius: 4px;
     }
     
     .modal-usuario-body::-webkit-scrollbar-thumb:hover {
-        background: #7d5e4f;
+        background: #3a2117;
     }
 
     /* Switch de estado en la tabla */
@@ -212,7 +209,7 @@
     }
 
     .table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider {
-        background-color: #634c40;
+        background-color: #4b2f2a;
     }
 
     .table-switch-wrapper input[type="checkbox"]:disabled + .table-switch-slider {
@@ -225,8 +222,11 @@
     }
 
     .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
-        box-shadow: 0 0 0 3px rgba(99, 76, 64, 0.2);
+        box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
     }
+}
+
+/* Estilos para la barra de filtrado movidos al html para igualar a Personal */
 
     /* Estilo café para el switch del modal de editar usuario */
     .form-switch .form-check-input {
@@ -235,17 +235,17 @@
     }
 
     .form-switch .form-check-input:checked {
-        background-color: #634c40;
-        border-color: #634c40;
+        background-color: #4b2f2a;
+        border-color: #4b2f2a;
     }
 
     .form-switch .form-check-input:focus {
-        border-color: #634c40;
-        box-shadow: 0 0 0 0.25rem rgba(99, 76, 64, 0.25);
+        border-color: #4b2f2a;
+        box-shadow: 0 0 0 0.25rem rgba(75, 47, 42, 0.25);
     }
 
     .form-switch .form-check-input:checked:focus {
-        background-color: #634c40;
-        border-color: #634c40;
-        box-shadow: 0 0 0 0.25rem rgba(99, 76, 64, 0.25);
+        background-color: #4b2f2a;
+        border-color: #4b2f2a;
+        box-shadow: 0 0 0 0.25rem rgba(75, 47, 42, 0.25);
     }

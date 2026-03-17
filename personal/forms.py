@@ -99,6 +99,8 @@ class PersonalBusquedaForm(forms.Form):
             ('inactivo', 'Inactivos'),
         ] + [('rol_' + rol[0], rol[1]) for rol in Personal.ROLES],
         widget=forms.Select(attrs={
-            'class': 'personal-form-control'
+            'class': 'personal-form-control',
+            'id': 'id_filtro_personal',
+            'onchange': 'enviarFormularioFiltro(this.form)'
         })
     )

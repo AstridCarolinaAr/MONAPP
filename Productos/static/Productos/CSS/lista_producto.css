@@ -149,8 +149,7 @@ h2 {
     transition: all .2s ease;
 }
 
-.producto-form .form-control:focus,
-.producto-form .form-select:focus {
+.producto-form .form-control:focus {
     border-color: #b07a50;
     box-shadow: 0 0 0 2px rgba(176, 122, 80, 0.15);
 }
@@ -189,10 +188,17 @@ h2 {
 .ultra-header {
   border: 0;
   padding: 10px 12px;
-  background: linear-gradient(135deg, #7a4f35, #b07a50);
+  background: linear-gradient(90deg, #2c0909 0%, #5c3b2e 100%);
   color: #fff;
 }
+.ultra-header .ultra-subtitle {
+  color: rgba(255,255,255,0.9);
+}
 
+.ultra-header .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+}
 .ultra-icon {
   width: 33px;
   height: 33px;
@@ -279,7 +285,7 @@ h2 {
 }
 
 .producto-form .form-control:focus,
-.producto-form .form-select:focus {
+.producto-form .form-control:focus {
   border-color: #b07a50;
   box-shadow: 0 0 0 2px rgba(176,122,80,.15);
 }
@@ -1094,17 +1100,25 @@ z-index:2000 !important;
   border-radius: 0 0 14px 14px;
   overflow: hidden;
 }
-
 .detalle-pro-header{
   padding: 14px 18px;
-  background: #f8f4f1;
-  border-bottom: 1px solid #ddd3cd;
+  background: linear-gradient(90deg, #2c0909 0%, #5c3b2e 100%);
+  border-bottom: none;
 }
 
 .detalle-pro-header .modal-title{
   font-weight: 700;
-  color: #2d1a12;
+  color: #fff;
   font-size: 16px;
+}
+
+.detalle-pro-header .btn-close{
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+}
+
+.detalle-pro-header .btn-close:focus{
+  box-shadow: none;
 }
 
 .detalle-pro-body{
@@ -1361,4 +1375,37 @@ z-index:2000 !important;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+}
+
+/* CREAR / EDITAR */
+.ultra-header .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.95 !important;
+  transition: transform 0.18s ease, opacity 0.15s ease !important;
+}
+
+.ultra-header .btn-close:hover {
+  transform: rotate(90deg) scale(1.08);
+  opacity: 1 !important;
+}
+
+.ultra-header .btn-close:focus {
+  box-shadow: none;
+}
+
+
+/* DETALLE */
+.detalle-pro-header .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.95 !important;
+  transition: transform 0.18s ease, opacity 0.15s ease !important;
+}
+
+.detalle-pro-header .btn-close:hover {
+  transform: rotate(90deg) scale(1.08);
+  opacity: 1 !important;
+}
+
+.detalle-pro-header .btn-close:focus {
+  box-shadow: none;
 }

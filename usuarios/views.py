@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
+from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm, UsuarioBusquedaForm
 from .models import PerfilUsuario
 import random
 from django.utils import timezone
@@ -267,18 +267,31 @@ def lista_usuarios_view(request):
     # Verificar si puede crear/editar (no colaborador)
     puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
 
-    busqueda = request.GET.get('buscar', '')
-
     usuarios = User.objects.select_related('perfil').all()
-
-    if busqueda:
-        usuarios = usuarios.filter(
-            Q(username__icontains=busqueda) |
-            Q(first_name__icontains=busqueda) |
-            Q(last_name__icontains=busqueda) |
-            Q(email__icontains=busqueda) |
-            Q(perfil__documento__icontains=busqueda)
-        )
+    
+    form = UsuarioBusquedaForm(request.GET)
+    
+    if form.is_valid():
+        busqueda = form.cleaned_data.get('busqueda')
+        filtro = form.cleaned_data.get('filtro')
+        
+        if busqueda:
+            usuarios = usuarios.filter(
+                Q(username__icontains=busqueda) |
+                Q(first_name__icontains=busqueda) |
+                Q(last_name__icontains=busqueda) |
+                Q(email__icontains=busqueda) |
+                Q(perfil__documento__icontains=busqueda)
+            )
+        
+        if filtro:
+            if filtro == 'activo':
+                usuarios = usuarios.filter(is_active=True)
+            elif filtro == 'inactivo':
+                usuarios = usuarios.filter(is_active=False)
+            elif filtro.startswith('rol_'):
+                rol_valor = filtro.replace('rol_', '')
+                usuarios = usuarios.filter(groups__name=rol_valor)
 
     usuarios = usuarios.order_by('-date_joined')
 
@@ -288,7 +301,7 @@ def lista_usuarios_view(request):
         {
             'titulo': 'Gestión de Usuarios',
             'usuarios': usuarios,
-            'busqueda': busqueda,
+            'form': form,
             'es_administrador': es_administrador,
             'puede_modificar': puede_modificar,
         }
