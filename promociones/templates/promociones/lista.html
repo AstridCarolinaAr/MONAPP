@@ -4,9 +4,6 @@
 
 {% block title %}Promociones{% endblock %}
 
-<<<<<<< HEAD
-{% block page_title %}{% endblock %}
-=======
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Promociones</li>
 {% endblock %}
@@ -14,7 +11,6 @@
 {% block page_title %}
     <i class="bi bi-percent"></i> Gestión de Promociones
 {% endblock %}
->>>>>>> ea582f7c6233cd5896ba82abad47950daf0fbc78
 
 {% block extra_css %}
 <style>
@@ -110,15 +106,10 @@
     align-items: center;
     justify-content: center;
 }
-<<<<<<< HEAD
-.promo-actions .btn-edit        { color: #382822; display: inline-flex; align-items: center; }
-.promo-actions .btn-del         { color: #382822; display: inline-flex; align-items: center; }
-=======
 .promo-actions .btn-edit        { color: #8d604a; text-decoration: none; }
 .promo-actions .btn-edit:hover  { background: rgba(141,96,74,.12); }
 .promo-actions .btn-del         { color: #a0715a; }
 .promo-actions .btn-del:hover   { background: rgba(160,113,90,.15); }
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 
 /* Vista vacía */
 .promo-empty {
@@ -373,7 +364,6 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-0 fw-semibold"><i class="bi bi-percent me-2"></i>Gestión de Promociones</h3>
             <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
         </div>
         <button class="promo-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar">
@@ -485,14 +475,7 @@
                             </label>
                         </td>
                         <td class="text-center promo-actions">
-<<<<<<< HEAD
-                            <a href="{% url 'promociones:editar' p.pk %}" class="btn btn-link" style="color: #382822;" title="Editar" data-bs-placement="bottom">
-                                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
-                            </a>
-                            <button type="button" class="btn btn-link"
-=======
                             <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-promo"
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalDetallePromo"
                                     data-nombre="{{ p.nombre|escapejs }}"
@@ -549,19 +532,6 @@
 
 </div>
 
-<<<<<<< HEAD
-<!-- ───── BOTÓN FLOTANTE (AGREGAR) ───── -->
-<button class="btn-pill-dark position-fixed bottom-0 end-0 m-4 shadow-lg" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modalAgregar" 
-        title="Nueva promoción" 
-        data-bs-placement="bottom"
-        style="z-index: 1050;">
-    <i class="bi bi-plus-circle"></i> Nueva promoción
-</button>
-=======
-
->>>>>>> c8b5beb0428addf6a771464fb5445779c36080bb
 
 <!-- ═══════════════ MODAL AGREGAR ═══════════════ -->
 <div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
@@ -959,14 +929,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* Nombre */
-    const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.\,\(\)&\+\/\#\*\!\?:\'"]+$/;
+    const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
     function promoNombre(input, errEl) {
         const v = input.value.trim();
         let msg = '';
         if (!v)                  msg = 'El nombre es obligatorio.';
         else if (v.length < 2)       msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)     msg = 'Máximo 200 caracteres.';
-        else if (!PROMO_REG.test(v)) msg = 'Caracteres no permitidos. Use letras, números y -.,()&+/#*!?\'"';
+        else if (!PROMO_REG.test(v)) msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
         return promoErr(input, errEl, msg);
     }
 
@@ -1173,6 +1143,40 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+
+    /* ══════════════════════════════════════════════════════
+       FILTRO DE NOMBRE — impedir números y signos al escribir
+       Solo letras (incluyendo tildes/ñ) y espacios
+    ══════════════════════════════════════════════════════ */
+    const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
+
+    function filtrarNombreKeypress(e) {
+        if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            if (!NOMBRE_ALLOWED.test(e.key)) e.preventDefault();
+        }
+    }
+    function filtrarNombrePaste(e) {
+        e.preventDefault();
+        const texto = (e.clipboardData || window.clipboardData).getData('text');
+        const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+        document.execCommand('insertText', false, limpio);
+    }
+    function filtrarNombreInput() {
+        const pos = this.selectionStart;
+        const original = this.value;
+        const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+        if (limpio !== original) {
+            this.value = limpio;
+            this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
+        }
+    }
+
+    /* Aplicar filtro a todos los campos nombre de promociones */
+    document.querySelectorAll('#modalAgregar [name="nombre"], #modalEditar [name="nombre"]').forEach(input => {
+        input.addEventListener('keypress', filtrarNombreKeypress);
+        input.addEventListener('paste', filtrarNombrePaste);
+        input.addEventListener('input', filtrarNombreInput);
     });
 
     /* ── Modal Ver Detalles Promoción ── */

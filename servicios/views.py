@@ -4,7 +4,9 @@ from django.contrib import messages
 from django.http import JsonResponse
 from .models import Servicio
 from .forms import ServicioForm
-
+from gestion_alisados.models import GestionAlisado
+from gestion_alisados.forms import GestionAlisadoForm
+from servicios_web.models import ServicioWeb
 def es_staff(user):
     return user.is_staff
 
@@ -134,6 +136,18 @@ def eliminar_servicio(request, pk):
     }
     return render(request, 'servicios/eliminar_servicio.html', context)
 
+@login_required
+def toggle_activo_servicio(request, pk):
+    if request.method == 'POST':
+        servicio = get_object_or_404(Servicio, pk=pk)
+        servicio.activo = not servicio.activo
+        servicio.save()
+        return JsonResponse({
+            'success': True,
+            'activo': servicio.activo
+        })
+    return JsonResponse({'success': False}, status=400)
+
 def servicios_publicos(request):
     """Vista pública para mostrar servicios en la página principal"""
     servicios = Servicio.objects.filter(activo=True)
@@ -141,7 +155,6 @@ def servicios_publicos(request):
         'servicios': servicios
     }
     return render(request, 'servicios/servicios_publicos.html', context)
-
 
 # Vistas para Gestion de datos
 @login_required

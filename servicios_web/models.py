@@ -3,10 +3,20 @@ import uuid
 
 class ServicioWeb(models.Model):
     id_servicio_web = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    servicio_origen = models.OneToOneField(
+        'servicios.Servicio',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='servicio_web',
+        verbose_name='Servicio origen'
+    )
+
     nombre = models.CharField(max_length=200, verbose_name='Nombre del Servicio')
     descripcion = models.TextField(verbose_name='Descripción del Servicio')
     precio = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2,
         verbose_name='Precio al público'
     )

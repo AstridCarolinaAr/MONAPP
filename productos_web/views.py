@@ -66,6 +66,21 @@ def crear_producto_web(request):
     })
 
 
+# ─────────────────── DETALLE JSON (AJAX) ─────────────
+@login_required
+def detalle_producto_web_json(request, pk):
+    """Devuelve los datos del producto como JSON para poblar el modal de edición."""
+    producto = get_object_or_404(ProductoWeb, pk=pk)
+    return JsonResponse({
+        'id': str(producto.pk),
+        'nombre': producto.nombre,
+        'precio': str(producto.precio),
+        'descripcion': producto.descripcion or '',
+        'imagen_url': producto.imagen.url if producto.imagen else '',
+        'visible': producto.visible,
+    })
+
+
 # ─────────────────────── EDITAR ──────────────────────
 @login_required
 def editar_producto_web(request, pk):
@@ -79,6 +94,7 @@ def editar_producto_web(request, pk):
             return redirect('productos_web:lista')
         else:
             messages.error(request, 'Corrige los errores del formulario.')
+            return redirect('productos_web:lista')
     else:
         form = ProductoWebForm(instance=producto)
 

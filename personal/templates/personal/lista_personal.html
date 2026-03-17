@@ -109,6 +109,16 @@
         overflow-y: auto;
         max-height: calc(90vh - 100px);
     }
+
+    #modalDetallePersonal .modal-personal-body {
+        overflow-y: visible;
+        max-height: none;
+    }
+
+    #modalDetallePersonal .modal-personal-content {
+        max-height: none;
+        overflow: visible;
+    }
     
     /* Scrollbar personalizada para el modal */
     .modal-personal-body::-webkit-scrollbar {
@@ -271,43 +281,43 @@
 </div>
 
         <!-- Tabla de personal -->
-        <div class="personal-table-wrapper">
+        <div class="table-responsive">
             {% if personal_list %}
-                            <table class="styled-table">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Documento</th>
-                                        <th>Nombres</th>
-                                        <th>Teléfono</th>
-                                        <th>Correo</th>
-                                        <th>Rol</th>
-                                        <th>Estado</th>
-                                        <th>Fecha de Registro</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
+                <table class="table styled-table table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Documento</th>
+                            <th>Nombres</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Fecha de Registro</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
                                 <tbody>
                                     {% for persona in personal_list %}
-                                        <tr>                                <td><strong>{{ persona.id }}</strong></td>
-                                <td>{{ persona.numero_documento }}</td>
-                                <td>{{ persona.nombres }} {{ persona.apellidos }}</td>
-                                <td>
+                                        <tr>                                <td data-label="#"><strong>{{ persona.id }}</strong></td>
+                                <td data-label="Documento">{{ persona.numero_documento }}</td>
+                                <td data-label="Nombres">{{ persona.nombres }} {{ persona.apellidos }}</td>
+                                <td data-label="Teléfono">
                                     <a href="tel:{{ persona.telefono }}" style="color: #634c40; text-decoration: none;">
                                         <i class="fas fa-phone"></i> {{ persona.telefono }}
                                     </a>
                                 </td>
-                                <td>
+                                <td data-label="Correo">
                                     <a href="mailto:{{ persona.correo }}" style="color: #634c40; text-decoration: none;">
                                         <i class="fas fa-envelope"></i> {{ persona.correo }}
                                     </a>
                                 </td>
-                                <td>
+                                <td data-label="Rol">
                                     <span class="personal-badge {% if persona.rol == 'AUX' %}warning{% elif persona.rol == 'ADM' %}info{% else %}success{% endif %}">
                                         {{ persona.get_rol_display }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Estado">
                                     {% if puede_modificar %}
                                         <label class="table-switch-wrapper" title="Cambiar estado" data-bs-placement="bottom">
                                             <input type="checkbox" 
@@ -325,25 +335,25 @@
                                         {% endif %}
                                     {% endif %}
                                 </td>
-                                <td style="font-size: 0.9rem;">
+                                <td data-label="Fecha de Registro" style="font-size: 0.9rem;">
                                     <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
                                     {{ persona.fecha_creacion|date:"d/m/Y" }}<br>
                                     <i class="fas fa-clock" style="color: #634c40; margin-right: 4px;"></i>
                                     {{ persona.fecha_creacion|date:"H:i" }}
                                 </td>
-                                <td>
-                                    <div class="personal-action-group">
-                                        <button type="button" class="btn btn-link" style="color: #382822;" onclick="abrirModalDetallePersonal({{ persona.id }})" title="Ver detalles" data-bs-placement="bottom">
-                                            <i class="bi bi-eye" style="font-size: 24px;"></i>
+                                <td data-label="Acciones" class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-link p-0" onclick="abrirModalDetallePersonal({{ persona.id }})" title="Ver detalles">
+                                            <i class="bi bi-eye" style="color: #382822; font-size: 24px;"></i>
                                         </button>
                                         {% if puede_modificar %}
-                                        <button type="button" class="btn btn-link" style="color: #382822;" onclick="abrirModalEditarPersonal({{ persona.id }})" title="Editar" data-bs-placement="bottom">
-                                            <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                                        <button type="button" class="btn btn-link p-0" onclick="abrirModalEditarPersonal({{ persona.id }})" title="Editar">
+                                            <i class="bi bi-pencil-square" style="color: #382822; font-size: 24px;"></i>
                                         </button>
                                         {% endif %}
                                         {% if es_administrador %}
-                                        <button type="button" class="btn btn-link" style="color: #382822;" onclick="abrirModalEliminarPersonal({{ persona.id }})" title="Eliminar" data-bs-placement="bottom">
-                                            <i class="bi bi-trash3" style="font-size: 24px;"></i>
+                                        <button type="button" class="btn btn-link p-0" onclick="abrirModalEliminarPersonal({{ persona.id }})" title="Eliminar">
+                                            <i class="bi bi-trash3" style="color: #3c1e14; font-size: 24px;"></i>
                                         </button>
                                         {% endif %}
                                     </div>
@@ -406,29 +416,10 @@
     </div>
 </div>
 
-<!-- Modal para eliminar personal -->
-<div id="modalEliminarPersonal" class="modal-personal" style="display: none;">
-    <div class="modal-personal-overlay" onclick="cerrarModalEliminarPersonal()"></div>
-    <div class="modal-personal-content" style="max-width: 550px;">
-        <div class="modal-personal-header" style="background: linear-gradient(135deg, #634c40 0%, #7d5e4f 100%);">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h3>
-            <button type="button" class="modal-personal-close" onclick="cerrarModalEliminarPersonal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-personal-body" id="modalEliminarPersonalBody">
-            <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #634c40;"></i>
-                <p style="margin-top: 16px; color: #634c40;">Cargando...</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Modal para ver detalles del personal -->
 <div id="modalDetallePersonal" class="modal-personal" style="display: none;">
     <div class="modal-personal-overlay" onclick="cerrarModalDetallePersonal()"></div>
-    <div class="modal-personal-content" style="max-width: 750px;">
+    <div class="modal-personal-content" style="max-width: 960px;">
         <div class="modal-personal-header">
             <h3><i class="fas fa-user-circle"></i> Detalles del Personal</h3>
             <button type="button" class="modal-personal-close" onclick="cerrarModalDetallePersonal()">
@@ -446,6 +437,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Cargar JavaScript de validaciones en tiempo real -->
 <script src="{% static 'personal/js/personal.js' %}"></script>
 
@@ -531,23 +524,22 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Éxito - cerrar modal y recargar la página
+                // Éxito - cerrar modal
                 cerrarModalPersonal();
                 
-                // Mostrar mensaje de éxito temporal
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'personal-alert success';
-                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
-                alertDiv.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <span>${data.message}</span>
-                `;
-                document.body.appendChild(alertDiv);
-                
-                // Recargar la página después de 1.5 segundos
-                setTimeout(() => {
+                // Mostrar SweetAlert2 de éxito
+                Swal.fire({
+                    title: '¡Creado exitosamente!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonColor: '#5d4037',
+                    background: '#fdfaf8',
+                    color: '#4b3621',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
                     location.reload();
-                }, 1500);
+                });
             } else {
                 // Error - actualizar el formulario con los errores
                 modalBody.innerHTML = data.html_form;
@@ -643,23 +635,22 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Éxito - cerrar modal y recargar la página
+                // Éxito - cerrar modal
                 cerrarModalEditarPersonal();
                 
-                // Mostrar mensaje de éxito temporal
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'personal-alert success';
-                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
-                alertDiv.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <span>${data.message}</span>
-                `;
-                document.body.appendChild(alertDiv);
-                
-                // Recargar la página después de 1.5 segundos
-                setTimeout(() => {
+                // Mostrar SweetAlert2 de éxito
+                Swal.fire({
+                    title: '¡Actualizado exitosamente!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonColor: '#5d4037',
+                    background: '#fdfaf8',
+                    color: '#4b3621',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
                     location.reload();
-                }, 1500);
+                });
             } else {
                 // Error - actualizar el formulario con los errores
                 modalBody.innerHTML = data.html_form;
@@ -690,7 +681,6 @@
         if (e.key === 'Escape') {
             cerrarModalPersonal();
             cerrarModalEditarPersonal();
-            cerrarModalEliminarPersonal();
             cerrarModalDetallePersonal();
         }
     });
@@ -732,117 +722,66 @@
         document.body.style.overflow = '';
     }
     
-    // Funciones para el modal de eliminar personal
+    // Funciones para eliminar personal con SweetAlert2
     function abrirModalEliminarPersonal(personalId) {
-        const modal = document.getElementById('modalEliminarPersonal');
-        const modalBody = document.getElementById('modalEliminarPersonalBody');
-        
-        // Mostrar el modal
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        
-        // Cargar el contenido de confirmación vía AJAX
-        fetch(`/personal/${personalId}/eliminar/`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            modalBody.innerHTML = data.html_content;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error al cargar la información. Por favor, intenta nuevamente.</span>
-                </div>
-            `;
-        });
-    }
-    
-    function cerrarModalEliminarPersonal() {
-        const modal = document.getElementById('modalEliminarPersonal');
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-    
-    function confirmarEliminarPersonal(personalId) {
-        const modalBody = document.getElementById('modalEliminarPersonalBody');
-        
         // Obtener el token CSRF
         const csrftoken = getCookie('csrftoken');
         
-        // Deshabilitar botones mientras se procesa
-        const botones = modalBody.querySelectorAll('button');
-        botones.forEach(btn => btn.disabled = true);
-        
-        // Mostrar mensaje de procesando
-        modalBody.innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #634c40;"></i>
-                <p style="margin-top: 16px; color: #634c40;">Eliminando...</p>
-            </div>
-        `;
-        
-        fetch(`/personal/${personalId}/eliminar/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-                'X-Requested-With': 'XMLHttpRequest',
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#5d4037',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#fdfaf8',
+            color: '#4b3621',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return fetch(`/personal/${personalId}/eliminar/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la solicitud');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.message || 'Error al eliminar');
+                    }
+                    return data;
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(
+                        `Error: ${error.message}`
+                    );
+                });
             },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Éxito - cerrar modal y recargar la página
-                cerrarModalEliminarPersonal();
-                
-                // Mostrar mensaje de éxito temporal
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'personal-alert success';
-                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
-                alertDiv.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <span>${data.message}</span>
-                `;
-                document.body.appendChild(alertDiv);
-                
-                // Recargar la página después de 1.5 segundos
-                setTimeout(() => {
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: '¡Eliminado!',
+                    text: result.value.message || 'Personal eliminado exitosamente',
+                    icon: 'success',
+                    confirmButtonColor: '#5d4037',
+                    background: '#fdfaf8',
+                    color: '#4b3621',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
                     location.reload();
-                }, 1500);
-            } else {
-                // Error
-                modalBody.innerHTML = `
-                    <div class="personal-alert danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>${data.message || 'Error al eliminar. Intenta nuevamente.'}</span>
-                    </div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button type="button" class="personal-btn secondary" onclick="cerrarModalEliminarPersonal()">
-                            Cerrar
-                        </button>
-                    </div>
-                `;
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error de conexión. Intenta nuevamente.</span>
-                </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="button" class="personal-btn secondary" onclick="cerrarModalEliminarPersonal()">
-                        Cerrar
-                    </button>
-                </div>
-            `;
         });
     }
     
@@ -875,43 +814,35 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Mostrar mensaje de éxito
-                        const alertDiv = document.createElement('div');
-                        alertDiv.className = 'personal-alert success';
-                        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
-                        alertDiv.innerHTML = `
-                            <i class="fas fa-check-circle"></i>
-                            <span>${data.mensaje}</span>
-                        `;
-                        document.body.appendChild(alertDiv);
-                        
-                        // Eliminar el mensaje después de 3 segundos
-                        setTimeout(() => {
-                            alertDiv.style.animation = 'slideOutRight 0.3s ease';
-                            setTimeout(() => alertDiv.remove(), 300);
-                        }, 3000);
-                        
                         // Habilitar el switch nuevamente
                         switchElement.disabled = false;
+                        
+                        // Mostrar SweetAlert2 de éxito
+                        const estadoActual = data.activo ? 'activo' : 'inactivo';
+                        Swal.fire({
+                            title: '¡Estado actualizado!',
+                            text: `${personalNombre} ahora ${data.activo ? 'está activo' : 'ya no está activo'}`,
+                            icon: 'success',
+                            confirmButtonColor: '#5d4037',
+                            background: '#fdfaf8',
+                            color: '#4b3621',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     } else {
                         // Error - revertir el cambio
                         switchElement.checked = !isChecked;
                         switchElement.disabled = false;
                         
-                        // Mostrar mensaje de error
-                        const alertDiv = document.createElement('div');
-                        alertDiv.className = 'personal-alert danger';
-                        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
-                        alertDiv.innerHTML = `
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>${data.mensaje || 'Error al cambiar el estado'}</span>
-                        `;
-                        document.body.appendChild(alertDiv);
-                        
-                        setTimeout(() => {
-                            alertDiv.style.animation = 'slideOutRight 0.3s ease';
-                            setTimeout(() => alertDiv.remove(), 300);
-                        }, 3000);
+                        // Mostrar SweetAlert2 de error
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.mensaje || 'Error al cambiar el estado',
+                            icon: 'error',
+                            confirmButtonColor: '#5d4037',
+                            background: '#fdfaf8',
+                            color: '#4b3621'
+                        });
                     }
                 })
                 .catch(error => {
@@ -920,49 +851,18 @@
                     switchElement.checked = !isChecked;
                     switchElement.disabled = false;
                     
-                    // Mostrar mensaje de error
-                    const alertDiv = document.createElement('div');
-                    alertDiv.className = 'personal-alert danger';
-                    alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; animation: slideInRight 0.3s ease;';
-                    alertDiv.innerHTML = `
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>Error de conexión. Intenta nuevamente.</span>
-                    `;
-                    document.body.appendChild(alertDiv);
-                    
-                    setTimeout(() => {
-                        alertDiv.style.animation = 'slideOutRight 0.3s ease';
-                        setTimeout(() => alertDiv.remove(), 300);
-                    }, 3000);
+                    // Mostrar SweetAlert2 de error de conexión
+                    Swal.fire({
+                        title: 'Error de conexión',
+                        text: 'No se pudo cambiar el estado. Intenta nuevamente.',
+                        icon: 'error',
+                        confirmButtonColor: '#5d4037',
+                        background: '#fdfaf8',
+                        color: '#4b3621'
+                    });
                 });
             });
         });
     });
-    
-    // Animación para el mensaje de éxito
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
 </script>
 {% endblock %}

@@ -4,36 +4,81 @@ from django.http import JsonResponse
 from .forms import ServicioWebForm
 from .models import ServicioWeb
 
+
 def crear_servicio_web(request):
-    is_modal = request.GET.get('modal') == '1'
+    is_modal = request.GET.get('modal') == '1' or request.POST.get('modal') == '1'
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
         form = ServicioWebForm(request.POST, request.FILES)
+
         if form.is_valid():
             servicio_web = form.save()
-            messages.success(request, f'Servicio Web "{servicio_web.nombre}" creado exitosamente.')
-            
-            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'message': f'Servicio Web "{servicio_web.nombre}" creado exitosamente.'})
-            
-            return redirect('servicios_web:lista_servicios_web')
-        else:
-            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': form.errors})
 
+            if is_modal or is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Servicio Web "{servicio_web.nombre}" creado exitosamente.'
+                })
+
+            messages.success(request, f'Servicio Web "{servicio_web.nombre}" creado exitosamente.')
+            return redirect('servicios_web:lista_servicios_web')
+
+        if is_modal or is_ajax:
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            }, status=400)
     else:
         form = ServicioWebForm()
-    
+
+    template_name = 'servicios_web/_servicio_web_form.html' if is_modal else 'servicios_web/crear_servicio_web.html'
+
     context = {
         'form': form,
-        'titulo': 'Crear Servicio Web',
-        'is_modal': is_modal
+        'is_modal': is_modal,
+        'servicio_web': None,
     }
+    return render(request, template_name, context)
 
-    if is_modal:
-        return render(request, 'servicios_web/form_servicio_web_modal_content.html', context)
-    
-    return render(request, 'servicios_web/form_servicio_web.html', context)
+
+def editar_servicio_web(request, pk):
+    servicio_web = get_object_or_404(ServicioWeb, pk=pk)
+    is_modal = request.GET.get('modal') == '1' or request.POST.get('modal') == '1'
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if request.method == 'POST':
+        form = ServicioWebForm(request.POST, request.FILES, instance=servicio_web)
+
+        if form.is_valid():
+            servicio_web = form.save()
+
+            if is_modal or is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Servicio Web "{servicio_web.nombre}" actualizado exitosamente.'
+                })
+
+            messages.success(request, f'Servicio Web "{servicio_web.nombre}" actualizado exitosamente.')
+            return redirect('servicios_web:lista_servicios_web')
+
+        if is_modal or is_ajax:
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            }, status=400)
+    else:
+        form = ServicioWebForm(instance=servicio_web)
+
+    template_name = 'servicios_web/_servicio_web_form.html' if is_modal else 'servicios_web/editar_servicio_web.html'
+
+    context = {
+        'form': form,
+        'servicio_web': servicio_web,
+        'is_modal': is_modal,
+    }
+    return render(request, template_name, context)
+   
 
 def lista_servicios_web(request):
     servicios_web = ServicioWeb.objects.all()
@@ -43,37 +88,66 @@ def lista_servicios_web(request):
     }
     return render(request, 'servicios_web/lista_servicios_web.html', context)
 
-def editar_servicio_web(request, pk):
+
+def servicios_web_publicos(request):
+    servicios = ServicioWeb.objects.filter(activo=True).order_by('nombre')
+    return render(request, 'servicios_web/publicos.html', {
+        'servicios': servicios
+    })
+
+def cambiar_estado_servicio_web(request, pk):
+    if request.method == "POST":
+        servicio = get_object_or_404(ServicioWeb, pk=pk)
+
+        servicio.activo = not servicio.activo
+        servicio.save()
+
+        return JsonResponse({
+            "success": True,
+            "activo": servicio.activo
+        })
+
+    return JsonResponse({
+        "success": False,
+        "message": "Método no permitido"
+    }, status=400)
+def eliminar_servicio_web(request, pk):
     servicio_web = get_object_or_404(ServicioWeb, pk=pk)
-    is_modal = request.GET.get('modal') == '1'
+
 
     if request.method == 'POST':
-        form = ServicioWebForm(request.POST, request.FILES, instance=servicio_web)
-        if form.is_valid():
-            servicio_web = form.save()
-            messages.success(request, f'Servicio Web "{servicio_web.nombre}" actualizado exitosamente.')
-            
-            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'message': f'Servicio Web "{servicio_web.nombre}" actualizado exitosamente.'})
+        nombre = servicio_web.nombre
+        servicio_web.delete()
+        messages.success(request, f'Servicio Web "{nombre}" eliminado exitosamente.')
+        return redirect('servicios_web:lista_servicios_web')
 
-            return redirect('servicios_web:lista_servicios_web')
-        else:
-            if is_modal or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': form.errors})
-
-    else:
-        form = ServicioWebForm(instance=servicio_web)
-    
-    context = {
-        'form': form,
-        'titulo': f'Editar Servicio Web: {servicio_web.nombre}',
+    return render(request, 'servicios_web/eliminar_servcio.html', {
         'servicio_web': servicio_web,
-        'is_modal': is_modal
-    }
+    })
 
-    if is_modal:
-        return render(request, 'servicios_web/form_servicio_web_modal_content.html', context)
-    
-    return render(request, 'servicios_web/form_servicio_web.html', context)
+def validar_nombre_servicio_web(request):
+    nombre = (request.GET.get('nombre') or '').strip()
+    servicio_id = request.GET.get('servicio_id')
 
+    if not nombre:
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'El nombre es obligatorio.'
+        })
+
+    qs = ServicioWeb.objects.filter(nombre__iexact=nombre)
+
+    if servicio_id:
+        qs = qs.exclude(pk=servicio_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Ya existe un servicio web con este nombre.'
+        })
+
+    return JsonResponse({
+        'valido': True,
+        'mensaje': ''
+    })
 

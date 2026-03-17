@@ -496,6 +496,55 @@ def eliminar_usuario_view(request, user_id):
 
 
 @login_required
+def detalle_usuario_view(request, user_id):
+    """Ver detalles de un usuario vía AJAX."""
+    grupos = list(request.user.groups.values_list('name', flat=True))
+    es_administrador = request.user.is_superuser or 'Administrador' in grupos
+    puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
+
+    usuario = get_object_or_404(User, id=user_id)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        html_content = render_to_string(
+            'usuarios/_detalle_usuario_modal.html',
+            {
+                'usuario': usuario,
+                'es_administrador': es_administrador,
+                'puede_modificar': puede_modificar,
+            },
+            request=request
+        )
+        return JsonResponse({'html_content': html_content})
+
+    return redirect('usuarios:lista_usuarios')
+
+
+@login_required
+def toggle_activo_usuario_view(request, user_id):
+    """Cambia el estado activo/inactivo de un usuario vía AJAX."""
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if not is_ajax or request.method != 'POST':
+        return JsonResponse({'success': False, 'mensaje': 'Solicitud no válida.'}, status=400)
+
+    usuario = get_object_or_404(User, id=user_id)
+
+    if usuario == request.user:
+        return JsonResponse({'success': False, 'mensaje': 'No puedes cambiar tu propio estado.'}, status=403)
+
+    usuario.is_active = not usuario.is_active
+    usuario.save(update_fields=['is_active'])
+
+    estado = 'activo' if usuario.is_active else 'inactivo'
+    return JsonResponse({
+        'success': True,
+        'activo': usuario.is_active,
+        'mensaje': f'Usuario "{usuario.username}" marcado como {estado}.'
+    })
+
+
+@login_required
 # @admin_o_aux_required()
 def perfil_view(request):
     usuario = request.user

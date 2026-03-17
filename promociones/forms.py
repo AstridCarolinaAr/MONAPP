@@ -66,12 +66,13 @@ class PromocionForm(forms.ModelForm):
             raise forms.ValidationError('El nombre debe tener al menos 2 caracteres.')
         if len(nombre) > 200:
             raise forms.ValidationError('El nombre no puede superar 200 caracteres.')
+        # Solo letras (incluye tildes/ñ) y espacios — sin números ni signos
         if not re.match(
-            r'^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.\,\(\)\&\+\/\#\*\!\?\:\'"]+$',
+            r'^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$',
             nombre
         ):
             raise forms.ValidationError(
-                'El nombre contiene caracteres no permitidos. Use letras, números y los símbolos -.,()&+/#*!?:.\'"'
+                'El nombre solo puede contener letras y espacios. No se permiten números ni caracteres especiales.'
             )
         return nombre
 
