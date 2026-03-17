@@ -143,24 +143,31 @@ h2 {
     width: 28px;
     height: 28px;
     padding: 0;
-    border: 1px solid #6F4E37;
-    border-radius: 8px;
-    background: #6F4E37;
-    color: #fff;
+    border: none;
+    border-radius: 30px;
+    background: none;
+    color: #382822;
     cursor: pointer;
     transition: all 0.25s ease;
+    position: static !important;
+    top: auto !important;
 }
 
 .btn-reactivar-proveedor i {
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1;
-    color: #fff;
+    display: block;
+    color: #382822;
 }
+
 .btn-reactivar-proveedor:hover {
-    background: #5d412f;
-    border-color: #5d412f;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(111, 78, 55, 0.22);
+    background: #382822;
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-reactivar-proveedor:hover i {
+    color: #fff;
 }
 /* =============================
    BOTÓN FILTRAR – ESTILO MONA
@@ -835,4 +842,52 @@ a.proveedores-btn-add {
     .proveedores-busqueda-wrap {
         max-width: 100%;
     }
+}
+.form-validated .valid-check {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-validated.is-ok .valid-check {
+  opacity: 1;
+}
+
+.valid-check-svg {
+  width: 14px;
+  height: 14px;
+  fill: #198754;
+  display: block;
+}
+/* Quitar fondo y borde café del input válido */
+.form-grid input.is-valid,
+.form-grid select.is-valid,
+.form-control.is-valid,
+.form-select.is-valid,
+input.is-valid,
+select.is-valid {
+    background-image: none !important;
+    background-color: #fff !important;
+    border-color: #d6cfc9 !important;
+    box-shadow: none !important;
+}
+
+/* Solo el chulo, verde puro */
+.valid-check-icon {
+    color: #2ecc71 !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-text-fill-color: #2ecc71 !important;
 }
