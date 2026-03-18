@@ -87,120 +87,29 @@
                 </ul>
             </div>
         </div>
+            <div class="proveedores-busqueda-wrap">
+                <form method="get"
+                    action="{% url 'proveedores:lista_proveedor' %}"
+                    class="proveedores-busqueda-form js-ajax-search-form"
+                    data-ajax-url="{% url 'proveedores:lista_proveedor' %}"
+                    data-ajax-target="#proveedores-resultados"
+                    data-ajax-debounce="250">
 
-        <div class="proveedores-busqueda-wrap">
-            <form method="get" class="proveedores-busqueda-form">
-                {% if estado_stock %}
-                    <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
-                {% endif %}
-                {% if current_sort %}
-                    <input type="hidden" name="sort" value="{{ current_sort }}">
-                {% endif %}
-                {% if current_dir %}
-                    <input type="hidden" name="dir" value="{{ current_dir }}">
-                {% endif %}
+                    <input type="hidden" name="estado" value="{{ estado_actual }}">
 
-                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar proveedor...' search_value=q name='q' modo='inline' %}
-            </form>
-        </div>
-    </div>
-            {% if proveedores %}
-            <div class="table-responsive">
-                <table class="styled-table">
-                <thead>
-                    <tr>
-                        <th>
-                            <a href="{% sort_url 'nit' %}">NIT</a>
-                        </th>
-                        <th>
-                            <a href="{% sort_url 'proveedor' %}">Proveedor</a>
-                        </th>
-                        <th class="text-center">
-                            <a href="{% sort_url 'estado' %}">Estado</a>
-                        </th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                    <tbody>
-                        {% for proveedor in proveedores %}
-                        <tr>
-                            <td>{{ proveedor.nit }}</td>
-                            <td>{{ proveedor.nombre_proveedor }}</td>
-                            <td class="text-center">
-                                <span
-                                    id="estado-proveedor-{{ proveedor.pk }}"
-                                    class="estado-switch {% if proveedor.estado == 'activo' %}is-on{% else %}is-off{% endif %}"
-                                    aria-label="Estado del proveedor"
-                                    title="{% if proveedor.estado == 'activo' %}Activo{% else %}Desactivado{% endif %}">
-                                    <span class="switch-thumb"></span>
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <div class="acciones-proveedor">
+                    {% if current_sort %}
+                        <input type="hidden" name="sort" value="{{ current_sort }}">
+                    {% endif %}
+                    {% if current_dir %}
+                        <input type="hidden" name="dir" value="{{ current_dir }}">
+                    {% endif %}
 
-                                    <button class="btn btn-link"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalDetalleProveedor"
-                                            data-nombre="{{ proveedor.nombre_proveedor }}"
-                                            data-nit="{{ proveedor.nit }}"
-                                            data-correo="{{ proveedor.correo_proveedor }}"
-                                            data-estado="{{ proveedor.get_estado_display }}"
-                                            data-telefono="{{ proveedor.telefono_proveedor }}"
-                                            data-direccion="{{ proveedor.direccion_proveedor }}"
-                                            style="color: #382822;"
-                                            title="Ver detalles"
-                                            data-bs-placement="bottom">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-
-                                    <button class="btn btn-link"
-                                            data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
-                                            data-modal-title="Editar proveedor"
-                                            style="color: #382822;"
-                                            title="Editar"
-                                            data-bs-placement="bottom">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-
-                                    {% if proveedor.estado == 'activo' %}
-                                        <button type="button"
-                                                class="btn btn-link btn-action-round js-eliminar-proveedor"
-                                                style="color:#382822;"
-                                                data-id="{{ proveedor.pk }}"
-                                                data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
-                                                data-url-eliminar="{% url 'proveedores:eliminar_proveedor' proveedor.pk %}"
-                                                data-url-desactivar="{% url 'proveedores:desactivar' proveedor.pk %}"
-                                                title="Eliminar proveedor">
-                                            <i class="bi bi-trash3"></i>
-                                        </button>
-                                    {% else %}
-                                        <button type="button"
-                                                class="btn-reactivar-proveedor js-reactivar-proveedor"
-                                                data-id="{{ proveedor.id }}"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Reactivar"
-                                                aria-label="Reactivar proveedor">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
-                                    {% endif %}
-
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                #</table>
+                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar proveedor...' search_value=q name='q' modo='inline' %}
+                </form>
             </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <p class="text-muted">No hay proveedores registrados.</p>
-                </div>
-            {% endif %}
-
-        </div>
-    </div>
-
+            <div id="proveedores-resultados" class="ajax-results-container">
+                {% include "proveedor/lista_proveedores_global.html" %}
+            </div>
 <div class="modal fade" id="modalDetalleProveedor" tabindex="-1" aria-labelledby="modalDetalleProveedorLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content shadow-lg border-0 proveedor-detail-modal">
