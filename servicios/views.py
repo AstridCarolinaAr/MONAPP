@@ -44,6 +44,7 @@ def crear_servicio(request):
                     'success': False,
                     'errors': form.errors
                 })
+            # Si no es AJAX, continuar para mostrar el formulario con errores
     else:
         form = ServicioForm()
     
@@ -87,6 +88,7 @@ def editar_servicio(request, pk):
                     'success': False,
                     'errors': form.errors
                 })
+            # Si no es AJAX, continuar para mostrar el formulario con errores
     else:
         form = ServicioForm(instance=servicio)
     

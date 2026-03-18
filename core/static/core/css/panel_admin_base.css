@@ -1927,9 +1927,6 @@ a.btn-link:active i {
     width: 40px;
     height: 40px;
   }
-<<<<<<< HEAD
-}
-=======
 } 
 .ajax-results-container {
   transition:
@@ -1957,4 +1954,3 @@ a.btn-link:active i {
   transform: translateY(0);
   filter: none;
 }
->>>>>>> f55def1288a5f87c1f8b3d90d04333a15a10b988
