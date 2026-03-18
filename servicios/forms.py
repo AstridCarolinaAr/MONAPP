@@ -25,12 +25,9 @@ class ServicioForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'image/*'
             }),
-            'activo': forms.Select(attrs={
-                'class': 'form-select'
-            }, choices=[
-                (True, 'Activo'),
-                (False, 'Inactivo')
-            ]),
+            'activo': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
         }
         labels = {
             'nombre': 'Nombre del Servicio',

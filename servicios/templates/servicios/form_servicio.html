@@ -62,8 +62,10 @@
                         </div>
 
                         <div class="mb-3">
-                            {{ form.activo.label_tag }}
-                            {{ form.activo }}
+                            <div class="form-check">
+                                {{ form.activo }}
+                                {{ form.activo.label_tag }}
+                            </div>
                             {% if form.activo.errors %}
                                 <div class="text-danger">{{ form.activo.errors }}</div>
                             {% endif %}

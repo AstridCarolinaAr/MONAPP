@@ -172,6 +172,13 @@
 
 {% block content %}
 <div class="container-fluid">
+    <!-- BOTÓN NUEVA GESTIÓN -->
+    <div style="margin-bottom: 1.5rem;">
+        <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
+            <i class="bi bi-plus-circle"></i> Nueva Gestión
+        </button>
+    </div>
+
     <!-- FILTROS -->
     <form method="get" class="row g-2 mb-3">
         <div class="col-md-4">
@@ -224,9 +231,6 @@
     <div class="table-card">
         <div class="card-header table-card-header">
             <h4><i class="bi bi-file-earmark-text"></i> Gestion de datos</h4>
-            <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
-                <i class="bi bi-plus-circle"></i> Nueva Gestión
-            </button>
         </div>
         
         {% if gestiones %}
