@@ -764,17 +764,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ── Bloquear caracteres no permitidos en nombre (tiempo real) ── */
     function pwBloquearCaracteresNombre(e) {
-        // Solo permitir: letras, espacios, punto, coma, guion, paréntesis (SIN NÚMEROS)
         const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]$/;
-        
-        // Si es un carácter especial del teclado (backspace, delete, flechas, etc.), permitir
         if (e.key.length > 1) return;
-        
-        // Si el carácter no está permitido, bloquear
+        const input = e.target;
+        // Bloquear si ya se alcanzó el límite y no hay texto seleccionado
+        if (input.value.length >= 200 && input.selectionStart === input.selectionEnd) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
         if (!permitidos.test(e.key)) {
             e.preventDefault();
-            // Mostrar feedback visual rápido
-            const input = e.target;
             input.style.animation = 'shake 0.3s';
             setTimeout(() => { input.style.animation = ''; }, 300);
         }
@@ -795,17 +796,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ── Bloquear caracteres no numéricos en precio (tiempo real) ── */
     function pwBloquearCaracteresPrecio(e) {
-        // Solo permitir: números, backspace, delete, flechas, tab
         const permitidos = /^[0-9]$/;
-        
-        // Si es un carácter especial del teclado (backspace, delete, flechas, etc.), permitir
         if (e.key.length > 1) return;
-        
-        // Si el carácter no es un número, bloquear
+        const input = e.target;
         if (!permitidos.test(e.key)) {
             e.preventDefault();
-            // Mostrar feedback visual rápido
-            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
+        // Bloquear si el nuevo valor superaría $99.999.999
+        const selStart = input.selectionStart;
+        const selEnd   = input.selectionEnd;
+        const newVal   = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
+        if (parseInt(newVal, 10) > 99999999) {
+            e.preventDefault();
             input.style.animation = 'shake 0.3s';
             setTimeout(() => { input.style.animation = ''; }, 300);
         }
@@ -907,8 +912,37 @@ document.addEventListener('DOMContentLoaded', () => {
         ag.nombre.addEventListener('keydown', pwBloquearCaracteresNombre);
         ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
         ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
+        /* Limpiar pegado: quitar caracteres no permitidos al pegar */
+        ag.nombre.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const texto  = (e.clipboardData || window.clipboardData).getData('text');
+            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
+            document.execCommand('insertText', false, limpio);
+        });
+        /* Sanitizador: eliminar chars inválidos mientras escribe */
+        ag.nombre.addEventListener('input', function () {
+            const pos      = this.selectionStart;
+            const original = this.value;
+            const limpio   = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
+            if (limpio !== original) {
+                this.value = limpio;
+                this.setSelectionRange(
+                    Math.min(pos, limpio.length),
+                    Math.min(pos, limpio.length)
+                );
+            }
+        });
     }
     if (ag.desc && ag.ctrDesc) {
+        /* Bloquear escritura cuando descripción alcanza 500 chars */
+        ag.desc.addEventListener('keydown', function (e) {
+            if (e.key.length > 1) return;
+            if (ag.desc.value.length >= 500 && ag.desc.selectionStart === ag.desc.selectionEnd) {
+                e.preventDefault();
+                ag.desc.style.animation = 'shake 0.3s';
+                setTimeout(() => { ag.desc.style.animation = ''; }, 300);
+            }
+        });
         ag.desc.addEventListener('input', () => pwActualizarContador(ag.desc, ag.ctrDesc, 500));
     }
     if (ag.precio) {

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'core',
     'bootstrap5',
+    'backup',
     'clientes',
     'usuarios',
     'Productos',

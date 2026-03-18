@@ -1008,20 +1008,42 @@ document.addEventListener('DOMContentLoaded', () => {
         return promoErr(input, errEl, msg, iconEl);
     }
 
+    /* Fecha máxima permitida para inicio: hoy + 12 meses */
+    function promoMaxInicio() {
+        const d = new Date();
+        d.setMonth(d.getMonth() + 12);
+        return d.toISOString().split('T')[0];
+    }
+    /* Fecha máxima permitida para fin: 31/12 del año de promoMaxInicio */
+    function promoMaxFin() {
+        const year = new Date(promoMaxInicio()).getFullYear();
+        return `${year}-12-31`;
+    }
+
     /* Fechas: inicio + fin + rango */
     function promoFechas(inEl, finEl, errInEl, errFinEl) {
+        const maxInicio = promoMaxInicio();
+        const maxFin    = promoMaxFin();
         let okIn = true, okFin = true;
         if (!inEl.value) {
             promoErr(inEl, errInEl, 'La fecha de inicio es obligatoria.');
             okIn = false;
+        } else if (inEl.value > maxInicio) {
+            promoErr(inEl, errInEl, 'La fecha de inicio no puede ser más de 12 meses a partir de hoy.');
+            okIn = false;
         } else {
             promoErr(inEl, errInEl, '');
         }
+        /* Actualizar min del fin cada vez que cambia inicio */
+        if (inEl.value) finEl.min = inEl.value;
         if (!finEl.value) {
             promoErr(finEl, errFinEl, 'La fecha de fin es obligatoria.');
             okFin = false;
         } else if (inEl.value && finEl.value < inEl.value) {
             promoErr(finEl, errFinEl, 'La fecha de fin debe ser igual o posterior a la de inicio.');
+            okFin = false;
+        } else if (finEl.value > maxFin) {
+            promoErr(finEl, errFinEl, `La fecha de fin no puede superar el 31/12/${new Date(maxFin).getFullYear()}.`);
             okFin = false;
         } else if (inEl.value && finEl.value) {
             const dias = (new Date(finEl.value) - new Date(inEl.value)) / 86400000;
@@ -1065,6 +1087,49 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    /* ── Bloquear descuento fuera de 1-100 (keydown + paste) ── */
+    function promoBloquearDescuento(e) {
+        if (e.key.length > 1) return;            // teclas especiales: ok
+        const permitidos = /^[0-9]$/;
+        const input = e.target;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
+        // Simular el valor resultante y bloquearlo si supera 100
+        const selStart = input.selectionStart;
+        const selEnd   = input.selectionEnd;
+        const newVal   = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
+        if (parseInt(newVal, 10) > 100) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+    function promoBloquearDescuentoPaste(e, input) {
+        e.preventDefault();
+        const texto = (e.clipboardData || window.clipboardData).getData('text');
+        const num   = parseInt(texto.replace(/[^0-9]/g, ''), 10);
+        if (!isNaN(num)) input.value = String(Math.min(Math.max(num, 1), 100));
+        input.dispatchEvent(new Event('input'));
+    }
+
+    /* Establecer max en inputs de fecha al cargar */
+    (function () {
+        const maxI = promoMaxInicio();
+        const maxF = promoMaxFin();
+        ['id_fecha_inicio', 'edit_inicio'].forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el) el.max = maxI;
+        });
+        ['id_fecha_fin', 'edit_fin'].forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el) el.max = maxF;
+        });
+    })();
+
     /* ---- REFERENCIAS MODAL AGREGAR ---- */
     const ag = {
         nombre:     document.querySelector('#modalAgregar [name="nombre"]'),
@@ -1087,7 +1152,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ag.nombre)  { ag.nombre.addEventListener('input', () => promoNombre(ag.nombre, ag.errN, ag.iconNombre));   ag.nombre.addEventListener('blur', () => promoNombre(ag.nombre, ag.errN, ag.iconNombre)); }
     if (ag.desc)      ag.desc.addEventListener('input', () => promoCtr(ag.desc, ag.ctrDesc, 500));
-    if (ag.pct)     { ag.pct.addEventListener('input', () => promoDescuento(ag.pct, ag.errD, ag.iconDesc));       ag.pct.addEventListener('blur', () => promoDescuento(ag.pct, ag.errD, ag.iconDesc)); }
+    if (ag.pct) {
+        ag.pct.addEventListener('keydown', promoBloquearDescuento);
+        ag.pct.addEventListener('paste',   e => promoBloquearDescuentoPaste(e, ag.pct));
+        ag.pct.addEventListener('input',   () => promoDescuento(ag.pct, ag.errD, ag.iconDesc));
+        ag.pct.addEventListener('blur',    () => promoDescuento(ag.pct, ag.errD, ag.iconDesc));
+    }
     if (ag.inicio && ag.fin) {
         const chkAg = () => promoFechas(ag.inicio, ag.fin, ag.errI, ag.errF);
         ag.inicio.addEventListener('change', chkAg);
@@ -1148,7 +1218,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ed.nombre)  { ed.nombre.addEventListener('input', () => promoNombre(ed.nombre, ed.errN, ed.iconNombre));   ed.nombre.addEventListener('blur', () => promoNombre(ed.nombre, ed.errN, ed.iconNombre)); }
     if (ed.desc)      ed.desc.addEventListener('input', () => promoCtr(ed.desc, ed.ctrDesc, 500));
-    if (ed.pct)     { ed.pct.addEventListener('input', () => promoDescuento(ed.pct, ed.errD, ed.iconDesc));       ed.pct.addEventListener('blur', () => promoDescuento(ed.pct, ed.errD, ed.iconDesc)); }
+    if (ed.pct) {
+        ed.pct.addEventListener('keydown', promoBloquearDescuento);
+        ed.pct.addEventListener('paste',   e => promoBloquearDescuentoPaste(e, ed.pct));
+        ed.pct.addEventListener('input',   () => promoDescuento(ed.pct, ed.errD, ed.iconDesc));
+        ed.pct.addEventListener('blur',    () => promoDescuento(ed.pct, ed.errD, ed.iconDesc));
+    }
     if (ed.inicio && ed.fin) {
         const chkEd = () => promoFechas(ed.inicio, ed.fin, ed.errI, ed.errF);
         ed.inicio.addEventListener('change', chkEd);

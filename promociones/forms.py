@@ -1,5 +1,7 @@
 import re
 from decimal import Decimal
+from datetime import date
+from calendar import monthrange
 from django import forms
 from .models import Promocion
 
@@ -101,6 +103,14 @@ class PromocionForm(forms.ModelForm):
         fecha = self.cleaned_data.get('fecha_inicio')
         if not fecha:
             raise forms.ValidationError('La fecha de inicio es obligatoria.')
+        today = date.today()
+        max_year  = today.year + 1
+        max_day   = min(today.day, monthrange(max_year, today.month)[1])
+        max_inicio = date(max_year, today.month, max_day)
+        if fecha > max_inicio:
+            raise forms.ValidationError(
+                f'La fecha de inicio no puede ser más de 12 meses a partir de hoy ({max_inicio.strftime("%d/%m/%Y")}).'
+            )
         return fecha
 
     def clean_fecha_fin(self):
@@ -136,5 +146,12 @@ class PromocionForm(forms.ModelForm):
                 self.add_error('fecha_fin', 'La fecha de fin no puede ser anterior a la fecha de inicio.')
             from datetime import timedelta
             if (fin - inicio).days > 365:
-                self.add_error('fecha_fin', 'La promoción no puede durar más de 1 año (365 días).')
+                self.add_error('fecha_fin', 'La promoción no puede durar más de 1 año (365 días).')            # La fecha de fin no puede pasar del 31/12 del año límite (año de inicio_max)
+            today = date.today()
+            max_year_inicio  = today.year + 1
+            max_day_inicio   = min(today.day, monthrange(max_year_inicio, today.month)[1])
+            max_inicio = date(max_year_inicio, today.month, max_day_inicio)
+            max_fin    = date(max_inicio.year, 12, 31)
+            if fin > max_fin:
+                self.add_error('fecha_fin', f'La fecha de fin no puede superar el 31/12/{max_fin.year}.')
         return cleaned_data

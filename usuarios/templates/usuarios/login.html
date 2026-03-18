@@ -13,22 +13,21 @@
 
 <body>
 
-<!-- ═══ PARTÍCULAS DE FONDO ═══ -->
-<div class="login-particles" id="particles"></div>
-
 <div id="loginContainer">
   <div class="login-card">
 
-    <!-- HEADER -->
+    <!-- HEADER con bolitas -->
     <div class="card-header">
       <canvas id="bolaCanvas"></canvas>
-      <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="120" alt="Logo">
+      <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="110" alt="Logo">
     </div>
 
     <!-- BODY -->
     <div class="card-body">
 
-      <!-- ═══ ALERTAS CON ANIMACIÓN ═══ -->
+      <h2 class="login-title">INICIAR SESIÓN</h2>
+
+      <!-- ═══ ALERTAS ═══ -->
       {% if messages %}
         {% for message in messages %}
           <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show login-alert" role="alert" data-autoclose="8000">
@@ -52,37 +51,35 @@
         {% endfor %}
       {% endif %}
 
-      <!-- ═══════ FORMULARIO LOGIN ═══════ -->
+      <!-- ═══ FORMULARIO ═══ -->
       <form method="post" id="loginForm" autocomplete="off">
+        {% csrf_token %}
 
-          {% csrf_token %}
+        <div class="field-group">
+          <label class="field-label">USUARIO</label>
+          <input type="text" name="username" class="field-input" placeholder="Nombre de usuario" required autofocus>
+        </div>
 
-          <div class="input-icon-wrapper">
-            <i class="bi bi-person"></i>
-            <input type="text" name="username" placeholder="Usuario o documento" required autofocus>
-          </div>
-
-          <div class="input-icon-wrapper password-wrapper">
-            <i class="bi bi-lock"></i>
-            <input type="password" id="password" name="password" placeholder="Contraseña" required>
+        <div class="field-group">
+          <label class="field-label">CONTRASEÑA</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" class="field-input" placeholder="Contraseña" required>
             <span id="togglePassword" class="toggle-eye">
-              <span class="closed-eyes">
-                <span class="eye-closed"></span>
-                <span class="eye-closed"></span>
-              </span>
+              <i class="bi bi-eye"></i>
             </span>
           </div>
-
-          <button type="submit" class="btn-login">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
-          </button>
-        </form>
-
-        <div class="recovery-links">
-          <a href="{% url 'usuarios:recuperar' %}" class="btn-recovery-link">
-            <i class="bi bi-key-fill me-2"></i>¿Olvidaste la contraseña?
-          </a>
         </div>
+
+        <button type="submit" class="btn-login">Ingresar</button>
+      </form>
+
+      <div class="recovery-links">
+        <a href="{% url 'usuarios:recuperar' %}" class="forgot-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <!-- Logo inferior -->
+      <div class="card-footer-logo">
+        <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="60" alt="Mona Keratina">
       </div>
 
     </div><!-- /.card-body -->
@@ -95,51 +92,30 @@
 document.addEventListener('DOMContentLoaded', function () {
 
   /* ── Toggle contraseña ── */
-  const toggle = document.getElementById('togglePassword');
+  const toggle   = document.getElementById('togglePassword');
   const passInput = document.getElementById('password');
   if (toggle && passInput) {
-    toggle.addEventListener('click', () => {
-      const closedEyes = toggle.querySelector('.closed-eyes');
-      if (passInput.type === 'password') {
-        passInput.type = 'text';
-        toggle.innerHTML = '\u{1F440}';
-      } else {
-        passInput.type = 'password';
-        toggle.innerHTML = '<span class="closed-eyes"><span class="eye-closed"></span><span class="eye-closed"></span></span>';
-      }
-    });
+    toggle.addEventListener('mousedown',  () => { passInput.type = 'text';     toggle.querySelector('i').className = 'bi bi-eye-slash'; });
+    toggle.addEventListener('mouseup',    () => { passInput.type = 'password'; toggle.querySelector('i').className = 'bi bi-eye'; });
+    toggle.addEventListener('mouseleave', () => { passInput.type = 'password'; toggle.querySelector('i').className = 'bi bi-eye'; });
+    toggle.addEventListener('touchstart', e => { e.preventDefault(); passInput.type = 'text';     toggle.querySelector('i').className = 'bi bi-eye-slash'; });
+    toggle.addEventListener('touchend',   e => { e.preventDefault(); passInput.type = 'password'; toggle.querySelector('i').className = 'bi bi-eye'; });
   }
 
-  /* ── Auto-cierre de alertas con barra de progreso ── */
+  /* ── Auto-cierre de alertas ── */
   document.querySelectorAll('.login-alert[data-autoclose]').forEach(el => {
     const delay = parseInt(el.dataset.autoclose, 10);
     if (isNaN(delay) || delay <= 0) return;
-
     const bar = el.querySelector('.alert-progress-bar');
     if (bar) {
       bar.style.transition = `width ${delay}ms linear`;
       requestAnimationFrame(() => { bar.style.width = '0%'; });
     }
-
     setTimeout(() => {
       try { bootstrap.Alert.getOrCreateInstance(el).close(); }
       catch (e) { el.remove(); }
     }, delay);
   });
-
-  /* ── Partículas flotantes (fondo) ── */
-  const container = document.getElementById('particles');
-  if (container) {
-    for (let i = 0; i < 25; i++) {
-      const dot = document.createElement('span');
-      dot.className = 'particle';
-      dot.style.left = Math.random() * 100 + '%';
-      dot.style.animationDuration = (4 + Math.random() * 8) + 's';
-      dot.style.animationDelay = (Math.random() * 5) + 's';
-      dot.style.width = dot.style.height = (2 + Math.random() * 4) + 'px';
-      container.appendChild(dot);
-    }
-  }
 });
 </script>
 

@@ -89,7 +89,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Nombre',
-            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+',
             'title': 'Solo se permiten letras y espacios'
         })
     )
@@ -101,7 +101,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Apellido',
-            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+',
             'title': 'Solo se permiten letras y espacios'
         })
     )

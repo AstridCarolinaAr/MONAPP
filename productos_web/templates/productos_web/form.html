@@ -157,6 +157,15 @@
     color: #dc3545;
 }
 
+/* Validación imagen */
+.pw-img-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 6px;
+    display: none;
+}
+.pw-img-error.visible { display: block; }
+
 /* Animación shake para caracteres no permitidos */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -230,6 +239,7 @@
                                 <img class="pw-preview-img d-none" id="previewEditar" alt="preview">
                             {% endif %}
                         </div>
+                        <div class="pw-img-error" id="err_img_form"></div>
                     </div>
                     <div class="col-12">
                         <div class="form-check form-switch">
@@ -256,18 +266,47 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    /* ── Validar imagen ── */
+    function pwValidarImagen(input, errEl, previewEl) {
+        const TIPOS  = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        const MAX_MB = 5;
+        errEl.textContent = '';
+        errEl.classList.remove('visible');
+        if (!input.files || !input.files[0]) return true;  // opcional
+        const f  = input.files[0];
+        if (!TIPOS.includes(f.type)) {
+            errEl.textContent = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
+            errEl.classList.add('visible');
+            input.value = '';
+            if (previewEl) previewEl.classList.add('d-none');
+            return false;
+        }
+        const mb = f.size / (1024 * 1024);
+        if (mb > MAX_MB) {
+            errEl.textContent = `La imagen pesa ${mb.toFixed(1)} MB. El máximo permitido es 5 MB.`;
+            errEl.classList.add('visible');
+            input.value = '';
+            if (previewEl) previewEl.classList.add('d-none');
+            return false;
+        }
+        // Preview si pasa validación
+        if (previewEl) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewEl.src = e.target.result;
+                previewEl.classList.remove('d-none');
+            };
+            reader.readAsDataURL(f);
+        }
+        return true;
+    }
+
     const fileInput = document.querySelector('#dropzoneEditar input[type="file"]');
     const preview   = document.getElementById('previewEditar');
+    const errImagen = document.getElementById('err_img_form');
     if (fileInput && preview) {
         fileInput.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src = e.target.result;
-                    preview.classList.remove('d-none');
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
+            pwValidarImagen(this, errImagen, preview);
         });
     }
     document.querySelectorAll('.pw-dropzone').forEach(zone => {
@@ -318,9 +357,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function bloquearCaracteresNombre(e) {
         const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]$/;
         if (e.key.length > 1) return;
+        const input = e.target;
+        // Bloquear si ya se alcanzó el límite y no hay texto seleccionado
+        if (input.value.length >= 200 && input.selectionStart === input.selectionEnd) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
         if (!permitidos.test(e.key)) {
             e.preventDefault();
-            const input = e.target;
             input.style.animation = 'shake 0.3s';
             setTimeout(() => { input.style.animation = ''; }, 300);
         }
@@ -342,9 +388,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function bloquearCaracteresPrecio(e) {
         const permitidos = /^[0-9]$/;
         if (e.key.length > 1) return;
+        const input = e.target;
         if (!permitidos.test(e.key)) {
             e.preventDefault();
-            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
+        // Bloquear si el nuevo valor superaría $99.999.999
+        const selStart = input.selectionStart;
+        const selEnd   = input.selectionEnd;
+        const newVal   = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
+        if (parseInt(newVal, 10) > 99999999) {
+            e.preventDefault();
             input.style.animation = 'shake 0.3s';
             setTimeout(() => { input.style.animation = ''; }, 300);
         }
@@ -420,11 +476,23 @@ document.addEventListener('DOMContentLoaded', () => {
         precioInput.addEventListener('blur',  () => pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio));
     }
 
+    /* ── Bloquear escritura cuando descripción alcanza 500 chars ── */
+    function bloquearDescripcion(e) {
+        if (e.key.length > 1) return;
+        const ta = e.target;
+        if (ta.value.length >= 500 && ta.selectionStart === ta.selectionEnd) {
+            e.preventDefault();
+            ta.style.animation = 'shake 0.3s';
+            setTimeout(() => { ta.style.animation = ''; }, 300);
+        }
+    }
+
     /* ── Conectar: Descripción (contador) ── */
     const descInput = document.getElementById('id_descripcion');
     const charDesc  = document.getElementById('char_desc_form');
     if (descInput && charDesc) {
         pwContador(descInput, charDesc, 500);
+        descInput.addEventListener('keydown', bloquearDescripcion);
         descInput.addEventListener('input', () => pwContador(descInput, charDesc, 500));
     }
 
@@ -439,6 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (precioInput && errPrecio && !pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio)) {
                 if (ok) { precioInput.focus(); ok = false; }
+            }
+            if (fileInput && errImagen && !pwValidarImagen(fileInput, errImagen, preview)) {
+                if (ok) ok = false;
             }
             if (!ok) e.preventDefault();
         });
