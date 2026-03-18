@@ -375,3 +375,33 @@ class EditarPerfilForm(forms.ModelForm):
             if len(telefono) != 10:
                 raise forms.ValidationError('El teléfono debe tener exactamente 10 dígitos.')
         return telefono
+
+
+class UsuarioBusquedaForm(forms.Form):
+    """Formulario para búsqueda y filtrado de usuarios"""
+    busqueda = forms.CharField(
+        required=False,
+        label='Buscar por usuario, nombre, email o documento',
+        widget=forms.TextInput(attrs={
+            'class': 'usuarios-form-control',
+            'placeholder': 'Ingrese término de búsqueda'
+        })
+    )
+    filtro = forms.ChoiceField(
+        required=False,
+        label='Filtrar por',
+        choices=[
+            ('', 'Todos'),
+            ('activo', 'Activos'),
+            ('inactivo', 'Inactivos'),
+            ('rol_Administrador', 'Administrador'),
+            ('rol_Auxiliar', 'Auxiliar'),
+            ('rol_Colaborador', 'Colaborador'),
+        ],
+        widget=forms.Select(attrs={
+            'class': 'usuarios-form-control',
+            'id': 'id_filtro_usuarios',
+            'onchange': 'enviarFormularioFiltro(this.form)'
+        })
+    )
+

@@ -10,6 +10,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <style>
     /* Estilos para el modal */
     .modal-personal {
@@ -67,12 +68,12 @@
     
     .modal-personal-header {
         padding: 24px 32px;
-        background: linear-gradient(135deg, #634c40 0%, #7d5e4f 100%);
+        background: linear-gradient(135deg, #1a0a0a 0%, #3a2117 60%, #4b2f2a 100%);
         color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 3px solid #d4a574;
+        border-bottom: 3px solid #6b4423;
     }
     
     .modal-personal-header h3 {
@@ -130,12 +131,12 @@
     }
     
     .modal-personal-body::-webkit-scrollbar-thumb {
-        background: #634c40;
+        background: #4b2f2a;
         border-radius: 4px;
     }
     
     .modal-personal-body::-webkit-scrollbar-thumb:hover {
-        background: #7d5e4f;
+        background: #3a2117;
     }
     
     /* Switch para la tabla */
@@ -180,7 +181,7 @@
     }
     
     .table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider {
-        background-color: #634c40;
+        background-color: #4b2f2a;
     }
     
     .table-switch-wrapper input[type="checkbox"]:disabled + .table-switch-slider {
@@ -193,7 +194,7 @@
     }
     
     .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
-        box-shadow: 0 0 0 3px rgba(99, 76, 64, 0.2);
+        box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
     }
 .personal-search-card {
     display: flex;
@@ -255,8 +256,24 @@
 {% endblock %}
 
 {% block content %}
-<div class="personal-search-card">
-    <form method="get" class="personal-search-form">
+<div class="container-fluid">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Personal</h2>
+        {% if puede_modificar %}
+        <button type="button" 
+                class="btn" 
+                style="background-color: #4b2f2a; color: #ffffff; border: none;"
+                onmouseover="this.style.backgroundColor='#3a2117'"
+                onmouseout="this.style.backgroundColor='#4b2f2a'"
+                onclick="abrirModalPersonal()">
+            <i class="bi bi-person-plus-fill me-1"></i> Agregar Personal
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="personal-search-card">
+        <form method="get" class="personal-search-form">
         <div class="personal-form-group mb-0">
             <label class="personal-form-label">Filtrar por</label>
             {{ form.filtro }}
@@ -303,12 +320,12 @@
                                 <td data-label="Documento">{{ persona.numero_documento }}</td>
                                 <td data-label="Nombres">{{ persona.nombres }} {{ persona.apellidos }}</td>
                                 <td data-label="Teléfono">
-                                    <a href="tel:{{ persona.telefono }}" style="color: #634c40; text-decoration: none;">
+                                    <a href="tel:{{ persona.telefono }}" style="color: #4b2f2a; text-decoration: none;">
                                         <i class="fas fa-phone"></i> {{ persona.telefono }}
                                     </a>
                                 </td>
                                 <td data-label="Correo">
-                                    <a href="mailto:{{ persona.correo }}" style="color: #634c40; text-decoration: none;">
+                                    <a href="mailto:{{ persona.correo }}" style="color: #4b2f2a; text-decoration: none;">
                                         <i class="fas fa-envelope"></i> {{ persona.correo }}
                                     </a>
                                 </td>
@@ -336,9 +353,9 @@
                                     {% endif %}
                                 </td>
                                 <td data-label="Fecha de Registro" style="font-size: 0.9rem;">
-                                    <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
+                                    <i class="fas fa-calendar-alt" style="color: #4b2f2a; margin-right: 4px;"></i>
                                     {{ persona.fecha_creacion|date:"d/m/Y" }}<br>
-                                    <i class="fas fa-clock" style="color: #634c40; margin-right: 4px;"></i>
+                                    <i class="fas fa-clock" style="color: #4b2f2a; margin-right: 4px;"></i>
                                     {{ persona.fecha_creacion|date:"H:i" }}
                                 </td>
                                 <td data-label="Acciones" class="text-end">
@@ -390,8 +407,8 @@
         </div>
         <div class="modal-personal-body" id="modalPersonalBody">
             <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #634c40;"></i>
-                <p style="margin-top: 16px; color: #634c40;">Cargando formulario...</p>
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4b2f2a;"></i>
+                <p style="margin-top: 16px; color: #4b2f2a;">Cargando formulario...</p>
             </div>
         </div>
     </div>
@@ -409,8 +426,8 @@
         </div>
         <div class="modal-personal-body" id="modalEditarPersonalBody">
             <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #634c40;"></i>
-                <p style="margin-top: 16px; color: #634c40;">Cargando formulario...</p>
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4b2f2a;"></i>
+                <p style="margin-top: 16px; color: #4b2f2a;">Cargando formulario...</p>
             </div>
         </div>
     </div>
@@ -428,8 +445,8 @@
         </div>
         <div class="modal-personal-body" id="modalDetallePersonalBody">
             <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #634c40;"></i>
-                <p style="margin-top: 16px; color: #634c40;">Cargando información...</p>
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4b2f2a;"></i>
+                <p style="margin-top: 16px; color: #4b2f2a;">Cargando información...</p>
             </div>
         </div>
     </div>
@@ -457,6 +474,13 @@
             }
         }
         return cookieValue;
+    }
+    
+    // Función para enviar el formulario de filtro cuando cambia
+    function enviarFormularioFiltro(form) {
+        if (form) {
+            form.submit();
+        }
     }
     
     // Funciones para manejar el modal

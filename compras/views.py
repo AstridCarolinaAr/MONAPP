@@ -165,8 +165,10 @@ def lista_compras(request):
     context["tipo_actual"] = tipo
     context["estado_actual"] = estado
 
-    return render(request, "compras/compra.html", context)
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return render(request, "compras/lista_resultados_global.html", context)
 
+    return render(request, "compras/compra.html", context)
 
 # =========================
 # Detalle de compra

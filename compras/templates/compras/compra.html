@@ -51,7 +51,11 @@
   </div>
 </div>
 
-<form method="get" class="filtro-compras mb-4">
+<form method="get"
+      class="filtro-compras mb-4 js-ajax-search-form"
+      data-ajax-url="{% url 'compras:lista_compras' %}"
+      data-ajax-target="#compras-resultados"
+      data-ajax-debounce="250">
   <div class="filtro-compras-grid">
 
     <div class="filtro-item filtro-item--tipo">
@@ -102,181 +106,9 @@
     </div>
   </div>
 </form>
-{% if tipo_actual == "compras" %}
 
-  {% if compras %}
-    <div class="table-responsive">
-      <table class="styled-table">
-        <thead>
-          <tr>
-            <th><a href="{% sort_url 'id' %}">ID</a></th>
-            <th><a href="{% sort_url 'proveedor' %}">Proveedor</a></th>
-            <th><a href="{% sort_url 'fecha' %}">Fecha</a></th>
-            <th><a href="{% sort_url 'usuario' %}">Usuario</a></th>
-            <th><a href="{% sort_url 'anulada' %}">Estado</a></th>
-            <th class="text-center">Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-        {% for c in compras %}
-          <tr id="fila-compra-{{ c.id }}">
-            <td>{{ c.id }}</td>
-            <td>{{ c.proveedor }}</td>
-            <td>{{ c.fecha }}</td>
-            <td>{% if c.usuario %}{{ c.usuario.username }}{% else %}—{% endif %}</td>
-            <td>
-              {% if c.anulada %}
-                <span class="badge bg-danger">Anulada</span>
-              {% else %}
-                <span class="badge bg-success">Activa</span>
-              {% endif %}
-            </td>
-
-            <td class="text-center">
-              <div class="acciones-group">
-                <button type="button"
-                        class="btn btn-link js-ver-detalle"
-                        style="color: #382822;"
-                        data-url="{% url 'compras:detalle_compra' c.id %}"
-                        title="Ver detalles"
-                        data-bs-placement="bottom">
-                  <i class="bi bi-eye" style="font-size: 24px;"></i>
-                </button>
-
-                      {% if not c.anulada %}
-                        {% if c.devoluciones_activas_count > 0 %}
-                          <span class="btn btn-link btn-action-round disabled"
-                                style="color:#9a8f89; pointer-events:none; opacity:.55;"
-                                title="No se puede editar: la compra tiene devoluciones activas">
-                            <i class="bi bi-pencil-square" style="font-size:24px;"></i>
-                          </span>
-
-                          <span class="btn btn-link btn-action-round disabled"
-                                style="color:#9a8f89; pointer-events:none; opacity:.55;"
-                                title="No se puede anular: la compra tiene devoluciones activas">
-                            <i class="bi bi-trash3" style="font-size:24px;"></i>
-                          </span>
-                        {% else %}
-                          <button type="button"
-                                  class="btn btn-link btn-action-round"
-                                  style="color:#382822;"
-                                  data-modal-url="{% url 'compras:editar_compra' c.id %}"
-                                  data-modal-title="Editar compra"
-                                  title="Editar compra"
-                                  data-bs-placement="bottom">
-                            <i class="bi bi-pencil-square" style="font-size:24px;"></i>
-                          </button>
-
-                          <button type="button"
-                                  class="btn btn-link btn-action-round js-anular-compra"
-                                  style="color:#382822;"
-                                  data-id="{{ c.id }}"
-                                  data-proveedor="{{ c.proveedor }}"
-                                  data-url="{% url 'compras:anular_compra' c.id %}"
-                                  title="Anular compra"
-                                  data-bs-placement="bottom">
-                            <i class="bi bi-trash3" style="font-size:24px;"></i>
-                          </button>
-                        {% endif %}
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-dark btn-sm js-open-comprobante"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalComprobante"
-                            data-compra-id="{{ c.pk }}"
-                            data-preview-url="{% url 'compras:comprobante_vista_previa' c.pk %}"
-                            data-excel-url="{% url 'compras:comprobante_compra_excel' c.pk %}"
-                            title="Ver comprobante">
-                          <i class="bi bi-receipt-cutoff"></i>
-                        </button>
-                      {% else %}
-                        <span class="badge bg-secondary">Sin acciones</span>
-                      {% endif %}
-                    </div>
-                  </td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <div class="alert alert-light mt-3 text-center">No hay compras registradas</div>
-        {% endif %}
-
-      {% else %}
-
-        {% if devoluciones %}
-          <div class="table-responsive">
-            <table class="styled-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Compra</th>
-                  <th>Proveedor</th>
-                  <th>Fecha</th>
-                  <th>Usuario</th>
-                  <th>Estado</th>
-                  <th class="text-center">Acciones</th>
-                </tr>
-              </thead>
-
-              <tbody>
-              {% for d in devoluciones %}
-                <tr id="fila-devolucion-{{ d.id }}">
-                  <td>{{ d.id }}</td>
-                  <td>#{{ d.compra.id }}</td>
-                  <td>{{ d.proveedor }}</td>
-                  <td>{{ d.fecha }}</td>
-                  <td>{% if d.usuario %}{{ d.usuario.username }}{% else %}—{% endif %}</td>
-                  <td>
-                    {% if d.anulada %}
-                      <span class="badge bg-danger">Anulada</span>
-                    {% else %}
-                      <span class="badge bg-success">Activa</span>
-                    {% endif %}
-                  </td>
-                    <td class="text-center">
-                      <div class="acciones-group">
-                        <button
-                            type="button"
-                            class="btn btn-outline-dark btn-sm js-open-comprobante"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalComprobante"
-                            data-devolucion-id="{{ d.pk }}"
-                            data-preview-url="{% url 'compras:comprobante_devolucion_compra_preview' d.pk %}"
-                            data-modal-title="Comprobante de devolución"
-                            data-download-name="comprobante_devolucion_compra"
-                            title="Ver comprobante">
-                          <i class="bi bi-receipt-cutoff"></i>
-                        </button>
-
-                        {% if not d.anulada %}
-                          <button type="button"
-                                  class="btn btn-link btn-action-round js-anular-devolucion"
-                                  style="color:#382822;"
-                                  data-id="{{ d.id }}"
-                                  data-url="{% url 'compras:anular_devolucion_compra' d.id %}"
-                                  title="Anular devolución"
-                                  data-bs-placement="bottom">
-                            <i class="bi bi-trash3" style="font-size:24px;"></i>
-                          </button>
-                        {% else %}
-                          <span class="badge bg-secondary">Sin acciones</span>
-                        {% endif %}
-                      </div>
-                    </td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <div class="alert alert-light mt-3 text-center">No hay devoluciones registradas</div>
-        {% endif %}
-
-      {% endif %}
+<div id="compras-resultados">
+  {% include "compras/lista_resultados_global.html" %}
 </div>
 
 <div class="modal fade" id="ajaxFormModal" tabindex="-1" aria-hidden="true">

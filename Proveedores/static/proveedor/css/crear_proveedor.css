@@ -10,7 +10,7 @@
    HEADER
 ================================ */
 .proveedor-header {
-    background: #b79a83;
+    background: #6c757d;
     padding: 9px 10px;
     border-radius: 6px;
     margin-bottom: 10px;
@@ -37,7 +37,7 @@
     font-size: 11px;
     font-weight: 600;
     margin-bottom: 6px;
-    color: #3b2f2f;
+    color: #495057;
 }
 
 /* ===============================
@@ -58,7 +58,7 @@
     font-weight: 500;
     margin-bottom: 3px;
     display: block;
-    color: #3b2f2f;
+    color: #495057;
 }
 
 .form-grid input,
@@ -101,7 +101,7 @@
 }
 
 .btn-guardar {
-    background: #3b2f2f;
+    background: #198754;
     color: #fff;
     border: none;
     padding: 3px 15px;
@@ -110,7 +110,7 @@
 }
 
 .btn-guardar:hover {
-    background: #5a4a4a;
+    background: #157347;
 }
 
 .btn-cancelar {
@@ -120,6 +120,10 @@
     border-radius: 995px;
     text-decoration: none;
 }
+
+/* ===============================
+   ERRORES
+================================ */
 .text-danger {
     color: #c0392b;
 }
@@ -127,18 +131,225 @@
 .text-danger.small {
     font-size: 12px;
 }
+
 .form-error {
     margin-top: 3px;
     font-size: 12px;
     color: #c0392b;
     line-height: 1.2;
 }
+
 input.is-invalid,
 select.is-invalid {
-    border-color: #c0392b;
-    background-color: #fffafa;
+    border-color: #c0392b !important;
+    background-color: #fffafa !important;
+}
+
+/* ===============================
+   MATAR COMPLETAMENTE EL ESTILO
+   NATIVO DE BOOTSTRAP EN is-valid
+================================ */
+input.is-valid,
+select.is-valid,
+textarea.is-valid,
+.form-control.is-valid,
+.form-select.is-valid,
+.form-grid input.is-valid,
+.form-grid select.is-valid {
+    background-image:    none !important;
+    background-color:    #ffffff !important;
+    border-color:        #d6cfc9 !important;
+    box-shadow:          none !important;
+    color:               #212529 !important;
+    -webkit-text-fill-color: #212529 !important;
+}
+
+input.is-valid:focus,
+select.is-valid:focus,
+.form-control.is-valid:focus,
+.form-select.is-valid:focus {
+    border-color: #b07a50 !important;
+    box-shadow: 0 0 0 3px rgba(176,122,80,.14) !important;
+}
+
+/* ===============================
+   CHECK DE VALIDACION — SOLO CHULO VERDE
+   SIN CÍRCULO, SIN FONDO
+================================ */
+.form-validated {
+    position: relative;
+}
+
+/* espacio para el chulo */
+.form-validated input,
+.form-validated select,
+.form-validated textarea,
+.form-validated .form-control,
+.form-validated .form-select {
+    padding-right: 30px !important;
 }
 
 
+.form-validated .valid-check {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: opacity .18s ease;
+    z-index: 5;
+}
 
+.form-validated.is-ok .valid-check {
+    opacity: 1;
+}
 
+/* el ícono en sí — color forzado en todos los niveles */
+.valid-check i,
+.valid-check-icon {
+    font-size:               16px !important;
+    line-height:             1    !important;
+    color:                   #2ecc71 !important;
+    -webkit-text-fill-color: #2ecc71 !important;
+    background:              transparent !important;
+    border:                  none !important;
+    box-shadow:              none !important;
+    text-shadow:             none !important;
+}
+/* ==========================================
+   MODAL AJAX PROVEEDOR - ESTILO MONA
+========================================== */
+.ultra-modal .modal-dialog {
+    max-width: 1150px;
+}
+
+.ultra-modal .modal-content.ultra-card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+}
+
+/* HEADER OSCURO COMO LA CAPTURA */
+.ultra-modal .ultra-header {
+    background: linear-gradient(90deg, #2a0703 0%, #402019 38%, #5a3529 70%, #6f4938 100%);
+    padding: 18px 24px;
+    border-bottom: none;
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ultra-modal .ultra-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,.75);
+    flex-shrink: 0;
+}
+
+.ultra-modal .ultra-icon i {
+    font-size: 16px;
+    line-height: 1;
+    color: #fff;
+}
+
+.ultra-modal .ultra-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.ultra-modal .ultra-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,.78);
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+/* BOTÓN CERRAR BLANCO */
+.ultra-modal .btn-close-white,
+.ultra-modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: .95;
+    box-shadow: none !important;
+}
+
+.ultra-modal .btn-close:hover {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+/* CUERPO */
+.ultra-modal .modal-body {
+    background: #ffffff;
+    padding: 24px 26px !important;
+}
+
+/* footer opcional si luego lo usas */
+.ultra-modal .modal-footer {
+    border-top: 1px solid #f0e8e2;
+    padding: 16px 24px 22px;
+    background: #fff;
+}   
+/* ==========================================
+   TOP DEL FORMULARIO DENTRO DEL MODAL
+========================================== */
+.proveedor-form-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.proveedor-form-top-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #f4ece7;
+    color: #5d3b2e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.proveedor-form-top-icon i {
+    font-size: 18px;
+}
+
+.proveedor-form-title {
+    font-weight: 700;
+    color: #382822;
+}
+/* ==============================
+   ANIMACIÓN BOTÓN CERRAR MODAL
+============================== */
+.ultra-modal .btn-close,
+.proveedor-detail-header .btn-close {
+    transition: transform 0.28s ease, opacity 0.2s ease;
+    transform-origin: center;
+}
+
+.ultra-modal .btn-close:hover,
+.proveedor-detail-header .btn-close:hover {
+    transform: rotate(90deg) scale(1.08);
+    opacity: 1;
+} 

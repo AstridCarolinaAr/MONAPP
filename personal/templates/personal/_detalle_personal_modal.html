@@ -47,7 +47,7 @@
         <div class="personal-detail-section">
             <span class="personal-detail-label">Teléfono</span>
             <p class="personal-detail-value">
-                <a href="tel:{{ personal.telefono }}" style="color: #634c40; text-decoration: none;">
+                <a href="tel:{{ personal.telefono }}" style="color: #4b2f2a; text-decoration: none;">
                     <i class="fas fa-phone"></i> {{ personal.telefono }}
                 </a>
             </p>
@@ -55,7 +55,7 @@
         <div class="personal-detail-section">
             <span class="personal-detail-label">Correo Electrónico</span>
             <p class="personal-detail-value" style="word-break: break-all;">
-                <a href="mailto:{{ personal.correo }}" style="color: #634c40; text-decoration: none;">
+                <a href="mailto:{{ personal.correo }}" style="color: #4b2f2a; text-decoration: none;">
                     <i class="fas fa-envelope"></i> {{ personal.correo }}
                 </a>
             </p>
@@ -69,14 +69,14 @@
         <div class="personal-detail-section">
             <span class="personal-detail-label">Fecha de Creación</span>
             <p class="personal-detail-value">
-                <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
+                <i class="fas fa-calendar-alt" style="color: #4b2f2a; margin-right: 4px;"></i>
                 {{ personal.fecha_creacion|date:"d/m/Y H:i" }}
             </p>
         </div>
         <div class="personal-detail-section">
             <span class="personal-detail-label">Última Actualización</span>
             <p class="personal-detail-value">
-                <i class="fas fa-clock" style="color: #634c40; margin-right: 4px;"></i>
+                <i class="fas fa-clock" style="color: #4b2f2a; margin-right: 4px;"></i>
                 {{ personal.fecha_actualizacion|date:"d/m/Y H:i" }}
             </p>
         </div>
@@ -84,7 +84,7 @@
         <div class="personal-detail-section" style="grid-column: span 2;">
             <span class="personal-detail-label">Usuario del Sistema</span>
             <p class="personal-detail-value">
-                <i class="fas fa-user-shield" style="color: #634c40; margin-right: 6px;"></i>
+                <i class="fas fa-user-shield" style="color: #4b2f2a; margin-right: 6px;"></i>
                 {{ personal.usuario.username }} ({{ personal.usuario.first_name }})
             </p>
         </div>

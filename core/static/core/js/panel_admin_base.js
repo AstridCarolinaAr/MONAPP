@@ -1,4 +1,5 @@
 console.log('ARCHIVO NUEVO REAL');
+
 document.addEventListener('DOMContentLoaded', function () {
     initSidebar();
     initAlerts();
@@ -6,34 +7,32 @@ document.addEventListener('DOMContentLoaded', function () {
     initTooltips();
     initAccessibility();
     initDashboardChart();
+    initAjaxFilterForms();
     initSearchToggle();
 
     console.log('Dashboard inicializado correctamente');
 });
-
 // ==================== SIDEBAR ====================
 function initSidebar() {
-    const sidebar       = document.getElementById('sidebar');
-    const mainContent   = document.getElementById('main-content');
-    const sidebarToggle = document.getElementById('sidebar-toggle'); // 
-    const handle        = document.getElementById('sidebar-handle'); // 
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
 
-    if (!sidebar || !mainContent) return;
+    if (!sidebar || !mainContent || !sidebarToggle) return;
 
-    // ── Función central de toggle ──
-    function toggleSidebar() {
+    sidebarToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+
         if (window.innerWidth <= 991) {
-            
             sidebar.classList.toggle('active');
-            document.body.classList.toggle('sidebar-mobile-open');
         } else {
-            // Desktop: colapsar/expandir
-            const isNowCollapsed = sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded', isNowCollapsed);
-            document.body.classList.toggle('sidebar-collapsed', isNowCollapsed); 
-            localStorage.setItem('sidebarCollapsed', isNowCollapsed);
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
         }
-    }
+    });
 
     // ── Conectar el handle (flecha lateral) ──
     if (handle) {
@@ -66,13 +65,12 @@ function initSidebar() {
         localStorage.setItem('sidebarCollapsed', 'false');
     }
 
-    // ── Cerrar en móvil al hacer clic fuera ──
     document.addEventListener('click', function (e) {
         if (window.innerWidth > 991) return;
         if (!sidebar.classList.contains('active')) return;
-        if (sidebar.contains(e.target) || (handle && handle.contains(e.target))) return;
+        if (sidebar.contains(e.target) || sidebarToggle.contains(e.target)) return;
+
         sidebar.classList.remove('active');
-        document.body.classList.remove('sidebar-mobile-open');
     });
 }
 
@@ -152,11 +150,15 @@ function initSearchToggle() {
     console.log('buscadores encontrados:', wrappers.length);
 
     wrappers.forEach(function (wrapper) {
+        if (wrapper.dataset.searchInit === 'true') return;
+        wrapper.dataset.searchInit = 'true';
+
         const btn = wrapper.querySelector('.btn-search-toggle');
         const box = wrapper.querySelector('.search-toggle-box');
         const input = wrapper.querySelector('.search-toggle-input');
+        const form = wrapper.closest('form');
 
-        if (!btn || !box || !input) return;
+        if (!btn || !box || !input || !form) return;
 
         function openSearch() {
             wrapper.classList.add('is-open');
@@ -167,7 +169,7 @@ function initSearchToggle() {
                 input.focus();
                 const len = input.value.length;
                 input.setSelectionRange(len, len);
-            }, 200);
+            }, 120);
         }
 
         function closeSearch() {
@@ -180,10 +182,17 @@ function initSearchToggle() {
             btn.classList.add('rotating');
             setTimeout(function () {
                 btn.classList.remove('rotating');
-            }, 600);
+            }, 380);
         }
 
-        // Si ya viene con texto desde Django
+        function submitSearch(immediate = false) {
+            if (typeof form._submitAjaxSearch === 'function') {
+                form._submitAjaxSearch(immediate);
+            } else {
+                form.submit();
+            }
+        }
+
         if (input.value.trim()) {
             openSearch();
         }
@@ -194,43 +203,59 @@ function initSearchToggle() {
 
             animateButton();
 
-            if (wrapper.classList.contains('is-open')) {
-                if (!input.value.trim()) {
-                    closeSearch();
-                } else {
-                    input.focus();
-                }
-            } else {
+            if (!wrapper.classList.contains('is-open')) {
                 openSearch();
+                return;
             }
+
+            if (input.value.trim()) {
+                submitSearch(true);
+                return;
+            }
+
+            closeSearch();
         });
 
         input.addEventListener('click', function (e) {
             e.stopPropagation();
         });
 
+        input.addEventListener('focus', function () {
+            openSearch();
+        });
+
         input.addEventListener('input', function () {
-            if (input.value.trim()) {
-                wrapper.classList.add('is-open');
-                box.classList.add('is-open');
-                btn.setAttribute('aria-expanded', 'true');
+            wrapper.classList.add('is-open');
+            box.classList.add('is-open');
+            btn.setAttribute('aria-expanded', 'true');
+            submitSearch(false);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitSearch(true);
+            }
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+
+                if (input.value.trim()) {
+                    input.value = '';
+                    submitSearch(true);
+                } else {
+                    closeSearch();
+                }
             }
         });
 
         document.addEventListener('click', function (e) {
             if (!wrapper.classList.contains('is-open')) return;
             if (wrapper.contains(e.target)) return;
-            if (input.value.trim()) return;
 
-            closeSearch();
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key !== 'Escape') return;
-            if (!wrapper.classList.contains('is-open')) return;
-            if (input.value.trim()) return;
-
-            closeSearch();
+            if (!input.value.trim()) {
+                closeSearch();
+            }
         });
     });
 }
@@ -268,3 +293,113 @@ function confirmAction(message) {
 
 window.showNotification = showNotification;
 window.confirmAction = confirmAction;
+function initAjaxFilterForms() {
+    const forms = document.querySelectorAll('.js-ajax-search-form');
+
+    forms.forEach(function (form) {
+        if (form.dataset.ajaxFormInit === 'true') return;
+        form.dataset.ajaxFormInit = 'true';
+
+        const ajaxUrl = form.dataset.ajaxUrl || form.getAttribute('action') || window.location.pathname;
+        const ajaxTargetSelector = form.dataset.ajaxTarget;
+        const ajaxDebounce = parseInt(form.dataset.ajaxDebounce || '300', 10);
+
+        let debounceTimer = null;
+        let activeController = null;
+        let lastQueryString = null;
+
+        async function runAjaxRequest() {
+            const target = document.querySelector(ajaxTargetSelector);
+
+            if (!target) {
+                form.submit();
+                return;
+            }
+
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+            const queryString = params.toString();
+            const url = `${ajaxUrl}?${queryString}`;
+
+            if (queryString === lastQueryString) return;
+            lastQueryString = queryString;
+
+            if (activeController) {
+                activeController.abort();
+            }
+
+            activeController = new AbortController();
+
+            try {
+                target.classList.remove('is-entering', 'is-ready');
+                target.classList.add('is-loading');
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    signal: activeController.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const html = await response.text();
+
+                target.classList.remove('is-loading');
+                target.classList.add('is-entering');
+
+                requestAnimationFrame(function () {
+                    target.innerHTML = html;
+
+                    requestAnimationFrame(function () {
+                        target.classList.remove('is-entering');
+                        target.classList.add('is-ready');
+                    });
+                });
+
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, '', url);
+                }
+
+                if (typeof initTooltips === 'function') {
+                    initTooltips();
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') return;
+
+                console.error('Error en filtros AJAX:', error);
+                target.classList.remove('is-loading', 'is-entering');
+                target.classList.add('is-ready');
+                form.submit();
+            }
+        }
+
+        function submitAjaxForm(immediate = false) {
+            clearTimeout(debounceTimer);
+
+            if (immediate) {
+                runAjaxRequest();
+                return;
+            }
+
+            debounceTimer = setTimeout(runAjaxRequest, ajaxDebounce);
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitAjaxForm(true);
+        });
+
+        form.querySelectorAll('select, input[type="date"]').forEach(function (field) {
+            field.addEventListener('change', function () {
+                submitAjaxForm(true);
+            });
+        });
+
+        form._submitAjaxSearch = submitAjaxForm;
+    });
+}

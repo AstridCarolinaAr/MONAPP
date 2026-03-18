@@ -1,9 +1,3 @@
-/* ============================================================
-   ventas.js (COMPLETO)
-   - Crear venta (página + modal)
-   - Modales detalle / editar
-   - Toggle estado con confirmación SweetAlert
-   ============================================================ */
 
 console.log("ventas.js cargado");
 

@@ -23,48 +23,51 @@ from .models import Proveedor
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-
+@login_required
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
-
-    # estado activo por defecto
-    estado = request.GET.get("estado", "activo")
+    estado = request.GET.get("estado", "activo").strip()
 
     if estado not in ["activo", "inactivo"]:
         estado = "activo"
 
     proveedores = Proveedor.objects.filter(estado=estado)
 
-    # BUSCADOR
     if q:
         proveedores = proveedores.filter(
             Q(nombre_proveedor__icontains=q) |
             Q(nit__icontains=q) |
             Q(correo_proveedor__icontains=q)
         )
-    proveedores,sort_key,direction =apply_smart_sorting(
+
+    proveedores, sort_key, direction = apply_smart_sorting(
         request,
         proveedores,
         default_sort="nombre_proveedor",
         default_dir="asc",
         aliases={
             "nit": "nit",
-            "nombre": "nombre_proveedor",
+            "proveedor": "nombre_proveedor",
             "estado": "estado",
         }
     )
+
+    context = {
+        "proveedores": proveedores,
+        "estado_actual": estado,
+        "q": q,
+        **sorting_context(sort_key, direction),
+    }
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return render(request, "proveedor/lista_proveedores_global.html", context)
+
     return render(
         request,
         "proveedor/lista_proveedor.html",
-        {
-            "proveedores": proveedores,
-            "estado_actual": estado,
-            "q": q,
-            **sorting_context(sort_key, direction),
-        }
+        context,
     )
-
-
+@login_required
 def crear_proveedor(request):
     form = ProveedorcrearForm(request.POST or None, request.FILES or None)
 
@@ -101,6 +104,8 @@ def crear_proveedor(request):
         })
 
     return render(request, "proveedor/crear_proveedor.html", context)
+
+@login_required
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
     form = ProveedorcrearForm(request.POST or None, instance=proveedor)
@@ -151,7 +156,7 @@ def editar_proveedor(request, pk):
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-
+@login_required
 @require_POST
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
@@ -186,7 +191,8 @@ def eliminar_proveedor(request, pk):
 
         messages.warning(request, msg)
         return redirect("Proveedores:lista_proveedores")
-
+    
+@login_required
 @require_POST
 def reactivar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
@@ -208,7 +214,7 @@ def reactivar_proveedor(request, pk):
 
     messages.success(request, msg)
     return redirect("Proveedores:lista_proveedores")
-
+@login_required
 @require_POST
 def desactivar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
