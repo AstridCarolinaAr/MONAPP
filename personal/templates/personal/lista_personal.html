@@ -256,6 +256,19 @@
 {% endblock %}
 
 {% block content %}
+<div class="personal-wrapper">
+    <div class="personal-container">
+        <!-- Header -->
+        <div class="personal-header">
+            <h1>
+                <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
+            </h1>
+            {% if puede_modificar %}
+            <button type="button" class="personal-btn primary" onclick="abrirModalPersonal()">
+                <i class="fas fa-plus"></i> Agregar Personal
+            </button>
+            {% endif %}
+        </div>
 <div class="personal-search-card">
     <form method="get"
           class="personal-search-form js-ajax-search-form"

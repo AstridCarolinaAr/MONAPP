@@ -224,7 +224,7 @@
     .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
         box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
     }
-}
+
 
 /* Estilos para la barra de filtrado movidos al html para igualar a Personal */
 
@@ -249,3 +249,103 @@
         border-color: #4b2f2a;
         box-shadow: 0 0 0 0.25rem rgba(75, 47, 42, 0.25);
     }
+/* ==================== BÚSQUEDA ==================== */
+.usuarios-search-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 18px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+    border: 1.3px solid rgba(17, 17, 17, 0.08);
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.usuarios-search-form {
+    display: block;
+    width: 100%;
+}
+
+.usuarios-form-group {
+    width: 100%;
+    max-width: 870px;
+    margin-bottom: 0;
+}
+
+.usuarios-form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 5px;
+    letter-spacing: 0.01em;
+}
+
+.usuarios-form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.3px solid rgba(17, 17, 17, 0.15);
+    border-radius: 9px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #111;
+    background-color: #ffffff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.usuarios-form-control:focus {
+    outline: none;
+    border-color: #4b2f2a;
+    box-shadow: 0 0 0 2px rgba(75, 47, 42, 0.1);
+}
+
+.usuarios-search-global-wrap {
+    display: block;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.usuarios-search-global-form {
+    width: 100%;
+    max-width: 380px;
+}
+
+.usuarios-search-global-form input[type="text"],
+.usuarios-search-global-form input[type="search"] {
+    height: 42px;
+}
+
+.usuarios-search-global-form .btn,
+.usuarios-search-global-form button,
+.usuarios-search-global-form [type="submit"] {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    padding: 0;
+    margin: 0 !important;
+    position: static !important;
+    transform: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #111;
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.usuarios-search-global-form .btn:hover,
+.usuarios-search-global-form button:hover,
+.usuarios-search-global-form [type="submit"]:hover {
+    background-color: #000;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 768px) {
+    .usuarios-form-group,
+    .usuarios-search-global-form {
+        max-width: 100%;
+    }
+}

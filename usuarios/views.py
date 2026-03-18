@@ -260,30 +260,28 @@ def username_recovery_view(request):
 @login_required
 def lista_usuarios_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
-    
-    # Verificar si el usuario actual es Administrador (puede eliminar)
+
     es_administrador = request.user.is_superuser or 'Administrador' in grupos
-    
-    # Verificar si puede crear/editar (no colaborador)
-    puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
+    puede_modificar  = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
+
+    # ✅ form se crea PRIMERO
+    form = UsuarioBusquedaForm(request.GET)
 
     usuarios = User.objects.select_related('perfil').all()
-    
-    form = UsuarioBusquedaForm(request.GET)
-    
+
     if form.is_valid():
         busqueda = form.cleaned_data.get('busqueda')
-        filtro = form.cleaned_data.get('filtro')
-        
+        filtro   = form.cleaned_data.get('filtro')
+
         if busqueda:
             usuarios = usuarios.filter(
-                Q(username__icontains=busqueda) |
+                Q(username__icontains=busqueda)   |
                 Q(first_name__icontains=busqueda) |
-                Q(last_name__icontains=busqueda) |
-                Q(email__icontains=busqueda) |
+                Q(last_name__icontains=busqueda)  |
+                Q(email__icontains=busqueda)      |
                 Q(perfil__documento__icontains=busqueda)
             )
-        
+
         if filtro:
             if filtro == 'activo':
                 usuarios = usuarios.filter(is_active=True)
@@ -295,18 +293,21 @@ def lista_usuarios_view(request):
 
     usuarios = usuarios.order_by('-date_joined')
 
-    return render(
-        request,
-        'usuarios/lista_usuarios.html',
-        {
-            'titulo': 'Gestión de Usuarios',
-            'usuarios': usuarios,
-            'form': form,
-            'es_administrador': es_administrador,
-            'puede_modificar': puede_modificar,
-        }
-    )
+    q = form.cleaned_data.get('busqueda', '') if form.is_valid() else ''
 
+    context = {
+        'titulo'          : 'Gestión de Usuarios',
+        'usuarios'        : usuarios,
+        'form'            : form,
+        'es_administrador': es_administrador,
+        'puede_modificar' : puede_modificar,
+        'q'               : q,
+    }
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'usuarios/_lista_partial.html', context)
+
+    return render(request, 'usuarios/lista_usuarios.html', context)
 
 @login_required
 #@no_colaborador_required()

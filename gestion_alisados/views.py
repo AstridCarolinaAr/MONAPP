@@ -56,11 +56,14 @@ def form_gestion_alisado_modal_content(request):
 
 @login_required
 def lista_gestion_alisados(request):
-    """Lista todas las gestiones de alisados registradas con filtros de búsqueda"""
     gestiones = GestionAlisado.objects.all()
 
-    # Filtro de búsqueda general
-    buscar = request.GET.get('buscar', '')
+    buscar       = request.GET.get('buscar', '')
+    forma_natural = request.GET.get('forma_natural', '')
+    porosidad    = request.GET.get('porosidad', '')
+    textura      = request.GET.get('textura', '')
+    estado_pago  = request.GET.get('estado_pago', '')
+
     if buscar:
         gestiones = gestiones.filter(
             Q(cliente__nombre__icontains=buscar) |
@@ -68,34 +71,30 @@ def lista_gestion_alisados(request):
             Q(procedimiento_realizado_por__icontains=buscar) |
             Q(tipo_alisado__icontains=buscar)
         )
-
-    # Filtro por forma natural del cabello
-    forma_natural = request.GET.get('forma_natural', '')
     if forma_natural:
         gestiones = gestiones.filter(forma_natural=forma_natural)
-
-    # Filtro por porosidad
-    porosidad = request.GET.get('porosidad', '')
     if porosidad:
         gestiones = gestiones.filter(porosidad=porosidad)
-
-    # Filtro por textura
-    textura = request.GET.get('textura', '')
     if textura:
         gestiones = gestiones.filter(textura=textura)
-
-    # Filtro por estado de pago
-    estado_pago = request.GET.get('estado_pago', '')
     if estado_pago == 'pagado':
         gestiones = gestiones.filter(saldo_pendiente=0)
     elif estado_pago == 'pendiente':
         gestiones = gestiones.filter(saldo_pendiente__gt=0)
 
     context = {
-        'gestiones': gestiones
+        'gestiones'    : gestiones,
+        'buscar'       : buscar,        
+        'forma_natural': forma_natural,
+        'porosidad'    : porosidad,
+        'textura'      : textura,
+        'estado_pago'  : estado_pago,
     }
-    return render(request, 'gestion_alisados/lista_gestion_alisados.html', context)
 
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'gestion_alisados/lista_gestion_alisados_global.html', context)
+
+    return render(request, 'gestion_alisados/lista_gestion_alisados.html', context)
 
 @login_required
 def crear_gestion_alisado(request):

@@ -1,0 +1,55 @@
+{# gestion_alisados/templates/gestion_alisados/_lista_partial.html #}
+{% load humanize %}
+
+{% if gestiones %}
+<div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Cliente</th>
+                <th>Profesional</th>
+                <th>Tipo de Alisado</th>
+                <th>Precio</th>
+                <th>Saldo Pendiente</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for gestion in gestiones %}
+            <tr>
+                <td>{{ gestion.fecha_hora|date:"d/m/Y H:i" }}</td>
+                <td>{{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</td>
+                <td>{{ gestion.procedimiento_realizado_por }}</td>
+                <td>{{ gestion.tipo_alisado }}</td>
+                <td>${{ gestion.precio_alisado|intcomma }} COP</td>
+                <td>
+                    {% if gestion.saldo_pendiente > 0 %}
+                        <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
+                    {% else %}
+                        <span class="badge bg-success">Pagado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color:#634c40;border-color:#634c40;" title="Ver detalles">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color:#634c40;border-color:#634c40;" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    {% if request.GET %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> No se encontraron registros con los filtros aplicados.
+    </div>
+    {% endif %}
+{% endif %}

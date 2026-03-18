@@ -362,4 +362,6 @@
   } else {
     boot();
   }
-})(); 
+
+  window.initMetaballs = boot;
+})();

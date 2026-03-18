@@ -36,7 +36,10 @@ def lista_promociones(request):
     if orden in orden_map:
         promociones = promociones.order_by(orden_map[orden])
 
-    form = PromocionForm()  # formulario para el modal "Agregar"
+    form = PromocionForm()  
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'promociones/_lista_partial.html', context)
+    
     return render(request, 'promociones/lista.html', {
         'promociones': promociones,
         'form': form,
@@ -44,7 +47,6 @@ def lista_promociones(request):
         'activa_filter': activa_filter,
         'orden':         orden,
     })
-
 
 # ─────────────────────── CREAR ───────────────────────
 @login_required

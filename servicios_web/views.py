@@ -3,7 +3,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from .forms import ServicioWebForm
 from .models import ServicioWeb
-
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 def crear_servicio_web(request):
     is_modal = request.GET.get('modal') == '1' or request.POST.get('modal') == '1'
@@ -80,14 +81,27 @@ def editar_servicio_web(request, pk):
     return render(request, template_name, context)
    
 
+@login_required
 def lista_servicios_web(request):
     servicios_web = ServicioWeb.objects.all()
+
+    q = request.GET.get('q', '').strip()
+    if q:
+        servicios_web = servicios_web.filter(
+            Q(nombre__icontains=q) |
+            Q(descripcion__icontains=q)
+        )
+
     context = {
         'servicios_web': servicios_web,
-        'titulo': 'Lista de Servicios Web'
+        'titulo': 'Lista de Servicios Web',
+        'q': q,
     }
-    return render(request, 'servicios_web/lista_servicios_web.html', context)
 
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'servicios_web/lista_servicios_web_global.html', context)
+
+    return render(request, 'servicios_web/lista_servicios_web.html', context)
 
 def servicios_web_publicos(request):
     servicios = ServicioWeb.objects.filter(activo=True).order_by('nombre')
