@@ -663,25 +663,16 @@
                 <!-- Fondo del arco -->
                 <circle cx="110" cy="110" r="80" fill="none" stroke="rgba(58,34,24,.08)" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="0" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px;"/>
                 <!-- Arco ventas (verde) -->
-                <circle id="arc-ventas" cx="110" cy="110" r="80" fill="none" stroke="#27ae60" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="502" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
+                <circle id="arc-ventas" cx="110" cy="110" r="80" fill="none" stroke="#096931" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="502" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
                 <!-- Arco compras (rojo) -->
-                <circle id="arc-compras" cx="110" cy="110" r="65" fill="none" stroke="#e74c3c" stroke-width="16" stroke-dasharray="408" stroke-dashoffset="408" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .2s;"/>
+                <circle id="arc-compras" cx="110" cy="110" r="65" fill="none" stroke="#b41c0b" stroke-width="16" stroke-dasharray="408" stroke-dashoffset="408" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .2s;"/>
                 <!-- Círculo central -->
                 <circle cx="110" cy="110" r="46" fill="white" />
                 <text x="110" y="104" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="13" fill="#9a8070" letter-spacing="1">TOTAL</text>
                 <text id="gauge-total" x="110" y="126" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="17" font-weight="600" fill="#1a0e08">—</text>
               </svg>
 
-              <!-- Aguja -->
-              <div id="gauge-needle" style="
-                position:absolute; bottom:50%; left:50%;
-                width:3px; height:60px;
-                background: linear-gradient(to top, var(--c1), transparent);
-                transform-origin: bottom center;
-                transform: translateX(-50%) rotate(0deg);
-                border-radius: 3px;
-                transition: transform 1.3s cubic-bezier(.4,0,.2,1);
-              "></div>
+              <!-- Solo el punto central, sin aguja -->
               <div style="position:absolute;bottom:calc(50% - 8px);left:calc(50% - 8px);width:16px;height:16px;border-radius:50%;background:var(--c1);"></div>
             </div>
 
@@ -747,7 +738,7 @@
       const balance = totalVentas - totalCompras;
       const balEl = document.getElementById('stat-balance');
       balEl.textContent = fmt(Math.abs(balance));
-      balEl.style.color = balance >= 0 ? '#27ae60' : '#e74c3c';
+      balEl.style.color = balance >= 0 ? '#096931' : '#b41c0b';
 
       const grand = totalVentas + totalCompras;
       document.getElementById('gauge-total').textContent = fmt(grand);
@@ -759,11 +750,6 @@
         const pctC = grand > 0 ? totalCompras / grand : 0;
         document.getElementById('arc-ventas').style.strokeDashoffset  = arcV - arcV * pctV;
         document.getElementById('arc-compras').style.strokeDashoffset = arcC - arcC * pctC;
-
-        // Aguja apunta proporción ventas (−135° a +135°)
-        const angle = -135 + 270 * pctV;
-        document.getElementById('gauge-needle').style.transform =
-          'translateX(-50%) rotate(' + angle + 'deg)';
       }, 150);
     })();
     </script>
