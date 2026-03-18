@@ -170,6 +170,26 @@
         border-color: #dc3545;
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     }
+    @keyframes shakeTc {
+        0%   { transform: translateX(0); }
+        15%  { transform: translateX(-8px) rotate(-1deg); }
+        30%  { transform: translateX(8px) rotate(1deg); }
+        45%  { transform: translateX(-6px) rotate(-1deg); }
+        60%  { transform: translateX(6px) rotate(0.5deg); }
+        75%  { transform: translateX(-4px); }
+        90%  { transform: translateX(4px); }
+        100% { transform: translateX(0); }
+    }
+    .shake-tc { animation: shakeTc 0.55s cubic-bezier(.36,.07,.19,.97) both; }
+    #wrapperCheckboxAceptacion {
+        transition: background 0.3s, border-color 0.3s;
+        border-radius: 8px; padding: 10px 12px; border: 2px solid transparent;
+    }
+    #wrapperCheckboxAceptacion.alerta-tc {
+        background: rgba(220, 53, 69, 0.07); border-color: #dc3545;
+    }
+    #msgCheckboxError { display: none; color: #dc3545; font-size: 0.85em; margin-top: 6px; font-weight: 600; }
+    #msgCheckboxError.visible { display: flex; align-items: center; gap: 6px; animation: slideDown 0.3s ease; }
 </style>
 
 <!-- Indicador de progreso -->
@@ -663,11 +683,15 @@
                     <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
                     <p class="mb-2">He leído y comprendido toda la información anterior y acepto los términos y condiciones del tratamiento de alisado.</p>
                     
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
-                        <label class="form-check-label fw-bold" for="checkboxAceptacion">
-                            Acepto todos los términos, condiciones, recomendaciones y compromisos descritos anteriormente
-                        </label>
+                    <div id="wrapperCheckboxAceptacion">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
+                            <label ...>Acepto todos los términos...</label>
+                        </div>
+                        <div id="msgCheckboxError">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Debes aceptar los términos y condiciones para continuar.
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -699,7 +723,7 @@
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" disabled style="background-color: #634c40; border-color: #634c40;">
+                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" style="background-color: #634c40; border-color: #634c40;">
                     <i class="bi bi-check-circle"></i> Aceptar y Guardar
                 </button>
             </div>
@@ -1808,6 +1832,30 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     =============================== */
     modalCliente.addEventListener('shown.bs.modal', function () {
         actualizarEstadoBoton();
+    });
+    // Nueva función
+    function sacudirCheckbox() {
+        wrapperCheck.classList.remove('shake-tc', 'alerta-tc');
+        void wrapperCheck.offsetWidth; // fuerza reinicio de animación
+        wrapperCheck.classList.add('shake-tc', 'alerta-tc');
+        msgCheckError.classList.add('visible');
+        wrapperCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // limpia el estilo cuando el usuario lo marca
+        checkboxAceptacion.addEventListener('change', function limpiarAlerta() {
+            if (this.checked) {
+                wrapperCheck.classList.remove('alerta-tc');
+                msgCheckError.classList.remove('visible');
+            }
+            this.removeEventListener('change', limpiarAlerta);
+        });
+    }
+
+    // Click del botón ahora valida en lugar de depender de disabled
+    btnConfirmarConsentimiento.addEventListener('click', function() {
+        if (!checkboxAceptacion.checked) { sacudirCheckbox(); return; }
+        if (!firmaSubida)                { errorFirma.style.display = 'block'; return; }
+        if (!selectCliente.value)        { mostrarNotificacion(...); return; }
+        // ... resto del guardado igual que antes
     });
 
 })();
