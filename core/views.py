@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime, date
+from django.db.models import Sum
 
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
@@ -49,8 +50,8 @@ def dashboard_view(request):
     anio_actual = hoy.year
 
     # ── KPIs ────────────────────────────────────────────────────────────────
-    total_usuarios    = User.objects.count()
-    usuarios_activos  = User.objects.filter(is_active=True).count()
+    total_usuarios      = User.objects.count()
+    usuarios_activos    = User.objects.filter(is_active=True).count()
     nuevos_usuarios_mes = User.objects.filter(
         date_joined__month=mes_actual,
         date_joined__year=anio_actual
@@ -69,7 +70,7 @@ def dashboard_view(request):
 
     try:
         from ventas.models import Venta
-        total_ventas = Venta.objects.count()
+        total_ventas = Venta.objects.filter(estado='activa').count()
     except Exception:
         total_ventas = 0
 
@@ -78,6 +79,25 @@ def dashboard_view(request):
         productos_sin_stock = Stock.objects.filter(cantidad_actual__lte=0).count()
     except Exception:
         productos_sin_stock = 0
+
+    # ── Total montos ventas y compras (para la gráfica) ──────────────────────
+    total_monto_ventas = 0
+    try:
+        from ventas.models import Venta, DetalleVenta
+        total_monto_ventas = DetalleVenta.objects.filter(
+            venta__estado='activa'
+        ).aggregate(t=Sum('subtotal'))['t'] or 0
+    except Exception:
+        pass
+
+    total_monto_compras = 0
+    try:
+        from compras.models import Compra as CompraModel
+        total_monto_compras = CompraModel.objects.filter(
+            anulada=False
+        ).aggregate(t=Sum('precio_total'))['t'] or 0
+    except Exception:
+        pass
 
     # ── Cumpleaños hoy (clientes) ────────────────────────────────────────────
     cumpleanios_hoy = []
@@ -128,7 +148,7 @@ def dashboard_view(request):
     ultimas_ventas = []
     try:
         from ventas.models import Venta
-        ultimas_ventas = Venta.objects.select_related().order_by('-fecha')[:5]
+        ultimas_ventas = Venta.objects.select_related('cliente').order_by('-fecha')[:5]
     except Exception:
         pass
 
@@ -136,7 +156,7 @@ def dashboard_view(request):
     ultimas_compras = []
     try:
         from compras.models import Compra
-        ultimas_compras = Compra.objects.select_related().order_by('-fecha')[:5]
+        ultimas_compras = Compra.objects.select_related('proveedor').order_by('-fecha')[:5]
     except Exception:
         pass
 
@@ -149,6 +169,9 @@ def dashboard_view(request):
         'total_usuarios':       total_usuarios,
         'usuarios_activos':     usuarios_activos,
         'nuevos_usuarios_mes':  nuevos_usuarios_mes,
+        # Gráfica ventas vs compras
+        'total_monto_ventas':   total_monto_ventas,
+        'total_monto_compras':  total_monto_compras,
         # Cards
         'cumpleanios_hoy':      cumpleanios_hoy,
         'productos_criticos':   productos_criticos,

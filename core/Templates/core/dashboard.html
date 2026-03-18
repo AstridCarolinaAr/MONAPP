@@ -4,7 +4,7 @@
 {% block title %}Dashboard — MONAPP{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 :root {
   --c1: #3a2218;
@@ -19,8 +19,6 @@
   --w: #e67e22;
   --g: #27ae60;
   --b: #2980b9;
-  --glass: rgba(255,255,255,0.06);
-  --gborder: rgba(201,169,110,0.18);
   --page-bg: #f0ebe3;
 }
 
@@ -33,61 +31,290 @@
   position: relative;
 }
 
-/* ── HERO ── */
-.hero {
-  background: linear-gradient(135deg, var(--c1) 0%, #2a1810 40%, var(--c2) 100%);
-  padding: 36px 40px 32px;
-  position: relative;
-  overflow: hidden;
+/* ── BODY ── */
+.db-body { padding: 28px 32px 0; position: relative; z-index: 1; }
+
+/* ── TOP ROW: hero cuadrado + stock crítico ── */
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  margin-bottom: 24px;
+  align-items: end;
 }
-.hero::after {
+
+/* Wrapper para que la mascota desborde hacia arriba sin afectar la grilla */
+.hero-outer {
+  padding-top: 60px;
+  position: relative;
+  z-index: 50;
+  margin-bottom: 48px;
+}
+
+/* La tarjeta */
+.hero-card {
+  width: 100%;
+  height: 260px;
+  border-radius: 26px;
+  position: relative;
+  overflow: visible;
+  box-shadow: 0 10px 36px rgba(58,34,24,.30);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* ── FONDO DE LA TARJETA con círculos decorativos ── */
+.hero-card-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, var(--c1) 0%, #2a1810 45%, var(--c2) 100%);
+  border-radius: 26px;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Círculo decorativo arriba-izquierda */
+.hero-card-bg::before {
   content: '';
   position: absolute;
-  width: 600px; height: 600px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,169,110,.12) 0%, transparent 65%);
-  top: -200px; right: -150px;
+  background: rgba(201,169,110,.13);
+  top: -80px;
+  left: -70px;
   pointer-events: none;
 }
-.hero-inner {
-  position: relative; z-index: 1;
-  display: flex; align-items: flex-end;
-  justify-content: space-between; gap: 20px;
+
+/* Círculo decorativo abajo-derecha */
+.hero-card-bg::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,.20) 0%, transparent 65%);
+  bottom: -80px;
+  right: -60px;
+  pointer-events: none;
 }
+
+/* Círculo extra central-superior */
+.hero-card-circle1 {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  top: 20px;
+  left: 38%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Círculo extra pequeño inferior-izquierda */
+.hero-card-circle2 {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(201,169,110,.10);
+  bottom: 60px;
+  left: 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── BURBUJAS INFERIORES ── */
+.hero-bubbles {
+  position: absolute;
+  bottom: 52px;
+  left: 0; right: 0;
+  height: 90px;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Círculo anillo decorativo */
+.hero-card-circle3 {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,169,110,.12);
+  top: -30px;
+  right: 60px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── KPIs DENTRO DE LA TARJETA - FRANJA GLASS ── */
+.kpi-row-inner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,.10);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(201,169,110,.35);
+  border-radius: 18px;
+  padding: 10px 8px;
+  overflow: hidden;
+}
+
+/* Brillo superior en la franja glass */
+.kpi-row-inner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,.5), transparent);
+  pointer-events: none;
+}
+
+/* Blob decorativo dentro de la franja */
+.kpi-row-inner::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,.18) 0%, transparent 70%);
+  bottom: -50px;
+  left: 30%;
+  pointer-events: none;
+}
+
+/* ── KPI MINI con hover de escala ── */
+.kpi-mini {
+  flex: 1;
+  text-align: left;
+  padding: 8px 20px;
+  border-radius: 12px;
+  transition: transform .28s cubic-bezier(.34,1.56,.64,1),
+              background .25s ease;
+  cursor: default;
+  position: relative;
+  z-index: 2;
+}
+
+.kpi-mini:hover {
+  transform: scale(1.10) translateY(-4px);
+  background: rgba(255,255,255,.12);
+}
+
+/* Separador vertical sutil entre kpis */
+.kpi-mini + .kpi-mini::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: rgba(201,169,110,.20);
+}
+
+.kpi-mini-icon { display: none; }
+
+.kpi-mini-lbl {
+  font-size: 10px;
+  letter-spacing: .5px;
+  text-transform: capitalize;
+  color: rgba(255,255,255,.55);
+  font-weight: 400;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.kpi-mini-val {
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1;
+  display: inline;
+}
+
+/* Mascota: sale hacia ARRIBA del hero-card */
+.hero-mascot {
+  position: absolute;
+  top: -35px;
+  left: 90%;
+  transform: translateX(-50%);
+  width: 270px;
+  height: auto;
+  object-fit: contain;
+  z-index: 110;
+  pointer-events: none;
+}
+
+.hero-info {
+  position: relative;
+  z-index: 3;
+  padding: 28px 32px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .hero-eyebrow {
-  font-size: 10px; letter-spacing: 4px;
-  text-transform: uppercase; color: var(--gold);
-  opacity: .75; margin-bottom: 8px;
+  font-size: .75rem;
+  color: rgba(245,240,232,.55);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 1px;
+  background: rgba(201,169,110,.6);
+}
+.hero-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 16px; height: 1px;
+  background: rgba(201,169,110,.6);
+  margin-left: 6px;
+}
+
 .hero-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2rem,4vw,3.2rem);
-  font-style: italic; font-weight: 400;
-  color: var(--cream); line-height: 1.05;
-  margin-bottom: 6px;
-}
-.hero-role {
-  font-size: 10px; letter-spacing: 3px;
-  text-transform: uppercase; color: var(--rose);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
   font-weight: 500;
+  font-style: italic;
+  color: #f5f0e8;
+  margin-bottom: 8px;
+  line-height: 1.1;
+  letter-spacing: .5px;
 }
-.hero-right { text-align: right; }
-.hero-time {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.8rem,3.5vw,2.8rem);
-  color: var(--gold); letter-spacing: 2px;
-  line-height: 1; margin-bottom: 4px;
+
+.hero-role {
+  font-size: .8rem;
+  color: #c9a96e;
+  font-weight: 400;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
 }
-.hero-date { font-size: 11px; color: rgba(245,240,232,.4); }
 
-/* ── BODY ── */
-.db-body { padding: 28px 32px 0; }
+@media (max-width: 800px) {
+  .top-row { grid-template-columns: 1fr; }
+  .hero-card { width: 100%; height: auto; }
+  .hero-mascot { width: 120px; }
+}
 
-/* ── KPI ROW ── */
+/* ── KPIs EXTERNOS ── */
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
-  gap: 14px; margin-bottom: 28px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 .kpi {
   background: #fff;
@@ -95,7 +322,8 @@
   padding: 20px 18px;
   border: 1px solid rgba(58,34,24,.07);
   box-shadow: 0 2px 12px rgba(58,34,24,.06);
-  position: relative; overflow: hidden;
+  position: relative;
+  overflow: hidden;
   transition: transform .25s, box-shadow .25s;
   cursor: default;
 }
@@ -187,41 +415,6 @@
 
 .card-body { padding: 16px 20px; }
 
-/* ── QUICK ACTIONS ── */
-.qa {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px,1fr));
-  gap: 10px;
-}
-.qa-btn {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  padding: 16px 10px;
-  background: var(--page-bg);
-  border: 1px solid rgba(58,34,24,.08);
-  border-radius: 16px;
-  text-decoration: none; color: #3a2218;
-  font-size: 10px; letter-spacing: 1px;
-  text-transform: uppercase; font-weight: 600;
-  transition: all .22s; text-align: center;
-  cursor: pointer;
-}
-.qa-btn:hover {
-  background: var(--c1);
-  color: var(--cream);
-  border-color: var(--c1);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(58,34,24,.2);
-  text-decoration: none;
-}
-.qa-icon {
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; transition: background .22s;
-}
-.qa-btn:hover .qa-icon { background: rgba(255,255,255,.12) !important; }
-
 /* ── LIST ITEMS ── */
 .li {
   display: flex; align-items: center;
@@ -284,12 +477,12 @@
 .empty i { font-size: 28px; display: block; margin-bottom: 8px; opacity: .5; }
 .empty p { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
 
-/* ── ANIM ── */
+/* ── ANIMACIONES ── */
 @keyframes up {
   from { opacity:0; transform:translateY(16px); }
   to   { opacity:1; transform:translateY(0); }
 }
-.hero  { animation: up .5s ease both; }
+.hero-outer { animation: up .5s ease both; }
 .kpi   { animation: up .4s ease both; }
 .kpi:nth-child(1){animation-delay:.04s}
 .kpi:nth-child(2){animation-delay:.08s}
@@ -307,137 +500,95 @@
 
 {% block content %}
 <div class="db">
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-inner">
-      <div>
-        <p class="hero-eyebrow">Panel de administración</p>
-        <h1 class="hero-name">{{ user.first_name|default:user.username }}</h1>
-        <p class="hero-role">
-          {% if user.is_superuser %}Superadministrador
-          {% else %}{% for g in user.groups.all %}{{ g.name }}{% endfor %}{% endif %}
-        </p>
-      </div>
-      <div class="hero-right">
-        <div class="hero-time" id="dash-clock">--:--:--</div>
-        <div class="hero-date" id="dash-date"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="db-body">
 
-    <!-- KPIs -->
-    <div class="kpi-row">
-      <div class="kpi kpi--brown">
-        <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
-        <div class="kpi-val">{{ total_productos|default:"0" }}</div>
-        <div class="kpi-lbl">Productos</div>
-      </div>
-      <div class="kpi kpi--gold">
-        <div class="kpi-icon"><i class="bi bi-person-heart"></i></div>
-        <div class="kpi-val">{{ total_clientes|default:"0" }}</div>
-        <div class="kpi-lbl">Clientes</div>
-      </div>
-      <div class="kpi kpi--sage">
-        <div class="kpi-icon"><i class="bi bi-cart-check"></i></div>
-        <div class="kpi-val">{{ total_ventas|default:"0" }}</div>
-        <div class="kpi-lbl">Ventas</div>
-      </div>
-      <div class="kpi kpi--red">
-        <div class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
-        <div class="kpi-val">{{ productos_sin_stock|default:"0" }}</div>
-        <div class="kpi-lbl">Sin stock</div>
-      </div>
-      <div class="kpi kpi--blue">
-        <div class="kpi-icon"><i class="bi bi-people"></i></div>
-        <div class="kpi-val">{{ total_usuarios|default:"0" }}</div>
-        <div class="kpi-lbl">Usuarios</div>
-      </div>
-    </div>
+    <!-- ══ HERO FULL WIDTH ══ -->
+    <div class="hero-outer">
+      <img
+        class="hero-mascot"
+        src="{% static 'core/IMG/mona_doll.png' %}"
+        alt="Mona Keratina"
+      >
+      <div class="hero-card">
 
-    <!-- ACCIONES RÁPIDAS -->
-    <div class="row" style="margin-bottom:18px;">
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title"><i class="bi bi-lightning-charge-fill"></i>Acciones Rápidas</span>
+        <div class="hero-card-bg"></div>
+        <div class="hero-card-circle1"></div>
+        <div class="hero-card-circle2"></div>
+        <div class="hero-card-circle3"></div>
+
+        <div class="hero-info">
+          <p class="hero-eyebrow">Panel de administración</p>
+          <h1 class="hero-name">{{ user.first_name|default:user.username }}</h1>
+          <p class="hero-role">
+            {% if user.is_superuser %}Superadministradora
+            {% else %}{% for g in user.groups.all %}{{ g.name }}{% endfor %}{% endif %}
+          </p>
         </div>
-        <div class="card-body">
-          <div class="qa">
-            <a href="{% url 'productos:lista_productos' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(90,56,40,.1);color:var(--c2);"><i class="bi bi-box-seam"></i></div>
-              Productos
-            </a>
-            <a href="{% url 'ventas:lista' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(107,155,133,.1);color:var(--sage);"><i class="bi bi-cart"></i></div>
-              Ventas
-            </a>
-            <a href="{% url 'clientes:lista' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(201,169,110,.12);color:#806030;"><i class="bi bi-person-heart"></i></div>
-              Clientes
-            </a>
-            <a href="{% url 'inventario:inventario_lista' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(41,128,185,.1);color:var(--b);"><i class="bi bi-archive"></i></div>
-              Inventario
-            </a>
-            <a href="{% url 'compras:lista_compras' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(39,174,96,.1);color:var(--g);"><i class="bi bi-bag-check"></i></div>
-              Compras
-            </a>
-            <a href="{% url 'servicios:lista_servicios' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(155,89,182,.1);color:#8e44ad;"><i class="bi bi-stars"></i></div>
-              Servicios
-            </a>
-            <a href="{% url 'usuarios:lista_usuarios' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(231,76,60,.1);color:var(--r);"><i class="bi bi-shield-lock"></i></div>
-              Usuarios
-            </a>
-            <a href="{% url 'personal:lista_personal' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(230,126,34,.1);color:var(--w);"><i class="bi bi-person-badge"></i></div>
-              Personal
-            </a>
-            <a href="{% url 'proveedores:lista_proveedor' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(52,73,94,.1);color:#34495e;"><i class="bi bi-truck"></i></div>
-              Proveedores
-            </a>
-            <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="qa-btn">
-              <div class="qa-icon" style="background:rgba(205,155,133,.12);color:#805040;"><i class="bi bi-database"></i></div>
-              Gestión
-            </a>
+
+        <!-- ══ FECHA CENTRADA ══ -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);text-align:center;z-index:4;pointer-events:none;">
+          <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(245,240,232,.40);font-weight:400;margin-bottom:6px;">Hoy</div>
+          <div id="hero-fecha" style="font-family:'Playfair Display',serif;font-size:clamp(1rem,1.8vw,1.35rem);font-style:italic;color:rgba(245,240,232,.80);letter-spacing:.5px;line-height:1.4;"></div>
+          <div id="hero-hora" style="font-family:'Inter',sans-serif;font-size:.7rem;color:rgba(201,169,110,.65);letter-spacing:2.5px;margin-top:5px;"></div>
+        </div>
+        <script>
+        (function(){
+          const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+          const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+          function actualizar(){
+            const n = new Date();
+            document.getElementById('hero-fecha').textContent = dias[n.getDay()]+', '+n.getDate()+' de '+meses[n.getMonth()]+' '+n.getFullYear();
+            document.getElementById('hero-hora').textContent  = String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+          }
+          actualizar(); setInterval(actualizar,1000);
+        })();
+        </script>
+        <!-- ══ FIN FECHA ══ -->
+
+        <!-- Burbujas decorativas inferiores -->
+        <div class="hero-bubbles">
+          <svg viewBox="0 0 1200 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+            <ellipse cx="60"   cy="95" rx="120" ry="70" fill="rgba(255,255,255,0.06)"/>
+            <ellipse cx="220"  cy="100" rx="160" ry="85" fill="rgba(255,255,255,0.05)"/>
+            <ellipse cx="430"  cy="105" rx="200" ry="95" fill="rgba(201,169,110,0.10)"/>
+            <ellipse cx="680"  cy="100" rx="180" ry="88" fill="rgba(255,255,255,0.05)"/>
+            <ellipse cx="900"  cy="108" rx="220" ry="98" fill="rgba(201,169,110,0.08)"/>
+            <ellipse cx="1120" cy="95"  rx="150" ry="75" fill="rgba(255,255,255,0.06)"/>
+            <ellipse cx="1250" cy="102" rx="120" ry="68" fill="rgba(201,169,110,0.07)"/>
+          </svg>
+        </div>
+
+        <div class="kpi-row-inner">
+          <div class="kpi-mini kpi--brown">
+            <div class="kpi-mini-icon"><i class="bi bi-box-seam"></i></div>
+            <span class="kpi-mini-lbl">Productos</span>
+            <span class="kpi-mini-val">{{ total_productos|default:"0" }}</span>
+          </div>
+          <div class="kpi-mini kpi--gold">
+            <div class="kpi-mini-icon"><i class="bi bi-person-heart"></i></div>
+            <span class="kpi-mini-lbl">Clientes</span>
+            <span class="kpi-mini-val">{{ total_clientes|default:"0" }}</span>
+          </div>
+          <div class="kpi-mini kpi--sage">
+            <div class="kpi-mini-icon"><i class="bi bi-cart-check"></i></div>
+            <span class="kpi-mini-lbl">Ventas</span>
+            <span class="kpi-mini-val">{{ total_ventas|default:"0" }}</span>
+          </div>
+          <div class="kpi-mini kpi--blue">
+            <div class="kpi-mini-icon"><i class="bi bi-people"></i></div>
+            <span class="kpi-mini-lbl">Usuarios</span>
+            <span class="kpi-mini-val">{{ total_usuarios|default:"0" }}</span>
           </div>
         </div>
+
       </div>
     </div>
+    <!-- ══ fin hero ══ -->
 
-    <!-- FILA 3 CARDS -->
-    <div class="row row-3">
+    <!-- STOCK CRÍTICO + CUMPLEAÑOS -->
+    <div class="row row-2b" style="margin-bottom:18px;">
 
-      <!-- Cumpleaños -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>Cumpleaños Hoy</span>
-          {% if cumpleanios_hoy %}<span class="chip chip-gold">{{ cumpleanios_hoy|length }}</span>{% endif %}
-        </div>
-        <div class="card-body">
-          {% if cumpleanios_hoy %}
-            {% for p in cumpleanios_hoy %}
-            <div class="li">
-              <div class="av av-gold">{{ p.nombre|slice:":2"|upper }}</div>
-              <div class="li-info">
-                <div class="li-name">{{ p.nombre }}</div>
-                <div class="li-sub">{{ p.cargo|default:"Cliente" }}</div>
-              </div>
-              <span class="pill p-gold">🎂 {{ p.edad }} años</span>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div class="empty"><i class="bi bi-balloon"></i><p>Sin cumpleaños hoy</p></div>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Stock crítico -->
+      <!-- Stock Crítico -->
       <div class="card">
         <div class="card-head">
           <span class="card-title"><i class="bi bi-exclamation-octagon-fill"></i>Stock Crítico</span>
@@ -470,101 +621,153 @@
         </div>
       </div>
 
-      <!-- Últimos usuarios -->
+      <!-- Cumpleaños -->
       <div class="card">
         <div class="card-head">
-          <span class="card-title"><i class="bi bi-person-plus-fill"></i>Últimos Usuarios</span>
+          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>Cumpleaños Hoy</span>
+          {% if cumpleanios_hoy %}<span class="chip chip-gold">{{ cumpleanios_hoy|length }}</span>{% endif %}
         </div>
         <div class="card-body">
-          {% if ultimos_usuarios %}
-            {% for u in ultimos_usuarios %}
+          {% if cumpleanios_hoy %}
+            {% for p in cumpleanios_hoy %}
             <div class="li">
-              <div class="av av-brown">
-                {{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}
-              </div>
+              <div class="av av-gold">{{ p.nombre|slice:":2"|upper }}</div>
               <div class="li-info">
-                <div class="li-name">{{ u.get_full_name|default:u.username }}</div>
-                <div class="li-sub">{% for g in u.groups.all %}{{ g.name }}{% endfor %}</div>
+                <div class="li-name">{{ p.nombre }}</div>
+                <div class="li-sub">{{ p.cargo|default:"Cliente" }}</div>
               </div>
-              <span class="pill {% if u.is_active %}p-sage{% else %}p-red{% endif %}">
-                {% if u.is_active %}Activo{% else %}Inactivo{% endif %}
-              </span>
+              <span class="pill p-gold">🎂 {{ p.edad }} años</span>
             </div>
             {% endfor %}
           {% else %}
-            <div class="empty"><i class="bi bi-people"></i><p>Sin usuarios</p></div>
+            <div class="empty"><i class="bi bi-balloon"></i><p>Sin cumpleaños hoy</p></div>
           {% endif %}
         </div>
       </div>
 
     </div>
 
-    <!-- FILA VENTAS + COMPRAS -->
-    <div class="row row-2b">
-
+    <!-- GRÁFICA VENTAS VS COMPRAS -->
+    <div class="row" style="margin-bottom:18px;">
       <div class="card">
         <div class="card-head">
-          <span class="card-title"><i class="bi bi-receipt-cutoff"></i>Últimas Ventas</span>
-          <a href="{% url 'ventas:lista' %}" class="chip chip-sage" style="text-decoration:none;">Ver todas →</a>
+          <span class="card-title"><i class="bi bi-bar-chart-fill"></i>Ventas vs Compras</span>
+          <span class="chip chip-sage">Resumen total</span>
         </div>
-        <div class="card-body">
-          {% if ultimas_ventas %}
-            {% for v in ultimas_ventas %}
-            <div class="li">
-              <div class="av av-sage"><i class="bi bi-bag"></i></div>
-              <div class="li-info">
-                <div class="li-name">{{ v.cliente|default:"Cliente" }}</div>
-                <div class="li-sub">{{ v.fecha|date:"d M Y" }}</div>
-              </div>
-              <span class="pill p-sage">${{ v.total|floatformat:0 }}</span>
+        <div class="card-body" style="padding: 24px 32px;">
+          <div style="display:flex; align-items:center; gap:48px; flex-wrap:wrap; justify-content:center;">
+
+            <!-- Gauge SVG -->
+            <div style="position:relative; width:220px; height:220px; flex-shrink:0;">
+              <svg viewBox="0 0 220 220" width="220" height="220" style="transform:rotate(0deg);">
+                <!-- Fondo del arco -->
+                <circle cx="110" cy="110" r="80" fill="none" stroke="rgba(58,34,24,.08)" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="0" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px;"/>
+                <!-- Arco ventas (verde) -->
+                <circle id="arc-ventas" cx="110" cy="110" r="80" fill="none" stroke="#27ae60" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="502" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
+                <!-- Arco compras (rojo) -->
+                <circle id="arc-compras" cx="110" cy="110" r="65" fill="none" stroke="#e74c3c" stroke-width="16" stroke-dasharray="408" stroke-dashoffset="408" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .2s;"/>
+                <!-- Círculo central -->
+                <circle cx="110" cy="110" r="46" fill="white" />
+                <text x="110" y="104" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="13" fill="#9a8070" letter-spacing="1">TOTAL</text>
+                <text id="gauge-total" x="110" y="126" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="17" font-weight="600" fill="#1a0e08">—</text>
+              </svg>
+
+              <!-- Aguja -->
+              <div id="gauge-needle" style="
+                position:absolute; bottom:50%; left:50%;
+                width:3px; height:60px;
+                background: linear-gradient(to top, var(--c1), transparent);
+                transform-origin: bottom center;
+                transform: translateX(-50%) rotate(0deg);
+                border-radius: 3px;
+                transition: transform 1.3s cubic-bezier(.4,0,.2,1);
+              "></div>
+              <div style="position:absolute;bottom:calc(50% - 8px);left:calc(50% - 8px);width:16px;height:16px;border-radius:50%;background:var(--c1);"></div>
             </div>
-            {% endfor %}
-          {% else %}
-            <div class="empty"><i class="bi bi-cart"></i><p>Sin ventas recientes</p></div>
-          {% endif %}
+
+            <!-- Stats -->
+            <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:24px;">
+
+              <!-- Ventas -->
+              <div style="display:flex; align-items:center; gap:20px;">
+                <div style="width:14px;height:14px;border-radius:50%;background:#27ae60;flex-shrink:0;"></div>
+                <div style="flex:1;">
+                  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#9a8070;font-weight:500;margin-bottom:3px;">Total Ventas</div>
+                  <div id="stat-ventas" style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#1a0e08;line-height:1;">$0</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#9a8070;margin-bottom:3px;">Registros</div>
+                  <div id="stat-ventas-count" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:#27ae60;">0</div>
+                </div>
+              </div>
+
+              <div style="height:1px;background:rgba(58,34,24,.06);"></div>
+
+              <!-- Compras -->
+              <div style="display:flex; align-items:center; gap:20px;">
+                <div style="width:14px;height:14px;border-radius:50%;background:#e74c3c;flex-shrink:0;"></div>
+                <div style="flex:1;">
+                  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#9a8070;font-weight:500;margin-bottom:3px;">Total Compras</div>
+                  <div id="stat-compras" style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#1a0e08;line-height:1;">$0</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#9a8070;margin-bottom:3px;">Registros</div>
+                  <div id="stat-compras-count" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:#e74c3c;">0</div>
+                </div>
+              </div>
+
+              <div style="height:1px;background:rgba(58,34,24,.06);"></div>
+
+              <!-- Balance -->
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#9a8070;font-weight:500;">Balance</div>
+                <div id="stat-balance" style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;">$0</div>
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title"><i class="bi bi-bag-check-fill"></i>Últimas Compras</span>
-          <a href="{% url 'compras:lista_compras' %}" class="chip chip-brown" style="text-decoration:none;">Ver todas →</a>
-        </div>
-        <div class="card-body">
-          {% if ultimas_compras %}
-            {% for c in ultimas_compras %}
-            <div class="li">
-              <div class="av av-gold"><i class="bi bi-truck"></i></div>
-              <div class="li-info">
-                <div class="li-name">{{ c.proveedor|default:"Proveedor" }}</div>
-                <div class="li-sub">{{ c.fecha|date:"d M Y" }}</div>
-              </div>
-              <span class="pill p-gold">${{ c.total|floatformat:0 }}</span>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div class="empty"><i class="bi bi-bag-check"></i><p>Sin compras recientes</p></div>
-          {% endif %}
-        </div>
-      </div>
-
     </div>
+
+    <script>
+    (function() {
+      const totalVentas  = parseFloat("{{ total_monto_ventas|default:'0' }}") || 0;
+      const totalCompras = parseFloat("{{ total_monto_compras|default:'0' }}") || 0;
+      const countVentas  = parseInt("{{ total_ventas|default:'0' }}") || 0;
+      const countCompras = parseInt("{{ total_compras_count|default:'0' }}") || 0;
+
+      const fmt = v => '$' + Math.round(v).toLocaleString('es-CO');
+
+      document.getElementById('stat-ventas').textContent       = fmt(totalVentas);
+      document.getElementById('stat-compras').textContent      = fmt(totalCompras);
+      document.getElementById('stat-ventas-count').textContent = countVentas;
+      document.getElementById('stat-compras-count').textContent= countCompras;
+
+      const balance = totalVentas - totalCompras;
+      const balEl = document.getElementById('stat-balance');
+      balEl.textContent = fmt(Math.abs(balance));
+      balEl.style.color = balance >= 0 ? '#27ae60' : '#e74c3c';
+
+      const grand = totalVentas + totalCompras;
+      document.getElementById('gauge-total').textContent = fmt(grand);
+
+      // Arcos
+      setTimeout(() => {
+        const arcV = 502, arcC = 408;
+        const pctV = grand > 0 ? totalVentas / grand : 0;
+        const pctC = grand > 0 ? totalCompras / grand : 0;
+        document.getElementById('arc-ventas').style.strokeDashoffset  = arcV - arcV * pctV;
+        document.getElementById('arc-compras').style.strokeDashoffset = arcC - arcC * pctC;
+
+        // Aguja apunta proporción ventas (−135° a +135°)
+        const angle = -135 + 270 * pctV;
+        document.getElementById('gauge-needle').style.transform =
+          'translateX(-50%) rotate(' + angle + 'deg)';
+      }, 150);
+    })();
+    </script>
+
   </div>
 </div>
-
-<script>
-(function(){
-  const cl = document.getElementById('dash-clock');
-  const dl = document.getElementById('dash-date');
-  const D  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const M  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  function p(n){return String(n).padStart(2,'0');}
-  function tick(){
-    const n = new Date();
-    if(cl) cl.textContent = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
-    if(dl) dl.textContent = D[n.getDay()]+', '+n.getDate()+' de '+M[n.getMonth()]+' '+n.getFullYear();
-  }
-  tick(); setInterval(tick,1000);
-})();
-</script>
 {% endblock %}
