@@ -124,6 +124,10 @@ def editar_cliente(request, cliente_id):
     })
 
 
+from datetime import date
+from django.db.models import Q
+from django.shortcuts import render
+
 def lista_clientes(request):
     """
     Lista con filtros. NO abre modal por recarga.
@@ -133,7 +137,6 @@ def lista_clientes(request):
     codigo = request.GET.get('codigo', '').strip()
     edad = request.GET.get('edad', '').strip()
     orden = request.GET.get('orden', '').strip()
-        
 
     clientes = Cliente.objects.all()
 
@@ -146,7 +149,7 @@ def lista_clientes(request):
 
     if codigo:
         clientes = clientes.filter(codigo_cliente__icontains=codigo)
-        
+
     if estado in ['activo', 'inactivo']:
         clientes = clientes.filter(estado=estado)
 
@@ -159,54 +162,56 @@ def lista_clientes(request):
         clientes = clientes.filter(fecha_nacimiento__lte=fecha_limite)
 
     ordenamientos = {
-    
-      'codigo_asc': ('codigo_cliente',),
-    'codigo_desc': ('-codigo_cliente',),
+        'codigo_asc': ('codigo_cliente',),
+        'codigo_desc': ('-codigo_cliente',),
 
-    'nombre_asc': ('nombre', 'apellido'),
-    'nombre_desc': ('-nombre', '-apellido'),
+        'nombre_asc': ('nombre', 'apellido'),
+        'nombre_desc': ('-nombre', '-apellido'),
 
-    'documento_asc': ('numero_documento',),
-    'documento_desc': ('-numero_documento',),
+        'apellido_asc': ('apellido', 'nombre'),
+        'apellido_desc': ('-apellido', '-nombre'),
 
-    'telefono_asc': ('telefono',),
-    'telefono_desc': ('-telefono',),
+        'documento_asc': ('numero_documento',),
+        'documento_desc': ('-numero_documento',),
 
-    'estado_asc': ('estado', 'nombre'),
-    'estado_desc': ('-estado', 'nombre'),
+        'telefono_asc': ('telefono',),
+        'telefono_desc': ('-telefono',),
 
-    'fecha_nacimiento_asc': ('fecha_nacimiento',),
-    'fecha_nacimiento_desc': ('-fecha_nacimiento',),
+        'estado_asc': ('estado', 'nombre'),
+        'estado_desc': ('-estado', 'nombre'),
 
-    'registro_asc': ('fecha_registro',),
-    'registro_desc': ('-fecha_registro',),
-}
+        'fecha_asc': ('fecha_nacimiento',),
+        'fecha_desc': ('-fecha_nacimiento',),
+
+        'registro_asc': ('fecha_registro',),
+        'registro_desc': ('-fecha_registro',),
+    }
 
     if orden in ordenamientos:
         clientes = clientes.order_by(*ordenamientos[orden])
-        
 
-    return render(request, 'clientes/lista_clientes.html', {
+    context = {
         'clientes': clientes,
         'q': q,
         'estado': estado,
         'codigo': codigo,
         'edad': edad,
         'orden': orden,
-        
 
-        # ✅ Por defecto NO abrir modal al recargar
         'abrir_modal_cliente': False,
         'registro_fallido': False,
         'errores': {},
         'datos': {},
 
-        # ✅ Importante: NO activamos gestión por querystring aquí
         'mostrar_modal_gestion': False,
         'cliente_creado_id': None,
         'cliente_creado_nombre': "",
-    })
+    }
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'clientes/lista_clientes_global.html', context)
+
+    return render(request, 'clientes/lista_clientes.html', context)
 
 def validar_documento(request):
     numero = (request.GET.get('numero') or '').strip()

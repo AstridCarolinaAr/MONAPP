@@ -1,0 +1,134 @@
+<div class="table-responsive">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Cliente</th>
+                <th>Documento</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
+                <td>
+                    {{ cliente.nombre }} {{ cliente.apellido }}<br>
+                    <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
+                </td>
+                <td>
+                    {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
+                </td>
+                <td>{{ cliente.telefono|default:"—" }}</td>
+                <td>
+                    {% if cliente.estado == 'activo' %}
+                        <span class="badge bg-success-subtle text-success">Activo</span>
+                    {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{% url 'clientes:editar' cliente.id %}"
+                       class="btn btn-link"
+                       style="color: #382822;"
+                       title="Editar"
+                       data-bs-placement="bottom">
+                        <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                    </a>
+
+                    <button class="btn btn-link"
+                            style="color: #382822;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalDetalleCliente{{ cliente.id }}"
+                            title="Ver detalles"
+                            data-bs-placement="bottom">
+                        <i class="bi bi-eye" style="font-size: 24px;"></i>
+                    </button>
+
+                    <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="bi bi-person-badge me-2"></i>
+                                        Detalles del cliente
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6"><strong>Código:</strong><br>{{ cliente.codigo_cliente }}</div>
+                                        <div class="col-md-6"><strong>Estado:</strong><br>{{ cliente.estado|capfirst }}</div>
+                                        <div class="col-md-6"><strong>Tipo documento:</strong><br>{{ cliente.tipo_documento }}</div>
+                                        <div class="col-md-6"><strong>Número documento:</strong><br>{{ cliente.numero_documento }}</div>
+                                        <div class="col-md-6"><strong>Nombre:</strong><br>{{ cliente.nombre }}</div>
+                                        <div class="col-md-6"><strong>Apellido:</strong><br>{{ cliente.apellido }}</div>
+                                        <div class="col-md-6"><strong>Fecha nacimiento:</strong><br>{{ cliente.fecha_nacimiento }}</div>
+                                        <div class="col-md-6"><strong>Teléfono:</strong><br>{{ cliente.telefono|default:"—" }}</div>
+                                        <div class="col-12"><strong>Correo:</strong><br>{{ cliente.correo|default:"—" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <a href="{% url 'clientes:editar' cliente.id %}" class="btn-pill-dark">
+                                        <i class="bi bi-pencil-square me-1"></i> Editar cliente
+                                    </a>
+                                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.is_staff %}
+                    <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        Confirmar eliminación
+                                    </h5>
+                                    <button type="button"
+                                            class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <form method="post" action="{% url 'clientes:eliminar' cliente.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body text-center">
+                                        <p class="fw-semibold mb-1">¿Deseas eliminar al cliente?</p>
+                                        <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
+                                    </div>
+
+                                    <div class="modal-footer justify-content-center">
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal">
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" class="btn btn-danger">
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                    No hay clientes registrados
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

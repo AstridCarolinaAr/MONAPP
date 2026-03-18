@@ -11,6 +11,9 @@ from .forms import PersonalForm, PersonalBusquedaForm
 @login_required
 def lista_personal(request):
     """Lista todo el personal con búsqueda y filtrado"""
+    q = request.GET.get('q', '').strip()
+    current_sort = request.GET.get("sort", "")
+    current_dir = request.GET.get("dir", "")
     grupos = list(request.user.groups.values_list('name', flat=True))
     
     # Verificar si el usuario actual es Administrador (puede eliminar)
@@ -44,15 +47,21 @@ def lista_personal(request):
             elif filtro.startswith('rol_'):
                 rol_valor = filtro.replace('rol_', '')
                 personal_list = personal_list.filter(rol=rol_valor)
-    
-    context = {
-        'personal_list': personal_list,
-        'form': form,
-        'es_administrador': es_administrador,
-        'puede_modificar': puede_modificar,
-    }
-    return render(request, 'personal/lista_personal.html', context)
+        
+        context = {
+            "personal_list": personal_list,
+            "form": form,
+            "q": q,
+            "puede_modificar": puede_modificar,
+            "es_administrador": es_administrador,
+            "current_sort": current_sort,
+            "current_dir": current_dir,
+        }
 
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return render(request, "personal/lista_personal_global.html", context)
+
+        return render(request, "personal/lista_personal.html", context)
 
 @login_required
 def crear_personal(request):
