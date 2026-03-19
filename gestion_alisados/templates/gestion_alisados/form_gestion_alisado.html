@@ -220,19 +220,14 @@
                                            class="form-control" 
                                            placeholder="Escribe nombre o documento del cliente..."
                                            autocomplete="off"
+                                           value="{% if cliente_actual %}{{ cliente_actual.nombre }} {{ cliente_actual.apellido }}{% endif %}"
                                            required>
-                                    <input type="hidden" name="cliente" id="clienteId">
+                                    <input type="hidden" name="cliente" id="clienteId" value="{% if cliente_actual %}{{ cliente_actual.id }}{% endif %}">
                                     <div id="dropdownResultados" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
                                 </div>
                                 {% if form.cliente.errors %}
                                     <div class="text-danger">{{ form.cliente.errors }}</div>
                                 {% endif %}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="button" class="btn btn-outline-dark w-100" data-bs-toggle="modal" data-bs-target="#modalCrearCliente">
-                                    <i class="bi bi-plus-lg"></i> Nuevo
-                                </button>
                             </div>
                         </div>
                         
@@ -264,8 +259,8 @@
                         
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.anticipo_cliente.id_for_label }}" class="form-label">{{ form.anticipo_cliente.label }}</label>
-                                {{ form.anticipo_cliente }}
+                                <label for="id_anticipo_cliente" class="form-label">Anticipo realizado por el cliente</label>
+                                <input type="number" id="id_anticipo_cliente" name="anticipo_cliente" class="form-control" min="0" placeholder="Anticipo realizado en COP" required>
                                 {% if form.anticipo_cliente.errors %}
                                     <div class="text-danger">{{ form.anticipo_cliente.errors }}</div>
                                 {% endif %}
@@ -280,8 +275,8 @@
                             </div>
                             
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.saldo_pendiente.id_for_label }}" class="form-label">{{ form.saldo_pendiente.label }}</label>
-                                {{ form.saldo_pendiente }}
+                                <label for="id_saldo_pendiente" class="form-label">Saldo pendiente por pagar</label>
+                                <input type="number" id="id_saldo_pendiente" name="saldo_pendiente" class="form-control" min="0" placeholder="Saldo pendiente en COP" required>
                                 {% if form.saldo_pendiente.errors %}
                                     <div class="text-danger">{{ form.saldo_pendiente.errors }}</div>
                                 {% endif %}
@@ -639,12 +634,7 @@
                 </h5>
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <strong>Por favor leer primariamente la información de la página 02</strong>
-                </div>
-                
-                <h5 class="text-primary mt-4">SISTEMA ÚNICO DE HABILITACIÓN/SERVICIOS Y PÁGINA 02</h5>
+                <h5 class="text-primary mt-4">SISTEMA ÚNICO DE HABILITACIÓN/SERVICIOS</h5>
                 <p>El procedimiento puede generar molestias, casos ocasionales y/o reacciones alérgicas.</p>
                 
                 <h5 class="text-primary mt-4">RECOMENDACIONES Y ADVERTENCIAS</h5>
@@ -1107,6 +1097,32 @@ document.addEventListener('DOMContentLoaded', function() {
     if (precioInput) precioInput.addEventListener('input', calcularSaldo);
     if (anticipoInput) anticipoInput.addEventListener('input', calcularSaldo);
     
+    // Calcular saldo inicial al cargar
+    setTimeout(calcularSaldo, 100);
+    
+    // Limpiar el campo de anticipo si tiene valor 0 al hacer focus o click
+    if (anticipoInput) {
+        // Limpiar el valor 0 inicial
+        if (anticipoInput.value === '0') {
+            anticipoInput.value = '';
+        }
+        
+        // Al hacer focus
+        anticipoInput.addEventListener('focus', function() {
+            if (this.value === '0' || this.value === '0.0') {
+                this.value = '';
+            }
+            this.select();
+        });
+        
+        // Al hacer click
+        anticipoInput.addEventListener('click', function() {
+            if (this.value === '0' || this.value === '0.0') {
+                this.value = '';
+            }
+        });
+    }
+    
     // Mostrar/ocultar campo de oferta especial
     let ofertaSelect = document.getElementById('id_es_oferta_especial');
     if (!ofertaSelect) ofertaSelect = document.querySelector('select[name="es_oferta_especial"]');
@@ -1493,26 +1509,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let hayError = false;
         let hayVacios = false;
-        let noValidos = false;
 
         obligatorios.forEach(id => {
             const campo = document.getElementById(id);
             if (!campo) return;
 
-            if (campo.value.trim() === '') {
+            const valor = campo.value ? campo.value.trim() : '';
+            
+            if (valor === '') {
                 hayVacios = true;
             }
 
             if (campo.classList.contains('is-invalid')) {
                 hayError = true;
             }
-
-            if (campo.value.trim() !== '' && !campo.classList.contains('is-valid')) {
-                noValidos = true;
-            }
         });
 
-        if (hayError || hayVacios || noValidos) {
+        // El botón se habilita cuando NO hay errores y NO hay campos vacíos
+        if (hayError || hayVacios) {
             btnGuardar.disabled = true;
             btnGuardar.classList.remove('btn-dark');
             btnGuardar.classList.add('btn-secondary');
@@ -1520,6 +1534,8 @@ document.addEventListener('DOMContentLoaded', function () {
             btnGuardar.disabled = false;
             btnGuardar.classList.remove('btn-secondary');
             btnGuardar.classList.add('btn-dark');
+        }
+    }
         }
     }
 
@@ -1733,18 +1749,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 option.selected = true;
                 selectCliente.appendChild(option);
                 
-                // Cerrar el modal
-                const modalInstancia = bootstrap.Modal.getInstance(modalCliente);
-                modalInstancia.hide();
+                // Cerrar el modal de forma segura
+                modalCliente.classList.remove('show');
+                modalCliente.style.display = 'none';
+                document.body.classList.remove('modal-open');
                 
-                // Limpiar el formulario
-                formCliente.reset();
-                formCliente.querySelectorAll('.form-control, .form-select').forEach(el => {
-                    el.classList.remove('is-valid', 'is-invalid');
-                });
+                // Eliminar el backdrop
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(bd => bd.remove());
                 
                 // Mostrar mensaje de éxito
-                mostrarNotificacion('Cliente registrado correctamente', 'success');
+                setTimeout(() => {
+                    mostrarNotificacion('Cliente registrado correctamente', 'success');
+                }, 300);
             } else {
                 // Mostrar errores
                 const alertaErrores = document.getElementById('alertaErroresCliente');
@@ -1764,7 +1781,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } finally {
             btnGuardar.disabled = false;
             btnGuardar.innerHTML = 'Guardar cliente';
-            actualizarEstadoBoton();
         }
     });
 
@@ -1814,10 +1830,9 @@ document.addEventListener('DOMContentLoaded', function () {
         
         let debounceTimer;
         
-        // Evento input para búsqueda
-        inputBuscar.addEventListener('input', function() {
+        // Helper function para hacer la búsqueda
+        function hacerBusqueda(term) {
             clearTimeout(debounceTimer);
-            const term = this.value.trim();
             
             if (term.length < 1) {
                 dropdown.style.display = 'none';
@@ -1865,6 +1880,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                     .catch(err => console.error('Error:', err));
             }, 300);
+        }
+        
+        // Evento input para búsqueda
+        inputBuscar.addEventListener('input', function() {
+            const term = this.value.trim();
+            hacerBusqueda(term);
+        });
+        
+        // Evento focus para permitir búsqueda y edición en modo edición
+        inputBuscar.addEventListener('focus', function() {
+            // Si el campo tiene contenido, permitir que borrable y busque
+            // Si viene vacío, permitir escribir y buscar
+            // Mostrar instrucción si es necesario
+            if (this.value.trim().length === 0) {
+                dropdown.innerHTML = '<div style="padding: 10px; color: #999; text-align: center;">Escribe para buscar clientes...</div>';
+                dropdown.style.display = 'block';
+            }
         });
         
         // Cerrar dropdown al hacer click fuera

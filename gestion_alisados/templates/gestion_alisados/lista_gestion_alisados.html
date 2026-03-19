@@ -255,9 +255,11 @@
         </div>
         
         {% if gestiones %}
+            {% if request.GET %}
             <div style="padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0,0,0,.08);">
                 <small class="text-muted">Se encontraron {{ gestiones.count }} registro{{ gestiones.count|pluralize }}</small>
             </div>
+            {% endif %}
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 styled-table">
                     <thead>

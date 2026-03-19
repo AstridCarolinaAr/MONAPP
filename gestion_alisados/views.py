@@ -145,7 +145,8 @@ def editar_gestion_alisado(request, pk):
     context = {
         'form': form,
         'titulo': 'Editar Gestión de Alisado',
-        'gestion': gestion
+        'gestion': gestion,
+        'cliente_actual': gestion.cliente
     }
     return render(request, 'gestion_alisados/form_gestion_alisado.html', context)
 
