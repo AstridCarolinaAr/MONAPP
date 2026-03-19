@@ -1,3 +1,23 @@
+/* ============================================================
+   MONA KERATINA — DASHBOARD CSS
+   Limpio, sin duplicados, sidebar handle mejorado
+   ============================================================ */
+
+/* ==================== VARIABLES ==================== */
+
+/* ── TOPBAR NOTIFICACIONES ── */
+/* ── TOPBAR NOTIFICACIONES ── */
+.topbar-notif {
+    position: fixed;
+    top: 12px;
+    right: 20px;
+    z-index: 1100;
+}
+
+.topbar-notif-right {
+    display: flex;
+    align-items: center;
+}
 :root {
     /* 🎨 PALETA MONA KERATINA */
     --mona-brown: rgba(141, 96, 74, 0.95);

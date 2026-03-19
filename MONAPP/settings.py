@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'Gestion',
     'servicios_web',
     'servicios.apps.ServiciosConfig',
+    'notificaciones',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +140,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# ── Configuración de correo Gmail SMTP ───────────────────────
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST          = 'smtp.gmail.com'
+EMAIL_PORT          = 587
+EMAIL_USE_TLS       = True
+EMAIL_HOST_USER     = 'monappadso@gmail.com'        # ← tu Gmail aquí
+EMAIL_HOST_PASSWORD = 'odvd jycx ilml iggy'       # ← contraseña de app aquí
+DEFAULT_FROM_EMAIL  = 'MONAPP <monappadso@gmail.com>'
