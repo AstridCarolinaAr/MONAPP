@@ -785,7 +785,15 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer flex-wrap gap-2">
+                <div class="me-auto d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-outline-danger" id="btnImprimirPDF" title="Descarga un PDF con todos los datos del formulario (opcional)">
+                        <i class="bi bi-file-earmark-pdf"></i> Imprimir PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="btnImprimirWord" title="Descarga un Word con todos los datos del formulario (opcional)">
+                        <i class="bi bi-file-earmark-word"></i> Imprimir Word
+                    </button>
+                </div>
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
@@ -1419,6 +1427,291 @@ document.addEventListener('DOMContentLoaded', function() {
         // Enviar el formulario
         formulario.submit();
     });
+
+    /* ===============================
+       RECOPILAR DATOS DEL FORMULARIO
+    =============================== */
+    function recopilarDatosFormulario() {
+        const datos = {};
+
+        // Cliente
+        const optCliente = selectCliente.options[selectCliente.selectedIndex];
+        datos.clienteNombre    = (selectCliente.value && optCliente) ? optCliente.text : '—';
+        datos.clienteDocumento = (selectCliente.value && optCliente) ? (optCliente.getAttribute('data-documento') || '—') : '—';
+
+        // Helper para leer select o input por name
+        function getValByName(name) {
+            const el = formulario.querySelector('[name="' + name + '"]');
+            if (!el) return '—';
+            if (el.tagName === 'SELECT') {
+                const opt = el.options[el.selectedIndex];
+                return opt ? opt.text : '—';
+            }
+            return el.value || '—';
+        }
+        function getBoolByName(name) {
+            const el = formulario.querySelector('[name="' + name + '"]');
+            return (el && el.checked) ? 'Sí' : 'No';
+        }
+        // Convertir si/no values a Sí/No
+        function siNo(name) {
+            const v = getValByName(name);
+            return v === 'si' || v === 'Sí' ? 'Sí' : (v === 'no' || v === 'No' ? 'No' : v);
+        }
+
+        datos.precioAlisado  = getValByName('precio_alisado');
+        datos.esOferta       = siNo('es_oferta_especial');
+        datos.descripOferta  = getValByName('descripcion_oferta');
+        datos.anticipo       = getValByName('anticipo_cliente');
+        datos.medioPago      = getValByName('medio_pago');
+        datos.saldo          = getValByName('saldo_pendiente');
+
+        datos.realizadoPor   = getValByName('procedimiento_realizado_por');
+        datos.tipoAlisado    = getValByName('tipo_alisado');
+        datos.resellado      = siNo('requiere_resellado');
+        datos.porcentaje     = getValByName('porcentaje_alisado') + '%';
+
+        datos.porosidad      = getValByName('porosidad');
+        datos.textura        = getValByName('textura');
+        datos.formaNatural   = getValByName('forma_natural');
+        datos.elasticidad    = getValByName('elasticidad');
+        datos.longitud       = getValByName('longitud');
+        datos.densidad       = getValByName('densidad');
+        datos.pielCabelludo  = getValByName('piel_cabelludo');
+        datos.alopecia       = getValByName('alopecia');
+        datos.caida          = getValByName('caida_cabello');
+        datos.caspa          = getValByName('caspa');
+
+        datos.lactante       = siNo('lactante');
+        datos.gestante       = siNo('gestante');
+        datos.tiroides       = siNo('sufre_tiroides');
+        datos.medTiroides    = getValByName('medicamento_tiroides');
+        datos.despunte       = siNo('despunte_hoy');
+
+        datos.tintura        = getBoolByName('procesos_tintura');
+        datos.decoloracion   = getBoolByName('procesos_decoloracion');
+        datos.ondulados      = getBoolByName('procesos_ondulados');
+        datos.extracciones   = getBoolByName('procesos_extracciones');
+        datos.alisados       = getBoolByName('procesos_alisados');
+        datos.superAclarante = getBoolByName('procesos_super_aclarante');
+        datos.otrosProcesos  = getValByName('procesos_otro');
+
+        datos.secador        = siNo('cuenta_con_secador');
+        datos.usaCasco       = siNo('usa_casco');
+        datos.aguaCaliente   = siNo('se_bana_agua_caliente');
+        datos.refuerzo15     = siNo('requiere_refuerzo_15dias');
+        datos.frecRecoge     = getValByName('frecuencia_recoge_cabello');
+        datos.ejercicio      = siNo('realiza_ejercicio');
+        datos.frecEjercicio  = getValByName('frecuencia_ejercicio');
+        datos.productos      = getValByName('productos_capilares');
+        datos.recomendaciones = getValByName('recomendaciones_post_cuidados');
+
+        datos.fecha = new Date().toLocaleDateString('es-CO', {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        return datos;
+    }
+
+    /* ===============================
+       HTML COMPARTIDO DEL DOCUMENTO
+    =============================== */
+    function generarHTMLDocumento(datos) {
+        const estilos = `
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family:Arial,sans-serif; font-size:11pt; color:#222; padding:20px; }
+            .header { display:flex; align-items:center; gap:16px; border-bottom:3px solid #634c40; padding-bottom:12px; margin-bottom:18px; }
+            .header-text h1 { font-size:13pt; color:#634c40; font-weight:bold; }
+            .header-text p { font-size:9pt; color:#666; }
+            .fecha-box { text-align:right; font-size:9pt; color:#555; margin-bottom:10px; }
+            .seccion { margin-bottom:14px; }
+            .seccion-titulo { background:#634c40; color:white; padding:5px 10px; font-size:10pt; font-weight:bold; border-radius:3px; margin-bottom:8px; }
+            .fila { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:5px; }
+            .campo { flex:1; min-width:170px; margin-bottom:4px; }
+            .campo-label { font-size:8pt; color:#634c40; font-weight:bold; text-transform:uppercase; }
+            .campo-valor { font-size:10pt; border-bottom:1px solid #ccc; padding:2px 4px; min-height:20px; color:#333; }
+            .campo-valor.largo { border:1px solid #ccc; padding:4px; min-height:36px; border-radius:3px; margin-top:2px; }
+            .procesos-grid { display:flex; flex-wrap:wrap; gap:6px; }
+            .proceso-item { border:1px solid #ccc; border-radius:3px; padding:3px 8px; font-size:9.5pt; }
+            .proceso-si { background:#f0e8e4; border-color:#634c40; color:#634c40; font-weight:bold; }
+            .proceso-no { color:#aaa; }
+            .firma-seccion { margin-top:30px; border-top:2px solid #634c40; padding-top:20px; display:flex; justify-content:space-between; }
+            .firma-box { text-align:center; flex:1; padding:0 20px; }
+            .firma-linea { border-top:1px solid #333; margin-top:50px; margin-bottom:5px; }
+            .firma-texto { font-size:9pt; color:#555; }
+            .consent-box { background:#f9f4f2; border:1px solid #d4b8ac; border-radius:4px; padding:10px 14px; margin-bottom:14px; font-size:9pt; color:#444; }
+            .consent-box strong { color:#634c40; }
+            @media print { @page { margin:15mm; size:A4; } body { padding:0; } }
+        `;
+
+        const procesos = [
+            ['Tintura', datos.tintura],
+            ['Decoloración', datos.decoloracion],
+            ['Ondulados Perm', datos.ondulados],
+            ['Extracciones', datos.extracciones],
+            ['Alisados', datos.alisados],
+            ['Super Aclarante', datos.superAclarante],
+        ];
+
+        return `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>Tratamiento de Alisado - ${datos.clienteNombre}</title>
+        <style>${estilos}</style></head><body>
+
+        <div class="header">
+            <div class="header-text">
+                <h1>TRATAMIENTO DE DATOS &mdash; SERVICIO DE ALISADO</h1>
+                <p>Formulario de Gestión y Consentimiento Informado</p>
+            </div>
+        </div>
+        <div class="fecha-box">Fecha de registro: <strong>${datos.fecha}</strong></div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Información del Cliente</div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">Nombre completo</div><div class="campo-valor">${datos.clienteNombre}</div></div>
+                <div class="campo"><div class="campo-label">Número de documento</div><div class="campo-valor">${datos.clienteDocumento}</div></div>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Información del Servicio y Pago</div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">Precio del Alisado</div><div class="campo-valor">$ ${datos.precioAlisado}</div></div>
+                <div class="campo"><div class="campo-label">Anticipo</div><div class="campo-valor">$ ${datos.anticipo}</div></div>
+                <div class="campo"><div class="campo-label">Saldo Pendiente</div><div class="campo-valor">$ ${datos.saldo}</div></div>
+                <div class="campo"><div class="campo-label">Medio de Pago</div><div class="campo-valor">${datos.medioPago}</div></div>
+                <div class="campo"><div class="campo-label">¿Oferta especial?</div><div class="campo-valor">${datos.esOferta}${datos.esOferta === 'Sí' ? ' — ' + datos.descripOferta : ''}</div></div>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Información del Procedimiento</div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">Realizado por</div><div class="campo-valor">${datos.realizadoPor}</div></div>
+                <div class="campo"><div class="campo-label">Porcentaje de Alisado</div><div class="campo-valor">${datos.porcentaje}</div></div>
+                <div class="campo"><div class="campo-label">Requiere Resellado</div><div class="campo-valor">${datos.resellado}</div></div>
+            </div>
+            <div class="campo"><div class="campo-label">Tipo de Alisado</div><div class="campo-valor largo">${datos.tipoAlisado}</div></div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Características del Cabello</div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">Porosidad</div><div class="campo-valor">${datos.porosidad}</div></div>
+                <div class="campo"><div class="campo-label">Textura</div><div class="campo-valor">${datos.textura}</div></div>
+                <div class="campo"><div class="campo-label">Forma Natural</div><div class="campo-valor">${datos.formaNatural}</div></div>
+                <div class="campo"><div class="campo-label">Elasticidad</div><div class="campo-valor">${datos.elasticidad}</div></div>
+            </div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">Longitud</div><div class="campo-valor">${datos.longitud}</div></div>
+                <div class="campo"><div class="campo-label">Densidad</div><div class="campo-valor">${datos.densidad}</div></div>
+                <div class="campo"><div class="campo-label">Piel Cabelludo</div><div class="campo-valor">${datos.pielCabelludo}</div></div>
+                <div class="campo"><div class="campo-label">Alopecia</div><div class="campo-valor">${datos.alopecia}</div></div>
+                <div class="campo"><div class="campo-label">Caída de Cabello</div><div class="campo-valor">${datos.caida}</div></div>
+                <div class="campo"><div class="campo-label">Caspa</div><div class="campo-valor">${datos.caspa}</div></div>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Estado de Salud y Condiciones Especiales</div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">¿Lactante?</div><div class="campo-valor">${datos.lactante}</div></div>
+                <div class="campo"><div class="campo-label">¿Gestante?</div><div class="campo-valor">${datos.gestante}</div></div>
+                <div class="campo"><div class="campo-label">¿Tiroides?</div><div class="campo-valor">${datos.tiroides}${datos.tiroides === 'Sí' ? ' — ' + datos.medTiroides : ''}</div></div>
+                <div class="campo"><div class="campo-label">¿Despunte hoy?</div><div class="campo-valor">${datos.despunte}</div></div>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Procesos Químicos Previos</div>
+            <div class="procesos-grid">
+                ${procesos.map(([l, v]) => `<div class="proceso-item ${v === 'Sí' ? 'proceso-si' : 'proceso-no'}">${v === 'Sí' ? '✓' : '○'} ${l}</div>`).join('')}
+            </div>
+            ${datos.otrosProcesos && datos.otrosProcesos !== '—' ? `<div style="margin-top:6px"><div class="campo-label">Otro:</div><div class="campo-valor">${datos.otrosProcesos}</div></div>` : ''}
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Hábitos y Cuidados</div>
+            <div class="fila">
+                <div class="campo"><div class="campo-label">¿Tiene secador?</div><div class="campo-valor">${datos.secador}</div></div>
+                <div class="campo"><div class="campo-label">¿Usa casco?</div><div class="campo-valor">${datos.usaCasco}</div></div>
+                <div class="campo"><div class="campo-label">¿Baña con agua caliente?</div><div class="campo-valor">${datos.aguaCaliente}</div></div>
+                <div class="campo"><div class="campo-label">Refuerzo 15 días</div><div class="campo-valor">${datos.refuerzo15}</div></div>
+                <div class="campo"><div class="campo-label">¿Realiza ejercicio?</div><div class="campo-valor">${datos.ejercicio}${datos.ejercicio === 'Sí' ? ' — ' + datos.frecEjercicio : ''}</div></div>
+            </div>
+            <div class="campo"><div class="campo-label">¿Cada cuánto recoge el cabello?</div><div class="campo-valor largo">${datos.frecRecoge}</div></div>
+            <div class="campo" style="margin-top:6px"><div class="campo-label">Productos capilares (shampoo, acondicionador, mascarilla)</div><div class="campo-valor largo">${datos.productos}</div></div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Recomendaciones y Anotaciones</div>
+            <div class="campo"><div class="campo-valor largo">${datos.recomendaciones}</div></div>
+        </div>
+
+        <div class="consent-box">
+            <strong>Consentimiento Informado:</strong> El/La cliente declara haber leído y comprendido todos los términos y condiciones del tratamiento de alisado, incluyendo recomendaciones, advertencias, compromisos y porcentajes de tratamiento. Acepta voluntariamente el procedimiento y sus condiciones.
+        </div>
+
+        <div class="firma-seccion">
+            <div class="firma-box">
+                <div class="firma-linea"></div>
+                <div class="firma-texto"><strong>${datos.clienteNombre}</strong></div>
+                <div class="firma-texto">Doc: ${datos.clienteDocumento}</div>
+                <div class="firma-texto">Firma del Cliente</div>
+            </div>
+            <div class="firma-box">
+                <div class="firma-linea"></div>
+                <div class="firma-texto"><strong>${datos.realizadoPor}</strong></div>
+                <div class="firma-texto">Responsable del Procedimiento</div>
+            </div>
+        </div>
+
+        </body></html>`;
+    }
+
+    /* ===============================
+       BOTÓN: IMPRIMIR PDF
+    =============================== */
+    document.getElementById('btnImprimirPDF').addEventListener('click', function() {
+        const datos = recopilarDatosFormulario();
+        const htmlDoc = generarHTMLDocumento(datos);
+        const ventana = window.open('', '_blank', 'width=860,height=720');
+        if (!ventana) {
+            mostrarNotificacion('Permite las ventanas emergentes en tu navegador e intenta de nuevo.', 'warning');
+            return;
+        }
+        ventana.document.write(htmlDoc);
+        ventana.document.close();
+        ventana.addEventListener('load', function() {
+            setTimeout(function() { ventana.print(); }, 400);
+        });
+    });
+
+    /* ===============================
+       BOTÓN: IMPRIMIR WORD
+    =============================== */
+    document.getElementById('btnImprimirWord').addEventListener('click', function() {
+        const datos = recopilarDatosFormulario();
+        const htmlDoc = generarHTMLDocumento(datos);
+        const blob = new Blob(
+            ['\ufeff' + htmlDoc],
+            { type: 'application/msword;charset=utf-8' }
+        );
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const nombreLimpio = datos.clienteNombre !== '—'
+            ? datos.clienteNombre.split(' - ')[0].replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').replace(/\s+/g, '_')
+            : 'cliente';
+        const fechaHoy = new Date().toISOString().slice(0, 10);
+        link.href = url;
+        link.download = 'Alisado_' + nombreLimpio + '_' + fechaHoy + '.doc';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        mostrarNotificacion('Documento Word descargado correctamente.', 'success');
+    });
+
 });
 </script>
 
