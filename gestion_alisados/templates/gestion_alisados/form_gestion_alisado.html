@@ -213,15 +213,17 @@
                         
                         <div class="row">
                             <div class="col-md-10 mb-3">
-                                <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }} *</label>
-                                <select name="cliente" id="selectCliente" class="form-select" required>
-                                    <option value="">Seleccione un cliente...</option>
-                                    {% for cliente in form.fields.cliente.queryset %}
-                                        <option value="{{ cliente.id }}" data-documento="{{ cliente.numero_documento }}">
-                                            {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.numero_documento }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                <label for="buscarCliente" class="form-label">{{ form.cliente.label }} *</label>
+                                <div style="position: relative;">
+                                    <input type="text" 
+                                           id="buscarCliente" 
+                                           class="form-control" 
+                                           placeholder="Escribe nombre o documento del cliente..."
+                                           autocomplete="off"
+                                           required>
+                                    <input type="hidden" name="cliente" id="clienteId">
+                                    <div id="dropdownResultados" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
+                                </div>
                                 {% if form.cliente.errors %}
                                     <div class="text-danger">{{ form.cliente.errors }}</div>
                                 {% endif %}
@@ -1085,10 +1087,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar primer paso
     showStep(1);
     
-    // Calcular saldo pendiente automáticamente
-    const precioInput = document.getElementById('{{ form.precio_alisado.id_for_label }}');
-    const anticipoInput = document.getElementById('{{ form.anticipo_cliente.id_for_label }}');
-    const saldoInput = document.getElementById('{{ form.saldo_pendiente.id_for_label }}');
+    // Calcular saldo pendiente automáticamente con fallback
+    let precioInput = document.getElementById('id_precio_alisado');
+    if (!precioInput) precioInput = document.querySelector('input[name="precio_alisado"]');
+    
+    let anticipoInput = document.getElementById('id_anticipo_cliente');
+    if (!anticipoInput) anticipoInput = document.querySelector('input[name="anticipo_cliente"]');
+    
+    let saldoInput = document.getElementById('id_saldo_pendiente');
+    if (!saldoInput) saldoInput = document.querySelector('input[name="saldo_pendiente"]');
     
     function calcularSaldo() {
         const precio = parseInt(precioInput.value) || 0;
@@ -1097,11 +1104,13 @@ document.addEventListener('DOMContentLoaded', function() {
         saldoInput.value = Math.max(0, saldo);
     }
     
-    precioInput.addEventListener('input', calcularSaldo);
-    anticipoInput.addEventListener('input', calcularSaldo);
+    if (precioInput) precioInput.addEventListener('input', calcularSaldo);
+    if (anticipoInput) anticipoInput.addEventListener('input', calcularSaldo);
     
     // Mostrar/ocultar campo de oferta especial
-    const ofertaSelect = document.getElementById('{{ form.es_oferta_especial.id_for_label }}');
+    let ofertaSelect = document.getElementById('id_es_oferta_especial');
+    if (!ofertaSelect) ofertaSelect = document.querySelector('select[name="es_oferta_especial"]');
+    
     const ofertaContainer = document.getElementById('descripcion_oferta_container');
     
     if (ofertaSelect && ofertaContainer) {
@@ -1118,7 +1127,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Mostrar/ocultar campo de medicamento tiroides
-    const tiroidesSelect = document.getElementById('{{ form.sufre_tiroides.id_for_label }}');
+    let tiroidesSelect = document.getElementById('id_sufre_tiroides');
+    if (!tiroidesSelect) tiroidesSelect = document.querySelector('select[name="sufre_tiroides"]');
+    
     const tiroidesContainer = document.getElementById('medicamento_tiroides_container');
     
     if (tiroidesSelect && tiroidesContainer) {
@@ -1135,7 +1146,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Mostrar/ocultar campo de frecuencia de ejercicio
-    const ejercicioSelect = document.getElementById('{{ form.realiza_ejercicio.id_for_label }}');
+    let ejercicioSelect = document.getElementById('id_realiza_ejercicio');
+    if (!ejercicioSelect) ejercicioSelect = document.querySelector('select[name="realiza_ejercicio"]');
+    
     const ejercicioContainer = document.getElementById('frecuencia_ejercicio_container');
     
     if (ejercicioSelect && ejercicioContainer) {
@@ -1152,35 +1165,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Validar porcentaje de alisado (0-100)
-    const porcentajeInput = document.getElementById('{{ form.porcentaje_alisado.id_for_label }}');
+    let porcentajeInput = document.getElementById('id_porcentaje_alisado');
+    if (!porcentajeInput) porcentajeInput = document.querySelector('input[name="porcentaje_alisado"]');
     
-    porcentajeInput.addEventListener('input', function() {
-        let value = parseInt(this.value);
+    if (porcentajeInput) {
+        porcentajeInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            
+            if (isNaN(value)) {
+                return;
+            }
+            
+            if (value < 0) {
+                this.value = 0;
+            } else if (value > 100) {
+                this.value = 100;
+            }
+        });
         
-        if (isNaN(value)) {
-            return;
-        }
-        
-        if (value < 0) {
-            this.value = 0;
-        } else if (value > 100) {
-            this.value = 100;
-        }
-    });
-    
-    porcentajeInput.addEventListener('blur', function() {
-        if (this.value === '' || isNaN(parseInt(this.value))) {
-            return;
-        }
-        
-        let value = parseInt(this.value);
-        
-        if (value < 0) {
-            this.value = 0;
-        } else if (value > 100) {
-            this.value = 100;
-        }
-    });
+        porcentajeInput.addEventListener('blur', function() {
+            if (this.value === '' || isNaN(parseInt(this.value))) {
+                return;
+            }
+            
+            let value = parseInt(this.value);
+            
+            if (value < 0) {
+                this.value = 0;
+            } else if (value > 100) {
+                this.value = 100;
+            }
+        });
+    }
     
     // Variables para el modal de consentimiento
     const modalConsentimiento = new bootstrap.Modal(document.getElementById('modalConsentimiento'));
@@ -1200,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fechaConsentimiento').textContent = fechaActual;
     
     // Habilitar/deshabilitar botón de confirmar según validación
-    const inputFirma = document.getElementById('{{ form.firma_consentimiento.id_for_label }}');
+    const inputFirma = document.getElementById('id_firma_consentimiento');
     const errorFirma = document.getElementById('errorFirma');
     
     function validarConsentimiento() {
@@ -1784,6 +1800,87 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+// === BÚSQUEDA DE CLIENTES EN TIEMPO REAL ===
+(function() {
+    function initAutocomplete() {
+        const inputBuscar = document.getElementById('buscarCliente');
+        const dropdown = document.getElementById('dropdownResultados');
+        const clienteId = document.getElementById('clienteId');
+        
+        if (!inputBuscar || !dropdown || !clienteId) {
+            setTimeout(initAutocomplete, 200);
+            return;
+        }
+        
+        let debounceTimer;
+        
+        // Evento input para búsqueda
+        inputBuscar.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const term = this.value.trim();
+            
+            if (term.length < 1) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch(`/clientes/buscar-ajax/?q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const clientes = data.clientes;
+                        
+                        if (clientes.length === 0) {
+                            dropdown.innerHTML = '<div style="padding: 10px; color: #999; text-align: center;">No se encontraron clientes</div>';
+                        } else {
+                            dropdown.innerHTML = clientes.map(c => `
+                                <div class="cliente-item" 
+                                     data-id="${c.id}"
+                                     data-nombre="${c.nombre_completo}"
+                                     style="padding: 10px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.2s;">
+                                    <strong>${c.nombre_completo}</strong><br>
+                                    <small style="color: #666;">${c.documento}</small>
+                                </div>
+                            `).join('');
+                        }
+                        dropdown.style.display = 'block';
+                        
+                        // Agregar eventos a los items
+                        document.querySelectorAll('.cliente-item').forEach(item => {
+                            item.addEventListener('mouseover', function() {
+                                this.style.backgroundColor = '#f8f9fa';
+                            });
+                            item.addEventListener('mouseout', function() {
+                                this.style.backgroundColor = 'transparent';
+                            });
+                            item.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const id = this.getAttribute('data-id');
+                                const nombre = this.getAttribute('data-nombre');
+                                inputBuscar.value = nombre;
+                                clienteId.value = id;
+                                dropdown.style.display = 'none';
+                            });
+                        });
+                    })
+                    .catch(err => console.error('Error:', err));
+            }, 300);
+        });
+        
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!inputBuscar.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAutocomplete);
+    } else {
+        setTimeout(initAutocomplete, 100);
+    }
+})();
 </script>
 
 {% endblock %}

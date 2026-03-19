@@ -122,12 +122,20 @@
         font-weight: 600;
         font-size: 14px;
         cursor: pointer;
-        transition: 0.3s;
     }
     
     .btn-pill-dark:hover {
         background-color: #1f1412;
         color: #fff;
+    }
+    
+    /* Estilos específicos para botones de exportación */
+    .btn-pill-dark[style*="#27ae60"]:hover {
+        background-color: #229954 !important;
+    }
+    
+    .btn-pill-dark[style*="#c0392b"]:hover {
+        background-color: #a93226 !important;
     }
     
     /* Estilos para botones del modal (similar a personal.css) */
@@ -172,11 +180,24 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- BOTÓN NUEVA GESTIÓN -->
-    <div style="margin-bottom: 1.5rem;">
+    <!-- TÍTULO PRINCIPAL -->
+    <div style="background: linear-gradient(90deg, #3a2a24, #1f1412); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+        <h2 style="color: #fff; margin: 0; font-weight: 700; letter-spacing: 0.5px;">
+            <i class="bi bi-file-earmark-text"></i> Gestion de datos
+        </h2>
+    </div>
+
+    <!-- BOTÓN NUEVA GESTIÓN Y EXPORTAR -->
+    <div style="margin-bottom: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
         <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
             <i class="bi bi-plus-circle"></i> Nueva Gestión
         </button>
+        <a href="{% url 'gestion_alisados:exportar_excel' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn-pill-dark" style="background-color: #27ae60; text-decoration: none; display: inline-flex; align-items: center;">
+            <i class="bi bi-file-earmark-excel"></i> Descargar Excel
+        </a>
+        <a href="{% url 'gestion_alisados:exportar_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn-pill-dark" style="background-color: #c0392b; text-decoration: none; display: inline-flex; align-items: center;">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+        </a>
     </div>
 
     <!-- FILTROS -->
@@ -230,7 +251,7 @@
     <!-- TABLA -->
     <div class="table-card">
         <div class="card-header table-card-header">
-            <h4><i class="bi bi-file-earmark-text"></i> Gestion de datos</h4>
+            <h4></h4>
         </div>
         
         {% if gestiones %}

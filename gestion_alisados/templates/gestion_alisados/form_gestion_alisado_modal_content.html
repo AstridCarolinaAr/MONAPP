@@ -39,6 +39,7 @@
     .conditional-field {
         display: none;
         margin-top: 10px;
+        will-change: display;
     }
     
     .conditional-field.show {
@@ -96,7 +97,6 @@
         justify-content: center;
         margin: 0 auto 10px;
         font-weight: bold;
-        transition: all 0.3s;
     }
     
     .step-item.active .step-circle {
@@ -145,18 +145,6 @@
         margin-top: .25rem;
         font-size: .875em;
         color: #dc3545;
-        animation: slideDown 0.3s ease;
-    }
-    
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
     
     .form-control:focus.is-valid,
@@ -195,15 +183,17 @@
                         
                         <div class="row">
                             <div class="col-md-10 mb-3">
-                                <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }} *</label>
-                                <select name="cliente" id="selectCliente" class="form-select" required>
-                                    <option value="">Seleccione un cliente...</option>
-                                    {% for cliente in form.fields.cliente.queryset %}
-                                        <option value="{{ cliente.id }}" data-documento="{{ cliente.numero_documento }}">
-                                            {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.numero_documento }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                <label for="buscarCliente" class="form-label">{{ form.cliente.label }} *</label>
+                                <div style="position: relative;">
+                                    <input type="text" 
+                                           id="buscarCliente" 
+                                           class="form-control" 
+                                           placeholder="Escribe nombre o documento del cliente..."
+                                           autocomplete="off"
+                                           required>
+                                    <input type="hidden" name="cliente" id="clienteId">
+                                    <div id="dropdownResultados" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
+                                </div>
                                 {% if form.cliente.errors %}
                                     <div class="text-danger">{{ form.cliente.errors }}</div>
                                 {% endif %}
@@ -781,93 +771,60 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Actualizar al cargar
     actualizarInfoCliente();
     
-    // ========== VALIDACIÓN EN TIEMPO REAL ==========
+    // ========== VALIDACIÓN EN TIEMPO REAL (OPTIMIZADA) ==========
     function validarCampoTiempoReal(campo) {
-        if (!campo) return;
+        if (!campo || !campo.value) return;
         
-        // Limpiar validaciones previas
+        // Limpiar validaciones previas una sola vez
         campo.classList.remove('is-valid', 'is-invalid');
-        const errorExistente = campo.parentElement.querySelector('.invalid-feedback');
+        const parent = campo.parentElement;
+        const errorExistente = parent?.querySelector('.invalid-feedback');
         if (errorExistente) {
             errorExistente.remove();
         }
         
+        // Solo validar si tiene valor
+        if (!campo.value.trim()) {
+            if (campo.hasAttribute('required')) {
+                campo.classList.add('is-invalid');
+            }
+            return;
+        }
+        
+        // Validación simplificada
         let esValido = true;
         let mensajeError = '';
         
-        // Validar campos requeridos
-        if (campo.hasAttribute('required')) {
-            if (!campo.value || campo.value.trim() === '') {
+        // Validar números
+        if (campo.type === 'number') {
+            const valor = parseFloat(campo.value);
+            if (isNaN(valor)) {
                 esValido = false;
-                mensajeError = 'Este campo es obligatorio';
+                mensajeError = 'Valor inválido';
+            } else if (campo.hasAttribute('min') && valor < parseFloat(campo.getAttribute('min'))) {
+                esValido = false;
+                mensajeError = `Mínimo: ${campo.getAttribute('min')}`;
+            } else if (campo.hasAttribute('max') && valor > parseFloat(campo.getAttribute('max'))) {
+                esValido = false;
+                mensajeError = `Máximo: ${campo.getAttribute('max')}`;
             }
         }
         
-        // Si tiene valor, validar según el tipo
-        if (campo.value && campo.value.trim() !== '') {
-            // Validar números
-            if (campo.type === 'number') {
-                const valor = parseFloat(campo.value);
-                if (isNaN(valor)) {
-                    esValido = false;
-                    mensajeError = 'Debe ingresar un número válido';
-                } else if (campo.hasAttribute('min') && valor < parseFloat(campo.getAttribute('min'))) {
-                    esValido = false;
-                    mensajeError = `El valor mínimo es ${campo.getAttribute('min')}`;
-                } else if (campo.hasAttribute('max') && valor > parseFloat(campo.getAttribute('max'))) {
-                    esValido = false;
-                    mensajeError = `El valor máximo es ${campo.getAttribute('max')}`;
-                } else if (valor < 0) {
-                    esValido = false;
-                    mensajeError = 'No se permiten valores negativos';
-                }
-            }
-            
-            // Validar select
-            if (campo.tagName === 'SELECT' && campo.hasAttribute('required')) {
-                if (campo.value === '' || campo.value === 'None') {
-                    esValido = false;
-                    mensajeError = 'Debe seleccionar una opción';
-                }
-            }
-            
-            // Validar textarea mínimo de caracteres (si aplica)
-            if (campo.tagName === 'TEXTAREA' && campo.value.trim().length > 0) {
-                if (campo.value.trim().length < 3) {
-                    esValido = false;
-                    mensajeError = 'Debe ingresar al menos 3 caracteres';
-                }
-            }
-            
-            // Validar email (si el campo es de tipo email)
-            if (campo.type === 'email') {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(campo.value)) {
-                    esValido = false;
-                    mensajeError = 'Ingrese un correo electrónico válido';
-                }
-            }
-        }
-        
-        // Aplicar clases de validación
-        if (campo.value && campo.value.trim() !== '') {
-            if (esValido) {
-                campo.classList.add('is-valid');
-            } else {
-                campo.classList.add('is-invalid');
-                
-                // Mostrar mensaje de error
+        // Aplicar clases
+        if (esValido) {
+            campo.classList.add('is-valid');
+        } else {
+            campo.classList.add('is-invalid');
+            if (mensajeError && parent) {
                 const feedbackDiv = document.createElement('div');
-                feedbackDiv.className = 'invalid-feedback d-block';
-                feedbackDiv.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${mensajeError}`;
-                campo.parentElement.appendChild(feedbackDiv);
+                feedbackDiv.className = 'invalid-feedback';
+                feedbackDiv.textContent = mensajeError;
+                parent.appendChild(feedbackDiv);
             }
         }
-        
-        return esValido;
     }
     
-    // Aplicar validación en tiempo real a todos los campos
+    // Aplicar validación en tiempo real a todos los campos (simplificada para mejor rendimiento)
     function inicializarValidacionTiempoReal() {
         // Obtener todos los campos del formulario
         const camposValidar = document.querySelectorAll(
@@ -875,54 +832,40 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         );
         
         camposValidar.forEach(function(campo) {
-            // Validar al perder el foco (blur)
+            // Validar SOLO al perder el foco (blur) - elimina lag de 'input' events
             campo.addEventListener('blur', function() {
                 validarCampoTiempoReal(this);
-            });
-            
-            // Validar mientras escribe (para campos de texto)
-            if (campo.tagName === 'INPUT' && campo.type === 'text') {
-                campo.addEventListener('input', function() {
-                    // Solo validar si ya ha perdido el foco al menos una vez
-                    if (this.classList.contains('is-valid') || this.classList.contains('is-invalid')) {
-                        validarCampoTiempoReal(this);
-                    }
-                });
-            }
-            
-            // Validar inmediatamente al cambiar (para select y number)
-            if (campo.tagName === 'SELECT' || campo.type === 'number') {
-                campo.addEventListener('change', function() {
-                    validarCampoTiempoReal(this);
-                });
-            }
-            
-            // Para campos numéricos, validar también al escribir
-            if (campo.type === 'number') {
-                campo.addEventListener('input', function() {
-                    if (this.classList.contains('is-valid') || this.classList.contains('is-invalid')) {
-                        validarCampoTiempoReal(this);
-                    }
-                });
-            }
+            }, { passive: true });
         });
     }
     
     // Inicializar validación en tiempo real
     inicializarValidacionTiempoReal();
     
-    // Función para mostrar el paso actual
+    // Función para mostrar el paso actual (optimizada)
     function showStep(step) {
-        // Ocultar todos los pasos
-        document.querySelectorAll('.form-step').forEach(function(stepEl) {
-            stepEl.classList.remove('active');
-        });
+        // Batch DOM updates para evitar reflows
+        const steps = document.querySelectorAll('.form-step');
+        const stepItems = document.querySelectorAll('.step-item');
+        const btnAnterior = document.getElementById('btnAnterior');
+        const btnSiguiente = document.getElementById('btnSiguiente');
+        const btnGuardar = document.getElementById('btnGuardar');
         
-        // Mostrar el paso actual
-        document.getElementById('step' + step).classList.add('active');
+        // Ocultar todos los pasos y actualizar indicadores - una sola vez
+        let stepElement = null;
+        for (let i = 0; i < steps.length; i++) {
+            const s = steps[i];
+            if (s.id === 'step' + step) {
+                s.classList.add('active');
+                stepElement = s;
+            } else {
+                s.classList.remove('active');
+            }
+        }
         
         // Actualizar indicadores de progreso
-        document.querySelectorAll('.step-item').forEach(function(item) {
+        for (let i = 0; i < stepItems.length; i++) {
+            const item = stepItems[i];
             const stepNum = parseInt(item.getAttribute('data-step'));
             item.classList.remove('active', 'completed');
             
@@ -931,50 +874,44 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             } else if (stepNum < step) {
                 item.classList.add('completed');
             }
-        });
-        
-        // Actualizar botones
-        const btnAnterior = document.getElementById('btnAnterior');
-        const btnSiguiente = document.getElementById('btnSiguiente');
-        const btnGuardar = document.getElementById('btnGuardar');
-        
-        if (step === 1) {
-            btnAnterior.style.display = 'none';
-            btnSiguiente.style.display = 'inline-block';
-            btnGuardar.style.display = 'none';
-        } else if (step === totalSteps) {
-            btnAnterior.style.display = 'inline-block';
-            btnSiguiente.style.display = 'none';
-            btnGuardar.style.display = 'inline-block';
-        } else {
-            btnAnterior.style.display = 'inline-block';
-            btnSiguiente.style.display = 'inline-block';
-            btnGuardar.style.display = 'none';
         }
         
+        // Actualizar botones
+        btnAnterior.style.display = step === 1 ? 'none' : 'inline-block';
+        btnSiguiente.style.display = step === totalSteps ? 'none' : 'inline-block';
+        btnGuardar.style.display = step === totalSteps ? 'inline-block' : 'none';
+        
         // Scroll hacia arriba
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (stepElement) {
+            stepElement.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
     }
     
-    // Función para validar los campos del paso actual
+    // Función para validar los campos del paso actual (optimizada)
     function validateStep(step) {
         let isValid = true;
         let firstInvalidField = null;
         const currentStepEl = document.getElementById('step' + step);
         
-        // Limpiar errores previos
-        currentStepEl.querySelectorAll('.validation-error').forEach(function(el) {
-            el.remove();
-        });
-        currentStepEl.querySelectorAll('.is-invalid').forEach(function(el) {
-            el.classList.remove('is-invalid');
-        });
+        if (!currentStepEl) return false;
+        
+        // Limpiar errores previos en batch
+        const errorElements = currentStepEl.querySelectorAll('.validation-error');
+        for (let i = errorElements.length - 1; i >= 0; i--) {
+            errorElements[i].remove();
+        }
+        
+        const invalidElements = currentStepEl.querySelectorAll('.is-invalid');
+        for (let i = 0; i < invalidElements.length; i++) {
+            invalidElements[i].classList.remove('is-invalid');
+        }
         
         // Obtener todos los campos requeridos del paso actual
         const requiredFields = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
         
-        requiredFields.forEach(function(field) {
-            // Verificar si el campo está vacío
+        // Validar campos
+        for (let i = 0; i < requiredFields.length; i++) {
+            const field = requiredFields[i];
             if (!field.value || field.value.trim() === '') {
                 isValid = false;
                 field.classList.add('is-invalid');
@@ -982,28 +919,24 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 // Mostrar mensaje de error
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'validation-error text-danger mt-1';
-                errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Este campo es obligatorio';
+                errorDiv.textContent = 'Este campo es obligatorio';
                 field.parentElement.appendChild(errorDiv);
                 
                 if (!firstInvalidField) {
                     firstInvalidField = field;
                 }
             }
-        });
+        }
         
         // Si hay errores, hacer scroll al primer campo inválido
         if (!isValid && firstInvalidField) {
-            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidField.scrollIntoView({ behavior: 'auto', block: 'center' });
             firstInvalidField.focus();
             
             // Mostrar alerta general
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <strong>¡Atención!</strong> Por favor, completa todos los campos obligatorios antes de continuar.
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
+            alertDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Por favor completa los campos obligatorios. <button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
             currentStepEl.insertBefore(alertDiv, currentStepEl.firstChild);
             
             // Auto-cerrar la alerta después de 5 segundos
@@ -1038,102 +971,91 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Inicializar primer paso
     showStep(1);
     
-    // Calcular saldo pendiente automáticamente
-    const precioInput = document.getElementById('{{ form.precio_alisado.id_for_label }}');
-    const anticipoInput = document.getElementById('{{ form.anticipo_cliente.id_for_label }}');
-    const saldoInput = document.getElementById('{{ form.saldo_pendiente.id_for_label }}');
-    
-    function calcularSaldo() {
-        const precio = parseInt(precioInput.value) || 0;
-        const anticipo = parseInt(anticipoInput.value) || 0;
-        const saldo = precio - anticipo;
-        saldoInput.value = Math.max(0, saldo);
+    // Calcular saldo pendiente automáticamente (con caching)
+    // Buscar por ID o por name como fallback
+    let anticipoInput = document.getElementById('id_anticipo_cliente');
+    if (!anticipoInput) {
+        anticipoInput = document.querySelector('input[name="anticipo_cliente"]');
     }
     
-    precioInput.addEventListener('input', calcularSaldo);
-    anticipoInput.addEventListener('input', calcularSaldo);
+    let precioInput = document.getElementById('id_precio_alisado');
+    if (!precioInput) {
+        precioInput = document.querySelector('input[name="precio_alisado"]');
+    }
     
-    // Mostrar/ocultar campo de oferta especial
-    const ofertaSelect = document.getElementById('{{ form.es_oferta_especial.id_for_label }}');
+    let saldoInput = document.getElementById('id_saldo_pendiente');
+    if (!saldoInput) {
+        saldoInput = document.querySelector('input[name="saldo_pendiente"]');
+    }
+    
+    // Cache variables para los selects
+    let ofertaSelect = document.getElementById('id_es_oferta_especial');
+    if (!ofertaSelect) ofertaSelect = document.querySelector('select[name="es_oferta_especial"]');
+    
     const ofertaContainer = document.getElementById('descripcion_oferta_container');
     
+    let tiroidesSelect = document.getElementById('id_sufre_tiroides');
+    if (!tiroidesSelect) tiroidesSelect = document.querySelector('select[name="sufre_tiroides"]');
+    
+    const tiroidesContainer = document.getElementById('medicamento_tiroides_container');
+    
+    let ejercicioSelect = document.getElementById('id_realiza_ejercicio');
+    if (!ejercicioSelect) ejercicioSelect = document.querySelector('select[name="realiza_ejercicio"]');
+    
+    const ejercicioContainer = document.getElementById('frecuencia_ejercicio_container');
+    
+    let porcentajeInput = document.getElementById('id_porcentaje_alisado');
+    if (!porcentajeInput) porcentajeInput = document.querySelector('input[name="porcentaje_alisado"]');
+    
+    // Función de cálculo de saldo sin validación innecesaria
+    function calcularSaldo() {
+        const precio = parseFloat(precioInput?.value) || 0;
+        const anticipo = parseFloat(anticipoInput?.value) || 0;
+        const saldo = precio - anticipo;
+        if (saldoInput) saldoInput.value = Math.max(0, saldo);
+    }
+    
+    // Event listeners sin validación en tiempo real
+    if (precioInput) precioInput.addEventListener('change', calcularSaldo, { passive: true });
+    if (anticipoInput) anticipoInput.addEventListener('change', calcularSaldo, { passive: true });
+    
+    // Mostrar/ocultar campo de oferta especial
     if (ofertaSelect && ofertaContainer) {
         function toggleOferta() {
-            if (ofertaSelect.value === 'si') {
-                ofertaContainer.classList.add('show');
-            } else {
-                ofertaContainer.classList.remove('show');
-            }
+            ofertaContainer.classList.toggle('show', ofertaSelect.value === 'si');
         }
-        
-        ofertaSelect.addEventListener('change', toggleOferta);
+        ofertaSelect.addEventListener('change', toggleOferta, { passive: true });
         toggleOferta();
     }
     
     // Mostrar/ocultar campo de medicamento tiroides
-    const tiroidesSelect = document.getElementById('{{ form.sufre_tiroides.id_for_label }}');
-    const tiroidesContainer = document.getElementById('medicamento_tiroides_container');
-    
     if (tiroidesSelect && tiroidesContainer) {
         function toggleTiroides() {
-            if (tiroidesSelect.value === 'si') {
-                tiroidesContainer.classList.add('show');
-            } else {
-                tiroidesContainer.classList.remove('show');
-            }
+            tiroidesContainer.classList.toggle('show', tiroidesSelect.value === 'si');
         }
-        
-        tiroidesSelect.addEventListener('change', toggleTiroides);
+        tiroidesSelect.addEventListener('change', toggleTiroides, { passive: true });
         toggleTiroides();
     }
     
     // Mostrar/ocultar campo de frecuencia de ejercicio
-    const ejercicioSelect = document.getElementById('{{ form.realiza_ejercicio.id_for_label }}');
-    const ejercicioContainer = document.getElementById('frecuencia_ejercicio_container');
-    
     if (ejercicioSelect && ejercicioContainer) {
         function toggleEjercicio() {
-            if (ejercicioSelect.value === 'si') {
-                ejercicioContainer.classList.add('show');
-            } else {
-                ejercicioContainer.classList.remove('show');
-            }
+            ejercicioContainer.classList.toggle('show', ejercicioSelect.value === 'si');
         }
-        
-        ejercicioSelect.addEventListener('change', toggleEjercicio);
+        ejercicioSelect.addEventListener('change', toggleEjercicio, { passive: true });
         toggleEjercicio();
     }
     
-    // Validar porcentaje de alisado (0-100)
-    const porcentajeInput = document.getElementById('{{ form.porcentaje_alisado.id_for_label }}');
-    
-    porcentajeInput.addEventListener('input', function() {
-        let value = parseInt(this.value);
-        
-        if (isNaN(value)) {
-            return;
+    // Validar porcentaje de alisado (0-100) - solo en blur y cambio
+    if (porcentajeInput) {
+        function validarPorcentaje() {
+            let value = parseInt(porcentajeInput.value);
+            if (!isNaN(value)) {
+                porcentajeInput.value = Math.max(0, Math.min(100, value));
+            }
         }
-        
-        if (value < 0) {
-            this.value = 0;
-        } else if (value > 100) {
-            this.value = 100;
-        }
-    });
-    
-    porcentajeInput.addEventListener('blur', function() {
-        if (this.value === '' || isNaN(parseInt(this.value))) {
-            return;
-        }
-        
-        let value = parseInt(this.value);
-        
-        if (value < 0) {
-            this.value = 0;
-        } else if (value > 100) {
-            this.value = 100;
-        }
-    });
+        porcentajeInput.addEventListener('blur', validarPorcentaje, { passive: true });
+    }
     
     // Variables para el modal de consentimiento
     const modalConsentimiento = new bootstrap.Modal(document.getElementById('modalConsentimiento'));
@@ -1152,7 +1074,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     document.getElementById('fechaConsentimiento').textContent = fechaActual;
     
     // Habilitar/deshabilitar botón de confirmar según validación
-    const inputFirma = document.getElementById('{{ form.firma_consentimiento.id_for_label }}');
+    let inputFirma = document.getElementById('id_firma_consentimiento');
+    if (!inputFirma) inputFirma = document.querySelector('input[name="firma_consentimiento"]');
+    
     const errorFirma = document.getElementById('errorFirma');
     
     function validarConsentimiento() {
@@ -1806,4 +1730,87 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     });
 
 })();
+
+// === BÚSQUEDA DE CLIENTES EN TIEMPO REAL ===
+(function() {
+    function initAutocomplete() {
+        const inputBuscar = document.getElementById('buscarCliente');
+        const dropdown = document.getElementById('dropdownResultados');
+        const clienteId = document.getElementById('clienteId');
+        
+        if (!inputBuscar || !dropdown || !clienteId) {
+            setTimeout(initAutocomplete, 200);
+            return;
+        }
+        
+        let debounceTimer;
+        
+        // Evento input para búsqueda
+        inputBuscar.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const term = this.value.trim();
+            
+            if (term.length < 1) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch(`/clientes/buscar-ajax/?q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const clientes = data.clientes;
+                        
+                        if (clientes.length === 0) {
+                            dropdown.innerHTML = '<div style="padding: 10px; color: #999; text-align: center;">No se encontraron clientes</div>';
+                        } else {
+                            dropdown.innerHTML = clientes.map(c => `
+                                <div class="cliente-item" 
+                                     data-id="${c.id}"
+                                     data-nombre="${c.nombre_completo}"
+                                     style="padding: 10px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.2s;">
+                                    <strong>${c.nombre_completo}</strong><br>
+                                    <small style="color: #666;">${c.documento}</small>
+                                </div>
+                            `).join('');
+                        }
+                        dropdown.style.display = 'block';
+                        
+                        // Agregar eventos a los items
+                        document.querySelectorAll('.cliente-item').forEach(item => {
+                            item.addEventListener('mouseover', function() {
+                                this.style.backgroundColor = '#f8f9fa';
+                            });
+                            item.addEventListener('mouseout', function() {
+                                this.style.backgroundColor = 'transparent';
+                            });
+                            item.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const id = this.getAttribute('data-id');
+                                const nombre = this.getAttribute('data-nombre');
+                                clienteId.value = id;
+                                inputBuscar.value = nombre;
+                                dropdown.style.display = 'none';
+                            });
+                        });
+                    })
+                    .catch(err => console.error('Error:', err));
+            }, 300);
+        });
+        
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!inputBuscar.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAutocomplete);
+    } else {
+        setTimeout(initAutocomplete, 100);
+    }
+})();
 </script>
+

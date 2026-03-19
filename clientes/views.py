@@ -192,6 +192,35 @@ def validar_documento(request):
 
 
 
+def buscar_clientes_ajax(request):
+    """
+    Vista AJAX para búsqueda en tiempo real de clientes.
+    Retorna lista de clientes que coinciden con el query.
+    """
+    q = request.GET.get('q', '').strip()
+    
+    if not q or len(q) < 2:
+        return JsonResponse({'clientes': []})
+    
+    clientes = Cliente.objects.filter(
+        Q(nombre__icontains=q) |
+        Q(apellido__icontains=q) |
+        Q(numero_documento__icontains=q) |
+        Q(codigo_cliente__icontains=q)
+    ).values('id', 'nombre', 'apellido', 'numero_documento', 'tipo_documento', 'codigo_cliente')[:10]
+    
+    resultado = []
+    for cliente in clientes:
+        resultado.append({
+            'id': cliente['id'],
+            'nombre_completo': f"{cliente['nombre']} {cliente['apellido']}",
+            'documento': f"{cliente['tipo_documento']}: {cliente['numero_documento']}",
+            'codigo': cliente['codigo_cliente']
+        })
+    
+    return JsonResponse({'clientes': resultado})
+
+
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 

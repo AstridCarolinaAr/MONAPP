@@ -26,11 +26,18 @@ mostrar_modal_gestion = {{ mostrar_modal_gestion }}
 
     <form method="get" class="row g-2 align-items-center mb-4">
 
-        <!-- BÚSQUEDA GENERAL -->
-        <div class="col-md-3">
-            <input type="text" name="q" class="form-control"
-                  placeholder="Buscar nombre o documento"
-                  value="{{ q|default:'' }}">
+        <!-- BÚSQUEDA GENERAL CON AUTOCOMPLETE -->
+        <div class="col-md-3 position-relative">
+            <input type="text" 
+                   id="searchInput" 
+                   name="q" 
+                   class="form-control"
+                   placeholder="Buscar nombre o documento"
+                   value="{{ q|default:'' }}"
+                   autocomplete="off">
+            <div id="searchResults" class="position-absolute w-100 mt-2 bg-white border rounded shadow-sm" 
+                 style="display: none; max-height: 400px; overflow-y: auto; z-index: 1000; top: 100%;">
+            </div>
         </div>
 
         <!-- CÓDIGO -->
@@ -411,6 +418,29 @@ window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,fa
   
   .form-control.is-invalid,
   .form-select.is-invalid {
+    border-color: #dc3545;
+  }
+
+  /* Estilos para el autocomplete */
+  #searchResults {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .cliente-result {
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+
+  .cliente-result:hover {
+    background-color: #f8f9fa;
+  }
+
+  .cliente-result:active {
+    background-color: #e9ecef;
+  }
+</style>
     border-color: #dc3545 !important;
     padding-right: calc(1.5em + 0.75rem);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
@@ -458,7 +488,70 @@ window.ABRIR_MODAL_CLIENTE = {{ abrir_modal_cliente|default:False|yesno:"true,fa
 <script>
 window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};
 window.clienteCreadoId = "{{ cliente_creado_id|default:'' }}";
+// Autocomplete de búsqueda de clientes
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    let debounceTimer;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch(`{% url 'clientes:buscar_ajax' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const clientes = data.clientes;
+                        
+                        if (clientes.length === 0) {
+                            searchResults.innerHTML = '<div class="p-3 text-muted text-center">No se encontraron clientes</div>';
+                            searchResults.style.display = 'block';
+                            return;
+                        }
+
+                        searchResults.innerHTML = clientes.map(cliente => `
+                            <a href="javascript:void(0)" class="cliente-result d-block px-3 py-2 text-decoration-none text-dark border-bottom" 
+                               data-nombre="${cliente.nombre_completo}"
+                               data-documento="${cliente.documento}">
+                                <strong>${cliente.nombre_completo}</strong><br>
+                                <small class="text-muted">${cliente.documento} • ${cliente.codigo}</small>
+                            </a>
+                        `).join('');
+                        
+                        searchResults.style.display = 'block';
+
+                        // Agregar eventos a los resultados
+                        document.querySelectorAll('.cliente-result').forEach(result => {
+                            result.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                searchInput.value = this.getAttribute('data-nombre');
+                                searchResults.style.display = 'none';
+                            });
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }, 300);
+        });
+
+        // Cerrar resultados al hacer click fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.position-relative')) {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+});
 </script>
+<script>
+window.mostrarModalGestion = {{ mostrar_modal_gestion|yesno:"true,false" }};    
+window.clienteCreadoId = "{{ cliente_creado_id|default:'' }}";</script>
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 <script src="{% static 'clientes/js/eliminar_clientes.js' %}"></script>
 {% endblock %} 
