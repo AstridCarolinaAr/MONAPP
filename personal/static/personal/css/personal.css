@@ -771,3 +771,141 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     border-color: #634c40 !important;
     color: #fff !important;
 }
+
+/* =========================================
+   VALIDACION VISUAL PERSONAL
+========================================= */
+
+.personal-input-wrap {
+    position: relative;
+}
+
+.personal-input-wrap .form-control,
+.personal-input-wrap .form-select,
+.personal-input-wrap input,
+.personal-input-wrap select,
+.personal-input-wrap textarea {
+    padding-right: 2.6rem !important;
+    background-image: none !important;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+}
+
+.personal-valid-icon,
+.personal-invalid-icon {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.personal-valid-icon i {
+    color: #198754 !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+}
+
+.personal-invalid-icon i {
+    color: #dc3545 !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+}
+
+.personal-input-wrap.is-ok .personal-valid-icon {
+    display: inline-flex !important;
+}
+
+.personal-input-wrap.is-error .personal-invalid-icon {
+    display: inline-flex !important;
+}
+
+.personal-input-wrap.is-ok .personal-invalid-icon {
+    display: none !important;
+}
+
+.personal-input-wrap.is-error .personal-valid-icon {
+    display: none !important;
+}
+
+/* VERDE COMPLETO */
+.personal-input-wrap.is-ok .form-control,
+.personal-input-wrap.is-ok .form-select,
+.personal-input-wrap.is-ok input,
+.personal-input-wrap.is-ok select,
+.personal-input-wrap.is-ok textarea,
+.personal-input-wrap .form-control.is-valid,
+.personal-input-wrap .form-select.is-valid,
+.personal-input-wrap input.is-valid,
+.personal-input-wrap select.is-valid,
+.personal-input-wrap textarea.is-valid {
+    border: 2px solid #198754 !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.personal-input-wrap.is-ok .form-control:focus,
+.personal-input-wrap.is-ok .form-select:focus,
+.personal-input-wrap.is-ok input:focus,
+.personal-input-wrap.is-ok select:focus,
+.personal-input-wrap.is-ok textarea:focus,
+.personal-input-wrap .form-control.is-valid:focus,
+.personal-input-wrap .form-select.is-valid:focus,
+.personal-input-wrap input.is-valid:focus,
+.personal-input-wrap select.is-valid:focus,
+.personal-input-wrap textarea.is-valid:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+/* ROJO COMPLETO */
+.personal-input-wrap.is-error .form-control,
+.personal-input-wrap.is-error .form-select,
+.personal-input-wrap.is-error input,
+.personal-input-wrap.is-error select,
+.personal-input-wrap.is-error textarea,
+.personal-input-wrap .form-control.is-invalid,
+.personal-input-wrap .form-select.is-invalid,
+.personal-input-wrap input.is-invalid,
+.personal-input-wrap select.is-invalid,
+.personal-input-wrap textarea.is-invalid {
+    border: 2px solid #dc3545 !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.personal-input-wrap.is-error .form-control:focus,
+.personal-input-wrap.is-error .form-select:focus,
+.personal-input-wrap.is-error input:focus,
+.personal-input-wrap.is-error select:focus,
+.personal-input-wrap.is-error textarea:focus,
+.personal-input-wrap .form-control.is-invalid:focus,
+.personal-input-wrap .form-select.is-invalid:focus,
+.personal-input-wrap input.is-invalid:focus,
+.personal-input-wrap select.is-invalid:focus,
+.personal-input-wrap textarea.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.personal-field-error {
+    display: none;
+    margin-top: 0.4rem;
+    color: #dc3545 !important;
+    font-size: 0.875rem !important;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.personal-field-error.is-visible {
+    display: block;
+}

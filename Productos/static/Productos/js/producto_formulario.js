@@ -20,7 +20,7 @@
   }
 
   function normalizeMoneyForSubmit(value) {
-    return onlyDigits(value);
+    return onlyDigits(value);                                                                 
   }
 
   function formatMoneyInput(input) {
@@ -71,6 +71,7 @@
         modalTitleEl.textContent = result.data.title || title || "Formulario";
         modalBodyEl.innerHTML =
           result.data.html || `<div class="alert alert-danger">No se pudo cargar.</div>`;
+        ProductoFormulario.init(modalEl);
         return;
       }
 
@@ -140,30 +141,80 @@
   });
 
   // =========================
-  // UI validación (check)
+  // UI validación nueva
   // =========================
-  function ensureWrapper(input) {
-    if (!input) return null;
-    if (input.closest(".form-validated")) return input.closest(".form-validated");
+  function getWrap(input) {
+    return input?.closest(".producto-input-wrap") || null;
+  }
 
-    const inputGroup = input.closest(".input-group");
-    const target = inputGroup || input;
+  function ensureWrapper(input) {
+    if (!input || input.type === "file") return null;
+
+    const existing = getWrap(input);
+    if (existing) return existing;
+
+    const target =
+      input.closest(".select-pro") ||
+      input.closest(".input-group") ||
+      input;
 
     const parent = target.parentElement;
     if (!parent) return null;
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "form-validated";
+    const wrap = document.createElement("div");
+    wrap.className = "producto-input-wrap";
 
-    parent.insertBefore(wrapper, target);
-    wrapper.appendChild(target);
+    parent.insertBefore(wrap, target);
+    wrap.appendChild(target);
 
-    const icon = document.createElement("span");
-    icon.className = "valid-check";
-    icon.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i>`;
-    wrapper.appendChild(icon);
+    const ok = document.createElement("span");
+    ok.className = "producto-valid-icon";
+    ok.innerHTML = `<i class="bi bi-check-lg"></i>`;
 
-    return wrapper;
+    const bad = document.createElement("span");
+    bad.className = "producto-invalid-icon";
+    bad.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i>`;
+
+    wrap.appendChild(ok);
+    wrap.appendChild(bad);
+
+    const fb = document.createElement("div");
+    fb.className = "producto-field-error";
+    wrap.insertAdjacentElement("afterend", fb);
+
+    return wrap;
+  }
+
+  function getFeedbackEl(input) {
+    const wrap = getWrap(input) || ensureWrapper(input);
+    if (!wrap) return null;
+
+    let fb = wrap.nextElementSibling;
+    if (!fb || !fb.classList.contains("producto-field-error")) {
+      fb = document.createElement("div");
+      fb.className = "producto-field-error";
+      wrap.insertAdjacentElement("afterend", fb);
+    }
+    return fb;
+  }
+
+  function clearState(input) {
+    if (!input) return;
+
+    input.classList.remove("is-valid", "is-invalid");
+    input.style.backgroundImage = "none";
+    input.style.boxShadow = "none";
+
+    const wrap = getWrap(input);
+    if (wrap) {
+      wrap.classList.remove("is-ok", "is-error");
+    }
+
+    const fb = getFeedbackEl(input);
+    if (fb) {
+      fb.textContent = "";
+      fb.classList.remove("is-visible");
+    }
   }
 
   function markValid(input) {
@@ -171,6 +222,7 @@
 
     const isRequired = input.hasAttribute("required");
     const val = (input.value || "").trim();
+
     if (!isRequired && !val) {
       clearState(input);
       return;
@@ -178,12 +230,19 @@
 
     input.classList.remove("is-invalid");
     input.classList.add("is-valid");
+    input.style.backgroundImage = "none";
 
-    const fb = input.parentElement?.querySelector(".invalid-feedback");
-    if (fb) fb.textContent = "";
+    const wrap = getWrap(input) || ensureWrapper(input);
+    if (wrap) {
+      wrap.classList.remove("is-error");
+      wrap.classList.add("is-ok");
+    }
 
-    const wrapper = ensureWrapper(input);
-    if (wrapper) wrapper.classList.add("is-ok");
+    const fb = getFeedbackEl(input);
+    if (fb) {
+      fb.textContent = "";
+      fb.classList.remove("is-visible");
+    }
   }
 
   function markInvalid(input, msg) {
@@ -191,28 +250,20 @@
 
     input.classList.remove("is-valid");
     input.classList.add("is-invalid");
+    input.style.backgroundImage = "none";
 
-    const wrapper = input.closest(".form-validated");
-    if (wrapper) wrapper.classList.remove("is-ok");
-
-    let fb = input.parentElement?.querySelector(".invalid-feedback");
-    if (!fb) {
-      fb = document.createElement("div");
-      fb.className = "invalid-feedback";
-      input.insertAdjacentElement("afterend", fb);
+    const wrap = getWrap(input) || ensureWrapper(input);
+    if (wrap) {
+      wrap.classList.remove("is-ok");
+      wrap.classList.add("is-error");
     }
-    fb.textContent = msg || "Campo inválido";
-  }
 
-  function clearState(input) {
-    if (!input) return;
-    input.classList.remove("is-valid", "is-invalid");
-    const wrapper = input.closest(".form-validated");
-    if (wrapper) wrapper.classList.remove("is-ok");
-    const fb = input.parentElement?.querySelector(".invalid-feedback");
-    if (fb) fb.textContent = "";
+    const fb = getFeedbackEl(input);
+    if (fb) {
+      fb.textContent = msg || "Campo inválido";
+      fb.classList.add("is-visible");
+    }
   }
-
   // =========================
   // Preview imagen
   // =========================
@@ -383,20 +434,30 @@
 
     if (linea) {
       const v = (linea.value || "").trim();
-      if (v && !RE_SOLO_LETRAS.test(v)) {
+
+      if (!v) {
+        errores.push("La línea es obligatoria.");
+        markInvalid(linea, "Obligatoria");
+      } else if (!RE_SOLO_LETRAS.test(v)) {
         errores.push("La línea solo debe contener letras.");
         markInvalid(linea, "Solo letras");
-      } else if (v) markValid(linea);
-      else clearState(linea);
+      } else {
+        markValid(linea);
+      }
     }
 
     if (presentacion) {
       const v = (presentacion.value || "").trim();
-      if (v && !RE_SOLO_NUMEROS.test(v)) {
-        errores.push("La presentación solo debe contener numeros.");
-        markInvalid(presentacion, "Solo numeros");
-      } else if (v) markValid(presentacion);
-      else clearState(presentacion);
+
+      if (!v) {
+        errores.push("La presentación es obligatoria.");
+        markInvalid(presentacion, "Obligatoria");
+      } else if (!RE_SOLO_NUMEROS.test(v)) {
+        errores.push("La presentación solo debe contener números.");
+        markInvalid(presentacion, "Solo números");
+      } else {
+        markValid(presentacion);
+      }
     }
 
     if (urlInput) {
@@ -474,11 +535,10 @@
     }
     form.dataset.wired = "1";
 
-    ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_imagen_url", "#id_imagen", "#id_linea", "#id_presentacion"].forEach((sel) => {
+    ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_imagen_url", "#id_linea", "#id_presentacion"].forEach((sel) => {
       const el = qs(form, sel);
       if (el) ensureWrapper(el);
     });
-
     // X quitar imagen
     const removeBtn = qs(form, "#imgPreviewRemove");
     if (removeBtn) {
@@ -522,10 +582,9 @@
     form.addEventListener("change", (e) => {
       const t = e.target;
 
-      if (t.matches("#id_unidad_medida")) {
+      if (t.matches("#id_unidad_medida, #id_linea, #id_presentacion")) {
         validateProductoForm(form);
       }
-
       if (t.matches("#id_imagen")) {
         const urlInput = qs(form, "#id_imagen_url");
         const clearCheckbox = qs(form, "#id_imagen-clear");

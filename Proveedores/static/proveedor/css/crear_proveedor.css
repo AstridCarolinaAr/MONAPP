@@ -29,7 +29,7 @@
     background: #ffffff;
     border-radius: 6px;
     padding: 15px 23px;
-    box-shadow: 0 3px 15px rgba(0,0,0,.06);
+    box-shadow: 0 3px 15px rgba(0, 0, 0, .06);
     margin-bottom: 15px;
 }
 
@@ -76,7 +76,7 @@
 .ui-autocomplete {
     background: #fff !important;
     border-radius: 3px;
-    box-shadow: 0 5px 30px rgba(0,0,0,.15);
+    box-shadow: 0 5px 30px rgba(0, 0, 0, .15);
     border: none;
     overflow: hidden;
 }
@@ -121,110 +121,225 @@
     text-decoration: none;
 }
 
-/* ===============================
-   ERRORES
-================================ */
-.text-danger {
-    color: #c0392b;
-}
+/* =========================================
+   VALIDACION VISUAL EXACTA TIPO SERVICIOS
+========================================= */
 
-.text-danger.small {
-    font-size: 12px;
-}
-
-.form-error {
-    margin-top: 3px;
-    font-size: 12px;
-    color: #c0392b;
-    line-height: 1.2;
-}
-
-input.is-invalid,
-select.is-invalid {
-    border-color: #c0392b !important;
-    background-color: #fffafa !important;
-}
-
-/* ===============================
-   MATAR COMPLETAMENTE EL ESTILO
-   NATIVO DE BOOTSTRAP EN is-valid
-================================ */
-input.is-valid,
-select.is-valid,
-textarea.is-valid,
-.form-control.is-valid,
-.form-select.is-valid,
-.form-grid input.is-valid,
-.form-grid select.is-valid {
-    background-image:    none !important;
-    background-color:    #ffffff !important;
-    border-color:        #d6cfc9 !important;
-    box-shadow:          none !important;
-    color:               #212529 !important;
-    -webkit-text-fill-color: #212529 !important;
-}
-
-input.is-valid:focus,
-select.is-valid:focus,
-.form-control.is-valid:focus,
-.form-select.is-valid:focus {
-    border-color: #b07a50 !important;
-    box-shadow: 0 0 0 3px rgba(176,122,80,.14) !important;
-}
-
-/* ===============================
-   CHECK DE VALIDACION — SOLO CHULO VERDE
-   SIN CÍRCULO, SIN FONDO
-================================ */
-.form-validated {
+.proveedor-input-wrap {
     position: relative;
 }
 
-/* espacio para el chulo */
-.form-validated input,
-.form-validated select,
-.form-validated textarea,
-.form-validated .form-control,
-.form-validated .form-select {
-    padding-right: 30px !important;
+.proveedor-input-wrap input,
+.proveedor-input-wrap select,
+.proveedor-input-wrap textarea,
+.proveedor-input-wrap .form-control,
+.proveedor-input-wrap .form-select {
+    width: 100%;
+    padding-right: 2.6rem !important;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    background-image: none !important;
 }
 
+/* QUITAR ICONOS NATIVOS DE BOOTSTRAP */
+.proveedor-input-wrap input.is-valid,
+.proveedor-input-wrap input.is-invalid,
+.proveedor-input-wrap select.is-valid,
+.proveedor-input-wrap select.is-invalid,
+.proveedor-input-wrap textarea.is-valid,
+.proveedor-input-wrap textarea.is-invalid,
+.proveedor-input-wrap .form-control.is-valid,
+.proveedor-input-wrap .form-control.is-invalid,
+.proveedor-input-wrap .form-select.is-valid,
+.proveedor-input-wrap .form-select.is-invalid {
+    background-image: none !important;
+}
 
-.form-validated .valid-check {
+/* ICONOS */
+.proveedor-valid-icon,
+.proveedor-invalid-icon {
     position: absolute;
-    right: 8px;
+    right: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0;
+    z-index: 5;
     pointer-events: none;
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
+    font-size: 1.1rem;
+    line-height: 1;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    transition: opacity .18s ease;
-    z-index: 5;
 }
 
-.form-validated.is-ok .valid-check {
-    opacity: 1;
+.proveedor-input-wrap textarea ~ .proveedor-valid-icon,
+.proveedor-input-wrap textarea ~ .proveedor-invalid-icon {
+    top: 1rem;
+    transform: none;
 }
 
-/* el ícono en sí — color forzado en todos los niveles */
-.valid-check i,
-.valid-check-icon {
-    font-size:               16px !important;
-    line-height:             1    !important;
-    color:                   #2ecc71 !important;
-    -webkit-text-fill-color: #2ecc71 !important;
-    background:              transparent !important;
-    border:                  none !important;
-    box-shadow:              none !important;
-    text-shadow:             none !important;
+.proveedor-valid-icon i {
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    color: #198754 !important;
+    -webkit-text-fill-color: #198754 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
 }
+
+.proveedor-invalid-icon i {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    color: #dc3545 !important;
+    -webkit-text-fill-color: #dc3545 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* ===== ESTADO VALIDO ===== */
+.proveedor-input-wrap input.is-valid,
+.proveedor-input-wrap select.is-valid,
+.proveedor-input-wrap textarea.is-valid,
+.proveedor-input-wrap .form-control.is-valid,
+.proveedor-input-wrap .form-select.is-valid,
+.proveedor-input-wrap.is-ok input,
+.proveedor-input-wrap.is-ok select,
+.proveedor-input-wrap.is-ok textarea,
+.proveedor-input-wrap.is-ok .form-control,
+.proveedor-input-wrap.is-ok .form-select {
+    border: 2px solid #198754 !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+    color: #212529 !important;
+    -webkit-text-fill-color: #212529 !important;
+}
+
+.proveedor-input-wrap input.is-valid:focus,
+.proveedor-input-wrap select.is-valid:focus,
+.proveedor-input-wrap textarea.is-valid:focus,
+.proveedor-input-wrap .form-control.is-valid:focus,
+.proveedor-input-wrap .form-select.is-valid:focus,
+.proveedor-input-wrap.is-ok input:focus,
+.proveedor-input-wrap.is-ok select:focus,
+.proveedor-input-wrap.is-ok textarea:focus,
+.proveedor-input-wrap.is-ok .form-control:focus,
+.proveedor-input-wrap.is-ok .form-select:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+.proveedor-input-wrap input.is-valid ~ .proveedor-valid-icon,
+.proveedor-input-wrap select.is-valid ~ .proveedor-valid-icon,
+.proveedor-input-wrap textarea.is-valid ~ .proveedor-valid-icon,
+.proveedor-input-wrap .form-control.is-valid ~ .proveedor-valid-icon,
+.proveedor-input-wrap .form-select.is-valid ~ .proveedor-valid-icon,
+.proveedor-input-wrap.is-ok .proveedor-valid-icon {
+    display: inline-flex !important;
+}
+
+/* OCULTAR ERROR SI ESTA VALIDO */
+.proveedor-input-wrap input.is-valid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap select.is-valid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap textarea.is-valid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap .form-control.is-valid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap .form-select.is-valid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap.is-ok .proveedor-invalid-icon {
+    display: none !important;
+}
+
+/* ===== ESTADO INVALIDO ===== */
+.proveedor-input-wrap input.is-invalid,
+.proveedor-input-wrap select.is-invalid,
+.proveedor-input-wrap textarea.is-invalid,
+.proveedor-input-wrap .form-control.is-invalid,
+.proveedor-input-wrap .form-select.is-invalid,
+.proveedor-input-wrap.is-error input,
+.proveedor-input-wrap.is-error select,
+.proveedor-input-wrap.is-error textarea,
+.proveedor-input-wrap.is-error .form-control,
+.proveedor-input-wrap.is-error .form-select,
+.proveedor-input-wrap.has-error input,
+.proveedor-input-wrap.has-error select,
+.proveedor-input-wrap.has-error textarea,
+.proveedor-input-wrap.has-error .form-control,
+.proveedor-input-wrap.has-error .form-select {
+    border: 2px solid #dc3545 !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+    color: #212529 !important;
+    -webkit-text-fill-color: #212529 !important;
+}
+
+.proveedor-input-wrap input.is-invalid:focus,
+.proveedor-input-wrap select.is-invalid:focus,
+.proveedor-input-wrap textarea.is-invalid:focus,
+.proveedor-input-wrap .form-control.is-invalid:focus,
+.proveedor-input-wrap .form-select.is-invalid:focus,
+.proveedor-input-wrap.is-error input:focus,
+.proveedor-input-wrap.is-error select:focus,
+.proveedor-input-wrap.is-error textarea:focus,
+.proveedor-input-wrap.is-error .form-control:focus,
+.proveedor-input-wrap.is-error .form-select:focus,
+.proveedor-input-wrap.has-error input:focus,
+.proveedor-input-wrap.has-error select:focus,
+.proveedor-input-wrap.has-error textarea:focus,
+.proveedor-input-wrap.has-error .form-control:focus,
+.proveedor-input-wrap.has-error .form-select:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.proveedor-input-wrap input.is-invalid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap select.is-invalid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap textarea.is-invalid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap .form-control.is-invalid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap .form-select.is-invalid ~ .proveedor-invalid-icon,
+.proveedor-input-wrap.is-error .proveedor-invalid-icon,
+.proveedor-input-wrap.has-error .proveedor-invalid-icon {
+    display: inline-flex !important;
+}
+
+/* OCULTAR CHULO SI ESTA INVALIDO */
+.proveedor-input-wrap input.is-invalid ~ .proveedor-valid-icon,
+.proveedor-input-wrap select.is-invalid ~ .proveedor-valid-icon,
+.proveedor-input-wrap textarea.is-invalid ~ .proveedor-valid-icon,
+.proveedor-input-wrap .form-control.is-invalid ~ .proveedor-valid-icon,
+.proveedor-input-wrap .form-select.is-invalid ~ .proveedor-valid-icon,
+.proveedor-input-wrap.is-error .proveedor-valid-icon,
+.proveedor-input-wrap.has-error .proveedor-valid-icon {
+    display: none !important;
+}
+
+/* TEXTO DE ERROR */
+.proveedor-field-error,
+.text-danger.small {
+    display: block;
+    margin-top: 0.4rem;
+    color: #dc3545 !important;
+    font-size: 0.875rem !important;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.proveedor-field-error ul,
+.text-danger.small ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.proveedor-field-error li,
+.text-danger.small li {
+    margin: 0;
+}
+
 /* ==========================================
    MODAL AJAX PROVEEDOR - ESTILO MONA
 ========================================== */
@@ -260,7 +375,7 @@ select.is-valid:focus,
     justify-content: center;
     color: #fff;
     background: transparent;
-    border: 1.5px solid rgba(255,255,255,.75);
+    border: 1.5px solid rgba(255, 255, 255, .75);
     flex-shrink: 0;
 }
 
@@ -280,7 +395,7 @@ select.is-valid:focus,
 
 .ultra-modal .ultra-subtitle {
     font-size: 12px;
-    color: rgba(255,255,255,.78);
+    color: rgba(255, 255, 255, .78);
     margin-top: 2px;
     line-height: 1.2;
 }
@@ -304,12 +419,13 @@ select.is-valid:focus,
     padding: 24px 26px !important;
 }
 
-/* footer opcional si luego lo usas */
+/* FOOTER OPCIONAL */
 .ultra-modal .modal-footer {
     border-top: 1px solid #f0e8e2;
     padding: 16px 24px 22px;
     background: #fff;
-}   
+}
+
 /* ==========================================
    TOP DEL FORMULARIO DENTRO DEL MODAL
 ========================================== */
@@ -339,6 +455,7 @@ select.is-valid:focus,
     font-weight: 700;
     color: #382822;
 }
+
 /* ==============================
    ANIMACIÓN BOTÓN CERRAR MODAL
 ============================== */
@@ -352,4 +469,4 @@ select.is-valid:focus,
 .proveedor-detail-header .btn-close:hover {
     transform: rotate(90deg) scale(1.08);
     opacity: 1;
-} 
+}

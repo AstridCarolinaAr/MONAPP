@@ -574,3 +574,88 @@ textarea.form-control {
         background-color: rgba(99, 76, 64, 0.1);
         color: #634c40 !important;
     }
+/* =========================================
+   VALIDACION EN TIEMPO REAL - SERVICIOS
+========================================= */
+
+.servicio-input-wrap {
+    position: relative;
+}
+
+.servicio-input-wrap .form-control,
+.servicio-input-wrap .form-select {
+    padding-right: 2.6rem;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+.servicio-field-icon {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.servicio-input-wrap textarea.form-control + .servicio-field-icon {
+    top: 1rem;
+    transform: none;
+}
+
+.servicio-input-wrap.is-valid .servicio-field-icon,
+.servicio-input-wrap.is-invalid .servicio-field-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.servicio-input-wrap.is-valid .servicio-field-icon {
+    color: #198754;
+}
+
+.servicio-input-wrap.is-invalid .servicio-field-icon {
+    color: #dc3545;
+}
+
+.servicio-valid-control {
+    border: 2px solid #198754 !important;
+}
+
+.servicio-valid-control:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+.servicio-invalid-control {
+    border: 2px solid #dc3545 !important;
+}
+
+.servicio-invalid-control:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.servicio-field-error {
+    display: none;
+    margin-top: 0.4rem;
+    color: #dc3545;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.servicio-field-error.is-visible {
+    display: block;
+}
+
+.servicio-field-error ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.servicio-field-error li {
+    margin: 0;
+}

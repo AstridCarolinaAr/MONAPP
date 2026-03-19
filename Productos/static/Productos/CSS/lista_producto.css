@@ -477,27 +477,6 @@ h2 {
 }
 .zoom-close:hover{ opacity: 1; }
 
-.form-validate{ 
-  position: relative;
-}
-
-.form-validated .form-control,
-.form-validated .form-select {
-  padding-right: 2.2rem;
-}
-
-.valid-check {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  pointer-events: none;
-}
-.form_validated.is-ok .valid-check{
-  display: inline-block
-}
-
 /* Dropzone  */
 
 .dropdwon-menu {
@@ -1495,4 +1474,128 @@ z-index:2000 !important;
 
 .styled-table td .estado-switch.is-off .switch-thumb {
   left: 2px;
+}
+
+/* =========================================
+   VALIDACION VISUAL PRODUCTOS
+   verde completo cuando está bien
+   rojo completo con icono circular cuando está mal
+========================================= */
+
+.producto-form .producto-input-wrap{
+  position: relative;
+}
+
+.producto-form .producto-input-wrap > .form-control,
+.producto-form .producto-input-wrap > .form-select,
+.producto-form .producto-input-wrap > input,
+.producto-form .producto-input-wrap > select,
+.producto-form .producto-input-wrap > textarea,
+.producto-form .producto-input-wrap > .input-group > .form-control,
+.producto-form .producto-input-wrap > .input-group > .form-select,
+.producto-form .producto-input-wrap > .select-pro > .form-select,
+.producto-form .producto-input-wrap > .select-pro > select{
+  padding-right: 2.6rem !important;
+  background-image: none !important;
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+}
+
+.producto-form .producto-valid-icon,
+.producto-form .producto-invalid-icon{
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  pointer-events: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.producto-form .producto-valid-icon i{
+  color: #198754 !important;
+  font-size: 1.05rem !important;
+  line-height: 1 !important;
+}
+
+.producto-form .producto-invalid-icon i{
+  color: #dc3545 !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+}
+
+.producto-form .producto-input-wrap.is-ok .producto-valid-icon{
+  display: inline-flex !important;
+}
+
+.producto-form .producto-input-wrap.is-error .producto-invalid-icon{
+  display: inline-flex !important;
+}
+
+.producto-form .producto-input-wrap.is-ok .producto-invalid-icon{
+  display: none !important;
+}
+
+.producto-form .producto-input-wrap.is-error .producto-valid-icon{
+  display: none !important;
+}
+
+/* VERDE COMPLETO */
+.producto-form .producto-input-wrap.is-ok .form-control,
+.producto-form .producto-input-wrap.is-ok .form-select,
+.producto-form .producto-input-wrap.is-ok input,
+.producto-form .producto-input-wrap.is-ok select,
+.producto-form .producto-input-wrap.is-ok textarea{
+  border: 2px solid #198754 !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.producto-form .producto-input-wrap.is-ok .form-control:focus,
+.producto-form .producto-input-wrap.is-ok .form-select:focus,
+.producto-form .producto-input-wrap.is-ok input:focus,
+.producto-form .producto-input-wrap.is-ok select:focus,
+.producto-form .producto-input-wrap.is-ok textarea:focus{
+  border-color: #198754 !important;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+/* ROJO COMPLETO */
+.producto-form .producto-input-wrap.is-error .form-control,
+.producto-form .producto-input-wrap.is-error .form-select,
+.producto-form .producto-input-wrap.is-error input,
+.producto-form .producto-input-wrap.is-error select,
+.producto-form .producto-input-wrap.is-error textarea{
+  border: 2px solid #dc3545 !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.producto-form .producto-input-wrap.is-error .form-control:focus,
+.producto-form .producto-input-wrap.is-error .form-select:focus,
+.producto-form .producto-input-wrap.is-error input:focus,
+.producto-form .producto-input-wrap.is-error select:focus,
+.producto-form .producto-input-wrap.is-error textarea:focus{
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.producto-form .producto-field-error{
+  display: none;
+  margin-top: 0.4rem;
+  color: #dc3545 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.producto-form .producto-field-error.is-visible{
+  display: block;
 }

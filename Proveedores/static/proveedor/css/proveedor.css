@@ -836,126 +836,146 @@ a.proveedores-btn-add {
    VALIDACIÓN PROVEEDOR
    SOLO CHULO, SIN CÍRCULO, SIN FONDO
 ================================= */
-#ajaxFormModal #proveedorForm .form-validated {
+/* =========================================
+   AJUSTE FINAL VALIDACION PROVEEDOR
+========================================= */
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap {
     position: relative;
 }
 
-#ajaxFormModal #proveedorForm .form-validated input,
-#ajaxFormModal #proveedorForm .form-validated select,
-#ajaxFormModal #proveedorForm .form-validated textarea,
-#ajaxFormModal #proveedorForm .form-validated .form-control,
-#ajaxFormModal #proveedorForm .form-validated .form-select {
-    padding-right: 30px !important;
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea {
+    padding-right: 2.6rem !important;
+    background-image: none !important;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
 }
 
-/* chulo personalizado */
-#ajaxFormModal #proveedorForm .form-validated .valid-check {
+#ajaxFormModal #proveedorForm .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-invalid-icon {
     position: absolute;
-    right: 10px;
+    right: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
     z-index: 5;
-    opacity: 0;
     pointer-events: none;
-
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
-
-    width: 14px !important;
-    height: 14px !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
-
-    padding: 0 !important;
-    margin: 0 !important;
+    line-height: 1;
     background: transparent !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-#ajaxFormModal #proveedorForm .form-validated.is-ok .valid-check {
-    opacity: 1;
-}
-
-#ajaxFormModal #proveedorForm .form-validated .valid-check svg,
-#ajaxFormModal #proveedorForm .valid-check-svg {
-    display: block !important;
-    width: 14px !important;
-    height: 14px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: transparent !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-/* error */
-#ajaxFormModal #proveedorForm input.is-invalid,
-#ajaxFormModal #proveedorForm select.is-invalid,
-#ajaxFormModal #proveedorForm textarea.is-invalid,
-#ajaxFormModal #proveedorForm .form-control.is-invalid,
-#ajaxFormModal #proveedorForm .form-select.is-invalid {
-    border-color: #c0392b !important;
-    background-color: #fffafa !important;
-    background-image: none !important;
+    border: none !important;
     box-shadow: none !important;
 }
 
-/* MATA cualquier validación visual positiva de Bootstrap */
-#ajaxFormModal #proveedorForm input,
-#ajaxFormModal #proveedorForm select,
-#ajaxFormModal #proveedorForm textarea,
-#ajaxFormModal #proveedorForm .form-control,
-#ajaxFormModal #proveedorForm .form-select,
-#ajaxFormModal #proveedorForm input.is-valid,
-#ajaxFormModal #proveedorForm select.is-valid,
-#ajaxFormModal #proveedorForm textarea.is-valid,
-#ajaxFormModal #proveedorForm .form-control.is-valid,
-#ajaxFormModal #proveedorForm .form-select.is-valid,
-#ajaxFormModal #proveedorForm input:valid,
-#ajaxFormModal #proveedorForm select:valid,
-#ajaxFormModal #proveedorForm textarea:valid,
-#ajaxFormModal #proveedorForm .form-control:valid,
-#ajaxFormModal #proveedorForm .form-select:valid,
-#ajaxFormModal #proveedorForm.was-validated input:valid,
-#ajaxFormModal #proveedorForm.was-validated select:valid,
-#ajaxFormModal #proveedorForm.was-validated textarea:valid,
-#ajaxFormModal #proveedorForm.was-validated .form-control:valid,
-#ajaxFormModal #proveedorForm.was-validated .form-select:valid {
-    background-image: none !important;
-    box-shadow: none !important;
+#ajaxFormModal #proveedorForm .proveedor-valid-icon i {
+    color: #198754 !important;
+    font-size: 1.05rem !important;
+    line-height: 1 !important;
 }
 
-#ajaxFormModal #proveedorForm input.is-valid,
-#ajaxFormModal #proveedorForm select.is-valid,
-#ajaxFormModal #proveedorForm textarea.is-valid,
-#ajaxFormModal #proveedorForm .form-control.is-valid,
-#ajaxFormModal #proveedorForm .form-select.is-valid,
-#ajaxFormModal #proveedorForm input:valid,
-#ajaxFormModal #proveedorForm select:valid,
-#ajaxFormModal #proveedorForm textarea:valid,
-#ajaxFormModal #proveedorForm .form-control:valid,
-#ajaxFormModal #proveedorForm .form-select:valid,
-#ajaxFormModal #proveedorForm.was-validated input:valid,
-#ajaxFormModal #proveedorForm.was-validated select:valid,
-#ajaxFormModal #proveedorForm.was-validated textarea:valid,
-#ajaxFormModal #proveedorForm.was-validated .form-control:valid,
-#ajaxFormModal #proveedorForm.was-validated .form-select:valid {
-    border-color: #d6cfc9 !important;
+#ajaxFormModal #proveedorForm .proveedor-invalid-icon i {
+    color: #dc3545 !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid ~ .proveedor-valid-icon {
+    display: inline-flex !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid ~ .proveedor-invalid-icon {
+    display: inline-flex !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid ~ .proveedor-invalid-icon {
+    display: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid ~ .proveedor-valid-icon {
+    display: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .form-control,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok input,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok textarea,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid {
+    border: 2px solid #198754 !important;
     background-color: #fff !important;
+    background-image: none !important;
+    box-shadow: none !important;
 }
 
-/* feedback */
-#ajaxFormModal #proveedorForm .invalid-feedback,
-#ajaxFormModal #proveedorForm .form-error,
-#ajaxFormModal #proveedorForm .text-danger.small {
-    font-size: 12px;
-    line-height: 1.2;
-    color: #c0392b !important;
-    margin-top: 4px;
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .form-control:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok input:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok select:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok textarea:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .form-control,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error input,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error textarea,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid {
+    border: 2px solid #dc3545 !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .form-control:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error input:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error select:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error textarea:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-field-error {
+    display: none;
+    margin-top: 0.4rem;
+    color: #dc3545 !important;
+    font-size: 0.875rem !important;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-field-error.is-visible {
+    display: block;
 }

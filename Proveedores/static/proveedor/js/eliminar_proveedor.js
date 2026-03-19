@@ -552,10 +552,10 @@
         }
 
         modalTitleEl.textContent = result.data.title || modalTitleEl.textContent;
-        modalBodyEl.innerHTML =
-          result.data.html || `<div class="alert alert-danger mb-0">No se pudo guardar.</div>`;
-
-        if (window.ProveedorFormulario) window.ProveedorFormulario.init(modalEl);
+        modalBodyEl.innerHTML = result.data.html || `<div class="alert alert-danger mb-0">No se pudo guardar.</div>`;
+        if (window.ProveedorFormulario) {
+          window.ProveedorFormulario.init(modalBodyEl);
+        }
         return;
       }
 

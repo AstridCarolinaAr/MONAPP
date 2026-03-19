@@ -26,41 +26,72 @@ function inicializarValidacionesPersonal() {
     /* ===============================
        FUNCIONES VISUALES
     =============================== */
+    function getWrap(input) {
+        return input?.closest('.personal-input-wrap') || null;
+    }
+
+    function getFeedback(input) {
+        const group = input.closest('.personal-form-group');
+        if (!group) return null;
+
+        let feedback = group.querySelector('.personal-field-error');
+        if (!feedback) {
+            feedback = document.createElement('div');
+            feedback.className = 'personal-field-error';
+            group.appendChild(feedback);
+        }
+        return feedback;
+    }
+
     function invalido(input, mensaje) {
         input.classList.add('is-invalid');
         input.classList.remove('is-valid');
-        let feedback = input.parentElement.querySelector('.invalid-feedback');
-        if (!feedback) {
-            feedback = document.createElement('div');
-            feedback.className = 'invalid-feedback';
-            feedback.style.cssText = 'color: #c7412b; font-size: 0.85rem; margin-top: 6px; display: block;';
-            const small = input.parentElement.querySelector('small');
-            if (small) {
-                small.parentNode.insertBefore(feedback, small.nextSibling);
-            } else {
-                input.parentElement.appendChild(feedback);
-            }
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-ok');
+            wrap.classList.add('is-error');
         }
-        feedback.textContent = mensaje;
-        feedback.style.display = 'block';
+
+        const feedback = getFeedback(input);
+        if (feedback) {
+            feedback.textContent = mensaje;
+            feedback.classList.add('is-visible');
+        }
     }
 
     function valido(input) {
         input.classList.remove('is-invalid');
         input.classList.add('is-valid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-error');
+            wrap.classList.add('is-ok');
+        }
+
+        const feedback = getFeedback(input);
         if (feedback) {
             feedback.textContent = '';
-            feedback.style.display = 'none';
+            feedback.classList.remove('is-visible');
         }
     }
 
     function limpiar(input) {
         input.classList.remove('is-invalid', 'is-valid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-ok', 'is-error');
+        }
+
+        const feedback = getFeedback(input);
         if (feedback) {
             feedback.textContent = '';
-            feedback.style.display = 'none';
+            feedback.classList.remove('is-visible');
         }
     }
 
