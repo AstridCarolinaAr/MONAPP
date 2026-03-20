@@ -137,10 +137,54 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 .pw-search .form-control:focus { border-color: #8d604a; box-shadow: 0 0 0 0.2rem rgba(141,96,74,.15); outline: none; }
 .pw-search .bi-search { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9a8579; }
 
-/* Responsive */
+/* ── Responsive ── */
+
+/* Tablet (≤ 992px) */
+@media (max-width: 992px) {
+    .pw-table thead th:nth-child(4),
+    .pw-table tbody td:nth-child(4) { display: none; } /* Ocultar Descripción */
+}
+
+/* Móvil grande (≤ 768px) */
 @media (max-width: 768px) {
     .pw-fab { bottom: 20px; right: 20px; }
     .pw-thumb, .pw-thumb-placeholder { width: 42px; height: 42px; }
+    .pw-thumb-placeholder { font-size: 1.1rem; }
+
+    /* Header: apila título y botón */
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: .5rem;
+    }
+    .d-flex.justify-content-between.align-items-center.mb-4 > button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Barra de búsqueda ocupa todo el ancho */
+    .pw-search { max-width: 100% !important; width: 100%; }
+
+    /* Celda compacta */
+    .pw-table thead th { padding: 10px 8px; font-size: .78rem; }
+    .pw-table tbody td { padding: 8px 8px; font-size: .82rem; }
+    .pw-actions { gap: 2px; }
+    .pw-actions .btn-sm { padding: 5px 6px; }
+}
+
+/* Móvil pequeño (≤ 480px) */
+@media (max-width: 480px) {
+    /* Ocultar columna Estado (switch) — se puede gestionar desde el detalle */
+    .pw-table thead th:nth-child(5),
+    .pw-table tbody td:nth-child(5) { display: none; }
+
+    .pw-table thead th { font-size: .72rem; padding: 8px 6px; }
+    .pw-table tbody td { font-size: .76rem; padding: 6px 6px; }
+    .pw-actions .btn-sm { padding: 4px 5px; }
+
+    /* Dropzone más compacto en modales */
+    .pw-dropzone { padding: 24px 16px; }
+    .pw-dropzone i { font-size: 2.5rem; }
 }
 
 /* Validación de precio */

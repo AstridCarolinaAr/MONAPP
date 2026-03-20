@@ -603,41 +603,117 @@
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
 }
 
-/* ---- Responsive ---- */
+/* ==========================================
+   RESPONSIVE — Backup Module
+   ========================================== */
+
+/* Tablet landscape (≤ 992px) */
+@media (max-width: 992px) {
+    .bk-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bk-tipo-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Ocultar columna Tamaño en tablet */
+    .bk-table thead th:nth-child(4),
+    .bk-table tbody td:nth-child(4) { display: none; }
+}
+
+/* Tablet portrait / móvil grande (≤ 768px) */
 @media (max-width: 768px) {
     .bk-page-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
     }
 
-    .bk-stats-row {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .bk-tipo-selector {
-        grid-template-columns: 1fr;
+    .bk-page-header h1 {
+        font-size: 1.3rem;
     }
 
     .bk-header-actions {
         width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .bk-header-actions .bk-btn {
         flex: 1;
         justify-content: center;
+        min-width: 140px;
+    }
+
+    .bk-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .bk-tipo-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bk-tipo-option label {
+        padding: 14px 8px;
+    }
+
+    .bk-detail-grid {
+        grid-template-columns: 1fr;
     }
 
     .bk-db-grid {
         grid-template-columns: 1fr 1fr;
     }
+
+    /* Tabla: ocultar columna Tipo en móvil */
+    .bk-table thead th:nth-child(2),
+    .bk-table tbody td:nth-child(2) { display: none; }
+
+    .bk-table thead th { padding: 7px 8px; font-size: .7rem; }
+    .bk-table tbody td { padding: 7px 8px; font-size: .8rem; }
+
+    /* Acciones en tabla pueden apilar */
+    .bk-actions { flex-wrap: wrap; gap: 4px; }
+    .bk-actions .bk-btn { font-size: .75rem; padding: 5px 8px; }
+
+    /* Card body más compacto */
+    .bk-card-body { padding: 12px; }
+
+    /* Switch rows en pantalla pequeña */
+    .bk-switch-row { flex-wrap: wrap; gap: 8px; }
 }
 
+/* Móvil pequeño (≤ 480px) */
 @media (max-width: 480px) {
+    .bk-page-header h1 { font-size: 1.1rem; }
+
+    .bk-header-actions { flex-direction: column; }
+    .bk-header-actions .bk-btn { width: 100%; min-width: unset; }
+
     .bk-stats-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
     }
 
-    .bk-db-grid {
-        grid-template-columns: 1fr;
-    }
+    .bk-stat-card { padding: 10px 12px; gap: 8px; }
+    .bk-stat-info h3 { font-size: 1rem; }
+    .bk-stat-info p  { font-size: .68rem; }
+    .bk-stat-icon    { width: 34px; height: 34px; font-size: .9rem; }
+
+    .bk-db-grid { grid-template-columns: 1fr; }
+
+    .bk-tipo-selector { grid-template-columns: 1fr; }
+    .bk-tipo-option label { flex-direction: row; padding: 12px 14px; gap: 12px; justify-content: flex-start; text-align: left; }
+    .bk-tipo-option label i { font-size: 1.3rem; }
+
+    .bk-table thead th { font-size: .68rem; padding: 6px 6px; }
+    .bk-table tbody td { font-size: .76rem; padding: 6px 6px; }
+
+    .bk-btn { font-size: .8rem; padding: 8px 14px; gap: 6px; }
+    .bk-btn.sm { padding: 5px 10px; font-size: .74rem; }
+    .bk-btn.icon-only { padding: 7px 8px; }
 }
+

@@ -541,35 +541,108 @@
     color: #666;
 }
 
+/* ==================== FORMULARIO — GRID UTILITARIOS ==================== */
+.personal-form-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.personal-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
 /* ==================== RESPONSIVE ==================== */
+
+/* Tablet landscape (≤ 1200px) */
 @media (max-width: 1200px) {
     .personal-search-form {
         grid-template-columns: 1fr;
     }
+    .personal-search-card {
+        padding: 24px 28px;
+    }
 }
 
+/* Tablet portrait (≤ 900px) */
 @media (max-width: 900px) {
     .personal-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 20px;
+        gap: 16px;
+        margin-bottom: 36px;
+        padding-bottom: 20px;
     }
-
+    .personal-header .personal-btn {
+        width: 100%;
+        justify-content: center;
+    }
     .personal-detail-grid {
         grid-template-columns: 1fr;
+        gap: 0;
     }
-
     .personal-table-wrapper {
         overflow-x: auto;
     }
-
     .personal-container {
         padding: 0 20px;
     }
+    .personal-card {
+        padding: 24px;
+    }
+    .personal-card-header {
+        padding: 18px 24px;
+        margin: -24px -24px 24px -24px;
+    }
+    /* Ocultar columna Correo en tablet */
+    .personal-table thead th:nth-child(5),
+    .personal-table tbody td:nth-child(5) { display: none; }
 }
 
-@media (max-width: 600px) {
-    .personal-action-group {
+/* Móvil grande (≤ 768px) */
+@media (max-width: 768px) {
+    .personal-wrapper {
+        padding-top: 20px;
+        padding-bottom: 40px;
+    }
+    .personal-container {
+        padding: 0 14px;
+    }
+    .personal-header {
+        margin-bottom: 24px;
+    }
+    .personal-search-card {
+        padding: 18px 16px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+    }
+    /* Ocultar también Teléfono en móvil */
+    .personal-table thead th:nth-child(4),
+    .personal-table tbody td:nth-child(4) { display: none; }
+
+    .personal-table thead th { padding: 14px 12px; font-size: .82rem; }
+    .personal-table tbody td { padding: 14px 12px; font-size: .88rem; }
+    .personal-action-btn { width: 32px; height: 32px; font-size: .82rem; }
+
+    /* Formulario — colapsar grids de 2 cols */
+    .personal-form-2col { grid-template-columns: 1fr; }
+    .personal-form-actions {
         flex-direction: column;
     }
+    .personal-form-actions .personal-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Móvil pequeño (≤ 480px) */
+@media (max-width: 480px) {
+    .personal-container { padding: 0 10px; }
+    .personal-table thead th { padding: 10px 8px; font-size: .78rem; }
+    .personal-table tbody td { padding: 10px 8px; font-size: .82rem; }
+    .personal-btn { padding: 12px 24px; font-size: .92rem; }
+    .personal-action-group { gap: 4px; }
 }

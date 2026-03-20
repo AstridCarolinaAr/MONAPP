@@ -293,10 +293,61 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
     color: #9a8579;
 }
 
-/* Responsive */
+/* ── Responsive ── */
+
+/* Tablet (≤ 992px) */
+@media (max-width: 992px) {
+    /* Ocultar Fecha Inicio y Fecha Fin */
+    .promo-table thead th:nth-child(5),
+    .promo-table tbody td:nth-child(5),
+    .promo-table thead th:nth-child(6),
+    .promo-table tbody td:nth-child(6) { display: none; }
+}
+
+/* Móvil grande (≤ 768px) */
 @media (max-width: 768px) {
     .promo-thumb, .promo-thumb-placeholder { width: 42px; height: 42px; }
     .promo-thumb-placeholder i { font-size: 1.1rem; }
+
+    /* Header: apila título y botón */
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: .5rem;
+    }
+    .d-flex.justify-content-between.align-items-center.mb-4 > .promo-fab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Barra de búsqueda ocupa todo el ancho */
+    .promo-search { max-width: 100% !important; width: 100%; }
+
+    /* Ocultar Etiqueta en móvil */
+    .promo-table thead th:nth-child(3),
+    .promo-table tbody td:nth-child(3) { display: none; }
+
+    /* Celda compacta */
+    .promo-table thead th { padding: 10px 8px; font-size: .78rem; }
+    .promo-table tbody td { padding: 8px 8px; font-size: .82rem; }
+    .promo-actions { gap: 2px; }
+    .promo-actions .btn-sm { padding: 5px 6px; }
+    .promo-actions .btn-link { padding: 5px 6px !important; }
+
+    /* Dropzone compacto en modales */
+    .promo-dropzone { padding: 24px 16px; }
+    .promo-dropzone i.bi-cloud-arrow-up { font-size: 2.5rem; }
+}
+
+/* Móvil pequeño (≤ 480px) */
+@media (max-width: 480px) {
+    /* Ocultar Descuento también */
+    .promo-table thead th:nth-child(4),
+    .promo-table tbody td:nth-child(4) { display: none; }
+
+    .promo-table thead th { font-size: .72rem; padding: 8px 6px; }
+    .promo-table tbody td { font-size: .76rem; padding: 6px 6px; }
+    .promo-actions .btn-sm { padding: 4px 5px; }
 }
 
 /* Estilos adicionales café */

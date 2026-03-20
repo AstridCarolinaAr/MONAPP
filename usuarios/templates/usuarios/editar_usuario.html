@@ -3,6 +3,32 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── Responsive editar_usuario ── */
+@media (max-width: 768px) {
+    /* Header: apila título y botón Volver */
+    .row.mb-4 .col-md-4.text-end {
+        text-align: left !important;
+        margin-top: 8px;
+    }
+    .row.mb-4 .col-md-4.text-end a {
+        width: 100%;
+        display: inline-block;
+    }
+    h1.display-6 { font-size: 1.5rem; }
+    /* Botones del footer al full width */
+    .mt-4.text-end {
+        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+    }
+    .mt-4.text-end .btn { width: 100%; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
 	<div class="row mb-4">

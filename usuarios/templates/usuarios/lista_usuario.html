@@ -3,6 +3,46 @@
 
 {% block title %}Lista de usuarios{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── Responsive lista_usuario ── */
+
+/* Ocultar columna Teléfono en tablet (< 992px) */
+@media (max-width: 992px) {
+    .table thead th:nth-child(4),
+    .table tbody td:nth-child(4) { display: none; }
+}
+
+/* Móvil grande (< 768px) */
+@media (max-width: 768px) {
+    /* Header: botones debajo del título */
+    .row.mb-4 .col-md-6.text-end {
+        text-align: left !important;
+        margin-top: 8px;
+    }
+    .row.mb-4 .col-md-6.text-end .btn {
+        width: 100%;
+        margin-bottom: 6px;
+    }
+    /* Ocultar Fecha Registro */
+    .table thead th:nth-child(5),
+    .table tbody td:nth-child(5) { display: none; }
+    /* Foto en lista más compacta */
+    .rounded-circle { width: 28px !important; height: 28px !important; }
+    .table td, .table th { font-size: .85rem; padding: .5rem .5rem; }
+}
+
+/* Móvil pequeño (< 480px) */
+@media (max-width: 480px) {
+    /* Ocultar email */
+    .table thead th:nth-child(3),
+    .table tbody td:nth-child(3) { display: none; }
+    .table td, .table th { font-size: .8rem; padding: .4rem .4rem; }
+    .btn-sm { padding: .3rem .45rem; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
     <!-- Header -->

@@ -170,6 +170,20 @@
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Responsive formulario ── */
+@media (max-width: 768px) {
+    .pw-form-card { border-radius: 10px; }
+    .pw-form-card .card-body { padding: 16px !important; }
+    .pw-form-card .card-header { padding: 14px 16px; font-size: .95rem; }
+    .pw-dropzone { padding: 24px 16px; }
+    .pw-dropzone i { font-size: 2.5rem; }
+    .pw-dropzone .upload-text { font-size: .95rem; }
+}
+@media (max-width: 480px) {
+    .pw-dropzone { padding: 18px 12px; }
+    .pw-dropzone i { font-size: 2rem; }
+}
 </style>
 {% endblock %}
 
