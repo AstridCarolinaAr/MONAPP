@@ -11,49 +11,63 @@ from .forms import PersonalForm, PersonalBusquedaForm
 @login_required
 def lista_personal(request):
     """Lista todo el personal con búsqueda y filtrado"""
-    grupos = list(request.user.groups.values_list('name', flat=True))
-    
+    q = request.GET.get("q", "").strip()
+    current_sort = request.GET.get("sort", "")
+    current_dir = request.GET.get("dir", "")
+    grupos = list(request.user.groups.values_list("name", flat=True))
+
     # Verificar si el usuario actual es Administrador (puede eliminar)
-    es_administrador = request.user.is_superuser or 'Administrador' in grupos
-    
+    es_administrador = request.user.is_superuser or "Administrador" in grupos
+
     # Verificar si puede crear/editar (Administrador o Auxiliar)
-    puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
-    
+    puede_modificar = (
+        request.user.is_superuser
+        or "Administrador" in grupos
+        or "Auxiliar" in grupos
+    )
+
     personal_list = Personal.objects.all()
-    form = PersonalBusquedaForm(request.GET)
-    
+    form = PersonalBusquedaForm(request.GET or None)
+
+    filtro = ""
     if form.is_valid():
-        busqueda = form.cleaned_data.get('busqueda')
-        filtro = form.cleaned_data.get('filtro')
-        
-        if busqueda:
-            personal_list = personal_list.filter(
-                Q(numero_documento__icontains=busqueda) |
-                Q(nombres__icontains=busqueda) |
-                Q(apellidos__icontains=busqueda) |
-                Q(telefono__icontains=busqueda) |
-                Q(correo__icontains=busqueda) |
-                Q(id__icontains=busqueda)
-            )
-        
-        if filtro:
-            if filtro == 'activo':
-                personal_list = personal_list.filter(activo=True)
-            elif filtro == 'inactivo':
-                personal_list = personal_list.filter(activo=False)
-            elif filtro.startswith('rol_'):
-                rol_valor = filtro.replace('rol_', '')
-                personal_list = personal_list.filter(rol=rol_valor)
-    
+        filtro = form.cleaned_data.get("filtro")
+
+    # BUSQUEDA GLOBAL
+    if q:
+        personal_list = personal_list.filter(
+            Q(numero_documento__icontains=q) |
+            Q(nombres__icontains=q) |
+            Q(apellidos__icontains=q) |
+            Q(telefono__icontains=q) |
+            Q(correo__icontains=q) |
+            Q(id__icontains=q)
+        )
+
+    # FILTRO
+    if filtro:
+        if filtro == "activo":
+            personal_list = personal_list.filter(activo=True)
+        elif filtro == "inactivo":
+            personal_list = personal_list.filter(activo=False)
+        elif filtro.startswith("rol_"):
+            rol_valor = filtro.replace("rol_", "")
+            personal_list = personal_list.filter(rol=rol_valor)
+
     context = {
-        'personal_list': personal_list,
-        'form': form,
-        'es_administrador': es_administrador,
-        'puede_modificar': puede_modificar,
+        "personal_list": personal_list,
+        "form": form,
+        "q": q,
+        "puede_modificar": puede_modificar,
+        "es_administrador": es_administrador,
+        "current_sort": current_sort,
+        "current_dir": current_dir,
     }
-    return render(request, 'personal/lista_personal.html', context)
 
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return render(request, "personal/lista_personal_global.html", context)
 
+    return render(request, "personal/lista_personal.html", context)
 @login_required
 def crear_personal(request):
     """Crear nuevo personal"""

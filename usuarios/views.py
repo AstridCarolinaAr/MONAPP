@@ -1,6 +1,5 @@
 import re
 import socket
-from urllib.parse import urlencode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -11,7 +10,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
+from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm, UsuarioBusquedaForm
 from .models import PerfilUsuario
 import random
 from django.utils import timezone
@@ -34,35 +33,17 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
 
-    if request.method == 'GET':
-        query = {'login': '1'}
-        if request.GET.get('next'):
-            query['next'] = request.GET.get('next')
-        return redirect(f"{redirect('core:index').url}?{urlencode(query)}")
-
     if request.method == 'POST':
-        if request.POST.get('captcha_verified') != '1':
-            messages.error(request, 'Debes verificar el captcha antes de ingresar.')
-            redirect_url = request.META.get('HTTP_REFERER') or redirect('core:index').url
-            separator = '&' if '?' in redirect_url else '?'
-            if 'login=1' not in redirect_url:
-                redirect_url = f"{redirect_url}{separator}login=1"
-            return redirect(redirect_url)
-
         form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect(request.POST.get('next') or 'core:dashboard')
+            return redirect('core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
         # Redirigir de vuelta a la página donde estaba el usuario para que el modal se pueda reabrir
-        redirect_url = request.META.get('HTTP_REFERER') or redirect('core:index').url
-        separator = '&' if '?' in redirect_url else '?'
-        if 'login=1' not in redirect_url:
-            redirect_url = f"{redirect_url}{separator}login=1"
-        return redirect(redirect_url)
+        return redirect(request.META.get('HTTP_REFERER', 'core:index'))
     else:
         # Para peticiones GET, creamos un formulario vacío
         form = LoginForm()
@@ -279,40 +260,54 @@ def username_recovery_view(request):
 @login_required
 def lista_usuarios_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
-    
-    # Verificar si el usuario actual es Administrador (puede eliminar)
-    es_administrador = request.user.is_superuser or 'Administrador' in grupos
-    
-    # Verificar si puede crear/editar (no colaborador)
-    puede_modificar = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
 
-    busqueda = request.GET.get('buscar', '')
+    es_administrador = request.user.is_superuser or 'Administrador' in grupos
+    puede_modificar  = request.user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
+
+    # ✅ form se crea PRIMERO
+    form = UsuarioBusquedaForm(request.GET)
 
     usuarios = User.objects.select_related('perfil').all()
 
-    if busqueda:
-        usuarios = usuarios.filter(
-            Q(username__icontains=busqueda) |
-            Q(first_name__icontains=busqueda) |
-            Q(last_name__icontains=busqueda) |
-            Q(email__icontains=busqueda) |
-            Q(perfil__documento__icontains=busqueda)
-        )
+    if form.is_valid():
+        busqueda = form.cleaned_data.get('busqueda')
+        filtro   = form.cleaned_data.get('filtro')
+
+        if busqueda:
+            usuarios = usuarios.filter(
+                Q(username__icontains=busqueda)   |
+                Q(first_name__icontains=busqueda) |
+                Q(last_name__icontains=busqueda)  |
+                Q(email__icontains=busqueda)      |
+                Q(perfil__documento__icontains=busqueda)
+            )
+
+        if filtro:
+            if filtro == 'activo':
+                usuarios = usuarios.filter(is_active=True)
+            elif filtro == 'inactivo':
+                usuarios = usuarios.filter(is_active=False)
+            elif filtro.startswith('rol_'):
+                rol_valor = filtro.replace('rol_', '')
+                usuarios = usuarios.filter(groups__name=rol_valor)
 
     usuarios = usuarios.order_by('-date_joined')
 
-    return render(
-        request,
-        'usuarios/lista_usuarios.html',
-        {
-            'titulo': 'Gestión de Usuarios',
-            'usuarios': usuarios,
-            'busqueda': busqueda,
-            'es_administrador': es_administrador,
-            'puede_modificar': puede_modificar,
-        }
-    )
+    q = form.cleaned_data.get('busqueda', '') if form.is_valid() else ''
 
+    context = {
+        'titulo'          : 'Gestión de Usuarios',
+        'usuarios'        : usuarios,
+        'form'            : form,
+        'es_administrador': es_administrador,
+        'puede_modificar' : puede_modificar,
+        'q'               : q,
+    }
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'usuarios/_lista_partial.html', context)
+
+    return render(request, 'usuarios/lista_usuarios.html', context)
 
 @login_required
 #@no_colaborador_required()

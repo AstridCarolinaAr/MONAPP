@@ -9,16 +9,26 @@ from gestion_alisados.forms import GestionAlisadoForm
 from servicios_web.models import ServicioWeb
 def es_staff(user):
     return user.is_staff
-
 @login_required
 def lista_servicios(request):
     servicios = Servicio.objects.all()
-    context = {
-        'servicios': servicios
-    }
+    q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '').strip()
+
+    if q:
+        servicios = servicios.filter(nombre__icontains=q)
+    if estado == 'activo':
+        servicios = servicios.filter(activo=True)
+    elif estado == 'inactivo':
+        servicios = servicios.filter(activo=False)
+
+    context = {'servicios': servicios, 'q': q, 'estado': estado}
+
+    # Si es petición AJAX, devuelve solo el parcial
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'servicios/lista_servicios_global.html', context)
+
     return render(request, 'servicios/lista_servicios.html', context)
-
-
 @login_required
 def crear_servicio(request):
     is_modal = request.GET.get('modal') == '1'

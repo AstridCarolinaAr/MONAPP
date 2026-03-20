@@ -1,0 +1,91 @@
+
+{% load humanize %}
+
+{% if servicios %}
+
+<!-- GRID VIEW -->
+<div id="viewGrid">
+    {% for servicio in servicios %}
+    <div class="lib-card"
+        data-nombre="{{ servicio.nombre|lower }}"
+        data-estado="{% if servicio.activo %}activo{% else %}inactivo{% endif %}">
+        <div class="lib-card__img-wrap">
+            {% if servicio.imagen %}
+                <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}">
+            {% else %}
+                <div class="lib-card__placeholder"><i class="bi bi-scissors"></i></div>
+            {% endif %}
+            <span class="lib-card__status {% if servicio.activo %}lib-card__status--active{% else %}lib-card__status--inactive{% endif %}">
+                {% if servicio.activo %}Activo{% else %}Inactivo{% endif %}
+            </span>
+            <div class="lib-card__actions">
+                <button class="lib-card__action-btn lib-card__action-btn--edit" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="lib-card__action-btn lib-card__action-btn--del" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="lib-card__body">
+            <div class="lib-card__name" title="{{ servicio.nombre }}">{{ servicio.nombre }}</div>
+            <div class="lib-card__footer">
+                <span class="lib-card__price">${{ servicio.precio|floatformat:2 }}</span>
+                <label class="switch-toggle" title="Cambiar estado">
+                    <input type="checkbox" class="switch-activo" data-id="{{ servicio.pk }}" {% if servicio.activo %}checked{% endif %}>
+                    <span class="switch-slider"></span>
+                </label>
+            </div>
+            <div class="lib-card__date">{{ servicio.fecha_creacion|date:"d/m/Y" }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- LIST VIEW -->
+<div id="viewList" style="display:none;">
+    {% for servicio in servicios %}
+    <div class="lib-row"
+        data-nombre="{{ servicio.nombre|lower }}"
+        data-estado="{% if servicio.activo %}activo{% else %}inactivo{% endif %}">
+        <div class="lib-row__thumb">
+            {% if servicio.imagen %}
+                <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}">
+            {% else %}
+                <i class="bi bi-scissors"></i>
+            {% endif %}
+        </div>
+        <div class="lib-row__info">
+            <div class="lib-row__name">{{ servicio.nombre }}</div>
+            <div class="lib-row__desc">{{ servicio.descripcion|truncatechars:80 }}</div>
+        </div>
+        <div class="lib-row__price">${{ servicio.precio|floatformat:2 }}</div>
+        <div class="lib-row__date">{{ servicio.fecha_creacion|date:"d/m/Y" }}</div>
+        <div class="lib-row__actions">
+            <label class="switch-toggle" title="Cambiar estado">
+                <input type="checkbox" class="switch-activo" data-id="{{ servicio.pk }}" {% if servicio.activo %}checked{% endif %}>
+                <span class="switch-slider"></span>
+            </label>
+            <button class="lib-card__action-btn lib-card__action-btn--edit" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="lib-card__action-btn lib-card__action-btn--del" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+<div class="lib-pagination">
+    <span class="lib-pagination__info" id="pageInfo"></span>
+    <div class="lib-pagination__pages" id="pageButtons"></div>
+</div>
+
+{% else %}
+<div class="lib-empty">
+    <i class="bi bi-bag-x"></i>
+    <p>{% if q %}No se encontraron servicios para "<strong>{{ q }}</strong>".{% else %}No hay servicios registrados aún.{% endif %}</p>
+</div>
+{% endif %}
