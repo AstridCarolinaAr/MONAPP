@@ -1,5 +1,8 @@
+from functools import wraps
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -18,13 +21,29 @@ from .forms import (
     DetalleDevolucionCompraFormSet,
 )
 from .models import Compra, DevolucionCompra
-
 # =========================
 # Helpers
 # =========================
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
+def permiso_requerido(permisos, mensaje="No tienes permisos para realizar esta acción."):
+    permisos = tuple(permisos) if isinstance(permisos, (list, tuple, set)) else (permisos,)
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if request.user.is_superuser or request.user.has_perms(permisos):
+                return view_func(request, *args, **kwargs)
+
+            if is_ajax(request):
+                return JsonResponse({"success": False, "message": mensaje}, status=403)
+
+            raise PermissionDenied(mensaje)
+
+        return _wrapped_view
+
+    return decorator
 
 # =========================
 # Listado principal
@@ -174,6 +193,7 @@ def lista_compras(request):
 # Detalle de compra
 # =========================
 @login_required
+@permiso_requerido("compras.view_compra", "No tienes permisos para ver compras.")
 @require_http_methods(["GET"])
 def detalle_compra(request, compra_id):
     compra = get_object_or_404(
@@ -202,8 +222,8 @@ def detalle_compra(request, compra_id):
     )
     return JsonResponse({"success": True, "html": html})
 
-
 @login_required
+@permiso_requerido("compras.add_compra", "No tienes permisos para registrar compras.")
 @require_http_methods(["GET", "POST"])
 def crear_compra(request):
     if request.method == "POST":
@@ -211,16 +231,19 @@ def crear_compra(request):
         formset = DetalleCompraFormSet(request.POST, prefix="detalles")
 
         if form.is_valid() and formset.is_valid():
-            services.registrar_compra(
-                form=form,
-                formset=formset,
-                usuario=request.user,
-            )
-
-            messages.success(request, "Compra registrada correctamente.")
-            if is_ajax(request):
-                return JsonResponse({"success": True})
-            return redirect("compras:lista_compras")
+            try:
+                services.registrar_compra(
+                    form=form,
+                    formset=formset,
+                    usuario=request.user,
+                )
+            except services.CompraServiceError as exc:
+                form.add_error(None, str(exc))
+            else:
+                messages.success(request, "Compra registrada correctamente.")
+                if is_ajax(request):
+                    return JsonResponse({"success": True})
+                return redirect("compras:lista_compras")
 
         context = {
             "form": form,
@@ -231,8 +254,13 @@ def crear_compra(request):
         }
 
         if is_ajax(request):
-            html = render_to_string("compras/formulario_crear_compra.html", context, request=request)
-            return JsonResponse({"success": False, "html": html})
+            html = render_to_string(
+                "compras/formulario_crear_compra.html",
+                context,
+                request=request
+            )
+            return JsonResponse({"success": False, "html": html}, status=400)
+
         return render(request, "compras/crear_compra.html", context)
 
     form = CompraForm()
@@ -242,17 +270,26 @@ def crear_compra(request):
         "formset": formset,
         "action_url": reverse("compras:crear_compra"),
         "compra": None,
+        "modo": "crear",
     }
 
     if is_ajax(request):
-        html = render_to_string("compras/formulario_crear_compra.html", context, request=request)
+        html = render_to_string(
+            "compras/formulario_crear_compra.html",
+            context,
+            request=request
+        )
         return JsonResponse({"success": True, "html": html})
 
     return render(request, "compras/crear_compra.html", context)
+
+
 @login_required
+@permiso_requerido("compras.change_compra", "No tienes permisos para editar compras.")
 @require_http_methods(["GET", "POST"])
 def editar_compra(request, pk):
     compra = get_object_or_404(Compra, pk=pk)
+    prefix = "detalles"
 
     try:
         services.validar_compra_editable(compra)
@@ -266,31 +303,35 @@ def editar_compra(request, pk):
         return render(request, "compras/formulario_editar.html", {
             "compra": compra,
             "form": CompraForm(instance=compra),
-            "formset": DetalleCompraFormSet(instance=compra),
+            "formset": DetalleCompraFormSet(instance=compra, prefix=prefix),
             "modo": "editar",
             "action_url": reverse("compras:editar_compra", args=[compra.pk]),
-            "error": str(exc)
+            "error": str(exc),
         })
-
-    prefix = "detalles"
 
     if request.method == "POST":
         form = CompraForm(request.POST, instance=compra)
         formset = DetalleCompraFormSet(request.POST, instance=compra, prefix=prefix)
 
         if form.is_valid() and formset.is_valid():
-            services.editar_compra(
-                compra=compra,
-                form=form,
-                formset=formset,
-                usuario=request.user,
-            )
-            return JsonResponse({"success": True, "message": "Se editó correctamente"})
+            try:
+                services.editar_compra(
+                    compra=compra,
+                    form=form,
+                    formset=formset,
+                    usuario=request.user,
+                )
+            except services.CompraServiceError as exc:
+                form.add_error(None, str(exc))
+            else:
+                if is_ajax(request):
+                    return JsonResponse({
+                        "success": True,
+                        "message": "Se editó correctamente"
+                    })
 
-        print("=== EDITAR INVALIDA ===")
-        print("FORM ERRORS:", form.errors)
-        print("FORMSET NON_FORM:", formset.non_form_errors())
-        print("FORMSET ERRORS:", formset.errors)
+                messages.success(request, "Compra editada correctamente.")
+                return redirect("compras:lista_compras")
 
         html = render_to_string(
             "compras/formulario_editar.html",
@@ -303,7 +344,17 @@ def editar_compra(request, pk):
             },
             request=request
         )
-        return JsonResponse({"success": False, "html": html}, status=400)
+
+        if is_ajax(request):
+            return JsonResponse({"success": False, "html": html}, status=400)
+
+        return render(request, "compras/formulario_editar.html", {
+            "form": form,
+            "formset": formset,
+            "compra": compra,
+            "modo": "editar",
+            "action_url": reverse("compras:editar_compra", args=[compra.pk]),
+        })
 
     form = CompraForm(instance=compra)
     formset = DetalleCompraFormSet(instance=compra, prefix=prefix)
@@ -323,6 +374,7 @@ def editar_compra(request, pk):
     return render(request, "compras/formulario_editar.html", context)
 
 @login_required
+@permiso_requerido("compras.change_compra", "No tienes permisos para anular compras.")
 @require_POST
 def anular_compra(request, pk):
     compra = get_object_or_404(
@@ -352,12 +404,11 @@ def anular_compra(request, pk):
         "message": "Compra anulada y stock revertido."
     })
 
-
 # =========================
 # Comprobantes de compra
 # =========================
-
 @login_required
+@permiso_requerido("compras.view_compra", "No tienes permisos para ver comprobantes de compra.")
 def comprobante_compra_preview(request, pk):
     compra = get_object_or_404(
         Compra.objects.select_related("proveedor", "usuario")
@@ -375,6 +426,7 @@ def comprobante_compra_preview(request, pk):
 
 
 @login_required
+@permiso_requerido("compras.view_compra", "No tienes permisos para exportar comprobantes de compra.")
 def comprobante_compra_excel(request, pk):
     compra = get_object_or_404(
         Compra.objects.select_related("proveedor", "usuario")
@@ -383,11 +435,11 @@ def comprobante_compra_excel(request, pk):
     )
     return build_comprobante_excel_response(compra)
 
-
 # =========================
 # Devoluciones de compra
 # =========================
 @login_required
+@permiso_requerido("compras.add_devolucioncompra", "No tienes permisos para registrar devoluciones.")
 @require_http_methods(["GET", "POST"])
 def crear_devolucion_compra(request):
     compra_ref = None
@@ -406,16 +458,19 @@ def crear_devolucion_compra(request):
         )
 
         if form.is_valid() and formset.is_valid():
-            services.registrar_devolucion_compra(
-                form=form,
-                formset=formset,
-                usuario=request.user,
-            )
-
-            messages.success(request, "Devolución registrada correctamente.")
-            if is_ajax(request):
-                return JsonResponse({"success": True})
-            return redirect("compras:lista_compras")
+            try:
+                services.registrar_devolucion_compra(
+                    form=form,
+                    formset=formset,
+                    usuario=request.user,
+                )
+            except services.CompraServiceError as exc:
+                form.add_error(None, str(exc))
+            else:
+                messages.success(request, "Devolución registrada correctamente.")
+                if is_ajax(request):
+                    return JsonResponse({"success": True})
+                return redirect("compras:lista_compras")
 
         context = {
             "form": form,
@@ -457,16 +512,16 @@ def crear_devolucion_compra(request):
 
     return render(request, "compras/crear_devolucion.html", context)
 
-
 @login_required
+@permiso_requerido("compras.add_devolucioncompra", "No tienes permisos para consultar detalles de devoluciones.")
 @require_http_methods(["GET"])
 def cargar_detalles_compra(request):
-    compra_id = request.GET.get("compra_id")
+    compra_id = (request.GET.get("compra_id") or "").strip()
 
-    if not compra_id:
-        return JsonResponse({"success": False, "detalles": []}, status=400)
+    if not compra_id or not compra_id.isdigit():
+        return JsonResponse({"success": False, "detalles": [], "message": "Compra inválida."}, status=400)
 
-    compra = get_object_or_404(Compra, pk=compra_id, anulada=False)
+    compra = get_object_or_404(Compra.objects.select_related("proveedor"), pk=int(compra_id), anulada=False)
 
     detalles = []
     for d in compra.detalles.select_related("producto").all().order_by("producto__nombre"):
@@ -500,6 +555,7 @@ def cargar_detalles_compra(request):
     })
 
 @login_required
+@permiso_requerido("compras.change_devolucioncompra", "No tienes permisos para anular devoluciones.")
 @require_POST
 def anular_devolucion_compra(request, pk):
     devolucion = get_object_or_404(
@@ -527,6 +583,7 @@ def anular_devolucion_compra(request, pk):
 # Comprobante de devolución
 # =========================
 @login_required
+@permiso_requerido("compras.view_devolucioncompra", "No tienes permisos para ver devoluciones.")
 @require_http_methods(["GET"])
 def comprobante_devolucion_compra_preview(request, pk):
     devolucion = get_object_or_404(

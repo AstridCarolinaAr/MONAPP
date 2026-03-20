@@ -9,18 +9,7 @@
     return n.toLocaleString("es-CO");
   }
 
-  function construirOpciones(detalles, selectedValue = "") {
-    let html = '<option value="">---------</option>';
-
-    detalles.forEach((item) => {
-      const selected = String(item.id) === String(selectedValue) ? "selected" : "";
-      html += `<option value="${item.id}" data-precio="${item.precio_unitario || 0}" ${selected}>
-        ${item.texto}
-      </option>`;
-    });
-
-    return html;
-  }
+  const PATRON_TEXTO_PELIGROSO = /({{|}}|{%|%}|<\s*script|javascript\s*:|on\w+\s*=)/i;
 
   function actualizarOpcionesDetalles(form, detalles) {
     const selects = qsa(
@@ -30,7 +19,19 @@
 
     selects.forEach((select) => {
       const actual = select.value;
-      select.innerHTML = construirOpciones(detalles, actual);
+      select.replaceChildren(new Option("---------", ""));
+
+      detalles.forEach((item) => {
+        const option = new Option(String(item.texto || ""), String(item.id || ""));
+        option.dataset.precio = String(item.precio_unitario || 0);
+        option.dataset.disponible = String(item.disponible || 0);
+
+        if (String(item.id) === String(actual)) {
+          option.selected = true;
+        }
+
+        select.appendChild(option);
+      });
     });
   }
 
@@ -62,35 +63,36 @@
     const totalInput = qs(form, "#id_total_devolucion");
     if (totalInput) totalInput.value = formatCOPNumber(total);
   }
-async function cargarDetalles(form) {
-  if (!form) return;
 
-  const compraSelect = qs(form, "#id_compra");
-  const url = form.getAttribute("data-detalles-url") || "/compras/ajax/cargar-detalles-compra/";
+  async function cargarDetalles(form) {
+    if (!form) return;
 
-  if (!compraSelect || !compraSelect.value) {
-    actualizarOpcionesDetalles(form, []);
-    calcularTotalDevolucion(form);
-    return;
+    const compraSelect = qs(form, "#id_compra");
+    const url = form.getAttribute("data-detalles-url") || "/compras/ajax/cargar-detalles-compra/";
+
+    if (!compraSelect || !compraSelect.value) {
+      actualizarOpcionesDetalles(form, []);
+      calcularTotalDevolucion(form);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${url}?compra_id=${compraSelect.value}`, {
+        method: "GET",
+        credentials: "same-origin",
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+
+      const data = await res.json();
+      actualizarOpcionesDetalles(form, data.detalles || []);
+      calcularTotalDevolucion(form);
+    } catch (error) {
+      console.error("Error cargando detalles de compra:", error);
+      actualizarOpcionesDetalles(form, []);
+      calcularTotalDevolucion(form);
+    }
   }
 
-  try {
-    const res = await fetch(`${url}?compra_id=${compraSelect.value}`, {
-      method: "GET",
-      credentials: "same-origin",
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-    });
-
-    const data = await res.json();
-    console.log("DETALLES CARGADOS:", data);
-    actualizarOpcionesDetalles(form, data.detalles || []);
-    calcularTotalDevolucion(form);
-  } catch (error) {
-    console.error("Error cargando detalles de compra:", error);
-    actualizarOpcionesDetalles(form, []);
-    calcularTotalDevolucion(form);
-  }
-}
   function agregarFila(form) {
     const container = qs(form, "#detallesDevolucionContainer");
     const template = qs(form, "#emptyFormTemplateDevolucion");
@@ -122,7 +124,13 @@ async function cargarDetalles(form) {
     if (!form) return true;
 
     const compra = qs(form, "#id_compra");
+    const motivo = qs(form, "#id_motivo");
+    const observacion = qs(form, "#id_observacion");
+
     if (!compra || !compra.value) return false;
+
+    if (PATRON_TEXTO_PELIGROSO.test((motivo?.value || "").trim())) return false;
+    if (PATRON_TEXTO_PELIGROSO.test((observacion?.value || "").trim())) return false;
 
     const items = qsa(form, ".detalle-item").filter((item) => {
       if (item.classList.contains("d-none")) return false;
@@ -131,6 +139,7 @@ async function cargarDetalles(form) {
     });
 
     let hayDetalle = false;
+    const usados = new Set();
 
     for (const item of items) {
       const detalle = qs(item, 'select[name$="-detalle_compra"], select[id$="-detalle_compra"]');
@@ -138,15 +147,27 @@ async function cargarDetalles(form) {
 
       const detalleVal = (detalle?.value || "").trim();
       const cantidadVal = Number(cantidad?.value || 0);
+      const disponible = Number(
+        detalle?.options?.[detalle.selectedIndex]?.dataset?.disponible || 0
+      );
 
       const filaVacia = !detalleVal && !cantidadVal;
       if (filaVacia) continue;
 
-      if (detalleVal && cantidadVal > 0) {
-        hayDetalle = true;
-      } else {
+      if (!detalleVal || !Number.isInteger(cantidadVal) || cantidadVal <= 0) {
         return false;
       }
+
+      if (usados.has(detalleVal)) {
+        return false;
+      }
+
+      if (disponible > 0 && cantidadVal > disponible) {
+        return false;
+      }
+
+      usados.add(detalleVal);
+      hayDetalle = true;
     }
 
     return hayDetalle;
@@ -163,6 +184,15 @@ async function cargarDetalles(form) {
     if (compraSelect && !compraSelect.dataset.devolucionBound) {
       compraSelect.dataset.devolucionBound = "1";
       compraSelect.addEventListener("change", () => cargarDetalles(form));
+    }
+
+    if (!form.dataset.devolucionSubmitBound) {
+      form.dataset.devolucionSubmitBound = "1";
+      form.addEventListener("submit", (e) => {
+        if (!validateDevolucionForm(form)) {
+          e.preventDefault();
+        }
+      });
     }
 
     cargarDetalles(form);
@@ -210,6 +240,7 @@ async function cargarDetalles(form) {
     }
   });
 })();
+
 document.addEventListener("click", async (e) => {
   const btn = e.target.closest(".js-anular-devolucion");
   if (!btn) return;
