@@ -114,6 +114,73 @@
         margin: 0;
         color: #6b7280;
     }
+    
+    /* Contenedores de Información (Módulos) */
+    .module-container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        text-align: center;
+        border: 2px solid transparent;
+        height: 100%;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
+    .module-container:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--module-color, #cda89b);
+        color: inherit;
+    }
+    .module-container .module-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 38px;
+        color: white;
+        background: linear-gradient(135deg, var(--module-color, #6b3a2a) 0%, var(--module-color-dark, #3a2a24) 100%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .module-container .module-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #2c3e50;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .module-container .module-description {
+        font-size: 13px;
+        color: #7f8c8d;
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+    .modules-section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        text-align: left;
+        position: relative;
+        padding-bottom: 12px;
+    }
+    .modules-section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #cda89b, #b8944d);
+        border-radius: 2px;
+    }
 </style>
 {% endblock %}
 
@@ -231,6 +298,136 @@
                 </div>
                 <p class="label">Usuarios</p>
             </a>
+        </div>
+    </div>
+
+    <!-- Módulos / Contenedores de Información -->
+    <div class="mt-5 mb-4">
+        <h2 class="modules-section-title">
+            <i class="bi bi-grid-3x3-gap me-2"></i>MÓDULOS DEL SISTEMA
+        </h2>
+        
+        <div class="row g-4">
+            <!-- Productos Web -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'productos_web:lista' %}" class="module-container" style="--module-color: #6b3a2a; --module-color-dark: #3a2a24;">
+                    <div class="module-icon">
+                        <i class="bi bi-bag-fill"></i>
+                    </div>
+                    <h3 class="module-title">Productos Web</h3>
+                    <p class="module-description">Gestiona el catálogo de productos visibles en la web para los clientes</p>
+                </a>
+            </div>
+            
+            <!-- Promociones -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'promociones:lista' %}" class="module-container" style="--module-color: #ed8936; --module-color-dark: #c05621;">
+                    <div class="module-icon">
+                        <i class="bi bi-percent"></i>
+                    </div>
+                    <h3 class="module-title">Promociones</h3>
+                    <p class="module-description">Administra ofertas, descuentos y campañas promocionales activas</p>
+                </a>
+            </div>
+            
+            <!-- Servicios -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'servicios:lista_servicios' %}" class="module-container" style="--module-color: #9333ea; --module-color-dark: #6b21a8;">
+                    <div class="module-icon">
+                        <i class="bi bi-scissors"></i>
+                    </div>
+                    <h3 class="module-title">Servicios</h3>
+                    <p class="module-description">Catálogo de servicios capilares y tratamientos</p>
+                </a>
+            </div>
+            
+            <!-- Productos -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'productos:lista_productos_admin' %}" class="module-container" style="--module-color: #5a9fd4; --module-color-dark: #2c5282;">
+                    <div class="module-icon">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+                    <h3 class="module-title">Productos</h3>
+                    <p class="module-description">Control de inventario y gestión de productos internos</p>
+                </a>
+            </div>
+            
+            <!-- Clientes -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'clientes:lista' %}" class="module-container" style="--module-color: #a67c52; --module-color-dark: #744c2e;">
+                    <div class="module-icon">
+                        <i class="bi bi-person-heart"></i>
+                    </div>
+                    <h3 class="module-title">Clientes</h3>
+                    <p class="module-description">Base de datos de clientes y su historial de servicios</p>
+                </a>
+            </div>
+            
+            <!-- Ventas -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'ventas:lista' %}" class="module-container" style="--module-color: #48bb78; --module-color-dark: #2f855a;">
+                    <div class="module-icon">
+                        <i class="bi bi-cart-check-fill"></i>
+                    </div>
+                    <h3 class="module-title">Ventas</h3>
+                    <p class="module-description">Registro y seguimiento de todas las ventas realizadas</p>
+                </a>
+            </div>
+            
+            <!-- Inventario -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'inventario:inventario_vista' %}" class="module-container" style="--module-color: #f56565; --module-color-dark: #c53030;">
+                    <div class="module-icon">
+                        <i class="bi bi-boxes"></i>
+                    </div>
+                    <h3 class="module-title">Inventario</h3>
+                    <p class="module-description">Control de stock, entradas y salidas de productos</p>
+                </a>
+            </div>
+            
+            <!-- Personal -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'personal:lista_personal' %}" class="module-container" style="--module-color: #4299e1; --module-color-dark: #2b6cb0;">
+                    <div class="module-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h3 class="module-title">Personal</h3>
+                    <p class="module-description">Gestión de empleados, horarios y desempeño</p>
+                </a>
+            </div>
+            
+            <!-- Proveedores -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'proveedores:lista_proveedor' %}" class="module-container" style="--module-color: #81c784; --module-color-dark: #4caf50;">
+                    <div class="module-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <h3 class="module-title">Proveedores</h3>
+                    <p class="module-description">Directorio de proveedores y gestión de compras</p>
+                </a>
+            </div>
+            
+            <!-- Usuarios -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'usuarios:lista_usuarios' %}" class="module-container" style="--module-color: #5b67ca; --module-color-dark: #3949ab;">
+                    <div class="module-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h3 class="module-title">Usuarios</h3>
+                    <p class="module-description">Administración de usuarios y permisos del sistema</p>
+                </a>
+            </div>
+            
+            <!-- Gestión de Datos -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'servicios:lista_gestion_alisados' %}" class="module-container" style="--module-color: #fbbf24; --module-color-dark: #d97706;">
+                    <div class="module-icon">
+                        <i class="bi bi-database-fill"></i>
+                    </div>
+                    <h3 class="module-title">Gestión de Datos</h3>
+                    <p class="module-description">Análisis y reportes de alisados y tratamientos</p>
+                </a>
+            </div>
         </div>
     </div>
 
