@@ -50,10 +50,13 @@ def lista_productos(request):
     else:
         productos = productos.order_by("nombre")
     
-    qs=Producto.objects.all()
-    
-    qs,sort_key,direction=apply_smart_sorting(request,qs,default_sort="nombre",default_dir="asc",aliases={"codigo":"codigo","nombre":"nombre","linea":"linea","marca":"marca"})
-    
+    productos, sort_key, direction = apply_smart_sorting(
+        request,
+        productos,
+        default_sort="nombre",
+        default_dir="asc",
+        aliases={"codigo": "codigo", "nombre": "nombre", "linea": "linea", "marca": "marca"},
+    )
 
     total_productos = productos.count()
 
@@ -63,14 +66,20 @@ def lista_productos(request):
         .order_by("linea")
     )
 
-    return render(request, "productos/lista_productos.html", {
+    context = {
         "productos": productos,
         "total_productos": total_productos,
         "productos_por_linea": productos_por_linea,
         "linea_seleccionada": linea,
-        "productos": qs,
-        **sorting_context(sort_key,direction)
-    })
+        "q": q,
+        "orden_actual": orden,
+        **sorting_context(sort_key, direction)
+    }
+
+    if is_ajax(request):
+        return render(request, "productos/lista_productos_global.html", context)
+
+    return render(request, "productos/lista_productos.html", context)
     
     
     from django.http import JsonResponse
