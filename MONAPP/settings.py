@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'Gestion',
     'servicios_web',
     'servicios.apps.ServiciosConfig',
+    'notificaciones',
 ]
 
 MIDDLEWARE = [
