@@ -91,10 +91,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const captchaBox = document.getElementById('loginCaptchaBox');
     const captchaTrigger = document.getElementById('loginCaptchaTrigger');
     const captchaVerifiedInput = document.getElementById('captchaVerified');
+    const captchaHelpText = document.getElementById('captchaHelpText');
     const markCaptchaVerified = () => {
         if (!captchaBox || !captchaVerifiedInput) return;
+        captchaBox.classList.remove('captcha-required');
         captchaBox.classList.add('verified');
         captchaVerifiedInput.value = '1';
+        if (captchaHelpText) captchaHelpText.textContent = '';
     };
 
     const startCaptchaVerification = () => {
@@ -108,7 +111,11 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     if (captchaTrigger && captchaBox) {
-        captchaTrigger.addEventListener('click', startCaptchaVerification);
+        captchaBox.addEventListener('click', startCaptchaVerification);
+        captchaTrigger.addEventListener('click', (event) => {
+            event.stopPropagation();
+            startCaptchaVerification();
+        });
         captchaTrigger.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
@@ -121,7 +128,10 @@ document.addEventListener('DOMContentLoaded', function () {
         loginForm.addEventListener('submit', (event) => {
             if (captchaVerifiedInput.value !== '1') {
                 event.preventDefault();
-                startCaptchaVerification();
+                captchaBox.classList.remove('verified');
+                captchaBox.classList.add('captcha-required');
+                if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
+                captchaTrigger.focus();
             }
         });
     }

@@ -41,6 +41,14 @@ def login_view(request):
         return redirect(f"{redirect('core:index').url}?{urlencode(query)}")
 
     if request.method == 'POST':
+        if request.POST.get('captcha_verified') != '1':
+            messages.error(request, 'Debes verificar el captcha antes de ingresar.')
+            redirect_url = request.META.get('HTTP_REFERER') or redirect('core:index').url
+            separator = '&' if '?' in redirect_url else '?'
+            if 'login=1' not in redirect_url:
+                redirect_url = f"{redirect_url}{separator}login=1"
+            return redirect(redirect_url)
+
         form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
