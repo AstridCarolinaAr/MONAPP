@@ -28,6 +28,8 @@ def index(request):
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
+    else:
+        form = LoginForm(request)
 
     # Obtener servicios activos
     servicios = Servicio.objects.filter(activo=True)
@@ -36,6 +38,7 @@ def index(request):
 
     return render(request, 'core/index.html', {
         'show_login_modal': show_login_modal,
+        'login_form': form,
         'servicios': servicios,
         'promociones': promociones,
         'productos_web': productos_web,

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'productos_web',
     'promociones',
     'Gestion',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -165,6 +166,20 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
 LOGIN_REDIRECT_URL = 'core:dashboard'  # A dónde ir después de login exitoso
 LOGOUT_REDIRECT_URL = 'usuarios:login'  # A dónde ir después de logout
+
+# ── CAPTCHA settings (django-simple-captcha) ──
+CAPTCHA_IMAGE_SIZE = (200, 60)
+CAPTCHA_FONT_SIZE = 32
+CAPTCHA_LENGTH = 5
+CAPTCHA_NOISE_FUNCTIONS = (
+    'captcha.helpers.noise_arcs',
+    'captcha.helpers.noise_dots',
+)
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+CAPTCHA_LETTER_ROTATION = (-25, 25)
+CAPTCHA_BACKGROUND_COLOR = '#f9f9f9'
+CAPTCHA_FOREGROUND_COLOR = '#3B2F2F'
+
 # Configuración de sesiones
 SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Actualiza la sesión en cada request

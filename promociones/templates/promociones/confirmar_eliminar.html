@@ -34,25 +34,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('btnEliminarPromo').addEventListener('click', function () {
-        Swal.fire({
-            title: '¿Eliminar promoción?',
-            html:  '¿Seguro que deseas eliminar <strong>{{ promocion.nombre|escapejs }}</strong>?<br><small class="text-muted">Esta acción no se puede deshacer.</small>',
-            icon:  'warning',
-            showCancelButton:   true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor:  '#6c757d',
-            confirmButtonText:  '<i class="bi bi-trash3"></i> Sí, eliminar',
-            cancelButtonText:   'Cancelar',
-            reverseButtons:     true,
-        }).then(result => {
-            if (result.isConfirmed) {
-                document.getElementById('formEliminarPromo').submit();
-            }
-        });
-    });
-});
-</script>
+<script src="{% static 'promociones/js/confirmar_eliminar.js' %}"></script>
 {% endblock %}

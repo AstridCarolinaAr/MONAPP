@@ -72,13 +72,13 @@
 
     <!-- ==================== ÚLTIMO BACKUP ==================== -->
     {% if ultimo_backup %}
-    <div class="bk-card" style="margin-bottom: 24px;">
+    <div class="bk-card" style="margin-bottom: 16px;">
         <div class="bk-card-header" style="background: linear-gradient(135deg, #9d6347, #6d4637);">
             <i class="bi bi-clock-history"></i>
             Último Backup Exitoso
         </div>
-        <div class="bk-card-body">
-            <div class="bk-detail-grid">
+        <div class="bk-card-body" style="padding: 12px 16px;">
+            <div class="bk-detail-grid" style="gap: 8px 24px;">
                 <div class="bk-detail-item">
                     <span class="label">Nombre</span>
                     <span class="value">{{ ultimo_backup.nombre }}</span>
@@ -110,14 +110,25 @@
 
     <div class="row g-4">
         <!-- ==================== HISTORIAL ==================== -->
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <div class="bk-card">
-                <div class="bk-card-header">
-                    <i class="bi bi-list-ul"></i>
-                    Historial de Backups
-                    <span class="ms-auto" style="font-size: .78rem; opacity: .7;">
-                        {{ total_backups }} total
+                <div class="bk-card-header" style="flex-wrap:wrap; gap:10px;">
+                    <span>
+                        <i class="bi bi-list-ul"></i>
+                        Historial de Backups
                     </span>
+                    <div class="ms-auto d-flex align-items-center gap-2">
+                        <a href="?filtro=activas"
+                           class="bk-btn sm {% if filtro == 'activas' %}primary{% else %}outline{% endif %}">
+                            <i class="bi bi-check2-circle"></i> Activas
+                            <span class="bk-badge-num">{{ total_backups }}</span>
+                        </a>
+                        <a href="?filtro=eliminadas"
+                           class="bk-btn sm {% if filtro == 'eliminadas' %}danger{% else %}outline{% endif %}">
+                            <i class="bi bi-trash2"></i> Eliminadas
+                            {% if total_eliminados %}<span class="bk-badge-num" style="background:#b44646;color:#fff;">{{ total_eliminados }}</span>{% endif %}
+                        </a>
+                    </div>
                 </div>
                 <div class="bk-card-body" style="padding: 0;">
                     {% if backups %}
@@ -174,6 +185,17 @@
                                     <td>{{ b.fecha_creacion|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <div class="bk-actions">
+                                            {% if filtro == 'eliminadas' %}
+                                            {# ---- Vista Eliminadas: solo botón reactivar ---- #}
+                                            <button type="button"
+                                                    class="bk-btn success sm btn-reactivar"
+                                                    data-id="{{ b.pk }}"
+                                                    data-nombre="{{ b.nombre }}"
+                                                    title="Restaurar a activos">
+                                                <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                                            </button>
+                                            {% else %}
+                                            {# ---- Vista Activas ---- #}
                                             <a href="{% url 'backup:detalle' b.pk %}"
                                                class="bk-btn outline sm icon-only"
                                                title="Ver detalle">
@@ -185,13 +207,6 @@
                                                title="Descargar">
                                                 <i class="bi bi-download"></i>
                                             </a>
-                                            <button type="button"
-                                                    class="bk-btn primary sm icon-only btn-restaurar"
-                                                    data-id="{{ b.pk }}"
-                                                    data-nombre="{{ b.nombre }}"
-                                                    title="Restaurar de nuevo">
-                                                <i class="bi bi-arrow-counterclockwise"></i>
-                                            </button>
                                             {% endif %}
                                             <button type="button"
                                                     class="bk-btn danger sm icon-only btn-eliminar"
@@ -200,6 +215,7 @@
                                                     title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
@@ -209,9 +225,14 @@
                     </div>
                     {% else %}
                     <div class="bk-empty">
-                        <i class="bi bi-shield-exclamation d-block"></i>
-                        <h4>Sin backups registrados</h4>
-                        <p>Crea tu primer backup para proteger la información del sistema.</p>
+                        <i class="bi {% if filtro == 'eliminadas' %}bi-trash2{% else %}bi-shield-exclamation{% endif %} d-block"></i>
+                        {% if filtro == 'eliminadas' %}
+                            <h4>Sin backups eliminados</h4>
+                            <p>No hay backups marcados como eliminados.</p>
+                        {% else %}
+                            <h4>Sin backups registrados</h4>
+                            <p>Crea tu primer backup para proteger la información del sistema.</p>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
@@ -219,32 +240,38 @@
         </div>
 
         <!-- ==================== INFO BD ==================== -->
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="bk-card">
-                <div class="bk-card-header">
-                    <i class="bi bi-database-gear"></i>
-                    Estado de la Base de Datos
+                <div class="bk-card-header" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;"
+                     data-bs-toggle="collapse" data-bs-target="#collapseEstadoBD" aria-expanded="true" aria-controls="collapseEstadoBD">
+                    <span>
+                        <i class="bi bi-database-gear"></i>
+                        Estado de la Base de Datos
+                    </span>
+                    <i class="bi bi-chevron-up bk-collapse-icon" id="iconEstadoBD" style="transition:transform .3s;"></i>
                 </div>
-                <div class="bk-card-body">
-                    <div style="margin-bottom: 18px;">
-                        <div class="bk-detail-item" style="margin-bottom: 14px;">
-                            <span class="label">Total de registros</span>
-                            <span class="value" style="font-size: 1.3rem;">
-                                {{ stats.total_registros|default:"0" }}
-                            </span>
+                <div class="collapse show" id="collapseEstadoBD">
+                    <div class="bk-card-body">
+                        <div style="margin-bottom: 18px;">
+                            <div class="bk-detail-item" style="margin-bottom: 14px;">
+                                <span class="label">Total de registros</span>
+                                <span class="value" style="font-size: 1.3rem;">
+                                    {{ stats.total_registros|default:"0" }}
+                                </span>
+                            </div>
+                            <div class="bk-detail-item">
+                                <span class="label">Tablas ({{ stats.total_tablas }})</span>
+                            </div>
                         </div>
-                        <div class="bk-detail-item">
-                            <span class="label">Tablas ({{ stats.total_tablas }})</span>
-                        </div>
-                    </div>
 
-                    <div class="bk-db-grid">
-                        {% for tabla in stats.tablas %}
-                        <div class="bk-db-item">
-                            <span class="name" title="{{ tabla.nombre }}">{{ tabla.nombre }}</span>
-                            <span class="count">{{ tabla.registros }}</span>
+                        <div class="bk-db-grid">
+                            {% for tabla in stats.tablas %}
+                            <div class="bk-db-item">
+                                <span class="name" title="{{ tabla.nombre }}">{{ tabla.nombre }}</span>
+                                <span class="count">{{ tabla.registros }}</span>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -394,243 +421,19 @@
     </div>
 </div>
 
-<!-- Forms ocultos para restaurar/eliminar -->
+<!-- Forms ocultos para restaurar/eliminar/reactivar -->
 <form id="formRestaurar" method="post" style="display:none;">
     {% csrf_token %}
 </form>
 <form id="formEliminar" method="post" style="display:none;">
     {% csrf_token %}
 </form>
+<form id="formReactivar" method="post" style="display:none;">
+    {% csrf_token %}
+</form>
 
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    // ==================== OBTENER ELEMENTOS ==================== 
-    const inputNombre = document.getElementById('backup_nombre');
-    const inputNotas = document.getElementById('backup_notas');
-    const charCountNombre = document.getElementById('char_count_nombre');
-    const charCountNotas = document.getElementById('char_count_notas');
-    const nombreError = document.getElementById('nombre_error');
-    const notasError = document.getElementById('notas_error');
-    const nombreErrorMsg = document.getElementById('nombre_error_msg');
-    const notasErrorMsg = document.getElementById('notas_error_msg');
-    const submitBtn = document.getElementById('btnCrearBackup');
-    const modalBackup = document.getElementById('modalCrearBackup');
-    const formBackup = modalBackup ? modalBackup.querySelector('form') : null;
-
-    // Validar que los elementos existan
-    if (!inputNombre || !inputNotas || !submitBtn || !formBackup) {
-        console.error('Elementos del modal no encontrados');
-        return;
-    }
-
-    // ==================== VALIDACIONES EN TIEMPO REAL ====================
-    function validarNombre() {
-        const nombre = inputNombre.value.trim();
-        const nombreOriginal = inputNombre.value;
-        let valido = true;
-        let mensaje = '';
-
-        // Solo espacios en blanco
-        if (nombreOriginal.length > 0 && nombre.length === 0) {
-            valido = false;
-            mensaje = 'El nombre no puede contener solo espacios en blanco';
-        }
-        // Contiene contenido
-        else if (nombre.length > 0) {
-            // Validar caracteres especiales peligrosos
-            if (!/^[a-zA-Z0-9_\-áéíóúñ\s\.]+$/.test(nombre)) {
-                valido = false;
-                mensaje = 'Solo se permiten letras, números, puntos, guiones y espacios';
-            }
-            // Validar longitud mínima
-            if (nombre.length < 3) {
-                valido = false;
-                mensaje = 'El nombre debe tener al menos 3 caracteres';
-            }
-        }
-
-        charCountNombre.textContent = inputNombre.value.length;
-
-        if (!valido) {
-            nombreError.style.display = 'block';
-            nombreErrorMsg.textContent = mensaje;
-            inputNombre.classList.add('is-invalid');
-        } else {
-            nombreError.style.display = 'none';
-            inputNombre.classList.remove('is-invalid');
-        }
-
-        return valido || nombre.length === 0; // Vacío también es válido
-    }
-
-    function validarNotas() {
-        const notas = inputNotas.value.trim();
-        const notasOriginal = inputNotas.value;
-        let valido = true;
-        let mensaje = '';
-
-        // Solo espacios en blanco
-        if (notasOriginal.length > 0 && notas.length === 0) {
-            valido = false;
-            mensaje = 'Las notas no pueden contener solo espacios en blanco';
-        }
-        // Contiene contenido
-        else if (notas.length > 500) {
-            valido = false;
-            mensaje = 'Las notas no pueden exceder 500 caracteres';
-        }
-
-        charCountNotas.textContent = inputNotas.value.length;
-
-        if (!valido) {
-            notasError.style.display = 'block';
-            notasErrorMsg.textContent = mensaje;
-            inputNotas.classList.add('is-invalid');
-        } else {
-            notasError.style.display = 'none';
-            inputNotas.classList.remove('is-invalid');
-        }
-
-        return valido;
-    }
-
-    function actualizarBotón() {
-        const nombreOk = validarNombre();
-        const notasOk = validarNotas();
-        submitBtn.disabled = !nombreOk || !notasOk;
-    }
-
-    // Event listeners para actualizar validación
-    inputNombre.addEventListener('input', actualizarBotón);
-    inputNombre.addEventListener('blur', actualizarBotón);
-    inputNotas.addEventListener('input', actualizarBotón);
-    inputNotas.addEventListener('blur', actualizarBotón);
-
-    // Al abrir el modal, resetear campos
-    if (modalBackup) {
-        modalBackup.addEventListener('show.bs.modal', function() {
-            inputNombre.value = '';
-            inputNotas.value = '';
-            charCountNombre.textContent = '0';
-            charCountNotas.textContent = '0';
-            nombreError.style.display = 'none';
-            notasError.style.display = 'none';
-            inputNombre.classList.remove('is-invalid');
-            inputNotas.classList.remove('is-invalid');
-            actualizarBotón();
-        });
-    }
-
-    // Validar formulario antes de enviar
-    formBackup.addEventListener('submit', function(e) {
-        const nombre = inputNombre.value.trim();
-        const notas = inputNotas.value.trim();
-
-        // Validaciones finales
-        if (nombre.length > 0 && nombre.length < 3) {
-            e.preventDefault();
-            nombreError.style.display = 'block';
-            nombreErrorMsg.textContent = 'El nombre debe tener al menos 3 caracteres';
-            inputNombre.classList.add('is-invalid');
-            inputNombre.focus();
-            return false;
-        }
-
-        if (inputNombre.value.trim().length === 0 && inputNombre.value.length > 0) {
-            e.preventDefault();
-            nombreError.style.display = 'block';
-            nombreErrorMsg.textContent = 'El nombre no puede contener solo espacios en blanco';
-            inputNombre.classList.add('is-invalid');
-            inputNombre.focus();
-            return false;
-        }
-
-        if (inputNotas.value.trim().length === 0 && inputNotas.value.length > 0) {
-            e.preventDefault();
-            notasError.style.display = 'block';
-            notasErrorMsg.textContent = 'Las notas no pueden contener solo espacios en blanco';
-            inputNotas.classList.add('is-invalid');
-            inputNotas.focus();
-            return false;
-        }
-
-        if (notas.length > 500) {
-            e.preventDefault();
-            notasError.style.display = 'block';
-            notasErrorMsg.textContent = 'Las notas no pueden exceder 500 caracteres';
-            inputNotas.classList.add('is-invalid');
-            inputNotas.focus();
-            return false;
-        }
-
-        // Mostrar loading
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creando...';
-    });
-
-    // ---- Restaurar ----
-    document.querySelectorAll('.btn-restaurar').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const nombre = this.dataset.nombre;
-
-            Swal.fire({
-                title: '¿Restaurar backup?',
-                html: `Se restaurará <strong>"${nombre}"</strong>.<br>
-                       <span class="text-danger">Esto reemplazará la base de datos actual.</span><br>
-                       <small>Se recomienda crear un backup antes de restaurar.</small>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3a2a24',
-                cancelButtonColor: '#999',
-                confirmButtonText: '<i class="bi bi-arrow-counterclockwise"></i> Sí, restaurar',
-                cancelButtonText: 'Cancelar',
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = document.getElementById('formRestaurar');
-                    form.action = `/backup/restaurar/${id}/`;
-                    form.submit();
-                }
-            });
-        });
-    });
-
-    // ---- Eliminar ----
-    document.querySelectorAll('.btn-eliminar').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const nombre = this.dataset.nombre;
-
-            if (!window.ES_ADMIN) {
-                var modal = new bootstrap.Modal(document.getElementById('modalAccionNoPermitida'));
-                modal.show();
-                return;
-            }
-
-            Swal.fire({
-                title: '¿Eliminar backup?',
-                html: `Se eliminará permanentemente <strong>"${nombre}"</strong> y su archivo asociado.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#b44646',
-                cancelButtonColor: '#999',
-                confirmButtonText: '<i class="bi bi-trash"></i> Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = document.getElementById('formEliminar');
-                    form.action = `/backup/eliminar/${id}/`;
-                    form.submit();
-                }
-            });
-        });
-    });
-});
-</script>
+<script src="{% static 'backup/js/dashboard.js' %}"></script>
 {% endblock %}

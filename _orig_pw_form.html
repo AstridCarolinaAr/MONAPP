@@ -1,0 +1,519 @@
+﻿{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-globe2"></i> {{ titulo }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.pw-form-card {
+    max-width: 680px;
+    margin: 0 auto;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+.pw-form-card .card-header {
+    background: linear-gradient(135deg, #3a2a24, #5c3d2e);
+    color: #fff;
+    border-radius: 14px 14px 0 0;
+    padding: 18px 24px;
+    font-weight: 600;
+}
+.pw-dropzone {
+    background: linear-gradient(145deg, #fafafa, #f0f0f0);
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.pw-dropzone:hover,
+.pw-dropzone.dragover {
+    border-color: #8d604a;
+    background: linear-gradient(145deg, #fff, #f8f5f2);
+    box-shadow: 0 6px 20px rgba(141,96,74,.15);
+    transform: translateY(-2px);
+}
+.pw-dropzone i { 
+    font-size: 3.5rem; 
+    color: #8d604a;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.pw-dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;
+}
+.pw-dropzone .upload-text {
+    font-size: 1.05rem;
+    color: #5c3d2e;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.pw-dropzone .upload-hint {
+    font-size: 0.85rem;
+    color: #999;
+}
+.pw-preview-img {
+    max-height: 200px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+}
+/* Validaci├│n de precio */
+.pw-price-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-price-error.visible {
+    display: block;
+}
+.form-control.is-invalid-price {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
+}
+.form-control.is-valid-price {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
+}
+
+/* Validaci├│n nombre */
+.pw-name-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-name-error.visible { display: block; }
+.form-control.is-invalid-name {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
+}
+.form-control.is-valid-name {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
+}
+
+/* Contador descripci├│n */
+.pw-char-count {
+    font-size: .78rem;
+    color: #9a8579;
+    text-align: right;
+    margin-top: 3px;
+    display: block;
+}
+.pw-char-count.near-limit { color: #a0715a; }
+.pw-char-count.at-limit   { color: #dc3545; font-weight: 600; }
+
+/* Precio COP preview */
+.pw-cop-preview {
+    font-size: .88rem;
+    font-weight: 700;
+    color: #3d7a4e;
+    background: rgba(107,176,122,.1);
+    border-radius: 8px;
+    padding: 3px 10px;
+    margin-top: 5px;
+    display: none;
+}
+.pw-cop-preview.visible { display: inline-block; }
+
+/* ÔöÇÔöÇ Iconos de validaci├│n (chulito verde) ÔöÇÔöÇ */
+.pw-input-wrapper {
+    position: relative;
+}
+.pw-validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.pw-validation-icon.show {
+    opacity: 1;
+}
+.pw-validation-icon.valid {
+    color: #198754;
+}
+.pw-validation-icon.invalid {
+    color: #dc3545;
+}
+
+/* Validaci├│n imagen */
+.pw-img-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 6px;
+    display: none;
+}
+.pw-img-error.visible { display: block; }
+
+/* Animaci├│n shake para caracteres no permitidos */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card pw-form-card">
+        <div class="card-header">
+            <i class="bi bi-pencil-square me-2"></i>{{ titulo }}
+        </div>
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        <div class="pw-input-wrapper">
+                            {{ form.nombre }}
+                            <i class="bi bi-check-lg pw-validation-icon" id="icon_nombre_form"></i>
+                        </div>
+                        {% if form.nombre.errors %}
+                            <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                        {% endif %}
+                        <div class="pw-name-error" id="err_nombre_form"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Precio P├║blico ($)</label>
+                        <div class="pw-input-wrapper">
+                            {{ form.precio }}
+                            <i class="bi bi-check-lg pw-validation-icon" id="icon_precio_form"></i>
+                        </div>
+                        {% if form.precio.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
+                        {% endif %}
+                        <span class="pw-cop-preview" id="cop_preview_form"></span>
+                        <div class="pw-price-error" id="err_precio_form"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripci├│n</label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                        <small class="pw-char-count" id="char_desc_form"></small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
+                        <div class="pw-dropzone" id="dropzoneEditar">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                            <div class="upload-text">Arrastra tu imagen aqu├¡</div>
+                            <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                            {{ form.imagen }}
+                            {% if producto and producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" class="pw-preview-img" id="previewEditar" alt="preview">
+                            {% else %}
+                                <img class="pw-preview-img d-none" id="previewEditar" alt="preview">
+                            {% endif %}
+                        </div>
+                        <div class="pw-img-error" id="err_img_form"></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            {{ form.visible }}
+                            <label class="form-check-label" for="id_visible">Visible en la Web</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'productos_web:lista' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Volver
+                    </a>
+                    <button type="submit" class="btn text-white" style="background:#3a2a24;">
+                        <i class="bi bi-check-lg me-1"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    /* ÔöÇÔöÇ Validar imagen ÔöÇÔöÇ */
+    function pwValidarImagen(input, errEl, previewEl) {
+        const TIPOS  = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        const MAX_MB = 5;
+        errEl.textContent = '';
+        errEl.classList.remove('visible');
+        if (!input.files || !input.files[0]) return true;  // opcional
+        const f  = input.files[0];
+        if (!TIPOS.includes(f.type)) {
+            errEl.textContent = 'Solo se permiten im├ígenes JPG, PNG, WEBP o GIF.';
+            errEl.classList.add('visible');
+            input.value = '';
+            if (previewEl) previewEl.classList.add('d-none');
+            return false;
+        }
+        const mb = f.size / (1024 * 1024);
+        if (mb > MAX_MB) {
+            errEl.textContent = `La imagen pesa ${mb.toFixed(1)} MB. El m├íximo permitido es 5 MB.`;
+            errEl.classList.add('visible');
+            input.value = '';
+            if (previewEl) previewEl.classList.add('d-none');
+            return false;
+        }
+        // Preview si pasa validaci├│n
+        if (previewEl) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewEl.src = e.target.result;
+                previewEl.classList.remove('d-none');
+            };
+            reader.readAsDataURL(f);
+        }
+        return true;
+    }
+
+    const fileInput = document.querySelector('#dropzoneEditar input[type="file"]');
+    const preview   = document.getElementById('previewEditar');
+    const errImagen = document.getElementById('err_img_form');
+    if (fileInput && preview) {
+        fileInput.addEventListener('change', function () {
+            pwValidarImagen(this, errImagen, preview);
+        });
+    }
+    document.querySelectorAll('.pw-dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+
+    /* ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+       VALIDACIONES EN TIEMPO REAL ÔÇö Productos Web (form)
+       - Nombre:      obligatorio ┬À 2-200 chars ┬À solo letras y caracteres permitidos
+       - Precio:      COP ┬À m├¡n $100 ┬À m├íx $99.999.999 ┬À entero
+       - Descripci├│n: m├íx 500 chars ┬À contador
+    ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ */
+
+    /* ÔöÇÔöÇ Formato COP (es-CO, pesos enteros) ÔöÇÔöÇ */
+    const fmtCOP = val =>
+        new Intl.NumberFormat('es-CO', {
+            style: 'currency', currency: 'COP',
+            minimumFractionDigits: 0, maximumFractionDigits: 0,
+        }).format(Math.round(val));
+
+    /* ÔöÇÔöÇ Helper gen├®rico set/clear error ÔöÇÔöÇ */
+    function pwSetError(input, errEl, msg, validClass, invalidClass, iconEl) {
+        if (msg) {
+            input.classList.add(invalidClass);
+            input.classList.remove(validClass);
+            errEl.textContent = msg;
+            errEl.classList.add('visible');
+            if (iconEl) {
+                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
+            }
+        } else {
+            input.classList.remove(invalidClass);
+            input.classList.add(validClass);
+            errEl.textContent = '';
+            errEl.classList.remove('visible');
+            if (iconEl) {
+                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.add('show', 'valid', 'bi-check-lg');
+            }
+        }
+        return !msg;
+    }
+
+    /* ÔöÇÔöÇ Bloquear caracteres no permitidos en nombre (tiempo real) ÔöÇÔöÇ */
+    function bloquearCaracteresNombre(e) {
+        const permitidos = /^[a-zA-Z├í├®├¡├│├║├ü├ë├ì├ô├Ü├á├¿├¼├▓├╣├Ç├ê├î├Æ├Ö├▒├æ├╝├£\s\.\,\-\(\)]$/;
+        if (e.key.length > 1) return;
+        const input = e.target;
+        // Bloquear si ya se alcanz├│ el l├¡mite y no hay texto seleccionado
+        if (input.value.length >= 200 && input.selectionStart === input.selectionEnd) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    /* ÔöÇÔöÇ Validar nombre ÔöÇÔöÇ */
+    function pwValidarNombre(input, errEl, iconEl) {
+        const v = input.value.trim();
+        const REG = /^[a-zA-Z├í├®├¡├│├║├ü├ë├ì├ô├Ü├á├¿├¼├▓├╣├Ç├ê├î├Æ├Ö├▒├æ├╝├£\s\.\,\-\(\)]+$/;
+        let msg = '';
+        if (!v)                msg = 'El nombre es obligatorio.';
+        else if (v.length < 2)     msg = 'M├¡nimo 2 caracteres.';
+        else if (v.length > 200)   msg = 'M├íximo 200 caracteres.';
+        else if (!REG.test(v))     msg = 'Solo se permiten letras, espacios y los caracteres: . , - ( )';
+        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
+    }
+
+    /* ÔöÇÔöÇ Bloquear caracteres no num├®ricos en precio (tiempo real) ÔöÇÔöÇ */
+    function bloquearCaracteresPrecio(e) {
+        const permitidos = /^[0-9]$/;
+        if (e.key.length > 1) return;
+        const input = e.target;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+            return;
+        }
+        // Bloquear si el nuevo valor superar├¡a $99.999.999
+        const selStart = input.selectionStart;
+        const selEnd   = input.selectionEnd;
+        const newVal   = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
+        if (parseInt(newVal, 10) > 99999999) {
+            e.preventDefault();
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    /* ÔöÇÔöÇ Validar precio COP ÔöÇÔöÇ */
+    function pwValidarPrecio(input, errEl, previewEl, iconEl) {
+        const raw  = input.value.trim();
+        const val  = parseFloat(raw);
+        const decs = raw.includes('.') ? raw.split('.')[1].length : 0;
+        let msg = '';
+        if (!raw)              msg = 'El precio es obligatorio.';
+        else if (isNaN(val))   msg = 'Ingresa un n├║mero v├ílido.';
+        else if (val < 100)    msg = 'El precio m├¡nimo es $100 COP.';
+        else if (val > 99999999) msg = 'El precio m├íximo es $99.999.999 COP.';
+        else if (decs > 0)     msg = 'El precio debe ser un valor entero (sin centavos) en pesos colombianos.';
+        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price', iconEl);
+        if (previewEl) {
+            if (!msg && raw) {
+                previewEl.textContent = fmtCOP(val);
+                previewEl.classList.add('visible');
+            } else {
+                previewEl.textContent = '';
+                previewEl.classList.remove('visible');
+            }
+        }
+        return ok;
+    }
+
+    /* ÔöÇÔöÇ Contador descripci├│n ÔöÇÔöÇ */
+    function pwContador(textarea, contEl, max) {
+        const len = textarea.value.length;
+        if (len > max) textarea.value = textarea.value.substring(0, max);
+        contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
+        contEl.className = 'pw-char-count' +
+            (len >= max        ? ' at-limit'   :
+             len >= max * 0.85 ? ' near-limit' : '');
+    }
+
+    /* ÔöÇÔöÇ Conectar: Nombre ÔöÇÔöÇ */
+    const nombreInput  = document.getElementById('id_nombre');
+    const errNombre    = document.getElementById('err_nombre_form');
+    const iconNombre   = document.getElementById('icon_nombre_form');
+    if (nombreInput && errNombre) {
+        nombreInput.addEventListener('keydown', bloquearCaracteresNombre);
+        nombreInput.addEventListener('input', () => pwValidarNombre(nombreInput, errNombre, iconNombre));
+        nombreInput.addEventListener('blur',  () => pwValidarNombre(nombreInput, errNombre, iconNombre));
+        nombreInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            const limpio = texto.replace(/[^a-zA-Z├í├®├¡├│├║├ü├ë├ì├ô├Ü├á├¿├¼├▓├╣├Ç├ê├î├Æ├Ö├▒├æ├╝├£\s\.\,\-\(\)]/g, '');
+            document.execCommand('insertText', false, limpio);
+        });
+        nombreInput.addEventListener('input', function () {
+            const pos = this.selectionStart;
+            const original = this.value;
+            const limpio = original.replace(/[^a-zA-Z├í├®├¡├│├║├ü├ë├ì├ô├Ü├á├¿├¼├▓├╣├Ç├ê├î├Æ├Ö├▒├æ├╝├£\s\.\,\-\(\)]/g, '');
+            if (limpio !== original) {
+                this.value = limpio;
+                this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
+            }
+        });
+    }
+
+    /* ÔöÇÔöÇ Conectar: Precio ÔöÇÔöÇ */
+    const precioInput  = document.getElementById('id_precio');
+    const errPrecio    = document.getElementById('err_precio_form');
+    const copPreview   = document.getElementById('cop_preview_form');
+    const iconPrecio   = document.getElementById('icon_precio_form');
+    if (precioInput && errPrecio) {
+        precioInput.addEventListener('keydown', bloquearCaracteresPrecio);
+        precioInput.addEventListener('input', () => pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio));
+        precioInput.addEventListener('blur',  () => pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio));
+    }
+
+    /* ÔöÇÔöÇ Bloquear escritura cuando descripci├│n alcanza 500 chars ÔöÇÔöÇ */
+    function bloquearDescripcion(e) {
+        if (e.key.length > 1) return;
+        const ta = e.target;
+        if (ta.value.length >= 500 && ta.selectionStart === ta.selectionEnd) {
+            e.preventDefault();
+            ta.style.animation = 'shake 0.3s';
+            setTimeout(() => { ta.style.animation = ''; }, 300);
+        }
+    }
+
+    /* ÔöÇÔöÇ Conectar: Descripci├│n (contador) ÔöÇÔöÇ */
+    const descInput = document.getElementById('id_descripcion');
+    const charDesc  = document.getElementById('char_desc_form');
+    if (descInput && charDesc) {
+        pwContador(descInput, charDesc, 500);
+        descInput.addEventListener('keydown', bloquearDescripcion);
+        descInput.addEventListener('input', () => pwContador(descInput, charDesc, 500));
+    }
+
+    /* ÔöÇÔöÇ Validaci├│n al enviar ÔöÇÔöÇ */
+    const formEl = document.querySelector('form');
+    if (formEl) {
+        formEl.addEventListener('submit', function(e) {
+            let ok = true;
+            if (nombreInput && errNombre && !pwValidarNombre(nombreInput, errNombre, iconNombre)) {
+                ok = false;
+                nombreInput.focus();
+            }
+            if (precioInput && errPrecio && !pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio)) {
+                if (ok) { precioInput.focus(); ok = false; }
+            }
+            if (fileInput && errImagen && !pwValidarImagen(fileInput, errImagen, preview)) {
+                if (ok) ok = false;
+            }
+            if (!ok) e.preventDefault();
+        });
+    }
+});
+</script>
+{% endblock %}

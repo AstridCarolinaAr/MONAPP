@@ -1,4 +1,5 @@
 import re
+import json
 import socket
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
@@ -8,6 +9,7 @@ from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from django.db.models import Q
 from django.utils.crypto import get_random_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
@@ -19,6 +21,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 

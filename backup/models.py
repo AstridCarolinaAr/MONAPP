@@ -39,6 +39,7 @@ class BackupRecord(models.Model):
         help_text="Lista de tablas incluidas en el backup (separadas por coma)."
     )
     duracion_segundos = models.FloatField(default=0, verbose_name="Duración (seg)")
+    eliminado = models.BooleanField(default=False, verbose_name="Eliminado (soft-delete)")
 
     class Meta:
         ordering = ['-fecha_creacion']

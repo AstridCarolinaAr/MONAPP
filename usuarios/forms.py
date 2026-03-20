@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import PerfilUsuario
 from django.contrib.auth.models import Group
+from captcha.fields import CaptchaField
 
 
 class LoginForm(AuthenticationForm):
@@ -37,6 +38,13 @@ class LoginForm(AuthenticationForm):
             'id': 'remember_me'
         }),
         label='Recordarme'
+    )
+
+    captcha = CaptchaField(
+        label='',
+        error_messages={
+            'invalid': 'Código de verificación incorrecto. Intenta de nuevo.',
+        }
     )
 
 

@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}{{ titulo }}{% endblock %}
@@ -90,7 +90,6 @@
     border-color: #198754 !important;
     box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
 }
-
 /* Validación nombre */
 .pw-name-error {
     color: #dc3545;
@@ -107,7 +106,6 @@
     border-color: #198754 !important;
     box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
 }
-
 /* Contador descripción */
 .pw-char-count {
     font-size: .78rem;
@@ -118,7 +116,6 @@
 }
 .pw-char-count.near-limit { color: #a0715a; }
 .pw-char-count.at-limit   { color: #dc3545; font-weight: 600; }
-
 /* Precio COP preview */
 .pw-cop-preview {
     font-size: .88rem;
@@ -131,8 +128,7 @@
     display: none;
 }
 .pw-cop-preview.visible { display: inline-block; }
-
-/* ── Iconos de validación (chulito verde) ── */
+/* Iconos de validación */
 .pw-input-wrapper {
     position: relative;
 }
@@ -156,7 +152,6 @@
 .pw-validation-icon.invalid {
     color: #dc3545;
 }
-
 /* Validación imagen */
 .pw-img-error {
     color: #dc3545;
@@ -165,12 +160,15 @@
     display: none;
 }
 .pw-img-error.visible { display: block; }
-
-/* Animación shake para caracteres no permitidos */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
     20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+.container-fluid { animation: pageEnter .4s ease both; }
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 {% endblock %}
@@ -272,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const MAX_MB = 5;
         errEl.textContent = '';
         errEl.classList.remove('visible');
-        if (!input.files || !input.files[0]) return true;  // opcional
+        if (!input.files || !input.files[0]) return true;
         const f  = input.files[0];
         if (!TIPOS.includes(f.type)) {
             errEl.textContent = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
@@ -289,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (previewEl) previewEl.classList.add('d-none');
             return false;
         }
-        // Preview si pasa validación
         if (previewEl) {
             const reader = new FileReader();
             reader.onload = e => {
@@ -315,21 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
 
-    /* ══════════════════════════════════════════════════════
-       VALIDACIONES EN TIEMPO REAL — Productos Web (form)
-       - Nombre:      obligatorio · 2-200 chars · solo letras y caracteres permitidos
-       - Precio:      COP · mín $100 · máx $99.999.999 · entero
-       - Descripción: máx 500 chars · contador
-    ══════════════════════════════════════════════════════ */
-
-    /* ── Formato COP (es-CO, pesos enteros) ── */
     const fmtCOP = val =>
         new Intl.NumberFormat('es-CO', {
             style: 'currency', currency: 'COP',
             minimumFractionDigits: 0, maximumFractionDigits: 0,
         }).format(Math.round(val));
 
-    /* ── Helper genérico set/clear error ── */
     function pwSetError(input, errEl, msg, validClass, invalidClass, iconEl) {
         if (msg) {
             input.classList.add(invalidClass);
@@ -337,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errEl.textContent = msg;
             errEl.classList.add('visible');
             if (iconEl) {
-                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
                 iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
             }
         } else {
@@ -346,19 +334,17 @@ document.addEventListener('DOMContentLoaded', () => {
             errEl.textContent = '';
             errEl.classList.remove('visible');
             if (iconEl) {
-                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
                 iconEl.classList.add('show', 'valid', 'bi-check-lg');
             }
         }
         return !msg;
     }
 
-    /* ── Bloquear caracteres no permitidos en nombre (tiempo real) ── */
     function bloquearCaracteresNombre(e) {
         const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]$/;
         if (e.key.length > 1) return;
         const input = e.target;
-        // Bloquear si ya se alcanzó el límite y no hay texto seleccionado
         if (input.value.length >= 200 && input.selectionStart === input.selectionEnd) {
             e.preventDefault();
             input.style.animation = 'shake 0.3s';
@@ -372,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* ── Validar nombre ── */
     function pwValidarNombre(input, errEl, iconEl) {
         const v = input.value.trim();
         const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]+$/;
@@ -384,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
     }
 
-    /* ── Bloquear caracteres no numéricos en precio (tiempo real) ── */
     function bloquearCaracteresPrecio(e) {
         const permitidos = /^[0-9]$/;
         if (e.key.length > 1) return;
@@ -395,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { input.style.animation = ''; }, 300);
             return;
         }
-        // Bloquear si el nuevo valor superaría $99.999.999
         const selStart = input.selectionStart;
         const selEnd   = input.selectionEnd;
         const newVal   = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
@@ -406,7 +389,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* ── Validar precio COP ── */
     function pwValidarPrecio(input, errEl, previewEl, iconEl) {
         const raw  = input.value.trim();
         const val  = parseFloat(raw);
@@ -430,7 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return ok;
     }
 
-    /* ── Contador descripción ── */
     function pwContador(textarea, contEl, max) {
         const len = textarea.value.length;
         if (len > max) textarea.value = textarea.value.substring(0, max);
@@ -440,7 +421,16 @@ document.addEventListener('DOMContentLoaded', () => {
              len >= max * 0.85 ? ' near-limit' : '');
     }
 
-    /* ── Conectar: Nombre ── */
+    function bloquearDescripcion(e) {
+        if (e.key.length > 1) return;
+        const ta = e.target;
+        if (ta.value.length >= 500 && ta.selectionStart === ta.selectionEnd) {
+            e.preventDefault();
+            ta.style.animation = 'shake 0.3s';
+            setTimeout(() => { ta.style.animation = ''; }, 300);
+        }
+    }
+
     const nombreInput  = document.getElementById('id_nombre');
     const errNombre    = document.getElementById('err_nombre_form');
     const iconNombre   = document.getElementById('icon_nombre_form');
@@ -465,7 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ── Conectar: Precio ── */
     const precioInput  = document.getElementById('id_precio');
     const errPrecio    = document.getElementById('err_precio_form');
     const copPreview   = document.getElementById('cop_preview_form');
@@ -476,18 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
         precioInput.addEventListener('blur',  () => pwValidarPrecio(precioInput, errPrecio, copPreview, iconPrecio));
     }
 
-    /* ── Bloquear escritura cuando descripción alcanza 500 chars ── */
-    function bloquearDescripcion(e) {
-        if (e.key.length > 1) return;
-        const ta = e.target;
-        if (ta.value.length >= 500 && ta.selectionStart === ta.selectionEnd) {
-            e.preventDefault();
-            ta.style.animation = 'shake 0.3s';
-            setTimeout(() => { ta.style.animation = ''; }, 300);
-        }
-    }
-
-    /* ── Conectar: Descripción (contador) ── */
     const descInput = document.getElementById('id_descripcion');
     const charDesc  = document.getElementById('char_desc_form');
     if (descInput && charDesc) {
@@ -496,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
         descInput.addEventListener('input', () => pwContador(descInput, charDesc, 500));
     }
 
-    /* ── Validación al enviar ── */
     const formEl = document.querySelector('form');
     if (formEl) {
         formEl.addEventListener('submit', function(e) {

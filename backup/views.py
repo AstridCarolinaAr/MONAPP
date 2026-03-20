@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import FileResponse, JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.urls import reverse
 
 from .models import BackupRecord, BackupConfig
 from .services import (
@@ -29,15 +30,22 @@ def es_administrador(user):
 @user_passes_test(es_administrador)
 def backup_dashboard(request):
     """Vista principal del módulo de backup."""
-    backups = BackupRecord.objects.all()[:20]
+    filtro = request.GET.get('filtro', 'activas')  # 'activas' | 'eliminadas'
+    if filtro == 'eliminadas':
+        backups = BackupRecord.objects.filter(eliminado=True)[:50]
+    else:
+        filtro = 'activas'
+        backups = BackupRecord.objects.filter(eliminado=False)[:20]
+
     config = BackupConfig.get_config()
     stats = get_database_stats()
 
-    # Estadísticas de backups
-    total_backups = BackupRecord.objects.count()
-    exitosos = BackupRecord.objects.filter(estado='exitoso').count()
-    fallidos = BackupRecord.objects.filter(estado='fallido').count()
-    ultimo = BackupRecord.objects.filter(estado='exitoso').first()
+    # Estadísticas de backups (solo activos)
+    total_backups = BackupRecord.objects.filter(eliminado=False).count()
+    exitosos = BackupRecord.objects.filter(eliminado=False, estado='exitoso').count()
+    fallidos = BackupRecord.objects.filter(eliminado=False, estado='fallido').count()
+    ultimo = BackupRecord.objects.filter(eliminado=False, estado='exitoso').first()
+    total_eliminados = BackupRecord.objects.filter(eliminado=True).count()
 
     context = {
         'backups': backups,
@@ -47,6 +55,8 @@ def backup_dashboard(request):
         'exitosos': exitosos,
         'fallidos': fallidos,
         'ultimo_backup': ultimo,
+        'filtro': filtro,
+        'total_eliminados': total_eliminados,
     }
     return render(request, 'backup/dashboard.html', context)
 
@@ -184,20 +194,26 @@ def restaurar_backup_view(request, pk):
 @user_passes_test(es_administrador)
 @require_POST
 def eliminar_backup(request, pk):
-    """Elimina un registro de backup y su archivo."""
-    record = get_object_or_404(BackupRecord, pk=pk)
-
-    if record.archivo and os.path.exists(record.archivo):
-        try:
-            os.remove(record.archivo)
-        except OSError:
-            pass
-
-    nombre = record.nombre
-    record.delete()
-    messages.success(request, f'Backup "{nombre}" eliminado correctamente.')
-
+    """Marca un backup como eliminado (soft-delete)."""
+    record = get_object_or_404(BackupRecord, pk=pk, eliminado=False)
+    record.eliminado = True
+    record.save(update_fields=['eliminado'])
+    messages.success(request, f'Backup "{record.nombre}" movido a eliminados.')
     return redirect('backup:dashboard')
+
+
+# ======================== REACTIVAR BACKUP ========================
+
+@login_required
+@user_passes_test(es_administrador)
+@require_POST
+def reactivar_backup(request, pk):
+    """Restaura un backup eliminado (soft) de vuelta a activos."""
+    record = get_object_or_404(BackupRecord, pk=pk, eliminado=True)
+    record.eliminado = False
+    record.save(update_fields=['eliminado'])
+    messages.success(request, f'Backup "{record.nombre}" restaurado a activos.')
+    return redirect(reverse('backup:dashboard') + '?filtro=eliminadas')
 
 
 # ======================== DETALLE BACKUP ========================

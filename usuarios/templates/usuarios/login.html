@@ -13,10 +13,13 @@
 
 <body>
 
+<!-- Canvas de burbujas de fondo -->
+<canvas id="bgBubblesCanvas"></canvas>
+
 <div id="loginContainer">
   <div class="login-card">
 
-    <!-- HEADER con bolitas -->
+    <!-- HEADER con burbujas animadas -->
     <div class="card-header">
       <canvas id="bolaCanvas"></canvas>
       <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="110" alt="Logo">
@@ -70,12 +73,15 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-login">Ingresar</button>
-      </form>
+        <div class="recovery-links">
+          <a href="{% url 'usuarios:recuperar' %}" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        </div>
 
-      <div class="recovery-links">
-        <a href="{% url 'usuarios:recuperar' %}" class="forgot-link">¿Olvidaste tu contraseña?</a>
-      </div>
+        <div class="buttons-container">
+          <button type="submit" class="btn-login">Ingresar</button>
+          <a href="{% url 'usuarios:registro' %}" class="btn-login btn-registro">Registrarse</a>
+        </div>
+      </form>
 
       <!-- Logo inferior -->
       <div class="card-footer-logo">

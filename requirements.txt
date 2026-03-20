@@ -2,6 +2,8 @@ asgiref==3.11.0
 beautifulsoup4==4.14.3
 Django==4.2.27
 django-bootstrap-v5==1.0.11
+django-ranged-response==0.2.0
+django-simple-captcha==0.6.3
 pillow==12.0.0
 python-decouple==3.8
 soupsieve==2.8

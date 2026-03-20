@@ -34,6 +34,7 @@ urlpatterns = [
     path('promociones/', include('promociones.urls')),
     path('gestion/', include('Gestion.urls')),
     path('backup/', include('backup.urls')),
+    path('captcha/', include('captcha.urls')),
 ]
 
 # Servir archivos media en desarrollo

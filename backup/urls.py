@@ -9,6 +9,7 @@ urlpatterns = [
     path('descargar/<int:pk>/', views.descargar_backup, name='descargar'),
     path('restaurar/<int:pk>/', views.restaurar_backup_view, name='restaurar'),
     path('eliminar/<int:pk>/', views.eliminar_backup, name='eliminar'),
+    path('reactivar/<int:pk>/', views.reactivar_backup, name='reactivar'),
     path('detalle/<int:pk>/', views.detalle_backup, name='detalle'),
     path('configuracion/', views.configuracion_backup, name='configuracion'),
     path('api/info-bd/', views.info_base_datos, name='info_bd'),

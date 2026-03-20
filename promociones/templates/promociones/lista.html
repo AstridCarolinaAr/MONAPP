@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 {% load humanize %}
 
@@ -245,7 +245,6 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
     transition: all 0.3s ease;
     margin-left: auto;
 }
-
 .btn-cerrar-modal:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: rotate(90deg);
@@ -349,10 +348,6 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 .form-control, .form-select {
     border: 1px solid #d4c4ba;
 }
-.form-control:focus, .form-select:focus {
-    border-color: #8d604a;
-    box-shadow: 0 0 0 0.2rem rgba(141,96,74,.25);
-}
 /* Card del modal */
 .modal-content {
     border: 1px solid rgba(141,96,74,.1);
@@ -406,14 +401,49 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
     transition: opacity 0.3s ease;
     pointer-events: none;
 }
-.promo-validation-icon.show {
-    opacity: 1;
+.promo-validation-icon.show { opacity: 1; }
+.promo-validation-icon.valid { color: #6ba06a; }
+.promo-validation-icon.invalid { color: #a0715a; }
+
+/* ── Animaciones de entrada en filas ── */
+@keyframes fadeInRow {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
-.promo-validation-icon.valid {
-    color: #6ba06a;
+.promo-table tbody tr {
+    animation: fadeInRow 0.3s ease both;
+    transition: background .2s, box-shadow .2s;
 }
-.promo-validation-icon.invalid {
-    color: #a0715a;
+.promo-table tbody tr:nth-child(2)  { animation-delay: .06s; }
+.promo-table tbody tr:nth-child(3)  { animation-delay: .12s; }
+.promo-table tbody tr:nth-child(4)  { animation-delay: .18s; }
+.promo-table tbody tr:nth-child(5)  { animation-delay: .24s; }
+.promo-table tbody tr:nth-child(6)  { animation-delay: .29s; }
+.promo-table tbody tr:nth-child(7)  { animation-delay: .34s; }
+.promo-table tbody tr:nth-child(n+8){ animation-delay: .38s; }
+.promo-table tbody tr:hover {
+    box-shadow: inset 4px 0 0 rgba(141,96,74,.5);
+}
+
+/* ── Zoom miniatura al hover ── */
+.promo-thumb { transition: transform .2s ease, box-shadow .2s ease; }
+.promo-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 6px 16px rgba(0,0,0,.25);
+    cursor: zoom-in;
+}
+
+/* ── FAB: presionar ── */
+.promo-fab:active {
+    transform: translateY(1px) scale(0.97);
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+/* ── Entrada de página ── */
+.container-fluid { animation: pageEnter .4s ease both; }
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 {% endblock %}
@@ -432,6 +462,27 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
         </button>
     </div>
 
+    <!-- Búsqueda y filtros -->
+    <form method="get" class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+        <div class="position-relative promo-search">
+            <i class="bi bi-search"></i>
+            <input type="text" name="q" class="form-control" placeholder="Buscar promoción..." value="{{ q|default:'' }}">
+        </div>
+        <button type="submit" class="btn btn-sm text-white" style="background:#3a2a24;">
+            <i class="bi bi-search me-1"></i>Buscar
+        </button>
+        {% if q or activa_filter %}
+        <a href="{% url 'promociones:lista' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-x-circle me-1"></i>Limpiar
+        </a>
+        {% endif %}
+        <select name="activa" class="form-select form-select-sm" style="max-width:150px;" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            <option value="si" {% if activa_filter == 'si' %}selected{% endif %}>Activas</option>
+            <option value="no" {% if activa_filter == 'no' %}selected{% endif %}>Inactivas</option>
+        </select>
+    </form>
+
     <!-- ───── TABLA ───── -->
     <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(141,96,74,.15) !important;">
         <div class="table-responsive">
@@ -441,6 +492,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                         <th>Imagen</th>
                         <th data-sort="nombre">Nombre</th>
                         <th data-sort="etiqueta">Etiqueta</th>
+                        <th data-sort="descuento" class="text-center">Descuento</th>
                         <th data-sort="inicio">Fecha Inicio</th>
                         <th data-sort="fin">Fecha Fin</th>
                         <th class="text-center" data-sort="estado">Estado</th>
@@ -467,6 +519,9 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                         </td>
                         <td>
                             <span class="badge bg-secondary text-uppercase" style="font-size:.75rem;">{{ p.get_etiqueta_display }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="promo-discount">{{ p.porcentaje_descuento }}%</span>
                         </td>
                         <td>{{ p.fecha_inicio|date:"d/m/Y" }}</td>
                         <td>{{ p.fecha_fin|date:"d/m/Y" }}</td>
@@ -763,12 +818,13 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 
 {% block extra_js %}
 <script>
-/* ── Mensajes Django como Swal toast ── */
-const PROMO_MESSAGES = [
+window.PROMO_MESSAGES = [
     {% for message in messages %}
-    { tags: "{{ message.tags }}", text: "{{ message|escapejs }}" },
+    { tags: "{{ message.tags }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
+/* ── Mensajes Django como Swal toast ── */
+const PROMO_MESSAGES = window.PROMO_MESSAGES || [];
 
 const PROMO_TAGS_MAP = {
     'success': { icon: 'success', background: '#f0fdf4', color: '#166534' },
@@ -892,9 +948,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalEditar) {
         modalEditar.addEventListener('show.bs.modal', function (e) {
             const btn = e.relatedTarget;
-            // Set form action
             document.getElementById('formEditar').action = btn.dataset.editUrl;
-            // Fill fields
             document.getElementById('edit_nombre').value    = btn.dataset.nombre;
             document.getElementById('edit_etiqueta').value  = btn.dataset.etiqueta;
             document.getElementById('edit_descripcion').value = btn.dataset.descripcion;
@@ -902,7 +956,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('edit_inicio').value    = btn.dataset.inicio;
             document.getElementById('edit_fin').value       = btn.dataset.fin;
             document.getElementById('edit_activa').checked  = btn.dataset.activa === 'true';
-            // Reset image input and preview
             document.getElementById('edit_imagen').value = '';
             document.getElementById('edit_imagen_clear').checked = false;
             const preview = document.getElementById('previewPromoEdit');
@@ -922,7 +975,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Preview new image selection in edit modal
         const editFileInput = document.getElementById('edit_imagen');
         const editPreview   = document.getElementById('previewPromoEdit');
         if (editFileInput && editPreview) {
@@ -939,16 +991,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* ══════════════════════════════════════════════════════
-       VALIDACIONES EN TIEMPO REAL — Promociones
-       - Nombre:      obligatorio · 2-200 chars · solo chars válidos
-       - Descripción: máx 500 chars · contador
-       - Descuento:   >0 · ≤100 · 2 decimales máx
-       - Fechas:      ambas obligatorias · fin ≥ inicio · máx 365 días
-       - Imagen:      JPG/PNG/WEBP/GIF · máx 5 MB · preview
-    ══════════════════════════════════════════════════════ */
-
-    /* Helper: poner/quitar error en un campo */
     function promoErr(input, errEl, msg, iconEl) {
         if (msg) {
             input.classList.add('is-invalid-promo');
@@ -956,7 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errEl.textContent = msg;
             errEl.classList.add('visible');
             if (iconEl) {
-                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
                 iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
             }
         } else {
@@ -965,14 +1007,13 @@ document.addEventListener('DOMContentLoaded', () => {
             errEl.textContent = '';
             errEl.classList.remove('visible');
             if (iconEl) {
-                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
                 iconEl.classList.add('show', 'valid', 'bi-check-lg');
             }
         }
         return !msg;
     }
 
-    /* Nombre */
     const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
     function promoNombre(input, errEl, iconEl) {
         const v = input.value.trim();
@@ -984,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return promoErr(input, errEl, msg, iconEl);
     }
 
-    /* Descripción contador */
     function promoCtr(textarea, contEl, max) {
         const len = textarea.value.length;
         if (len > max) textarea.value = textarea.value.substring(0, max);
@@ -994,7 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
              len >= max * 0.85 ? ' near-limit' : '');
     }
 
-    /* Descuento */
     function promoDescuento(input, errEl, iconEl) {
         const raw  = input.value.trim();
         const val  = parseFloat(raw);
@@ -1008,19 +1047,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return promoErr(input, errEl, msg, iconEl);
     }
 
-    /* Fecha máxima permitida para inicio: hoy + 12 meses */
     function promoMaxInicio() {
         const d = new Date();
         d.setMonth(d.getMonth() + 12);
         return d.toISOString().split('T')[0];
     }
-    /* Fecha máxima permitida para fin: 31/12 del año de promoMaxInicio */
     function promoMaxFin() {
         const year = new Date(promoMaxInicio()).getFullYear();
         return `${year}-12-31`;
     }
 
-    /* Fechas: inicio + fin + rango */
     function promoFechas(inEl, finEl, errInEl, errFinEl) {
         const maxInicio = promoMaxInicio();
         const maxFin    = promoMaxFin();
@@ -1034,7 +1070,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             promoErr(inEl, errInEl, '');
         }
-        /* Actualizar min del fin cada vez que cambia inicio */
         if (inEl.value) finEl.min = inEl.value;
         if (!finEl.value) {
             promoErr(finEl, errFinEl, 'La fecha de fin es obligatoria.');
@@ -1059,7 +1094,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return okIn && okFin;
     }
 
-    /* Imagen */
     function promoImagen(input, errEl, previewEl) {
         const TIPOS = ['image/jpeg','image/png','image/webp','image/gif'];
         errEl.textContent = ''; errEl.classList.remove('visible');
@@ -1087,9 +1121,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    /* ── Bloquear descuento fuera de 1-100 (keydown + paste) ── */
     function promoBloquearDescuento(e) {
-        if (e.key.length > 1) return;            // teclas especiales: ok
+        if (e.key.length > 1) return;
         const permitidos = /^[0-9]$/;
         const input = e.target;
         if (!permitidos.test(e.key)) {
@@ -1098,7 +1131,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { input.style.animation = ''; }, 300);
             return;
         }
-        // Simular el valor resultante y bloquearlo si supera 100
         const selStart = input.selectionStart;
         const selEnd   = input.selectionEnd;
         const newVal   = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
@@ -1116,7 +1148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         input.dispatchEvent(new Event('input'));
     }
 
-    /* Establecer max en inputs de fecha al cargar */
     (function () {
         const maxI = promoMaxInicio();
         const maxF = promoMaxFin();
@@ -1130,7 +1161,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     })();
 
-    /* ---- REFERENCIAS MODAL AGREGAR ---- */
     const ag = {
         nombre:     document.querySelector('#modalAgregar [name="nombre"]'),
         errN:       document.getElementById('err_nombre_ag'),
@@ -1196,7 +1226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ---- REFERENCIAS MODAL EDITAR ---- */
     const ed = {
         nombre:     document.getElementById('edit_nombre'),
         errN:       document.getElementById('err_nombre_ed'),
@@ -1268,17 +1297,12 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
 
-    /* ══════════════════════════════════════════════════════
-       FILTRO DE NOMBRE — impedir números y signos al escribir
-       Solo letras (incluyendo tildes/ñ) y espacios
-    ══════════════════════════════════════════════════════ */
     const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
 
     function filtrarNombreKeypress(e) {
         if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
             if (!NOMBRE_ALLOWED.test(e.key)) {
                 e.preventDefault();
-                // Mostrar feedback visual rápido
                 const input = e.target;
                 input.style.animation = 'shake 0.3s';
                 setTimeout(() => { input.style.animation = ''; }, 300);
@@ -1301,20 +1325,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* Aplicar filtro a todos los campos nombre de promociones */
     document.querySelectorAll('#modalAgregar [name="nombre"], #modalEditar [name="nombre"]').forEach(input => {
         input.addEventListener('keypress', filtrarNombreKeypress);
         input.addEventListener('paste', filtrarNombrePaste);
         input.addEventListener('input', filtrarNombreInput);
     });
 
-    /* ── Bloquear caracteres no numéricos en campo de descuento ── */
     function filtrarDescuentoKeypress(e) {
-        // Solo permitir: números y punto decimal
         const permitidos = /^[0-9\.]$/;
-        
         if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-            // Bloquear si ya hay un punto y se intenta escribir otro
             if (e.key === '.' && e.target.value.includes('.')) {
                 e.preventDefault();
                 const input = e.target;
@@ -1322,7 +1341,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => { input.style.animation = ''; }, 300);
                 return;
             }
-            // Bloquear caracteres no permitidos
             if (!permitidos.test(e.key)) {
                 e.preventDefault();
                 const input = e.target;
@@ -1332,12 +1350,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* Aplicar filtro a todos los campos de descuento */
     document.querySelectorAll('#modalAgregar [name="porcentaje_descuento"], #modalEditar [name="porcentaje_descuento"]').forEach(input => {
         input.addEventListener('keypress', filtrarDescuentoKeypress);
     });
 
-    /* ── Modal Ver Detalles Promoción ── */
     const ETIQUETA_COLORS = {
         nuevo:     'bg-primary',
         especial:  'bg-warning text-dark',

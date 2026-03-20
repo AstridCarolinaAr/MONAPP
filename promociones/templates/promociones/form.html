@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}{{ titulo }}{% endblock %}
@@ -72,10 +72,7 @@
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
 }
-/* Estilos adicionales café para formulario */
-.form-label.fw-semibold {
-    color: #5c3d2e;
-}
+.form-label.fw-semibold { color: #5c3d2e; }
 .form-control:focus, .form-select:focus {
     border-color: #8d604a;
     box-shadow: 0 0 0 0.2rem rgba(141,96,74,.25);
@@ -84,115 +81,42 @@
     background-color: #8d604a;
     border-color: #8d604a;
 }
-.btn-outline-secondary {
-    color: #7a5c4a;
-    border-color: #7a5c4a;
-}
-.btn-outline-secondary:hover {
-    background-color: #7a5c4a;
-    border-color: #7a5c4a;
-    color: #fff;
-}
-.text-danger {
-    color: #a0715a !important;
-}
-/* Alertas con tema café */
-.alert-success {
-    background-color: rgba(141,96,74,.12);
-    border-color: #8d604a;
-    color: #5c3d2e;
-}
-.alert-danger, .alert-error {
-    background-color: rgba(122,92,74,.12);
-    border-color: #7a5c4a;
-    color: #5c3d2e;
-}
-.alert-warning {
-    background-color: rgba(165,129,102,.15);
-    border-color: #a58166;
-    color: #5c3d2e;
-}
-.alert-info {
-    background-color: rgba(180,156,138,.12);
-    border-color: #b49c8a;
-    color: #5c3d2e;
-}
-.form-control, .form-select {
-    border: 1px solid #d4c4ba;
-}
-/* Validación nombre */
-.promo-name-error {
-    color: #a0715a;
-    font-size: .82rem;
-    margin-top: 4px;
-    display: none;
-}
+.btn-outline-secondary { color: #7a5c4a; border-color: #7a5c4a; }
+.btn-outline-secondary:hover { background-color: #7a5c4a; border-color: #7a5c4a; color: #fff; }
+.text-danger { color: #a0715a !important; }
+.alert-success { background-color: rgba(141,96,74,.12); border-color: #8d604a; color: #5c3d2e; }
+.alert-danger, .alert-error { background-color: rgba(122,92,74,.12); border-color: #7a5c4a; color: #5c3d2e; }
+.alert-warning { background-color: rgba(165,129,102,.15); border-color: #a58166; color: #5c3d2e; }
+.alert-info { background-color: rgba(180,156,138,.12); border-color: #b49c8a; color: #5c3d2e; }
+.form-control, .form-select { border: 1px solid #d4c4ba; }
+.promo-name-error { color: #a0715a; font-size: .82rem; margin-top: 4px; display: none; }
 .promo-name-error.visible { display: block; }
-.form-control.is-invalid-name {
-    border-color: #a0715a !important;
-    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
-}
-.form-control.is-valid-name {
-    border-color: #6ba06a !important;
-    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
-}
-
-/* ── Validaciones en tiempo real ── */
-.promo-field-error {
-    color: #dc3545;
-    font-size: .82rem;
-    margin-top: 4px;
-    display: none;
-}
+.form-control.is-invalid-name { border-color: #a0715a !important; box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important; }
+.form-control.is-valid-name { border-color: #6ba06a !important; box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important; }
+.promo-field-error { color: #dc3545; font-size: .82rem; margin-top: 4px; display: none; }
 .promo-field-error.visible { display: block; }
-.form-control.is-invalid-promo {
-    border-color: #dc3545 !important;
-    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
-}
-.form-control.is-valid-promo {
-    border-color: #198754 !important;
-    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
-}
-.promo-char-count {
-    font-size: .78rem;
-    color: #9a8579;
-    text-align: right;
-    margin-top: 3px;
-    display: block;
-}
+.form-control.is-invalid-promo { border-color: #dc3545 !important; box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important; }
+.form-control.is-valid-promo { border-color: #198754 !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important; }
+.promo-char-count { font-size: .78rem; color: #9a8579; text-align: right; margin-top: 3px; display: block; }
 .promo-char-count.near-limit { color: #a0715a; }
 .promo-char-count.at-limit   { color: #dc3545; font-weight: 600; }
-
-/* ── Iconos de validación (chulito verde) ── */
-.promo-input-wrapper {
-    position: relative;
-}
+.promo-input-wrapper { position: relative; }
 .promo-validation-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
-    font-weight: 900;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 1.5rem; font-weight: 900; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
 }
-.promo-validation-icon.show {
-    opacity: 1;
-}
-.promo-validation-icon.valid {
-    color: #198754;
-}
-.promo-validation-icon.invalid {
-    color: #dc3545;
-}
-
-/* Animación shake para caracteres no permitidos */
+.promo-validation-icon.show { opacity: 1; }
+.promo-validation-icon.valid { color: #198754; }
+.promo-validation-icon.invalid { color: #dc3545; }
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
     20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+.container-fluid { animation: pageEnter .4s ease both; }
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 {% endblock %}
@@ -346,14 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
 
-    /* ══════════════════════════════════════════════════════
-       VALIDACIONES EN TIEMPO REAL — Promociones (form)
-       - Nombre:      obligatorio · 2-200 chars · solo letras y espacios
-       - Descripción: máx 500 chars · contador
-       - Descuento:   >0 · ≤100 · solo números
-    ══════════════════════════════════════════════════════ */
-
-    /* Helper: poner/quitar error en un campo con ícono */
     function promoErr(input, errEl, msg, iconEl) {
         if (msg) {
             input.classList.add('is-invalid-promo');
@@ -361,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errEl.textContent = msg;
             errEl.classList.add('visible');
             if (iconEl) {
-                iconEl.classList.remove('valid', 'bi-check-lg');
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
                 iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
             }
         } else {
@@ -370,14 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
             errEl.textContent = '';
             errEl.classList.remove('visible');
             if (iconEl) {
-                iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
                 iconEl.classList.add('show', 'valid', 'bi-check-lg');
             }
         }
         return !msg;
     }
 
-    /* ── Bloquear caracteres no permitidos en nombre (tiempo real) ── */
     function bloquearCaracteresNombre(e) {
         const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
         if (e.key.length > 1) return;
@@ -389,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* ── Bloquear caracteres no numéricos y valores > 100 en descuento (tiempo real) ── */
     function bloquearCaracteresDescuento(e) {
         const permitidos = /^[0-9]$/;
         if (e.key.length > 1) return;
@@ -399,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { e.target.style.animation = ''; }, 300);
             return;
         }
-        /* Simular el valor resultante y bloquearlo si supera 100 */
         const input = e.target;
         const start = input.selectionStart;
         const end   = input.selectionEnd;
@@ -412,7 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* ── Validar nombre (solo letras y espacios) ── */
     const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
     function validarNombrePromo(input, errEl, iconEl) {
         const v = input.value.trim();
@@ -424,7 +336,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return promoErr(input, errEl, msg, iconEl);
     }
 
-    /* ── Validar descuento ── */
     function validarDescuentoPromo(input, errEl, iconEl) {
         const raw = input.value.trim();
         const val = parseFloat(raw);
@@ -436,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return promoErr(input, errEl, msg, iconEl);
     }
 
-    /* ── Contador descripción ── */
     function promoContador(textarea, contEl, max) {
         const len = textarea.value.length;
         if (len > max) textarea.value = textarea.value.substring(0, max);
@@ -446,19 +356,16 @@ document.addEventListener('DOMContentLoaded', () => {
              len >= max * 0.85 ? ' near-limit' : '');
     }
 
-    /* ── Fecha máxima de inicio: hoy + 12 meses ── */
     function promoMaxInicio() {
         const d = new Date();
         d.setMonth(d.getMonth() + 12);
         return d.toISOString().split('T')[0];
     }
-    /* Fecha máxima de fin: 31/12 del año de promoMaxInicio */
     function promoMaxFin() {
         const year = new Date(promoMaxInicio()).getFullYear();
         return `${year}-12-31`;
     }
 
-    /* ── Validar fechas (form independiente) ── */
     function validarFechasPromoForm(inEl, finEl, errInEl, errFinEl) {
         const maxInicio = promoMaxInicio();
         const maxFin    = promoMaxFin();
@@ -472,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             promoErr(inEl, errInEl, '');
         }
-        /* Actualizar min del fin cada vez que cambia inicio */
         if (inEl.value) finEl.min = inEl.value;
         if (!finEl.value) {
             promoErr(finEl, errFinEl, 'La fecha de fin es obligatoria.');
@@ -497,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return okIn && okFin;
     }
 
-    /* ── Conectar: Nombre ── */
     const nombreInput    = document.getElementById('id_nombre');
     const errNombre      = document.getElementById('err_nombre_promo_form');
     const iconNombre     = document.getElementById('icon_nombre_form');
@@ -522,14 +427,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ── Conectar: Descuento ── */
     const descuentoInput = document.getElementById('id_porcentaje_descuento');
     const errDescuento   = document.getElementById('err_descuento_form');
     const iconDescuento  = document.getElementById('icon_descuento_form');
     if (descuentoInput) {
         descuentoInput.addEventListener('keydown', bloquearCaracteresDescuento);
         descuentoInput.addEventListener('input', function () {
-            /* Recortar si se pegó o modificó un valor > 100 */
             const val = parseFloat(this.value);
             if (!isNaN(val) && val > 100) this.value = '100';
             validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento);
@@ -544,7 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ── Conectar: Fechas ── */
     const inicioInput = document.getElementById('id_fecha_inicio');
     const finInput    = document.getElementById('id_fecha_fin');
     const errInicio   = document.getElementById('err_inicio_form');
@@ -558,7 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
         finInput.addEventListener('change', () => validarFechasPromoForm(inicioInput, finInput, errInicio, errFin));
     }
 
-    /* ── Conectar: Descripción (contador) ── */
     const descInput = document.getElementById('id_descripcion');
     const charDesc  = document.getElementById('char_desc_form');
     if (descInput && charDesc) {
@@ -566,7 +467,6 @@ document.addEventListener('DOMContentLoaded', () => {
         descInput.addEventListener('input', () => promoContador(descInput, charDesc, 500));
     }
 
-    /* ── Validación al enviar ── */
     const formEl = document.querySelector('form');
     if (formEl) {
         formEl.addEventListener('submit', function(e) {
