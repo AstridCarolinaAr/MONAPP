@@ -1534,6 +1534,14 @@ small.text-muted {
     animation: subtitle-in 0.35s ease 1s forwards;
 }
 
+.personal-header > h1,
+.module-toolbar > h2.mb-0,
+.proveedores-header-top h4.mb-0,
+.compras-topbar-main .titulo-modulo,
+.container-fluid.py-4 > .d-flex.justify-content-between.align-items-center.mb-4:has(h3.mb-0.fw-semibold) {
+    display: none !important;
+}
+
 @keyframes cart-drive {
     0% { opacity: 0; transform: translateX(120px); }
     65% { opacity: 1; transform: translateX(-5px); }

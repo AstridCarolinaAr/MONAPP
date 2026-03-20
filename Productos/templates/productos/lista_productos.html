@@ -9,10 +9,12 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 {% endblock %}
 
-{% block content %}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 productos-header-row">
-        <h2 class="mb-0 module-title-unified">Gestion de Productos</h2>
+{% block page_icon %}<i class="bi bi-box-seam page-icon"></i>{% endblock %}
+{% block page_title %}Productos{% endblock %}
+{% block page_subtitle %}Gestion general de productos{% endblock %}
 
+{% block content %}
+    <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-3 productos-header-row">
         <div class="productos-header-actions">
           <a href="{% url 'productos:crear_producto' %}"
             class="btn-pill-dark"
