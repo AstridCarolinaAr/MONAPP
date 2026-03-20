@@ -29,3 +29,29 @@ class ServicioModelTest(TestCase):
         """Prueba que el método __str__ devuelve el formato esperado"""
         expected_str = 'Corte de Cabello - $50.00'
         self.assertEqual(str(self.servicio), expected_str)
+    
+    def test_actualizar_servicio_correctamente(self):
+        """Prueba que un servicio se puede actualizar correctamente"""
+        self.servicio.nombre = 'Corte Premium'
+        self.servicio.precio = Decimal('75.00')
+        self.servicio.descripcion = 'Corte de cabello premium con tratamiento'
+        self.servicio.save()
+        
+        # Recargar desde la base de datos
+        servicio_actualizado = Servicio.objects.get(id_servicio=self.servicio.id_servicio)
+        
+        self.assertEqual(servicio_actualizado.nombre, 'Corte Premium')
+        self.assertEqual(servicio_actualizado.precio, Decimal('75.00'))
+        self.assertEqual(servicio_actualizado.descripcion, 'Corte de cabello premium con tratamiento')
+    
+    def test_servicio_inactivo(self):
+        """Prueba que un servicio se puede desactivar correctamente"""
+        self.assertTrue(self.servicio.activo)
+        
+        self.servicio.activo = False
+        self.servicio.save()
+        
+        # Recargar desde la base de datos
+        servicio_inactivo = Servicio.objects.get(id_servicio=self.servicio.id_servicio)
+        
+        self.assertFalse(servicio_inactivo.activo)

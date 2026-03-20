@@ -207,6 +207,31 @@ class GestionAlisadoForm(forms.ModelForm):
         self.fields['cliente'].queryset = Cliente.objects.filter(estado='activo').order_by('nombre', 'apellido')
         # Función para mostrar nombre completo y documento
         self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellido} - {obj.numero_documento}"
+        
+        # Si es un nuevo registro (sin instancia), agregar valores predeterminados lógicos
+        if not self.instance.pk:
+            # Características del cabello - valores por defecto a "media" o "normal" para no bloquear la navegación
+            self.fields['porosidad'].initial = 'media'
+            self.fields['elasticidad'].initial = 'media'
+            self.fields['densidad'].initial = 'media'
+            self.fields['piel_cabelludo'].initial = 'normal'
+            self.fields['alopecia'].initial = 'no_presenta'
+            self.fields['caida_cabello'].initial = 'no_presenta'
+            self.fields['caspa'].initial = 'no_presenta'
+            self.fields['textura'].initial = 'normal'
+            
+            # Otros campos comunes
+            self.fields['lactante'].initial = 'no'
+            self.fields['gestante'].initial = 'no'
+            self.fields['sufre_tiroides'].initial = 'no'
+            self.fields['cuenta_con_secador'].initial = 'si'
+            self.fields['realiza_ejercicio'].initial = 'no'
+            self.fields['se_bana_agua_caliente'].initial = 'no'
+            self.fields['usa_casco'].initial = 'no'
+            self.fields['requiere_resellado'].initial = 'no'
+            self.fields['requiere_refuerzo_15dias'].initial = 'no'
+            self.fields['despunte_hoy'].initial = 'no'
+            self.fields['es_oferta_especial'].initial = 'no'
     
     def clean(self):
         cleaned_data = super().clean()
