@@ -24,7 +24,7 @@ def index(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('core:dashboard')
+            return redirect(request.POST.get('next') or 'core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
