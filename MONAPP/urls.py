@@ -36,6 +36,7 @@ urlpatterns = [
     path('promociones/', include('promociones.urls')),
     path('gestion/', include('Gestion.urls')),
     path('servicios_web/', include('servicios_web.urls')),
+    path('backup/', include('backup.urls')),
 ]
 
 if settings.DEBUG:
