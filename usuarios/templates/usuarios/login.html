@@ -56,6 +56,9 @@
       <div id="panelLogin">
         <form method="post" action="{% url 'usuarios:login' %}" id="loginForm" autocomplete="off">
           {% csrf_token %}
+          {% if request.GET.next %}
+          <input type="hidden" name="next" value="{{ request.GET.next }}">
+          {% endif %}
 
           <div class="input-icon-wrapper">
             <i class="bi bi-person"></i>
@@ -65,7 +68,7 @@
           <div class="input-icon-wrapper password-wrapper">
             <i class="bi bi-lock"></i>
             <input type="password" id="password" name="password" placeholder="Contraseña" required>
-            <span id="togglePassword" class="toggle-eye">&#128064;</span>
+            <i id="togglePassword" class="bi bi-eye toggle-eye"></i>
           </div>
 
           <button type="submit" class="btn-login">

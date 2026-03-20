@@ -39,7 +39,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('core:dashboard')
+            return redirect(request.POST.get('next') or 'core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
         # Redirigir de vuelta a la página donde estaba el usuario para que el modal se pueda reabrir
