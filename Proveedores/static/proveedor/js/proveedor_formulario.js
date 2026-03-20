@@ -6,6 +6,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const modal = new bootstrap.Modal(modalEl);
 
+  function limpiarEstadoModal() {
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("padding-right");
+    document.body.style.removeProperty("overflow");
+    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+  }
+
+  modalEl.addEventListener("hidden.bs.modal", limpiarEstadoModal);
+
   async function fetchSmart(url, options = {}) {
     const res = await fetch(url, options);
     const contentType = (res.headers.get("content-type") || "").toLowerCase();
@@ -74,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 if (result.type === "json") {
   if (result.data.success) {
     modal.hide();
+    limpiarEstadoModal();
 
     if (result.data.redirect_url) {
       window.location.href = result.data.redirect_url;

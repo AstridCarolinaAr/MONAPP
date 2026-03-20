@@ -357,6 +357,8 @@
     slots.forEach(mount);
   }
 
+  window.initMetaballs = boot;
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
   } else {

@@ -53,16 +53,17 @@ def lista_proveedores(request):
             "estado": "estado",
         }
     )
-    return render(
-        request,
-        "proveedor/lista_proveedor.html",
-        {
-            "proveedores": proveedores,
-            "estado_actual": estado,
-            "q": q,
-            **sorting_context(sort_key, direction),
-        }
-    )
+    context = {
+        "proveedores": proveedores,
+        "estado_actual": estado,
+        "q": q,
+        **sorting_context(sort_key, direction),
+    }
+
+    if is_ajax(request):
+        return render(request, "proveedor/lista_proveedores_global.html", context)
+
+    return render(request, "proveedor/lista_proveedor.html", context)
 
 
 def crear_proveedor(request):

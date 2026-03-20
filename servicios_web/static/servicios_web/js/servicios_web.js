@@ -263,6 +263,10 @@ document.addEventListener("DOMContentLoaded", () => {
     window.initServiciosWeb = function () {
 
         const serviciosWebView = document.getElementById("serviciosWebView");
+        const searchShell = document.getElementById("swSearchShell");
+        const searchToggle = document.getElementById("swSearchToggle");
+        const searchInput = document.getElementById("swBuscarServicios");
+        const noResults = document.getElementById("swNoResults");
 
         /* ── Vista guardada ── */
         function animarCardsGrid() {
@@ -272,19 +276,72 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        function actualizarNoResultados() {
+            if (!noResults) return;
+            const visiblesGrid = document.querySelectorAll("#servicesGrid .sq-card:not(.sw-hidden)").length;
+            const visiblesTabla = document.querySelectorAll(".services-table-wrapper tbody tr:not(.sw-hidden)").length;
+            const totalVisible = Math.max(visiblesGrid, visiblesTabla);
+            noResults.classList.toggle("is-visible", totalVisible === 0);
+        }
+
+        function filtrarServicios() {
+            const termino = (searchInput?.value || "").trim().toLowerCase();
+
+            document.querySelectorAll("#servicesGrid .sq-card").forEach(card => {
+                const contenido = (card.dataset.search || "").toLowerCase();
+                card.classList.toggle("sw-hidden", !!termino && !contenido.includes(termino));
+            });
+
+            document.querySelectorAll(".services-table-wrapper tbody tr").forEach(row => {
+                const contenido = (row.dataset.search || "").toLowerCase();
+                row.classList.toggle("sw-hidden", !!termino && !contenido.includes(termino));
+                row.style.display = row.classList.contains("sw-hidden") ? "none" : "";
+            });
+
+            actualizarNoResultados();
+            if ((serviciosWebView?.dataset.view || "") !== "table") {
+                animarCardsGrid();
+            }
+        }
+
         function aplicarVista(view) {
             if (!serviciosWebView) return;
             serviciosWebView.dataset.view = view;
             localStorage.setItem("servicios_web_view_mode", view);
             document.querySelectorAll(".sw-view-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
             if (view !== "table") animarCardsGrid();
+            actualizarNoResultados();
         }
 
         document.querySelectorAll(".sw-view-btn").forEach(btn => {
+            if (btn.dataset.boundView === "1") return;
+            btn.dataset.boundView = "1";
             btn.addEventListener("click", () => aplicarVista(btn.dataset.view));
         });
 
-        aplicarVista(localStorage.getItem("servicios_web_view_mode") || "grid-2");
+        if (searchToggle && searchShell && searchToggle.dataset.boundSearch !== "1") {
+            searchToggle.dataset.boundSearch = "1";
+            searchToggle.addEventListener("click", () => {
+                searchShell.classList.toggle("is-open");
+                if (searchShell.classList.contains("is-open")) {
+                    searchInput?.focus();
+                } else if (searchInput) {
+                    searchInput.value = "";
+                    filtrarServicios();
+                }
+            });
+        }
+
+        if (searchInput && searchInput.dataset.boundInput !== "1") {
+            searchInput.dataset.boundInput = "1";
+            if (searchInput.value.trim()) {
+                searchShell?.classList.add("is-open");
+            }
+            searchInput.addEventListener("input", filtrarServicios);
+        }
+
+        aplicarVista(localStorage.getItem("servicios_web_view_mode") || "grid-3");
+        filtrarServicios();
 
         /* ── Videos en cards ── */
         function prepareVideo(video) {
