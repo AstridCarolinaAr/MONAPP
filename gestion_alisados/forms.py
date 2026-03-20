@@ -1,9 +1,10 @@
 from django import forms
 from .models import GestionAlisado
 from clientes.models import Cliente
+from core.form_validations import ValidationFormMixin
 
 
-class GestionAlisadoForm(forms.ModelForm):
+class GestionAlisadoForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = GestionAlisado
         fields = [

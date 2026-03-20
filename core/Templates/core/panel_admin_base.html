@@ -329,14 +329,84 @@
     <!-- JS GENERAL -->
     <script src="{% static 'core/js/main.js' %}"></script>
 
-    <!-- Sienna accessibility (lo mantengo) -->
-    <script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
+    <!-- Sienna accessibility (Carolina) -->
+    <script src="{% static 'core/js/sienna.js' %}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof SiennaAccessibility !== 'undefined') {
                 SiennaAccessibility.init();
             }
         });
+    </script>
+
+    <script>
+        (function initSiennaDraggable() {
+            function makeDraggable() {
+                const btn = document.querySelector('.asw-menu-btn');
+                if (!btn) { setTimeout(makeDraggable, 300); return; }
+
+                let isDragging = false, hasMoved = false, offsetX, offsetY;
+                btn.style.cursor = 'grab';
+
+                btn.addEventListener('mousedown', (e) => {
+                    isDragging = true; hasMoved = false;
+                    const rect = btn.getBoundingClientRect();
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                    btn.style.cursor = 'grabbing';
+                    btn.style.transition = 'none';
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    hasMoved = true;
+                    let x = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, e.clientX - offsetX));
+                    let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, e.clientY - offsetY));
+                    btn.style.left = x + 'px';
+                    btn.style.top = y + 'px';
+                    btn.style.right = 'auto';
+                    btn.style.bottom = 'auto';
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) { isDragging = false; btn.style.cursor = 'grab'; }
+                });
+
+                btn.addEventListener('touchstart', (e) => {
+                    const t = e.touches[0];
+                    isDragging = true;
+                    hasMoved = false;
+                    const rect = btn.getBoundingClientRect();
+                    offsetX = t.clientX - rect.left;
+                    offsetY = t.clientY - rect.top;
+                    btn.style.transition = 'none';
+                }, { passive: true });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    hasMoved = true;
+                    const t = e.touches[0];
+                    let x = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, t.clientX - offsetX));
+                    let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, t.clientY - offsetY));
+                    btn.style.left = x + 'px';
+                    btn.style.top = y + 'px';
+                    btn.style.right = 'auto';
+                    btn.style.bottom = 'auto';
+                }, { passive: true });
+
+                document.addEventListener('touchend', () => { isDragging = false; });
+
+                btn.addEventListener('click', (e) => {
+                    if (hasMoved) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        hasMoved = false;
+                    }
+                }, true);
+            }
+            makeDraggable();
+        })();
     </script>
 
     <!-- SweetAlert2 (tu archivo tenía 2 formas; dejo UNA sola porque ya lo cargas arriba) -->

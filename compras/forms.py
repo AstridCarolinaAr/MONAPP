@@ -1,5 +1,10 @@
+import re
+
 from django import forms
-from django.forms import inlineformset_factory,BaseInlineFormSet
+from django.forms import BaseInlineFormSet, inlineformset_factory
+from django.db.models import Sum
+from core.form_validations import ValidationFormMixin
+
 from .models import (
     Compra,
     DetalleCompra,
@@ -8,24 +13,62 @@ from .models import (
 )
 from Proveedores.models import Proveedor
 from Productos.models import Producto
-from django.db.models import Q,Sum
 
-class CompraForm(forms.ModelForm):
+
+MAX_CANTIDAD_COMPRA = 1000000
+
+
+PATRONES_TEXTO_PELIGROSO = [
+    re.compile(r"{{|}}|{%|%}"),
+    re.compile(r"<\s*script", re.IGNORECASE),
+    re.compile(r"javascript\s*:", re.IGNORECASE),
+    re.compile(r"on\w+\s*=", re.IGNORECASE),
+]
+
+
+def validar_texto_seguro(valor, nombre_campo):
+    valor = (valor or "").strip()
+
+    for patron in PATRONES_TEXTO_PELIGROSO:
+        if patron.search(valor):
+            raise forms.ValidationError(
+                f"El campo {nombre_campo} contiene patrones no permitidos."
+            )
+
+    return valor
+
+
+class CompraForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Compra
-        fields = [
-            "proveedor",
-        ]
+        fields = ["proveedor"]
         widgets = {
             "proveedor": forms.Select(attrs={"class": "form-select"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["proveedor"].queryset = Proveedor.objects.filter(estado="activo").order_by("nombre_proveedor")
-        
-        
-class DetalleCompraForm(forms.ModelForm):
+        self.fields["proveedor"].queryset = (
+            Proveedor.objects
+            .filter(estado="activo")
+            .order_by("nombre_proveedor")
+        )
+
+    def clean_proveedor(self):
+        proveedor = self.cleaned_data.get("proveedor")
+
+        if not proveedor:
+            raise forms.ValidationError("Selecciona un proveedor.")
+
+        if proveedor.estado != "activo":
+            raise forms.ValidationError(
+                "Solo puedes registrar compras con proveedores activos."
+            )
+
+        return proveedor
+
+
+class DetalleCompraForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = DetalleCompra
         fields = ["producto", "cantidad", "precio_unitario"]
@@ -42,22 +85,18 @@ class DetalleCompraForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        #  Base: solo activos
         qs = Producto.objects.filter(activo=True)
 
-        #  Si estamos editando un detalle existente, incluir su producto aunque esté inactivo
         if self.instance and self.instance.producto_id:
             qs = (qs | Producto.objects.filter(pk=self.instance.producto_id)).distinct()
 
         self.fields["producto"].queryset = qs.order_by("nombre")
         self.fields["producto"].widget.attrs.update({"class": "form-select"})
 
-        #  Mostrar etiqueta bonita (Inactivo)
         self.fields["producto"].label_from_instance = lambda obj: (
             f"{obj.nombre} (Inactivo)" if not obj.activo else obj.nombre
         )
 
-        #  Si el producto actual del detalle está inactivo, no permitir cambiarlo
         if self.instance and self.instance.producto_id and not self.instance.producto.activo:
             self.fields["producto"].disabled = True
             self.fields["producto"].help_text = (
@@ -65,34 +104,131 @@ class DetalleCompraForm(forms.ModelForm):
             )
 
     def clean_producto(self):
-        """
-         Seguridad extra: aunque manipulen el POST, no dejamos cambiar el producto
-        si el producto original del detalle está inactivo.
-        """
         producto = self.cleaned_data.get("producto")
 
         if self.instance and self.instance.producto_id and not self.instance.producto.activo:
-            return self.instance.producto  # forzamos el original
+            return self.instance.producto
+
+        if not producto:
+            raise forms.ValidationError("Selecciona un producto.")
+
+        if not producto.activo:
+            raise forms.ValidationError(
+                "Solo puedes registrar compras con productos activos."
+            )
 
         return producto
+
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get("cantidad")
+
+        if cantidad is None:
+            raise forms.ValidationError("La cantidad es obligatoria.")
+
+        if cantidad <= 0:
+            raise forms.ValidationError("La cantidad debe ser mayor que 0.")
+
+        if cantidad > MAX_CANTIDAD_COMPRA:
+            raise forms.ValidationError(
+                f"La cantidad no puede superar {MAX_CANTIDAD_COMPRA} unidades."
+            )
+
+        return cantidad
+
+    def clean_precio_unitario(self):
+        precio_unitario = self.cleaned_data.get("precio_unitario")
+
+        if precio_unitario is None:
+            raise forms.ValidationError("El precio unitario es obligatorio.")
+
+        if precio_unitario <= 0:
+            raise forms.ValidationError(
+                "El precio unitario debe ser mayor que 0."
+            )
+
+        return precio_unitario
+
+
+class BaseDetalleCompraFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        if any(self.errors):
+            return
+
+        hay_detalle = False
+        productos_repetidos = {}
+
+        for form in self.forms:
+            if not hasattr(form, "cleaned_data"):
+                continue
+
+            if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                continue
+
+            producto = form.cleaned_data.get("producto")
+            cantidad = form.cleaned_data.get("cantidad")
+            precio_unitario = form.cleaned_data.get("precio_unitario")
+
+            fila_vacia = not producto and not cantidad and not precio_unitario
+            if fila_vacia:
+                continue
+
+            if not producto:
+                form.add_error("producto", "Selecciona un producto.")
+                continue
+
+            if cantidad is None or cantidad <= 0:
+                form.add_error("cantidad", "La cantidad debe ser mayor que 0.")
+                continue
+
+            if precio_unitario is None or precio_unitario <= 0:
+                form.add_error("precio_unitario", "El precio unitario debe ser mayor que 0.")
+                continue
+
+            hay_detalle = True
+            productos_repetidos.setdefault(producto.pk, []).append(form)
+
+        if not hay_detalle:
+            raise forms.ValidationError("Debes agregar al menos un producto a la compra.")
+
+        for _, formularios in productos_repetidos.items():
+            if len(formularios) > 1:
+                for formulario in formularios:
+                    formulario.add_error(
+                        "producto",
+                        "No puedes repetir el mismo producto en la compra."
+                    )
 
 
 DetalleCompraFormSet = inlineformset_factory(
     Compra,
     DetalleCompra,
     form=DetalleCompraForm,
+    formset=BaseDetalleCompraFormSet,
     extra=1,
     can_delete=True,
     validate_min=False
 )
-class DevolucionCompraForm(forms.ModelForm):
+
+
+class DevolucionCompraForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = DevolucionCompra
         fields = ["compra", "motivo", "observacion"]
         widgets = {
             "compra": forms.Select(attrs={"class": "form-select"}),
-            "motivo": forms.TextInput(attrs={"class": "form-control"}),
-            "observacion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "motivo": forms.TextInput(attrs={
+                "class": "form-control",
+                "maxlength": 150,
+                "autocomplete": "off",
+            }),
+            "observacion": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "maxlength": 500,
+                "autocomplete": "off",
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -113,8 +249,24 @@ class DevolucionCompraForm(forms.ModelForm):
             raise forms.ValidationError("No puedes devolver sobre una compra anulada.")
         return compra
 
+    def clean_motivo(self):
+        return validar_texto_seguro(self.cleaned_data.get("motivo"), "motivo")
 
-class DetalleDevolucionCompraForm(forms.ModelForm):
+    def clean_observacion(self):
+        observacion = validar_texto_seguro(
+            self.cleaned_data.get("observacion"),
+            "observación"
+        )
+
+        if len(observacion) > 500:
+            raise forms.ValidationError(
+                "La observación no puede superar 500 caracteres."
+            )
+
+        return observacion
+
+
+class DetalleDevolucionCompraForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = DetalleDevolucionCompra
         fields = ["detalle_compra", "cantidad"]
@@ -161,7 +313,10 @@ class DetalleDevolucionCompraForm(forms.ModelForm):
             return cleaned_data
 
         if self.compra_ref and detalle_compra.compra_id != self.compra_ref.id:
-            self.add_error("detalle_compra", "Ese detalle no pertenece a la compra seleccionada.")
+            self.add_error(
+                "detalle_compra",
+                "Ese detalle no pertenece a la compra seleccionada."
+            )
             return cleaned_data
 
         qs_devueltas = DetalleDevolucionCompra.objects.filter(
@@ -173,7 +328,10 @@ class DetalleDevolucionCompraForm(forms.ModelForm):
             qs_devueltas = qs_devueltas.exclude(pk=self.instance.pk)
 
         cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
-        disponible_para_devolver = max((detalle_compra.cantidad or 0) - cantidad_ya_devuelta, 0)
+        disponible_para_devolver = max(
+            (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+            0
+        )
 
         if cantidad > disponible_para_devolver:
             self.add_error(
@@ -245,7 +403,10 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
                 qs_devueltas = qs_devueltas.exclude(pk=form.instance.pk)
 
             cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
-            disponible_para_devolver = max((detalle_compra.cantidad or 0) - cantidad_ya_devuelta, 0)
+            disponible_para_devolver = max(
+                (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+                0
+            )
 
             if total_en_formset > disponible_para_devolver:
                 form.add_error(

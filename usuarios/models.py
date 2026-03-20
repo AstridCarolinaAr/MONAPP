@@ -76,6 +76,13 @@ class PerfilUsuario(models.Model):
         null=True,
         help_text="Fecha de creación del código de recuperación"
     )
+    whatsapp_key = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text='API Key de CallMeBot para recibir alertas por WhatsApp',
+        verbose_name='CallMeBot API Key',
+    )
     
     class Meta:
         verbose_name = "Perfil de Usuario"

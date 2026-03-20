@@ -1,10 +1,13 @@
 import re
 from decimal import Decimal
+from datetime import date
+from calendar import monthrange
 from django import forms
+from core.form_validations import ValidationFormMixin
 from .models import Promocion
 
 
-class PromocionForm(forms.ModelForm):
+class PromocionForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Promocion
         fields = ['nombre', 'descripcion', 'etiqueta', 'porcentaje_descuento', 'fecha_inicio', 'fecha_fin', 'imagen', 'activa']
@@ -23,12 +26,10 @@ class PromocionForm(forms.ModelForm):
             'etiqueta': forms.Select(attrs={
                 'class': 'form-select',
             }),
-            'porcentaje_descuento': forms.NumberInput(attrs={
+            'porcentaje_descuento': forms.TextInput(attrs={
                 'class': 'form-control',
-                'step': '0.01',
-                'min': '0.01',
-                'max': '100',
-                'placeholder': 'Ej: 15.00',
+                'inputmode': 'numeric',
+                'placeholder': 'Ej: 15',
             }),
             'fecha_inicio': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -90,8 +91,8 @@ class PromocionForm(forms.ModelForm):
         pct = self.cleaned_data.get('porcentaje_descuento')
         if pct is None:
             raise forms.ValidationError('El porcentaje de descuento es obligatorio.')
-        if pct <= Decimal('0'):
-            raise forms.ValidationError('El descuento debe ser mayor a 0%.')
+        if pct < Decimal('1'):
+            raise forms.ValidationError('El descuento mínimo es 1%.')
         if pct > Decimal('100'):
             raise forms.ValidationError('El descuento no puede superar el 100%.')
         if pct != pct.quantize(Decimal('0.01')):
@@ -103,6 +104,14 @@ class PromocionForm(forms.ModelForm):
         fecha = self.cleaned_data.get('fecha_inicio')
         if not fecha:
             raise forms.ValidationError('La fecha de inicio es obligatoria.')
+        today = date.today()
+        max_year  = today.year + 1
+        max_day   = min(today.day, monthrange(max_year, today.month)[1])
+        max_inicio = date(max_year, today.month, max_day)
+        if fecha > max_inicio:
+            raise forms.ValidationError(
+                f'La fecha de inicio no puede ser más de 12 meses a partir de hoy ({max_inicio.strftime("%d/%m/%Y")}).'
+            )
         return fecha
 
     def clean_fecha_fin(self):
@@ -138,5 +147,12 @@ class PromocionForm(forms.ModelForm):
                 self.add_error('fecha_fin', 'La fecha de fin no puede ser anterior a la fecha de inicio.')
             from datetime import timedelta
             if (fin - inicio).days > 365:
-                self.add_error('fecha_fin', 'La promoción no puede durar más de 1 año (365 días).')
+                self.add_error('fecha_fin', 'La promoción no puede durar más de 1 año (365 días).')            # La fecha de fin no puede pasar del 31/12 del año límite (año de inicio_max)
+            today = date.today()
+            max_year_inicio  = today.year + 1
+            max_day_inicio   = min(today.day, monthrange(max_year_inicio, today.month)[1])
+            max_inicio = date(max_year_inicio, today.month, max_day_inicio)
+            max_fin    = date(max_inicio.year, 12, 31)
+            if fin > max_fin:
+                self.add_error('fecha_fin', f'La fecha de fin no puede superar el 31/12/{max_fin.year}.')
         return cleaned_data
