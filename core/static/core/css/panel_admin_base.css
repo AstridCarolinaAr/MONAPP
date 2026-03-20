@@ -2025,14 +2025,53 @@ a.btn-link:active i {
 /* ================================================================
    BACKDROP BORROSO GLOBAL — blur solo al contenido, no a los modales
 ================================================================ */
-.modal-open .page-card {
+.modal-open .page-card > *:not(.modal) {
+    filter: blur(3px);
     transition: filter 0.25s ease;
-}
-.modal-open .page-card * {
     pointer-events: none;
 }
 .modal-backdrop.show {
     opacity: 0.5 !important;
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
+}
+
+/* ================================================================
+   MODALES GLOBALES DEL PANEL
+================================================================ */
+.page-card .modal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.page-card .modal .modal-header {
+    background: linear-gradient(135deg, #3a2a24, #5c3d2e) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.page-card .modal .modal-header .modal-title,
+.page-card .modal .modal-header .modal-title i,
+.page-card .modal .modal-header .btn-close {
+    color: #fff !important;
+}
+
+.page-card .modal .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+    background-size: 15px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.page-card .modal .modal-header .btn-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
 }
