@@ -10,6 +10,6 @@ urlpatterns = [
     path('<uuid:pk>/editar/', views.editar_gestion_alisado, name='editar_gestion_alisado'),
     path('<uuid:pk>/eliminar/', views.eliminar_gestion_alisado, name='eliminar_gestion_alisado'),
     path('form_gestion_alisado_modal_content/', views.form_gestion_alisado_modal_content, name='form_gestion_alisado_modal_content'),
-    path('<uuid:pk>/pdf/',  views.generar_pdf_gestion_alisado,  name='generar_pdf_gestion_alisado'),
-    path('<uuid:pk>/word/', views.generar_word_gestion_alisado, name='generar_word_gestion_alisado'),
+    # path('<uuid:pk>/pdf/',  views.generar_pdf_gestion_alisado,  name='generar_pdf_gestion_alisado'),
+    # path('<uuid:pk>/word/', views.generar_word_gestion_alisado, name='generar_word_gestion_alisado'),
 ]
