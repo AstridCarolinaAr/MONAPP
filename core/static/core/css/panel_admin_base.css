@@ -1445,6 +1445,97 @@ small.text-muted {
     flex-wrap: wrap;
 }
 
+.page-title,
+.module-title-unified {
+    line-height: 1.05;
+    letter-spacing: 0;
+}
+
+.page-icon:not(.ventas-cart-icon) {
+    display: inline-block;
+    opacity: 0;
+    animation: cart-drive 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+
+.page-title:not(:has(.ventas-title-text)) {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: title-reveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s forwards;
+}
+
+.page-title i,
+.module-title-unified i {
+    font-size: 0.92em;
+    margin-right: 6px;
+}
+
+.page-subtitle:not(:has(.ventas-subtitle-anim)),
+.module-subtitle-unified {
+    display: inline-block;
+    margin-top: 3px;
+    color: #6c757d;
+    font-size: 12px;
+    opacity: 0;
+    animation: subtitle-in 0.35s ease 1s forwards;
+}
+
+.module-title-unified {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 33px;
+    font-weight: 800;
+    color: #111;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: title-reveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s forwards;
+}
+
+.module-toolbar > h1,
+.module-toolbar > h2,
+.module-toolbar > h3,
+.personal-header > h1 {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 33px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0;
+    color: #111;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: title-reveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s forwards;
+}
+
+.module-toolbar > h1 i,
+.module-toolbar > h2 i,
+.module-toolbar > h3 i,
+.personal-header > h1 i {
+    font-size: 0.92em;
+    color: #000;
+}
+
+@keyframes cart-drive {
+    0% { opacity: 0; transform: translateX(120px); }
+    65% { opacity: 1; transform: translateX(-5px); }
+    82% { transform: translateX(3px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes title-reveal {
+    0% { opacity: 0; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes subtitle-in {
+    0% { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
 .module-toolbar {
     display: flex;
     align-items: flex-end;
