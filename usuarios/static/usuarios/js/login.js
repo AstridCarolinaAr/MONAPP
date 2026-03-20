@@ -91,95 +91,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const captchaBox = document.getElementById('loginCaptchaBox');
     const captchaTrigger = document.getElementById('loginCaptchaTrigger');
     const captchaVerifiedInput = document.getElementById('captchaVerified');
-    const captchaOverlay = document.getElementById('captchaChallengeOverlay');
-    const captchaCodeEl = document.getElementById('captchaChallengeCode');
-    const captchaInput = document.getElementById('captchaChallengeInput');
-    const captchaError = document.getElementById('captchaChallengeError');
-    const captchaVerifyBtn = document.getElementById('captchaVerifyBtn');
-    const captchaCancelBtn = document.getElementById('captchaCancelBtn');
-    const captchaCloseBtn = document.getElementById('captchaCloseBtn');
-    let activeCaptchaCode = '';
-
-    const generateCaptchaCode = () => {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    };
-
-    const openCaptchaChallenge = () => {
-        if (!captchaBox || !captchaOverlay) return;
-        captchaBox.classList.add('verifying');
-        activeCaptchaCode = generateCaptchaCode();
-        if (captchaCodeEl) captchaCodeEl.textContent = activeCaptchaCode;
-        if (captchaInput) captchaInput.value = '';
-        if (captchaError) captchaError.textContent = '';
-        captchaOverlay.classList.add('active');
-        setTimeout(() => {
-            if (captchaInput) captchaInput.focus();
-        }, 60);
-    };
-
-    const closeCaptchaChallenge = () => {
-        if (!captchaBox || !captchaOverlay) return;
-        captchaBox.classList.remove('verifying');
-        captchaOverlay.classList.remove('active');
-        if (captchaInput) captchaInput.value = '';
-        if (captchaError) captchaError.textContent = '';
-    };
-
     const markCaptchaVerified = () => {
         if (!captchaBox || !captchaVerifiedInput) return;
-        captchaBox.classList.remove('verifying');
         captchaBox.classList.add('verified');
         captchaVerifiedInput.value = '1';
-        closeCaptchaChallenge();
+    };
+
+    const startCaptchaVerification = () => {
+        if (!captchaBox || !captchaVerifiedInput) return;
+        if (captchaBox.classList.contains('verified') || captchaBox.classList.contains('verifying')) return;
+        captchaBox.classList.add('verifying');
+        setTimeout(() => {
+            captchaBox.classList.remove('verifying');
+            markCaptchaVerified();
+        }, 900);
     };
 
     if (captchaTrigger && captchaBox) {
-        const launchCaptcha = () => {
-            if (captchaBox.classList.contains('verified')) return;
-            openCaptchaChallenge();
-        };
-
-        captchaTrigger.addEventListener('click', launchCaptcha);
+        captchaTrigger.addEventListener('click', startCaptchaVerification);
         captchaTrigger.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                launchCaptcha();
+                startCaptchaVerification();
             }
-        });
-    }
-
-    if (captchaVerifyBtn) {
-        captchaVerifyBtn.addEventListener('click', () => {
-            if (!captchaInput || !captchaError) return;
-            if ((captchaInput.value || '').trim().toUpperCase() !== activeCaptchaCode) {
-                captchaError.textContent = 'El codigo no coincide. Intenta de nuevo.';
-                captchaInput.focus();
-                return;
-            }
-            markCaptchaVerified();
-        });
-    }
-
-    if (captchaCancelBtn) {
-        captchaCancelBtn.addEventListener('click', closeCaptchaChallenge);
-    }
-
-    if (captchaCloseBtn) {
-        captchaCloseBtn.addEventListener('click', closeCaptchaChallenge);
-    }
-
-    if (captchaOverlay) {
-        captchaOverlay.addEventListener('click', (event) => {
-            if (event.target === captchaOverlay) {
-                closeCaptchaChallenge();
-            }
-        });
-    }
-
-    if (captchaInput) {
-        captchaInput.addEventListener('input', () => {
-            captchaInput.value = captchaInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
         });
     }
 
@@ -187,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loginForm.addEventListener('submit', (event) => {
             if (captchaVerifiedInput.value !== '1') {
                 event.preventDefault();
-                openCaptchaChallenge();
+                startCaptchaVerification();
             }
         });
     }

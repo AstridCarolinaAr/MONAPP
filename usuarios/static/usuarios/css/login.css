@@ -740,26 +740,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   color: #9a8e86;
 }
 
-#loginModal .challenge-captcha-img {
-  width: 100%;
-  min-height: 78px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f7f2e7, #fff);
-  border: 1px dashed #c9b9a8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#captchaChallengeCode {
-  font-size: 30px;
-  letter-spacing: 8px;
-  font-weight: 800;
-  color: var(--color-cafe-principal);
-  text-shadow: 1px 1px 0 #fff;
-  user-select: none;
-}
-
 @keyframes captchaSpin {
   to { transform: rotate(360deg); }
 }
