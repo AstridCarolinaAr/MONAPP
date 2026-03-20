@@ -3,7 +3,6 @@ import re
 from django import forms
 from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.db.models import Sum
-from core.form_validations import ValidationFormMixin
 
 from .models import (
     Compra,
@@ -38,7 +37,7 @@ def validar_texto_seguro(valor, nombre_campo):
     return valor
 
 
-class CompraForm(ValidationFormMixin, forms.ModelForm):
+class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
         fields = ["proveedor"]
@@ -68,7 +67,7 @@ class CompraForm(ValidationFormMixin, forms.ModelForm):
         return proveedor
 
 
-class DetalleCompraForm(ValidationFormMixin, forms.ModelForm):
+class DetalleCompraForm(forms.ModelForm):
     class Meta:
         model = DetalleCompra
         fields = ["producto", "cantidad", "precio_unitario"]
@@ -212,7 +211,7 @@ DetalleCompraFormSet = inlineformset_factory(
 )
 
 
-class DevolucionCompraForm(ValidationFormMixin, forms.ModelForm):
+class DevolucionCompraForm(forms.ModelForm):
     class Meta:
         model = DevolucionCompra
         fields = ["compra", "motivo", "observacion"]
@@ -266,7 +265,7 @@ class DevolucionCompraForm(ValidationFormMixin, forms.ModelForm):
         return observacion
 
 
-class DetalleDevolucionCompraForm(ValidationFormMixin, forms.ModelForm):
+class DetalleDevolucionCompraForm(forms.ModelForm):
     class Meta:
         model = DetalleDevolucionCompra
         fields = ["detalle_compra", "cantidad"]

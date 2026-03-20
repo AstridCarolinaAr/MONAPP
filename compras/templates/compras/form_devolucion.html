@@ -1,4 +1,3 @@
-
 <form method="post"
       action="{{ action_url }}"
       id="formDevolucionCompra"
@@ -7,6 +6,14 @@
   {% csrf_token %}
 
   <div id="devolucionErroresGenerales" class="alert alert-danger d-none mb-3"></div>
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger mb-3">
+      {% for e in form.non_field_errors %}
+        <div>{{ e }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   <h5 class="mb-3">Información General</h5>
 
@@ -126,7 +133,8 @@
   </template>
 
   <div class="d-flex justify-content-end mt-4">
-    <button type="submit" class="btn btn-primary" id="btnGuardarDevolucion">
+    <button type="submit" class="btn-pill-dark" id="btnGuardarDevolucion">
+      
       Guardar devolución
     </button>
   </div>
