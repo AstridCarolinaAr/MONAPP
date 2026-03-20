@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from datetime import datetime,date
+from django.db.models import Sum
+from datetime import datetime, date
 
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
@@ -12,7 +13,6 @@ from clientes.models import Cliente
 from servicios.models import Servicio
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
-
 
 
 def index(request):
@@ -29,7 +29,6 @@ def index(request):
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
 
-    # Obtener servicios activos
     servicios = Servicio.objects.filter(activo=True)
     promociones = Promocion.objects.filter(activa=True)
     productos_web = ProductoWeb.objects.filter(visible=True)
@@ -41,54 +40,130 @@ def index(request):
         'productos_web': productos_web,
     })
 
+
 @login_required
 def dashboard_view(request):
-    """
-    Vista principal del panel de administración
-    Todos los usuarios autenticados pueden acceder
-    """
+    hoy = date.today()
+    mes_actual = hoy.month
+    anio_actual = hoy.year
 
-    grupos = list(request.user.groups.values_list('name', flat=True))
-
-    # 📊 Estadísticas
     total_usuarios = User.objects.count()
     usuarios_activos = User.objects.filter(is_active=True).count()
-    usuarios_staff = User.objects.filter(is_staff=True).count()
-
-    mes_actual = datetime.now().month
-    anio_actual = datetime.now().year
-
     nuevos_usuarios_mes = User.objects.filter(
         date_joined__month=mes_actual,
         date_joined__year=anio_actual
     ).count()
 
-    ultimos_usuarios = User.objects.select_related(
-        'perfil'
-    ).order_by('-date_joined')[:5]
-        #  Clientes que cumplen años
-    hoy = date.today()
+    try:
+        from Productos.models import Producto
+        total_productos = Producto.objects.filter(activo=True).count()
+    except Exception:
+        total_productos = 0
 
-    clientes_cumple_hoy = Cliente.objects.filter(
-        fecha_nacimiento__day=hoy.day,
-        fecha_nacimiento__month=hoy.month
-    )
-    
-    clientes_cumple_info = []
-    for cliente in clientes_cumple_hoy:
-        edad = hoy.year - cliente.fecha_nacimiento.year
-        clientes_cumple_info.append({
-            'cliente': cliente,
-            'edad': edad
-        })
+    try:
+        total_clientes = Cliente.objects.count()
+    except Exception:
+        total_clientes = 0
+
+    try:
+        from ventas.models import Venta
+        total_ventas = Venta.objects.filter(estado='activa').count()
+    except Exception:
+        total_ventas = 0
+
+    try:
+        from inventario.models import Stock
+        productos_sin_stock = Stock.objects.filter(cantidad_actual__lte=0).count()
+    except Exception:
+        productos_sin_stock = 0
+
+    total_monto_ventas = 0
+    try:
+        from ventas.models import DetalleVenta
+        total_monto_ventas = DetalleVenta.objects.filter(
+            venta__estado='activa'
+        ).aggregate(t=Sum('subtotal'))['t'] or 0
+    except Exception:
+        pass
+
+    total_monto_compras = 0
+    try:
+        from compras.models import Compra as CompraModel
+        total_monto_compras = CompraModel.objects.filter(
+            anulada=False
+        ).aggregate(t=Sum('precio_total'))['t'] or 0
+    except Exception:
+        pass
+
+    cumpleanios_hoy = []
+    try:
+        clientes_bday = Cliente.objects.filter(
+            fecha_nacimiento__day=hoy.day,
+            fecha_nacimiento__month=hoy.month
+        )
+        for c in clientes_bday:
+            edad = hoy.year - c.fecha_nacimiento.year
+            nombre = (
+                f"{c.nombre} {c.apellido}"
+                if hasattr(c, 'apellido')
+                else getattr(c, 'nombre', str(c))
+            )
+            cumpleanios_hoy.append({
+                'nombre': nombre,
+                'cargo': 'Cliente',
+                'edad': edad
+            })
+    except Exception:
+        pass
+
+    productos_criticos = []
+    try:
+        from inventario.models import Stock
+        stocks_criticos = Stock.objects.filter(
+            cantidad_actual__lte=5
+        ).select_related('producto').order_by('cantidad_actual')[:8]
+
+        for s in stocks_criticos:
+            porcentaje = min(int((s.cantidad_actual / 5) * 100), 100) if s.cantidad_actual > 0 else 0
+            productos_criticos.append({
+                'nombre': s.producto.nombre,
+                'cantidad': s.cantidad_actual,
+                'porcentaje': porcentaje
+            })
+    except Exception:
+        pass
+
+    ultimos_usuarios = User.objects.prefetch_related('groups').order_by('-date_joined')[:5]
+
+    ultimas_ventas = []
+    try:
+        from ventas.models import Venta
+        ultimas_ventas = Venta.objects.select_related('cliente').order_by('-fecha')[:5]
+    except Exception:
+        pass
+
+    ultimas_compras = []
+    try:
+        from compras.models import Compra
+        ultimas_compras = Compra.objects.select_related('proveedor').order_by('-fecha')[:5]
+    except Exception:
+        pass
+
     context = {
-        'titulo': 'Panel de Administración',
+        'total_productos': total_productos,
+        'total_clientes': total_clientes,
+        'total_ventas': total_ventas,
+        'productos_sin_stock': productos_sin_stock,
         'total_usuarios': total_usuarios,
         'usuarios_activos': usuarios_activos,
-        'usuarios_staff': usuarios_staff,
         'nuevos_usuarios_mes': nuevos_usuarios_mes,
+        'total_monto_ventas': total_monto_ventas,
+        'total_monto_compras': total_monto_compras,
+        'cumpleanios_hoy': cumpleanios_hoy,
+        'productos_criticos': productos_criticos,
         'ultimos_usuarios': ultimos_usuarios,
-        'clientes_cumple_hoy': clientes_cumple_info
+        'ultimas_ventas': ultimas_ventas,
+        'ultimas_compras': ultimas_compras,
     }
 
     return render(request, 'core/dashboard.html', context)
@@ -96,28 +171,14 @@ def dashboard_view(request):
 
 @login_required
 def gestion_datos_view(request):
-    """
-    Vista para gestión de datos
-    """
     if request.method == 'POST':
-        # Procesar el formulario enviado desde el modal
         try:
             nombre = request.POST.get('nombre')
             categoria = request.POST.get('categoria')
             descripcion = request.POST.get('descripcion')
             fecha = request.POST.get('fecha')
             estado = request.POST.get('estado')
-            
-            # Aquí puedes guardar los datos en la base de datos
-            # Por ejemplo:
-            # DatoModel.objects.create(
-            #     nombre=nombre,
-            #     categoria=categoria,
-            #     descripcion=descripcion,
-            #     fecha=fecha,
-            #     estado=estado
-            # )
-            
+
             return JsonResponse({
                 'success': True,
                 'message': 'Datos guardados correctamente'
@@ -127,7 +188,7 @@ def gestion_datos_view(request):
                 'success': False,
                 'message': str(e)
             }, status=400)
-    
+
     context = {
         'titulo': 'Gestión de Datos',
     }
