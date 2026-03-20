@@ -272,7 +272,9 @@
 <div class="personal-search-card">
     <form method="get"
           class="personal-search-form js-ajax-search-form"
-          data-target="#personal-results"
+          data-ajax-url="{% url 'personal:lista_personal' %}"
+          data-ajax-target="#personal-results"
+          data-ajax-debounce="300"
           autocomplete="off">
 
         <div class="row g-3 align-items-end">
@@ -718,7 +720,7 @@
     }
     
     // Manejar el cambio de estado activo/inactivo con el switch
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() { return;
         const toggleCheckboxes = document.querySelectorAll('.toggle-activo-checkbox');
         
         toggleCheckboxes.forEach(checkbox => {
@@ -793,6 +795,71 @@
                         color: '#4b3621'
                     });
                 });
+            });
+        });
+    });
+    document.addEventListener('change', function(e) {
+        if (!e.target.classList.contains('toggle-activo-checkbox')) {
+            return;
+        }
+
+        const switchElement = e.target;
+        const personalId = switchElement.dataset.personalId;
+        const personalNombre = switchElement.dataset.personalNombre;
+        const isChecked = switchElement.checked;
+        const csrftoken = getCookie('csrftoken');
+
+        switchElement.disabled = true;
+
+        fetch(`/personal/${personalId}/toggle-activo/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                switchElement.disabled = false;
+
+                Swal.fire({
+                    title: 'Â¡Estado actualizado!',
+                    text: `${personalNombre} ahora ${data.activo ? 'estÃ¡ activo' : 'ya no estÃ¡ activo'}`,
+                    icon: 'success',
+                    confirmButtonColor: '#5d4037',
+                    background: '#fdfaf8',
+                    color: '#4b3621',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                switchElement.checked = !isChecked;
+                switchElement.disabled = false;
+
+                Swal.fire({
+                    title: 'Error',
+                    text: data.mensaje || 'Error al cambiar el estado',
+                    icon: 'error',
+                    confirmButtonColor: '#5d4037',
+                    background: '#fdfaf8',
+                    color: '#4b3621'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            switchElement.checked = !isChecked;
+            switchElement.disabled = false;
+
+            Swal.fire({
+                title: 'Error de conexiÃ³n',
+                text: 'No se pudo cambiar el estado. Intenta nuevamente.',
+                icon: 'error',
+                confirmButtonColor: '#5d4037',
+                background: '#fdfaf8',
+                color: '#4b3621'
             });
         });
     });
