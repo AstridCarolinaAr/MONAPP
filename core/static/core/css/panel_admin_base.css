@@ -18,6 +18,45 @@
     display: flex;
     align-items: center;
 }
+
+.sidebar-handle {
+    position: fixed;
+    top: 50%;
+    left: calc(var(--sidebar-width) - 2px);
+    transform: translateY(-50%);
+    width: 22px;
+    height: 64px;
+    padding: 0;
+    border: none;
+    border-radius: 0 16px 16px 0;
+    background: linear-gradient(180deg, #3a2a24 0%, #2a1d18 100%);
+    box-shadow: 3px 0 10px rgba(0, 0, 0, .28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1050;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: left var(--transition-speed) cubic-bezier(.4,0,.2,1), transform var(--transition-speed) cubic-bezier(.4,0,.2,1), background .22s ease, box-shadow .22s ease;
+}
+
+.sidebar-handle i {
+    font-size: 13px;
+    color: #c8a48c;
+    pointer-events: none;
+    transition: transform .28s cubic-bezier(.4,0,.2,1), color .22s ease;
+}
+
+.sidebar-handle:hover {
+    background: linear-gradient(180deg, #4a3530 0%, #33221c 100%);
+    box-shadow: 4px 0 14px rgba(0,0,0,.38);
+}
+
+.sidebar-handle:hover i {
+    color: #f0c8b0;
+}
 :root {
     /* 🎨 PALETA MONA KERATINA */
     --mona-brown: rgba(141, 96, 74, 0.95);
@@ -81,6 +120,7 @@
     border-radius: 0 40px 40px 0;
     /* Cambio de círculo a rectangular con bordes suaves */
     box-shadow: 4px 0 25px rgba(0, 0, 0, 0.1);
+    transition: width var(--transition-speed) cubic-bezier(.4,0,.2,1), transform var(--transition-speed) cubic-bezier(.4,0,.2,1);
 }
 
 
@@ -288,6 +328,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    transition: margin-left var(--transition-speed) cubic-bezier(.4,0,.2,1);
 }
 
 /* ==================== TOP BAR ==================== */
@@ -896,6 +937,14 @@
     padding: 9px 3px;
 }
 
+body.sidebar-collapsed .sidebar-handle {
+    left: calc(var(--sidebar-collapsed-width) - 2px);
+}
+
+body.sidebar-collapsed .sidebar-handle i {
+    transform: rotate(180deg);
+}
+
 .sidebar.collapsed .user-avatar {
     width: 30px;
     height: 30px;
@@ -924,8 +973,20 @@
 
 /* Tablets y móviles */
 @media (max-width: 991px) {
+    .sidebar-handle {
+        left: -1px;
+    }
+
     .sidebar {
         transform: translateX(-100%);
+    }
+
+    body.sidebar-mobile-open .sidebar-handle {
+        left: calc(var(--sidebar-width) - 1px);
+    }
+
+    body.sidebar-mobile-open .sidebar-handle i {
+        transform: rotate(180deg);
     }
 
     .sidebar.active {

@@ -309,6 +309,76 @@
   .hero-mascot { width: 120px; }
 }
 
+@media (max-width: 768px) {
+  .db-body {
+    padding: 18px 14px 0;
+  }
+
+  .hero-outer {
+    padding-top: 26px;
+    margin-bottom: 18px;
+  }
+
+  .hero-card {
+    min-height: 220px;
+  }
+
+  .hero-info {
+    padding: 22px 18px 0;
+  }
+
+  .hero-mascot {
+    width: 138px;
+    top: -18px;
+    left: 82%;
+  }
+
+  .kpi-row-inner {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .kpi-mini {
+    min-width: calc(50% - 4px);
+    padding: 8px 12px;
+  }
+
+  .card-head {
+    padding: 14px 16px 12px;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .card-body {
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-name {
+    font-size: 2rem;
+  }
+
+  .hero-role {
+    letter-spacing: 1.5px;
+  }
+
+  .hero-mascot {
+    width: 112px;
+    left: 78%;
+  }
+
+  .kpi-mini {
+    min-width: 100%;
+  }
+
+  .kpi-mini + .kpi-mini::before {
+    display: none;
+  }
+}
+
 /* ── KPIs EXTERNOS ── */
 .kpi-row {
   display: grid;

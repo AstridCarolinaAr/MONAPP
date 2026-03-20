@@ -24,15 +24,6 @@
 
 <body class="dashboard-body">
 
-    <!-- Botones flotantes (los dejo tal cual estaban) -->
-    <button class="btn-accion btn-editar" title="Editar">
-        <i class="bi bi-pencil-square"></i>
-    </button>
-
-    <button class="btn-accion btn-eliminar" title="Eliminar">
-        <i class="bi bi-trash3"></i>
-    </button>
-
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -66,7 +57,6 @@
                     {% endwith %}
                 {% endif %}
             </p>
-
             <div class="divider"></div>
         </div>
 
@@ -241,6 +231,10 @@
             </div>
         </div>
     </div>
+
+    <button type="button" class="sidebar-handle" id="sidebar-handle" aria-label="Contraer o expandir menu lateral">
+        <i class="bi bi-chevron-left"></i>
+    </button>
 
     <!-- ================= CONTENIDO (UNA SOLA VEZ) ================= -->
         <div id="main-content" class="main-content">

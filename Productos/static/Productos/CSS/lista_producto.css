@@ -1371,3 +1371,38 @@ z-index:2000 !important;
     justify-content: center;
     border-radius: 50%;
 }
+
+@media (max-width: 768px) {
+    .productos-header-row {
+        align-items: stretch !important;
+    }
+
+    .productos-header-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .productos-header-actions .btn-pill-dark {
+        width: 100%;
+        justify-content: center !important;
+    }
+
+    .productos-busqueda-wrap {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .productos-header-row {
+        margin-bottom: 14px !important;
+    }
+
+    .productos-header-row h2 {
+        font-size: 1.35rem;
+    }
+
+    .productos-busqueda-wrap input[type="text"],
+    .productos-busqueda-wrap input[type="search"] {
+        font-size: 0.95rem;
+    }
+}
