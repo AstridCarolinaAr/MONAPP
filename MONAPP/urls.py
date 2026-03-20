@@ -37,6 +37,7 @@ urlpatterns = [
     path('gestion/', include('Gestion.urls')),
     path('servicios_web/', include('servicios_web.urls')),
     path('backup/', include('backup.urls')),
+    path('notificaciones/', include('notificaciones.urls')),
 ]
 
 if settings.DEBUG:

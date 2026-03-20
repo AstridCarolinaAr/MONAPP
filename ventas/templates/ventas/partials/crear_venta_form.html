@@ -1,4 +1,7 @@
 <div class="container-fluid px-4 py-4">
+{% if es_edicion %}
+<span id="itemsActualesData" data-items="{{ items_actuales_json|escapejs }}" style="display:none"></span>
+{% endif %}
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -172,7 +175,7 @@
                     <button
                         id="btnGuardarVenta"
                         type="submit"
-                        class="btn btn-dark"
+                        class="btn btn-guardar-venta"
                         disabled
                     >
                         Guardar venta
