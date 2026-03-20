@@ -5,7 +5,7 @@ from .models import Servicio
 class ServicioForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Servicio
-        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'video', 'activo']
+        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'video']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -30,12 +30,6 @@ class ServicioForm(ValidationFormMixin, forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'video/*'
             }),
-            'activo': forms.Select(attrs={
-                'class': 'form-select'
-            }, choices=[
-                (True, 'Activo'),
-                (False, 'Inactivo')
-            ]),
         }
         labels = {
             'nombre': 'Nombre del Servicio',
@@ -43,7 +37,6 @@ class ServicioForm(ValidationFormMixin, forms.ModelForm):
             'descripcion': 'Descripción',
             'imagen': 'Imagen del Servicio',
             'video': 'Video del Servicio',
-            'activo': 'Estado del Servicio',
         }
 
     def clean_nombre(self):
