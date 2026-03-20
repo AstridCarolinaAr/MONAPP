@@ -1,0 +1,387 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Input wrapper para iconos ── */
+.usr-input-wrapper {
+    position: relative;
+}
+.usr-validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.usr-validation-icon.show  { opacity: 1; }
+.usr-validation-icon.valid   { color: #198754; }
+.usr-validation-icon.invalid { color: #dc3545; }
+
+/* Borde verde / rojo en campos validados */
+.form-control.is-valid-usr,
+.form-select.is-valid-usr {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important;
+}
+.form-control.is-invalid-usr,
+.form-select.is-invalid-usr {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
+}
+
+/* Mensajes de error en línea */
+.usr-field-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.usr-field-error.visible { display: block; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* ── Responsive crear_usuario ── */
+@media (max-width: 768px) {
+    .row.mb-4 .col-md-4.text-end {
+        text-align: left !important;
+        margin-top: 8px;
+    }
+    .row.mb-4 .col-md-4.text-end a { width: 100%; display: inline-block; }
+    h1.display-6 { font-size: 1.5rem; }
+    .mt-4.text-end {
+        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+    }
+    .mt-4.text-end .btn { width: 100%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold"><i class="bi bi-person-plus"></i> {{ titulo }}</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="post" novalidate id="formCrearUsuario">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <!-- Documento -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Documento <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.documento }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_documento"></i>
+                        </div>
+                        {% if form.documento.errors %}
+                            <div class="text-danger small mt-1">{{ form.documento.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_documento"></div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.email }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_email"></i>
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_email"></div>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.first_name }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_first_name"></i>
+                        </div>
+                        {% if form.first_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_first_name"></div>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Apellido <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.last_name }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_last_name"></i>
+                        </div>
+                        {% if form.last_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_last_name"></div>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.password1 }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_password1"></i>
+                        </div>
+                        {% if form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_password1"></div>
+                    </div>
+
+                    <!-- Contraseña confirmación -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Contraseña (confirmación) <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.password2 }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_password2"></i>
+                        </div>
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_password2"></div>
+                    </div>
+
+                    <!-- Rol -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Rol del usuario <span class="text-danger">*</span></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.rol }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_rol"></i>
+                        </div>
+                        {% if form.rol.errors %}
+                            <div class="text-danger small mt-1">{{ form.rol.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_rol"></div>
+                    </div>
+
+                    <!-- Teléfono (opcional) -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono <small class="text-muted fw-normal">(opcional)</small></label>
+                        <div class="usr-input-wrapper">
+                            {{ form.telefono }}
+                            <i class="bi bi-check-lg usr-validation-icon" id="icon_telefono"></i>
+                        </div>
+                        {% if form.telefono.errors %}
+                            <div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>
+                        {% endif %}
+                        <div class="usr-field-error" id="err_telefono"></div>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 text-end">
+                    <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> {{ accion|default:'Crear' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        /* ── Helper genérico ── */
+        function usrSetError(input, errEl, msg, iconEl) {
+            const isSelect = input.tagName === 'SELECT';
+            if (msg) {
+                input.classList.add('is-invalid-usr');
+                input.classList.remove('is-valid-usr');
+                if (errEl) { errEl.textContent = msg; errEl.classList.add('visible'); }
+                if (iconEl) {
+                    iconEl.classList.remove('valid', 'bi-check-lg');
+                    iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
+                }
+            } else {
+                input.classList.remove('is-invalid-usr');
+                input.classList.add('is-valid-usr');
+                if (errEl) { errEl.textContent = ''; errEl.classList.remove('visible'); }
+                if (iconEl) {
+                    iconEl.classList.remove('invalid', 'bi-exclamation-lg');
+                    iconEl.classList.add('show', 'valid', 'bi-check-lg');
+                }
+            }
+            return !msg;
+        }
+
+        /* ── Bloquear teclas no permitidas ── */
+        function bloquearNoNumericos(e) {
+            if (e.key.length > 1) return;
+            if (!/^[0-9]$/.test(e.key)) {
+                e.preventDefault();
+                e.target.style.animation = 'shake 0.3s';
+                setTimeout(() => { e.target.style.animation = ''; }, 300);
+            }
+        }
+        function bloquearNoLetras(e) {
+            if (e.key.length > 1) return;
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/.test(e.key)) {
+                e.preventDefault();
+                e.target.style.animation = 'shake 0.3s';
+                setTimeout(() => { e.target.style.animation = ''; }, 300);
+            }
+        }
+
+        /* ── Validadores ── */
+        const LETRAS = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
+
+        function validarDocumento(input, errEl, iconEl) {
+            const v = input.value.trim();
+            let msg = '';
+            if (!v)                   msg = 'El documento es obligatorio.';
+            else if (!/^\d+$/.test(v)) msg = 'Solo se permiten números.';
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        function validarEmail(input, errEl, iconEl) {
+            const v = input.value.trim();
+            let msg = '';
+            if (!v)                                          msg = 'El correo es obligatorio.';
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) msg = 'Ingresa un correo válido.';
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        function validarNombre(input, errEl, iconEl, label) {
+            const v = input.value.trim();
+            let msg = '';
+            if (!v)                   msg = `${label} es obligatorio.`;
+            else if (!LETRAS.test(v)) msg = `${label} solo puede contener letras.`;
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        function validarPassword1(input, errEl, iconEl) {
+            const v = input.value;
+            let msg = '';
+            if (!v)              msg = 'La contraseña es obligatoria.';
+            else if (v.length < 8)    msg = 'Mínimo 8 caracteres.';
+            else if (!/[A-Z]/.test(v)) msg = 'Debe contener al menos una mayúscula.';
+            else if (!/[a-z]/.test(v)) msg = 'Debe contener al menos una minúscula.';
+            else if (!/[0-9]/.test(v)) msg = 'Debe contener al menos un número.';
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        function validarPassword2(input, errEl, iconEl) {
+            const v  = input.value;
+            const p1 = document.getElementById('id_password1');
+            let msg = '';
+            if (!v)                        msg = 'Confirma la contraseña.';
+            else if (p1 && v !== p1.value) msg = 'Las contraseñas no coinciden.';
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        function validarRol(input, errEl, iconEl) {
+            const v = input.value;
+            let msg = !v ? 'Selecciona un rol.' : '';
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        function validarTelefono(input, errEl, iconEl) {
+            const v = input.value.trim();
+            if (!v) {
+                // Opcional: limpiar estado si está vacío
+                input.classList.remove('is-valid-usr', 'is-invalid-usr');
+                if (iconEl) iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
+                if (errEl)  { errEl.textContent = ''; errEl.classList.remove('visible'); }
+                return true;
+            }
+            let msg = '';
+            if (!/^\d+$/.test(v))  msg = 'Solo se permiten números.';
+            else if (v.length !== 10) msg = 'Debe tener exactamente 10 dígitos.';
+            return usrSetError(input, errEl, msg, iconEl);
+        }
+
+        /* ── Conectar campos ── */
+        const fields = [
+            { id: 'id_documento',  errId: 'err_documento',  iconId: 'icon_documento',  fn: (i,e,ic) => validarDocumento(i,e,ic),          bloquear: bloquearNoNumericos },
+            { id: 'id_email',      errId: 'err_email',      iconId: 'icon_email',      fn: (i,e,ic) => validarEmail(i,e,ic),              bloquear: null },
+            { id: 'id_first_name', errId: 'err_first_name', iconId: 'icon_first_name', fn: (i,e,ic) => validarNombre(i,e,ic,'El nombre'), bloquear: bloquearNoLetras },
+            { id: 'id_last_name',  errId: 'err_last_name',  iconId: 'icon_last_name',  fn: (i,e,ic) => validarNombre(i,e,ic,'El apellido'), bloquear: bloquearNoLetras },
+            { id: 'id_password1',  errId: 'err_password1',  iconId: 'icon_password1',  fn: (i,e,ic) => validarPassword1(i,e,ic),          bloquear: null },
+            { id: 'id_password2',  errId: 'err_password2',  iconId: 'icon_password2',  fn: (i,e,ic) => validarPassword2(i,e,ic),          bloquear: null },
+            { id: 'id_rol',        errId: 'err_rol',        iconId: 'icon_rol',        fn: (i,e,ic) => validarRol(i,e,ic),                bloquear: null },
+            { id: 'id_telefono',   errId: 'err_telefono',   iconId: 'icon_telefono',   fn: (i,e,ic) => validarTelefono(i,e,ic),           bloquear: bloquearNoNumericos },
+        ];
+
+        fields.forEach(({ id, errId, iconId, fn, bloquear }) => {
+            const input  = document.getElementById(id);
+            const errEl  = document.getElementById(errId);
+            const iconEl = document.getElementById(iconId);
+            if (!input) return;
+
+            if (bloquear) input.addEventListener('keydown', bloquear);
+
+            const evt = (input.tagName === 'SELECT') ? 'change' : 'input';
+            input.addEventListener(evt,  () => fn(input, errEl, iconEl));
+            input.addEventListener('blur', () => fn(input, errEl, iconEl));
+
+            // Limpiar al pegar en campos de solo letras
+            if (bloquear === bloquearNoLetras) {
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const txt = (e.clipboardData || window.clipboardData).getData('text');
+                    const limpio = txt.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+                    document.execCommand('insertText', false, limpio);
+                });
+            }
+            if (bloquear === bloquearNoNumericos) {
+                input.addEventListener('input', function() {
+                    const pos = this.selectionStart;
+                    const orig = this.value;
+                    const clean = orig.replace(/[^0-9]/g, '');
+                    if (clean !== orig) { this.value = clean; this.setSelectionRange(Math.min(pos, clean.length), Math.min(pos, clean.length)); }
+                });
+            }
+        });
+
+        /* ── Validar todo al enviar ── */
+        document.getElementById('formCrearUsuario').addEventListener('submit', function(e) {
+            let ok = true;
+            fields.forEach(({ id, errId, iconId, fn }) => {
+                const input  = document.getElementById(id);
+                const errEl  = document.getElementById(errId);
+                const iconEl = document.getElementById(iconId);
+                if (input && !fn(input, errEl, iconEl)) {
+                    if (ok) input.focus();
+                    ok = false;
+                }
+            });
+            if (!ok) e.preventDefault();
+        });
+
+    });
+</script>
+{% endblock %}

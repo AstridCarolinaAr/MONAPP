@@ -1,12 +1,7 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}{{ titulo }}{% endblock %}
-
-{% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{% url 'promociones:lista' %}">Promociones</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
-{% endblock %}
 
 {% block page_title %}
     <i class="bi bi-percent" style="color: #8d604a;"></i> <span style="color: #5c3d2e;">{{ titulo }}</span>
@@ -41,14 +36,14 @@
 }
 .promo-dropzone:hover,
 .promo-dropzone.dragover {
-    border-color: #382822;
+    border-color: #8d604a;
     background: linear-gradient(145deg, #fff, #f8f5f2);
     box-shadow: 0 6px 20px rgba(141,96,74,.15);
     transform: translateY(-2px);
 }
 .promo-dropzone i.bi-cloud-arrow-up { 
     font-size: 3.5rem; 
-    color: #382822;
+    color: #8d604a;
     margin-bottom: 8px;
     display: block;
     animation: float 3s ease-in-out infinite;
@@ -77,10 +72,7 @@
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
 }
-/* Estilos adicionales café para formulario */
-.form-label.fw-semibold {
-    color: #5c3d2e;
-}
+.form-label.fw-semibold { color: #5c3d2e; }
 .form-control:focus, .form-select:focus {
     border-color: #8d604a;
     box-shadow: 0 0 0 0.2rem rgba(141,96,74,.25);
@@ -89,57 +81,56 @@
     background-color: #8d604a;
     border-color: #8d604a;
 }
-.btn-outline-secondary {
-    color: #7a5c4a;
-    border-color: #7a5c4a;
-}
-.btn-outline-secondary:hover {
-    background-color: #7a5c4a;
-    border-color: #7a5c4a;
-    color: #fff;
-}
-.text-danger {
-    color: #a0715a !important;
-}
-/* Alertas con tema café */
-.alert-success {
-    background-color: rgba(141,96,74,.12);
-    border-color: #8d604a;
-    color: #5c3d2e;
-}
-.alert-danger, .alert-error {
-    background-color: rgba(122,92,74,.12);
-    border-color: #7a5c4a;
-    color: #5c3d2e;
-}
-.alert-warning {
-    background-color: rgba(165,129,102,.15);
-    border-color: #a58166;
-    color: #5c3d2e;
-}
-.alert-info {
-    background-color: rgba(180,156,138,.12);
-    border-color: #b49c8a;
-    color: #5c3d2e;
-}
-.form-control, .form-select {
-    border: 1px solid #d4c4ba;
-}
-/* Validación nombre */
-.promo-name-error {
-    color: #a0715a;
-    font-size: .82rem;
-    margin-top: 4px;
-    display: none;
-}
+.btn-outline-secondary { color: #7a5c4a; border-color: #7a5c4a; }
+.btn-outline-secondary:hover { background-color: #7a5c4a; border-color: #7a5c4a; color: #fff; }
+.text-danger { color: #a0715a !important; }
+.alert-success { background-color: rgba(141,96,74,.12); border-color: #8d604a; color: #5c3d2e; }
+.alert-danger, .alert-error { background-color: rgba(122,92,74,.12); border-color: #7a5c4a; color: #5c3d2e; }
+.alert-warning { background-color: rgba(165,129,102,.15); border-color: #a58166; color: #5c3d2e; }
+.alert-info { background-color: rgba(180,156,138,.12); border-color: #b49c8a; color: #5c3d2e; }
+.form-control, .form-select { border: 1px solid #d4c4ba; }
+.promo-name-error { color: #a0715a; font-size: .82rem; margin-top: 4px; display: none; }
 .promo-name-error.visible { display: block; }
-.form-control.is-invalid-name {
-    border-color: #a0715a !important;
-    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+.form-control.is-invalid-name { border-color: #a0715a !important; box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important; }
+.form-control.is-valid-name { border-color: #6ba06a !important; box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important; }
+.promo-field-error { color: #dc3545; font-size: .82rem; margin-top: 4px; display: none; }
+.promo-field-error.visible { display: block; }
+.form-control.is-invalid-promo { border-color: #dc3545 !important; box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important; }
+.form-control.is-valid-promo { border-color: #198754 !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,.15) !important; }
+.promo-char-count { font-size: .78rem; color: #9a8579; text-align: right; margin-top: 3px; display: block; }
+.promo-char-count.near-limit { color: #a0715a; }
+.promo-char-count.at-limit   { color: #dc3545; font-weight: 600; }
+.promo-input-wrapper { position: relative; }
+.promo-validation-icon {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 1.5rem; font-weight: 900; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
 }
-.form-control.is-valid-name {
-    border-color: #6ba06a !important;
-    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+.promo-validation-icon.show { opacity: 1; }
+.promo-validation-icon.valid { color: #198754; }
+.promo-validation-icon.invalid { color: #dc3545; }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+.container-fluid { animation: pageEnter .4s ease both; }
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive formulario ── */
+@media (max-width: 768px) {
+    .promo-form-card { border-radius: 10px; }
+    .promo-form-card .card-body { padding: 16px !important; }
+    .promo-form-card .card-header { padding: 14px 16px; font-size: .95rem; }
+    .promo-dropzone { padding: 24px 16px; }
+    .promo-dropzone i.bi-cloud-arrow-up { font-size: 2.5rem; }
+    .promo-dropzone .upload-text { font-size: .95rem; }
+}
+@media (max-width: 480px) {
+    .promo-dropzone { padding: 18px 12px; }
+    .promo-dropzone i.bi-cloud-arrow-up { font-size: 2rem; }
 }
 </style>
 {% endblock %}
@@ -162,11 +153,14 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nombre</label>
-                        {{ form.nombre }}
+                        <div class="promo-input-wrapper">
+                            {{ form.nombre }}
+                            <i class="bi bi-check-lg promo-validation-icon" id="icon_nombre_form"></i>
+                        </div>
                         {% if form.nombre.errors %}
                             <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
                         {% endif %}
-                        <div class="promo-name-error" id="err_nombre_promo_form"></div>
+                        <div class="promo-field-error" id="err_nombre_promo_form"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Etiqueta</label>
@@ -181,13 +175,18 @@
                         {% if form.descripcion.errors %}
                             <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
                         {% endif %}
+                        <small class="promo-char-count" id="char_desc_form"></small>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Descuento (%)</label>
-                        {{ form.porcentaje_descuento }}
+                        <div class="promo-input-wrapper">
+                            {{ form.porcentaje_descuento }}
+                            <i class="bi bi-check-lg promo-validation-icon" id="icon_descuento_form"></i>
+                        </div>
                         {% if form.porcentaje_descuento.errors %}
                             <div class="text-danger small mt-1">{{ form.porcentaje_descuento.errors.0 }}</div>
                         {% endif %}
+                        <div class="promo-field-error" id="err_descuento_form"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Fecha de Inicio</label>
@@ -195,6 +194,7 @@
                         {% if form.fecha_inicio.errors %}
                             <div class="text-danger small mt-1">{{ form.fecha_inicio.errors.0 }}</div>
                         {% endif %}
+                        <div class="promo-field-error" id="err_inicio_form"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Fecha de Fin</label>
@@ -202,6 +202,7 @@
                         {% if form.fecha_fin.errors %}
                             <div class="text-danger small mt-1">{{ form.fecha_fin.errors.0 }}</div>
                         {% endif %}
+                        <div class="promo-field-error" id="err_fin_form"></div>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold mb-3">Imagen de la Promoción</label>
@@ -283,50 +284,146 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', () => zone.classList.remove('dragover'));
     });
 
-    /* ── Validar nombre (solo letras y espacios) ── */
-    function validarNombrePromo(input, errEl) {
-        const v = input.value.trim();
-        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
-        let msg = '';
-        if (!v)                msg = 'El nombre es obligatorio.';
-        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
-        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
-        else if (!REG.test(v))     msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+    function promoErr(input, errEl, msg, iconEl) {
         if (msg) {
-            input.classList.add('is-invalid-name');
-            input.classList.remove('is-valid-name');
+            input.classList.add('is-invalid-promo');
+            input.classList.remove('is-valid-promo');
             errEl.textContent = msg;
             errEl.classList.add('visible');
+            if (iconEl) {
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
+                iconEl.classList.add('show', 'invalid', 'bi-exclamation-lg');
+            }
         } else {
-            input.classList.remove('is-invalid-name');
-            input.classList.add('is-valid-name');
+            input.classList.remove('is-invalid-promo');
+            input.classList.add('is-valid-promo');
             errEl.textContent = '';
             errEl.classList.remove('visible');
+            if (iconEl) {
+                iconEl.classList.remove('show', 'valid', 'invalid', 'bi-check-lg', 'bi-exclamation-lg');
+                iconEl.classList.add('show', 'valid', 'bi-check-lg');
+            }
         }
         return !msg;
     }
 
-    const nombreInput = document.getElementById('id_nombre');
-    const errNombre   = document.getElementById('err_nombre_promo_form');
-    if (nombreInput && errNombre) {
-        nombreInput.addEventListener('input', () => validarNombrePromo(nombreInput, errNombre));
-        nombreInput.addEventListener('blur',  () => validarNombrePromo(nombreInput, errNombre));
-        nombreInput.closest('form').addEventListener('submit', function(e) {
-            if (!validarNombrePromo(nombreInput, errNombre)) {
-                e.preventDefault();
-                nombreInput.focus();
-            }
-        });
+    function bloquearCaracteresNombre(e) {
+        const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
+        if (e.key.length > 1) return;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            const input = e.target;
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
     }
 
-    /* ── Filtro nombre: impedir números y signos en tiempo real ── */
-    const NOMBRE_ALLOWED = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]$/;
-    if (nombreInput) {
-        nombreInput.addEventListener('keypress', function (e) {
-            if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-                if (!NOMBRE_ALLOWED.test(e.key)) e.preventDefault();
+    function bloquearCaracteresDescuento(e) {
+        const permitidos = /^[0-9]$/;
+        if (e.key.length > 1) return;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault();
+            e.target.style.animation = 'shake 0.3s';
+            setTimeout(() => { e.target.style.animation = ''; }, 300);
+            return;
+        }
+        const input = e.target;
+        const start = input.selectionStart;
+        const end   = input.selectionEnd;
+        const next  = input.value.slice(0, start) + e.key + input.value.slice(end);
+        if (parseFloat(next) > 100) {
+            e.preventDefault();
+            input.value = '100';
+            input.style.animation = 'shake 0.3s';
+            setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    const PROMO_REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/;
+    function validarNombrePromo(input, errEl, iconEl) {
+        const v = input.value.trim();
+        let msg = '';
+        if (!v)                    msg = 'El nombre es obligatorio.';
+        else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
+        else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
+        else if (!PROMO_REG.test(v)) msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+        return promoErr(input, errEl, msg, iconEl);
+    }
+
+    function validarDescuentoPromo(input, errEl, iconEl) {
+        const raw = input.value.trim();
+        const val = parseFloat(raw);
+        let msg = '';
+        if (!raw)               msg = 'El descuento es obligatorio.';
+        else if (isNaN(val))    msg = 'Ingresa un número válido.';
+        else if (val < 1)       msg = 'El descuento mínimo es 1%.';
+        else if (val > 100)     msg = 'El descuento no puede superar el 100%.';
+        return promoErr(input, errEl, msg, iconEl);
+    }
+
+    function promoContador(textarea, contEl, max) {
+        const len = textarea.value.length;
+        if (len > max) textarea.value = textarea.value.substring(0, max);
+        contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
+        contEl.className = 'promo-char-count' +
+            (len >= max        ? ' at-limit'   :
+             len >= max * 0.85 ? ' near-limit' : '');
+    }
+
+    function promoMaxInicio() {
+        const d = new Date();
+        d.setMonth(d.getMonth() + 12);
+        return d.toISOString().split('T')[0];
+    }
+    function promoMaxFin() {
+        const year = new Date(promoMaxInicio()).getFullYear();
+        return `${year}-12-31`;
+    }
+
+    function validarFechasPromoForm(inEl, finEl, errInEl, errFinEl) {
+        const maxInicio = promoMaxInicio();
+        const maxFin    = promoMaxFin();
+        let okIn = true, okFin = true;
+        if (!inEl.value) {
+            promoErr(inEl, errInEl, 'La fecha de inicio es obligatoria.');
+            okIn = false;
+        } else if (inEl.value > maxInicio) {
+            promoErr(inEl, errInEl, 'La fecha de inicio no puede ser más de 12 meses a partir de hoy.');
+            okIn = false;
+        } else {
+            promoErr(inEl, errInEl, '');
+        }
+        if (inEl.value) finEl.min = inEl.value;
+        if (!finEl.value) {
+            promoErr(finEl, errFinEl, 'La fecha de fin es obligatoria.');
+            okFin = false;
+        } else if (inEl.value && finEl.value < inEl.value) {
+            promoErr(finEl, errFinEl, 'La fecha de fin debe ser igual o posterior a la de inicio.');
+            okFin = false;
+        } else if (finEl.value > maxFin) {
+            promoErr(finEl, errFinEl, `La fecha de fin no puede superar el 31/12/${new Date(maxFin).getFullYear()}.`);
+            okFin = false;
+        } else if (inEl.value && finEl.value) {
+            const dias = (new Date(finEl.value) - new Date(inEl.value)) / 86400000;
+            if (dias > 365) {
+                promoErr(finEl, errFinEl, 'La promoción no puede durar más de 365 días.');
+                okFin = false;
+            } else {
+                promoErr(finEl, errFinEl, '');
             }
-        });
+        } else {
+            promoErr(finEl, errFinEl, '');
+        }
+        return okIn && okFin;
+    }
+
+    const nombreInput    = document.getElementById('id_nombre');
+    const errNombre      = document.getElementById('err_nombre_promo_form');
+    const iconNombre     = document.getElementById('icon_nombre_form');
+    if (nombreInput && errNombre) {
+        nombreInput.addEventListener('keydown', bloquearCaracteresNombre);
+        nombreInput.addEventListener('input', () => validarNombrePromo(nombreInput, errNombre, iconNombre));
+        nombreInput.addEventListener('blur',  () => validarNombrePromo(nombreInput, errNombre, iconNombre));
         nombreInput.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto = (e.clipboardData || window.clipboardData).getData('text');
@@ -341,6 +438,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.value = limpio;
                 this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
             }
+        });
+    }
+
+    const descuentoInput = document.getElementById('id_porcentaje_descuento');
+    const errDescuento   = document.getElementById('err_descuento_form');
+    const iconDescuento  = document.getElementById('icon_descuento_form');
+    if (descuentoInput) {
+        descuentoInput.addEventListener('keydown', bloquearCaracteresDescuento);
+        descuentoInput.addEventListener('input', function () {
+            const val = parseFloat(this.value);
+            if (!isNaN(val) && val > 100) this.value = '100';
+            validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento);
+        });
+        descuentoInput.addEventListener('blur',  () => validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento));
+        descuentoInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            const num   = parseInt(texto.replace(/[^0-9]/g, ''), 10);
+            this.value  = isNaN(num) ? '' : String(Math.min(Math.max(num, 1), 100));
+            validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento);
+        });
+    }
+
+    const inicioInput = document.getElementById('id_fecha_inicio');
+    const finInput    = document.getElementById('id_fecha_fin');
+    const errInicio   = document.getElementById('err_inicio_form');
+    const errFin      = document.getElementById('err_fin_form');
+    if (inicioInput) {
+        inicioInput.max = promoMaxInicio();
+        inicioInput.addEventListener('change', () => validarFechasPromoForm(inicioInput, finInput, errInicio, errFin));
+    }
+    if (finInput) {
+        finInput.max = promoMaxFin();
+        finInput.addEventListener('change', () => validarFechasPromoForm(inicioInput, finInput, errInicio, errFin));
+    }
+
+    const descInput = document.getElementById('id_descripcion');
+    const charDesc  = document.getElementById('char_desc_form');
+    if (descInput && charDesc) {
+        promoContador(descInput, charDesc, 500);
+        descInput.addEventListener('input', () => promoContador(descInput, charDesc, 500));
+    }
+
+    const formEl = document.querySelector('form');
+    if (formEl) {
+        formEl.addEventListener('submit', function(e) {
+            let ok = true;
+            if (nombreInput && errNombre && !validarNombrePromo(nombreInput, errNombre, iconNombre)) {
+                ok = false;
+                nombreInput.focus();
+            }
+            if (descuentoInput && errDescuento && !validarDescuentoPromo(descuentoInput, errDescuento, iconDescuento)) {
+                if (ok) { descuentoInput.focus(); ok = false; }
+            }
+            if (inicioInput && finInput && !validarFechasPromoForm(inicioInput, finInput, errInicio, errFin)) {
+                if (ok) { inicioInput.focus(); ok = false; }
+            }
+            if (!ok) e.preventDefault();
         });
     }
 });
