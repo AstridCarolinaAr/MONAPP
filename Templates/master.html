@@ -43,9 +43,27 @@
 <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content login-modal-content">
+            <canvas id="bgBubblesCanvas"></canvas>
             <div class="login-particles" id="particles"></div>
 
             <div class="card-header text-center">
+                <div class="coffee-bubbles" aria-hidden="true">
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                </div>
                 <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="120" alt="Monakeratina">
             </div>
 
@@ -98,6 +116,30 @@
                                     </span>
                                 </div>
                             </div>
+                            <div class="captcha-wrapper">
+                                <div class="recaptcha-box" id="loginCaptchaBox">
+                                    <div class="recaptcha-left">
+                                        <div class="recaptcha-checkbox-wrap" id="loginCaptchaTrigger" role="button" tabindex="0" aria-label="Verificar captcha">
+                                            <div class="recaptcha-checkbox">
+                                                <div class="spinner-ring"></div>
+                                                <svg class="checkmark-svg" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="M20 6L9 17l-5-5" fill="none" stroke="#2e7d32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="recaptcha-label">No soy un robot</div>
+                                    </div>
+                                    <div class="recaptcha-right">
+                                        <svg class="shield-icon" viewBox="0 0 36 44" aria-hidden="true">
+                                            <path fill="#6D5C5C" d="M18 0 3 6v11c0 10.3 6.4 19.8 15 23 8.6-3.2 15-12.7 15-23V6L18 0Z"/>
+                                            <path fill="#F5F0E0" d="M18 5.2 8 9.3v8.1c0 7.3 4.3 14.1 10 16.5 5.7-2.4 10-9.2 10-16.5V9.3L18 5.2Z"/>
+                                        </svg>
+                                        <div class="recaptcha-brand-name">Mona</div>
+                                        <div class="recaptcha-brand-terms">Seguridad</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="captchaVerified" value="0">
+                            </div>
                             <div class="recovery-links">
                                 <a href="{% url 'usuarios:recuperar' %}" class="forgot-link">
                                     ¿Olvidaste tu contraseña?
@@ -108,6 +150,31 @@
                             <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
                         </button>
                     </form>
+
+                    <div class="captcha-challenge-overlay" id="captchaChallengeOverlay">
+                        <div class="captcha-challenge-panel">
+                            <div class="challenge-header-google">
+                                <div class="challenge-header-text">
+                                    <div class="challenge-instruction">Verifica que eres humano</div>
+                                    <div class="challenge-subtext">Escribe el codigo que ves para continuar.</div>
+                                </div>
+                                <div class="challenge-header-icon">
+                                    <i class="bi bi-x-lg" id="captchaCloseBtn"></i>
+                                </div>
+                            </div>
+                            <div class="challenge-body">
+                                <div class="challenge-captcha-img">
+                                    <div id="captchaChallengeCode"></div>
+                                </div>
+                                <input type="text" id="captchaChallengeInput" class="challenge-captcha-input" maxlength="6" autocomplete="off" placeholder="INGRESA EL CODIGO">
+                                <div class="challenge-error" id="captchaChallengeError"></div>
+                            </div>
+                            <div class="challenge-footer-google">
+                                <button type="button" class="challenge-btn-cancel" id="captchaCancelBtn">Cancelar</button>
+                                <button type="button" class="challenge-btn-verify-google" id="captchaVerifyBtn">Verificar</button>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
