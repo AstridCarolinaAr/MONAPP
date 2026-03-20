@@ -125,6 +125,114 @@
     </div>
 
     <!-- Secciones de Información -->
+    <div class="mt-5 mb-4">
+        <h2 class="modules-section-title">
+            <i class="bi bi-grid-3x3-gap me-2"></i>MÓDULOS DEL SISTEMA
+        </h2>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'productos_web:lista' %}" class="module-container" style="--module-color: #6b3a2a; --module-color-dark: #3a2a24;">
+                    <div class="module-icon">
+                        <i class="bi bi-bag-fill"></i>
+                    </div>
+                    <h3 class="module-title">Productos Web</h3>
+                    <p class="module-description">Gestiona el catálogo de productos visibles en la web para los clientes</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'promociones:lista' %}" class="module-container" style="--module-color: #ed8936; --module-color-dark: #c05621;">
+                    <div class="module-icon">
+                        <i class="bi bi-percent"></i>
+                    </div>
+                    <h3 class="module-title">Promociones</h3>
+                    <p class="module-description">Administra ofertas, descuentos y campañas promocionales activas</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'servicios:lista_servicios' %}" class="module-container" style="--module-color: #9333ea; --module-color-dark: #6b21a8;">
+                    <div class="module-icon">
+                        <i class="bi bi-scissors"></i>
+                    </div>
+                    <h3 class="module-title">Servicios</h3>
+                    <p class="module-description">Catálogo de servicios capilares y tratamientos</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'productos:lista_productos' %}" class="module-container" style="--module-color: #5a9fd4; --module-color-dark: #2c5282;">
+                    <div class="module-icon">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+                    <h3 class="module-title">Productos</h3>
+                    <p class="module-description">Control de inventario y gestión de productos internos</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'clientes:lista' %}" class="module-container" style="--module-color: #a67c52; --module-color-dark: #744c2e;">
+                    <div class="module-icon">
+                        <i class="bi bi-person-heart"></i>
+                    </div>
+                    <h3 class="module-title">Clientes</h3>
+                    <p class="module-description">Base de datos de clientes y su historial de servicios</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'ventas:lista' %}" class="module-container" style="--module-color: #48bb78; --module-color-dark: #2f855a;">
+                    <div class="module-icon">
+                        <i class="bi bi-cart-check-fill"></i>
+                    </div>
+                    <h3 class="module-title">Ventas</h3>
+                    <p class="module-description">Registro y seguimiento de todas las ventas realizadas</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'inventario:inventario_lista' %}" class="module-container" style="--module-color: #f56565; --module-color-dark: #c53030;">
+                    <div class="module-icon">
+                        <i class="bi bi-boxes"></i>
+                    </div>
+                    <h3 class="module-title">Inventario</h3>
+                    <p class="module-description">Control de stock, entradas y salidas de productos</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'personal:lista_personal' %}" class="module-container" style="--module-color: #4299e1; --module-color-dark: #2b6cb0;">
+                    <div class="module-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h3 class="module-title">Personal</h3>
+                    <p class="module-description">Gestión de empleados, horarios y desempeño</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'proveedores:lista_proveedor' %}" class="module-container" style="--module-color: #81c784; --module-color-dark: #4caf50;">
+                    <div class="module-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <h3 class="module-title">Proveedores</h3>
+                    <p class="module-description">Directorio de proveedores y gestión de compras</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'usuarios:lista_usuarios' %}" class="module-container" style="--module-color: #5b67ca; --module-color-dark: #3949ab;">
+                    <div class="module-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h3 class="module-title">Usuarios</h3>
+                    <p class="module-description">Administración de usuarios y permisos del sistema</p>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="module-container" style="--module-color: #fbbf24; --module-color-dark: #d97706;">
+                    <div class="module-icon">
+                        <i class="bi bi-database-fill"></i>
+                    </div>
+                    <h3 class="module-title">Gestión de Datos</h3>
+                    <p class="module-description">Análisis y reportes de alisados y tratamientos</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-md-6">
             <div class="card" style="border:none; border-radius:12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
