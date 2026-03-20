@@ -302,13 +302,14 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
             <h3 class="mb-0 fw-semibold"><i class="bi bi-globe2 me-2"></i>Productos Web</h3>
             <small class="text-muted">Gestión de productos del catálogo web</small>
         </div>
-        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+        <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
             <i class="bi bi-plus-lg me-1"></i> Nuevo producto
         </button>
     </div>
 
     <!-- Búsqueda y filtros -->
-    <form method="get" class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+    <form method="get" class="module-toolbar">
+        <div class="module-toolbar-left">
         <div class="position-relative pw-search">
             <i class="bi bi-search"></i>
             <input type="text" name="q" class="form-control" placeholder="Buscar producto..." value="{{ q|default:'' }}">
@@ -326,6 +327,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
             <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visibles</option>
             <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Ocultos</option>
         </select>
+        </div>
     </form>
 
     <!-- ───── TABLA ───── -->
@@ -370,7 +372,8 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                 </label>
                             </td>
                             <td class="text-end pw-actions">
-                                <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-pw"
+                                <div class="table-action-group">
+                                <button type="button" class="table-action-btn btn-detalle-pw"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalDetallePW"
                                         data-nombre="{{ p.nombre|escapejs }}"
@@ -384,15 +387,16 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <a href="{% url 'productos_web:editar' p.pk %}"
-                                   class="btn btn-outline-secondary btn-sm" title="Editar">
+                                   class="table-action-btn" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-pw"
+                                <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-pw"
                                         data-nombre="{{ p.nombre }}"
                                         data-url="{% url 'productos_web:eliminar' p.pk %}"
                                         title="Eliminar">
                                     <i class="bi bi-trash3"></i>
                                 </button>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}

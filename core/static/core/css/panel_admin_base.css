@@ -1445,6 +1445,211 @@ small.text-muted {
     flex-wrap: wrap;
 }
 
+.module-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.module-toolbar-left {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex: 1 1 420px;
+    min-width: 0;
+}
+
+.module-toolbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.module-search-inline {
+    min-width: 240px;
+    flex: 1 1 320px;
+}
+
+.module-search-inline .search-toggle-wrapper.busqueda-global--inline {
+    width: 100%;
+    min-width: 0;
+}
+
+.module-search-inline .search-toggle-box.is-open {
+    width: 100%;
+}
+
+.module-search-inline .search-toggle-input {
+    width: 100%;
+}
+
+.module-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.table-action-group {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.table-action-btn,
+.styled-table td .btn.btn-link,
+.styled-table td .btn-action-round,
+.styled-table td .btn-outline-info.btn-sm,
+.styled-table td .btn-outline-danger.btn-sm,
+.table-dashboard td .act,
+.table-dashboard td .actions .act,
+.promo-table td .btn.btn-link,
+.promo-table td .btn-outline-info.btn-sm,
+.promo-table td .btn-outline-danger.btn-sm,
+.pw-table td .btn,
+.pw-table td button,
+.pw-table td a,
+.acciones-proveedor .btn,
+.acciones-proveedor button,
+.acciones-proveedor a {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0 !important;
+    border-radius: 10px !important;
+    border: none !important;
+    background: transparent !important;
+    color: #2c0909 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    transition: all 0.18s ease !important;
+}
+
+.table-action-btn:hover,
+.styled-table td .btn.btn-link:hover,
+.styled-table td .btn-action-round:hover,
+.styled-table td .btn-outline-info.btn-sm:hover,
+.styled-table td .btn-outline-danger.btn-sm:hover,
+.table-dashboard td .act:hover,
+.table-dashboard td .actions .act:hover,
+.promo-table td .btn.btn-link:hover,
+.promo-table td .btn-outline-info.btn-sm:hover,
+.promo-table td .btn-outline-danger.btn-sm:hover,
+.pw-table td .btn:hover,
+.pw-table td button:hover,
+.pw-table td a:hover,
+.acciones-proveedor .btn:hover,
+.acciones-proveedor button:hover,
+.acciones-proveedor a:hover {
+    background: rgba(138, 90, 68, 0.12) !important;
+    color: #2c0909 !important;
+    transform: translateY(-1px);
+}
+
+.table-action-btn:focus,
+.styled-table td .btn.btn-link:focus,
+.styled-table td .btn-action-round:focus,
+.styled-table td .btn-outline-info.btn-sm:focus,
+.styled-table td .btn-outline-danger.btn-sm:focus,
+.table-dashboard td .act:focus,
+.table-dashboard td .actions .act:focus,
+.promo-table td .btn.btn-link:focus,
+.promo-table td .btn-outline-info.btn-sm:focus,
+.promo-table td .btn-outline-danger.btn-sm:focus,
+.pw-table td .btn:focus,
+.pw-table td button:focus,
+.pw-table td a:focus,
+.acciones-proveedor .btn:focus,
+.acciones-proveedor button:focus,
+.acciones-proveedor a:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.15rem rgba(138, 90, 68, 0.18) !important;
+}
+
+.table-action-btn:active,
+.styled-table td .btn.btn-link:active,
+.styled-table td .btn-action-round:active,
+.styled-table td .btn-outline-info.btn-sm:active,
+.styled-table td .btn-outline-danger.btn-sm:active,
+.table-dashboard td .act:active,
+.table-dashboard td .actions .act:active,
+.promo-table td .btn.btn-link:active,
+.promo-table td .btn-outline-info.btn-sm:active,
+.promo-table td .btn-outline-danger.btn-sm:active,
+.pw-table td .btn:active,
+.pw-table td button:active,
+.pw-table td a:active,
+.acciones-proveedor .btn:active,
+.acciones-proveedor button:active,
+.acciones-proveedor a:active {
+    transform: scale(0.94);
+}
+
+.table-action-btn i,
+.styled-table td .btn.btn-link i,
+.styled-table td .btn-action-round i,
+.styled-table td .btn-outline-info.btn-sm i,
+.styled-table td .btn-outline-danger.btn-sm i,
+.table-dashboard td .act i,
+.table-dashboard td .actions .act i,
+.promo-table td .btn.btn-link i,
+.promo-table td .btn-outline-info.btn-sm i,
+.promo-table td .btn-outline-danger.btn-sm i,
+.pw-table td .btn i,
+.pw-table td button i,
+.pw-table td a i,
+.acciones-proveedor .btn i,
+.acciones-proveedor button i,
+.acciones-proveedor a i {
+    color: inherit !important;
+    font-size: 1.05rem !important;
+    transition: inherit;
+}
+
+.table-action-btn--danger,
+.table-action-btn--danger i {
+    color: #5a3428 !important;
+}
+
+.table-action-btn--muted,
+.table-action-btn--muted i {
+    color: #8b7d77 !important;
+}
+
+@media (max-width: 768px) {
+    .module-toolbar,
+    .module-toolbar-left,
+    .module-toolbar-right {
+        align-items: stretch;
+    }
+
+    .module-toolbar-right {
+        width: 100%;
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    .module-toolbar-right .btn-pill-dark,
+    .module-toolbar-right .btn,
+    .module-toolbar-right button,
+    .module-toolbar-right a {
+        width: 100%;
+        justify-content: center !important;
+    }
+}
+
 /* ===== Fondo + contenedor + card blanco ===== */
 .page-bg {
     background: #f6f3f2;

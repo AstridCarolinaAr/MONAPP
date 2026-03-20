@@ -262,13 +262,16 @@
 }
 
 .usuarios-search-form {
-    display: block;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
     width: 100%;
 }
 
 .usuarios-form-group {
     width: 100%;
-    max-width: 870px;
+    max-width: 240px;
     margin-bottom: 0;
 }
 
@@ -302,6 +305,7 @@
 .usuarios-search-global-wrap {
     display: block;
     width: 100%;
+    flex: 1 1 320px;
     margin-top: 2px;
 }
 
@@ -344,8 +348,13 @@
 }
 
 @media (max-width: 768px) {
+    .usuarios-search-form {
+        align-items: stretch;
+    }
+
     .usuarios-form-group,
-    .usuarios-search-global-form {
+    .usuarios-search-global-form,
+    .usuarios-search-global-wrap {
         max-width: 100%;
     }
 

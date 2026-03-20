@@ -158,26 +158,28 @@
                 </div>
               </td>
               <td class="text-end">
-                <button type="button" class="btn btn-link btn-editar-cliente p-0"
-                        style="color:#382822;" title="Editar"
+                <div class="table-action-group">
+                <button type="button" class="table-action-btn btn-editar-cliente"
+                        title="Editar"
                         data-id="{{ cliente.id }}"
                         data-url="{% url 'clientes:editar' cliente.id %}">
-                  <i class="bi bi-pencil-square" style="font-size:22px;"></i>
+                  <i class="bi bi-pencil-square"></i>
                 </button>
-                <button class="btn btn-link p-0" style="color:#382822;"
+                <button class="table-action-btn"
                         data-bs-toggle="modal"
                         data-bs-target="#modalDetalleCliente{{ cliente.id }}"
                         title="Ver detalles">
-                  <i class="bi bi-eye" style="font-size:22px;"></i>
+                  <i class="bi bi-eye"></i>
                 </button>
                 {% if user.is_staff %}
-                <button type="button" class="btn btn-link p-0" style="color:#3c1e14;"
+                <button type="button" class="table-action-btn table-action-btn--danger"
                         data-bs-toggle="modal"
                         data-bs-target="#modalEliminarCliente{{ cliente.id }}"
                         title="Eliminar">
-                  <i class="bi bi-trash3" style="font-size:22px;"></i>
+                  <i class="bi bi-trash3"></i>
                 </button>
                 {% endif %}
+                </div>
               </td>
             </tr>
             {% empty %}

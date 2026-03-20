@@ -26,8 +26,8 @@
                     </span>
                 </td>
                 <td class="text-center">
-                    <div class="acciones-proveedor">
-                        <button class="btn btn-link"
+                    <div class="acciones-proveedor table-action-group">
+                        <button class="table-action-btn"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalDetalleProveedor"
                                 data-nombre="{{ proveedor.nombre_proveedor }}"
@@ -36,16 +36,14 @@
                                 data-estado="{{ proveedor.get_estado_display }}"
                                 data-telefono="{{ proveedor.telefono_proveedor }}"
                                 data-direccion="{{ proveedor.direccion_proveedor }}"
-                                style="color: #382822;"
                                 title="Ver detalles"
                                 data-bs-placement="bottom">
                             <i class="bi bi-eye"></i>
                         </button>
 
-                        <button class="btn btn-link"
+                        <button class="table-action-btn"
                                 data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
                                 data-modal-title="Editar proveedor"
-                                style="color: #382822;"
                                 title="Editar"
                                 data-bs-placement="bottom">
                             <i class="bi bi-pencil-square"></i>
@@ -53,8 +51,7 @@
 
                         {% if proveedor.estado == 'activo' %}
                             <button type="button"
-                                    class="btn btn-link btn-action-round js-eliminar-proveedor"
-                                    style="color:#382822;"
+                                    class="table-action-btn table-action-btn--danger js-eliminar-proveedor"
                                     data-id="{{ proveedor.pk }}"
                                     data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
                                     data-url-eliminar="{% url 'proveedores:eliminar_proveedor' proveedor.pk %}"
@@ -64,7 +61,7 @@
                             </button>
                         {% else %}
                             <button type="button"
-                                    class="btn-reactivar-proveedor js-reactivar-proveedor"
+                                    class="table-action-btn js-reactivar-proveedor"
                                     data-id="{{ proveedor.id }}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"

@@ -60,23 +60,25 @@
 
 /* Botón nueva promoción */
 .promo-fab {
-    border-radius: 50px;
-    background: #212529;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #3a2a24, #1f1412);
     color: #fff;
     border: none;
-    font-size: .82rem;
-    font-weight: 600;
-    padding: .35rem .7rem;
+    font-size: .9rem;
+    font-weight: 700;
+    padding: .45rem .9rem;
     display: inline-flex;
     align-items: center;
     gap: .35rem;
-    transition: background .2s, transform .2s, box-shadow .2s;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, .18);
+    transition: background .2s, transform .2s, box-shadow .2s, filter .2s;
     white-space: nowrap;
 }
 .promo-fab:hover {
-    background: #3a2a24;
+    background: linear-gradient(90deg, #3a2a24, #1f1412);
     color: #fff;
     transform: translateY(-1px);
+    filter: brightness(1.05);
     box-shadow: 0 4px 12px rgba(0,0,0,.3);
 }
 

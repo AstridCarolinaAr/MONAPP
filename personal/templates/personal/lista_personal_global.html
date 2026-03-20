@@ -60,18 +60,18 @@
                             {{ persona.fecha_creacion|date:"H:i" }}
                         </td>
                         <td data-label="Acciones" class="text-end">
-                            <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-link p-0" onclick="abrirModalDetallePersonal({{ persona.id }})" title="Ver detalles">
-                                    <i class="bi bi-eye" style="color: #382822; font-size: 24px;"></i>
+                            <div class="table-action-group">
+                                <button type="button" class="table-action-btn" onclick="abrirModalDetallePersonal({{ persona.id }})" title="Ver detalles">
+                                    <i class="bi bi-eye"></i>
                                 </button>
                                 {% if puede_modificar %}
-                                <button type="button" class="btn btn-link p-0" onclick="abrirModalEditarPersonal({{ persona.id }})" title="Editar">
-                                    <i class="bi bi-pencil-square" style="color: #382822; font-size: 24px;"></i>
+                                <button type="button" class="table-action-btn" onclick="abrirModalEditarPersonal({{ persona.id }})" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
                                 {% endif %}
                                 {% if es_administrador %}
-                                <button type="button" class="btn btn-link p-0" onclick="abrirModalEliminarPersonal({{ persona.id }})" title="Eliminar">
-                                    <i class="bi bi-trash3" style="color: #3c1e14; font-size: 24px;"></i>
+                                <button type="button" class="table-action-btn table-action-btn--danger" onclick="abrirModalEliminarPersonal({{ persona.id }})" title="Eliminar">
+                                    <i class="bi bi-trash3"></i>
                                 </button>
                                 {% endif %}
                             </div>
