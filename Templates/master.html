@@ -51,6 +51,7 @@
 
             <div class="modal-body p-0">
                 <div class="card-body">
+                    <h2 class="login-title">INICIAR SESION</h2>
 
                     {% if messages %}
                     <div class="messages-container">
@@ -83,18 +84,22 @@
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
                         {% endif %}
                         <div class="login-form-wrapper">
-                            <div class="input-icon-wrapper">
-                                <i class="bi bi-person"></i>
-                                <input type="text" name="username" placeholder="Usuario o documento" required autofocus>
+                            <div class="field-group">
+                                <label class="field-label">USUARIO</label>
+                                <input type="text" name="username" class="field-input" placeholder="Usuario o documento" required autofocus>
                             </div>
-                            <div class="input-icon-wrapper password-wrapper">
-                                <i class="bi bi-lock"></i>
-                                <input type="password" id="password" name="password"
+                            <div class="field-group">
+                                <label class="field-label">CONTRASENA</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password" name="password" class="field-input"
                                     placeholder="Contraseña" required>
-                                <i id="togglePassword" class="bi bi-eye toggle-eye"></i>
+                                    <span id="togglePassword" class="toggle-eye">
+                                        <i class="bi bi-eye"></i>
+                                    </span>
+                                </div>
                             </div>
                             <div class="recovery-links">
-                                <a href="{% url 'usuarios:recuperar' %}" class="btn-recovery-link">
+                                <a href="{% url 'usuarios:recuperar' %}" class="forgot-link">
                                     ¿Olvidaste tu contraseña?
                                 </a>
                             </div>
