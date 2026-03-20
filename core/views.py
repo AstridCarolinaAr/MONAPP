@@ -16,7 +16,7 @@ from productos_web.models import ProductoWeb
 
 
 def index(request):
-    show_login_modal = False
+    show_login_modal = request.GET.get('login') == '1' or bool(request.GET.get('next'))
 
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)

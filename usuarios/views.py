@@ -1,5 +1,6 @@
 import re
 import socket
+from urllib.parse import urlencode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -33,6 +34,12 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
 
+    if request.method == 'GET':
+        query = {'login': '1'}
+        if request.GET.get('next'):
+            query['next'] = request.GET.get('next')
+        return redirect(f"{redirect('core:index').url}?{urlencode(query)}")
+
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
 
@@ -43,7 +50,11 @@ def login_view(request):
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
         # Redirigir de vuelta a la página donde estaba el usuario para que el modal se pueda reabrir
-        return redirect(request.META.get('HTTP_REFERER', 'core:index'))
+        redirect_url = request.META.get('HTTP_REFERER') or redirect('core:index').url
+        separator = '&' if '?' in redirect_url else '?'
+        if 'login=1' not in redirect_url:
+            redirect_url = f"{redirect_url}{separator}login=1"
+        return redirect(redirect_url)
     else:
         # Para peticiones GET, creamos un formulario vacío
         form = LoginForm()

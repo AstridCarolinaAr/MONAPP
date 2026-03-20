@@ -347,10 +347,10 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
    ═══════════════════════════════════════ */
 .login-modal-content {
   border: none;
-  border-radius: 6px;
-  min-height: 49px;
+  border-radius: 18px;
+  min-height: auto;
   overflow: hidden;
-  box-shadow: 0 3px 30px rgba(0,0,0,.3);
+  box-shadow: 0 16px 42px rgba(0,0,0,.32);
 }
 .login-modal-content .card-header {
   position: relative;
@@ -362,20 +362,18 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   overflow: hidden;
   border: none;
   margin: 0;
-  border-radius: 11px 11px 0 0;
+  border-radius: 18px 18px 0 0;
 }
 .login-modal-content .card-header img {
   position: relative;
   z-index: 2;
 }
 .login-modal-content .card-body {
-  min-height: 220px;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 20px 35px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding: 22px 34px 28px;
   background: var(--color-blanco);
   animation: fadeInUpLogin 0.6s ease-out;
 }
@@ -393,8 +391,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
 }
 .login-form-wrapper {
   width: 100%;
-  margin-top: 3px;
-  transform: translateY(3px);
+  margin-top: 0;
+  transform: none;
 }
 .login-modal-content .form-control:focus {
   border-color: var(--color-cafe-principal);
@@ -456,7 +454,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
 }
 .login-modal-content form {
   width: 100%;
-  margin-top: 9px;
+  margin-top: 0;
 }
 .login-modal-content .form-check-input:checked {
   background-color: var(--color-cafe-principal);
@@ -491,6 +489,44 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   border-radius: 0 0 18px 18px !important;
 }
 
+#loginModal .recovery-links {
+  margin: 10px 0 14px;
+}
+
+#loginModal .btn-recovery-link {
+  width: auto;
+  padding: 0;
+  background: transparent;
+  color: var(--color-cafe-principal);
+  border: none;
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 600;
+  justify-content: center;
+  box-shadow: none;
+  animation: none;
+}
+
+#loginModal .btn-recovery-link::before,
+#loginModal .btn-recovery-link::after {
+  display: none;
+}
+
+#loginModal .btn-recovery-link:hover {
+  background: transparent;
+  color: var(--color-cafe-claro);
+  transform: none;
+  box-shadow: none;
+  text-decoration: underline;
+}
+
+#loginModal .btn-login {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-top: 0;
+}
+
 /* ═══════════════
    RESPONSIVE
    ═══════════════ */
@@ -501,10 +537,10 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   .card-header img { width: 90px; }
 }
 @media (max-width: 573px) {
-  .modal-dialog { margin: 3px; }
-  .login-modal-content .card-body    { padding: 10px; }
-  .login-modal-content .card-header  { height: 19px; }
-  .login-modal-content .card-header img { width: 60px; }
+  .modal-dialog { margin: 12px; }
+  .login-modal-content .card-body { padding: 18px 18px 22px; }
+  .login-modal-content .card-header { height: 120px; }
+  .login-modal-content .card-header img { width: 92px; }
 }
 
 
