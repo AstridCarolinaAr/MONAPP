@@ -10,6 +10,13 @@
 {% block page_icon %}<i class="bi bi-people-fill page-icon"></i>{% endblock %}
 {% block page_title %}Personal{% endblock %}
 {% block page_subtitle %}Gestion de auxiliares y colaboradores{% endblock %}
+{% block page_actions %}
+{% if puede_modificar %}
+<button type="button" class="btn-pill-dark" onclick="abrirModalPersonal()">
+    <i class="fas fa-plus"></i> Agregar Personal
+</button>
+{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
@@ -263,30 +270,22 @@
 <div class="personal-wrapper">
     <div class="personal-container">
         <!-- Header -->
-        <div class="personal-header" style="justify-content:flex-end;">
-            {% if puede_modificar %}
-            <button type="button" class="btn-pill-dark" onclick="abrirModalPersonal()">
-                <i class="fas fa-plus"></i> Agregar Personal
-            </button>
-            {% endif %}
-        </div>
 <div class="personal-search-card">
     <form method="get"
-          class="personal-search-form js-ajax-search-form"
+          class="personal-search-form js-ajax-search-form module-filters-form"
           data-ajax-url="{% url 'personal:lista_personal' %}"
           data-ajax-target="#personal-results"
           data-ajax-debounce="300"
           autocomplete="off">
 
-        <div class="row g-3 align-items-end">
-            <div class="col-lg-4 col-md-6">
+            <div class="module-filter-field module-filter-field--medium">
                 <div class="personal-form-group mb-0">
                     <label class="personal-form-label">Filtrar por</label>
                     {{ form.filtro }}
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="module-filter-field module-filter-field--wide">
                 <div class="personal-search-global-wrap module-search-inline">
                     {% if current_sort %}
                         <input type="hidden" name="sort" value="{{ current_sort }}">
@@ -298,7 +297,12 @@
                     {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar personal...' search_value=q name='q' modo='inline' %}
                 </div>
             </div>
-        </div>
+
+            <div class="module-filter-actions">
+                <a href="{% url 'personal:lista_personal' %}" class="module-filter-btn module-filter-btn--secondary">
+                    <i class="bi bi-arrow-clockwise"></i> Limpiar
+                </a>
+            </div>
     </form>
 </div>
 

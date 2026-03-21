@@ -12,21 +12,21 @@
 {% block page_icon %}<i class="bi bi-box-seam page-icon"></i>{% endblock %}
 {% block page_title %}Productos{% endblock %}
 {% block page_subtitle %}Gestion general de productos{% endblock %}
+{% block page_actions %}
+<a href="{% url 'productos:crear_producto' %}"
+   class="btn-pill-dark"
+   data-modal-url="{% url 'productos:crear_producto' %}"
+   data-modal-title="Nuevo producto">
+    <i class="bi bi-plus-circle"></i> Nuevo producto
+</a>
+{% endblock %}
 
 {% block content %}
-    <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-3 productos-header-row">
-        <div class="productos-header-actions">
-          <a href="{% url 'productos:crear_producto' %}"
-            class="btn-pill-dark"
-            data-modal-url="{% url 'productos:crear_producto' %}"
-            data-modal-title="Nuevo producto">
-              <i class="bi bi-plus-circle"></i> Nuevo producto
-          </a>
-        </div>
-    </div>
-
-<div class="d-flex flex-wrap justify-content-between gap-3 mb-2">
-    <div class="dropdown">
+<div class="module-filters-card">
+  <div class="module-filters-form">
+    <div class="module-filter-field module-filter-field--medium">
+      <label class="module-filter-label">Filtro</label>
+      <div class="dropdown">
         <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-funnel"></i> Filtrar
         </button>
@@ -49,16 +49,17 @@
                 <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
             </li>
         </ul>
+      </div>
     </div>
-</div>
 
-<div class="productos-busqueda-wrap mb-3">
-    <form method="get"
-          action="{% url 'productos:lista_productos' %}"
-          class="productos-busqueda-form js-ajax-search-form"
-          data-ajax-url="{% url 'productos:lista_productos' %}"
-          data-ajax-target="#productos-resultados"
-          data-ajax-debounce="250">
+    <div class="module-filter-field module-filter-field--wide">
+      <label class="module-filter-label">Busqueda</label>
+      <form method="get"
+            action="{% url 'productos:lista_productos' %}"
+            class="productos-busqueda-form js-ajax-search-form"
+            data-ajax-url="{% url 'productos:lista_productos' %}"
+            data-ajax-target="#productos-resultados"
+            data-ajax-debounce="250">
         {% if linea_seleccionada %}
             <input type="hidden" name="linea" value="{{ linea_seleccionada }}">
         {% endif %}
@@ -76,7 +77,9 @@
         {% endif %}
 
         {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-    </form>
+      </form>
+    </div>
+  </div>
 </div>
 
 <div id="productos-resultados" class="ajax-results-container">

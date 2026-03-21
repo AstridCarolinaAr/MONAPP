@@ -11,6 +11,14 @@
 {% block page_icon %}<i class="bi bi-truck page-icon"></i>{% endblock %}
 {% block page_title %}Proveedores{% endblock %}
 {% block page_subtitle %}Gestion de proveedores registrados{% endblock %}
+{% block page_actions %}
+<a href="{% url 'proveedores:crear_proveedor' %}"
+   class="btn-pill-dark"
+   data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+   data-modal-title="Crear Proveedor">
+    Crear Proveedor
+</a>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'proveedor/css/proveedor.css' %}">
@@ -34,15 +42,9 @@
                 </small>
             </div>
 
-            <a href="{% url 'proveedores:crear_proveedor' %}"
-               class="btn-pill-dark proveedores-btn-add"
-               data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-               data-modal-title="Crear Proveedor">
-                Crear Proveedor
-            </a>
         </div>
 
-        <div class="proveedores-toolbar">
+        <div class="proveedores-toolbar module-filters-card">
             <div class="dropdown proveedores-toolbar__filter">
                 <button class="btn btn-filter dropdown-toggle"
                         type="button"

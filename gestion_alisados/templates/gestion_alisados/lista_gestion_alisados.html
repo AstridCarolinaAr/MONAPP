@@ -12,6 +12,11 @@
 {% block page_icon %}<i class="bi bi-file-earmark-text page-icon"></i>{% endblock %}
 {% block page_title %}Gestion de datos{% endblock %}
 {% block page_subtitle %}Control de registros, filtros y seguimiento de alisados{% endblock %}
+{% block page_actions %}
+<button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
+    <i class="bi bi-plus-circle"></i> Nueva Gestion
+</button>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
@@ -61,12 +66,6 @@
 
 {% block content %}
 <div class="container-fluid">
-
-    <div class="gestion-topbar">
-        <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
-            <i class="bi bi-plus-circle"></i> Nueva Gestion
-        </button>
-    </div>
 
     <div class="table-card shadow-sm anim-from-bottom" style="animation-delay:.18s">
         <div class="gestion-filtros-wrap">

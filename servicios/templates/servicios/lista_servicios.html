@@ -10,6 +10,11 @@
 {% block page_icon %}<i class="bi bi-scissors page-icon"></i>{% endblock %}
 {% block page_title %}Servicios{% endblock %}
 {% block page_subtitle %}Gestion de servicios registrados{% endblock %}
+{% block page_actions %}
+<button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
+    <i class="bi bi-plus-circle"></i> Crear Nuevo Servicio
+</button>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}?v=2">
@@ -28,25 +33,38 @@
         {% endfor %}
     {% endif %}
 
-    <div class="lib-toolbar">
-        <div class="lib-toolbar__left">
-            <form id="filtrosServicios"
-                  class="js-ajax-search-form d-flex align-items-center gap-2 flex-wrap"
+    <div class="module-filters-card">
+        <form id="filtrosServicios"
+                  class="js-ajax-search-form module-filters-form"
                   method="get"
                   data-ajax-url="{% url 'servicios:lista_servicios' %}"
                   data-ajax-target="#lista-servicios-resultados"
                   data-ajax-debounce="300">
 
-                <div class="lib-search" style="flex:1;min-width:220px;">
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Busqueda</label>
                     {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar servicio...' search_value=q name='q' modo='inline' %}
                 </div>
 
-                <select name="estado" id="estadoInput" class="form-select" style="width:140px;min-width:120px;">
-                    <option value="">Todos</option>
-                    <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activa</option>
-                    <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactiva</option>
-                </select>
+                <div class="module-filter-field module-filter-field--small">
+                    <label class="module-filter-label">Estado</label>
+                    <select name="estado" id="estadoInput" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activa</option>
+                        <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactiva</option>
+                    </select>
+                </div>
+
+                <div class="module-filter-actions">
+                    <a href="{% url 'servicios:lista_servicios' %}" class="module-filter-btn module-filter-btn--secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar
+                    </a>
+                </div>
             </form>
+    </div>
+
+    <div class="lib-toolbar">
+        <div class="lib-toolbar__left">
             <span class="lib-count" id="libCount"></span>
         </div>
 
@@ -70,10 +88,6 @@
                     <option value="6">6</option>
                 </select>
             </div>
-
-            <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormServicio">
-                <i class="bi bi-plus-circle"></i> Crear Nuevo Servicio
-            </button>
         </div>
     </div>
 

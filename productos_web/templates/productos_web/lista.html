@@ -7,6 +7,11 @@
 {% block page_icon %}<i class="bi bi-globe2 page-icon"></i>{% endblock %}
 {% block page_title %}Catalogo Web{% endblock %}
 {% block page_subtitle %}Gestion de productos del catalogo web{% endblock %}
+{% block page_actions %}
+<button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+    <i class="bi bi-plus-lg me-1"></i> Nuevo producto
+</button>
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -296,37 +301,28 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="mb-0 fw-semibold module-title-unified"><i class="bi bi-globe2 me-2"></i>Productos Web</h3>
-            <small class="module-subtitle-unified">Gestión de productos del catálogo web</small>
-        </div>
-        <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo producto
-        </button>
-    </div>
-
     <!-- Búsqueda y filtros -->
-    <form method="get" class="module-toolbar">
-        <div class="module-toolbar-left">
-        <div class="position-relative pw-search">
-            <i class="bi bi-search"></i>
-            <input type="text" name="q" class="form-control" placeholder="Buscar producto..." value="{{ q|default:'' }}">
+    <form method="get" class="module-filters-card module-filters-form">
+        <div class="module-filter-field module-filter-field--wide">
+            <label class="module-filter-label">Busqueda</label>
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
         </div>
-        <button type="submit" class="btn btn-sm text-white" style="background:#3a2a24;">
-            <i class="bi bi-search me-1"></i>Buscar
-        </button>
-        {% if q or visible_filter %}
-        <a href="{% url 'productos_web:lista' %}" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-x-circle me-1"></i>Limpiar
-        </a>
-        {% endif %}
-        <select name="visible" class="form-select form-select-sm" style="max-width:150px;" onchange="this.form.submit()">
-            <option value="">Todos</option>
-            <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visibles</option>
-            <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Ocultos</option>
-        </select>
+
+        <div class="module-filter-field module-filter-field--small">
+            <label class="module-filter-label">Estado</label>
+            <select name="visible" class="form-select" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visibles</option>
+                <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Ocultos</option>
+            </select>
+        </div>
+
+        <div class="module-filter-actions">
+            {% if q or visible_filter %}
+            <a href="{% url 'productos_web:lista' %}" class="module-filter-btn module-filter-btn--secondary">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </a>
+            {% endif %}
         </div>
     </form>
 
