@@ -2,7 +2,9 @@
 {% load static %}
 
 {% block title %}Backup — Base de Datos{% endblock %}
+{% block page_icon %}<i class="bi bi-shield-lock page-icon"></i>{% endblock %}
 {% block page_title %}Respaldo de Base de Datos{% endblock %}
+{% block page_subtitle %}Control y monitoreo de copias de seguridad del sistema{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'backup/css/backup.css' %}">
@@ -12,11 +14,7 @@
 <div class="bk-wrapper">
 
     <!-- ==================== HEADER ==================== -->
-    <div class="bk-page-header">
-        <h1>
-            <i class="bi bi-shield-lock"></i>
-            Respaldo de Base de Datos
-        </h1>
+    <div class="bk-header-actions justify-content-end mb-4 anim-from-top" style="animation-delay:.12s;">
         <div class="bk-header-actions">
             <a href="{% url 'backup:configuracion' %}" class="bk-btn outline">
                 <i class="bi bi-gear"></i> Configuración

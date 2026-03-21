@@ -9,9 +9,9 @@
 <li class="breadcrumb-item active" aria-current="page">Gestion de datos</li>
 {% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> Gestion de datos
-{% endblock %}
+{% block page_icon %}<i class="bi bi-file-earmark-text page-icon"></i>{% endblock %}
+{% block page_title %}Gestion de datos{% endblock %}
+{% block page_subtitle %}Control de registros, filtros y seguimiento de alisados{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
@@ -26,13 +26,6 @@
         justify-content: flex-end;
         align-items: center;
         margin-bottom: 12px;
-    }
-
-    .gestion-card-header {
-        background-color: #634c40;
-        color: #fff;
-        padding: 1rem 1.25rem;
-        border-bottom: 0;
     }
 
     .gestion-filtros .form-control,
@@ -53,6 +46,10 @@
         min-width: 130px;
     }
 
+    .gestion-filtros-wrap {
+        padding: 1rem 1.25rem 1.25rem;
+    }
+
     @media (max-width: 768px) {
         .gestion-topbar { justify-content: stretch; }
         .gestion-topbar .btn-pill-dark { width: 100%; }
@@ -67,98 +64,76 @@
 
     <div class="gestion-topbar">
         <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
-            <i class="bi bi-plus-circle"></i> Nueva Gestión
+            <i class="bi bi-plus-circle"></i> Nueva Gestion
         </button>
     </div>
 
-    <div class="card shadow">
-        <div class="gestion-card-header">
-            <h4 class="mb-0">
-                <i class="bi bi-file-earmark-text me-2"></i> Gestión de datos
-            </h4>
+    <div class="table-card shadow-sm anim-from-bottom" style="animation-delay:.18s">
+        <div class="gestion-filtros-wrap">
+            <form method="get"
+                  id="filtrosForm"
+                  class="js-ajax-search-form gestion-filtros"
+                  data-ajax-url="{% url 'gestion_alisados:lista_gestion_alisados' %}"
+                  data-ajax-target="#gestion-tabla-wrap"
+                  data-ajax-debounce="300">
+
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por cliente o profesional...' search_value=buscar name='buscar' modo='inline' %}
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="forma_natural" class="form-select">
+                            <option value="">Tipo de cabello</option>
+                            <option value="liso" {% if forma_natural == 'liso' %}selected{% endif %}>Liso</option>
+                            <option value="ondulado" {% if forma_natural == 'ondulado' %}selected{% endif %}>Ondulado</option>
+                            <option value="rizado" {% if forma_natural == 'rizado' %}selected{% endif %}>Rizado</option>
+                            <option value="afro" {% if forma_natural == 'afro' %}selected{% endif %}>Afro</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="porosidad" class="form-select">
+                            <option value="">Porosidad</option>
+                            <option value="alta" {% if porosidad == 'alta' %}selected{% endif %}>Alta</option>
+                            <option value="media" {% if porosidad == 'media' %}selected{% endif %}>Media</option>
+                            <option value="baja" {% if porosidad == 'baja' %}selected{% endif %}>Baja</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="textura" class="form-select">
+                            <option value="">Textura</option>
+                            <option value="gruesa" {% if textura == 'gruesa' %}selected{% endif %}>Gruesa</option>
+                            <option value="normal" {% if textura == 'normal' %}selected{% endif %}>Normal</option>
+                            <option value="delgada" {% if textura == 'delgada' %}selected{% endif %}>Delgada</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="estado_pago" class="form-select">
+                            <option value="">Estado de pago</option>
+                            <option value="pagado" {% if estado_pago == 'pagado' %}selected{% endif %}>Pagado</option>
+                            <option value="pendiente" {% if estado_pago == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="gestion-actions mt-3">
+                    <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </form>
         </div>
 
-        <!-- Filtros de Búsqueda -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="gestion-filtros-wrap">
-                    <div class="gestion-bloque-superior">
-                        <div class="gestion-filtros-area">
-
-                            <form method="get"
-                                  id="filtrosForm"
-                                  class="js-ajax-search-form gestion-filtros"
-                                  data-ajax-url="{% url 'gestion_alisados:lista_gestion_alisados' %}"
-                                  data-ajax-target="#gestion-tabla-wrap"
-                                  data-ajax-debounce="300">
-
-                                <div class="row g-2">
-
-                                    <!-- Búsqueda global -->
-                                    <div class="col-md-4">
-                                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por cliente o profesional...' search_value=buscar name='buscar' modo='inline' %}
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <select name="forma_natural" class="form-select">
-                                            <option value="">Tipo de cabello</option>
-                                            <option value="liso"     {% if forma_natural == 'liso'     %}selected{% endif %}>Liso</option>
-                                            <option value="ondulado" {% if forma_natural == 'ondulado' %}selected{% endif %}>Ondulado</option>
-                                            <option value="rizado"   {% if forma_natural == 'rizado'   %}selected{% endif %}>Rizado</option>
-                                            <option value="afro"     {% if forma_natural == 'afro'     %}selected{% endif %}>Afro</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <select name="porosidad" class="form-select">
-                                            <option value="">Porosidad</option>
-                                            <option value="alta"  {% if porosidad == 'alta'  %}selected{% endif %}>Alta</option>
-                                            <option value="media" {% if porosidad == 'media' %}selected{% endif %}>Media</option>
-                                            <option value="baja"  {% if porosidad == 'baja'  %}selected{% endif %}>Baja</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <select name="textura" class="form-select">
-                                            <option value="">Textura</option>
-                                            <option value="gruesa"  {% if textura == 'gruesa'  %}selected{% endif %}>Gruesa</option>
-                                            <option value="normal"  {% if textura == 'normal'  %}selected{% endif %}>Normal</option>
-                                            <option value="delgada" {% if textura == 'delgada' %}selected{% endif %}>Delgada</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <select name="estado_pago" class="form-select">
-                                            <option value="">Estado de pago</option>
-                                            <option value="pagado"   {% if estado_pago == 'pagado'   %}selected{% endif %}>Pagado</option>
-                                            <option value="pendiente"{% if estado_pago == 'pendiente'%}selected{% endif %}>Pendiente</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="gestion-actions mt-3">
-                                    <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary">
-                                        <i class="bi bi-x-circle"></i> Limpiar
-                                    </a>
-                                </div>
-
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Target AJAX -->
-                    <div id="gestion-tabla-wrap">
-                        {% include 'gestion_alisados/lista_gestion_alisados_global.html' %}
-                    </div>
-
-                </div>
-            </div>
+        <div id="gestion-tabla-wrap">
+            {% include 'gestion_alisados/lista_gestion_alisados_global.html' %}
         </div>
     </div>
 
 </div>
 
-<!-- Modal para Formulario de Gestión -->
 <div class="modal fade" id="modalFormGestion" tabindex="-1" aria-labelledby="modalFormGestionLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl-custom modal-dialog-scrollable">
         <div class="modal-content">
@@ -179,13 +154,12 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const modal        = document.getElementById('modalFormGestion');
+    const modal = document.getElementById('modalFormGestion');
     const modalContent = document.getElementById('modalFormContent');
 
     const spinnerHTML = `
@@ -205,7 +179,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 modalContent.innerHTML = html;
                 modalContent.querySelectorAll('script').forEach(old => {
                     const s = document.createElement('script');
-                    old.src ? s.src = old.src : s.textContent = old.textContent;
+                    if (old.src) {
+                        s.src = old.src;
+                    } else {
+                        s.textContent = old.textContent;
+                    }
                     old.parentNode.replaceChild(s, old);
                 });
             })

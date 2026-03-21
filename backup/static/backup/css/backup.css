@@ -60,6 +60,10 @@
     flex-wrap: wrap;
 }
 
+.bk-wrapper .bk-header-actions.anim-from-top {
+    margin-left: auto;
+}
+
 /* ---- Stat Cards (resumen superior) ---- */
 .bk-stats-row {
     display: grid;

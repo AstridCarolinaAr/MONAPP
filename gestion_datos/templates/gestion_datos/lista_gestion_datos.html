@@ -2,117 +2,101 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Gestión de Datos de Clientes{% endblock %}
+{% block title %}Gestion de Datos de Clientes{% endblock %}
 
 {% block breadcrumb_items %}
-<li class="breadcrumb-item active" aria-current="page">Gestión de Datos</li>
+<li class="breadcrumb-item active" aria-current="page">Gestion de Datos</li>
 {% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-clipboard-data"></i> Gestión de Datos de Clientes
+{% block page_icon %}<i class="bi bi-clipboard-data page-icon"></i>{% endblock %}
+{% block page_title %}Gestion de datos{% endblock %}
+{% block page_subtitle %}Registros de datos y tratamientos de clientes{% endblock %}
+{% block page_actions %}
+<a href="{% url 'gestion_datos:crear_gestion_datos' %}" class="btn-pill-dark">
+    <i class="bi bi-plus-circle"></i> Nueva Gestion
+</a>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="card shadow">
-        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
-            <h4 class="mb-0">Registros de Gestión de Datos</h4>
-            <a href="{% url 'gestion_datos:crear_gestion_datos' %}" class="btn-pill-dark">
-                <i class="bi bi-plus-circle"></i> Nueva Gestión
-            </a>
-        </div>
-        <div class="card-body">
-            {% if gestiones %}
-                <div class="table-responsive">
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha y Hora</th>
-                                <th>Cliente</th>
-                                <th>Profesional</th>
-                                <th>Tipo de Tratamiento</th>
-                                <th>Precio</th>
-                                <th>Saldo Pendiente</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for gestion in gestiones %}
-                            <tr>
-                                <td>{{ gestion.fecha_hora|date:"d/m/Y H:i" }}</td>
-                                <td>
-                                    {% if gestion.cliente %}
-                                        {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}
-                                    {% else %}
-                                        <em>Sin cliente</em>
-                                    {% endif %}
-                                </td>
-                                <td>{{ gestion.procedimiento_realizado_por }}</td>
-                                <td>{{ gestion.tipo_tratamiento|truncatewords:5 }}</td>
-                                <td>${{ gestion.precio_servicio|intcomma }} COP</td>
-                                <td>
-                                    {% if gestion.saldo_pendiente > 0 %}
-                                        <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Pagado</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a href="{% url 'gestion_datos:ver_gestion_datos' gestion.pk %}" class="btn btn-link btn-action-round" style="color: #382822;" title="Ver detalles" data-bs-placement="bottom"><i class="bi bi-eye" style="font-size: 24px;"></i></a>
-                                        <a href="{% url 'gestion_datos:editar_gestion_datos' gestion.pk %}" class="btn btn-link btn-action-round" style="color: #382822;" title="Editar" data-bs-placement="bottom"><i class="bi bi-pencil-square" style="font-size: 24px;"></i></a>
-                                        <a href="{% url 'gestion_datos:eliminar_gestion_datos' gestion.pk %}" class="btn btn-link btn-action-round" style="color: #382822;" title="Eliminar" data-bs-placement="bottom"><i class="bi bi-trash3" style="font-size: 24px;"></i></a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> No hay registros de gestión de datos.
-                    <a href="{% url 'gestion_datos:crear_gestion_datos' %}" class="btn btn-link alert-link p-0">
-                        Crear el primer registro
-                    </a>
-                </div>
-            {% endif %}
-        </div>
+    <div class="table-card anim-from-bottom" style="animation-delay:.18s">
+        {% if gestiones %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 styled-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Cliente</th>
+                            <th>Profesional</th>
+                            <th>Tipo de Tratamiento</th>
+                            <th>Precio</th>
+                            <th>Saldo Pendiente</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for gestion in gestiones %}
+                        <tr>
+                            <td>{{ gestion.fecha_hora|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if gestion.cliente %}
+                                    {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}
+                                {% else %}
+                                    <em>Sin cliente</em>
+                                {% endif %}
+                            </td>
+                            <td>{{ gestion.procedimiento_realizado_por }}</td>
+                            <td>{{ gestion.tipo_tratamiento|truncatewords:5 }}</td>
+                            <td>${{ gestion.precio_servicio|intcomma }} COP</td>
+                            <td>
+                                {% if gestion.saldo_pendiente > 0 %}
+                                    <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
+                                {% else %}
+                                    <span class="badge bg-success">Pagado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="table-action-group">
+                                    <a href="{% url 'gestion_datos:ver_gestion_datos' gestion.pk %}" class="table-action-btn" title="Ver detalles" data-bs-placement="bottom"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'gestion_datos:editar_gestion_datos' gestion.pk %}" class="table-action-btn" title="Editar" data-bs-placement="bottom"><i class="bi bi-pencil-square"></i></a>
+                                    <a href="{% url 'gestion_datos:eliminar_gestion_datos' gestion.pk %}" class="table-action-btn table-action-btn--danger" title="Eliminar" data-bs-placement="bottom"><i class="bi bi-trash3"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info m-3">
+                <i class="bi bi-info-circle"></i> No hay registros de gestion de datos.
+                <a href="{% url 'gestion_datos:crear_gestion_datos' %}" class="btn btn-link alert-link p-0">
+                    Crear el primer registro
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 
 <style>
-    .table thead th {
+    .styled-table thead th {
         background-color: #f8f9fa;
         color: #382a23;
         border-bottom: 2px solid #634c40;
     }
+
     .btn-info {
         background-color: #634c40;
         border-color: #634c40;
     }
+
     .btn-info:hover {
         background-color: #382a23;
         border-color: #382a23;
     }
-    .card-header .btn-light:hover {
-        background-color: #382a23;
-        color: white;
-        border-color: #382a23;
-    }
-    .btn-action-round {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.3s, color 0.3s;
-        text-decoration: none !important;
-    }
-    .btn-action-round:hover {
-        background-color: rgba(99, 76, 64, 0.1);
-        color: #634c40 !important;
+
+    .table-card {
+        overflow: hidden;
     }
 </style>
 {% endblock %}
