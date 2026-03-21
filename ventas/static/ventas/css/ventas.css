@@ -199,6 +199,64 @@ input:disabled {
 .btn-editar {
     color: #2c0909 !important;
 }
+
+/* =====================================================
+   FILTROS VENTAS COMPACTOS
+===================================================== */
+.ventas-filters-card {
+  padding: 14px 16px;
+  margin-bottom: 16px !important;
+}
+
+.ventas-filters-form {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.ventas-filters-form .module-filter-field,
+.ventas-filters-form .module-filter-field--wide,
+.ventas-filters-form .module-filter-field--medium,
+.ventas-filters-form .module-filter-actions {
+  grid-column: auto;
+  margin: 0;
+}
+
+.ventas-filters-form .module-filter-field--wide {
+  flex: 1 1 360px;
+  min-width: 260px;
+}
+
+.ventas-filters-form .module-filter-field--medium {
+  flex: 0 1 210px;
+  min-width: 180px;
+}
+
+.ventas-filters-form .module-filter-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.ventas-filters-form .module-search-inline {
+  width: 100%;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.ventas-filters-form .module-filter-btn {
+  min-height: 42px;
+  padding: 0 14px;
+}
+
+@media (max-width: 1200px) {
+  .ventas-filters-form .module-filter-field--wide,
+  .ventas-filters-form .module-filter-field--medium,
+  .ventas-filters-form .module-filter-actions {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}
 /* Acciones de ventas heredando estilo visual base */
 td .btn-ver-detalle,
 td .btn-editar,

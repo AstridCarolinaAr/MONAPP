@@ -251,18 +251,54 @@
 
 /* ==================== BÚSQUEDA ==================== */
 .personal-search-card {
-    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
-    border: 1.5px solid rgba(17, 17, 17, 0.08);
-    border-radius: 24px;
-    padding: 35px 40px;
-    margin-bottom: 40px;
+    background: linear-gradient(180deg, #fffdfb 0%, #fbf5f0 100%);
+    border: 1px solid rgba(198, 162, 136, 0.45);
+    border-radius: 22px;
+    box-shadow: 0 10px 24px rgba(69, 45, 34, 0.06);
+    padding: 18px;
+    margin-bottom: 22px;
 }
 
 .personal-search-form {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 0.8fr;
-    gap: 20px;
+    grid-template-columns: minmax(320px, 1.7fr) minmax(220px, 1fr) auto;
+    gap: 14px;
     align-items: end;
+}
+
+.personal-search-form .module-filter-field,
+.personal-search-form .module-filter-field--wide,
+.personal-search-form .module-filter-field--medium,
+.personal-search-form .module-filter-actions {
+    grid-column: auto;
+    margin: 0;
+}
+
+.personal-search-form .module-filter-field--wide {
+    min-width: 0;
+}
+
+.personal-search-form .module-filter-field--medium {
+    min-width: 200px;
+}
+
+.personal-search-form .module-filter-actions {
+    margin-left: 0;
+    align-self: end;
+}
+
+.personal-search-form .module-filter-btn {
+    min-width: 130px;
+}
+
+.personal-search-form .module-search-inline {
+    min-width: 0;
+    width: 100%;
+    flex: 0 0 auto;
+}
+
+.personal-search-form .personal-search-global-wrap {
+    flex: 0 0 auto;
 }
 
 /* ==================== TABLA ==================== */
@@ -561,9 +597,17 @@
 @media (max-width: 1200px) {
     .personal-search-form {
         grid-template-columns: 1fr;
+        align-items: stretch;
     }
     .personal-search-card {
         padding: 24px 28px;
+    }
+
+    .personal-search-form .module-filter-field--wide,
+    .personal-search-form .module-filter-field--medium,
+    .personal-search-form .module-filter-actions {
+        min-width: 0;
+        margin-left: 0;
     }
 }
 
@@ -618,6 +662,10 @@
         padding: 18px 16px;
         border-radius: 16px;
         margin-bottom: 24px;
+    }
+
+    .personal-search-form {
+        gap: 12px;
     }
     /* Ocultar también Teléfono en móvil */
     .personal-table thead th:nth-child(4),
