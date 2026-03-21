@@ -83,7 +83,7 @@
 
 {% block page_subtitle %}
 <span class="sw-enter sw-enter-up sw-enter-delay-2">
-    Gestiona los servicios que se muestran en la página pública.
+    Gestiona los servicios que se muestran en la pagina publica.
 </span>
 {% endblock %}
 
@@ -98,31 +98,18 @@
 
 {% block content %}
 <div class="sw-toolbar sw-enter sw-enter-up sw-enter-delay-3">
-    <div class="sw-search-bar" id="swSearchBar">
-        <div class="sw-search-shell" id="swSearchShell">
-            <button type="button" class="sw-search-toggle" id="swSearchToggle" aria-label="Abrir búsqueda">
-                <i class="bi bi-search" id="swSearchIcon"></i>
-            </button>
-            <div class="sw-search-input-wrap" id="swSearchInputWrap">
-                <input
-                    type="text"
-                    id="swBuscarServicios"
-                    class="form-control sw-search-input"
-                    placeholder="Buscar por nombre, descripción, precio o estado..."
-                    value="{{ q|default:'' }}"
-                >
-            </div>
-        </div>
+    <div class="sw-search-bar module-search-inline" id="swSearchBar">
+        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripcion, precio o estado...' search_value=q name='q' modo='inline' %}
     </div>
 
     <div class="sw-view-controls">
-        <button type="button" class="sw-view-btn" data-view="grid-2" title="Cuadrícula 2">
+        <button type="button" class="sw-view-btn" data-view="grid-2" title="Cuadricula 2">
             <i class="bi bi-grid-1x2"></i>
         </button>
-        <button type="button" class="sw-view-btn" data-view="grid-3" title="Cuadrícula 3">
+        <button type="button" class="sw-view-btn" data-view="grid-3" title="Cuadricula 3">
             <i class="bi bi-grid-3x3-gap"></i>
         </button>
-        <button type="button" class="sw-view-btn" data-view="grid-4" title="Cuadrícula 4">
+        <button type="button" class="sw-view-btn" data-view="grid-4" title="Cuadricula 4">
             <i class="bi bi-grid"></i>
         </button>
         <button type="button" class="sw-view-btn" data-view="table" title="Tabla">
@@ -137,7 +124,7 @@
 
 <div id="swNoResults" class="sw-no-results">
     <i class="bi bi-search" style="font-size: 2rem;"></i>
-    <p class="mb-0 mt-2">No se encontraron servicios con esa búsqueda.</p>
+    <p class="mb-0 mt-2">No se encontraron servicios con esa busqueda.</p>
 </div>
 
 <div class="modal fade" id="modalServicioWeb" tabindex="-1" aria-hidden="true">

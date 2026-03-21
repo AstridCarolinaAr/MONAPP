@@ -24,36 +24,8 @@
 {% block content %}
 <div class="module-filters-card">
   <div class="module-filters-form">
-    <div class="module-filter-field module-filter-field--medium">
-      <label class="module-filter-label">Filtro</label>
-      <div class="dropdown">
-        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-funnel"></i> Filtrar
-        </button>
-
-        <ul class="dropdown-menu shadow-sm">
-            <li><a class="dropdown-item" href="?orden=codigo">Codigo</a></li>
-            <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
-            <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
-            <li><a class="dropdown-item" href="?orden=presentacion">Presentacion</a></li>
-
-            <li>
-                <button class="dropdown-item" type="button" id="btnFiltroLineas">
-                    Filtrar por linea
-                </button>
-            </li>
-
-            <li><hr class="dropdown-divider"></li>
-
-            <li>
-                <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
-            </li>
-        </ul>
-      </div>
-    </div>
-
     <div class="module-filter-field module-filter-field--wide">
-      <label class="module-filter-label">Busqueda</label>
+      <label class="module-filter-label">Buscar</label>
       <form method="get"
             action="{% url 'productos:lista_productos' %}"
             class="productos-busqueda-form js-ajax-search-form"
@@ -78,6 +50,34 @@
 
         {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
       </form>
+    </div>
+
+    <div class="module-filter-field module-filter-field--medium">
+      <label class="module-filter-label">Filtrar</label>
+      <div class="dropdown">
+        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-funnel"></i> Filtrar
+        </button>
+
+        <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="?orden=codigo">Codigo</a></li>
+            <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
+            <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
+            <li><a class="dropdown-item" href="?orden=presentacion">Presentacion</a></li>
+
+            <li>
+                <button class="dropdown-item" type="button" id="btnFiltroLineas">
+                    Filtrar por linea
+                </button>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+                <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
+            </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>

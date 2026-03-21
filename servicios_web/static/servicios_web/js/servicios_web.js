@@ -263,9 +263,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.initServiciosWeb = function () {
 
         const serviciosWebView = document.getElementById("serviciosWebView");
-        const searchShell = document.getElementById("swSearchShell");
-        const searchToggle = document.getElementById("swSearchToggle");
-        const searchInput = document.getElementById("swBuscarServicios");
+        const searchBar = document.getElementById("swSearchBar");
+        const searchShell = searchBar?.querySelector(".search-toggle-wrapper");
+        const searchInput = searchBar?.querySelector(".search-toggle-input");
         const noResults = document.getElementById("swNoResults");
 
         /* ── Vista guardada ── */
@@ -309,7 +309,16 @@ document.addEventListener("DOMContentLoaded", () => {
             serviciosWebView.dataset.view = view;
             localStorage.setItem("servicios_web_view_mode", view);
             document.querySelectorAll(".sw-view-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
-            if (view !== "table") animarCardsGrid();
+            if (view !== "table") {
+                requestAnimationFrame(() => {
+                    document.querySelectorAll("#servicesGrid .metaballs-slot[data-metaballs='1']").forEach(slot => {
+                        slot.removeAttribute("data-metaballs-mounted");
+                        slot.querySelectorAll("canvas").forEach(canvas => canvas.remove());
+                    });
+                    if (typeof initMetaballs === "function") initMetaballs();
+                    animarCardsGrid();
+                });
+            }
             actualizarNoResultados();
         }
 
@@ -318,19 +327,6 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.dataset.boundView = "1";
             btn.addEventListener("click", () => aplicarVista(btn.dataset.view));
         });
-
-        if (searchToggle && searchShell && searchToggle.dataset.boundSearch !== "1") {
-            searchToggle.dataset.boundSearch = "1";
-            searchToggle.addEventListener("click", () => {
-                searchShell.classList.toggle("is-open");
-                if (searchShell.classList.contains("is-open")) {
-                    searchInput?.focus();
-                } else if (searchInput) {
-                    searchInput.value = "";
-                    filtrarServicios();
-                }
-            });
-        }
 
         if (searchInput && searchInput.dataset.boundInput !== "1") {
             searchInput.dataset.boundInput = "1";
