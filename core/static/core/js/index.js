@@ -1,4 +1,108 @@
 document.addEventListener("DOMContentLoaded", () => {
+    window.scrollTo(0, 0);
+
+    /* ===============================
+       REVEAL TIPO LLAVE/SILUETA
+    =============================== */
+    const pageReveal = document.querySelector(".sq-page-reveal");
+    const pageRevealCanvas = document.querySelector(".sq-page-reveal-canvas");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let revealRunning = false;
+
+    if (pageReveal && pageRevealCanvas && !prefersReducedMotion) {
+        revealRunning = true;
+        const ctx = pageRevealCanvas.getContext("2d", { alpha: true });
+        if (!ctx) {
+            revealRunning = false;
+            pageReveal.remove();
+        } else {
+            const dpr = Math.max(1, window.devicePixelRatio || 1);
+            const maskSrc = pageReveal.dataset.maskSrc;
+            const maskImg = new Image();
+            maskImg.decoding = "async";
+
+            const resizeCanvas = () => {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                pageRevealCanvas.width = Math.floor(w * dpr);
+                pageRevealCanvas.height = Math.floor(h * dpr);
+                pageRevealCanvas.style.width = `${w}px`;
+                pageRevealCanvas.style.height = `${h}px`;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            };
+
+            const drawSolidBlack = () => {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                ctx.clearRect(0, 0, w, h);
+                ctx.globalCompositeOperation = "source-over";
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, w, h);
+            };
+
+            const drawFrame = (scale) => {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                const cx = w / 2;
+                const cy = h / 2;
+                const base = 120;
+                const imgW = base * scale;
+                const imgH = base * scale;
+
+                ctx.clearRect(0, 0, w, h);
+                ctx.globalCompositeOperation = "source-over";
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.save();
+                ctx.globalCompositeOperation = "destination-out";
+                ctx.drawImage(maskImg, cx - imgW / 2, cy - imgH / 2, imgW, imgH);
+                ctx.restore();
+            };
+
+            const runReveal = () => {
+                resizeCanvas();
+                drawSolidBlack();
+                const duration = 1550;
+                const diagonal = Math.hypot(window.innerWidth, window.innerHeight);
+                const finalScale = Math.max(26, (diagonal / 120) * 1.35);
+                const startScale = 0.9;
+                const start = performance.now();
+
+                drawFrame(startScale);
+
+                const tick = (now) => {
+                    const t = Math.min(1, (now - start) / duration);
+                    const ease = 1 - Math.pow(1 - t, 3);
+                    const scale = startScale + (finalScale - startScale) * ease;
+                    drawFrame(scale);
+
+                    if (t < 1) {
+                        requestAnimationFrame(tick);
+                        return;
+                    }
+
+                    revealRunning = false;
+                    pageReveal.classList.add("is-hiding");
+                    setTimeout(() => {
+                        pageReveal.remove();
+                    }, 150);
+                };
+
+                requestAnimationFrame(tick);
+            };
+
+            maskImg.onload = runReveal;
+            maskImg.onerror = () => {
+                revealRunning = false;
+                pageReveal.remove();
+            };
+            maskImg.src = maskSrc;
+        }
+    } else if (pageReveal) {
+        pageReveal.remove();
+    }
+
     /* ===============================
        HERO FADE IN
     =============================== */
@@ -58,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("resize", recalcTracks);
 
         function animate() {
-            if (carouselReady && !isPaused) {
+            if (carouselReady && !isPaused && !revealRunning) {
                 targetVelocity += acceleration;
                 targetVelocity = Math.max(-maxSpeed, Math.min(maxSpeed, targetVelocity));
                 velocity += (targetVelocity - velocity) * inertia;
@@ -246,6 +350,89 @@ document.addEventListener("DOMContentLoaded", () => {
             await openVideo(card, video);
         });
     });
+
+    /* ===============================
+       PROMOCIONES SHOWCASE
+    =============================== */
+    const promoStage = document.querySelector("[data-promotions-stage]");
+    if (promoStage) {
+        const viewport = promoStage.querySelector("[data-promotions-viewport]");
+        const promoCards = Array.from(promoStage.querySelectorAll("[data-promo-card]"));
+        const promoPanels = Array.from(promoStage.querySelectorAll("[data-promo-panel]"));
+        const promoBgs = Array.from(promoStage.querySelectorAll("[data-promo-bg]"));
+        const prevBtn = promoStage.querySelector("[data-promotions-prev]");
+        const nextBtn = promoStage.querySelector("[data-promotions-next]");
+        let activeIndex = 0;
+
+        const setActivePromo = (index, shouldScroll = true) => {
+            if (!promoCards.length) return;
+
+            activeIndex = Math.max(0, Math.min(index, promoCards.length - 1));
+
+            promoCards.forEach((card, i) => {
+                card.classList.toggle("is-active", i === activeIndex);
+            });
+
+            promoPanels.forEach((panel, i) => {
+                panel.classList.toggle("is-active", i === activeIndex);
+            });
+
+            promoBgs.forEach((bg, i) => {
+                bg.classList.toggle("is-active", i === activeIndex);
+            });
+
+            if (prevBtn) prevBtn.disabled = activeIndex === 0;
+            if (nextBtn) nextBtn.disabled = activeIndex === promoCards.length - 1;
+
+            if (shouldScroll && viewport) {
+                const target = promoCards[activeIndex];
+                viewport.scrollTo({
+                    left: Math.max(0, target.offsetLeft - 24),
+                    behavior: "smooth",
+                });
+            }
+        };
+
+        promoCards.forEach((card, index) => {
+            card.addEventListener("click", () => {
+                setActivePromo(index);
+            });
+        });
+
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                setActivePromo(activeIndex - 1);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                setActivePromo(activeIndex + 1);
+            });
+        }
+
+        viewport?.addEventListener("scroll", () => {
+            const viewportCenter = viewport.scrollLeft + viewport.clientWidth / 2;
+            let closestIndex = activeIndex;
+            let closestDistance = Number.POSITIVE_INFINITY;
+
+            promoCards.forEach((card, index) => {
+                const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+                const distance = Math.abs(cardCenter - viewportCenter);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestIndex = index;
+                }
+            });
+
+            window.requestAnimationFrame(() => {
+                setActivePromo(closestIndex, false);
+            });
+        });
+
+        window.addEventListener("resize", () => setActivePromo(activeIndex, false));
+        setActivePromo(0, false);
+    }
 
     /* ===============================
        CAMBIO DE FONDO POR SCROLL

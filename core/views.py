@@ -10,7 +10,7 @@ from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
 from clientes.models import Cliente
-from servicios.models import Servicio
+from servicios_web.models import ServicioWeb
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
 
@@ -29,7 +29,7 @@ def index(request):
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
 
-    servicios = Servicio.objects.filter(activo=True)
+    servicios = ServicioWeb.objects.filter(activo=True)
     promociones = Promocion.objects.filter(activa=True)
     productos_web = ProductoWeb.objects.filter(visible=True)
 

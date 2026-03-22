@@ -90,7 +90,14 @@ def _guess_validation_rule(field_name, field):
     if "documento" in signature and ("usuario" in signature or "username" in signature):
         return "alnum"
 
-    if isinstance(widget, (forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput)):
+    if isinstance(widget, (
+        forms.CheckboxInput,
+        forms.ClearableFileInput,
+        forms.FileInput,
+        forms.DateInput,
+        forms.DateTimeInput,
+        forms.TimeInput,
+    )):
         return None
 
     if isinstance(field, (forms.DecimalField, forms.FloatField)):

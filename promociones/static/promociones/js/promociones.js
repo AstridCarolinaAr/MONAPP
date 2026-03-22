@@ -197,8 +197,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (len > max) textarea.value = textarea.value.substring(0, max);
         contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
         contEl.className = 'promo-char-count' +
-            (len >= max        ? ' at-limit'   :
-             len >= max * 0.85 ? ' near-limit' : '');
+             (len >= max        ? ' at-limit'   :
+              len >= max * 0.85 ? ' near-limit' : '');
+    }
+
+    function promoFmtLocalDate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    function promoMaxInicio() {
+        const d = new Date();
+        const originalDay = d.getDate();
+        d.setFullYear(d.getFullYear() + 1);
+        if (d.getDate() !== originalDay) d.setDate(0);
+        return promoFmtLocalDate(d);
+    }
+
+    function promoMinDate() {
+        const d = new Date();
+        const originalDay = d.getDate();
+        d.setFullYear(d.getFullYear() - 1);
+        if (d.getDate() !== originalDay) d.setDate(0);
+        return promoFmtLocalDate(d);
+    }
+
+    function promoMaxFin() {
+        return promoMaxInicio();
     }
 
     /* Descuento */
@@ -217,9 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Fechas: inicio + fin + rango */
     function promoFechas(inEl, finEl, errInEl, errFinEl) {
+        const minDate = promoMinDate();
+        const maxDate = promoMaxInicio();
         let okIn = true, okFin = true;
         if (!inEl.value) {
             promoErr(inEl, errInEl, 'La fecha de inicio es obligatoria.');
+            okIn = false;
+        } else if (inEl.value < minDate || inEl.value > maxDate) {
+            promoErr(inEl, errInEl, 'La fecha de inicio debe estar dentro del ultimo año y no superar un año hacia el futuro.');
             okIn = false;
         } else {
             promoErr(inEl, errInEl, '');
@@ -294,6 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ag.desc)      ag.desc.addEventListener('input', () => promoCtr(ag.desc, ag.ctrDesc, 500));
     if (ag.pct)     { ag.pct.addEventListener('input', () => promoDescuento(ag.pct, ag.errD));       ag.pct.addEventListener('blur', () => promoDescuento(ag.pct, ag.errD)); }
     if (ag.inicio && ag.fin) {
+        ag.inicio.min = promoMinDate();
+        ag.inicio.max = promoMaxInicio();
+        ag.fin.min = promoMinDate();
+        ag.fin.max = promoMaxFin();
         const chkAg = () => promoFechas(ag.inicio, ag.fin, ag.errI, ag.errF);
         ag.inicio.addEventListener('change', chkAg);
         ag.fin.addEventListener('change', chkAg);
@@ -353,6 +389,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ed.desc)      ed.desc.addEventListener('input', () => promoCtr(ed.desc, ed.ctrDesc, 500));
     if (ed.pct)     { ed.pct.addEventListener('input', () => promoDescuento(ed.pct, ed.errD));       ed.pct.addEventListener('blur', () => promoDescuento(ed.pct, ed.errD)); }
     if (ed.inicio && ed.fin) {
+        ed.inicio.min = promoMinDate();
+        ed.inicio.max = promoMaxInicio();
+        ed.fin.min = promoMinDate();
+        ed.fin.max = promoMaxFin();
         const chkEd = () => promoFechas(ed.inicio, ed.fin, ed.errI, ed.errF);
         ed.inicio.addEventListener('change', chkEd);
         ed.fin.addEventListener('change', chkEd);

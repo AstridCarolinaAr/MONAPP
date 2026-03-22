@@ -11,6 +11,10 @@ Servicios
 
 {% block content %}
 
+<div class="sq-page-reveal" data-mask-src="{% static 'core/IMG/silueta-mask.png' %}" aria-hidden="true">
+    <canvas class="sq-page-reveal-canvas"></canvas>
+</div>
+
 <section class="sq-hero-bg">
 
     <!-- ==================== HERO ==================== -->
@@ -54,7 +58,145 @@ Servicios
     <!-- ==================== PROMOCIONES ==================== -->
     <section class="sq-promotions" id="promociones">
         <div class="sq-container">
-            <h2 class="sq-promotions-title">Promociones</h2>
+            <div class="sq-promotions-head">
+                <div>
+                    <span class="sq-promotions-eyebrow">Ofertas destacadas</span>
+                    <h2 class="sq-promotions-title">Promociones</h2>
+                </div>
+                <p class="sq-promotions-lead">
+                    Rediseñamos esta sección para que se sienta más premium, visual y dinámica, con cada promoción como protagonista.
+                </p>
+            </div>
+
+            {% if promociones %}
+                <div class="sq-promotions-stage" data-promotions-stage>
+                    <div class="sq-promotions-backdrop" aria-hidden="true">
+                        {% for promo in promociones %}
+                            <div class="sq-promotions-bg {% if forloop.first %}is-active{% endif %}" data-promo-bg data-index="{{ forloop.counter0 }}">
+                                {% if promo.imagen %}
+                                    <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
+                                {% else %}
+                                    <div class="sq-promo-placeholder">
+                                        <i class="bi bi-stars"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="sq-promotions-shade" aria-hidden="true"></div>
+
+                    <div class="sq-promotions-head sq-promotions-head--inside">
+                        <div>
+                            <span class="sq-promotions-eyebrow">Ofertas destacadas</span>
+                            <h2 class="sq-promotions-title">Promociones</h2>
+                        </div>
+                    </div>
+
+                    <div class="sq-promotions-layout">
+                        <div class="sq-promotions-feature">
+                            {% for promo in promociones %}
+                                <article class="sq-promo-feature {% if forloop.first %}is-active{% endif %}" data-promo-panel data-index="{{ forloop.counter0 }}">
+                                    <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
+                                    <span class="sq-promo-feature-kicker">Oferta activa</span>
+                                    <h3>{{ promo.nombre }}</h3>
+                                    <p>{{ promo.descripcion }}</p>
+                                    <div class="sq-promo-feature-meta">
+                                        <span class="sq-promo-discount">{{ promo.porcentaje_descuento }}% OFF</span>
+                                        <span class="sq-promo-counter">{{ forloop.counter|stringformat:"02d" }} / {{ promociones|length|stringformat:"02d" }}</span>
+                                    </div>
+                                    <a href="#contactenos" class="sq-promo-btn">Reservar ahora</a>
+                                </article>
+                            {% endfor %}
+                        </div>
+
+                        <div class="sq-promotions-rail">
+                            <div class="sq-promotions-rail-nav">
+                                <button class="sq-promotions-nav sq-promotions-nav--prev" type="button" aria-label="Promocion anterior" data-promotions-prev>
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button class="sq-promotions-nav sq-promotions-nav--next" type="button" aria-label="Siguiente promocion" data-promotions-next>
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="sq-promotions-viewport" data-promotions-viewport>
+                                <div class="sq-promotions-track">
+                                    {% for promo in promociones %}
+                                        <article class="sq-promo-card-mini {% if forloop.first %}is-active{% endif %}" data-promo-card data-index="{{ forloop.counter0 }}">
+                                            <div class="sq-promo-card-mini-image">
+                                                {% if promo.imagen %}
+                                                    <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
+                                                {% else %}
+                                                    <div class="sq-promo-placeholder">
+                                                        <i class="bi bi-stars"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="sq-promo-card-mini-body">
+                                                <span class="sq-promo-card-mini-tag">{{ promo.get_etiqueta_display }}</span>
+                                                <h4>{{ promo.nombre }}</h4>
+                                            </div>
+                                        </article>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            
+                <div class="sq-promotions-showcase" data-promotions-carousel>
+                    <button class="sq-promotions-nav sq-promotions-nav--prev" type="button" aria-label="Promoción anterior" data-promotions-prev>
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <button class="sq-promotions-nav sq-promotions-nav--next" type="button" aria-label="Siguiente promoción" data-promotions-next>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <div class="sq-promotions-viewport" data-promotions-viewport>
+                        <div class="sq-promotions-track">
+                            {% for promo in promociones %}
+                                <article class="sq-promo-spotlight" data-promo-card data-index="{{ forloop.counter0 }}">
+                                    <div class="sq-promo-image">
+                                        {% if promo.imagen %}
+                                            <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
+                                        {% else %}
+                                            <div class="sq-promo-placeholder">
+                                                <i class="bi bi-stars"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
+                                    </div>
+
+                                    <div class="sq-promo-content">
+                                        <div class="sq-promo-meta">
+                                            <span class="sq-promo-kicker">Experiencia Mona</span>
+                                            <span class="sq-promo-count">{{ forloop.counter|stringformat:"02d" }}</span>
+                                        </div>
+                                        <h3>{{ promo.nombre }}</h3>
+                                        <p>{{ promo.descripcion }}</p>
+                                        <div class="sq-promo-actions">
+                                            <a href="#contactenos" class="sq-promo-btn">Reservar ahora</a>
+                                            <span class="sq-promo-ghost">Agenda tu valoración</span>
+                                        </div>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="sq-promotions-status">
+                        <div class="sq-promotions-progress" aria-hidden="true">
+                            <span class="sq-promotions-progress-bar" data-promotions-progress></span>
+                        </div>
+                        <div class="sq-promotions-counter">
+                            <span data-promotions-current>01</span>
+                            <span>/</span>
+                            <span data-promotions-total>{{ promociones|length|stringformat:"02d" }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
 
             <div class="sq-promotions-grid">
                 {% for promo in promociones %}
@@ -83,6 +225,10 @@ Servicios
 
     <!-- ==================== SERVICIOS (TRACKS) ==================== -->
     <div class="sq-tracks-wrapper sq-infinite" id ="infinite">
+        <div class="sq-services-heading">
+            <span class="sq-services-eyebrow">Experiencia Mona</span>
+            <h2>Servicios</h2>
+        </div>
 
         <!-- ===== TRACK 1 ===== -->
         <div class="sq-track" id="track1">
@@ -103,6 +249,10 @@ Servicios
                         </video>
                     {% endif %}
 
+                    {% if servicio.imagen %}
+                        <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="sq-card-image">
+                    {% endif %}
+
                     {% if not servicio.imagen and not servicio.video %}
                         <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
 
@@ -115,8 +265,6 @@ Servicios
                             <div class="hint">Sin imagen</div>
                         </div>
 
-                    {% elif servicio.imagen and not servicio.video %}
-                        <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="sq-card-image">
                     {% endif %}
 
                 </div>
@@ -142,6 +290,10 @@ Servicios
                         </video>
                     {% endif %}
 
+                    {% if servicio.imagen %}
+                        <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="sq-card-image">
+                    {% endif %}
+
                     {% if not servicio.imagen and not servicio.video %}
                         <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
 
@@ -154,8 +306,6 @@ Servicios
                             <div class="hint">Sin imagen</div>
                         </div>
 
-                    {% elif servicio.imagen and not servicio.video %}
-                        <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="sq-card-image">
                     {% endif %}
 
                 </div>

@@ -370,22 +370,40 @@ document.addEventListener('DOMContentLoaded', () => {
              len >= max * 0.85 ? ' near-limit' : '');
     }
 
+    function promoFmtLocalDate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
     function promoMaxInicio() {
         const d = new Date();
-        d.setMonth(d.getMonth() + 12);
-        return d.toISOString().split('T')[0];
+        const originalDay = d.getDate();
+        d.setFullYear(d.getFullYear() + 1);
+        if (d.getDate() !== originalDay) d.setDate(0);
+        return promoFmtLocalDate(d);
+    }
+    function promoMinDate() {
+        const d = new Date();
+        const originalDay = d.getDate();
+        d.setFullYear(d.getFullYear() - 1);
+        if (d.getDate() !== originalDay) d.setDate(0);
+        return promoFmtLocalDate(d);
     }
     function promoMaxFin() {
-        const year = new Date(promoMaxInicio()).getFullYear();
-        return `${year}-12-31`;
+        return promoMaxInicio();
     }
 
     function validarFechasPromoForm(inEl, finEl, errInEl, errFinEl) {
+        const minDate   = promoMinDate();
         const maxInicio = promoMaxInicio();
         const maxFin    = promoMaxFin();
         let okIn = true, okFin = true;
         if (!inEl.value) {
             promoErr(inEl, errInEl, 'La fecha de inicio es obligatoria.');
+            okIn = false;
+        } else if (inEl.value < minDate || inEl.value > maxInicio) {
+            promoErr(inEl, errInEl, 'La fecha de inicio debe estar dentro del ultimo año y no superar un año hacia el futuro.');
             okIn = false;
         } else if (inEl.value > maxInicio) {
             promoErr(inEl, errInEl, 'La fecha de inicio no puede ser más de 12 meses a partir de hoy.');
@@ -393,24 +411,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             promoErr(inEl, errInEl, '');
         }
-        if (inEl.value) finEl.min = inEl.value;
+        finEl.min = inEl.value || minDate;
         if (!finEl.value) {
             promoErr(finEl, errFinEl, 'La fecha de fin es obligatoria.');
             okFin = false;
         } else if (inEl.value && finEl.value < inEl.value) {
             promoErr(finEl, errFinEl, 'La fecha de fin debe ser igual o posterior a la de inicio.');
             okFin = false;
+        } else if (finEl.value < minDate || finEl.value > maxFin) {
+            promoErr(finEl, errFinEl, 'La fecha de fin debe estar dentro del ultimo año y no superar un año hacia el futuro.');
+            okFin = false;
         } else if (finEl.value > maxFin) {
             promoErr(finEl, errFinEl, `La fecha de fin no puede superar el 31/12/${new Date(maxFin).getFullYear()}.`);
             okFin = false;
-        } else if (inEl.value && finEl.value) {
-            const dias = (new Date(finEl.value) - new Date(inEl.value)) / 86400000;
-            if (dias > 365) {
-                promoErr(finEl, errFinEl, 'La promoción no puede durar más de 365 días.');
-                okFin = false;
-            } else {
-                promoErr(finEl, errFinEl, '');
-            }
         } else {
             promoErr(finEl, errFinEl, '');
         }
@@ -466,10 +479,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const errInicio   = document.getElementById('err_inicio_form');
     const errFin      = document.getElementById('err_fin_form');
     if (inicioInput) {
+        inicioInput.min = promoMinDate();
         inicioInput.max = promoMaxInicio();
         inicioInput.addEventListener('change', () => validarFechasPromoForm(inicioInput, finInput, errInicio, errFin));
     }
     if (finInput) {
+        finInput.min = inicioInput && inicioInput.value ? inicioInput.value : promoMinDate();
         finInput.max = promoMaxFin();
         finInput.addEventListener('change', () => validarFechasPromoForm(inicioInput, finInput, errInicio, errFin));
     }
