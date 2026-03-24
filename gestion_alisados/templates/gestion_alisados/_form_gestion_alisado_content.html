@@ -422,6 +422,7 @@
     
     </div><!-- Fin del Paso 2 -->
     
+    {% if not is_modal %}
     <!-- Botones de navegación -->
     <div class="d-flex justify-content-between mt-4">
         <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary" id="btnCancelar">
@@ -440,6 +441,7 @@
             </button>
         </div>
     </div>
+    {% endif %}
 </form>
 
 <!-- Modal de Consentimiento Informado -->
@@ -682,6 +684,208 @@
 </div>
 
 <style>
+    .section-title {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #634c40;
+        font-weight: bold;
+    }
+
+    .conditional-field {
+        display: none;
+        margin-top: 10px;
+    }
+
+    .conditional-field.show {
+        display: block;
+    }
+
+    .form-step {
+        display: none !important;
+    }
+
+    .form-step.active {
+        display: block !important;
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #dee2e6;
+        z-index: 0;
+    }
+
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .step-item.active .step-circle {
+        background-color: #634c40;
+        color: white;
+    }
+
+    .step-item.completed .step-circle {
+        background-color: #382a23;
+        color: white;
+    }
+
+    .step-label {
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    .step-item.active .step-label {
+        color: #634c40;
+        font-weight: bold;
+    }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+    }
+
+    .checkbox-group .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        padding: 10px 12px;
+        border: 1px solid #c8c8c8;
+        border-radius: 10px;
+        background: #fff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .checkbox-group .form-check:hover {
+        border-color: #8a6b58;
+        box-shadow: 0 2px 8px rgba(99, 76, 64, 0.12);
+        background: #fcfaf8;
+    }
+
+    .checkbox-group .form-check-input {
+        width: 1.1rem;
+        height: 1.1rem;
+        margin-top: 0;
+        border: 2px solid #634c40;
+        cursor: pointer;
+    }
+
+    .checkbox-group .form-check-input:checked {
+        background-color: #634c40;
+        border-color: #634c40;
+    }
+
+    .checkbox-group .form-check-label {
+        margin: 0;
+        font-weight: 600;
+        color: #3a2a24;
+        cursor: pointer;
+        line-height: 1.25;
+    }
+
+    .checkbox-group .form-check-input:checked + .form-check-label {
+        color: #2a1d17;
+    }
+
+    /* Estilos para checkbox de consentimiento */
+    #checkboxAceptacion {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-top: 0.25rem;
+        border: 2.5px solid #634c40;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    #checkboxAceptacion:hover {
+        border-color: #4b3a30;
+        box-shadow: 0 0 0 0.2rem rgba(99, 76, 64, 0.15);
+        background-color: #fcfaf8;
+    }
+
+    #checkboxAceptacion:checked {
+        background-color: #634c40;
+        border-color: #634c40;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M2 6l4 4 8-8'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 1rem;
+    }
+
+    #checkboxAceptacion:checked:hover {
+        background-color: #4b3a30;
+        border-color: #4b3a30;
+    }
+
+    #checkboxAceptacion:focus {
+        border-color: #634c40;
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(99, 76, 64, 0.25);
+    }
+
+    label[for="checkboxAceptacion"] {
+        margin-bottom: 0;
+        padding: 8px 12px;
+        border-radius: 0.4rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #3a2a24;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    label[for="checkboxAceptacion"]:hover {
+        background-color: rgba(99, 76, 64, 0.08);
+    }
+
+    .form-check:has(#checkboxAceptacion) {
+        padding: 15px 15px;
+        border: 1.5px solid rgba(99, 76, 64, 0.25);
+        border-radius: 0.75rem;
+        background-color: #fffcf9;
+        transition: all 0.2s ease;
+        gap: 12px;
+    }
+
+    .form-check:has(#checkboxAceptacion):hover {
+        border-color: #634c40;
+        background-color: #fff9f5;
+        box-shadow: 0 2px 8px rgba(99, 76, 64, 0.1);
+    }
+
   .invalid-feedback {
     display: block !important;
     font-size: 0.875em;
@@ -758,20 +962,36 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
 }
 
 (function() {
-    let currentStep = 1;
-    const totalSteps = 2;
-    
-    // Obtener referencia al formulario principal
-    const formulario = document.getElementById('gestionAlisadoForm');
-    
-    // Inicializar información del cliente en consentimiento
-    const selectCliente = document.getElementById('selectCliente');
-    const infoClienteConsentimiento = document.getElementById('infoClienteConsentimiento');
+    const initializeWhenReady = () => {
+        let currentStep = 1;
+        const totalSteps = 2;
+        
+        // Obtener referencia al formulario principal
+        const formulario = document.getElementById('gestionAlisadoForm');
+        
+        // Inicializar información del cliente en consentimiento
+        const selectCliente = document.getElementById('selectCliente');
+        const clienteIdField = document.getElementById('clienteId');
+        const buscarClienteInput = document.getElementById('buscarCliente');
+        const infoClienteConsentimiento = document.getElementById('infoClienteConsentimiento');
     
     function actualizarInfoCliente() {
-        if (!selectCliente) return;
-        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
-        if (selectCliente.value) {
+        if (!infoClienteConsentimiento) return;
+
+        // Flujo actual: autocomplete + input hidden
+        if (clienteIdField && clienteIdField.value && buscarClienteInput && buscarClienteInput.value.trim()) {
+            const nombreCompleto = buscarClienteInput.value.trim();
+            const numeroDocumento = buscarClienteInput.dataset.documento || 'N/A';
+            infoClienteConsentimiento.innerHTML = `
+                <strong>Nombre:</strong> ${nombreCompleto}<br>
+                <strong>Documento:</strong> ${numeroDocumento}
+            `;
+            return;
+        }
+
+        // Fallback: select tradicional
+        if (selectCliente && selectCliente.value) {
+            const selectedOption = selectCliente.options[selectCliente.selectedIndex];
             const nombreCompleto = selectedOption.text;
             const numeroDocumento = selectedOption.getAttribute('data-documento') || 'N/A';
             infoClienteConsentimiento.innerHTML = `
@@ -787,6 +1007,13 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     if (selectCliente) {
         selectCliente.addEventListener('change', actualizarInfoCliente);
         actualizarInfoCliente();
+    }
+    if (buscarClienteInput) {
+        buscarClienteInput.addEventListener('input', function() {
+            // Si el usuario escribe manualmente, se invalida la selección previa
+            if (clienteIdField) clienteIdField.value = '';
+            this.dataset.documento = '';
+        });
     }
     
     // ========== VALIDACIÓN EN TIEMPO REAL (OPTIMIZADA) ==========
@@ -873,11 +1100,16 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         let stepElement = null;
         for (let i = 0; i < steps.length; i++) {
             const s = steps[i];
-            if (s.id === 'step' + step) {
+            const stepId = s.id;
+            const targetId = 'step' + step;
+            
+            if (stepId === targetId) {
                 s.classList.add('active');
+                s.style.display = 'block'; // Fuerza display: block
                 stepElement = s;
             } else {
                 s.classList.remove('active');
+                s.style.display = 'none';  // Fuerza display: none
             }
         }
         
@@ -1158,7 +1390,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     const errorFirma = document.getElementById('errorFirma');
     
     function validarConsentimiento() {
-        const clienteSeleccionado = selectCliente && selectCliente.value !== '' ? true : false;
+        const clienteSeleccionado = clienteIdField && clienteIdField.value !== '' ? true : false;
         const aceptacionMarcada = checkboxAceptacion.checked;
         const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
         
@@ -1189,7 +1421,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         // Validar el paso actual antes de mostrar el modal
         if (validateStep(currentStep)) {
             // Verificar que haya un cliente seleccionado
-            if (!selectCliente || !selectCliente.value) {
+            if (!clienteIdField || !clienteIdField.value) {
                 mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
                 return;
             }
@@ -1214,9 +1446,24 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Confirmar y guardar
     btnConfirmarConsentimiento.addEventListener('click', function() {
         // Obtener datos del cliente seleccionado
-        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
-        const nombreCompleto = selectedOption.text;
-        const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
+        let nombreCompleto = buscarClienteInput && buscarClienteInput.value
+            ? buscarClienteInput.value.trim()
+            : '';
+        let numeroDocumento = buscarClienteInput && buscarClienteInput.dataset
+            ? (buscarClienteInput.dataset.documento || '')
+            : '';
+
+        // Fallback para flujo antiguo con select
+        if (!nombreCompleto && selectCliente && selectCliente.value) {
+            const selectedOption = selectCliente.options[selectCliente.selectedIndex];
+            nombreCompleto = selectedOption.text;
+            numeroDocumento = selectedOption.getAttribute('data-documento') || '';
+        }
+
+        if (!nombreCompleto) {
+            mostrarNotificacion('No se pudo obtener la información del cliente seleccionado.', 'warning');
+            return;
+        }
         
         // Agregar los datos de consentimiento al formulario como campos ocultos
         const inputNombre = document.createElement('input');
@@ -1296,6 +1543,26 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             });
         }, 300);
     });
+    };
+    
+    // Invocar inicialización cuando el DOM esté listo
+    const tryInitialize = () => {
+        const formElement = document.getElementById('gestionAlisadoForm');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        
+        if (formElement && step1 && step2) {
+            initializeWhenReady();
+        } else {
+            setTimeout(tryInitialize, 100);
+        }
+    };
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', tryInitialize);
+    } else {
+        tryInitialize();
+    }
 })();
 </script>
 
@@ -1336,6 +1603,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                                 <div class="cliente-item" 
                                      data-id="${c.id}"
                                      data-nombre="${c.nombre_completo}"
+                                     data-documento="${c.documento}"
                                      style="padding: 10px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.2s;">
                                     <strong>${c.nombre_completo}</strong><br>
                                     <small style="color: #666;">${c.documento}</small>
@@ -1356,7 +1624,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                                 e.stopPropagation();
                                 const id = this.getAttribute('data-id');
                                 const nombre = this.getAttribute('data-nombre');
+                                const documento = this.getAttribute('data-documento') || '';
                                 inputBuscar.value = nombre;
+                                inputBuscar.dataset.documento = documento;
                                 clienteId.value = id;
                                 dropdown.style.display = 'none';
                             });
@@ -1368,6 +1638,8 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         
         // Evento input para búsqueda
         inputBuscar.addEventListener('input', function() {
+            clienteId.value = '';
+            this.dataset.documento = '';
             const term = this.value.trim();
             hacerBusqueda(term);
         });
@@ -1379,16 +1651,14 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 dropdown.style.display = 'block';
             }
         });
-        
-        // Cerrar dropdown al hacer click fuera
-        document.addEventListener('click', (e) => {
-            if (!inputBuscar.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
-    }
+    };
     
-    initAutocomplete();
+    // Llamar autocomplete cuando DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAutocomplete);
+    } else {
+        initAutocomplete();
+    }
 })();
 </script>
 
@@ -1399,6 +1669,8 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     const formCliente = document.getElementById('formCrearClienteModal');
     const btnGuardar = document.getElementById('btnGuardarClienteModalGestion');
     const selectCliente = document.getElementById('selectCliente');
+    const clienteId = document.getElementById('clienteId');
+    const buscarCliente = document.getElementById('buscarCliente');
 
     if (!modalCliente || !formCliente || !btnGuardar) return;
 
@@ -1654,6 +1926,15 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 option.selected = true;
                 if (selectCliente) {
                     selectCliente.appendChild(option);
+                }
+
+                // Flujo actual: autocomplete + hidden input
+                if (clienteId) {
+                    clienteId.value = data.cliente.id;
+                }
+                if (buscarCliente) {
+                    buscarCliente.value = `${data.cliente.nombre} ${data.cliente.apellido}`;
+                    buscarCliente.dataset.documento = data.cliente.numero_documento || '';
                 }
                 
                 // Cerrar el modal de forma segura

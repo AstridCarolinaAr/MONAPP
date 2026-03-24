@@ -30,13 +30,14 @@ class GestionAlisadoForm(forms.ModelForm):
             'precio_alisado': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
+                'step': '0.01',
                 'placeholder': 'Precio del alisado en COP',
                 'required': 'required'
             }),
             'es_oferta_especial': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'descripcion_oferta': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
@@ -51,12 +52,11 @@ class GestionAlisadoForm(forms.ModelForm):
             'medio_pago': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.MEDIO_PAGO),
             'saldo_pendiente': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
-                'placeholder': 'Saldo pendiente en COP',
-                'readonly': 'readonly'
+                'placeholder': 'Saldo pendiente en COP'
             }),
             'procedimiento_realizado_por': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -72,7 +72,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'requiere_resellado': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'porcentaje_alisado': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
@@ -83,51 +83,51 @@ class GestionAlisadoForm(forms.ModelForm):
             'porosidad': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.POROSIDAD),
             'textura': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.TEXTURA),
             'forma_natural': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.FORMA_NATURAL),
             'elasticidad': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.ELASTICIDAD),
             'longitud': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.LONGITUD),
             'densidad': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.DENSIDAD),
             'piel_cabelludo': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.PIEL_CABELLUDO),
             'alopecia': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.NIVEL_ALOPECIA),
             'caida_cabello': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.NIVEL_CAIDA),
             'lactante': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'gestante': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'caspa': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.NIVEL_CASPA),
             'procesos_tintura': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'procesos_decoloracion': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'procesos_ondulados': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -142,7 +142,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'cuenta_con_secador': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'frecuencia_recoge_cabello': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
@@ -152,7 +152,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'realiza_ejercicio': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'frecuencia_ejercicio': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
@@ -161,7 +161,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'usa_casco': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'productos_capilares': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
@@ -171,15 +171,15 @@ class GestionAlisadoForm(forms.ModelForm):
             'se_bana_agua_caliente': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'requiere_refuerzo_15dias': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'sufre_tiroides': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'medicamento_tiroides': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
@@ -188,7 +188,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'despunte_hoy': forms.Select(attrs={
                 'class': 'form-select',
                 'required': 'required'
-            }),
+            }, choices=GestionAlisado.OPCIONES_SI_NO),
             'recomendaciones_post_cuidados': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
@@ -203,6 +203,8 @@ class GestionAlisadoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # El saldo se calcula automáticamente; no debe editarse manualmente
+        self.fields['saldo_pendiente'].disabled = True
         # Cargar clientes activos en el dropdown
         self.fields['cliente'].queryset = Cliente.objects.filter(estado='activo').order_by('nombre', 'apellido')
         # Función para mostrar nombre completo y documento
@@ -219,6 +221,7 @@ class GestionAlisadoForm(forms.ModelForm):
             self.fields['caida_cabello'].initial = 'no_presenta'
             self.fields['caspa'].initial = 'no_presenta'
             self.fields['textura'].initial = 'normal'
+            self.fields['forma_natural'].initial = 'ondulado'
             
             # Otros campos comunes
             self.fields['lactante'].initial = 'no'
