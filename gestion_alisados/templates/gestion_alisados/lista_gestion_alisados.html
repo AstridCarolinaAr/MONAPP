@@ -9,8 +9,13 @@
 <li class="breadcrumb-item active" aria-current="page">Gestion de datos</li>
 {% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-file-earmark-text"></i> Gestion de datos
+{% block page_icon %}<i class="bi bi-file-earmark-text page-icon"></i>{% endblock %}
+{% block page_title %}Gestion de datos{% endblock %}
+{% block page_subtitle %}Control de registros, filtros y seguimiento de alisados{% endblock %}
+{% block page_actions %}
+<button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
+    <i class="bi bi-plus-circle"></i> Nueva Gestion
+</button>
 {% endblock %}
 
 {% block extra_css %}
@@ -182,13 +187,6 @@
         justify-content: flex-end;
         align-items: center;
         margin-bottom: 12px;
-    }
-
-    .gestion-card-header {
-        background-color: #634c40;
-        color: #fff;
-        padding: 1rem 1.25rem;
-        border-bottom: 0;
     }
 
     .gestion-filtros .form-control,

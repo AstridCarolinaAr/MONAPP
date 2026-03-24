@@ -1,42 +1,31 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 {% load humanize %}
 
 {% block title %}Catálogo Web{% endblock %}
 
-{% block breadcrumb_items %}
-<li class="breadcrumb-item active" aria-current="page">Catálogo Web</li>
-{% endblock %}
-
-{% block page_title %}
-    <i class="bi bi-globe2"></i> Catálogo Web de Productos
+{% block page_icon %}<i class="bi bi-globe2 page-icon"></i>{% endblock %}
+{% block page_title %}Catalogo Web{% endblock %}
+{% block page_subtitle %}Gestion de productos del catalogo web{% endblock %}
+{% block page_actions %}
+<button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+    <i class="bi bi-plus-lg me-1"></i> Nuevo producto
+</button>
 {% endblock %}
 
 {% block extra_css %}
 <style>
 /* ============ TABLA ============ */
 .table-container-custom {
-    width: 100% !important;
+    width: 100%;
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,.05);
 }
-
-.table-responsive {
-    width: 100% !important;
-    margin: 0;
-    padding: 0;
-}
-
-.styled-table {
-    width: 100% !important;
-    min-width: 100% !important;
-    margin-bottom: 0;
-    border-collapse: collapse;
-}
-
 .pw-table {
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
 }
 .pw-table thead th {
@@ -51,12 +40,14 @@
 .pw-table thead th:first-child { border-radius: 12px 0 0 0; }
 .pw-table thead th:last-child  { border-radius: 0 12px 0 0; }
 
-.pw-table tbody tr {
-    transition: background .2s;
-}
-.pw-table tbody tr:hover {
-    background: rgba(141,96,74,.07);
-}
+th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+th[data-sort]:hover { opacity: .82; }
+th[data-sort]::after { content: ' ⇅'; font-size: .75em; opacity: .5; margin-left: 4px; }
+th[data-sort].asc::after  { content: ' ↑'; opacity: 1; }
+th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
+
+.pw-table tbody tr { transition: background .2s; }
+.pw-table tbody tr:hover { background: rgba(141,96,74,.07); }
 .pw-table tbody td {
     padding: 12px 18px;
     vertical-align: middle;
@@ -66,81 +57,49 @@
 
 /* Imagen miniatura */
 .pw-thumb {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
-    object-fit: cover;
+    width: 56px; height: 56px;
+    border-radius: 10px; object-fit: cover;
     box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 .pw-thumb-placeholder {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
-    background: #ede7e3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #b8a49a;
-    font-size: 1.4rem;
+    width: 56px; height: 56px;
+    border-radius: 10px; background: #ede7e3;
+    display: flex; align-items: center; justify-content: center;
+    color: #b8a49a; font-size: 1.4rem;
 }
 
 /* Toggle switch */
-.pw-switch {
-    position: relative;
-    width: 46px;
-    height: 24px;
-}
+.pw-switch { position: relative; width: 46px; height: 24px; }
 .pw-switch input { opacity: 0; width: 0; height: 0; }
 .pw-switch .slider {
     position: absolute; cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: #ccc; border-radius: 24px;
-    transition: .3s;
+    background: #ccc; border-radius: 24px; transition: .3s;
 }
 .pw-switch .slider::before {
-    content: "";
-    position: absolute;
-    height: 18px; width: 18px;
-    left: 3px; bottom: 3px;
-    background: #fff; border-radius: 50%;
-    transition: .3s;
+    content: ""; position: absolute;
+    height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: .3s;
 }
-.pw-switch input:checked + .slider {
-    background: #6b3a2a;
-}
-.pw-switch input:checked + .slider::before {
-    transform: translateX(22px);
-}
+.pw-switch input:checked + .slider { background: #6b3a2a; }
+.pw-switch input:checked + .slider::before { transform: translateX(22px); }
 
 /* Botón flotante */
 .pw-fab {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    border-radius: 50px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    font-size: .9rem;
-    font-weight: 600;
-    padding: .65rem 1.4rem;
+    position: fixed; bottom: 32px; right: 32px;
+    border-radius: 50px; background: #1a1a1a; color: #fff; border: none;
+    font-size: .9rem; font-weight: 600; padding: .65rem 1.4rem;
     box-shadow: 0 6px 20px rgba(0,0,0,.3);
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    z-index: 1050;
-    transition: transform .2s, box-shadow .2s, background .2s;
+    display: flex; align-items: center; gap: .4rem;
+    z-index: 1050; transition: transform .2s, box-shadow .2s, background .2s;
 }
 .pw-fab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(0,0,0,.4);
-    background: #3a2a24;
-    color: #fff;
+    transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.4);
+    background: #3a2a24; color: #fff;
 }
 
 /* Acciones de fila */
-.pw-actions a,
-.pw-actions button {
+.pw-actions a, .pw-actions button {
     padding: 8px 12px;
     border-radius: 50px;
     font-size: .92rem;
@@ -151,194 +110,190 @@
     align-items: center;
     justify-content: center;
 }
-.pw-actions .btn-edit        { color: #382822; display: inline-flex; align-items: center; }
-.pw-actions .btn-del         { color: #382822; display: inline-flex; align-items: center; }
+.pw-actions .btn-edit,
+.pw-actions .btn-del {
+    color: #382822;
+}
+.pw-actions .btn-edit:hover,
+.pw-actions .btn-del:hover {
+    background: rgba(56,40,34,.08);
+}
 
 /* Vista vacía */
-.pw-empty {
-    text-align: center;
-    padding: 60px 20px;
-}
-.pw-empty i {
-    font-size: 3.5rem;
-    color: #c9b8ae;
-}
+.pw-empty { text-align: center; padding: 60px 20px; }
+.pw-empty i { font-size: 3.5rem; color: #c9b8ae; }
 
 /* ============ MODAL ============ */
 .modal-header.pw-header {
     background: linear-gradient(135deg, #3a2a24, #5c3d2e);
-    color: #fff;
-    border: none;
-    border-radius: 12px 12px 0 0;
+    color: #fff; border: none; border-radius: 12px 12px 0 0;
 }
-.modal-header.pw-header .btn-close {
-    filter: brightness(0) invert(1);
-}
-.modal-content {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 12px 40px rgba(0,0,0,.2);
-}
+.modal-header.pw-header .btn-close { filter: brightness(0) invert(1); }
+.modal-content { border-radius: 12px; border: none; box-shadow: 0 12px 40px rgba(0,0,0,.2); }
 
 /* Dropzone de imagen */
 .pw-dropzone {
     background: linear-gradient(145deg, #fafafa, #f0f0f0);
-    border: 2px solid #e0e0e0;
-    border-radius: 16px;
-    padding: 40px 30px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .3s ease;
-    position: relative;
+    border: 2px solid #e0e0e0; border-radius: 16px;
+    padding: 40px 30px; text-align: center; cursor: pointer;
+    transition: all .3s ease; position: relative;
     box-shadow: 0 4px 12px rgba(0,0,0,.05);
 }
-.pw-dropzone:hover,
-.pw-dropzone.dragover {
+.pw-dropzone:hover, .pw-dropzone.dragover {
     border-color: #382822;
     background: linear-gradient(145deg, #fff, #f8f5f2);
     box-shadow: 0 6px 20px rgba(141,96,74,.15);
     transform: translateY(-2px);
 }
 .pw-dropzone i {
-    font-size: 3.5rem;
-    color: #382822;
-    margin-bottom: 8px;
-    display: block;
+    font-size: 3.5rem; color: #382822; margin-bottom: 8px; display: block;
     animation: float 3s ease-in-out infinite;
 }
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-.pw-dropzone input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 10;
-}
-.pw-dropzone .upload-text {
-    font-size: 1.05rem;
-    color: #5c3d2e;
-    font-weight: 500;
-    margin-bottom: 5px;
-}
-.pw-dropzone .upload-hint {
-    font-size: 0.85rem;
-    color: #999;
-}
-.pw-preview-img {
-    max-height: 200px;
-    border-radius: 12px;
-    margin-top: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
-    border: 3px solid #fff;
-}
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+.pw-dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10; }
+.pw-dropzone .upload-text { font-size: 1.05rem; color: #5c3d2e; font-weight: 500; margin-bottom: 5px; }
+.pw-dropzone .upload-hint { font-size: 0.85rem; color: #999; }
+.pw-preview-img { max-height: 200px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,.2); border: 3px solid #fff; }
 
 /* Badges */
-.pw-badge-visible {
-    background: rgba(107,176,122,.15);
-    color: #3d7a4e;
-    font-weight: 600;
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: .78rem;
-}
-.pw-badge-hidden {
-    background: rgba(180,90,90,.12);
-    color: #a04040;
-    font-weight: 600;
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: .78rem;
-}
+.pw-badge-visible { background: rgba(107,176,122,.15); color: #3d7a4e; font-weight: 600; border-radius: 20px; padding: 4px 12px; font-size: .78rem; }
+.pw-badge-hidden  { background: rgba(180,90,90,.12); color: #a04040; font-weight: 600; border-radius: 20px; padding: 4px 12px; font-size: .78rem; }
 
 /* Búsqueda */
-.pw-search {
-    max-width: 300px;
-}
-.pw-search .form-control {
-    border-radius: 20px;
-    border: 1px solid #d4c4ba;
-    padding-left: 38px;
-}
-.pw-search .bi-search {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9a8579;
+.pw-search { max-width: 300px; }
+.pw-search .form-control { border-radius: 20px; border: 1px solid #d4c4ba; padding-left: 38px; transition: all 0.3s; }
+.pw-search .form-control:focus { border-color: #8d604a; box-shadow: 0 0 0 0.2rem rgba(141,96,74,.15); outline: none; }
+.pw-search .bi-search { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9a8579; }
+
+/* ── Responsive ── */
+
+/* Tablet (≤ 992px) */
+@media (max-width: 992px) {
+    .pw-table thead th:nth-child(4),
+    .pw-table tbody td:nth-child(4) { display: none; } /* Ocultar Descripción */
 }
 
-/* Responsive */
+/* Móvil grande (≤ 768px) */
 @media (max-width: 768px) {
     .pw-fab { bottom: 20px; right: 20px; }
     .pw-thumb, .pw-thumb-placeholder { width: 42px; height: 42px; }
+    .pw-thumb-placeholder { font-size: 1.1rem; }
+
+    /* Header: apila título y botón */
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: .5rem;
+    }
+    .d-flex.justify-content-between.align-items-center.mb-4 > button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Barra de búsqueda ocupa todo el ancho */
+    .pw-search { max-width: 100% !important; width: 100%; }
+
+    /* Celda compacta */
+    .pw-table thead th { padding: 10px 8px; font-size: .78rem; }
+    .pw-table tbody td { padding: 8px 8px; font-size: .82rem; }
+    .pw-actions { gap: 2px; }
+    .pw-actions .btn-sm { padding: 5px 6px; }
+}
+
+/* Móvil pequeño (≤ 480px) */
+@media (max-width: 480px) {
+    /* Ocultar columna Estado (switch) — se puede gestionar desde el detalle */
+    .pw-table thead th:nth-child(5),
+    .pw-table tbody td:nth-child(5) { display: none; }
+
+    .pw-table thead th { font-size: .72rem; padding: 8px 6px; }
+    .pw-table tbody td { font-size: .76rem; padding: 6px 6px; }
+    .pw-actions .btn-sm { padding: 4px 5px; }
+
+    /* Dropzone más compacto en modales */
+    .pw-dropzone { padding: 24px 16px; }
+    .pw-dropzone i { font-size: 2.5rem; }
 }
 
 /* Validación de precio */
-.pw-price-error {
-    color: #a0715a;
-    font-size: .82rem;
-    margin-top: 4px;
-    display: none;
-}
-.pw-price-error.visible {
-    display: block;
-}
-.form-control.is-invalid-price {
-    border-color: #a0715a !important;
-    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
-}
-.form-control.is-valid-price {
-    border-color: #6ba06a !important;
-    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
-}
+.pw-price-error { color: #a0715a; font-size: .82rem; margin-top: 4px; display: none; }
+.pw-price-error.visible { display: block; }
+.form-control.is-invalid-price { border-color: #a0715a !important; box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important; }
+.form-control.is-valid-price   { border-color: #6ba06a !important; box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important; }
 
 /* Validación nombre */
-.pw-name-error {
-    color: #a0715a;
-    font-size: .82rem;
-    margin-top: 4px;
-    display: none;
-}
+.pw-name-error { color: #a0715a; font-size: .82rem; margin-top: 4px; display: none; }
 .pw-name-error.visible { display: block; }
-.form-control.is-invalid-name {
-    border-color: #a0715a !important;
-    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
-}
-.form-control.is-valid-name {
-    border-color: #6ba06a !important;
-    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
-}
+.form-control.is-invalid-name { border-color: #a0715a !important; box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important; }
+.form-control.is-valid-name   { border-color: #6ba06a !important; box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important; }
 
 /* Contador descripción */
-.pw-char-count {
-    font-size: .78rem;
-    color: #9a8579;
-    text-align: right;
-    margin-top: 3px;
-    display: block;
-}
+.pw-char-count { font-size: .78rem; color: #9a8579; text-align: right; margin-top: 3px; display: block; }
 .pw-char-count.near-limit { color: #a0715a; }
 .pw-char-count.at-limit   { color: #dc3545; font-weight: 600; }
 
 /* Precio COP preview */
 .pw-cop-preview {
-    display: inline-block;
-    margin-top: 5px;
-    font-size: .88rem;
-    font-weight: 700;
-    color: #3d7a4e;
-    background: rgba(107,176,122,.1);
-    border-radius: 8px;
-    padding: 3px 10px;
-    display: none;
+    display: inline-block; margin-top: 5px;
+    font-size: .88rem; font-weight: 700; color: #3d7a4e;
+    background: rgba(107,176,122,.1); border-radius: 8px; padding: 3px 10px; display: none;
 }
 .pw-cop-preview.visible { display: inline-block; }
-.pw-cop-preview.is-error {
-    color: #a04040;
-    background: rgba(180,90,90,.1);
+.pw-cop-preview.is-error { color: #a04040; background: rgba(180,90,90,.1); }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Botón cerrar modal personalizado */
+.btn-cerrar-modal {
+    background: transparent; border: none; color: white; font-size: 1.5rem;
+    cursor: pointer; width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; margin-left: auto;
+}
+.btn-cerrar-modal:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(90deg); }
+
+/* Icono de validación */
+.pw-input-wrapper { position: relative; }
+.pw-validation-icon {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 1.2rem; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+}
+.pw-validation-icon.show { opacity: 1; }
+.pw-validation-icon.valid { color: #48bb78; }
+.pw-validation-icon.invalid { color: #f56565; }
+
+/* Error imagen en modal agregar */
+.pw-img-error { color: #dc3545; font-size: .82rem; margin-top: 6px; display: none; }
+.pw-img-error.visible { display: block; }
+
+/* Animaciones de entrada en filas */
+@keyframes fadeInRow { from { opacity: 0; } to { opacity: 1; } }
+.pw-table tbody tr {
+    animation: fadeInRow 0.3s ease both;
+    transition: background .2s, box-shadow .2s;
+}
+.pw-table tbody tr:nth-child(2)  { animation-delay: .06s; }
+.pw-table tbody tr:nth-child(3)  { animation-delay: .12s; }
+.pw-table tbody tr:nth-child(4)  { animation-delay: .18s; }
+.pw-table tbody tr:nth-child(5)  { animation-delay: .24s; }
+.pw-table tbody tr:nth-child(6)  { animation-delay: .29s; }
+.pw-table tbody tr:nth-child(7)  { animation-delay: .34s; }
+.pw-table tbody tr:nth-child(n+8){ animation-delay: .38s; }
+.pw-table tbody tr:hover { box-shadow: inset 4px 0 0 rgba(141,96,74,.5); }
+
+/* Zoom miniatura al hover */
+.pw-thumb { transition: transform .2s ease, box-shadow .2s ease; }
+.pw-thumb:hover { transform: scale(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.25); cursor: zoom-in; }
+
+/* Entrada de página */
+.container-fluid { animation: pageEnter .4s ease both; }
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 {% endblock %}
@@ -369,63 +324,27 @@
             </select>
         </div>
 
-        <!-- ORDEN -->
-        <div class="col-md-2">
-            <select name="orden" class="form-select">
-                <option value="">Ordenar</option>
-                <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
-                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
-                <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio ↑</option>
-                <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio ↓</option>
-                <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Más antiguos</option>
-                <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Más recientes</option>
-            </select>
-        </div>
-
-        <!-- APLICAR -->
-        <div class="col-md-1">
-            <button class="btn btn-outline-secondary w-100" title="Aplicar filtros">
-                <i class="bi bi-filter"></i>
-            </button>
-        </div>
-
-        <!-- LIMPIAR -->
-        {% if q or visible_filter or orden %}
-        <div class="col-md-1">
-            <a href="{% url 'productos_web:lista' %}"
-              class="btn btn-outline-danger w-100"
-              title="Limpiar filtros">
-                <i class="bi bi-x-lg"></i>
+        <div class="module-filter-actions">
+            {% if q or visible_filter %}
+            <a href="{% url 'productos_web:lista' %}" class="module-filter-btn module-filter-btn--secondary">
+                <i class="bi bi-x-circle"></i> Limpiar
             </a>
+            {% endif %}
         </div>
-        {% endif %}
-
     </form>
-<form method="get" style="width: 360px; max-width: 100%;">
-    {% if estado_stock %}
-        <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
-    {% endif %}
-    {% if current_sort %}
-        <input type="hidden" name="sort" value="{{ current_sort }}">
-    {% endif %}
-    {% if current_dir %}
-        <input type="hidden" name="dir" value="{{ current_dir }}">
-    {% endif %}
 
-    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-</form>
     <!-- ───── TABLA ───── -->
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+    <div class="table-container-custom">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="pw-tabla">
-                    <thead class="table-light">
+                <table class="pw-table" id="pw-tabla">
+                    <thead>
                         <tr>
                             <th>Foto</th>
-                            <th>Nombre</th>
-                            <th>Precio</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
+                            <th data-sort="nombre">Nombre</th>
+                            <th data-sort="precio">Precio</th>
+                            <th data-sort="descripcion">Descripción</th>
+                            <th data-sort="estado">Estado</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
@@ -446,22 +365,18 @@
                             <td>
                                 <small class="text-muted">{{ p.descripcion|truncatewords:8|default:"—" }}</small>
                             </td>
-                            <td>
-                                {% if p.visible %}
-                                    <span class="badge bg-success-subtle text-success">Visible</span>
-                                {% else %}
-                                    <span class="badge bg-secondary-subtle text-secondary">Oculto</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end pw-actions">
-                                <label class="pw-switch me-2" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
+                            <td data-sort="{% if p.visible %}1{% else %}2{% endif %}">
+                                <label class="pw-switch" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
                                     <input type="checkbox"
                                            {% if p.visible %}checked{% endif %}
                                            data-toggle-url="{% url 'productos_web:toggle_visible' p.pk %}"
                                            data-nombre="{{ p.nombre }}">
                                     <span class="slider"></span>
                                 </label>
-                                <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-pw"
+                            </td>
+                            <td class="text-end pw-actions">
+                                <div class="table-action-group">
+                                <button type="button" class="table-action-btn btn-detalle-pw"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalDetallePW"
                                         data-nombre="{{ p.nombre|escapejs }}"
@@ -475,15 +390,16 @@
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <a href="{% url 'productos_web:editar' p.pk %}"
-                                   class="btn btn-outline-secondary btn-sm" title="Editar">
+                                   class="table-action-btn" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-pw"
+                                <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-pw"
                                         data-nombre="{{ p.nombre }}"
                                         data-url="{% url 'productos_web:eliminar' p.pk %}"
                                         title="Eliminar">
                                     <i class="bi bi-trash3"></i>
                                 </button>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
@@ -507,7 +423,9 @@
         <div class="modal-content">
             <div class="modal-header pw-header">
                 <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Agregar Producto Web</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-cerrar-modal" data-bs-dismiss="modal">
+                    &times;
+                </button>
             </div>
             <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -515,12 +433,18 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Nombre</label>
-                            {{ form.nombre }}
+                            <div class="pw-input-wrapper">
+                                {{ form.nombre }}
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_nombre_agregar"></i>
+                            </div>
                             <div class="pw-name-error" id="err_nombre_agregar"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Precio Público <small class="text-muted">(pesos colombianos)</small></label>
-                            {{ form.precio }}
+                            <div class="pw-input-wrapper">
+                                {{ form.precio }}
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_precio_agregar"></i>
+                            </div>
                             <span class="pw-cop-preview" id="cop_preview_agregar"></span>
                             <div class="pw-price-error" id="err_precio_agregar"></div>
                         </div>
@@ -565,7 +489,9 @@
         <div class="modal-content">
             <div class="modal-header" style="background:linear-gradient(135deg,#3a2a24,#2a1d18);color:#fff;">
                 <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Detalle del Producto</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-cerrar-modal" data-bs-dismiss="modal">
+                    &times;
+                </button>
             </div>
             <div class="modal-body">
                 <div class="row g-4">
@@ -606,12 +532,13 @@
 
 {% block extra_js %}
 <script>
-/* ─── Mensajes Django como Swal toast ─── */
-const PW_MESSAGES = [
+window.PW_MESSAGES = [
     {% for message in messages %}
-    { tags: "{{ message.tags }}", text: "{{ message|escapejs }}" },
+    { tags: "{{ message.tags }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
+/* ─── Mensajes Django como Swal toast ─── */
+const PW_MESSAGES = window.PW_MESSAGES || [];
 
 const PW_TAGS_MAP = {
     'success': { icon: 'success', background: '#f0fdf4', color: '#166534' },
@@ -622,17 +549,22 @@ const PW_TAGS_MAP = {
 
 if (PW_MESSAGES.length) {
     PW_MESSAGES.forEach(m => {
-        const tag  = Object.keys(PW_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
-        const opts = PW_TAGS_MAP[tag];
-        Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3500,
-            timerProgressBar: true,
-            background: opts.background,
-            color: opts.color,
-        }).fire({ icon: opts.icon, title: m.text });
+        if (m.tags.includes('created')) {
+            Swal.fire({
+                icon: 'success', title: '¡Producto creado!', text: m.text,
+                confirmButtonText: 'Aceptar', confirmButtonColor: '#3a2a24',
+                background: '#fff', color: '#3a2a24',
+                customClass: { popup: 'rounded-4' },
+            });
+        } else {
+            const tag  = Object.keys(PW_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
+            const opts = PW_TAGS_MAP[tag];
+            Swal.mixin({
+                toast: true, position: 'top-end',
+                showConfirmButton: false, timer: 3500, timerProgressBar: true,
+                background: opts.background, color: opts.color,
+            }).fire({ icon: opts.icon, title: m.text });
+        }
     });
 }
 
@@ -658,16 +590,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmButtonText:  visNow ? 'Sí, mostrar' : 'Sí, ocultar',
                 cancelButtonText:   'Cancelar',
             }).then(result => {
-                if (!result.isConfirmed) {
-                    el.checked = !visNow;
-                    return;
-                }
+                if (!result.isConfirmed) { el.checked = !visNow; return; }
                 fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'X-CSRFToken': CSRF(),
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
+                    headers: { 'X-CSRFToken': CSRF(), 'X-Requested-With': 'XMLHttpRequest' },
                 })
                 .then(r => r.json())
                 .then(data => {
@@ -695,17 +621,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', function () {
             const nombre = this.dataset.nombre;
             const url    = this.dataset.url;
-
             Swal.fire({
                 title: '¿Eliminar producto?',
                 html:  `¿Seguro que deseas eliminar <strong>${nombre}</strong> del catálogo web? Esta acción no se puede deshacer.`,
                 icon:  'warning',
-                showCancelButton:    true,
-                confirmButtonColor:  '#dc3545',
-                cancelButtonColor:   '#6c757d',
-                confirmButtonText:   '<i class="bi bi-trash3"></i> Eliminar',
-                cancelButtonText:    'Cancelar',
-                reverseButtons:      true,
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash3"></i> Eliminar',
+                cancelButtonText: 'Cancelar', reverseButtons: true,
             }).then(result => {
                 if (result.isConfirmed) {
                     const form = document.getElementById('formEliminarPW');
@@ -716,80 +639,81 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ══════════════════════════════════════════════════════
-       VALIDACIONES EN TIEMPO REAL — Productos Web
-       - Nombre:      obligatorio · 2-200 chars · solo chars válidos
-       - Precio:      COP · mín $100 · máx $99.999.999 · entero
-       - Descripción: máx 500 chars · contador
-       - Imagen:      JPG/PNG/WEBP/GIF · máx 5 MB · preview
-    ══════════════════════════════════════════════════════ */
-
-    /* ── Formato COP (es-CO, pesos enteros) ── */
+    /* ── Formato COP ── */
     const fmtCOP = val =>
         new Intl.NumberFormat('es-CO', {
             style: 'currency', currency: 'COP',
             minimumFractionDigits: 0, maximumFractionDigits: 0,
         }).format(Math.round(val));
 
-    /* ── Helper genérico set/clear error ── */
-    function pwSetError(input, errEl, msg, validClass, invalidClass) {
+    function pwSetError(input, errEl, msg, validClass, invalidClass, iconEl) {
         if (msg) {
-            input.classList.add(invalidClass);
-            input.classList.remove(validClass);
-            errEl.textContent = msg;
-            errEl.classList.add('visible');
+            input.classList.add(invalidClass); input.classList.remove(validClass);
+            errEl.textContent = msg; errEl.classList.add('visible');
+            if (iconEl) { iconEl.classList.remove('show','valid','invalid','bi-check-lg','bi-exclamation-lg'); iconEl.classList.add('show','invalid','bi-exclamation-lg'); }
         } else {
-            input.classList.remove(invalidClass);
-            input.classList.add(validClass);
-            errEl.textContent = '';
-            errEl.classList.remove('visible');
+            input.classList.remove(invalidClass); input.classList.add(validClass);
+            errEl.textContent = ''; errEl.classList.remove('visible');
+            if (iconEl) { iconEl.classList.remove('show','valid','invalid','bi-check-lg','bi-exclamation-lg'); iconEl.classList.add('show','valid','bi-check-lg'); }
         }
         return !msg;
     }
 
-    /* ── Validar nombre ── */
-    function pwValidarNombre(input, errEl) {
+    function pwBloquearCaracteresNombre(e) {
+        const permitidos = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]$/;
+        if (e.key.length > 1) return;
+        const input = e.target;
+        if (input.value.length >= 200 && input.selectionStart === input.selectionEnd) {
+            e.preventDefault(); input.style.animation = 'shake 0.3s'; setTimeout(() => { input.style.animation = ''; }, 300); return;
+        }
+        if (!permitidos.test(e.key)) {
+            e.preventDefault(); input.style.animation = 'shake 0.3s'; setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    function pwValidarNombre(input, errEl, iconEl) {
         const v = input.value.trim();
-        // Regex: letras (incluyendo tildes/ñ), números, espacios y -.,()&+/#*!?:'"
-        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.,\(\)&\+\/\#\*\!\?:\'"]+$/;
+        const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]+$/;
         let msg = '';
         if (!v)                msg = 'El nombre es obligatorio.';
         else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
-        else if (!REG.test(v))     msg = 'Caracteres no permitidos. Use letras, números y -.,()&+/#*!?:\'"';
-        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name');
+        else if (!REG.test(v))     msg = 'Solo se permiten letras, espacios y los caracteres: . , - ( )';
+        return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
     }
 
-    /* ── Validar precio COP ── */
-    function pwValidarPrecio(input, errEl, previewEl) {
+    function pwBloquearCaracteresPrecio(e) {
+        const permitidos = /^[0-9]$/;
+        if (e.key.length > 1) return;
+        const input = e.target;
+        if (!permitidos.test(e.key)) {
+            e.preventDefault(); input.style.animation = 'shake 0.3s'; setTimeout(() => { input.style.animation = ''; }, 300); return;
+        }
+        const selStart = input.selectionStart, selEnd = input.selectionEnd;
+        const newVal = input.value.substring(0, selStart) + e.key + input.value.substring(selEnd);
+        if (parseInt(newVal, 10) > 99999999) {
+            e.preventDefault(); input.style.animation = 'shake 0.3s'; setTimeout(() => { input.style.animation = ''; }, 300);
+        }
+    }
+
+    function pwValidarPrecio(input, errEl, previewEl, iconEl) {
         const raw  = input.value.trim();
         const val  = parseFloat(raw);
         const decs = raw.includes('.') ? raw.split('.')[1].length : 0;
         let msg = '';
-
         if (!raw)              msg = 'El precio es obligatorio.';
         else if (isNaN(val))   msg = 'Ingresa un número válido.';
         else if (val < 100)    msg = 'El precio mínimo es $100 COP.';
         else if (val > 99999999) msg = 'El precio máximo es $99.999.999 COP.';
         else if (decs > 0)     msg = 'El precio debe ser un valor entero (sin centavos) en pesos colombianos.';
-
-        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price');
-
-        /* Preview COP */
+        const ok = pwSetError(input, errEl, msg, 'is-valid-price', 'is-invalid-price', iconEl);
         if (previewEl) {
-            if (!msg && raw) {
-                previewEl.textContent = fmtCOP(val);
-                previewEl.classList.add('visible');
-                previewEl.classList.remove('is-error');
-            } else {
-                previewEl.textContent = '';
-                previewEl.classList.remove('visible');
-            }
+            if (!msg && raw) { previewEl.textContent = fmtCOP(val); previewEl.classList.add('visible'); previewEl.classList.remove('is-error'); }
+            else { previewEl.textContent = ''; previewEl.classList.remove('visible'); }
         }
         return ok;
     }
 
-    /* ── Contador descripción ── */
     function pwActualizarContador(textarea, contEl, max) {
         const len = textarea.value.length;
         if (len > max) textarea.value = textarea.value.substring(0, max);
@@ -799,36 +723,26 @@ document.addEventListener('DOMContentLoaded', () => {
              len >= max * 0.85 ? ' near-limit' : '');
     }
 
-    /* ── Validar imagen ── */
     function pwValidarImagen(input, errEl, previewEl) {
         const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         const MAX_MB = 5;
-        errEl.textContent = '';
-        errEl.classList.remove('visible');
-        if (!input.files || !input.files[0]) return true;  // Opcional
+        errEl.textContent = ''; errEl.classList.remove('visible');
+        if (!input.files || !input.files[0]) return true;
         const f = input.files[0];
         if (!TIPOS.includes(f.type)) {
             errEl.textContent = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
-            errEl.classList.add('visible');
-            input.value = '';
-            if (previewEl) previewEl.classList.add('d-none');
-            return false;
+            errEl.classList.add('visible'); input.value = '';
+            if (previewEl) previewEl.classList.add('d-none'); return false;
         }
         const mb = f.size / (1024 * 1024);
         if (mb > MAX_MB) {
             errEl.textContent = `La imagen pesa ${mb.toFixed(1)} MB. Máximo ${MAX_MB} MB.`;
-            errEl.classList.add('visible');
-            input.value = '';
-            if (previewEl) previewEl.classList.add('d-none');
-            return false;
+            errEl.classList.add('visible'); input.value = '';
+            if (previewEl) previewEl.classList.add('d-none'); return false;
         }
-        /* Preview si pasa */
         if (previewEl) {
             const reader = new FileReader();
-            reader.onload = e => {
-                previewEl.src = e.target.result;
-                previewEl.classList.remove('d-none');
-            };
+            reader.onload = e => { previewEl.src = e.target.result; previewEl.classList.remove('d-none'); };
             reader.readAsDataURL(f);
         }
         return true;
@@ -838,10 +752,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const ag = {
         nombre:     document.querySelector('#modalAgregar [name="nombre"]'),
         errNombre:  document.getElementById('err_nombre_agregar'),
+        iconNombre: document.getElementById('icon_nombre_agregar'),
         desc:       document.querySelector('#modalAgregar [name="descripcion"]'),
         ctrDesc:    document.getElementById('char_desc_agregar'),
         precio:     document.querySelector('#modalAgregar [name="precio"]'),
         errPrecio:  document.getElementById('err_precio_agregar'),
+        iconPrecio: document.getElementById('icon_precio_agregar'),
         copPrev:    document.getElementById('cop_preview_agregar'),
         img:        document.querySelector('#dropzoneAgregar input[type="file"]'),
         errImg:     document.getElementById('err_img_agregar'),
@@ -849,28 +765,43 @@ document.addEventListener('DOMContentLoaded', () => {
         btnGuardar: document.querySelector('#modalAgregar [type="submit"]'),
     };
 
-    /* Bindings */
     if (ag.nombre) {
-        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre));
-        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre));
+        ag.nombre.addEventListener('keydown', pwBloquearCaracteresNombre);
+        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
+        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
+        ag.nombre.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const texto  = (e.clipboardData || window.clipboardData).getData('text');
+            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
+            document.execCommand('insertText', false, limpio);
+        });
+        ag.nombre.addEventListener('input', function () {
+            const pos = this.selectionStart, original = this.value;
+            const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
+            if (limpio !== original) { this.value = limpio; this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length)); }
+        });
     }
     if (ag.desc && ag.ctrDesc) {
+        ag.desc.addEventListener('keydown', function (e) {
+            if (e.key.length > 1) return;
+            if (ag.desc.value.length >= 500 && ag.desc.selectionStart === ag.desc.selectionEnd) {
+                e.preventDefault(); ag.desc.style.animation = 'shake 0.3s'; setTimeout(() => { ag.desc.style.animation = ''; }, 300);
+            }
+        });
         ag.desc.addEventListener('input', () => pwActualizarContador(ag.desc, ag.ctrDesc, 500));
     }
     if (ag.precio) {
-        ag.precio.addEventListener('input', () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev));
-        ag.precio.addEventListener('blur',  () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev));
+        ag.precio.addEventListener('keydown', pwBloquearCaracteresPrecio);
+        ag.precio.addEventListener('input', () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev, ag.iconPrecio));
+        ag.precio.addEventListener('blur',  () => pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev, ag.iconPrecio));
     }
-    if (ag.img) {
-        ag.img.addEventListener('change', () => pwValidarImagen(ag.img, ag.errImg, ag.prevImg));
-    }
+    if (ag.img) { ag.img.addEventListener('change', () => pwValidarImagen(ag.img, ag.errImg, ag.prevImg)); }
 
-    /* Submit modal Agregar */
     const formAgregar = document.querySelector('#modalAgregar form');
     if (formAgregar) {
         formAgregar.addEventListener('submit', function (e) {
-            const ok1 = ag.nombre ? pwValidarNombre(ag.nombre, ag.errNombre) : true;
-            const ok2 = ag.precio ? pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev) : true;
+            const ok1 = ag.nombre ? pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre) : true;
+            const ok2 = ag.precio ? pwValidarPrecio(ag.precio, ag.errPrecio, ag.copPrev, ag.iconPrecio) : true;
             const ok3 = ag.img    ? pwValidarImagen(ag.img, ag.errImg, ag.prevImg) : true;
             if (!ok1 || !ok2 || !ok3) {
                 e.preventDefault();
@@ -880,23 +811,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* Reset al abrir modal */
     const modalAgregarEl = document.getElementById('modalAgregar');
     if (modalAgregarEl) {
         modalAgregarEl.addEventListener('show.bs.modal', () => {
             [ag.nombre, ag.precio].forEach(el => {
-                if (el) el.classList.remove(
-                    'is-valid-name','is-invalid-name',
-                    'is-valid-price','is-invalid-price'
-                );
+                if (el) el.classList.remove('is-valid-name','is-invalid-name','is-valid-price','is-invalid-price');
             });
             ['err_nombre_agregar','err_precio_agregar','err_img_agregar'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.textContent = ''; el.classList.remove('visible'); }
             });
-            if (ag.ctrDesc)    ag.ctrDesc.textContent = '';
+            if (ag.ctrDesc) ag.ctrDesc.textContent = '';
             if (ag.copPrev) { ag.copPrev.textContent = ''; ag.copPrev.classList.remove('visible'); }
-            if (ag.prevImg)    ag.prevImg.classList.add('d-none');
+            if (ag.prevImg) ag.prevImg.classList.add('d-none');
         });
     }
 
@@ -926,5 +853,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/* ── Sort en cliente para pw-tabla ── */
+(function () {
+    var tabla = document.getElementById('pw-tabla');
+    if (!tabla) return;
+    var tbody = tabla.querySelector('tbody');
+    var lastCol = null, asc = true;
+
+    function cellVal(tr, col) {
+        var td = tr.querySelectorAll('td')[col];
+        if (!td) return '';
+        var txt = td.hasAttribute('data-sort') ? td.getAttribute('data-sort') : td.textContent.trim();
+        var num = parseFloat(txt.replace(/[^0-9.\-]/g, ''));
+        return isNaN(num) ? txt.toLowerCase() : num;
+    }
+
+    tabla.querySelectorAll('th[data-sort]').forEach(function(th) {
+        th.addEventListener('click', function () {
+            var ths = Array.from(tabla.querySelectorAll('thead th'));
+            var col = ths.indexOf(th);
+            if (lastCol === col) { asc = !asc; } else { asc = true; lastCol = col; }
+            tabla.querySelectorAll('th[data-sort]').forEach(function(h) { h.classList.remove('asc','desc'); });
+            th.classList.add(asc ? 'asc' : 'desc');
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort(function(a, b) {
+                var va = cellVal(a, col), vb = cellVal(b, col);
+                if (va < vb) return asc ? -1 : 1;
+                if (va > vb) return asc ?  1 : -1;
+                return 0;
+            });
+            rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+    });
+})();
 </script>
 {% endblock %}

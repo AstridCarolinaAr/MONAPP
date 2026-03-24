@@ -75,15 +75,38 @@ Ventas
         <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
     {% endif %}
     {% if current_sort %}
-        <input type="hidden" name="sort" value="{{ current_sort }}">
+      <input type="hidden" name="sort" value="{{ current_sort }}">
     {% endif %}
     {% if current_dir %}
-        <input type="hidden" name="dir" value="{{ current_dir }}">
+      <input type="hidden" name="dir" value="{{ current_dir }}">
     {% endif %}
 
-    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-</form>
-</form>
+    <div class="module-filter-field module-filter-field--wide">
+      <label class="module-filter-label">Buscar</label>
+      <div class="module-search-inline">
+        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar venta...' search_value=q name='q' modo='inline' %}
+      </div>
+    </div>
+
+    <div class="module-filter-field module-filter-field--medium">
+      <label class="module-filter-label">Filtrar</label>
+      <select name="estado" class="form-select">
+        <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
+        <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
+        <option value="" {% if not estado %}selected{% endif %}>Todas</option>
+      </select>
+    </div>
+
+    <div class="module-filter-actions">
+      <button type="submit" class="module-filter-btn module-filter-btn--primary">
+        <i class="bi bi-funnel"></i> Filtrar
+      </button>
+      <a href="{% url 'ventas:lista' %}" class="module-filter-btn module-filter-btn--secondary">
+        <i class="bi bi-arrow-clockwise"></i> Limpiar
+      </a>
+    </div>
+  </form>
+</div>
 
 <!-- TABLA -->
 <div class="table-card anim-from-bottom" style="animation-delay:.18s">

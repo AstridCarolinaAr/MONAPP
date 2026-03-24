@@ -382,11 +382,11 @@
 
 /* ===== FILTROS PREMIUM ORDENADOS ===== */
 .filtro-compras {
-  background: #fffaf6;
-  border: 1px solid #e6d7cc;
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 4px 12px rgba(56, 40, 34, 0.06);
+  background: linear-gradient(180deg, #fffdfb 0%, #fbf5f0 100%);
+  border: 1px solid rgba(198, 162, 136, 0.45);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 10px 24px rgba(69, 45, 34, 0.06);
 }
 
 .filtro-compras-grid {
@@ -437,10 +437,11 @@
 .filtro-botones {
   grid-column: span 4;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   align-items: flex-end;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .filtro-label {
@@ -469,8 +470,8 @@
 
 .btn-filtro {
   height: 44px;
-  padding: 0 16px;
-  border-radius: 10px;
+  padding: 0 18px;
+  border-radius: 12px;
   border: none;
   text-decoration: none;
   display: inline-flex;
@@ -480,7 +481,7 @@
   font-weight: 700;
   transition: all 0.2s ease;
   cursor: pointer;
-  min-width: 120px;
+  min-width: 122px;
 }
 
 /* ===== TABLA / ACCIONES ===== */
@@ -563,7 +564,10 @@
   }
 
   .filtro-botones {
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: flex-start;
+    align-items: center;
   }
 }
 /* =====================================================

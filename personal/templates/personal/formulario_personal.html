@@ -1,13 +1,7 @@
-
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}{{ titulo }} - Monapp{% endblock %}
-
-{% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{% url 'personal:lista_personal' %}">Personal</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
-{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">

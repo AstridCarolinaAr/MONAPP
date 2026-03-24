@@ -1,9 +1,10 @@
 from django import forms
 from .models import ServicioWeb
 import re
+from core.form_validations import ValidationFormMixin
 
 
-class ServicioWebForm(forms.ModelForm):
+class ServicioWebForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = ServicioWeb
         fields = ['nombre', 'descripcion', 'precio', 'imagen', 'video', 'activo']

@@ -15,7 +15,7 @@
       type="text"
       name="{{ name|default:'q' }}"
       class="search-toggle-input"
-      value="{{ search_value }}"
+      value="{{ search_value|default_if_none:'' }}"
       placeholder="{{ placeholder|default:'Buscar...' }}"
       autocomplete="off">
   </div>

@@ -7,16 +7,15 @@
     line-height: 1.6;
     background: #ffffff;
     min-height: 100vh;
-    padding-top: 23px;
-    padding-bottom: 40px;
+    padding-top: 40px;
+    padding-bottom: 80px;
 }
 
 /* ==================== CONTENEDOR ==================== */
 .personal-container {
-    max-width: 100%;
-    width: 98%;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 5px;
+    padding: 0 40px;
 }
 
 /* ==================== HEADER SECCIÓN ==================== */
@@ -24,19 +23,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 9px;
+    margin-bottom: 60px;
+    padding-bottom: 30px;
     border-bottom: 1px solid rgba(17, 17, 17, 0.1);
 }
 
 .personal-header h1 {
-    font-size: clamp(1.34rem, 4vw, 1.87rem);
+    font-size: clamp(2rem, 4vw, 2.8rem);
     font-weight: 500;
     letter-spacing: -0.02em;
     color: #111;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 16px;
 }
 
 .personal-header h1 i {
@@ -47,14 +46,14 @@
 .personal-btn {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    padding: 5px 10px;
-    border-radius: 995px;
-    border: 1px solid #111;
+    gap: 10px;
+    padding: 14px 36px;
+    border-radius: 999px;
+    border: 1.5px solid #111;
     text-decoration: none;
     color: #111;
     font-weight: 500;
-    font-size: 0.67rem;
+    font-size: 1rem;
     letter-spacing: 0.02em;
     transition: all 0.35s ease;
     cursor: pointer;
@@ -65,7 +64,7 @@
     background: #111;
     color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 3px 9px rgba(17, 17, 17, 0.15);
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.15);
 }
 
 .personal-btn.primary {
@@ -76,7 +75,7 @@
 .personal-btn.primary:hover {
     background: #000;
     transform: translateY(-2px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 .personal-btn.success {
@@ -140,33 +139,33 @@
 
 /* Botones pequeños */
 .personal-btn.btn-sm {
-    padding: 3px 9px;
+    padding: 8px 20px;
     font-size: 0.9rem;
 }
 
 /* ==================== TARJETAS ==================== */
 .personal-card {
     background: #ffffff;
-    border: 1.3px solid rgba(17, 17, 17, 0.1);
-    border-radius: 10px;
-    padding: 30px;
+    border: 1.5px solid rgba(17, 17, 17, 0.1);
+    border-radius: 24px;
+    padding: 40px;
     margin-bottom: 30px;
     transition: all 0.35s ease;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .personal-card:hover {
     border-color: rgba(17, 17, 17, 0.2);
-    box-shadow: 0 3px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
 }
 
 .personal-card-header {
     background: #f8f8f8;
-    border-bottom: 1.3px solid rgba(17, 17, 17, 0.1);
-    border-radius: 10px 10px 0 0;
-    padding: 23px 30px;
-    margin: -30px -30px 30px -30px;
+    border-bottom: 1.5px solid rgba(17, 17, 17, 0.1);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 40px;
+    margin: -40px -40px 40px -40px;
 }
 
 .personal-card-header h4 {
@@ -177,12 +176,12 @@
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 12px;
 }
 
 /* ==================== FORMULARIOS ==================== */
 .personal-form-group {
-    margin-bottom: 23px;
+    margin-bottom: 28px;
 }
 
 .personal-form-label {
@@ -190,24 +189,20 @@
     font-size: 0.95rem;
     font-weight: 500;
     color: #111;
-    margin-bottom: 3px;
+    margin-bottom: 10px;
     letter-spacing: 0.01em;
 }
 
 .personal-form-control {
     width: 100%;
-    padding: 10px 12px;
-    border: 1.3px solid rgba(17, 17, 17, 0.15);
-    border-radius: 9px;
+    padding: 14px 20px;
+    border: 1.5px solid rgba(17, 17, 17, 0.15);
+    border-radius: 16px;
     font-size: 1rem;
     font-family: inherit;
     color: #111;
-    background-color: #ffffff;
-    background-image: none;
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1rem 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    background: #ffffff;
+    transition: all 0.3s ease;
 }
 
 .personal-form-control:focus {
@@ -229,11 +224,11 @@
 .personal-form-check {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 9px 9px;
+    gap: 12px;
+    padding: 16px 20px;
     background: #f8f8f8;
-    border-radius: 9px;
-    border: 1.3px solid transparent;
+    border-radius: 16px;
+    border: 1.5px solid transparent;
     transition: all 0.3s ease;
 }
 
@@ -243,8 +238,8 @@
 }
 
 .personal-form-check input[type="checkbox"] {
-    width: 9px;
-    height: 9px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
 }
 
@@ -347,27 +342,114 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 
 /* ==================== BÚSQUEDA ==================== */
 .personal-search-card {
-    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
-    border: 1.3px solid rgba(17, 17, 17, 0.08);
-    border-radius: 10px;
-    padding: 33px 30px;
-    margin-bottom: 30px;
+    background: linear-gradient(180deg, #fffdfb 0%, #fbf5f0 100%);
+    border: 1px solid rgba(198, 162, 136, 0.45);
+    border-radius: 22px;
+    box-shadow: 0 10px 24px rgba(69, 45, 34, 0.06);
+    padding: 18px;
+    margin-bottom: 22px;
 }
 
 .personal-search-form {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 0.8fr;
-    gap: 9px;
+    grid-template-columns: minmax(320px, 1.7fr) minmax(220px, 1fr) auto;
+    gap: 14px;
     align-items: end;
 }
 
-/* ==================== TABLA - Hereda de panel_admin_base.css ==================== */
+.personal-search-form .module-filter-field,
+.personal-search-form .module-filter-field--wide,
+.personal-search-form .module-filter-field--medium,
+.personal-search-form .module-filter-actions {
+    grid-column: auto;
+    margin: 0;
+}
+
+.personal-search-form .module-filter-field--wide {
+    min-width: 0;
+}
+
+.personal-search-form .module-filter-field--medium {
+    min-width: 200px;
+}
+
+.personal-search-form .module-filter-actions {
+    margin-left: 0;
+    align-self: end;
+}
+
+.personal-search-form .module-filter-btn {
+    min-width: 130px;
+}
+
+.personal-search-form .module-search-inline {
+    min-width: 0;
+    width: 100%;
+    flex: 0 0 auto;
+}
+
+.personal-search-form .personal-search-global-wrap {
+    flex: 0 0 auto;
+}
+
+/* ==================== TABLA ==================== */
+.personal-table-wrapper {
+    background: #ffffff;
+    border: 1.5px solid rgba(17, 17, 17, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.personal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.personal-table thead {
+    background: linear-gradient(135deg, #111 0%, #2a2a2a 100%);
+}
+
+.personal-table thead th {
+    padding: 20px 24px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.personal-table tbody tr {
+    border-bottom: 1px solid rgba(17, 17, 17, 0.06);
+    transition: background 0.25s ease;
+}
+
+.personal-table tbody tr:hover {
+    background: rgba(99, 76, 64, 0.03);
+}
+
+.personal-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.personal-table tbody td {
+    padding: 20px 24px;
+    font-size: 0.95rem;
+    color: #333;
+    vertical-align: middle;
+}
+
+.personal-table tbody td strong {
+    color: #111;
+    font-weight: 600;
+}
 
 /* ==================== BADGES ==================== */
 .personal-badge {
     display: inline-block;
-    padding: 3px 9px;
-    border-radius: 995px;
+    padding: 6px 16px;
+    border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 500;
     letter-spacing: 0.02em;
@@ -400,29 +482,27 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 /* ==================== BOTONES DE ACCIÓN ==================== */
 .personal-action-group {
     display: flex;
-    gap: 3px;
+    gap: 8px;
 }
 
 .personal-action-btn {
-    width: 33px;
-    height: 33px;
+    width: 36px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 3px;
-    border: 1.3px solid rgba(17, 17, 17, 0.15);
+    border-radius: 10px;
+    border: 1.5px solid rgba(17, 17, 17, 0.15);
     background: transparent;
     color: #666;
     text-decoration: none;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    cursor: pointer;
-    padding: 0;
 }
 
 .personal-action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .personal-action-btn.info {
@@ -457,13 +537,13 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 
 /* ==================== ALERTAS ==================== */
 .personal-alert {
-    padding: 9px 23px;
-    border-radius: 9px;
-    margin-bottom: 10px;
-    border: 1.3px solid;
+    padding: 20px 28px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1.5px solid;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 14px;
 }
 
 .personal-alert.info {
@@ -492,8 +572,8 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 
 /* ==================== DETALLES ==================== */
 .personal-detail-section {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 32px;
     border-bottom: 1px solid rgba(17, 17, 17, 0.08);
 }
 
@@ -510,7 +590,7 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: rgba(17, 17, 17, 0.5);
-    margin-bottom: 3px;
+    margin-bottom: 8px;
 }
 
 .personal-detail-value {
@@ -535,25 +615,25 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 .personal-detail-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 32px;
 }
 
 /* ==================== MENSAJES ==================== */
 .personal-messages {
     position: fixed;
-    top: 9px;
-    right: 9px;
+    top: 20px;
+    right: 20px;
     z-index: 1000;
     max-width: 400px;
 }
 
 .personal-message {
-    padding: 6px 10px;
-    border-radius: 9px;
-    margin-bottom: 5px;
-    border: 1.3px solid;
+    padding: 18px 24px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    border: 1.5px solid;
     animation: slideIn 0.4s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 @keyframes slideIn {
@@ -571,11 +651,11 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 .personal-stats {
     display: flex;
     align-items: center;
-    gap: 3px;
-    margin-top: 9px;
-    padding: 9px 10px;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 16px 24px;
     background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
-    border-radius: 9px;
+    border-radius: 16px;
     border: 1px solid rgba(17, 17, 17, 0.06);
 }
 
@@ -588,136 +668,122 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     color: #666;
 }
 
+/* ==================== FORMULARIO — GRID UTILITARIOS ==================== */
+.personal-form-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.personal-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
 /* ==================== RESPONSIVE ==================== */
+
+/* Tablet landscape (≤ 1200px) */
 @media (max-width: 1200px) {
     .personal-search-form {
         grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+    .personal-search-card {
+        padding: 24px 28px;
+    }
+
+    .personal-search-form .module-filter-field--wide,
+    .personal-search-form .module-filter-field--medium,
+    .personal-search-form .module-filter-actions {
+        min-width: 0;
+        margin-left: 0;
     }
 }
 
+/* Tablet portrait (≤ 900px) */
 @media (max-width: 900px) {
     .personal-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 9px;
+        gap: 16px;
+        margin-bottom: 36px;
+        padding-bottom: 20px;
     }
-
-    .personal-detail-grid {
-        grid-template-columns: 1fr;
-        gap: 9px;
-    }
-
-    .personal-container {
-        padding: 0 9px;
-    }
-    
-    .personal-card {
-        padding: 30px 10px;
-    }
-    
-    .personal-card-header {
-        padding: 9px 10px;
-        margin: -30px -10px 30px -10px;
-    }
-}
-
-@media (max-width: 763px) {
-    .personal-wrapper {
-        padding-top: 9px;
-        padding-bottom: 30px;
-    }
-    
-    .personal-header {
-        margin-bottom: 30px;
-        padding-bottom: 9px;
-    }
-    
-    .personal-header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .personal-btn {
-        padding: 5px 10px;
-        font-size: 0.95rem;
+    .personal-header .personal-btn {
         width: 100%;
         justify-content: center;
     }
-    
-    .personal-search-card {
-        padding: 10px 9px;
+    .personal-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
-    
-    .personal-detail-section {
-        margin-bottom: 10px;
-        padding-bottom: 10px;
+    .personal-table-wrapper {
+        overflow-x: auto;
     }
-}
-
-@media (max-width: 600px) {
-    .personal-action-group {
-        gap: 3px;
-    }
-    
-    .personal-action-btn {
-        width: 16px;
-        height: 16px;
-        font-size: 0.85rem;
-    }
-    
     .personal-container {
-        padding: 0 9px;
+        padding: 0 20px;
     }
-    
     .personal-card {
-        padding: 10px 9px;
-        border-radius: 9px;
+        padding: 24px;
     }
-    
     .personal-card-header {
-        padding: 9px;
-        margin: -10px -9px 10px -9px;
-        border-radius: 9px 9px 0 0;
+        padding: 18px 24px;
+        margin: -24px -24px 24px -24px;
     }
-    
-    .personal-card-header h4 {
-        font-size: 1.2rem;
+    /* Ocultar columna Correo en tablet */
+    .personal-table thead th:nth-child(5),
+    .personal-table tbody td:nth-child(5) { display: none; }
+}
+
+/* Móvil grande (≤ 768px) */
+@media (max-width: 768px) {
+    .personal-wrapper {
+        padding-top: 20px;
+        padding-bottom: 40px;
     }
-    
-    .personal-form-control {
-        padding: 10px 12px;
-        font-size: 0.95rem;
+    .personal-container {
+        padding: 0 14px;
     }
-    
-    .personal-messages {
-        left: 9px;
-        right: 9px;
-        max-width: none;
+    .personal-header {
+        margin-bottom: 24px;
+    }
+    .personal-search-card {
+        padding: 18px 16px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+    }
+
+    .personal-search-form {
+        gap: 12px;
+    }
+    /* Ocultar también Teléfono en móvil */
+    .personal-table thead th:nth-child(4),
+    .personal-table tbody td:nth-child(4) { display: none; }
+
+    .personal-table thead th { padding: 14px 12px; font-size: .82rem; }
+    .personal-table tbody td { padding: 14px 12px; font-size: .88rem; }
+    .personal-action-btn { width: 32px; height: 32px; font-size: .82rem; }
+
+    /* Formulario — colapsar grids de 2 cols */
+    .personal-form-2col { grid-template-columns: 1fr; }
+    .personal-form-actions {
+        flex-direction: column;
+    }
+    .personal-form-actions .personal-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 
-@media (max-width: 460px) {
-    .personal-header h1 {
-        font-size: 1.5rem;
-        gap: 5px;
-    }
-    
-    .personal-btn {
-        padding: 3px 9px;
-        font-size: 0.9rem;
-    }
-    
-    .personal-table {
-        font-size: 0.8rem;
-    }
-    
-    .personal-detail-value {
-        font-size: 1rem;
-    }
-    
-    .personal-badge {
-        font-size: 0.75rem;
-        padding: 3px 5px;
-    }
+/* Móvil pequeño (≤ 480px) */
+@media (max-width: 480px) {
+    .personal-container { padding: 0 10px; }
+    .personal-table thead th { padding: 10px 8px; font-size: .78rem; }
+    .personal-table tbody td { padding: 10px 8px; font-size: .82rem; }
+    .personal-btn { padding: 12px 24px; font-size: .92rem; }
+    .personal-action-group { gap: 4px; }
 }
 
 /* ==================== VALIDACIONES EN TIEMPO REAL ==================== */

@@ -34,6 +34,10 @@
 {% endblock %}
 
 {% block content %}
+<div class="sw-toolbar sw-enter sw-enter-up sw-enter-delay-3">
+    <div class="sw-search-bar module-search-inline" id="swSearchBar">
+        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripcion, precio o estado...' search_value=q name='q' modo='inline' %}
+    </div>
 
 <!-- ── Barra de búsqueda global ── -->
 <form method="get"
@@ -52,7 +56,6 @@
     {% include 'servicios_web/lista_servicios_web_global.html' %}
 </div>
 
-<!-- MODAL FORM -->
 <div class="modal fade" id="modalServicioWeb" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius:15px">
@@ -72,7 +75,6 @@
     </div>
 </div>
 
-<!-- MODAL MULTIMEDIA -->
 <div class="modal fade" id="modalPreviewMedia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered sw-preview-dialog">
         <div class="modal-content border-0 shadow-lg sw-preview-content">

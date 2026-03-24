@@ -1,10 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from core.form_validations import ValidationFormMixin
 from .models import Proveedor
 import re
 
 
-class ProveedorcrearForm(forms.ModelForm):
+class ProveedorcrearForm(ValidationFormMixin, forms.ModelForm):
 
     class Meta:
         model = Proveedor
@@ -45,7 +46,7 @@ class ProveedorcrearForm(forms.ModelForm):
             }),
         }
 
-class ProveedoreditarForm(forms.ModelForm):
+class ProveedoreditarForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = [

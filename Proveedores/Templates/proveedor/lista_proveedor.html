@@ -8,6 +8,18 @@
 <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
 {% endblock %}
 
+{% block page_icon %}<i class="bi bi-truck page-icon"></i>{% endblock %}
+{% block page_title %}Proveedores{% endblock %}
+{% block page_subtitle %}Gestion de proveedores registrados{% endblock %}
+{% block page_actions %}
+<a href="{% url 'proveedores:crear_proveedor' %}"
+   class="btn-pill-dark"
+   data-modal-url="{% url 'proveedores:crear_proveedor' %}"
+   data-modal-title="Crear Proveedor">
+    Crear Proveedor
+</a>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'proveedor/css/proveedor.css' %}">
 <link rel="stylesheet" href="{% static 'proveedor/css/crear_proveedor.css' %}?v=9">
@@ -30,16 +42,33 @@
                 </small>
             </div>
 
-            <a href="{% url 'proveedores:crear_proveedor' %}"
-               class="btn-pill-dark proveedores-btn-add"
-               data-modal-url="{% url 'proveedores:crear_proveedor' %}"
-               data-modal-title="Crear Proveedor">
-                Crear Proveedor
-            </a>
         </div>
 
-        <div class="proveedores-toolbar">
-            <div class="dropdown proveedores-toolbar__filter">
+        <div class="module-filters-card">
+            <div class="module-filters-form">
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Buscar</label>
+                    <form method="get"
+                          action="{% url 'proveedores:lista_proveedor' %}"
+                          class="proveedores-busqueda-form js-ajax-search-form"
+                          data-ajax-url="{% url 'proveedores:lista_proveedor' %}"
+                          data-ajax-target="#proveedores-resultados"
+                          data-ajax-debounce="250">
+                        <input type="hidden" name="estado" value="{{ estado_actual }}">
+                        {% if current_sort %}
+                            <input type="hidden" name="sort" value="{{ current_sort }}">
+                        {% endif %}
+                        {% if current_dir %}
+                            <input type="hidden" name="dir" value="{{ current_dir }}">
+                        {% endif %}
+
+                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar proveedor...' search_value=q name='q' modo='inline' %}
+                    </form>
+                </div>
+
+                <div class="module-filter-field module-filter-field--medium">
+                    <label class="module-filter-label">Filtrar</label>
+                    <div class="dropdown proveedores-toolbar__filter">
                 <button class="btn btn-filter dropdown-toggle"
                         type="button"
                         data-bs-toggle="dropdown">

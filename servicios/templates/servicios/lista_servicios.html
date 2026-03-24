@@ -25,7 +25,36 @@
         {% endfor %}
     {% endif %}
 
-    <!-- TOOLBAR -->
+    <div class="module-filters-card">
+        <form id="filtrosServicios"
+                  class="js-ajax-search-form module-filters-form"
+                  method="get"
+                  data-ajax-url="{% url 'servicios:lista_servicios' %}"
+                  data-ajax-target="#lista-servicios-resultados"
+                  data-ajax-debounce="300">
+
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Busqueda</label>
+                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar servicio...' search_value=q name='q' modo='inline' %}
+                </div>
+
+                <div class="module-filter-field module-filter-field--small">
+                    <label class="module-filter-label">Estado</label>
+                    <select name="estado" id="estadoInput" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activa</option>
+                        <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactiva</option>
+                    </select>
+                </div>
+
+                <div class="module-filter-actions">
+                    <a href="{% url 'servicios:lista_servicios' %}" class="module-filter-btn module-filter-btn--secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+    </div>
+
     <div class="lib-toolbar">
         <div class="lib-toolbar__left">
             <button
@@ -37,6 +66,7 @@
             </button>
             <span class="lib-count" id="libCount"></span>
         </div>
+
         <div class="lib-toolbar__right">
             <form id="filtrosServicios"
                   class="js-ajax-search-form d-flex align-items-center gap-2 flex-wrap"
@@ -57,15 +87,15 @@
             </form>
 
             <div class="view-toggle">
-                <button class="view-btn active" id="btnGrid" title="Cuadrícula">
+                <button class="view-btn active" id="btnGrid" title="Cuadricula" data-hover-label="Cuadricula">
                     <i class="bi bi-grid-3x3-gap-fill"></i>
                 </button>
-                <button class="view-btn" id="btnList" title="Lista">
+                <button class="view-btn" id="btnList" title="Lista" data-hover-label="Lista">
                     <i class="bi bi-list-ul"></i>
                 </button>
             </div>
             <div class="grid-size-select" id="gridSizeWrap">
-                Cuadrícula:
+                Cuadricula:
                 <select id="gridSize">
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -103,7 +133,6 @@
     </div>
 </div>
 
-<!-- Modal Editar -->
 <div class="modal fade" id="modalEditarServicio" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
@@ -121,7 +150,6 @@
     </div>
 </div>
 
-<!-- Modal Eliminar -->
 <div class="modal fade" id="modalEliminarServicio" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">

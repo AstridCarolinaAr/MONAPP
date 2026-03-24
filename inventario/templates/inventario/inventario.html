@@ -7,6 +7,9 @@
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Inventario</li>
 {% endblock %}
+{% block page_icon %}<i class="bi bi-boxes page-icon"></i>{% endblock %}
+{% block page_title %}Inventario{% endblock %}
+{% block page_subtitle %}Stock actual y estados de almacen{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'inventario/css/inventario.css' %}">
 {% endblock %}
@@ -21,20 +24,27 @@
             <small class="text-muted">Stock actual y estados de almacén</small>
         </div>
     </div>
-        <form method="get" style="width: 360px; max-width: 100%;">
-            {% if estado_stock %}
-                <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
-            {% endif %}
-            {% if current_sort %}
-                <input type="hidden" name="sort" value="{{ current_sort }}">
-            {% endif %}
-            {% if current_dir %}
-                <input type="hidden" name="dir" value="{{ current_dir }}">
-            {% endif %}
+        <div class="module-filters-card">
+            <div class="module-filters-form">
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Buscar</label>
+                    <form method="get" style="width: 100%;">
+                        {% if estado_stock %}
+                            <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+                        {% endif %}
+                        {% if current_sort %}
+                            <input type="hidden" name="sort" value="{{ current_sort }}">
+                        {% endif %}
+                        {% if current_dir %}
+                            <input type="hidden" name="dir" value="{{ current_dir }}">
+                        {% endif %}
 
-            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-        </form>
-            <div class="dropdown mb-3">
+                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+                    </form>
+                </div>
+                <div class="module-filter-field module-filter-field--medium">
+                    <label class="module-filter-label">Filtrar</label>
+                    <div class="dropdown mb-0">
                 <button class="btn btn-filter dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="bi bi-funnel"></i>
                     {% if estado_stock == 'bajo' %}
@@ -74,7 +84,10 @@
                         </a>
                     </li>
                 </ul>
+                    </div>
+                </div>
             </div>
+        </div>
     <!-- Card Principal -->
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">

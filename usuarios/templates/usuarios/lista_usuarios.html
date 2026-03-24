@@ -4,17 +4,34 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+<style>
+.module-toolbar{display:none!important;}
+</style>
 {% endblock %}
 
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active">Usuarios</li>
 {% endblock %}
 
+{% block page_icon %}<i class="bi bi-person-badge page-icon"></i>{% endblock %}
+{% block page_title %}Usuarios{% endblock %}
+{% block page_subtitle %}Gestion de usuarios y accesos{% endblock %}
+
+{% block page_actions %}
+{% if puede_modificar %}
+<button type="button"
+        class="btn-pill-dark"
+        onclick="abrirModalUsuario()">
+    <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+</button>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
 
     <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="module-toolbar">
         <h2 class="mb-0">Gestión de Usuarios</h2>
         {% if puede_modificar %}
         <button type="button"

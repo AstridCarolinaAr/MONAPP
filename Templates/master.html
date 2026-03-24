@@ -43,48 +43,112 @@
 <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content login-modal-content">
+            <canvas id="bgBubblesCanvas"></canvas>
+            <div class="login-particles" id="particles"></div>
 
             <div class="card-header text-center">
+                <div class="coffee-bubbles" aria-hidden="true">
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                </div>
                 <img src="{% static 'core/IMG/logo_monakeratina.jpg' %}" width="120" alt="Monakeratina">
             </div>
 
             <div class="modal-body p-0">
                 <div class="card-body">
+                    <h2 class="login-title">INICIAR SESION</h2>
 
                     {% if messages %}
                     <div class="messages-container">
                         {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show login-alert" role="alert" data-autoclose="8000">
+                            <div class="d-flex align-items-start gap-2">
+                                <div class="alert-icon">
+                                    {% if message.tags == 'success' %}
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                    {% elif message.tags == 'error' %}
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                    {% elif message.tags == 'warning' %}
+                                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                    {% else %}
+                                    <i class="bi bi-info-circle-fill text-primary"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">{{ message }}</div>
+                                <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert"></button>
+                            </div>
+                            <div class="alert-progress-bar"></div>
                         </div>
                         {% endfor %}
                     </div>
                     {% endif %}
 
-                    <form method="post">
+                    <form method="post" action="{% url 'usuarios:login' %}">
                         {% csrf_token %}
                         {% if request.GET.next %}
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
                         {% endif %}
                         <div class="login-form-wrapper">
-                            <div class="mb-3">
-                                <input type="text" name="username" class="form-control"
-                                    placeholder="Usuario o documento" required>
+                            <div class="field-group">
+                                <label class="field-label">USUARIO</label>
+                                <input type="text" name="username" class="field-input" placeholder="Usuario o documento" required autofocus>
                             </div>
-                            <div class="mb-3 password-wrapper">
-                                <input type="password" id="password" name="password" class="form-control"
+                            <div class="field-group">
+                                <label class="field-label">CONTRASENA</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password" name="password" class="field-input"
                                     placeholder="Contraseña" required>
-                                <i id="togglePassword" class="bi bi-eye"></i>
+                                    <span id="togglePassword" class="toggle-eye">
+                                        <i class="bi bi-eye"></i>
+                                    </span>
+                                </div>
                             </div>
-                            <div class="mb-3 text-end">
-                                <a href="{% url 'usuarios:recuperar' %}" class="forgot-password-link">
+                            <div class="captcha-wrapper">
+                                <div class="recaptcha-box" id="loginCaptchaBox">
+                                    <div class="recaptcha-left">
+                                        <div class="recaptcha-checkbox-wrap" id="loginCaptchaTrigger" role="button" tabindex="0" aria-label="Verificar captcha">
+                                            <div class="recaptcha-checkbox">
+                                                <div class="spinner-ring"></div>
+                                                <svg class="checkmark-svg" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="M20 6L9 17l-5-5" fill="none" stroke="#2e7d32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="recaptcha-label">No soy un robot</div>
+                                    </div>
+                                    <div class="recaptcha-right">
+                                        <svg class="shield-icon" viewBox="0 0 36 44" aria-hidden="true">
+                                            <path fill="#6D5C5C" d="M18 0 3 6v11c0 10.3 6.4 19.8 15 23 8.6-3.2 15-12.7 15-23V6L18 0Z"/>
+                                            <path fill="#F5F0E0" d="M18 5.2 8 9.3v8.1c0 7.3 4.3 14.1 10 16.5 5.7-2.4 10-9.2 10-16.5V9.3L18 5.2Z"/>
+                                        </svg>
+                                        <div class="recaptcha-brand-name">Mona</div>
+                                        <div class="recaptcha-brand-terms">Seguridad</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="captchaVerified" name="captcha_verified" value="0">
+                                <div class="captcha-help-text" id="captchaHelpText"></div>
+                            </div>
+                            <div class="recovery-links">
+                                <a href="{% url 'usuarios:recuperar' %}" class="forgot-link">
                                     ¿Olvidaste tu contraseña?
                                 </a>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-dark w-100">
-                            Ingresar
+                        <button type="submit" class="btn-login">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
                         </button>
                     </form>
 
@@ -129,6 +193,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'core/js/main.js' %}"></script>
+<script src="{% static 'usuarios/js/login.js' %}"></script>
 
 {% block extra_js %}{% endblock %}
 
@@ -200,6 +265,76 @@
             makeDraggable();
         })();
     </script>
+
+<script>
+    (function initSiennaDraggable() {
+        function makeDraggable() {
+            const btn = document.querySelector('.asw-menu-btn');
+            if (!btn) { setTimeout(makeDraggable, 300); return; }
+
+            let isDragging = false, hasMoved = false, offsetX, offsetY;
+            btn.style.cursor = 'grab';
+
+            btn.addEventListener('mousedown', (e) => {
+                isDragging = true; hasMoved = false;
+                const rect = btn.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                btn.style.cursor = 'grabbing';
+                btn.style.transition = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                hasMoved = true;
+                let x = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, e.clientX - offsetX));
+                let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, e.clientY - offsetY));
+                btn.style.left = x + 'px';
+                btn.style.top = y + 'px';
+                btn.style.right = 'auto';
+                btn.style.bottom = 'auto';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) { isDragging = false; btn.style.cursor = 'grab'; }
+            });
+
+            btn.addEventListener('touchstart', (e) => {
+                const t = e.touches[0];
+                isDragging = true;
+                hasMoved = false;
+                const rect = btn.getBoundingClientRect();
+                offsetX = t.clientX - rect.left;
+                offsetY = t.clientY - rect.top;
+                btn.style.transition = 'none';
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                hasMoved = true;
+                const t = e.touches[0];
+                let x = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, t.clientX - offsetX));
+                let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, t.clientY - offsetY));
+                btn.style.left = x + 'px';
+                btn.style.top = y + 'px';
+                btn.style.right = 'auto';
+                btn.style.bottom = 'auto';
+            }, { passive: true });
+
+            document.addEventListener('touchend', () => { isDragging = false; });
+
+            btn.addEventListener('click', (e) => {
+                if (hasMoved) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    hasMoved = false;
+                }
+            }, true);
+        }
+        makeDraggable();
+    })();
+</script>
 
 </body>
 </html>

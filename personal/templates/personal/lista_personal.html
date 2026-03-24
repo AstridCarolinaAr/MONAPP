@@ -1,10 +1,22 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}Lista de Personal - Monapp{% endblock %}
 
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Personal</li>
+{% endblock %}
+
+{% block page_icon %}<i class="bi bi-people-fill page-icon"></i>{% endblock %}
+{% block page_title %}Personal{% endblock %}
+{% block page_subtitle %}Gestion de auxiliares y colaboradores{% endblock %}
+
+{% block page_actions %}
+{% if puede_modificar %}
+<button type="button" class="btn-pill-dark" onclick="abrirModalPersonal()">
+    <i class="fas fa-plus"></i> Agregar Personal
+</button>
+{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -309,9 +321,7 @@
     <div class="modal-personal-content">
         <div class="modal-personal-header">
             <h3><i class="fas fa-plus-circle"></i> Agregar Personal</h3>
-            <button type="button" class="modal-personal-close" onclick="cerrarModalPersonal()">
-                <i class="fas fa-times"></i>
-            </button>
+            <button type="button" class="modal-personal-close" onclick="cerrarModalPersonal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-personal-body" id="modalPersonalBody">
             <div style="text-align: center; padding: 40px;">
@@ -322,15 +332,12 @@
     </div>
 </div>
 
-<!-- Modal para editar personal -->
-<div id="modalEditarPersonal" class="modal-personal" style="display: none;">
+<div id="modalEditarPersonal" class="modal-personal">
     <div class="modal-personal-overlay" onclick="cerrarModalEditarPersonal()"></div>
     <div class="modal-personal-content">
         <div class="modal-personal-header">
             <h3><i class="bi bi-pencil-square"></i> Editar Personal</h3>
-            <button type="button" class="modal-personal-close" onclick="cerrarModalEditarPersonal()">
-                <i class="fas fa-times"></i>
-            </button>
+            <button type="button" class="modal-personal-close" onclick="cerrarModalEditarPersonal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-personal-body" id="modalEditarPersonalBody">
             <div style="text-align: center; padding: 40px;">
@@ -341,15 +348,12 @@
     </div>
 </div>
 
-<!-- Modal para ver detalles del personal -->
-<div id="modalDetallePersonal" class="modal-personal" style="display: none;">
+<div id="modalDetallePersonal" class="modal-personal">
     <div class="modal-personal-overlay" onclick="cerrarModalDetallePersonal()"></div>
-    <div class="modal-personal-content" style="max-width: 960px;">
+    <div class="modal-personal-content" style="max-width:960px;">
         <div class="modal-personal-header">
             <h3><i class="fas fa-user-circle"></i> Detalles del Personal</h3>
-            <button type="button" class="modal-personal-close" onclick="cerrarModalDetallePersonal()">
-                <i class="fas fa-times"></i>
-            </button>
+            <button type="button" class="modal-personal-close" onclick="cerrarModalDetallePersonal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-personal-body" id="modalDetallePersonalBody">
             <div style="text-align: center; padding: 40px;">
@@ -362,26 +366,20 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Cargar JavaScript de validaciones en tiempo real -->
 <script src="{% static 'personal/js/personal.js' %}"></script>
-
 <script>
-    // Función para obtener el CSRF token de las cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i += 1) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === `${name}=`) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
     
     // Función para enviar el formulario de filtro cuando cambia
@@ -435,366 +433,204 @@
             `;
         });
     }
-    
-    function cerrarModalPersonal() {
-        const modal = document.getElementById('modalPersonal');
-        modal.style.display = 'none';
-        document.body.style.overflow = ''; // Restaurar scroll del body
-    }
-    
-    function enviarFormularioPersonal(form) {
-        const formData = new FormData(form);
-        const modalBody = document.getElementById('modalPersonalBody');
-        
-        fetch("{% url 'personal:crear_personal' %}", {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Éxito - cerrar modal
-                cerrarModalPersonal();
-                
-                // Mostrar SweetAlert2 de éxito
-                Swal.fire({
-                    title: '¡Creado exitosamente!',
-                    text: data.message,
-                    icon: 'success',
-                    confirmButtonColor: '#5d4037',
-                    background: '#fdfaf8',
-                    color: '#4b3621',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                // Error - actualizar el formulario con los errores
-                modalBody.innerHTML = data.html_form;
-                
-                // Reinicializar validaciones
-                if (typeof inicializarValidacionesPersonal === 'function') {
-                    inicializarValidacionesPersonal();
-                }
-                
-                // Volver a configurar el envío del formulario
-                const newForm = document.getElementById('form-crear-personal');
-                if (newForm) {
-                    newForm.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        enviarFormularioPersonal(newForm);
-                    });
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error al guardar. Por favor, intenta nuevamente.</span>
-                </div>
-            `;
-        });
-    }
-    
-    // Funciones para el modal de editar personal
-    function abrirModalEditarPersonal(personalId) {
-        const modal = document.getElementById('modalEditarPersonal');
-        const modalBody = document.getElementById('modalEditarPersonalBody');
-        
-        // Mostrar el modal
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        
-        // Cargar el formulario vía AJAX
-        fetch(`/personal/${personalId}/editar/`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            modalBody.innerHTML = data.html_form;
-            
-            // Inicializar validaciones en tiempo real
-            if (typeof inicializarValidacionesPersonal === 'function') {
-                inicializarValidacionesPersonal();
-            }
-            
-            // Configurar el envío del formulario
-            const form = document.getElementById('form-editar-personal');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    enviarFormularioEditarPersonal(form, personalId);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error al cargar el formulario. Por favor, intenta nuevamente.</span>
-                </div>
-            `;
-        });
-    }
-    
-    function cerrarModalEditarPersonal() {
-        const modal = document.getElementById('modalEditarPersonal');
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-    
-    function enviarFormularioEditarPersonal(form, personalId) {
-        const formData = new FormData(form);
-        const modalBody = document.getElementById('modalEditarPersonalBody');
-        
-        fetch(`/personal/${personalId}/editar/`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Éxito - cerrar modal
-                cerrarModalEditarPersonal();
-                
-                // Mostrar SweetAlert2 de éxito
-                Swal.fire({
-                    title: '¡Actualizado exitosamente!',
-                    text: data.message,
-                    icon: 'success',
-                    confirmButtonColor: '#5d4037',
-                    background: '#fdfaf8',
-                    color: '#4b3621',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                // Error - actualizar el formulario con los errores
-                modalBody.innerHTML = data.html_form;
-                
-                // Volver a configurar el envío del formulario
-                const newForm = document.getElementById('form-editar-personal');
-                if (newForm) {
-                    newForm.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        enviarFormularioEditarPersonal(newForm, personalId);
-                    });
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error al guardar. Por favor, intenta nuevamente.</span>
-                </div>
-            `;
-        });
-    }
-    
-    // Cerrar el modal con la tecla ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            cerrarModalPersonal();
-            cerrarModalEditarPersonal();
-            cerrarModalDetallePersonal();
-        }
+}
+
+function bindPersonalForm(formId, submitFn) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        submitFn(form);
     });
-    
-    // Funciones para el modal de detalles del personal
-    function abrirModalDetallePersonal(personalId) {
-        const modal = document.getElementById('modalDetallePersonal');
-        const modalBody = document.getElementById('modalDetallePersonalBody');
-        
-        // Mostrar el modal
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        
-        // Cargar el contenido de detalles vía AJAX
-        fetch(`/personal/${personalId}/detalle/`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
+}
+
+function abrirModalPersonal() {
+    showModal('modalPersonal');
+    requestJson("{% url 'personal:crear_personal' %}")
+        .then((data) => {
+            const modalBody = document.getElementById('modalPersonalBody');
+            if (!modalBody) return;
+            modalBody.innerHTML = data.html_form;
+            bindDynamicValidations();
+            bindPersonalForm('form-crear-personal', enviarFormularioPersonal);
         })
-        .then(response => response.json())
-        .then(data => {
+        .catch(() => {
+            showLoadError('modalPersonalBody', 'Error al cargar el formulario. Intenta nuevamente.');
+        });
+}
+
+function cerrarModalPersonal() {
+    hideModal('modalPersonal');
+}
+
+function enviarFormularioPersonal(form) {
+    const formData = new FormData(form);
+    requestJson("{% url 'personal:crear_personal' %}", { method: 'POST', body: formData })
+        .then((data) => {
+            if (data.success) {
+                cerrarModalPersonal();
+                Swal.fire({ title: 'Creado exitosamente', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false, confirmButtonColor: '#5d4037' })
+                    .then(() => location.reload());
+                return;
+            }
+            const modalBody = document.getElementById('modalPersonalBody');
+            if (!modalBody) return;
+            modalBody.innerHTML = data.html_form;
+            bindDynamicValidations();
+            bindPersonalForm('form-crear-personal', enviarFormularioPersonal);
+        })
+        .catch(() => {
+            showLoadError('modalPersonalBody', 'Error al guardar. Intenta nuevamente.');
+        });
+}
+
+function abrirModalEditarPersonal(personalId) {
+    showModal('modalEditarPersonal');
+    requestJson(`/personal/${personalId}/editar/`)
+        .then((data) => {
+            const modalBody = document.getElementById('modalEditarPersonalBody');
+            if (!modalBody) return;
+            modalBody.innerHTML = data.html_form;
+            bindDynamicValidations();
+            bindPersonalForm('form-editar-personal', function (form) {
+                enviarFormularioEditarPersonal(form, personalId);
+            });
+        })
+        .catch(() => {
+            showLoadError('modalEditarPersonalBody', 'Error al cargar el formulario de edicion. Intenta nuevamente.');
+        });
+}
+
+function cerrarModalEditarPersonal() {
+    hideModal('modalEditarPersonal');
+}
+
+function enviarFormularioEditarPersonal(form, personalId) {
+    const formData = new FormData(form);
+    requestJson(`/personal/${personalId}/editar/`, { method: 'POST', body: formData })
+        .then((data) => {
+            if (data.success) {
+                cerrarModalEditarPersonal();
+                Swal.fire({ title: 'Actualizado exitosamente', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false, confirmButtonColor: '#5d4037' })
+                    .then(() => location.reload());
+                return;
+            }
+            const modalBody = document.getElementById('modalEditarPersonalBody');
+            if (!modalBody) return;
+            modalBody.innerHTML = data.html_form;
+            bindDynamicValidations();
+            bindPersonalForm('form-editar-personal', function (newForm) {
+                enviarFormularioEditarPersonal(newForm, personalId);
+            });
+        })
+        .catch(() => {
+            showLoadError('modalEditarPersonalBody', 'Error al guardar cambios. Intenta nuevamente.');
+        });
+}
+
+function abrirModalDetallePersonal(personalId) {
+    showModal('modalDetallePersonal');
+    requestJson(`/personal/${personalId}/detalle/`)
+        .then((data) => {
+            const modalBody = document.getElementById('modalDetallePersonalBody');
+            if (!modalBody) return;
             modalBody.innerHTML = data.html_content;
         })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error al cargar la información. Por favor, intenta nuevamente.</span>
-                </div>
-            `;
+        .catch(() => {
+            showLoadError('modalDetallePersonalBody', 'Error al cargar la informacion. Intenta nuevamente.');
         });
-    }
-    
-    function cerrarModalDetallePersonal() {
-        const modal = document.getElementById('modalDetallePersonal');
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-    
-    // Funciones para eliminar personal con SweetAlert2
-    function abrirModalEliminarPersonal(personalId) {
-        // Obtener el token CSRF
-        const csrftoken = getCookie('csrftoken');
-        
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción no se puede deshacer",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#5d4037',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            background: '#fdfaf8',
-            color: '#4b3621',
-            showLoaderOnConfirm: true,
-            preConfirm: () => {
-                return fetch(`/personal/${personalId}/eliminar/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la solicitud');
-                    }
+}
+
+function cerrarModalDetallePersonal() {
+    hideModal('modalDetallePersonal');
+}
+
+function abrirModalEliminarPersonal(personalId) {
+    const csrftoken = getCookie('csrftoken');
+    Swal.fire({
+        title: 'Estas seguro?',
+        text: 'Esta accion no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#5d4037',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, eliminar',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return fetch(`/personal/${personalId}/eliminar/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error('Error en la solicitud');
                     return response.json();
                 })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Error al eliminar');
-                    }
+                .then((data) => {
+                    if (!data.success) throw new Error(data.message || 'Error al eliminar');
                     return data;
                 })
-                .catch(error => {
-                    Swal.showValidationMessage(
-                        `Error: ${error.message}`
-                    );
+                .catch((error) => {
+                    Swal.showValidationMessage(`Error: ${error.message}`);
                 });
-            },
-            allowOutsideClick: () => !Swal.isLoading()
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: '¡Eliminado!',
-                    text: result.value.message || 'Personal eliminado exitosamente',
-                    icon: 'success',
-                    confirmButtonColor: '#5d4037',
-                    background: '#fdfaf8',
-                    color: '#4b3621',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
-            }
-        });
-    }
-    
-    // Manejar el cambio de estado activo/inactivo con el switch
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleCheckboxes = document.querySelectorAll('.toggle-activo-checkbox');
-        
-        toggleCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const personalId = this.dataset.personalId;
-                const personalNombre = this.dataset.personalNombre;
-                const isChecked = this.checked;
-                const switchElement = this;
-                
-                // Deshabilitar el switch mientras se procesa
-                switchElement.disabled = true;
-                
-                // Obtener el token CSRF
-                const csrftoken = getCookie('csrftoken');
-                
-                // Hacer la petición AJAX
-                fetch(`/personal/${personalId}/toggle-activo/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Habilitar el switch nuevamente
-                        switchElement.disabled = false;
-                        
-                        // Mostrar SweetAlert2 de éxito
-                        const estadoActual = data.activo ? 'activo' : 'inactivo';
-                        Swal.fire({
-                            title: '¡Estado actualizado!',
-                            text: `${personalNombre} ahora ${data.activo ? 'está activo' : 'ya no está activo'}`,
-                            icon: 'success',
-                            confirmButtonColor: '#5d4037',
-                            background: '#fdfaf8',
-                            color: '#4b3621',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        // Error - revertir el cambio
-                        switchElement.checked = !isChecked;
-                        switchElement.disabled = false;
-                        
-                        // Mostrar SweetAlert2 de error
-                        Swal.fire({
-                            title: 'Error',
-                            text: data.mensaje || 'Error al cambiar el estado',
-                            icon: 'error',
-                            confirmButtonColor: '#5d4037',
-                            background: '#fdfaf8',
-                            color: '#4b3621'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Revertir el cambio
-                    switchElement.checked = !isChecked;
-                    switchElement.disabled = false;
-                    
-                    // Mostrar SweetAlert2 de error de conexión
-                    Swal.fire({
-                        title: 'Error de conexión',
-                        text: 'No se pudo cambiar el estado. Intenta nuevamente.',
-                        icon: 'error',
-                        confirmButtonColor: '#5d4037',
-                        background: '#fdfaf8',
-                        color: '#4b3621'
-                    });
-                });
-            });
-        });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+        Swal.fire({ title: 'Eliminado', text: result.value.message || 'Personal eliminado exitosamente', icon: 'success', timer: 1500, showConfirmButton: false, confirmButtonColor: '#5d4037' })
+            .then(() => location.reload());
     });
+}
+
+function actualizarEstadoPersonal(switchElement) {
+    const personalId = switchElement.dataset.personalId;
+    const personalNombre = switchElement.dataset.personalNombre;
+    const isChecked = switchElement.checked;
+    const csrftoken = getCookie('csrftoken');
+
+    switchElement.disabled = true;
+
+    fetch(`/personal/${personalId}/toggle-activo/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                switchElement.disabled = false;
+                Swal.fire({ title: 'Estado actualizado', text: `${personalNombre} ahora ${data.activo ? 'esta activo' : 'ya no esta activo'}`, icon: 'success', timer: 1800, showConfirmButton: false, confirmButtonColor: '#5d4037' });
+                return;
+            }
+
+            switchElement.checked = !isChecked;
+            switchElement.disabled = false;
+            Swal.fire({ title: 'Error', text: data.mensaje || 'Error al cambiar el estado', icon: 'error', confirmButtonColor: '#5d4037' });
+        })
+        .catch(() => {
+            switchElement.checked = !isChecked;
+            switchElement.disabled = false;
+            Swal.fire({ title: 'Error de conexion', text: 'No se pudo cambiar el estado. Intenta nuevamente.', icon: 'error', confirmButtonColor: '#5d4037' });
+        });
+}
+
+document.addEventListener('change', function (e) {
+    if (!e.target.classList.contains('toggle-activo-checkbox')) return;
+    actualizarEstadoPersonal(e.target);
+});
+
+document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    cerrarModalPersonal();
+    cerrarModalEditarPersonal();
+    cerrarModalDetallePersonal();
+});
 </script>
 {% endblock %}

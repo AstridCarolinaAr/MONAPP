@@ -11,13 +11,13 @@ from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
 from clientes.models import Cliente
-from servicios.models import Servicio
+from servicios_web.models import ServicioWeb
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
 
 
 def index(request):
-    show_login_modal = False
+    show_login_modal = request.GET.get('login') == '1' or bool(request.GET.get('next'))
 
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -25,7 +25,7 @@ def index(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('core:dashboard')
+            return redirect(request.POST.get('next') or 'core:dashboard')
 
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True

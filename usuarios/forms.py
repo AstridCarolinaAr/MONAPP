@@ -87,7 +87,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Nombre',
-            'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+',
             'title': 'Solo se permiten letras y espacios'
         })
     )
@@ -99,7 +99,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Apellido',
-            'pattern': r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+',
             'title': 'Solo se permiten letras y espacios'
         })
     )
@@ -234,8 +234,7 @@ class RegistroForm(UserCreationForm):
 
         return user
 
-
-class EditarUsuarioForm(forms.ModelForm):
+class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
 
     ROL_CHOICES = [
         ('Administrador', 'Administrador'),

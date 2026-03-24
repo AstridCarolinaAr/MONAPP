@@ -2,10 +2,11 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
+from core.form_validations import ValidationFormMixin
 from .models import Personal
 
 
-class PersonalForm(forms.ModelForm):
+class PersonalForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Personal
         fields = ['numero_documento', 'nombres', 'apellidos', 'telefono', 'correo', 'rol', 'activo']
@@ -81,7 +82,7 @@ class PersonalForm(forms.ModelForm):
         return telefono
 
 
-class PersonalBusquedaForm(forms.Form):
+class PersonalBusquedaForm(ValidationFormMixin, forms.Form):
     busqueda = forms.CharField(
         required=False,
         label='Buscar por ID, documento, nombres o contacto',

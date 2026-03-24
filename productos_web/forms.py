@@ -1,10 +1,11 @@
 import re
 from decimal import Decimal
 from django import forms
+from core.form_validations import ValidationFormMixin
 from .models import ProductoWeb
 
 
-class ProductoWebForm(forms.ModelForm):
+class ProductoWebForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = ProductoWeb
         fields = ['nombre', 'precio', 'descripcion', 'imagen', 'visible']
@@ -14,11 +15,8 @@ class ProductoWebForm(forms.ModelForm):
                 'placeholder': 'Nombre del producto',
                 'maxlength': '200',
             }),
-            'precio': forms.NumberInput(attrs={
+            'precio': forms.TextInput(attrs={
                 'class': 'form-control',
-                'step': '1',
-                'min': '100',
-                'max': '99999999',
                 'placeholder': 'Ej: 25000',
             }),
             'descripcion': forms.Textarea(attrs={
@@ -106,3 +104,4 @@ class ProductoWebForm(forms.ModelForm):
                     'Formato no válido. Solo se permiten imágenes JPG, PNG, WEBP o GIF.'
                 )
         return imagen
+    

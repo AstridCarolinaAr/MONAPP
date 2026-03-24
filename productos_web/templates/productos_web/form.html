@@ -1,12 +1,7 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}{{ titulo }}{% endblock %}
-
-{% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{% url 'productos_web:lista' %}">Catálogo Web</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
-{% endblock %}
 
 {% block page_title %}
     <i class="bi bi-globe2"></i> {{ titulo }}
@@ -41,14 +36,14 @@
 }
 .pw-dropzone:hover,
 .pw-dropzone.dragover {
-    border-color: #382822;
+    border-color: #8d604a;
     background: linear-gradient(145deg, #fff, #f8f5f2);
     box-shadow: 0 6px 20px rgba(141,96,74,.15);
     transform: translateY(-2px);
 }
 .pw-dropzone i { 
     font-size: 3.5rem; 
-    color: #382822;
+    color: #8d604a;
     margin-bottom: 8px;
     display: block;
     animation: float 3s ease-in-out infinite;
@@ -423,6 +418,7 @@
                         {% else %}
                             <img class="pw-preview-img d-none" id="previewEditar" alt="preview">
                         {% endif %}
+                        <div class="pw-name-error" id="err_nombre_form"></div>
                     </div>
                 </div>
 
@@ -459,14 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fileInput && preview) {
         fileInput.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src = e.target.result;
-                    preview.classList.remove('d-none');
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
+            pwValidarImagen(this, errImagen, preview);
         });
     }
 
@@ -657,14 +646,14 @@ document.addEventListener('DOMContentLoaded', () => {
         nombreInput.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto = (e.clipboardData || window.clipboardData).getData('text');
-            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+            const limpio = texto.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
             document.execCommand('insertText', false, limpio);
         });
 
         nombreInput.addEventListener('input', function () {
             const pos = this.selectionStart;
             const original = this.value;
-            const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]/g, '');
+            const limpio = original.replace(/[^a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s\.\,\-\(\)]/g, '');
             if (limpio !== original) {
                 this.value = limpio;
                 this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));

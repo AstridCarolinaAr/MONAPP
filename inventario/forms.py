@@ -1,9 +1,10 @@
 from django import forms
 from .models import MovimientoInventario, DetalleMovimiento
 from django.forms import inlineformset_factory
+from core.form_validations import ValidationFormMixin
 
 
-class MovimientoInventarioForm(forms.ModelForm):
+class MovimientoInventarioForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = MovimientoInventario
         fields = [

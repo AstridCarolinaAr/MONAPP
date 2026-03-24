@@ -5,34 +5,44 @@ document.addEventListener('DOMContentLoaded', function () {
     initAlerts();
     initActiveLinks();
     initTooltips();
+    initIconSwapButtons();
     initAccessibility();
     initDashboardChart();
     initAjaxFilterForms();
     initSearchToggle();
+    initSmartFormValidation();
 
     console.log('Dashboard inicializado correctamente');
 });
 // ==================== SIDEBAR ====================
 function initSidebar() {
-    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarHandle = document.getElementById('sidebar-handle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
 
-    if (!sidebar || !mainContent || !sidebarToggle) return;
+    if (!sidebar || !mainContent) return;
 
-    sidebarToggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-
+    function toggleSidebar() {
         if (window.innerWidth <= 991) {
             sidebar.classList.toggle('active');
-        } else {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            document.body.classList.toggle('sidebar-mobile-open', sidebar.classList.contains('active'));
+            return;
         }
-    });
+
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+
+    if (sidebarHandle) {
+        sidebarHandle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
 
     // ── Conectar el handle (flecha lateral) ──
     if (handle) {
@@ -68,9 +78,10 @@ function initSidebar() {
     document.addEventListener('click', function (e) {
         if (window.innerWidth > 991) return;
         if (!sidebar.classList.contains('active')) return;
-        if (sidebar.contains(e.target) || sidebarToggle.contains(e.target)) return;
+        if (sidebar.contains(e.target) || (sidebarHandle && sidebarHandle.contains(e.target))) return;
 
         sidebar.classList.remove('active');
+        document.body.classList.remove('sidebar-mobile-open');
     });
 }
 

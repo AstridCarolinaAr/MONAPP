@@ -1,7 +1,8 @@
 from django import forms
+from core.form_validations import ValidationFormMixin
 from .models import Servicio
 
-class ServicioForm(forms.ModelForm):
+class ServicioForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Servicio
         fields = ['nombre', 'precio', 'descripcion', 'imagen', 'video', 'activo']
@@ -29,12 +30,6 @@ class ServicioForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'video/*'
             }),
-            'activo': forms.Select(attrs={
-                'class': 'form-select'
-            }, choices=[
-                (True, 'Activo'),
-                (False, 'Inactivo')
-            ]),
         }
         labels = {
             'nombre': 'Nombre del Servicio',
