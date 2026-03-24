@@ -43,16 +43,20 @@ input:disabled {
 
 .btn-pill-dark {
   display: inline-flex;
-  padding: 3px 5px;
-  border-radius: 995px;
-  background: linear-gradient(90deg, #3a2a24, #4b2f2a);
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  min-height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3a2a24 0%, #1f1412 100%);
+  border: 1px solid #2a1d18;
   color: #fff !important;
   text-decoration: none !important;
   font-weight: 700;
-  box-shadow: 0 3px 15px rgba(117, 36, 36, 0.18);
-  border: 0;
-  transition: .2s ease;
-  font-size: 12px
+  box-shadow: 0 6px 16px rgba(31, 20, 18, 0.28);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+  font-size: 0.95rem;
 }
 
 .btn-guardar-venta {

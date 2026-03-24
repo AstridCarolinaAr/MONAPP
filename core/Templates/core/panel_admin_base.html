@@ -4,6 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Panel{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'notificaciones/notificaciones.css' %}">
 
@@ -14,7 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- CSS BASE DEL PANEL -->
-    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=4.2">
+    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=4.3">
 
     <!-- SweetAlert2 (mantengo el que ya tenías) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -129,7 +130,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'compras:lista_compras' %}">
                         <i class="bi bi-gear"></i>
-                        <span>compras</span>
+                        <span>Compras</span>
                     </a>
                 </li>
 
@@ -194,6 +195,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:ayuda' %}">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Ayuda</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link text-danger" href="{% url 'usuarios:logout' %}">
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Cerrar Sesión</span>
@@ -204,7 +212,7 @@
         </nav>
     </div>
 
-    <!-- ================= MODAL ACCIÓN NO PERMITIDA (UNA SOLA VEZ) ================= -->
+    <!-- ================= MODAL ACCIÓN NO PERMITIDA  ================= -->
     <div class="modal fade" id="modalAccionNoPermitida" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0">
@@ -233,6 +241,10 @@
             </div>
         </div>
     </div>
+
+    <button type="button" class="sidebar-handle" id="sidebar-handle" aria-label="Contraer o expandir menu lateral">
+        <i class="bi bi-chevron-left"></i>
+    </button>
 
     <!-- ================= CONTENIDO PRINCIPAL ================= -->
     <div class="main-content" id="main-content">
@@ -330,7 +342,37 @@
 
     <!-- BOOTSTRAP JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'core/js/panel_admin_base.js' %}?v=6.1"></script>
+    <script src="{% static 'core/js/panel_admin_base.js' %}?v=6.2"></script>
+    <script>
+        (function initSidebarFallback() {
+            document.addEventListener('DOMContentLoaded', function () {
+                const sidebar = document.getElementById('sidebar');
+                const handle = document.getElementById('sidebar-handle');
+                const main = document.getElementById('main-content');
+                if (!sidebar || !handle || !main) return;
+
+                if (handle.dataset.boundSidebarFallback === 'true') return;
+                handle.dataset.boundSidebarFallback = 'true';
+
+                handle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (window.innerWidth <= 991) {
+                        sidebar.classList.toggle('active');
+                        document.body.classList.toggle('sidebar-mobile-open', sidebar.classList.contains('active'));
+                        return;
+                    }
+
+                    sidebar.classList.toggle('collapsed');
+                    main.classList.toggle('expanded');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+                    localStorage.setItem('sidebarCollapsed', isCollapsed ? 'true' : 'false');
+                });
+            });
+        })();
+    </script>
            <script src="{% static 'core/js/sienna.js' %}" defer></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {

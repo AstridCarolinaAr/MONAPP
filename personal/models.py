@@ -5,6 +5,7 @@ class Personal(models.Model):
         ("Administrador", "Administrador"),
         ("Auxiliar", "Auxiliar"),
         ("Colaborador", "Colaborador"),
+        ("Estilista", "Estilista"),
     ]
 
     tipo_documento = models.CharField(max_length=30, blank=True, null=True)

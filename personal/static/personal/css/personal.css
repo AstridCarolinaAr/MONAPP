@@ -7,7 +7,7 @@
     line-height: 1.6;
     background: #ffffff;
     min-height: 100vh;
-    padding-top: 40px;
+    padding-top: 14px;
     padding-bottom: 80px;
 }
 
@@ -23,8 +23,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 60px;
-    padding-bottom: 30px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 1px solid rgba(17, 17, 17, 0.1);
 }
 
@@ -398,6 +398,76 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     border: 1.5px solid rgba(17, 17, 17, 0.1);
     border-radius: 24px;
     overflow: hidden;
+}
+
+.personal-table-card .styled-table {
+    width: 100%;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+.personal-table-card {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.personal-col-id { width: 6%; }
+.personal-col-documento { width: 12%; }
+.personal-col-nombres { width: 18%; }
+.personal-col-telefono { width: 11%; }
+.personal-col-correo { width: 19%; }
+.personal-col-rol { width: 10%; }
+.personal-col-estado { width: 8%; }
+.personal-col-fecha { width: 11%; }
+.personal-col-acciones { width: 5%; }
+
+.personal-table-card .styled-table thead th {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.personal-table-card .styled-table tbody td {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    color: #43342d;
+}
+
+.personal-table-card .styled-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.personal-cell-id,
+.personal-cell-documento,
+.personal-cell-fecha {
+    white-space: nowrap;
+}
+
+.personal-cell-correo,
+.personal-cell-nombres {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.personal-table-card .table-responsive,
+.personal-table-card.table-responsive {
+    width: 100%;
+    max-width: 100%;
+}
+
+.personal-cell-acciones .table-action-group {
+    min-width: 132px;
+}
+
+.personal-link-compact {
+    color: #4b2f2a;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.personal-link-compact:hover {
+    color: #35231e;
 }
 
 .personal-table {

@@ -31,54 +31,89 @@
                 </td>
                 <td class="text-end">
                     <div class="table-action-group ms-auto">
-                        <a href="{% url 'clientes:editar' cliente.id %}"
-                           class="btn btn-link"
-                           title="Editar"
-                           data-bs-placement="bottom">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-
-                        <button class="btn btn-link"
+                        <button type="button"
+                                class="table-action-btn"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalDetalleCliente{{ cliente.id }}"
                                 title="Ver detalles"
-                                data-bs-placement="bottom">
+                                aria-label="Ver detalles de {{ cliente.nombre }} {{ cliente.apellido }}">
                             <i class="bi bi-eye"></i>
+                        </button>
+
+                        <button type="button"
+                                class="table-action-btn btn-editar-cliente"
+                                data-url="{% url 'clientes:editar' cliente.id %}"
+                                title="Editar"
+                                aria-label="Editar cliente {{ cliente.nombre }} {{ cliente.apellido }}">
+                            <i class="bi bi-pencil-square"></i>
                         </button>
                     </div>
 
-                    <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
+                    <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content shadow-lg border-0 cliente-detail-modal">
+                                <div class="modal-header cliente-detail-header">
                                     <h5 class="modal-title">
                                         <i class="bi bi-person-badge me-2"></i>
-                                        Detalles del cliente
+                                        Detalle de cliente
                                     </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                 </div>
 
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-6"><strong>Código:</strong><br>{{ cliente.codigo_cliente }}</div>
-                                        <div class="col-md-6"><strong>Estado:</strong><br>{{ cliente.estado|capfirst }}</div>
-                                        <div class="col-md-6"><strong>Tipo documento:</strong><br>{{ cliente.tipo_documento }}</div>
-                                        <div class="col-md-6"><strong>Número documento:</strong><br>{{ cliente.numero_documento }}</div>
-                                        <div class="col-md-6"><strong>Nombre:</strong><br>{{ cliente.nombre }}</div>
-                                        <div class="col-md-6"><strong>Apellido:</strong><br>{{ cliente.apellido }}</div>
-                                        <div class="col-md-6"><strong>Fecha nacimiento:</strong><br>{{ cliente.fecha_nacimiento }}</div>
-                                        <div class="col-md-6"><strong>Teléfono:</strong><br>{{ cliente.telefono|default:"—" }}</div>
-                                        <div class="col-12"><strong>Correo:</strong><br>{{ cliente.correo|default:"—" }}</div>
+                                <div class="modal-body cliente-detail-body">
+                                    <div class="row g-4 align-items-start">
+                                        <div class="col-lg-2 col-md-3">
+                                            <div class="cliente-visual-card">
+                                                <div class="cliente-visual-icon-wrap">
+                                                    <div class="cliente-visual-icon-bg">
+                                                        <i class="bi bi-person-circle cliente-visual-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="cliente-visual-mini">
+                                                    <span class="cliente-mini-label">Cliente</span>
+                                                    <span class="cliente-mini-badge">{{ cliente.nombre|first|upper }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-10 col-md-9">
+                                            <div class="cliente-detail-main">
+                                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                                                    <div>
+                                                        <h2 class="cliente-detail-title mb-1">{{ cliente.nombre }} {{ cliente.apellido }}</h2>
+                                                        <div class="cliente-detail-subtitle">Información general del cliente</div>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge cliente-estado-badge {% if cliente.estado == 'activo' %}is-activo{% else %}is-inactivo{% endif %}">
+                                                            {{ cliente.estado|capfirst }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row g-3 cliente-info-grid">
+                                                    <div class="col-md-6"><div class="cliente-info-item"><span class="cliente-info-label">Código</span><span class="cliente-info-value">{{ cliente.codigo_cliente }}</span></div></div>
+                                                    <div class="col-md-6"><div class="cliente-info-item"><span class="cliente-info-label">Estado</span><span class="cliente-info-value">{{ cliente.estado|capfirst }}</span></div></div>
+                                                    <div class="col-md-6"><div class="cliente-info-item"><span class="cliente-info-label">Tipo documento</span><span class="cliente-info-value">{{ cliente.tipo_documento }}</span></div></div>
+                                                    <div class="col-md-6"><div class="cliente-info-item"><span class="cliente-info-label">Número documento</span><span class="cliente-info-value">{{ cliente.numero_documento }}</span></div></div>
+                                                    <div class="col-md-6"><div class="cliente-info-item"><span class="cliente-info-label">Teléfono</span><span class="cliente-info-value">{{ cliente.telefono|default:"—" }}</span></div></div>
+                                                    <div class="col-md-6"><div class="cliente-info-item"><span class="cliente-info-label">Fecha nacimiento</span><span class="cliente-info-value">{{ cliente.fecha_nacimiento }}</span></div></div>
+                                                    <div class="col-12"><div class="cliente-info-item"><span class="cliente-info-label">Correo</span><span class="cliente-info-value">{{ cliente.correo|default:"—" }}</span></div></div>
+                                                </div>
+
+                                                <div class="cliente-detail-section mt-4">
+                                                    <h6 class="cliente-section-title">Resumen</h6>
+                                                    <p class="cliente-section-text mb-0">
+                                                        Este cliente se encuentra registrado en MONAAPP con su información de contacto disponible para atención y gestión administrativa.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="modal-footer">
-                                    <a href="{% url 'clientes:editar' cliente.id %}" class="btn-pill-dark">
-                                        <i class="bi bi-pencil-square me-1"></i> Editar cliente
-                                    </a>
-                                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                        Cerrar
-                                    </button>
+                                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>
                         </div>

@@ -109,30 +109,10 @@
 
     <hr style="border: none; height: 1px; background: rgba(17,17,17,0.08); margin: 20px 0;">
 
-    <!-- Botones -->
-    <div style="display: flex; gap: 12px;">
-        {% if puede_modificar %}
-        <button type="button"
-                class="btn"
-                style="flex: 1; background-color: #4b2f2a; color: #ffffff; border: none;"
-                onmouseover="this.style.backgroundColor='#3a2117'"
-                onmouseout="this.style.backgroundColor='#4b2f2a'"
-                onclick="cerrarModalDetalleUsuario(); abrirModalEditarUsuario({{ usuario.id }});">
-            <i class="bi bi-pencil-square me-1"></i> Editar
-        </button>
-        {% endif %}
-        {% if es_administrador %}
-        <button type="button"
-                class="btn btn-danger"
-                style="flex: 1;"
-                onclick="cerrarModalDetalleUsuario(); abrirModalEliminarUsuario({{ usuario.id }});">
-            <i class="bi bi-trash-fill me-1"></i> Eliminar
-        </button>
-        {% endif %}
-        {% if not puede_modificar and not es_administrador %}
-        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="cerrarModalDetalleUsuario()">
+    <!-- Botón único de cierre -->
+    <div style="display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModalDetalleUsuario()">
             <i class="bi bi-x-lg me-1"></i> Cerrar
         </button>
-        {% endif %}
     </div>
 </div>

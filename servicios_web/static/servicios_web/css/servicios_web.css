@@ -726,3 +726,98 @@ body.sw-enter-ready .sw-enter.is-visible {
         transition: none !important;
     }
 }
+
+/* =========================
+   RESPONSIVE LAYOUT
+========================= */
+@media (max-width: 1200px) {
+    .services-view[data-view="grid-4"] .services-grid,
+    .services-view[data-view="grid-3"] .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 991.98px) {
+    .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .sq-card {
+        height: 340px;
+    }
+
+    .services-view[data-view="grid-4"] .services-grid,
+    .services-view[data-view="grid-3"] .services-grid,
+    .services-view[data-view="grid-2"] .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sw-search-bar {
+        max-width: 100%;
+    }
+
+    .sw-search-shell.is-open {
+        width: min(100%, 420px);
+    }
+
+    .services-table-wrapper .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .services-table-wrapper .table-dashboard {
+        min-width: 760px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .services-view[data-view="grid-4"] .services-grid,
+    .services-view[data-view="grid-3"] .services-grid,
+    .services-view[data-view="grid-2"] .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sq-card {
+        height: 320px;
+    }
+
+    .actions-overlay {
+        opacity: 1;
+        top: 8px;
+        right: 8px;
+    }
+
+    .btn-action {
+        width: 42px;
+        height: 42px;
+    }
+
+    .sw-search-shell,
+    .sw-search-shell.is-open {
+        width: 100%;
+    }
+
+    .sw-view-controls {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .sw-view-btn.icon-text-hover-btn {
+        min-width: 40px !important;
+    }
+
+    .sw-preview-container {
+        max-width: 100%;
+    }
+
+    #modalPreviewMedia .modal-dialog {
+        max-width: calc(100vw - 16px);
+        margin: 8px auto;
+    }
+}

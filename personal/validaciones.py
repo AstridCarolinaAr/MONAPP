@@ -66,7 +66,7 @@ def validar_datos_personal(data, personal_id=None):
     # ===============================
     # VALIDACIÓN ROL
     # ===============================
-    ROLES_VALIDOS = ['Administrador', 'Auxiliar', 'Colaborador']
+    ROLES_VALIDOS = ['Administrador', 'Auxiliar', 'Colaborador', 'Estilista']
     
     if not rol:
         errores['rol'] = 'El rol es obligatorio.'

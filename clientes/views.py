@@ -93,12 +93,18 @@ def validar_cliente_ajax(request):
 
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
         datos = request.POST
         errores = validar_datos_cliente(datos, cliente_id=cliente.id)
 
         if errores:
+            if es_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'errores': errores
+                }, status=400)
             messages.error(request, 'No se pudieron guardar los cambios.')
             return render(request, 'clientes/editar_cliente.html', {
                 'cliente': cliente,
@@ -116,8 +122,22 @@ def editar_cliente(request, cliente_id):
         cliente.estado = datos['estado']
         cliente.save()
 
+        if es_ajax:
+            return JsonResponse({'success': True}, status=200)
         messages.success(request, 'Cliente actualizado correctamente.')
         return redirect('clientes:lista')
+
+    if es_ajax:
+        return JsonResponse({
+            'tipo_documento': cliente.tipo_documento,
+            'numero_documento': cliente.numero_documento,
+            'nombre': cliente.nombre,
+            'apellido': cliente.apellido,
+            'fecha_nacimiento': cliente.fecha_nacimiento.isoformat() if cliente.fecha_nacimiento else '',
+            'telefono': cliente.telefono or '',
+            'correo': cliente.correo or '',
+            'estado': cliente.estado,
+        })
 
     return render(request, 'clientes/editar_cliente.html', {
         'cliente': cliente

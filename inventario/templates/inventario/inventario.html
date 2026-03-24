@@ -23,6 +23,11 @@
             <h3 class="mb-0 fw-semibold">Inventario de Productos</h3>
             <small class="text-muted">Stock actual y estados de almacén</small>
         </div>
+        <a class="btn btn-sm btn-pill-dark"
+           href="{% url 'inventario:reporte_stock_csv' %}?q={{ q|urlencode }}&estado_stock={{ estado_stock|urlencode }}"
+           aria-label="Descargar reporte de stock en CSV">
+            <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i> Reporte stock
+        </a>
     </div>
         <div class="module-filters-card">
             <form method="get" class="module-filters-form" style="width: 100%;">

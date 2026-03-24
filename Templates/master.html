@@ -28,11 +28,10 @@
     </div>
     <nav class="nav nav-glass">
         <a href="#inicio" class="nav-item">Inicio</a>
-        <a href="#nostros" class="nav-item">Nosotros</a>
+        <a href="#nosotros" class="nav-item">Nosotros</a>
         <a href="#promociones" class="nav-item">Promociones</a>
-        <a href="#productos" class="nav-item">Servicios</a>
-        <a href="#contactenos" class="nav-item">Productos</a>
-        <a href="#cta" class="nav-item">Contactenos</a>
+        <a href="#productos" class="nav-item">Productos</a>
+        <a href="#contactenos" class="nav-item">Contáctenos</a>
     </nav>
     <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal">
         Iniciar sesión
@@ -69,7 +68,7 @@
 
             <div class="modal-body p-0">
                 <div class="card-body">
-                    <h2 class="login-title">INICIAR SESION</h2>
+                    <h2 class="login-title">Iniciar sesión</h2>
 
                     {% if messages %}
                     <div class="messages-container">
@@ -103,11 +102,11 @@
                         {% endif %}
                         <div class="login-form-wrapper">
                             <div class="field-group">
-                                <label class="field-label">USUARIO</label>
+                                <label class="field-label">Usuario</label>
                                 <input type="text" name="username" class="field-input" placeholder="Usuario o documento" required autofocus>
                             </div>
                             <div class="field-group">
-                                <label class="field-label">CONTRASENA</label>
+                                <label class="field-label">Contraseña</label>
                                 <div class="password-wrapper">
                                     <input type="password" id="password" name="password" class="field-input"
                                     placeholder="Contraseña" required>
@@ -170,7 +169,7 @@
         <div class="footer-links">
             <a href="#">Política de privacidad</a>
             <a href="#">Términos de uso</a>
-            <a href="#">Contacto</a>
+            <a href="{% url 'core:ayuda' %}">Ayuda y referencias</a>
         </div>
     </div>
 </footer>

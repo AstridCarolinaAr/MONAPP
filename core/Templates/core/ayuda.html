@@ -1,0 +1,75 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Manual de usuario{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Manual de usuario</li>
+{% endblock %}
+
+{% block page_icon %}<i class="bi bi-journal-richtext page-icon"></i>{% endblock %}
+{% block page_title %}Manual de usuario MONAPP{% endblock %}
+{% block page_subtitle %}Guía rápida con los pasos más usados del sistema{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/ayuda.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <section class="help-shell">
+    <header class="help-hero">
+      <div>
+        <h4>Manual de usuario</h4>
+        <p>Consulta los pasos clave y descarga el documento en PDF.</p>
+      </div>
+      <a href="{% url 'core:ayuda_pdf' %}" class="help-download">
+        <i class="bi bi-file-earmark-arrow-down-fill" aria-hidden="true"></i>
+        Descargar PDF
+      </a>
+    </header>
+
+    <main class="help-grid">
+      <article class="help-card">
+        <div class="help-card-head">
+          <h5>Cómo iniciar sesión</h5>
+        </div>
+        <div class="help-card-body">
+          <ol>
+            <li>En la página principal, haz clic en <strong>Iniciar sesión</strong>.</li>
+            <li>Escribe tu usuario y contraseña.</li>
+            <li>Pulsa <strong>Entrar</strong> para acceder al panel.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="help-card">
+        <div class="help-card-head">
+          <h5>Cómo registrar un usuario</h5>
+        </div>
+        <div class="help-card-body">
+          <ol>
+            <li>Ingresa al módulo <strong>Usuarios</strong>.</li>
+            <li>Haz clic en <strong>Nuevo usuario</strong>.</li>
+            <li>Completa los campos obligatorios y guarda.</li>
+            <li>Asigna el rol correspondiente.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="help-card">
+        <div class="help-card-head">
+          <h5>Cómo usar productos</h5>
+        </div>
+        <div class="help-card-body">
+          <ol>
+            <li>Abre el módulo <strong>Productos</strong> desde el menú lateral.</li>
+            <li>Usa el buscador para localizar productos existentes.</li>
+            <li>Crea, edita o activa/inactiva productos según necesidad.</li>
+            <li>Verifica el mensaje de confirmación al guardar.</li>
+          </ol>
+        </div>
+      </article>
+    </main>
+  </section>
+</div>
+{% endblock %}

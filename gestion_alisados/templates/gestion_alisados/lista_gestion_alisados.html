@@ -140,20 +140,23 @@
     }
     
     .btn-pill-dark {
-        background-color: #3a2a24;
+        background: linear-gradient(135deg, #3a2a24 0%, #1f1412 100%);
         color: #fff;
-        border: 0;
-        border-radius: 25px;
-        padding: 8px 20px;
-        font-weight: 600;
-        font-size: 14px;
+        border: 1px solid #2a1d18;
+        border-radius: 10px;
+        padding: 8px 14px;
+        min-height: 38px;
+        font-weight: 700;
+        font-size: .95rem;
         cursor: pointer;
-        transition: 0.3s;
+        box-shadow: 0 6px 16px rgba(31, 20, 18, 0.28);
+        transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
     }
     
     .btn-pill-dark:hover {
-        background-color: #1f1412;
+        background: linear-gradient(135deg, #4a352f 0%, #2b1d19 100%);
         color: #fff;
+        box-shadow: 0 9px 18px rgba(31, 20, 18, 0.3);
     }
     
     /* Estilos para botones del modal (similar a personal.css) */

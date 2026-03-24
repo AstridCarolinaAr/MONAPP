@@ -40,6 +40,7 @@ class RegistroForm(UserCreationForm):
         ('Administrador', 'Administrador'),
         ('Auxiliar', 'Auxiliar'),
         ('Colaborador', 'Colaborador'),
+        ('Estilista', 'Estilista'),
     ]
 
     rol = forms.ChoiceField(
@@ -241,6 +242,7 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
         ('Administrador', 'Administrador'),
         ('Auxiliar', 'Auxiliar'),
         ('Colaborador', 'Colaborador'),
+        ('Estilista', 'Estilista'),
     ]
 
     rol = forms.ChoiceField(
@@ -397,6 +399,7 @@ class UsuarioBusquedaForm(forms.Form):
             ('rol_Administrador', 'Administrador'),
             ('rol_Auxiliar', 'Auxiliar'),
             ('rol_Colaborador', 'Colaborador'),
+            ('rol_Estilista', 'Estilista'),
         ],
         widget=forms.Select(attrs={
             'class': 'usuarios-form-control',

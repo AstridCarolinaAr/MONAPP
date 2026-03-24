@@ -7,11 +7,14 @@
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Promociones</li>
 {% endblock %}
-
-{% block page_title %}
-    <i class="bi bi-percent"></i> Gestión de Promociones
+{% block page_icon %}<i class="bi bi-percent page-icon"></i>{% endblock %}
+{% block page_title %}Gestion de Promociones{% endblock %}
+{% block page_subtitle %}Promociones activas y configuracion comercial{% endblock %}
+{% block page_actions %}
+<button class="btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+    <i class="bi bi-plus-lg me-1"></i> Nueva promocion
+</button>
 {% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'promociones/css/promociones.css' %}?v=1">
 {% endblock %}
@@ -19,14 +22,8 @@
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
-        </div>
-        <button class="promo-fab btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-            <i class="bi bi-plus-lg me-1"></i> Nueva promoción
-        </button>
+    <div class="mb-4">
+        <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
     </div>
 
     <!-- ───── FILTROS ───── -->

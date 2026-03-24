@@ -93,21 +93,9 @@
 
     <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 20px 0;">
 
-    <div style="display: flex; gap: 12px;">
-        {% if puede_modificar %}
-        <button type="button" class="personal-btn warning" style="flex: 1;" onclick="cerrarModalDetallePersonal(); abrirModalEditarPersonal({{ personal.id }});" title="Editar" data-bs-placement="bottom">
-            <i class="bi bi-pencil-square" style="font-size: 24px;"></i> Editar
-        </button>
-        {% endif %}
-        {% if es_administrador %}
-        <button type="button" class="personal-btn" style="flex: 1; background: #d4a574; border-color: #d4a574; color: white;" onclick="cerrarModalDetallePersonal(); abrirModalEliminarPersonal({{ personal.id }});" title="Eliminar" data-bs-placement="bottom">
-            <i class="bi bi-trash3" style="font-size: 24px;"></i> Eliminar
-        </button>
-        {% endif %}
-        {% if not puede_modificar and not es_administrador %}
-        <button type="button" class="personal-btn secondary" style="flex: 1;" onclick="cerrarModalDetallePersonal()">
+    <div style="display: flex; justify-content: flex-end;">
+        <button type="button" class="personal-btn secondary" onclick="cerrarModalDetallePersonal()">
             <i class="fas fa-times"></i> Cerrar
         </button>
-        {% endif %}
     </div>
 </div>

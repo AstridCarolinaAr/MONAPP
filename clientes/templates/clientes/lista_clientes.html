@@ -87,6 +87,45 @@
 .modal .form-select.is-invalid:focus{
   box-shadow:0 0 0 .2rem rgba(220,53,69,.15)!important;
 }
+
+.cliente-detail-modal{border-radius:18px;overflow:hidden;}
+.cliente-detail-header{
+  background:linear-gradient(135deg,#3a0d06 0%,#4a1d13 55%,#7a4f3b 100%);
+  border:none;padding:16px 24px;color:#fff;
+}
+.cliente-detail-header .modal-title{font-weight:700;letter-spacing:.2px;}
+.cliente-detail-header .btn-close{filter:invert(1);opacity:.95;}
+.cliente-detail-body{padding:24px 24px 10px;}
+.cliente-visual-card{
+  background:#f5efeb;border:1px solid #e2d2c6;border-radius:16px;padding:16px 12px;text-align:center;
+}
+.cliente-visual-icon-wrap{display:flex;justify-content:center;margin-bottom:10px;}
+.cliente-visual-icon-bg{
+  width:92px;height:92px;border:1px solid #d8c2b2;border-radius:24px;
+  display:flex;align-items:center;justify-content:center;background:#efe7e2;
+}
+.cliente-visual-icon{font-size:2rem;color:#7b4b32;}
+.cliente-visual-mini{margin-top:10px;}
+.cliente-mini-label{display:block;font-size:.95rem;color:#7a5a47;margin-bottom:8px;}
+.cliente-mini-badge{
+  display:inline-flex;width:48px;height:48px;border-radius:999px;background:#3f2a20;color:#fff;
+  align-items:center;justify-content:center;font-weight:700;font-size:1.05rem;
+}
+.cliente-detail-title{font-size:2rem;font-weight:800;color:#2a1d1a;line-height:1.1;}
+.cliente-detail-subtitle{font-size:1.1rem;color:#8a654f;border-bottom:1px solid #ddcec3;padding-bottom:8px;}
+.cliente-info-item{padding-right:10px;}
+.cliente-info-label{
+  display:block;font-weight:700;color:#6f3f28;font-size:1rem;margin-bottom:3px;
+}
+.cliente-info-value{display:block;color:#2d2320;font-size:1.2rem;}
+.cliente-estado-badge{
+  border-radius:999px;padding:.45rem .95rem;font-size:1rem;font-weight:700;
+}
+.cliente-estado-badge.is-activo{background:#cfe6d5;color:#1c7a3c;}
+.cliente-estado-badge.is-inactivo{background:#e2e3e5;color:#5d6267;}
+.cliente-detail-section{border-top:1px solid #ddcec3;padding-top:12px;}
+.cliente-section-title{font-size:1.35rem;font-weight:800;color:#2a1d1a;}
+.cliente-section-text{color:#5f5460;font-size:1.05rem;line-height:1.55;}
 </style>
 {% endblock %}
 
@@ -319,9 +358,6 @@
           </div>
         </div>
         <div class="modal-footer">
-          <a href="{% url 'clientes:editar' cliente.id %}" class="btn-pill-dark">
-            <i class="bi bi-pencil-square me-1"></i> Editar cliente
-          </a>
           <button class="btn-modal-cancel" data-bs-dismiss="modal">Cerrar</button>
         </div>
       </div>

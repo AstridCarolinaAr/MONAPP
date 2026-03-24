@@ -470,3 +470,81 @@
     transform: rotate(90deg) scale(1.08);
     opacity: 1;
 }
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 1199.98px) {
+    .ultra-modal .modal-dialog {
+        max-width: 96vw;
+        margin: 1rem auto;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .proveedor-form {
+        max-width: 100%;
+    }
+
+    .proveedor-card {
+        padding: 14px;
+    }
+
+    .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-grid .full {
+        grid-column: span 2;
+    }
+
+    .ultra-modal .modal-body {
+        padding: 16px !important;
+    }
+
+    .proveedor-actions {
+        margin-top: 16px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .form-grid .full {
+        grid-column: span 1;
+    }
+
+    .proveedor-actions {
+        justify-content: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .proveedor-actions .btn-guardar,
+    .proveedor-actions .btn-cancelar {
+        width: 100%;
+        text-align: center;
+    }
+
+    .ultra-modal .modal-dialog {
+        max-width: calc(100vw - 12px);
+        margin: 6px auto;
+    }
+
+    .ultra-modal .ultra-header {
+        padding: 14px 14px;
+        min-height: 60px;
+    }
+
+    .ultra-modal .modal-body {
+        padding: 12px !important;
+    }
+}

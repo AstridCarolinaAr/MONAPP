@@ -5,6 +5,14 @@
 {% block page_icon %}<i class="bi bi-shield-lock page-icon"></i>{% endblock %}
 {% block page_title %}Respaldo de Base de Datos{% endblock %}
 {% block page_subtitle %}Control y monitoreo de copias de seguridad del sistema{% endblock %}
+{% block page_actions %}
+<a href="{% url 'backup:configuracion' %}" class="btn-pill-dark" style="background:#fff;color:#5e4034;border:1px solid rgba(94,64,52,.2);">
+    <i class="bi bi-gear"></i> Configuracion
+</a>
+<button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalCrearBackup">
+    <i class="bi bi-plus-circle"></i> Nuevo Backup
+</button>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'backup/css/backup.css' %}">
@@ -12,18 +20,6 @@
 
 {% block content %}
 <div class="bk-wrapper">
-
-    <!-- ==================== HEADER ==================== -->
-    <div class="bk-header-actions justify-content-end mb-4 anim-from-top" style="animation-delay:.12s;">
-        <div class="bk-header-actions">
-            <a href="{% url 'backup:configuracion' %}" class="bk-btn outline">
-                <i class="bi bi-gear"></i> Configuración
-            </a>
-            <button class="bk-btn primary" data-bs-toggle="modal" data-bs-target="#modalCrearBackup">
-                <i class="bi bi-plus-circle"></i> Nuevo Backup
-            </button>
-        </div>
-    </div>
 
     <!-- ==================== STATS ==================== -->
     <div class="bk-stats-row">

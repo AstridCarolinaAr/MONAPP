@@ -179,7 +179,7 @@ def validar_rol(rol):
     """
     errores = {}
     
-    ROLES_VALIDOS = ['Administrador', 'Auxiliar', 'Colaborador']
+    ROLES_VALIDOS = ['Administrador', 'Auxiliar', 'Colaborador', 'Estilista']
     
     if not rol:
         errores['rol'] = 'El rol es obligatorio.'
