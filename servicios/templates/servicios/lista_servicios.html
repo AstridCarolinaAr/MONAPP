@@ -7,7 +7,18 @@
 <li class="breadcrumb-item active" aria-current="page">Servicios</li>
 {% endblock %}
 
-{% block page_title %}{% endblock %}
+{% block page_icon %}<i class="bi bi-scissors page-icon"></i>{% endblock %}
+{% block page_title %}Servicios{% endblock %}
+{% block page_subtitle %}Gestion de servicios registrados{% endblock %}
+{% block page_actions %}
+<button
+    type="button"
+    class="btn-pill-dark"
+    data-bs-toggle="modal"
+    data-bs-target="#modalFormServicio">
+    Crear Nuevo Servicio
+</button>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
@@ -57,13 +68,6 @@
 
     <div class="lib-toolbar">
         <div class="lib-toolbar__left">
-            <button
-                type="button"
-                class="btn btn-sm btn-pill-dark"
-                data-bs-toggle="modal"
-                data-bs-target="#modalFormServicio">
-                Crear Nuevo Servicio
-            </button>
             <span class="lib-count" id="libCount"></span>
         </div>
 

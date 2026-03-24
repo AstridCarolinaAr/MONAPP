@@ -32,7 +32,7 @@
                     </span>
                 </td>
                 <td class="text-center">
-                    <div class="acciones-proveedor">
+                    <div class="acciones-proveedor table-action-group justify-content-center">
 
                         <button class="btn btn-link"
                                 data-bs-toggle="modal"
@@ -43,7 +43,6 @@
                                 data-estado="{{ proveedor.get_estado_display }}"
                                 data-telefono="{{ proveedor.telefono_proveedor }}"
                                 data-direccion="{{ proveedor.direccion_proveedor }}"
-                                style="color: #382822;"
                                 title="Ver detalles"
                                 data-bs-placement="bottom">
                             <i class="bi bi-eye"></i>
@@ -52,7 +51,6 @@
                         <button class="btn btn-link"
                                 data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
                                 data-modal-title="Editar proveedor"
-                                style="color: #382822;"
                                 title="Editar"
                                 data-bs-placement="bottom">
                             <i class="bi bi-pencil-square"></i>
@@ -61,7 +59,6 @@
                         {% if proveedor.estado == 'activo' %}
                             <button type="button"
                                     class="btn btn-link btn-action-round js-eliminar-proveedor"
-                                    style="color:#382822;"
                                     data-id="{{ proveedor.pk }}"
                                     data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
                                     data-url-eliminar="{% url 'proveedores:eliminar_proveedor' proveedor.pk %}"

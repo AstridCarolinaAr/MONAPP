@@ -43,22 +43,21 @@
     </div>
 
     <!-- ───── FILTROS + BÚSQUEDA (un solo form AJAX) ───── -->
-    <div class="usuarios-search-card">
+    <div class="module-filters-card usuarios-search-card">
         <form method="get"
               class="js-ajax-search-form usuarios-search-form"
               data-ajax-url="{% url 'usuarios:lista_usuarios' %}"
               data-ajax-target="#usuarios-tabla-wrap"
               data-ajax-debounce="300">
 
-            <!-- Filtro desplegable -->
+            <div class="usuarios-search-global-wrap">
+                <label class="usuarios-form-label">Buscar</label>
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar usuario...' search_value=q name='busqueda' modo='inline' %}
+            </div>
+
             <div class="usuarios-form-group mb-0">
                 <label class="usuarios-form-label">Filtrar por</label>
                 {{ form.filtro }}
-            </div>
-
-            <!-- Búsqueda global -->
-            <div class="usuarios-search-global-wrap">
-                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar usuario...' search_value=q name='busqueda' modo='inline' %}
             </div>
 
         </form>

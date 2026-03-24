@@ -34,15 +34,19 @@
 {% endblock %}
 
 {% block content %}
-<form method="get"
-      class="js-ajax-search-form sw-search-bar mb-3 sw-enter sw-enter-up sw-enter-delay-3"
-      id="swSearchBar"
-      data-ajax-url="{% url 'servicios_web:lista_servicios_web' %}"
-      data-ajax-target="#sw-resultados-wrap"
-      data-ajax-debounce="300">
-
-    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripción, precio o estado...' search_value=q name='q' modo='inline' %}
-</form>
+<div class="module-filters-card mb-3 sw-enter sw-enter-up sw-enter-delay-3">
+    <form method="get"
+          class="js-ajax-search-form module-filters-form"
+          id="swSearchBar"
+          data-ajax-url="{% url 'servicios_web:lista_servicios_web' %}"
+          data-ajax-target="#sw-resultados-wrap"
+          data-ajax-debounce="300">
+        <div class="module-filter-field module-filter-field--wide">
+            <label class="module-filter-label">Buscar</label>
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripción, precio o estado...' search_value=q name='q' modo='inline' %}
+        </div>
+    </form>
+</div>
 
 <!-- ── Vista (grid + tabla) — target AJAX ── -->
 <div id="sw-resultados-wrap">

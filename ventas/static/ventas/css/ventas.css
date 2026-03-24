@@ -84,6 +84,178 @@ input:disabled {
     cursor: not-allowed;
 }
 
+.ventas-filters-card {
+  margin: 8px 0 14px;
+  padding: 8px 12px;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.ventas-filters-form {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.ventas-filter-search {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ventas-filter-status {
+  flex: 0 0 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ventas-search-inline {
+  min-width: 0;
+}
+
+.ventas-search-inline .search-toggle-wrapper.busqueda-global--inline {
+  width: 100%;
+  min-width: 0;
+}
+
+.ventas-search-inline .search-toggle-box.is-open {
+  width: 100%;
+  max-width: 100%;
+}
+
+.ventas-search-inline .search-toggle-input {
+  width: 100%;
+  max-width: 100%;
+}
+
+.ventas-toolbar-select {
+  min-height: 36px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.ventas-toolbar-actions {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.ventas-filters-card .module-filter-label {
+  font-size: 0.8rem;
+}
+
+.ventas-filters-card .module-filter-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.ventas-search-inline .btn-search-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+.ventas-search-inline .search-toggle-box.is-open,
+.ventas-search-inline .search-toggle-input {
+  min-height: 36px;
+  height: 36px;
+}
+
+.ventas-table-card {
+  margin-top: 2px;
+  border-radius: 24px;
+  box-shadow: 0 12px 28px rgba(48, 29, 22, 0.10);
+}
+
+.ventas-table-card .styled-table {
+  table-layout: fixed;
+}
+
+.ventas-col-codigo {
+  width: 14%;
+}
+
+.ventas-col-cliente {
+  width: 14%;
+}
+
+.ventas-col-detalles {
+  width: 21%;
+}
+
+.ventas-col-fecha {
+  width: 16%;
+}
+
+.ventas-col-total {
+  width: 11%;
+}
+
+.ventas-col-estado {
+  width: 9%;
+}
+
+.ventas-col-acciones {
+  width: 15%;
+}
+
+.ventas-cell-codigo,
+.ventas-cell-fecha,
+.ventas-cell-total {
+  white-space: nowrap;
+}
+
+.ventas-cell-total {
+  color: #35231e;
+}
+
+.ventas-cell-detalles {
+  color: #4a3932;
+}
+
+.ventas-item-detalle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ventas-item-detalle + .ventas-item-detalle {
+  margin-top: 2px;
+}
+
+.ventas-item-cantidad {
+  margin-left: 4px;
+}
+
+.ventas-cell-acciones .table-action-group {
+  min-width: 132px;
+}
+
+.ventas-table-card .styled-table tbody td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.ventas-table-card .styled-table thead th {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.ventas-table-card .styled-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 
 /* =====================================================
    SWITCH ESTADO
@@ -195,60 +367,6 @@ input:disabled {
     box-shadow: none;
 }
 
-.btn-ver-detalle,
-.btn-editar {
-    color: #2c0909 !important;
-}
-/* Acciones de ventas heredando estilo visual base */
-td .btn-ver-detalle,
-td .btn-editar,
-td .btn-devolucion {
-    background: transparent;
-    border: none;
-    color: #2c0909 !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    transition: all 0.18s ease;
-    text-decoration: none !important;
-    padding: 0;
-    cursor: pointer;
-}
-
-td .btn-ver-detalle i,
-td .btn-editar i,
-td .btn-devolucion i {
-    font-size: 1.05rem;
-    color: inherit !important;
-    transition: all 0.18s ease;
-}
-
-/* Hover */
-td .btn-ver-detalle:hover,
-td .btn-editar:hover,
-td .btn-devolucion:hover {
-    background: rgba(138, 90, 68, 0.12);
-    color: #2c0909 !important;
-    transform: translateY(-1px);
-}
-
-/* Focus */
-td .btn-ver-detalle:focus,
-td .btn-editar:focus,
-td .btn-devolucion:focus {
-    outline: none;
-    box-shadow: 0 0 0 0.15rem rgba(138, 90, 68, 0.18);
-}
-
-/* Activo */
-td .btn-ver-detalle:active,
-td .btn-editar:active,
-td .btn-devolucion:active {
-    transform: scale(0.94);
-}
 .report-option {
   display: flex;
   align-items: center;
@@ -375,6 +493,32 @@ td .btn-devolucion:active {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .ventas-filters-form {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .ventas-table-card .styled-table {
+    table-layout: auto;
+  }
+
+  .ventas-filter-search,
+  .ventas-filter-status,
+  .ventas-toolbar-actions {
+    max-width: 100%;
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .ventas-toolbar-actions {
+    margin-left: 0;
+    justify-content: flex-start;
   }
 }
 /* ============================================================

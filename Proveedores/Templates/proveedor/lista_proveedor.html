@@ -29,9 +29,7 @@
 {% block content %}
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
-
 <div class="card-body">
-
     <div class="proveedores-header mb-4">
         <div class="proveedores-header-top">
             <div>
@@ -41,7 +39,6 @@
                     proveedor{{ proveedores|length|pluralize:"es" }}
                 </small>
             </div>
-
         </div>
 
         <div class="module-filters-card">
@@ -69,57 +66,63 @@
                 <div class="module-filter-field module-filter-field--medium">
                     <label class="module-filter-label">Filtrar</label>
                     <div class="dropdown proveedores-toolbar__filter">
-                <button class="btn btn-filter dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown">
-                    <i class="bi bi-funnel"></i>
+                        <button class="btn btn-filter dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown">
+                            <i class="bi bi-funnel"></i>
 
-                    {% if request.GET.orden == 'nombre' %}
-                        Nombre A–Z
-                    {% elif request.GET.orden == 'nombre_desc' %}
-                        Nombre Z–A
-                    {% else %}
-                        Filtrar
-                    {% endif %}
-                </button>
+                            {% if request.GET.orden == 'nombre' %}
+                                Nombre A–Z
+                            {% elif request.GET.orden == 'nombre_desc' %}
+                                Nombre Z–A
+                            {% else %}
+                                Filtrar
+                            {% endif %}
+                        </button>
 
-                <ul class="dropdown-menu shadow-sm">
-                    <li>
-                        <a class="dropdown-item"
-                           href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
-                            Nombre A–Z
-                        </a>
-                    </li>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li>
+                                <a class="dropdown-item"
+                                   href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                                    Nombre A–Z
+                                </a>
+                            </li>
 
-                    <li>
-                        <a class="dropdown-item"
-                           href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
-                            Nombre Z–A
-                        </a>
-                    </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
+                                    Nombre Z–A
+                                </a>
+                            </li>
 
-                    <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider"></li>
 
-                    <li class="px-3 pb-2">
-                        <a href="?estado=activo" class="btn btn-success w-100 mb-1">
-                            Activos
-                        </a>
-                        <a href="?estado=inactivo" class="btn btn-secondary w-100">
-                            Inactivos
-                        </a>
-                    </li>
+                            <li class="px-3 pb-2">
+                                <a href="?estado=activo" class="btn btn-success w-100 mb-1">
+                                    Activos
+                                </a>
+                                <a href="?estado=inactivo" class="btn btn-secondary w-100">
+                                    Inactivos
+                                </a>
+                            </li>
 
-                    <li>
-                        <a class="dropdown-item text-danger" href="?">
-                            Quitar filtros
-                        </a>
-                    </li>
-                </ul>
+                            <li>
+                                <a class="dropdown-item text-danger" href="?">
+                                    Quitar filtros
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-            <div id="proveedores-resultados" class="ajax-results-container">
-                {% include "proveedor/lista_proveedores_global.html" %}
-            </div>
+
+        <div id="proveedores-resultados" class="ajax-results-container">
+            {% include "proveedor/lista_proveedores_global.html" %}
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalDetalleProveedor" tabindex="-1" aria-labelledby="modalDetalleProveedorLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content shadow-lg border-0 proveedor-detail-modal">
@@ -132,7 +135,6 @@
       <div class="modal-body proveedor-detail-body">
         <div class="row g-4 align-items-start">
 
-          <!-- LADO IZQUIERDO: VISUAL -->
           <div class="col-lg-2 col-md-3">
             <div class="proveedor-visual-card">
               <div class="proveedor-visual-icon-wrap">
@@ -148,7 +150,6 @@
             </div>
           </div>
 
-          <!-- LADO DERECHO: INFO -->
           <div class="col-lg-10 col-md-9">
             <div class="proveedor-detail-main">
               <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">

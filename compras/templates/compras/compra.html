@@ -74,8 +74,9 @@
   </div>
 </div>
 
+<div class="module-filters-card compras-filter-card mb-4">
 <form method="get"
-      class="filtro-compras mb-4 js-ajax-search-form"
+      class="filtro-compras js-ajax-search-form"
       data-ajax-url="{% url 'compras:lista_compras' %}"
       data-ajax-target="#compras-resultados"
       data-ajax-debounce="250">
@@ -129,6 +130,7 @@
     </div>
   </div>
 </form>
+</div>
 
 <div id="compras-resultados">
   {% include "compras/lista_resultados_global.html" %}

@@ -131,7 +131,7 @@
                         </button>
                     </td>
                     <td>
-                        <div class="actions">
+                        <div class="actions table-action-group justify-content-center">
                             <button type="button" class="act act-edit btn-edit-servicioweb"
                                     data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}"
                                     title="Editar">
@@ -148,7 +148,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">
+                    <td colspan="6" class="text-center table-empty-state">
                         No hay servicios web{% if q %} para "{{ q }}"{% endif %}.
                     </td>
                 </tr>

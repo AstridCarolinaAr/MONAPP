@@ -13,12 +13,7 @@
 {% block page_title %}Productos{% endblock %}
 {% block page_subtitle %}Gestion general de productos{% endblock %}
 {% block page_actions %}
-<a href="{% url 'productos:crear_producto' %}"
-   class="btn-pill-dark"
-   data-modal-url="{% url 'productos:crear_producto' %}"
-   data-modal-title="Nuevo producto">
-    <i class="bi bi-plus-circle"></i> Nuevo producto
-</a>
+
 {% endblock %}
 
 {% block content %}
@@ -37,38 +32,10 @@
         </div>
     </div>
 
-<!-- FILTROS -->
-<div class="d-flex flex-wrap justify-content-between gap-3 mb-2">
-    <div class="dropdown">
-        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-funnel"></i> Filtrar
-        </button>
-
-        <ul class="dropdown-menu shadow-sm">
-            <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
-            <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
-            <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
-            <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
-
-            <li>
-                <button class="dropdown-item" type="button" id="btnFiltroLineas">
-                    Filtrar por línea
-                </button>
-            </li>
-
-            <li><hr class="dropdown-divider"></li>
-
-            <li>
-                <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
-            </li>
-        </ul>
-    </div>
-</div>
-
-<div class="productos-busqueda-wrap mb-3">
+<div class="module-filters-card mb-3">
   <form method="get"
         action="{% url 'productos:lista_productos' %}"
-        class="productos-busqueda-form js-ajax-search-form"
+        class="productos-busqueda-form js-ajax-search-form module-filters-form"
         data-ajax-url="{% url 'productos:lista_productos' %}"
         data-ajax-target="#productos-resultados"
         data-ajax-debounce="250">
@@ -93,8 +60,36 @@
             <input type="hidden" name="dir" value="{{ current_dir }}">
         {% endif %}
 
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-    </form>
+        <div class="module-filter-field module-filter-field--wide">
+            <label class="module-filter-label">Buscar</label>
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+        </div>
+
+        <div class="module-filter-field module-filter-field--medium">
+            <label class="module-filter-label">Filtrar</label>
+            <div class="dropdown">
+                <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+
+                <ul class="dropdown-menu shadow-sm">
+                    <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
+                    <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
+                    <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
+                    <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
+                    <li>
+                        <button class="dropdown-item" type="button" id="btnFiltroLineas">
+                            Filtrar por línea
+                        </button>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+  </form>
 </div>
  <!-- TABLA -->
  <div id="productos-resultados" class="ajax-results-container">

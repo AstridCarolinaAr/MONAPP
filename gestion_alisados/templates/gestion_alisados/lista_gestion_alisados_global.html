@@ -3,7 +3,7 @@
 
 {% if gestiones %}
 <div class="table-responsive">
-    <table class="table table-hover table-striped">
+    <table class="styled-table">
         <thead>
             <tr>
                 <th>Fecha y Hora</th>
@@ -31,15 +31,17 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color:#634c40;border-color:#634c40;" title="Ver detalles">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color:#634c40;border-color:#634c40;" title="Editar">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
-                        <i class="bi bi-trash"></i>
-                    </a>
+                    <div class="table-action-group">
+                        <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="table-action-btn" title="Ver detalles">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="table-action-btn" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="table-action-btn table-action-btn--danger" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -48,8 +50,9 @@
 </div>
 {% else %}
     {% if request.GET %}
-    <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle"></i> No se encontraron registros con los filtros aplicados.
+    <div class="table-empty-state">
+        <i class="bi bi-exclamation-triangle"></i>
+        <p>No se encontraron registros con los filtros aplicados.</p>
     </div>
     {% endif %}
 {% endif %}

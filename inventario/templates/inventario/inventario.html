@@ -25,10 +25,7 @@
         </div>
     </div>
         <div class="module-filters-card">
-            <div class="module-filters-form">
-                <div class="module-filter-field module-filter-field--wide">
-                    <label class="module-filter-label">Buscar</label>
-                    <form method="get" style="width: 100%;">
+            <form method="get" class="module-filters-form" style="width: 100%;">
                         {% if estado_stock %}
                             <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
                         {% endif %}
@@ -39,8 +36,9 @@
                             <input type="hidden" name="dir" value="{{ current_dir }}">
                         {% endif %}
 
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Buscar</label>
                         {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-                    </form>
                 </div>
                 <div class="module-filter-field module-filter-field--medium">
                     <label class="module-filter-label">Filtrar</label>
@@ -86,7 +84,7 @@
                 </ul>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     <!-- Card Principal -->
     <div class="card border-0 shadow-sm">

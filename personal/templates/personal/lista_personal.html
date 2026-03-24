@@ -275,11 +275,6 @@
             <h1>
                 <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
             </h1>
-            {% if puede_modificar %}
-<button type="button" class="btn btn-sm btn-pill-dark" onclick="abrirModalPersonal()">
-    <i class="fas fa-plus me-1"></i> Agregar Personal
-</button>
-            {% endif %}
         </div>
 <div class="personal-search-card">
     <form method="get"
@@ -290,15 +285,9 @@
           autocomplete="off">
 
         <div class="row g-3 align-items-end">
-            <div class="col-lg-4 col-md-6">
-                <div class="personal-form-group mb-0">
-                    <label class="personal-form-label">Filtrar por</label>
-                    {{ form.filtro }}
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-5 col-md-6">
                 <div class="personal-search-global-wrap">
+                    <label class="personal-form-label">Buscar</label>
                     {% if current_sort %}
                         <input type="hidden" name="sort" value="{{ current_sort }}">
                     {% endif %}
@@ -307,6 +296,13 @@
                     {% endif %}
 
                     {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar personal...' search_value=q name='q' modo='inline' %}
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="personal-form-group mb-0">
+                    <label class="personal-form-label">Filtrar por</label>
+                    {{ form.filtro }}
                 </div>
             </div>
         </div>
@@ -334,7 +330,7 @@
     </div>
 </div>
 
-<div id="modalEditarPersonal" class="modal-personal">
+<div id="modalEditarPersonal" class="modal-personal" style="display: none;">
     <div class="modal-personal-overlay" onclick="cerrarModalEditarPersonal()"></div>
     <div class="modal-personal-content">
         <div class="modal-personal-header">
@@ -350,7 +346,7 @@
     </div>
 </div>
 
-<div id="modalDetallePersonal" class="modal-personal">
+<div id="modalDetallePersonal" class="modal-personal" style="display: none;">
     <div class="modal-personal-overlay" onclick="cerrarModalDetallePersonal()"></div>
     <div class="modal-personal-content" style="max-width:960px;">
         <div class="modal-personal-header">
@@ -383,57 +379,56 @@ function getCookie(name) {
             }
         }
     }
-    
-    // Función para enviar el formulario de filtro cuando cambia
-    function enviarFormularioFiltro(form) {
-        if (form) {
-            form.submit();
-        }
-    }
-    
-    // Funciones para manejar el modal
-    function abrirModalPersonal() {
-        const modal = document.getElementById('modalPersonal');
-        const modalBody = document.getElementById('modalPersonalBody');
-        
-        // Mostrar el modal
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Evitar scroll del body
-        
-        // Cargar el formulario vía AJAX
-        fetch("{% url 'personal:crear_personal' %}", {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
+    return cookieValue;
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function requestJson(url, options = {}) {
+    const headers = new Headers(options.headers || {});
+    headers.set('X-Requested-With', 'XMLHttpRequest');
+
+    return fetch(url, { ...options, headers })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            modalBody.innerHTML = data.html_form;
-            
-            // Inicializar validaciones en tiempo real
-            if (typeof inicializarValidacionesPersonal === 'function') {
-                inicializarValidacionesPersonal();
-            }
-            
-            // Configurar el envío del formulario
-            const form = document.getElementById('form-crear-personal');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    enviarFormularioPersonal(form);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            modalBody.innerHTML = `
-                <div class="personal-alert danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Error al cargar el formulario. Por favor, intenta nuevamente.</span>
-                </div>
-            `;
+            return response.json();
         });
+}
+
+function showLoadError(targetId, message) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    target.innerHTML = `
+        <div class="personal-alert danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>${message}</span>
+        </div>
+    `;
+}
+
+function bindDynamicValidations() {
+    if (typeof inicializarValidacionesPersonal === 'function') {
+        inicializarValidacionesPersonal();
+    }
+}
+
+function enviarFormularioFiltro(form) {
+    if (form) {
+        form.submit();
     }
 }
 
