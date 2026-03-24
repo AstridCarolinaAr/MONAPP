@@ -11,7 +11,7 @@ from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
 from clientes.models import Cliente
-from servicios_web.models import ServicioWeb
+from servicios.models import Servicio
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
 
