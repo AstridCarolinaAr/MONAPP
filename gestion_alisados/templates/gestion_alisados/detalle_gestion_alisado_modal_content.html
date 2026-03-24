@@ -1,0 +1,39 @@
+{% load humanize %}
+
+<div class="p-2">
+  <div class="mb-3">
+    <h6 class="fw-bold mb-2">Resumen de gestión</h6>
+    <div class="row g-2">
+      <div class="col-md-6"><strong>Fecha:</strong> {{ gestion.fecha_hora|date:"d/m/Y H:i" }}</div>
+      <div class="col-md-6"><strong>Cliente:</strong> {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</div>
+      <div class="col-md-6"><strong>Profesional:</strong> {{ gestion.procedimiento_realizado_por }}</div>
+      <div class="col-md-6"><strong>Tipo de alisado:</strong> {{ gestion.tipo_alisado }}</div>
+      <div class="col-md-6"><strong>Precio:</strong> ${{ gestion.precio_alisado|intcomma }} COP</div>
+      <div class="col-md-6"><strong>Saldo:</strong> ${{ gestion.saldo_pendiente|intcomma }} COP</div>
+      <div class="col-md-6"><strong>Forma natural:</strong> {{ gestion.get_forma_natural_display }}</div>
+      <div class="col-md-6"><strong>Porosidad:</strong> {{ gestion.get_porosidad_display }}</div>
+      <div class="col-md-6"><strong>Textura:</strong> {{ gestion.get_textura_display }}</div>
+      <div class="col-md-6"><strong>Medio de pago:</strong> {{ gestion.get_medio_pago_display }}</div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2">
+    <button
+      type="button"
+      class="btn btn-outline-dark btn-sm js-open-gestion-form-modal"
+      data-form-url="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}?modal=1"
+      data-form-title="Editar gestión de datos"
+      data-bs-toggle="modal"
+      data-bs-target="#modalFormGestion"
+      data-bs-dismiss="modal">
+      <i class="bi bi-pencil"></i> Editar
+    </button>
+    <a
+      href="#"
+      class="btn btn-outline-danger btn-sm js-delete-gestion-swal"
+      data-delete-url="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}"
+      data-gestion-label="{{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }} - {{ gestion.fecha_hora|date:'d/m/Y H:i' }}">
+      <i class="bi bi-trash"></i> Eliminar
+    </a>
+  </div>
+</div>

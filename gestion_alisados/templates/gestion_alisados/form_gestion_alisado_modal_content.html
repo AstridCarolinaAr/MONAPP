@@ -204,7 +204,7 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" novalidate>
+<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{{ action_url|default:request.path }}" novalidate>
                         {% csrf_token %}
                         
                         <!-- PASO 1: Información General -->
