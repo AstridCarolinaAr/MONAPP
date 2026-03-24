@@ -32,12 +32,21 @@
     <div class="mb-3">
         {{ form.imagen.label_tag }}
         {{ form.imagen }}
+        <div id="dropzoneCrearServicio" style="margin-top: 8px; border: 2px dashed #c7b8ac; border-radius: 12px; padding: 18px; text-align: center; background: #faf7f5; cursor: pointer; transition: all 0.2s ease;">
+            <i class="bi bi-cloud-arrow-up" style="font-size: 1.4rem; color: #634c40;"></i>
+            <div class="fw-semibold" style="color: #3a2a24;">Arrastra una imagen aquí o haz clic para seleccionarla</div>
+            <small id="fileNameCrearServicio" class="text-muted">Formatos permitidos: JPG, PNG, WEBP</small>
+        </div>
         {% if form.imagen.errors %}
             <div class="text-danger">{{ form.imagen.errors }}</div>
         {% endif %}
+        <div class="mt-2 text-center" id="previewWrapCrearServicio" style="display: none;">
+            <img id="previewImgCrearServicio" alt="Vista previa de la imagen" class="img-thumbnail" style="max-width: 360px; width: 100%; object-fit: contain; display: block; margin: 0 auto;">
+            <p class="text-muted small mb-0">Vista previa</p>
+        </div>
         {% if servicio.imagen %}
-            <div class="mt-2">
-                <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="img-thumbnail" style="max-width: 200px;">
+            <div class="mt-2 text-center">
+                <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="img-thumbnail" style="max-width: 360px; width: 100%; object-fit: contain; display: block; margin: 0 auto;">
                 <p class="text-muted small">Imagen actual</p>
             </div>
         {% endif %}
@@ -52,3 +61,71 @@
         </button>
     </div>
 </form>
+
+<script>
+(function () {
+    const form = document.getElementById('formServicio');
+    if (!form) return;
+
+    const inputImagen = form.querySelector('input[name="imagen"]');
+    const dropzone = document.getElementById('dropzoneCrearServicio');
+    const fileName = document.getElementById('fileNameCrearServicio');
+    const previewWrap = document.getElementById('previewWrapCrearServicio');
+    const previewImg = document.getElementById('previewImgCrearServicio');
+
+    if (!inputImagen || !dropzone || !previewWrap || !previewImg) return;
+
+    inputImagen.style.display = 'none';
+
+    function actualizarVistaPrevia(archivo) {
+        if (!archivo || !archivo.type.startsWith('image/')) {
+            previewImg.removeAttribute('src');
+            previewWrap.style.display = 'none';
+            if (fileName) fileName.textContent = 'Formatos permitidos: JPG, PNG, WEBP';
+            return;
+        }
+
+        const objectUrl = URL.createObjectURL(archivo);
+        previewImg.src = objectUrl;
+        previewWrap.style.display = 'block';
+        if (fileName) fileName.textContent = archivo.name;
+    }
+
+    dropzone.addEventListener('click', function () {
+        inputImagen.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(function (eventName) {
+        dropzone.addEventListener(eventName, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#634c40';
+            dropzone.style.background = '#f6f0eb';
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(function (eventName) {
+        dropzone.addEventListener(eventName, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#c7b8ac';
+            dropzone.style.background = '#faf7f5';
+        });
+    });
+
+    dropzone.addEventListener('drop', function (e) {
+        const archivo = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (!archivo) return;
+
+        const dt = new DataTransfer();
+        dt.items.add(archivo);
+        inputImagen.files = dt.files;
+        actualizarVistaPrevia(archivo);
+    });
+
+    inputImagen.addEventListener('change', function () {
+        const archivo = this.files && this.files[0];
+        actualizarVistaPrevia(archivo);
+    });
+})();
+</script>

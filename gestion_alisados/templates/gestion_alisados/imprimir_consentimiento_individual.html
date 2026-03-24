@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consentimiento Individual</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f5f2ef;
+            color: #1f1a17;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+
+        .sheet {
+            background: #fff;
+            border: 1px solid #d8cfc8;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .header {
+            margin-bottom: 14px;
+            border-bottom: 1px solid #d8cfc8;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #634c40;
+            font-size: 1.3rem;
+        }
+
+        .meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 16px;
+            margin: 10px 0 14px;
+        }
+
+        .terms {
+            border: 1px dashed #d8cfc8;
+            border-radius: 10px;
+            background: #fcfaf9;
+            padding: 10px 12px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .signature {
+            border-top: 1px solid #d8cfc8;
+            padding-top: 12px;
+            text-align: center;
+        }
+
+        .signature img {
+            max-width: 360px;
+            max-height: 170px;
+            border: 1px solid #d8cfc8;
+            border-radius: 8px;
+            padding: 4px;
+            background: #fff;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+
+            .sheet {
+                border: none;
+                border-radius: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="header">
+            <h1>Consentimiento Informado Individual</h1>
+            <div>Generado: {{ fecha_impresion|date:"d/m/Y H:i" }}</div>
+        </div>
+
+        <div class="meta">
+            <div><strong>Cliente:</strong> {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</div>
+            <div><strong>Documento:</strong> {{ gestion.cliente.numero_documento|default:"N/A" }}</div>
+            <div><strong>Fecha del registro:</strong> {{ gestion.fecha_hora|date:"d/m/Y H:i" }}</div>
+            <div><strong>Profesional:</strong> {{ gestion.procedimiento_realizado_por|default:"N/A" }}</div>
+        </div>
+
+        <div class="terms">
+            El cliente declara que leyó y aceptó los términos, condiciones, recomendaciones,
+            riesgos y cuidados del procedimiento de alisado; además autoriza la realización
+            del tratamiento con conocimiento de posibles efectos y de las recomendaciones
+            posteriores para la conservación del resultado.
+        </div>
+
+        <div class="signature">
+            <div><strong>Firma registrada del cliente</strong></div>
+            {% if tiene_firma %}
+                <img src="{{ gestion.firma_consentimiento.url }}" alt="Firma del cliente">
+            {% else %}
+                <p>No hay firma registrada para esta gestión.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if autoprint %}
+    <script>
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                window.focus();
+                window.print();
+            }, 250);
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

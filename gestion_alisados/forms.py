@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .models import GestionAlisado
 from clientes.models import Cliente
 
@@ -208,8 +209,13 @@ class GestionAlisadoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Cargar clientes activos en el dropdown
-        self.fields['cliente'].queryset = Cliente.objects.filter(estado='activo').order_by('nombre', 'apellido')
+        # Cargar clientes activos y conservar el cliente actual al editar, aunque esté inactivo.
+        clientes_qs = Cliente.objects.filter(estado='activo')
+        if self.instance and self.instance.pk and self.instance.cliente_id:
+            clientes_qs = Cliente.objects.filter(
+                Q(estado='activo') | Q(pk=self.instance.cliente_id)
+            )
+        self.fields['cliente'].queryset = clientes_qs.order_by('nombre', 'apellido')
         # Función para mostrar nombre completo y documento
         self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellido} - {obj.numero_documento}"
 
@@ -247,6 +253,12 @@ class GestionAlisadoForm(forms.ModelForm):
         cleaned_data = super().clean()
         precio = cleaned_data.get('precio_alisado')
         anticipo = cleaned_data.get('anticipo_cliente')
+        firma = cleaned_data.get('firma_consentimiento')
+
+        # Exigir firma del consentimiento para registros nuevos y para registros antiguos sin firma.
+        tiene_firma_previa = bool(self.instance and self.instance.pk and self.instance.firma_consentimiento)
+        if not firma and not tiene_firma_previa:
+            self.add_error('firma_consentimiento', 'La firma del consentimiento es obligatoria.')
         
         # Calcular saldo pendiente automáticamente
         if precio is not None and anticipo is not None:

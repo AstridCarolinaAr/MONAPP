@@ -57,9 +57,16 @@ def lista_gestion_alisados(request):
         gestiones = gestiones.filter(saldo_pendiente=0)
     elif estado_pago == 'pendiente':
         gestiones = gestiones.filter(saldo_pendiente__gt=0)
+
+    gestiones_firmadas = gestiones.filter(
+        firma_consentimiento__isnull=False
+    ).exclude(
+        firma_consentimiento=''
+    )
     
     context = {
-        'gestiones': gestiones
+        'gestiones': gestiones,
+        'gestiones_firmadas': gestiones_firmadas,
     }
     return render(request, 'gestion_alisados/lista_gestion_alisados.html', context)
 
@@ -132,13 +139,28 @@ def ver_gestion_alisado(request, pk):
 def editar_gestion_alisado(request, pk):
     """Edita una gestión de alisado existente"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     if request.method == 'POST':
         form = GestionAlisadoForm(request.POST, request.FILES, instance=gestion)
         if form.is_valid():
             gestion = form.save()
+
+            if es_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Gestión de alisado actualizada exitosamente.'
+                })
+
             messages.success(request, 'Gestión de alisado actualizada exitosamente.')
             return redirect('gestion_alisados:ver_gestion_alisado', pk=gestion.pk)
+        
+        if es_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': 'Por favor corrija los errores en el formulario.',
+                'errors': form.errors
+            }, status=400)
     else:
         form = GestionAlisadoForm(instance=gestion)
     
@@ -379,3 +401,63 @@ def exportar_pdf(request):
     response['Content-Disposition'] = f'attachment; filename="gestion_alisados_{datetime.now().strftime("%d%m%Y_%H%M%S")}.pdf"'
     
     return response
+
+
+@login_required
+def imprimir_terminos_firmados(request):
+    """Vista imprimible con solo consentimientos firmados."""
+    gestiones_base = GestionAlisado.objects.select_related('cliente').all()
+
+    buscar = request.GET.get('buscar', '')
+    if buscar:
+        gestiones_base = gestiones_base.filter(
+            Q(cliente__nombre__icontains=buscar) |
+            Q(cliente__apellido__icontains=buscar) |
+            Q(procedimiento_realizado_por__icontains=buscar) |
+            Q(tipo_alisado__icontains=buscar)
+        )
+
+    forma_natural = request.GET.get('forma_natural', '')
+    if forma_natural:
+        gestiones_base = gestiones_base.filter(forma_natural=forma_natural)
+
+    porosidad = request.GET.get('porosidad', '')
+    if porosidad:
+        gestiones_base = gestiones_base.filter(porosidad=porosidad)
+
+    textura = request.GET.get('textura', '')
+    if textura:
+        gestiones_base = gestiones_base.filter(textura=textura)
+
+    estado_pago = request.GET.get('estado_pago', '')
+    if estado_pago == 'pagado':
+        gestiones_base = gestiones_base.filter(saldo_pendiente=0)
+    elif estado_pago == 'pendiente':
+        gestiones_base = gestiones_base.filter(saldo_pendiente__gt=0)
+
+    gestiones = gestiones_base.filter(
+        firma_consentimiento__isnull=False
+    ).exclude(
+        firma_consentimiento=''
+    ).order_by('-fecha_hora')
+
+    context = {
+        'gestiones': gestiones,
+        'total_firmadas': gestiones.count(),
+        'autoprint': request.GET.get('autoprint') == '1',
+        'fecha_impresion': datetime.now(),
+    }
+    return render(request, 'gestion_alisados/imprimir_terminos_firmados.html', context)
+
+
+@login_required
+def imprimir_consentimiento_individual(request, pk):
+    """Vista imprimible de consentimiento para una gestión específica."""
+    gestion = get_object_or_404(GestionAlisado.objects.select_related('cliente'), pk=pk)
+    context = {
+        'gestion': gestion,
+        'autoprint': request.GET.get('autoprint') == '1',
+        'fecha_impresion': datetime.now(),
+        'tiene_firma': bool(gestion.firma_consentimiento),
+    }
+    return render(request, 'gestion_alisados/imprimir_consentimiento_individual.html', context)

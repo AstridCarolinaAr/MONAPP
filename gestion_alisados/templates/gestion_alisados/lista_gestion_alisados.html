@@ -208,6 +208,9 @@
         <a href="{% url 'gestion_alisados:exportar_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn-pill-dark" style="background-color: #c0392b; text-decoration: none; display: inline-flex; align-items: center;">
             <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
         </a>
+        <button type="button" id="btnImprimirTyC" class="btn-pill-dark" style="text-decoration: none; display: inline-flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#modalFirmadosTyC">
+            <i class="bi bi-printer"></i> Imprimir T&C Firmados
+        </button>
     </div>
 
     <!-- FILTROS -->
@@ -295,6 +298,15 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    {% if gestion.firma_consentimiento %}
+                                    <a href="{% url 'gestion_alisados:imprimir_consentimiento_individual' gestion.pk %}" class="btn btn-sm text-white btn-imprimir-individual" style="background-color: #634c40; border-color: #634c40;" title="Imprimir consentimiento firmado">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                    {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Sin firma registrada" disabled>
+                                        <i class="bi bi-printer"></i>
+                                    </button>
+                                    {% endif %}
                                     <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
@@ -321,6 +333,59 @@
         {% endif %}
     </div>
 </div>
+</div>
+
+<!-- Modal listado de T&C firmados -->
+<div class="modal fade" id="modalFirmadosTyC" tabindex="-1" aria-labelledby="modalFirmadosTyCLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(90deg, #3a2a24, #1f1412); color: #fff;">
+                <h5 class="modal-title" id="modalFirmadosTyCLabel">
+                    <i class="bi bi-file-earmark-check"></i> Clientes con T&C Firmados
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if gestiones_firmadas %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Documento</th>
+                                    <th>Profesional</th>
+                                    <th class="text-end">Imprimir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for gestion in gestiones_firmadas %}
+                                <tr>
+                                    <td>{{ gestion.fecha_hora|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</td>
+                                    <td>{{ gestion.cliente.numero_documento|default:"N/A" }}</td>
+                                    <td>{{ gestion.procedimiento_realizado_por|default:"N/A" }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'gestion_alisados:imprimir_consentimiento_individual' gestion.pk %}" class="btn btn-sm text-white btn-imprimir-individual" style="background-color: #634c40; border-color: #634c40;" title="Imprimir T&C individual">
+                                            <i class="bi bi-printer"></i> Imprimir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> No hay clientes con firma registrada para los filtros actuales.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal para Formulario de Gestión -->
@@ -363,6 +428,48 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    function imprimirDesdeUrl(url) {
+        const separador = url.includes('?') ? '&' : '?';
+        const printUrl = `${url}${separador}autoprint=0`;
+
+        let iframe = document.getElementById('iframeImpresionTyC');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'iframeImpresionTyC';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+
+        fetch(printUrl, { credentials: 'same-origin' })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar la vista de impresión.');
+                }
+                return response.text();
+            })
+            .then(function(html) {
+                iframe.onload = function() {
+                    try {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    } catch (error) {
+                        alert('No fue posible iniciar la impresión automáticamente.');
+                    }
+                };
+                iframe.srcdoc = html;
+            })
+            .catch(function() {
+                alert('No fue posible preparar la impresión. Intenta nuevamente.');
+            });
+    }
+
+    document.querySelectorAll('.btn-imprimir-individual').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            imprimirDesdeUrl(this.getAttribute('href') || '');
+        });
+    });
+
     const modal = document.getElementById('modalFormGestion');
     const modalContent = document.getElementById('modalFormContent');
     const bsModal = new bootstrap.Modal(modal);

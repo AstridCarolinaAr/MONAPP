@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" novalidate>
+<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% if gestion %}{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}{% else %}{% url 'gestion_alisados:crear_gestion_alisado' %}{% endif %}" novalidate>
     {% csrf_token %}
     
     <!-- PASO 1: Información General -->
@@ -43,9 +43,11 @@
                        id="buscarCliente" 
                        class="form-control" 
                        placeholder="Escribe nombre o documento del cliente..."
+                      value="{% if cliente_actual %}{{ cliente_actual.nombre }} {{ cliente_actual.apellido }}{% endif %}"
+                      data-documento="{% if cliente_actual and cliente_actual.numero_documento %}{{ cliente_actual.numero_documento }}{% endif %}"
                        autocomplete="off"
                        required>
-                <input type="hidden" name="cliente" id="clienteId">
+                  <input type="hidden" name="cliente" id="clienteId" value="{% if form.cliente.value %}{{ form.cliente.value }}{% elif cliente_actual %}{{ cliente_actual.pk }}{% endif %}">
                 <div id="dropdownResultados" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
             </div>
             {% if form.cliente.errors %}
@@ -1497,6 +1499,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         setTimeout(function() {
             // Enviar directamente por AJAX en lugar de usar requestSubmit
             const formData = new FormData(formulario);
+            if (inputFirma && inputFirma.files && inputFirma.files.length > 0) {
+                formData.set('firma_consentimiento', inputFirma.files[0]);
+            }
             const submitUrl = formulario.action;
             
             fetch(submitUrl, {

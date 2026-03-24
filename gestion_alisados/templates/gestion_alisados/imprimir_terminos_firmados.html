@@ -1,0 +1,202 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Términos y Condiciones Firmados</title>
+    <style>
+        :root {
+            --ink: #1f1a17;
+            --muted: #6f655d;
+            --line: #d8cfc8;
+            --paper: #ffffff;
+            --accent: #634c40;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 20px;
+            color: var(--ink);
+            background: #f5f2ef;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-print {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-back {
+            background: #e7e0db;
+            color: #2a211d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .sheet {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: var(--accent);
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .consent {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+        }
+
+        .consent h2 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            color: var(--accent);
+        }
+
+        .meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 16px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .meta strong { color: #352a25; }
+
+        .terms {
+            border: 1px dashed var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #fcfaf9;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .signature-box {
+            border-top: 1px solid var(--line);
+            padding-top: 12px;
+            text-align: center;
+        }
+
+        .signature-box img {
+            max-width: 320px;
+            max-height: 130px;
+            width: auto;
+            height: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 4px;
+            background: #fff;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .page-actions { display: none !important; }
+            .sheet { border: none; border-radius: 0; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-actions">
+        <button class="btn btn-print" onclick="window.print();">Imprimir ahora</button>
+        <a class="btn btn-back" href="{% url 'gestion_alisados:lista_gestion_alisados' %}">Volver al listado</a>
+    </div>
+
+    <div class="sheet">
+        <div class="header">
+            <h1>Términos y Condiciones Firmados</h1>
+            <p>Total de consentimientos firmados: {{ total_firmadas }} | Generado: {{ fecha_impresion|date:"d/m/Y H:i" }}</p>
+        </div>
+
+        {% if gestiones %}
+            {% for gestion in gestiones %}
+                <article class="consent">
+                    <h2>Consentimiento informado del tratamiento de alisado</h2>
+                    <div class="meta">
+                        <div><strong>Cliente:</strong> {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</div>
+                        <div><strong>Documento:</strong> {{ gestion.cliente.numero_documento|default:"N/A" }}</div>
+                        <div><strong>Fecha del registro:</strong> {{ gestion.fecha_hora|date:"d/m/Y H:i" }}</div>
+                        <div><strong>Profesional:</strong> {{ gestion.procedimiento_realizado_por|default:"N/A" }}</div>
+                    </div>
+
+                    <div class="terms">
+                        El cliente declara que leyó y aceptó los términos, condiciones, recomendaciones,
+                        riesgos y cuidados del procedimiento de alisado; además autoriza la realización
+                        del tratamiento con conocimiento de posibles efectos y de las recomendaciones
+                        posteriores para la conservación del resultado.
+                    </div>
+
+                    <div class="signature-box">
+                        <div><strong>Firma registrada del cliente</strong></div>
+                        {% if gestion.firma_consentimiento %}
+                            <img src="{{ gestion.firma_consentimiento.url }}" alt="Firma del cliente">
+                        {% else %}
+                            <p>No hay firma disponible.</p>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                No hay consentimientos firmados para imprimir con los filtros actuales.
+            </div>
+        {% endif %}
+    </div>
+
+    {% if autoprint %}
+    <script>
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                window.focus();
+                window.print();
+            }, 250);
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
