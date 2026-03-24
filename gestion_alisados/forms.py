@@ -1,9 +1,19 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import GestionAlisado
 from clientes.models import Cliente
 
 
 class GestionAlisadoForm(forms.ModelForm):
+    procedimiento_realizado_por = forms.ChoiceField(
+        required=True,
+        label='Procedimiento realizado por',
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': 'required'
+        })
+    )
+
     class Meta:
         model = GestionAlisado
         fields = [
@@ -56,12 +66,7 @@ class GestionAlisadoForm(forms.ModelForm):
             'saldo_pendiente': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
-                'placeholder': 'Saldo pendiente en COP'
-            }),
-            'procedimiento_realizado_por': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nombre del profesional',
-                'required': 'required'
+                'placeholder': 'Saldo pendiente en COP',
             }),
             'tipo_alisado': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -203,38 +208,40 @@ class GestionAlisadoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # El saldo se calcula automáticamente; no debe editarse manualmente
-        self.fields['saldo_pendiente'].disabled = True
         # Cargar clientes activos en el dropdown
         self.fields['cliente'].queryset = Cliente.objects.filter(estado='activo').order_by('nombre', 'apellido')
         # Función para mostrar nombre completo y documento
         self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellido} - {obj.numero_documento}"
+
+        # Cargar auxiliares activos para el campo "procedimiento_realizado_por"
+        auxiliares = User.objects.filter(
+            is_active=True,
+            groups__name='Auxiliar'
+        ).distinct().order_by('first_name', 'last_name', 'username')
+
+        opciones_auxiliares = [('', 'Seleccione un auxiliar')]
+        for auxiliar in auxiliares:
+            nombre_completo = auxiliar.get_full_name().strip()
+            etiqueta = nombre_completo if nombre_completo else auxiliar.username
+            opciones_auxiliares.append((auxiliar.username, etiqueta))
+
+        valor_actual = None
+        if self.instance and self.instance.pk:
+            valor_actual = self.instance.procedimiento_realizado_por
+        else:
+            valor_actual = self.data.get('procedimiento_realizado_por')
+
+        if valor_actual and valor_actual not in [valor for valor, _ in opciones_auxiliares]:
+            opciones_auxiliares.append((valor_actual, valor_actual))
+
+        self.fields['procedimiento_realizado_por'].choices = opciones_auxiliares
         
-        # Si es un nuevo registro (sin instancia), agregar valores predeterminados lógicos
+        # Deshabilitar saldo_pendiente (es calculado automáticamente)
+        self.fields['saldo_pendiente'].disabled = True
+        
+        # Establecer valor inicial para forma_natural en nuevos registros
         if not self.instance.pk:
-            # Características del cabello - valores por defecto a "media" o "normal" para no bloquear la navegación
-            self.fields['porosidad'].initial = 'media'
-            self.fields['elasticidad'].initial = 'media'
-            self.fields['densidad'].initial = 'media'
-            self.fields['piel_cabelludo'].initial = 'normal'
-            self.fields['alopecia'].initial = 'no_presenta'
-            self.fields['caida_cabello'].initial = 'no_presenta'
-            self.fields['caspa'].initial = 'no_presenta'
-            self.fields['textura'].initial = 'normal'
             self.fields['forma_natural'].initial = 'ondulado'
-            
-            # Otros campos comunes
-            self.fields['lactante'].initial = 'no'
-            self.fields['gestante'].initial = 'no'
-            self.fields['sufre_tiroides'].initial = 'no'
-            self.fields['cuenta_con_secador'].initial = 'si'
-            self.fields['realiza_ejercicio'].initial = 'no'
-            self.fields['se_bana_agua_caliente'].initial = 'no'
-            self.fields['usa_casco'].initial = 'no'
-            self.fields['requiere_resellado'].initial = 'no'
-            self.fields['requiere_refuerzo_15dias'].initial = 'no'
-            self.fields['despunte_hoy'].initial = 'no'
-            self.fields['es_oferta_especial'].initial = 'no'
     
     def clean(self):
         cleaned_data = super().clean()

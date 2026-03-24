@@ -4,9 +4,42 @@
 
 {% block title %}Gestion de datos{% endblock %}
 
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'servicios:lista_servicios' %}">Servicios</a></li>
+<li class="breadcrumb-item active" aria-current="page">Gestion de datos</li>
+{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-file-earmark-text"></i> Gestion de datos
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 <style>
+    :root {
+        --gestion-color-principal: #634c40;
+        --gestion-color-secundario: #3a2a24;
+        --gestion-color-texto: #2f2f2f;
+        --gestion-color-texto-suave: #6b6b6b;
+    }
+
+    .container-fluid,
+    .card,
+    .table,
+    .form-control,
+    .form-select,
+    .btn,
+    .badge,
+    .modal-content {
+        font-family: inherit;
+        color: var(--gestion-color-texto);
+    }
+
+    .text-muted,
+    small.text-muted {
+        color: var(--gestion-color-texto-suave) !important;
+    }
+
     .modal-xl-custom {
         max-width: 900px !important;
         width: 85vw !important;
@@ -97,22 +130,6 @@
         box-shadow: 0 10px 25px rgba(0,0,0,.08);
     }
     
-    .card-header.table-card-header {
-        background: linear-gradient(90deg, #3a2a24, #1f1412);
-        border: 0;
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .card-header.table-card-header h4 {
-        color: #fff;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        margin: 0;
-    }
-    
     .btn-pill-dark {
         background-color: #3a2a24;
         color: #fff;
@@ -180,13 +197,6 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- TÍTULO PRINCIPAL -->
-    <div style="background: linear-gradient(90deg, #3a2a24, #1f1412); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
-        <h2 style="color: #fff; margin: 0; font-weight: 700; letter-spacing: 0.5px;">
-            <i class="bi bi-file-earmark-text"></i> Gestion de datos
-        </h2>
-    </div>
-
     <!-- BOTÓN NUEVA GESTIÓN Y EXPORTAR -->
     <div style="margin-bottom: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
         <button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalFormGestion">
@@ -250,10 +260,6 @@
 
     <!-- TABLA -->
     <div class="table-card">
-        <div class="card-header table-card-header">
-            <h4></h4>
-        </div>
-        
         {% if gestiones %}
             {% if request.GET %}
             <div style="padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0,0,0,.08);">

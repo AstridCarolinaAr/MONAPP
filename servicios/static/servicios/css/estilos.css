@@ -1,6 +1,42 @@
 /* Estilos personalizados para el módulo de servicios */
 /* Bordes más redondeados para todos los elementos */
 
+:root {
+    --servicios-color-principal: #634c40;
+    --servicios-color-secundario: #3a2a24;
+    --servicios-color-texto: #2f2f2f;
+    --servicios-color-texto-suave: #6b6b6b;
+}
+
+/* Base visual homogénea del módulo */
+.container-fluid,
+.container,
+.card,
+.modal-content,
+.table,
+.form-control,
+.form-select,
+.btn {
+    font-family: inherit;
+    color: var(--servicios-color-texto);
+}
+
+.card-header,
+.modal-header,
+.modal-title,
+.section-title,
+.lib-row__name,
+.lib-card__name {
+    color: var(--servicios-color-secundario);
+}
+
+.text-muted,
+.lib-row__desc,
+.lib-card__date,
+.lib-count {
+    color: var(--servicios-color-texto-suave) !important;
+}
+
 /* Cards */
 .card {
     border-radius: 20px !important;

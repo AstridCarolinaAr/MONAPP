@@ -4,7 +4,7 @@ from .models import Servicio
 class ServicioForm(forms.ModelForm):
     class Meta:
         model = Servicio
-        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'activo']
+        fields = ['nombre', 'precio', 'descripcion', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -25,14 +25,10 @@ class ServicioForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'image/*'
             }),
-            'activo': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
         }
         labels = {
             'nombre': 'Nombre del Servicio',
             'precio': 'Precio ($)',
             'descripcion': 'Descripción',
             'imagen': 'Imagen del Servicio',
-            'activo': 'Estado del Servicio',
         }
