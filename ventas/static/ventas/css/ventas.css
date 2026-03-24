@@ -257,56 +257,6 @@ input:disabled {
     margin-left: 0;
   }
 }
-/* Acciones de ventas heredando estilo visual base */
-td .btn-ver-detalle,
-td .btn-editar,
-td .btn-devolucion {
-    background: transparent;
-    border: none;
-    color: #2c0909 !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    transition: all 0.18s ease;
-    text-decoration: none !important;
-    padding: 0;
-    cursor: pointer;
-}
-
-td .btn-ver-detalle i,
-td .btn-editar i,
-td .btn-devolucion i {
-    font-size: 1.05rem;
-    color: inherit !important;
-    transition: all 0.18s ease;
-}
-
-/* Hover */
-td .btn-ver-detalle:hover,
-td .btn-editar:hover,
-td .btn-devolucion:hover {
-    background: rgba(138, 90, 68, 0.12);
-    color: #2c0909 !important;
-    transform: translateY(-1px);
-}
-
-/* Focus */
-td .btn-ver-detalle:focus,
-td .btn-editar:focus,
-td .btn-devolucion:focus {
-    outline: none;
-    box-shadow: 0 0 0 0.15rem rgba(138, 90, 68, 0.18);
-}
-
-/* Activo */
-td .btn-ver-detalle:active,
-td .btn-editar:active,
-td .btn-devolucion:active {
-    transform: scale(0.94);
-}
 .report-option {
   display: flex;
   align-items: center;

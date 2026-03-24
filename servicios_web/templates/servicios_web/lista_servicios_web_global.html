@@ -122,6 +122,7 @@
                         <button type="button" class="sw-status-toggle toggle-activo-servicioweb"
                                 data-url="{% url 'servicios_web:toggle_estado_servicio_web' servicio.id_servicio_web %}"
                                 data-activo="{{ servicio.activo|yesno:'true,false' }}"
+                                data-icon-swap="off"
                                 title="{% if servicio.activo %}Desactivar{% else %}Activar{% endif %}">
                             {% if servicio.activo %}
                                 <i class="bi bi-toggle-on"></i>
@@ -131,15 +132,17 @@
                         </button>
                     </td>
                     <td>
-                        <div class="actions">
-                            <button type="button" class="act act-edit btn-edit-servicioweb"
+                        <div class="table-action-group">
+                            <button type="button" class="table-action-btn btn-edit-servicioweb"
                                     data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}"
+                                    data-hover-label="Editar"
                                     title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
-                            <button type="button" class="act act-del btn-delete-servicioweb"
+                            <button type="button" class="table-action-btn table-action-btn--danger btn-delete-servicioweb"
                                     data-url="{% url 'servicios_web:eliminar_servicio_web' servicio.id_servicio_web %}"
                                     data-nombre="{{ servicio.nombre|escape }}"
+                                    data-hover-label="Eliminar"
                                     title="Eliminar">
                                 <i class="bi bi-trash3"></i>
                             </button>

@@ -226,6 +226,20 @@ document.addEventListener("DOMContentLoaded", () => {
         abrirModalDesdeURL(this.dataset.url, "Nuevo Servicio Web");
     });
 
+    // Fallback delegado para asegurar que editar siempre responda,
+    // incluso tras recargas parciales o cambios de vista.
+    if (!document.body.dataset.swEditDelegated) {
+        document.body.dataset.swEditDelegated = "1";
+        document.addEventListener("click", function (e) {
+            const btn = e.target.closest(".btn-edit-servicioweb");
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (!btn.dataset.url) return;
+            abrirModalDesdeURL(btn.dataset.url, "Editar Servicio Web");
+        });
+    }
+
     /* ── Preview modal ── */
     function renderPreviewMedia({ nombre, imagen, video, mode }) {
         if (!previewModalBody || !previewModalLabel) return;
@@ -375,13 +389,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         /* ── Editar ── */
-        document.querySelectorAll(".btn-edit-servicioweb").forEach(btn => {
-            btn.addEventListener("click", e => {
-                e.stopPropagation();
-                abrirModalDesdeURL(btn.dataset.url, "Editar Servicio Web");
-            });
-        });
-
         /* ── Eliminar ── */
         document.querySelectorAll(".btn-delete-servicioweb").forEach(btn => {
             btn.addEventListener("click", async e => {

@@ -19,10 +19,10 @@
                 {% if servicio.activo %}Activo{% else %}Inactivo{% endif %}
             </span>
             <div class="lib-card__actions">
-                <button class="lib-card__action-btn lib-card__action-btn--edit" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar">
+                <button class="lib-card__action-btn table-action-btn lib-card__action-btn--edit" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar" data-hover-label="Editar">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="lib-card__action-btn lib-card__action-btn--del" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar">
+                <button class="lib-card__action-btn table-action-btn table-action-btn--danger lib-card__action-btn--del" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar" data-hover-label="Eliminar">
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
@@ -66,10 +66,10 @@
                 <input type="checkbox" class="switch-activo" data-id="{{ servicio.pk }}" {% if servicio.activo %}checked{% endif %}>
                 <span class="switch-slider"></span>
             </label>
-            <button class="lib-card__action-btn lib-card__action-btn--edit" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar">
+            <button class="lib-card__action-btn table-action-btn lib-card__action-btn--edit" onclick="abrirModalEditar('{{ servicio.pk }}')" title="Editar" data-hover-label="Editar">
                 <i class="bi bi-pencil"></i>
             </button>
-            <button class="lib-card__action-btn lib-card__action-btn--del" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar">
+            <button class="lib-card__action-btn table-action-btn table-action-btn--danger lib-card__action-btn--del" onclick="abrirModalEliminar('{{ servicio.pk }}')" title="Eliminar" data-hover-label="Eliminar">
                 <i class="bi bi-trash"></i>
             </button>
         </div>

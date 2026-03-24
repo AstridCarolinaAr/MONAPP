@@ -183,6 +183,7 @@ textarea.form-control {
         border-radius: 6px;
         padding: 3px;
         gap: 2px;
+        overflow: visible;
     }
     .view-btn {
         width: 34px;
@@ -197,6 +198,12 @@ textarea.form-control {
         justify-content: center;
         font-size: 1rem;
         transition: all 0.15s ease;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .view-btn.icon-text-hover-btn {
+        min-width: 34px !important;
     }
     .view-btn.active {
         background: white;
@@ -331,6 +338,8 @@ textarea.form-control {
         gap: 4px;
         opacity: 0;
         transition: opacity 0.2s;
+        overflow: visible;
+        z-index: 12;
     }
     .lib-card:hover .lib-card__actions {
         opacity: 1;
@@ -347,19 +356,14 @@ textarea.form-control {
         cursor: pointer;
         transition: all 0.15s;
     }
-    .lib-card__action-btn--edit {
-        background: var(--brown-mid);
-        color: white;
+    .lib-card__action-btn.table-action-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 10px !important;
     }
-    .lib-card__action-btn--edit:hover {
-        background: var(--brown-dark);
-    }
-    .lib-card__action-btn--del {
-        background: #dc3545;
-        color: white;
-    }
-    .lib-card__action-btn--del:hover {
-        background: #b02a37;
+    .lib-card__action-btn.icon-text-hover-btn {
+        transform-origin: left center;
     }
     .lib-card__body {
         padding: 10px 12px 12px;

@@ -207,7 +207,8 @@
 
 .services-table-wrapper .table-dashboard th:nth-child(6),
 .services-table-wrapper .table-dashboard td:nth-child(6) {
-    width: 120px;
+    width: 150px;
+    text-align: right;
 }
 
 .sw-table-description {
@@ -240,31 +241,6 @@
     vertical-align: middle;
 }
 
-.services-table-wrapper .actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.services-table-wrapper .act {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(111, 78, 55, 0.22);
-    background: #fff;
-    color: #6f4e37 !important;
-    transition: all 0.22s ease;
-    box-shadow: 0 2px 6px rgba(111, 78, 55, 0.08);
-    padding: 0;
-}
-
-.services-table-wrapper .act i {
-    font-size: 1rem;
-}
-
 .sw-status-toggle i {
     font-size: 1.2rem;
 }
@@ -276,20 +252,10 @@
     text-overflow: ellipsis;
 }
 
-.services-table-wrapper .act:hover {
-    background: #6f4e37 !important;
-    color: #fff !important;
-    border-color: #6f4e37 !important;
-    transform: translateY(-1px);
-}
-
-.services-table-wrapper .act-del {
-    color: #6f4e37 !important;
-}
-
-.services-table-wrapper .act-del:hover {
-    background: #6f4e37 !important;
-    color: #fff !important;
+.services-table-wrapper .table-action-group {
+    min-width: 118px;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
 .sw-status-toggle {
@@ -299,6 +265,22 @@
     cursor: pointer;
     color: #382822;
     transition: transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sw-view-controls {
+    overflow: visible;
+}
+
+.sw-view-btn {
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.sw-view-btn.icon-text-hover-btn {
+    min-width: 42px !important;
 }
 
 /* =========================

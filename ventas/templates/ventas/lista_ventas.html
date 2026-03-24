@@ -208,9 +208,10 @@ Ventas
 
         <!-- ACCIONES -->
         <td class="text-end">
+          <div class="table-action-group">
           <button
             type="button"
-            class="btn-ver-detalle"
+            class="table-action-btn btn-ver-detalle"
             data-url="{% url 'ventas:detalle_json' venta.id %}"
             data-bs-toggle="modal"
             data-bs-target="#modalDetalleVenta"
@@ -221,7 +222,7 @@ Ventas
 
           <button
             type="button"
-            class="btn-editar"
+            class="table-action-btn btn-editar"
             data-url="{% url 'ventas:editar_modal' venta.id %}"
             title="Editar"
           >
@@ -231,7 +232,7 @@ Ventas
           {% if venta.estado == 'activa' %}
           <button
             type="button"
-            class="btn-devolucion"
+            class="table-action-btn btn-devolucion"
             data-id="{{ venta.id }}"
             data-url="{% url 'ventas:devolucion_items' venta.id %}"
             data-url-registrar="{% url 'ventas:registrar_devolucion' venta.id %}"
@@ -240,6 +241,7 @@ Ventas
             <i class="bi bi-arrow-return-left"></i>
           </button>
           {% endif %}
+          </div>
         </td>
       </tr>
       {% empty %}

@@ -159,18 +159,19 @@
               </td>
               <td class="text-end">
                 <div class="table-action-group">
+                                  <button class="table-action-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalDetalleCliente{{ cliente.id }}"
+                        title="Ver detalles">
+                  <i class="bi bi-eye"></i>
+                </button>
                 <button type="button" class="table-action-btn btn-editar-cliente"
                         title="Editar"
                         data-id="{{ cliente.id }}"
                         data-url="{% url 'clientes:editar' cliente.id %}">
                   <i class="bi bi-pencil-square"></i>
                 </button>
-                <button class="table-action-btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalDetalleCliente{{ cliente.id }}"
-                        title="Ver detalles">
-                  <i class="bi bi-eye"></i>
-                </button>
+
                 {% if user.is_staff %}
                 <button type="button" class="table-action-btn table-action-btn--danger"
                         data-bs-toggle="modal"

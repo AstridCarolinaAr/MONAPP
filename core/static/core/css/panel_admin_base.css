@@ -1755,7 +1755,10 @@ small.text-muted {
     align-items: center;
     justify-content: flex-end;
     gap: 4px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow: visible;
+    white-space: nowrap;
+    min-width: 176px;
 }
 
 .table-action-btn,
@@ -2011,6 +2014,10 @@ small.text-muted {
     gap: 3px;
     justify-content: flex-end;
     align-items: center;
+    flex-wrap: nowrap;
+    overflow: visible;
+    white-space: nowrap;
+    min-width: 176px;
 }
 
 /* botón-icono base */
@@ -2619,4 +2626,105 @@ a.btn-link:active i {
 .page-card .modal .modal-header .btn-close:hover {
     background-color: rgba(255, 255, 255, 0.2);
     transform: rotate(90deg);
+}
+
+/* ==================== BOTONES ICONO -> TEXTO ==================== */
+#main-content .icon-text-hover-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    width: var(--swap-base-width, auto);
+    transition: width .24s ease, background-color .24s ease, color .24s ease, border-color .24s ease, box-shadow .24s ease, transform .24s ease;
+    color: var(--swap-base-fg, inherit);
+    background-color: var(--swap-base-bg, transparent);
+    border-color: var(--swap-base-border, currentColor);
+    flex-shrink: 0;
+    transform-origin: left center;
+}
+
+#main-content td:has(.table-action-group),
+#main-content td:has(.actions) {
+    overflow: visible;
+}
+
+#main-content .icon-text-hover-btn .swap-icon,
+#main-content .icon-text-hover-btn .swap-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: opacity .24s ease, transform .24s ease;
+}
+
+#main-content .icon-text-hover-btn .swap-icon {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+#main-content .icon-text-hover-btn .swap-icon i {
+    margin: 0 !important;
+    color: currentColor;
+}
+
+#main-content .icon-text-hover-btn .swap-text {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(8px) scale(.98);
+    padding: 0 .4rem;
+    font-size: .82em;
+    font-weight: 600;
+    letter-spacing: .2px;
+    pointer-events: none;
+    text-align: center;
+}
+
+#main-content .icon-text-hover-btn:hover .swap-icon,
+#main-content .icon-text-hover-btn:focus-visible .swap-icon {
+    opacity: 0;
+    transform: translateY(-8px) scale(.95);
+}
+
+#main-content .icon-text-hover-btn:hover .swap-text,
+#main-content .icon-text-hover-btn:focus-visible .swap-text {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+#main-content .icon-text-hover-btn:hover,
+#main-content .icon-text-hover-btn:focus-visible {
+    width: var(--swap-hover-width, var(--swap-base-width, auto));
+    background-color: var(--swap-base-fg, currentColor);
+    color: var(--swap-base-bg, #fff);
+    border-color: var(--swap-base-fg, currentColor);
+}
+
+#main-content .icon-text-hover-btn .swap-measure {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    font-size: .82em;
+    font-weight: 600;
+    letter-spacing: .2px;
+}
+
+/* Botones de agregar: icono cuadrado en estado base */
+#main-content .icon-text-hover-btn.is-add-action {
+    width: 44px;
+    min-width: 44px !important;
+    height: 44px;
+    border-radius: 12px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#main-content .icon-text-hover-btn.is-add-action:hover,
+#main-content .icon-text-hover-btn.is-add-action:focus-visible {
+    width: var(--swap-hover-width, 44px);
 }

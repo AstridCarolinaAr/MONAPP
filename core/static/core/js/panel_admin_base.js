@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initAlerts();
     initActiveLinks();
     initTooltips();
+    initIconSwapButtons();
     initAccessibility();
     initDashboardChart();
     initAjaxFilterForms();
@@ -13,6 +14,164 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log('Dashboard inicializado correctamente');
 });
+
+// ==================== HOVER ICONO -> TEXTO ====================
+function initIconSwapButtons() {
+    const root = document.getElementById('main-content');
+    if (!root) return;
+
+    const isTransparentColor = (value) => {
+        if (!value) return true;
+        const v = value.toLowerCase().trim();
+        if (v === 'transparent') return true;
+        if (v.startsWith('rgba(')) {
+            const parts = v.replace('rgba(', '').replace(')', '').split(',').map(s => s.trim());
+            const alpha = parseFloat(parts[3] || '1');
+            return Number.isFinite(alpha) ? alpha === 0 : false;
+        }
+        return false;
+    };
+
+    const selectors = [
+        'a.btn',
+        'button.btn',
+        '.page-actions a',
+        '.page-actions button',
+        'a[class*="btn-"]',
+        'button[class*="btn-"]',
+        'a[class*="table-action"]',
+        'button[class*="table-action"]',
+        'a[class*="action"]',
+        'button[class*="action"]',
+        'a[class*="act"]',
+        'button[class*="act"]',
+        'a.action-btn-card',
+        'a.module-container',
+        'a.qa-card',
+        '.lib-card__action-btn',
+        '.view-btn',
+        '.sw-view-btn',
+        '.btn-pill-dark',
+        '.btn-modal-save',
+        '.btn-modal-cancel'
+    ].join(', ');
+
+    const excludedSelector = [
+        '.sidebar',
+        '.sidebar-handle',
+        '.sidebar-nav',
+        '.btn-search-toggle',
+        '.btn-close',
+        '.btn-close-dev',
+        '.dropdown-toggle',
+        '[data-bs-toggle="collapse"]',
+        '[data-icon-swap="off"]'
+    ].join(', ');
+
+    root.querySelectorAll(selectors).forEach((btn) => {
+        if (btn.classList.contains('icon-text-hover-btn')) return;
+        if (btn.closest(excludedSelector)) return;
+
+        const clone = btn.cloneNode(true);
+        clone.querySelectorAll('i, svg').forEach((n) => n.remove());
+        const labelFromText = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+        const classBlob = `${btn.className} ${btn.getAttribute('title') || ''} ${labelFromText}`.toLowerCase();
+        const hasIcon = !!btn.querySelector('i, svg');
+
+        function inferLabel() {
+            if (/edit|editar|pencil/.test(classBlob)) return 'Editar';
+            if (/delete|eliminar|trash|danger|remove/.test(classBlob)) return 'Eliminar';
+            if (/detail|detalle|ver|eye|view/.test(classBlob)) return 'Ver';
+            if (/add|nuevo|nueva|crear|plus/.test(classBlob)) return 'Agregar';
+            if (/save|guardar/.test(classBlob)) return 'Guardar';
+            if (/cancel|cerrar|close/.test(classBlob)) return 'Cerrar';
+            if (/reactivar|restore/.test(classBlob)) return 'Reactivar';
+            if (/toggle|estado|activo/.test(classBlob)) return 'Estado';
+            return '';
+        }
+
+        const label =
+            btn.getAttribute('data-hover-label') ||
+            labelFromText ||
+            btn.getAttribute('aria-label') ||
+            btn.getAttribute('title') ||
+            inferLabel();
+
+        if (!label) return;
+
+        const normalized = label.toLowerCase();
+        const isAddAction = /agregar|crear|nuevo|nueva|añadir|add/.test(normalized);
+
+        const hasOwnVisibleText = labelFromText.length > 0;
+        if (!hasIcon && !isAddAction) return;
+        if (
+            hasOwnVisibleText &&
+            !btn.getAttribute('data-hover-label') &&
+            !btn.getAttribute('title') &&
+            !btn.getAttribute('aria-label')
+        ) {
+            return;
+        }
+
+        let icon = btn.querySelector('i.bi, i[class*="fa-"], svg');
+        if (!icon) {
+            const fallbackIcon = document.createElement('i');
+            fallbackIcon.className = isAddAction ? 'bi bi-plus-circle' : 'bi bi-dot';
+            btn.prepend(fallbackIcon);
+            icon = fallbackIcon;
+        }
+
+        // Unificar ícono de "agregar" para todos los módulos.
+        if (isAddAction) {
+            icon.className = 'bi bi-plus-circle';
+        }
+
+        const currentWidth = Math.ceil(btn.getBoundingClientRect().width);
+
+        const iconWrap = document.createElement('span');
+        iconWrap.className = 'swap-icon';
+        iconWrap.appendChild(icon.cloneNode(true));
+
+        const textWrap = document.createElement('span');
+        textWrap.className = 'swap-text';
+        textWrap.textContent = label;
+
+        btn.innerHTML = '';
+        btn.appendChild(iconWrap);
+        btn.appendChild(textWrap);
+        btn.classList.add('icon-text-hover-btn');
+        btn.setAttribute('data-hover-label', label);
+        if (isAddAction) {
+            btn.classList.add('is-add-action');
+        }
+
+        if (currentWidth > 0) {
+            btn.style.minWidth = `${currentWidth}px`;
+        }
+
+        const measure = document.createElement('span');
+        measure.className = 'swap-measure';
+        measure.textContent = label;
+        btn.appendChild(measure);
+        const labelWidth = Math.ceil(measure.getBoundingClientRect().width) + 22;
+        measure.remove();
+
+        const baseWidth = Math.max(currentWidth || 44, 44);
+        const hoverWidth = Math.max(baseWidth, labelWidth);
+        btn.style.setProperty('--swap-base-width', `${baseWidth}px`);
+        btn.style.setProperty('--swap-hover-width', `${hoverWidth}px`);
+
+        const styles = getComputedStyle(btn);
+        const baseFg = styles.color || '#382822';
+        const rawBg = styles.backgroundColor;
+        const baseBg = isTransparentColor(rawBg) ? '#f3ece7' : rawBg;
+        const baseBorder = styles.borderColor || baseFg;
+
+        btn.style.setProperty('--swap-base-fg', baseFg);
+        btn.style.setProperty('--swap-base-bg', baseBg);
+        btn.style.setProperty('--swap-base-border', baseBorder);
+    });
+}
 // ==================== SIDEBAR ====================
 function initSidebar() {
     const sidebarHandle = document.getElementById('sidebar-handle');
@@ -359,6 +518,10 @@ function initAjaxFilterForms() {
 
                 if (typeof initTooltips === 'function') {
                     initTooltips();
+                }
+
+                if (typeof initIconSwapButtons === 'function') {
+                    initIconSwapButtons();
                 }
 
                 if (typeof initSmartFormValidation === 'function') {
