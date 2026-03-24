@@ -117,26 +117,6 @@
                 </ul>
             </div>
         </div>
-            <div class="proveedores-busqueda-wrap">
-                <form method="get"
-                    action="{% url 'proveedores:lista_proveedor' %}"
-                    class="proveedores-busqueda-form js-ajax-search-form"
-                    data-ajax-url="{% url 'proveedores:lista_proveedor' %}"
-                    data-ajax-target="#proveedores-resultados"
-                    data-ajax-debounce="250">
-
-                    <input type="hidden" name="estado" value="{{ estado_actual }}">
-
-                    {% if current_sort %}
-                        <input type="hidden" name="sort" value="{{ current_sort }}">
-                    {% endif %}
-                    {% if current_dir %}
-                        <input type="hidden" name="dir" value="{{ current_dir }}">
-                    {% endif %}
-
-                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar proveedor...' search_value=q name='q' modo='inline' %}
-                </form>
-            </div>
             <div id="proveedores-resultados" class="ajax-results-container">
                 {% include "proveedor/lista_proveedores_global.html" %}
             </div>

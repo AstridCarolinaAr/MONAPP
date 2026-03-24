@@ -305,7 +305,7 @@ def lista_usuarios_view(request):
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'usuarios/_lista_partial.html', context)
+        return render(request, 'usuarios/lista_usuarios_global.html', context)
 
     return render(request, 'usuarios/lista_usuarios.html', context)
 

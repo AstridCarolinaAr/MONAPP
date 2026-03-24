@@ -96,7 +96,7 @@ def lista_productos(request):
     }
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return render(request, "productos/partials/_lista_productos_resultados.html", context)
+        return render(request, "productos/lista_productos_global.html", context)
 
     return render(request, "productos/lista_productos.html", context)
 

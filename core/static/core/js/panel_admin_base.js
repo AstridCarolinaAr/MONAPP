@@ -5,18 +5,24 @@ document.addEventListener('DOMContentLoaded', function () {
     initAlerts();
     initActiveLinks();
     initTooltips();
-    initIconSwapButtons();
+    if (typeof initIconSwapButtons === 'function') {
+        initIconSwapButtons();
+    }
     initAccessibility();
     initDashboardChart();
     initAjaxFilterForms();
     initSearchToggle();
-    initSmartFormValidation();
+    if (typeof initSmartFormValidation === 'function') {
+        initSmartFormValidation();
+    }
 
     console.log('Dashboard inicializado correctamente');
 });
 // ==================== SIDEBAR ====================
 function initSidebar() {
     const sidebarHandle = document.getElementById('sidebar-handle');
+    const handle = sidebarHandle;
+    const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
 

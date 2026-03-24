@@ -34,12 +34,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="sw-toolbar sw-enter sw-enter-up sw-enter-delay-3">
-    <div class="sw-search-bar module-search-inline" id="swSearchBar">
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripcion, precio o estado...' search_value=q name='q' modo='inline' %}
-    </div>
-
-<!-- ── Barra de búsqueda global ── -->
 <form method="get"
       class="js-ajax-search-form sw-search-bar mb-3 sw-enter sw-enter-up sw-enter-delay-3"
       id="swSearchBar"
@@ -48,7 +42,6 @@
       data-ajax-debounce="300">
 
     {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripción, precio o estado...' search_value=q name='q' modo='inline' %}
-
 </form>
 
 <!-- ── Vista (grid + tabla) — target AJAX ── -->

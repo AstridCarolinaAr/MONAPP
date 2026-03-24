@@ -115,16 +115,19 @@
 {% block content %}
 <div class="container-fluid px-4 py-1">
 
-  <form method="get" class="clientes-panel mb-4 js-ajax-search-form anim-from-bottom" style="animation-delay:.10s">
-    <div class="clientes-busqueda-wrap">
-      <div class="clientes-busqueda-global">
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
-      </div>
-    </div>
-  </form>
-
     <!-- Panel de filtros -->
-    <form method="get" class="clientes-panel mb-4 js-ajax-search-form">
+    <form method="get"
+          class="clientes-panel mb-4 js-ajax-search-form anim-from-bottom"
+          style="animation-delay:.10s"
+          data-ajax-url="{% url 'clientes:lista' %}"
+          data-ajax-target=".ajax-results-container"
+          data-ajax-debounce="300">
+
+        <div class="clientes-busqueda-wrap mb-3">
+            <div class="clientes-busqueda-global">
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
+            </div>
+        </div>
 
         <div class="row g-3 align-items-end clientes-filtros-row">
             <!-- CÓDIGO -->
@@ -184,29 +187,7 @@
                     </a>
                     {% endif %}
                 </div>
-              </td>
-              <td class="text-end">
-                <div class="table-action-group">
-                                  <button class="table-action-btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalDetalleCliente{{ cliente.id }}"
-                        title="Ver detalles">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button type="button" class="table-action-btn btn-editar-cliente"
-                        title="Editar"
-                        data-id="{{ cliente.id }}"
-                        data-url="{% url 'clientes:editar' cliente.id %}">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-
-        <!-- BUSCADOR GLOBAL DEBAJO -->
-        <div class="clientes-busqueda-wrap">
-            <div class="clientes-busqueda-global">
-                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
             </div>
-        </div>
-
     </form>
     <div class="card border-0 shadow-sm">
     <div class="card-body p-0 ajax-results-container">

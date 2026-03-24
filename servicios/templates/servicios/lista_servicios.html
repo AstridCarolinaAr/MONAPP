@@ -68,24 +68,6 @@
         </div>
 
         <div class="lib-toolbar__right">
-            <form id="filtrosServicios"
-                  class="js-ajax-search-form d-flex align-items-center gap-2 flex-wrap"
-                  method="get"
-                  data-ajax-url="{% url 'servicios:lista_servicios' %}"
-                  data-ajax-target="#lista-servicios-resultados"
-                  data-ajax-debounce="300">
-
-                <div class="lib-search" style="flex:1;min-width:220px;">
-                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar servicio...' search_value=q name='q' modo='inline' %}
-                </div>
-
-                <select name="estado" id="estadoInput" class="form-select" style="width:140px;min-width:120px;">
-                    <option value="">Todos</option>
-                    <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activa</option>
-                    <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactiva</option>
-                </select>
-            </form>
-
             <div class="view-toggle">
                 <button class="view-btn active" id="btnGrid" title="Cuadricula" data-hover-label="Cuadricula">
                     <i class="bi bi-grid-3x3-gap-fill"></i>
