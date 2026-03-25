@@ -465,6 +465,32 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("load", onScrollChangeBackground);
 
     /* ===============================
+       GLOW SIGUIENDO EL MOUSE (CONTACTO)
+    =============================== */
+    const socialCards = document.querySelectorAll(".sq-social-card");
+
+    function setCardGlowFromEvent(card, event) {
+        const rect = card.getBoundingClientRect();
+        const x = Math.min(Math.max(0, event.clientX - rect.left), rect.width);
+        const y = Math.min(Math.max(0, event.clientY - rect.top), rect.height);
+
+        const mx = rect.width ? (x / rect.width) * 100 : 50;
+        const my = rect.height ? (y / rect.height) * 100 : 50;
+
+        card.style.setProperty("--mx", `${mx}%`);
+        card.style.setProperty("--my", `${my}%`);
+    }
+
+    socialCards.forEach((card) => {
+        card.addEventListener("pointerenter", (e) => setCardGlowFromEvent(card, e));
+        card.addEventListener("pointermove", (e) => setCardGlowFromEvent(card, e));
+        card.addEventListener("pointerleave", () => {
+            card.style.removeProperty("--mx");
+            card.style.removeProperty("--my");
+        });
+    });
+
+    /* ===============================
        ANIMACIONES AL SCROLL
     =============================== */
     const animatedSections = document.querySelectorAll(

@@ -25,3 +25,7 @@ typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.6.3
 uv==0.9.4
+
+# Fuente (frontend): "Gailes"
+# Coloca el archivo en `MONAPP/core/static/core/fonts/` como `Gailes.woff2` (ideal),
+# o `Gailes.woff` / `Gailes.ttf` / `Gailes.otf`.
