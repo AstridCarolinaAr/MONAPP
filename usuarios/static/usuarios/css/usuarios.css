@@ -163,9 +163,181 @@
         border-radius: 4px;
     }
     
-    .modal-usuario-body::-webkit-scrollbar-thumb:hover {
-        background: #3a2117;
-    }
+.modal-usuario-body::-webkit-scrollbar-thumb:hover {
+    background: #3a2117;
+}
+
+/* ==================== DETALLE USUARIO COMO PROVEEDOR ==================== */
+.modal-usuario-content.proveedor-detail-modal.usuario-detail-modal {
+    width: min(100%, 1140px) !important;
+    max-width: 1140px !important;
+    border: none !important;
+    border-radius: 18px !important;
+    box-shadow: 0 20px 45px rgba(25, 15, 12, 0.22) !important;
+    background: #fff !important;
+    overflow: hidden !important;
+    max-height: unset !important;
+}
+
+#modalDetalleUsuario .proveedor-detail-header {
+    background: linear-gradient(90deg, #2a0703 0%, #402019 38%, #5a3529 70%, #6f4938 100%);
+    border-bottom: none;
+    padding: 18px 24px;
+    color: #fff;
+}
+
+#modalDetalleUsuario .proveedor-detail-header .modal-title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+#modalDetalleUsuario .proveedor-detail-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: .95;
+}
+
+#modalDetalleUsuario .proveedor-detail-body {
+    background: #fff;
+    padding: 1.5rem !important;
+    overflow-y: auto;
+    max-height: calc(90vh - 140px);
+}
+
+#modalDetalleUsuario .modal-footer {
+    background: #fff;
+}
+
+#modalDetalleUsuario .proveedor-visual-icon-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#modalDetalleUsuario .proveedor-visual-icon-bg {
+    width: 110px;
+    height: 110px;
+    border-radius: 24px;
+    background: radial-gradient(circle at top, #ffffff 0%, #efe5dd 100%);
+    border: 1px solid #e3d4ca;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    overflow: hidden;
+}
+
+#modalDetalleUsuario .proveedor-visual-icon {
+    font-size: 3rem;
+    color: #6b4a3a;
+}
+
+#modalDetalleUsuario .proveedor-visual-mini {
+    width: 100%;
+    text-align: center;
+    padding-top: .75rem;
+    border-top: 1px dashed #dcc9bd;
+}
+
+#modalDetalleUsuario .proveedor-mini-label {
+    display: block;
+    font-size: .82rem;
+    color: #8b6f60;
+    margin-bottom: .4rem;
+}
+
+#modalDetalleUsuario .proveedor-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    height: 48px;
+    padding: 0 .75rem;
+    border-radius: 999px;
+    background: #382822;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: .05em;
+}
+
+#modalDetalleUsuario .proveedor-detail-main {
+    padding-top: .15rem;
+}
+
+#modalDetalleUsuario .proveedor-detail-title {
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: #382822;
+    margin: 0;
+}
+
+#modalDetalleUsuario .proveedor-detail-subtitle {
+    color: #8b6f60;
+    font-size: .95rem;
+}
+
+#modalDetalleUsuario .proveedor-estado-badge {
+    padding: .55rem .85rem;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+#modalDetalleUsuario .proveedor-estado-badge.activo {
+    background: #dff3e4;
+    color: #1f7a3f;
+}
+
+#modalDetalleUsuario .proveedor-estado-badge.inactivo {
+    background: #f4dede;
+    color: #a12828;
+}
+
+#modalDetalleUsuario .proveedor-info-grid {
+    border-top: 1px solid #f0e8e2;
+    padding-top: 1rem;
+}
+
+#modalDetalleUsuario .proveedor-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+#modalDetalleUsuario .proveedor-info-label {
+    font-size: .86rem;
+    font-weight: 700;
+    color: #6b4a3a;
+}
+
+#modalDetalleUsuario .proveedor-info-value {
+    font-size: 1rem;
+    color: #2e2e2e;
+    word-break: break-word;
+}
+
+#modalDetalleUsuario .proveedor-detail-section {
+    border-top: 1px solid #f0e8e2;
+    padding-top: 1rem;
+}
+
+#modalDetalleUsuario .proveedor-section-title {
+    font-size: .95rem;
+    font-weight: 800;
+    color: #382822;
+    margin-bottom: .5rem;
+}
+
+#modalDetalleUsuario .proveedor-section-text {
+    color: #6f6f6f;
+    line-height: 1.6;
+}
 
     /* Switch de estado en la tabla */
     .table-switch-wrapper {

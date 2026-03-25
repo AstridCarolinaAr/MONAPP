@@ -77,7 +77,7 @@ def listar_productos(request):
         'page_obj': page_obj,
         'paginator': paginator,
     }
-    return render(request, 'gestion/listar_productos.html', context)
+    return render(request, 'listar_productos.html', context)
 
 @user_passes_test(es_administrador)
 def crear_producto(request):
@@ -346,4 +346,4 @@ def restaurar_bd(request):
     else:
         form = RestoreDBForm()
     
-    return render(request, 'gestion/restaurar_base.html', {'form': form})
+    return render(request, 'restaurar_base.html', {'form': form})

@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'core',
     'backup',
     'clientes',
-    'usuarios',
+    'usuarios.apps.UsuariosConfig',
     'Productos.apps.ProductosConfig',
     'Proveedores',
     'ventas.apps.VentasConfig',
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'gestion_alisados',
     'productos_web',
     'compras.apps.ComprasConfig',
-    'django_bootstrap5',  # CORRECCIÓN: Se cambió 'bootstrap5' por 'django_bootstrap5'
+    'django_bootstrap5',  
     'promociones',
     'Gestion',
     'servicios_web',

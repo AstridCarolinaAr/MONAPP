@@ -353,7 +353,6 @@
 
   function boot() {
     const slots = document.querySelectorAll('.metaballs-slot[data-metaballs="1"]');
-    console.log("Metaballs2D slots:", slots.length);
     slots.forEach(mount);
   }
 

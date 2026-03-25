@@ -237,7 +237,6 @@ class RegistroForm(UserCreationForm):
         return user
 
 class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
-
     ROL_CHOICES = [
         ('Administrador', 'Administrador'),
         ('Auxiliar', 'Auxiliar'),
@@ -273,13 +272,15 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['first_name'].required = True
-        self.fields['last_name'].required  = True
-        self.fields['email'].required      = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+
+        self.fields['rol'].choices = [(str(v), str(l)) for v, l in self.ROL_CHOICES]
 
         if self.instance.pk:
-            grupos = self.instance.groups.values_list('name', flat=True)
-            if grupos:
-                self.fields['rol'].initial = grupos[0]
+            grupo = self.instance.groups.first()
+            if grupo:
+                self.fields['rol'].initial = str(grupo.name)
 
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name', '').strip()

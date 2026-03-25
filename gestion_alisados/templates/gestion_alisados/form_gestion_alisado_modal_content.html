@@ -1214,7 +1214,6 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Agregar validación cuando se sube una firma
     if (inputFirma) {
         inputFirma.addEventListener('change', function() {
-            console.log('Firma cargada:', this.files.length > 0 ? this.files[0].name : 'ninguna');
             validarConsentimiento();
         });
     }
@@ -1222,33 +1221,24 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Interceptar el clic en el botón Guardar
     document.getElementById('btnGuardar').addEventListener('click', function(e) {
         e.preventDefault();
-        
-        console.log('Botón Guardar clickeado');
-        
+
         // Validar el paso actual antes de mostrar el modal
         if (validateStep(currentStep)) {
-            console.log('Validación del paso exitosa');
             // Verificar que haya un cliente seleccionado
             if (!selectCliente.value) {
-                console.log('No hay cliente seleccionado');
                 mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
                 return;
             }
-            
-            console.log('Cliente seleccionado:', selectCliente.value);
-            
+
             // Limpiar estado del modal
             checkboxAceptacion.checked = false;
             validarConsentimiento();
             
             // Actualizar información del cliente en el modal
             actualizarInfoCliente();
-            
+
             // Mostrar el modal
-            console.log('Mostrando modal de consentimiento');
             modalConsentimiento.show();
-        } else {
-            console.log('La validación del paso falló');
         }
     });
     
@@ -1259,15 +1249,11 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     
     // Confirmar y guardar
     btnConfirmarConsentimiento.addEventListener('click', function() {
-        console.log('Botón Confirmar Consentimiento clickeado');
-        
         // Obtener datos del cliente seleccionado
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         const nombreCompleto = selectedOption.text;
         const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
-        
-        console.log('Datos del cliente:', { nombreCompleto, numeroDocumento });
-        
+
         // Agregar los datos de consentimiento al formulario como campos ocultos
         const inputNombre = document.createElement('input');
         inputNombre.type = 'hidden';
@@ -1292,23 +1278,16 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         inputAceptado.name = 'consentimiento_aceptado';
         inputAceptado.value = 'true';
         formulario.appendChild(inputAceptado);
-        
-        console.log('Cerrando modal de consentimiento y enviando formulario...');
-        
+
         // Cerrar modal
         modalConsentimiento.hide();
         
         // Pequeño delay para asegurar que el modal se cierre antes de enviar
         setTimeout(function() {
-            console.log('Disparando submit del formulario');
-            
             // Enviar directamente por AJAX en lugar de usar requestSubmit
             const formData = new FormData(formulario);
             const submitUrl = formulario.action;
-            
-            console.log('URL de envío:', submitUrl);
-            console.log('Datos del formulario:', Array.from(formData.entries()));
-            
+
             fetch(submitUrl, {
                 method: 'POST',
                 body: formData,
@@ -1317,14 +1296,12 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 }
             })
             .then(response => {
-                console.log('Respuesta recibida:', response.status);
                 if (!response.ok && response.status !== 400) {
                     throw new Error('Error del servidor');
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Datos de respuesta:', data);
                 if (data.success) {
                     // Cerrar modal principal y recargar página
                     const modalElement = document.getElementById('modalFormGestion');

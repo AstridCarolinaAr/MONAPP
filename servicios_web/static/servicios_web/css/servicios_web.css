@@ -53,6 +53,7 @@
 .description-truncate {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -256,6 +257,28 @@
     min-width: 118px;
     justify-content: flex-end;
     gap: 8px;
+}
+
+.services-table-wrapper .table-action-group .act {
+    border: none;
+    background: transparent;
+    color: #3a241c;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.services-table-wrapper .table-action-group .act i {
+    font-size: 1.2rem;
+}
+
+.services-table-wrapper .table-action-group .act:hover {
+    background: rgba(58, 34, 28, 0.08);
+    color: #1f120d;
 }
 
 .sw-status-toggle {

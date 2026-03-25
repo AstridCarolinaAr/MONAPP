@@ -43,7 +43,26 @@
           data-ajax-debounce="300">
         <div class="module-filter-field module-filter-field--wide">
             <label class="module-filter-label">Buscar</label>
-            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripción, precio o estado...' search_value=q name='q' modo='inline' %}
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre o descripción...' search_value=q name='q' modo='inline' %}
+        </div>
+
+        <div class="module-filter-field module-filter-field--medium">
+            <label class="module-filter-label">Estado</label>
+            <select name="estado" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+
+        <div class="module-filter-field module-filter-field--medium">
+            <label class="module-filter-label">&nbsp;</label>
+            {% if q or estado %}
+            <a href="{% url 'servicios_web:lista_servicios_web' %}"
+               class="btn btn-sm btn-outline-secondary w-100">
+                <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+            </a>
+            {% endif %}
         </div>
     </form>
 </div>
@@ -107,6 +126,24 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof initServiciosWeb === 'function')  initServiciosWeb();
             if (typeof initMetaballs   === 'function')  initMetaballs();
         }).observe(wrap, { childList: true, subtree: false });
+    }
+
+    const ajaxSearchForm = document.getElementById('swSearchBar');
+    const searchInput = ajaxSearchForm?.querySelector('.search-toggle-input');
+    if (ajaxSearchForm && searchInput) {
+        let debounceTimer;
+        const submitLive = () => {
+            if (typeof ajaxSearchForm._submitAjaxSearch === 'function') {
+                ajaxSearchForm._submitAjaxSearch();
+            } else {
+                ajaxSearchForm.requestSubmit?.();
+            }
+        };
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(submitLive, 280);
+        });
     }
 });
 </script>

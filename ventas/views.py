@@ -178,7 +178,6 @@ def render_crear_venta(request, form, productos_stock, servicios, personal, stat
 
 @transaction.atomic
 def crear_venta(request):
-    print(">>> ENTRÓ A crear_venta (views.py correcto)")
     productos = Producto.objects.all()
     productos_stock = []
 
@@ -214,13 +213,8 @@ def crear_venta(request):
         "nombres", "apellidos"
     )
     if request.method == "POST":
-        print(">>> POST LLEGÓ")
         form = VentaForm(request.POST)
         items_json = request.POST.get("items")
-
-        print(">>> items_json RAW:", items_json)
-        print(">>> form.is_valid:", form.is_valid())
-        print(">>> form.errors:", form.errors)
 
         # 1) Validar items_json
         if not items_json:
@@ -254,8 +248,6 @@ def crear_venta(request):
                     "personal": personal,
                 },
             )
-
-        print(">>> items PARSEADOS:", items)
 
         # 3) Debe haber items
         if not items:

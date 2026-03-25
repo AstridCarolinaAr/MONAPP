@@ -144,17 +144,12 @@ def editar_cliente(request, cliente_id):
     })
 
 
-from datetime import date
-from django.db.models import Q
-from django.shortcuts import render
-
 def lista_clientes(request):
     """
     Lista con filtros. NO abre modal por recarga.
     """
     q = request.GET.get('q', '').strip()
     estado = request.GET.get('estado', '').strip()
-    codigo = request.GET.get('codigo', '').strip()
     edad = request.GET.get('edad', '').strip()
     orden = request.GET.get('orden', '').strip()
 
@@ -164,11 +159,9 @@ def lista_clientes(request):
         clientes = clientes.filter(
             Q(nombre__icontains=q) |
             Q(apellido__icontains=q) |
-            Q(numero_documento__icontains=q)
+            Q(numero_documento__icontains=q) |
+            Q(codigo_cliente__icontains=q)
         )
-
-    if codigo:
-        clientes = clientes.filter(codigo_cliente__icontains=codigo)
 
     if estado in ['activo', 'inactivo']:
         clientes = clientes.filter(estado=estado)
@@ -214,7 +207,6 @@ def lista_clientes(request):
         'clientes': clientes,
         'q': q,
         'estado': estado,
-        'codigo': codigo,
         'edad': edad,
         'orden': orden,
 

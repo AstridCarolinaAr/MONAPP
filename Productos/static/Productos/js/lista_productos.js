@@ -6,11 +6,6 @@
     const btnFiltroLineas = document.getElementById("btnFiltroLineas");
     const panelFiltroLineas = document.getElementById("panelFiltroLineas");
 
-    console.log("JS lista_productos cargado ✅", {
-      btnFiltroLineas: !!btnFiltroLineas,
-      panelFiltroLineas: !!panelFiltroLineas,
-    });
-
     if (btnFiltroLineas && panelFiltroLineas) {
       btnFiltroLineas.addEventListener("click", (e) => {
         e.preventDefault();

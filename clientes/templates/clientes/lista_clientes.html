@@ -169,16 +169,6 @@
         </div>
 
         <div class="row g-3 align-items-end clientes-filtros-row">
-            <!-- CÓDIGO -->
-            <div class="col-xl-3 col-lg-3 col-md-6">
-                <label class="form-label clientes-label">Código</label>
-                <input type="text"
-                       name="codigo"
-                       class="form-control"
-                       placeholder="Código cliente"
-                       value="{{ codigo|default:'' }}">
-            </div>
-
             <!-- ESTADO -->
             <div class="col-xl-2 col-lg-3 col-md-6">
                 <label class="form-label clientes-label">Estado</label>
@@ -220,13 +210,14 @@
                         <i class="bi bi-filter"></i>
                     </button>
 
-                    {% if q or estado or codigo or edad or orden %}
+                    {% if q or estado or edad or orden %}
                     <a href="{% url 'clientes:lista' %}" class="btn btn-outline-danger">
                         <i class="bi bi-x-lg"></i>
                     </a>
                     {% endif %}
                 </div>
             </div>
+        </div>
     </form>
     <div class="card border-0 shadow-sm">
     <div class="card-body p-0 ajax-results-container">
@@ -234,11 +225,11 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalCrearCliente" tabindex="-1">
+<div class="modal fade" id="modalLegacyCrearCliente" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <form method="post"
-                  id="formCrearCliente"
+                  id="formCrearClienteLegacy"
                   action="{% url 'clientes:crear' %}"
                   autocomplete="off">
                 {% csrf_token %}
@@ -267,7 +258,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Número de documento</label>
-                            <input id="numero_documento"
+                            <input id="numero_documento_legacy"
                                    type="text"
                                    name="numero_documento"
                                    class="form-control"
@@ -276,7 +267,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Nombre</label>
-                            <input id="nombre"
+                            <input id="nombre_legacy"
                                    type="text"
                                    name="nombre"
                                    class="form-control"
@@ -285,7 +276,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Apellido</label>
-                            <input id="apellido"
+                            <input id="apellido_legacy"
                             type="text"
                                    name="apellido"
                                    class="form-control"
@@ -294,7 +285,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Fecha de nacimiento</label>
-                            <input id="fecha_nacimiento"
+                            <input id="fecha_nacimiento_legacy"
                             type="date"
                                    name="fecha_nacimiento"
                                    class="form-control"
@@ -311,7 +302,7 @@
 
                         <div class="col-12">
                             <label class="form-label">Correo</label>
-                            <input id="correo"
+                            <input id="correo_legacy"
                             type="email"
                                    name="correo"
                                    class="form-control">
@@ -325,7 +316,7 @@
                             data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="submit" id="btnGuardarCliente" class="btn-pill-dark">
+                    <button type="submit" id="btnGuardarClienteLegacy" class="btn-pill-dark">
                         <i class="bi bi-save me-1"></i> Guardar cliente
                     </button>
                 </div>
@@ -335,7 +326,7 @@
   </div>
 
   {% for cliente in clientes %}
-  <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="modalLegacyDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
@@ -365,7 +356,7 @@
   </div>
 
   {% if user.is_staff %}
-  <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="modalLegacyEliminarCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow">
         <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">

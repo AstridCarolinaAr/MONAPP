@@ -17,7 +17,7 @@ class Personal(models.Model):
     correo = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
 
-    rol = rol = models.CharField(max_length=20, choices=ROLES, default="Colaborador")
+    rol = models.CharField(max_length=20, choices=ROLES, default="Colaborador")
 
     activo = models.BooleanField(default=True)
 

@@ -1,5 +1,3 @@
-console.log('ARCHIVO NUEVO REAL');
-
 document.addEventListener('DOMContentLoaded', function () {
     initSidebar();
     initAlerts();
@@ -15,8 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof initSmartFormValidation === 'function') {
         initSmartFormValidation();
     }
-
-    console.log('Dashboard inicializado correctamente');
 });
 // ==================== SIDEBAR ====================
 function initSidebar() {
@@ -164,7 +160,6 @@ function initDashboardChart() {
 // =========================
 function initSearchToggle() {
     const wrappers = document.querySelectorAll('.search-toggle-wrapper');
-    console.log('buscadores encontrados:', wrappers.length);
 
     wrappers.forEach(function (wrapper) {
         if (wrapper.dataset.searchInit === 'true') return;

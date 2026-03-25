@@ -86,16 +86,22 @@ def lista_servicios_web(request):
     servicios_web = ServicioWeb.objects.all()
 
     q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '').strip()
+
     if q:
         servicios_web = servicios_web.filter(
             Q(nombre__icontains=q) |
             Q(descripcion__icontains=q)
         )
 
+    if estado.lower() in ('activo', 'inactivo'):
+        servicios_web = servicios_web.filter(activo=(estado.lower() == 'activo'))
+
     context = {
         'servicios_web': servicios_web,
         'titulo': 'Lista de Servicios Web',
         'q': q,
+        'estado': estado,
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

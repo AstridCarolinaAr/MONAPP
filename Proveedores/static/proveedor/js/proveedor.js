@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const box = document.getElementById("busquedaProveedorBox");
     const input = document.getElementById("busquedaProveedorInput");
     const btn = document.getElementById("btnBusquedaProveedorToggle");
-    console.log({ form, wrapper, box, input, btn });
     if (!form || !wrapper || !box || !input || !btn) {
         console.warn("Buscador proveedor: faltan elementos", {
             form,

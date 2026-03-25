@@ -13,24 +13,16 @@
 {% block page_title %}Productos{% endblock %}
 {% block page_subtitle %}Gestion general de productos{% endblock %}
 {% block page_actions %}
-
+  <a href="{% url 'productos:crear_producto' %}"
+     class="btn btn-sm btn-pill-dark d-inline-flex align-items-center text-decoration-none"
+     data-modal-url="{% url 'productos:crear_producto' %}"
+     data-modal-title="Nuevo producto">
+      <i class="bi bi-plus-lg me-1"></i>
+      <span>Nuevo producto</span>
+  </a>
 {% endblock %}
 
 {% block content %}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 productos-header-row">
-
-        <div class="productos-header-actions">
-
-          <a href="{% url 'productos:crear_producto' %}"
-            class="btn btn-sm btn-pill-dark d-inline-flex align-items-center text-decoration-none"
-            data-modal-url="{% url 'productos:crear_producto' %}"
-            data-modal-title="Nuevo producto">
-              <i class="bi bi-plus-lg me-1"></i>
-              <span>Nuevo producto</span>
-          </a>
-        </div>
-    </div>
-
 <div class="module-filters-card mb-3">
   <form method="get"
         action="{% url 'productos:lista_productos' %}"
@@ -226,8 +218,4 @@
 <script src="{% static 'Productos/js/lista_productos.js' %}"></script>
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 <script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
-
-<script>
-  console.log("lista_productos: extra_js cargado");
-</script>
 {% endblock %}
