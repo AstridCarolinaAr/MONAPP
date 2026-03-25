@@ -6,6 +6,24 @@
   const RE_NIT = /^[0-9]{5,20}$/;
   const RE_TEL = /^[0-9+\s()-]{7,20}$/;
   const RE_DIR = /^.{5,200}$/;
+  const RULES = {
+    numeric: {
+      pattern: /[^\d]/g,
+      allow: (text) => /^\d*$/.test(text),
+    },
+    alpha: {
+      pattern: /[^\p{L}\s]/gu,
+      allow: (text) => /^[\p{L}\s]*$/u.test(text),
+    },
+    alnum: {
+      pattern: /[^\p{L}\p{N}\s]/gu,
+      allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+    },
+    text: {
+      pattern: /[<>]/g,
+      allow: (text) => !/[<>]/.test(text),
+    },
+  };
 
   const FIELD_SELECTORS = [
     "#id_nit",
@@ -37,6 +55,54 @@
       wrap.insertAdjacentElement("afterend", fb);
     }
     return fb;
+  }
+
+  function getRule(input) {
+    if (!input) return null;
+    const rule = (input.dataset.validate || "").trim();
+    return RULES[rule] ? rule : null;
+  }
+
+  function sanitizeInput(input) {
+    if (!input) return;
+
+    const rule = getRule(input);
+    if (!rule) return;
+
+    const cleaned = String(input.value || "").replace(RULES[rule].pattern, "");
+    if (cleaned !== input.value) {
+      input.value = cleaned;
+    }
+  }
+
+  function bindGuards(form) {
+    const fields = form.querySelectorAll("[data-validate]");
+    fields.forEach((input) => {
+      if (input.dataset.guardWired === "1") return;
+      input.dataset.guardWired = "1";
+
+      input.addEventListener("beforeinput", (e) => {
+        if (!e.inputType || !e.inputType.startsWith("insert")) return;
+        const rule = getRule(input);
+        if (!rule) return;
+        const data = e.data || "";
+        if (!RULES[rule].allow(data)) {
+          e.preventDefault();
+        }
+      });
+
+      input.addEventListener("paste", (e) => {
+        const rule = getRule(input);
+        if (!rule) return;
+        const pasted = e.clipboardData?.getData("text") || "";
+        if (!RULES[rule].allow(pasted)) {
+          e.preventDefault();
+          sanitizeInput(input);
+        }
+      });
+
+      input.addEventListener("input", () => sanitizeInput(input));
+    });
   }
 
   function clearState(input) {
@@ -90,11 +156,18 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  function validateField(input) {
+  function validateField(input, { force = false } = {}) {
     if (!input) return true;
 
     const value = (input.value || "").trim();
     let message = "";
+    const isEmpty = value === "";
+    const isRequired = input.hasAttribute("required");
+
+    if (isEmpty && !force) {
+      clearState(input);
+      return true;
+    }
 
     switch (input.id) {
       case "id_nit":
@@ -137,7 +210,11 @@
       return false;
     }
 
-    markValid(input);
+    if (isRequired || value) {
+      markValid(input);
+    } else {
+      clearState(input);
+    }
     return true;
   }
 
@@ -145,23 +222,33 @@
     return qs(form, "#btnGuardarProveedor") || qs(form, 'button[type="submit"]');
   }
 
-  function validateProveedorForm(scope) {
+  function validateProveedorForm(scope, { force = false } = {}) {
     const form = getForm(scope);
     if (!form) return true;
 
     let isValid = true;
+    let hasPendingRequired = false;
 
     FIELD_SELECTORS.forEach((selector) => {
       const field = qs(form, selector);
-      if (field && !validateField(field)) {
+      if (!field) return;
+
+      const value = (field.value || "").trim();
+      if (!value && !force && field.hasAttribute("required")) {
+        clearState(field);
+        hasPendingRequired = true;
+        return;
+      }
+
+      if (!validateField(field, { force })) {
         isValid = false;
       }
     });
 
     const btn = getSubmitButton(form);
-    if (btn) btn.disabled = !isValid;
+    if (btn) btn.disabled = !isValid || hasPendingRequired;
 
-    return isValid;
+    return isValid && !hasPendingRequired;
   }
 
   function wire(scope) {
@@ -174,18 +261,25 @@
     }
 
     form.dataset.wiredProveedor = "1";
+    bindGuards(form);
 
     FIELD_SELECTORS.forEach((selector) => {
       const field = qs(form, selector);
       if (!field) return;
 
-      field.addEventListener("input", () => validateProveedorForm(form));
-      field.addEventListener("change", () => validateProveedorForm(form));
+      field.addEventListener("input", () => {
+        field.dataset.touched = "1";
+        validateProveedorForm(form);
+      });
+      field.addEventListener("change", () => {
+        field.dataset.touched = "1";
+        validateProveedorForm(form);
+      });
       field.addEventListener("blur", () => validateProveedorForm(form));
     });
 
     form.addEventListener("submit", (e) => {
-      if (!validateProveedorForm(form)) {
+      if (!validateProveedorForm(form, { force: true })) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -199,7 +293,7 @@
       wire(scope || document);
     },
     validate(scope) {
-      return validateProveedorForm(scope || document);
+      return validateProveedorForm(scope || document, { force: true });
     }
   };
 

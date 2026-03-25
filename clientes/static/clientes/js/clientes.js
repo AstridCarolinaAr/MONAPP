@@ -2,6 +2,21 @@ document.addEventListener('DOMContentLoaded', function () {
     /* =========================================================
        UTILIDADES
     ========================================================= */
+    const RULES = {
+        numeric: {
+            pattern: /[^\d]/g,
+            allow: (text) => /^\d*$/.test(text),
+        },
+        alpha: {
+            pattern: /[^\p{L}\s]/gu,
+            allow: (text) => /^[\p{L}\s]*$/u.test(text),
+        },
+        text: {
+            pattern: /[<>]/g,
+            allow: (text) => !/[<>]/.test(text),
+        },
+    };
+
     function setButtonState(button, enabled) {
         if (!button) return;
 
@@ -57,6 +72,68 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function sanitizeValueByRule(input, rule) {
+        if (!input || !rule || !RULES[rule]) return;
+        const cleaned = String(input.value || '').replace(RULES[rule].pattern, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
+    }
+
+    function wireInputGuards(root) {
+        if (!root) return;
+
+        const selectors = [
+            '#numero_documento',
+            '#nombre',
+            '#apellido',
+            '#telefono',
+            '#correo',
+            '#editar_numero_documento',
+            '#editar_nombre',
+            '#editar_apellido',
+            '#editar_telefono',
+            '#editar_correo',
+            '#numero_documento_legacy',
+            '#nombre_legacy',
+            '#apellido_legacy',
+            '#correo_legacy'
+        ];
+
+        selectors.forEach(function(selector) {
+            const input = root.querySelector(selector) || document.querySelector(selector);
+            if (!input || input.dataset.guardWired === '1') return;
+            input.dataset.guardWired = '1';
+
+            const rule =
+                input.id.includes('numero_documento') || input.id.includes('telefono')
+                    ? 'numeric'
+                    : input.id.includes('nombre') || input.id.includes('apellido')
+                        ? 'alpha'
+                        : 'text';
+
+            input.addEventListener('beforeinput', function(e) {
+                if (!e.inputType || !e.inputType.startsWith('insert')) return;
+                const data = e.data || '';
+                if (!RULES[rule].allow(data)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                const pasted = e.clipboardData?.getData('text') || '';
+                if (!RULES[rule].allow(pasted)) {
+                    e.preventDefault();
+                    sanitizeValueByRule(input, rule);
+                }
+            });
+
+            input.addEventListener('input', function() {
+                sanitizeValueByRule(input, rule);
+            });
+        });
+    }
+
     /* =========================================================
        INICIALIZADOR FORMULARIO CLIENTE CON VALIDACIÓN EN TIEMPO REAL
     ========================================================= */
@@ -79,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const correo = document.getElementById(config.fields.correo);
 
         setButtonState(btnGuardar, false);
+        wireInputGuards(form);
 
         function esCampoValido(input) {
             if (!input) return false;

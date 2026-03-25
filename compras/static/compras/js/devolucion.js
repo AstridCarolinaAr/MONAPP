@@ -10,6 +10,13 @@
   }
 
   const PATRON_TEXTO_PELIGROSO = /({{|}}|{%|%}|<\s*script|javascript\s*:|on\w+\s*=)/i;
+  const MOTIVOS_VALIDOS = new Set([
+    "defecto_fabrica",
+    "producto_incorrecto",
+    "producto_danado",
+    "garantia",
+    "otro",
+  ]);
 
   function actualizarOpcionesDetalles(form, detalles) {
     const selects = qsa(
@@ -128,8 +135,8 @@
     const observacion = qs(form, "#id_observacion");
 
     if (!compra || !compra.value) return false;
+    if (!motivo || !motivo.value || !MOTIVOS_VALIDOS.has(motivo.value)) return false;
 
-    if (PATRON_TEXTO_PELIGROSO.test((motivo?.value || "").trim())) return false;
     if (PATRON_TEXTO_PELIGROSO.test((observacion?.value || "").trim())) return false;
 
     const items = qsa(form, ".detalle-item").filter((item) => {

@@ -1,4 +1,4 @@
-{% extends "core/panel_admin_base.html" %}
+﻿{% extends "core/panel_admin_base.html" %}
 {% load static %}
 {% load humanize %}
 {% load sort_tags %}
@@ -17,7 +17,7 @@
      class="btn btn-sm btn-pill-dark d-inline-flex align-items-center text-decoration-none"
      data-modal-url="{% url 'productos:crear_producto' %}"
      data-modal-title="Nuevo producto">
-      <i class="bi bi-plus-lg me-1"></i>
+      <i class="fas fa-plus me-1"></i>
       <span>Nuevo producto</span>
   </a>
 {% endblock %}
@@ -26,14 +26,11 @@
 <div class="module-filters-card mb-3">
   <form method="get"
         action="{% url 'productos:lista_productos' %}"
+        id="productosFiltrosForm"
         class="productos-busqueda-form js-ajax-search-form module-filters-form"
         data-ajax-url="{% url 'productos:lista_productos' %}"
         data-ajax-target="#productos-resultados"
         data-ajax-debounce="250">
-
-        {% if linea_seleccionada %}
-            <input type="hidden" name="linea" value="{{ linea_seleccionada }}">
-        {% endif %}
 
         {% if orden_actual %}
             <input type="hidden" name="orden" value="{{ orden_actual }}">
@@ -51,9 +48,20 @@
             <input type="hidden" name="dir" value="{{ current_dir }}">
         {% endif %}
 
+        <input type="hidden" name="linea" id="lineaFiltroProductos" value="{{ linea_seleccionada|default:'' }}">
+
         <div class="module-filter-field module-filter-field--wide">
             <label class="module-filter-label">Buscar</label>
             {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+        </div>
+
+        <div class="module-filter-field module-filter-field--small">
+            <label class="module-filter-label">Estado</label>
+            <select name="estado" id="estadoFiltroProductos" class="form-select">
+                <option value="activos" {% if estado_seleccionado == 'activos' %}selected{% endif %}>Activos</option>
+                <option value="todos" {% if estado_seleccionado == 'todos' %}selected{% endif %}>Todos</option>
+                <option value="inactivos" {% if estado_seleccionado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+            </select>
         </div>
 
         <div class="module-filter-field module-filter-field--medium">
@@ -64,15 +72,31 @@
                 </button>
 
                 <ul class="dropdown-menu shadow-sm">
-                    <li><a class="dropdown-item" href="?orden=codigo">Código</a></li>
-                    <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
-                    <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
-                    <li><a class="dropdown-item" href="?orden=presentacion">Presentación</a></li>
+                    <li><a class="dropdown-item" href="?orden=codigo&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Código</a></li>
+                    <li><a class="dropdown-item" href="?orden=nombre&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Nombre</a></li>
+                    <li><a class="dropdown-item" href="?orden=marca&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Marca</a></li>
+                    <li><a class="dropdown-item" href="?orden=presentacion&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Presentación</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header px-3">Filtrar por línea</li>
                     <li>
-                        <button class="dropdown-item" type="button" id="btnFiltroLineas">
-                            Filtrar por línea
+                        <button type="submit"
+                                form="productosFiltrosForm"
+                                data-linea=""
+                                class="dropdown-item d-flex justify-content-between align-items-center {% if not linea_seleccionada %}active{% endif %}">
+                            <span>Todas</span>
                         </button>
                     </li>
+                    {% for item in productos_por_linea %}
+                    <li>
+                        <button type="submit"
+                                form="productosFiltrosForm"
+                                data-linea="{{ item.linea }}"
+                                class="dropdown-item d-flex justify-content-between align-items-center {% if linea_seleccionada == item.linea %}active{% endif %}">
+                            <span>{{ item.linea }}</span>
+                            <span class="badge rounded-pill bg-secondary ms-2">{{ item.total }}</span>
+                        </button>
+                    </li>
+                    {% endfor %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
@@ -82,6 +106,7 @@
         </div>
   </form>
 </div>
+
  <!-- TABLA -->
  <div id="productos-resultados" class="ajax-results-container">
   {% include "productos/lista_productos_global.html" %}
@@ -219,3 +244,6 @@
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 <script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
 {% endblock %}
+
+
+

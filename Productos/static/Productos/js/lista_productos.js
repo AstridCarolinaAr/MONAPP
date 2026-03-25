@@ -1,18 +1,54 @@
-(() => {
+﻿(() => {
   document.addEventListener("DOMContentLoaded", () => {
-    // =========================
-    // 1) Filtro por líneas
-    // =========================
-    const btnFiltroLineas = document.getElementById("btnFiltroLineas");
-    const panelFiltroLineas = document.getElementById("panelFiltroLineas");
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+      return match ? decodeURIComponent(match[2]) : "";
+    };
 
-    if (btnFiltroLineas && panelFiltroLineas) {
-      btnFiltroLineas.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        panelFiltroLineas.classList.toggle("d-none");
+    const filtrosForm = document.getElementById("productosFiltrosForm");
+    const lineaInput = document.getElementById("lineaFiltroProductos");
+
+    if (filtrosForm && lineaInput) {
+      filtrosForm.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-linea]");
+        if (!btn) return;
+
+        lineaInput.value = btn.dataset.linea || "";
       });
     }
+
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".js-toggle-producto-estado");
+      if (!btn) return;
+
+      e.preventDefault();
+
+      const url = btn.dataset.url;
+      if (!url) return;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok && data.success) {
+          window.location.reload();
+          return;
+        }
+
+        alert(data.message || "No se pudo cambiar el estado del producto.");
+      } catch (error) {
+        console.error(error);
+        alert("Error de conexión al cambiar el estado.");
+      }
+    });
   // =========================
 // Buscador de productos
 // =========================
@@ -197,3 +233,6 @@ if (
     }
   });
 })();
+
+
+

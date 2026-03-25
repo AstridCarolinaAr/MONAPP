@@ -2,7 +2,8 @@
 
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 
-<form method="post" enctype="multipart/form-data" id="formServicio" data-servicio-form="1" action="{% url 'servicios:editar_servicio' %}">    {% csrf_token %}
+<form method="post" enctype="multipart/form-data" id="formServicio" data-servicio-form="1" action="{% url 'servicios:editar_servicio' servicio.pk %}">
+    {% csrf_token %}
     
     <div class="mb-3">
         {{ form.nombre.label_tag }}

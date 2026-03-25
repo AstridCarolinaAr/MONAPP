@@ -53,6 +53,57 @@
     return n.toLocaleString("es-CO");
   }
 
+  const INPUT_RULES = {
+    numeric: {
+      pattern: /[^\d]/g,
+      allow: (text) => /^\d*$/.test(text),
+    },
+    money: {
+      pattern: /[^\d.,\s]/g,
+      allow: (text) => /^[\d.,\s]*$/.test(text),
+    },
+    text: {
+      pattern: /[^\p{L}\p{N}\s]/gu,
+      allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+    },
+  };
+
+  function bindRestrictedInput(input, ruleName) {
+    if (!input || input.dataset.guardWired === "1" || !INPUT_RULES[ruleName]) return;
+    input.dataset.guardWired = "1";
+
+    const rule = INPUT_RULES[ruleName];
+    const sanitize = () => {
+      const cleaned = String(input.value || "").replace(rule.pattern, "");
+      if (cleaned !== input.value) {
+        input.value = cleaned;
+      }
+    };
+
+    input.addEventListener("beforeinput", (e) => {
+      if (!e.inputType || !e.inputType.startsWith("insert")) return;
+      if (!rule.allow(e.data || "")) e.preventDefault();
+    });
+
+    input.addEventListener("paste", (e) => {
+      const pasted = e.clipboardData?.getData("text") || "";
+      if (!rule.allow(pasted)) {
+        e.preventDefault();
+        sanitize();
+      }
+    });
+
+    input.addEventListener("input", sanitize);
+  }
+
+  function wireCompraGuards(scope = document) {
+    const root = scope || document;
+
+    qsa(root, 'input[name$="-cantidad"]').forEach((input) => bindRestrictedInput(input, "numeric"));
+    qsa(root, 'input[name$="-precio_unitario"]').forEach((input) => bindRestrictedInput(input, "money"));
+    qsa(root, "#id_motivo, #id_observacion").forEach((input) => bindRestrictedInput(input, "text"));
+  }
+
   function attachCOPMask(input) {
     if (!input || input.dataset.copMaskBound === "1") return;
     input.dataset.copMaskBound = "1";
@@ -315,6 +366,7 @@
   }
 
   function initCompraForm(scope) {
+    wireCompraGuards(scope || document);
     qsa(scope || document, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
     calcularTotal(scope || document);
     validateCompraForm(scope || document);

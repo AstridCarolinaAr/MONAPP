@@ -1,5 +1,62 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    const INPUT_RULES = {
+        alnum: {
+            pattern: /[^\p{L}\p{N}\s]/gu,
+            allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+        },
+        numeric: {
+            pattern: /[^\d]/g,
+            allow: (text) => /^\d*$/.test(text),
+        },
+        money: {
+            pattern: /[^\d.,\s]/g,
+            allow: (text) => /^[\d.,\s]*$/.test(text),
+        },
+    };
+
+    function bindRestrictedInput(input, ruleName) {
+        if (!input || input.dataset.guardWired === '1' || !INPUT_RULES[ruleName]) return;
+        input.dataset.guardWired = '1';
+
+        const rule = INPUT_RULES[ruleName];
+        const sanitize = () => {
+            const cleaned = String(input.value || '').replace(rule.pattern, '');
+            if (cleaned !== input.value) {
+                input.value = cleaned;
+            }
+        };
+
+        input.addEventListener('beforeinput', function (e) {
+            if (!e.inputType || !e.inputType.startsWith('insert')) return;
+            if (!rule.allow(e.data || '')) e.preventDefault();
+        });
+
+        input.addEventListener('paste', function (e) {
+            const pasted = e.clipboardData?.getData('text') || '';
+            if (!rule.allow(pasted)) {
+                e.preventDefault();
+                sanitize();
+            }
+        });
+
+        input.addEventListener('input', sanitize);
+    }
+
+    function wireServicioGuards(scope) {
+        const root = scope || document;
+        const fields = [
+            ['[name="nombre"]', 'alnum'],
+            ['[name="precio"]', 'money'],
+            ['[name="descripcion"]', 'alnum'],
+        ];
+
+        fields.forEach(function (pair) {
+            const input = root.querySelector(pair[0]) || document.querySelector(pair[0]);
+            if (input) bindRestrictedInput(input, pair[1]);
+        });
+    }
+
     // ── ESTADO DE VISTA ──
     let currentView  = 'grid';
     let currentPage  = 1;
@@ -451,6 +508,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (form.dataset.servicioInit === '1') return;
             form.dataset.servicioInit = '1';
 
+            wireServicioGuards(form);
+
             CAMPOS_SERVICIO.forEach(name => {
                 const field = form.querySelector(`[name="${name}"]`);
                 if (!field) return;
@@ -507,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!form.matches('#formServicioPage, form[data-servicio-form="1"]:not(#formServicio)')) return;
 
         initServicioForms(document);
+        wireServicioGuards(form);
 
         let ok = true;
         CAMPOS_SERVICIO.forEach(name => {
@@ -528,6 +588,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         e.preventDefault();
         initServicioForms(document);
+        wireServicioGuards(form);
 
         let ok = true;
         CAMPOS_SERVICIO.forEach(name => {

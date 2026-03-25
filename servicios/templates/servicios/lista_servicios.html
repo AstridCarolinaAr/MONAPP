@@ -16,8 +16,8 @@
     class="btn-pill-dark"
     data-bs-toggle="modal"
     data-bs-target="#modalFormServicio">
-    <i class="bi bi-plus-circle"></i>
-    Crear Nuevo Servicio
+    <i class="fas fa-plus"></i>
+    Nuevo servicio
 </button>
 {% endblock %}
 
@@ -107,7 +107,7 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header text-white" style="background-color:#634c40;">
-                <h5 class="modal-title"><i class="bi bi-gear-fill"></i> Crear Nuevo Servicio</h5>
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i> Nuevo servicio</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalFormContent" style="max-height:70vh;overflow-y:auto;">
@@ -157,12 +157,12 @@
 
 {% block extra_js %}
 <script>
-    window.URLS = {
-        crearServicio  : "{% url 'servicios:crear_servicio' %}",
-        editarServicio : "{% url 'servicios:editar_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', ''),
-        eliminarServicio: "{% url 'servicios:eliminar_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', ''),
-        toggleActivo   : "{% url 'servicios:toggle_activo_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', ''),
-    };
+window.URLS = {
+    crearServicio  : "{% url 'servicios:crear_servicio' %}",
+    editarServicio : "{% url 'servicios:editar_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000/', ''),
+    eliminarServicio: "{% url 'servicios:eliminar_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000/', ''),
+    toggleActivo   : "{% url 'servicios:toggle_activo_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000/', ''),
+};
 </script>
 <script src="{% static 'servicios/js/servicios.js' %}"></script>
 {% endblock %}

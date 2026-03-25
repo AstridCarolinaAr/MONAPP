@@ -26,7 +26,7 @@
 {% block page_actions %}
 <div class="anim-from-top">
   <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalCrearCliente">
-    <i class="bi bi-plus-circle"></i> Nuevo cliente
+    <i class="fas fa-plus"></i> Nuevo cliente
   </button>
 </div>
 {% endblock %}
@@ -109,7 +109,7 @@
 
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="bi bi-person-plus me-2"></i> Nuevo cliente
+                        <i class="fas fa-plus me-2"></i> Nuevo cliente
                     </h5>
                     <button type="button"
                             class="btn-close"
@@ -261,7 +261,7 @@
         <form id="formCrearCliente" method="post" action="{% url 'clientes:crear' %}" autocomplete="off" novalidate>
           {% csrf_token %}
           <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
-            <h5 class="modal-title text-white"><i class="bi bi-person-plus me-2"></i>Nuevo cliente</h5>
+            <h5 class="modal-title text-white"><i class="fas fa-plus me-2"></i>Nuevo cliente</h5>
             <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar">
               <span class="btn-close-dev__icon">✕</span>
             </button>

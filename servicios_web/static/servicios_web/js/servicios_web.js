@@ -33,6 +33,47 @@ document.addEventListener("DOMContentLoaded", () => {
         return url + (url.includes("?") ? "&" : "?") + "modal=1";
     }
 
+    const INPUT_RULES = {
+        textoSeguro: /[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]/,
+        precio: /[0-9.,]/,
+    };
+
+    function sanitizeByRule(value, rule) {
+        return Array.from(value || "").filter(ch => rule.test(ch)).join("");
+    }
+
+    function bindRestrictedInput(input, rule, sanitizeFn) {
+        if (!input || input.dataset.restrictionBound === "1") return;
+        input.dataset.restrictionBound = "1";
+
+        input.addEventListener("beforeinput", (event) => {
+            if (!event.data || event.inputType?.startsWith("delete")) return;
+            if (!rule.test(event.data)) event.preventDefault();
+        });
+
+        input.addEventListener("paste", (event) => {
+            const text = event.clipboardData?.getData("text") || "";
+            const clean = sanitizeFn(text);
+            if (clean === text) return;
+            event.preventDefault();
+            const start = input.selectionStart ?? input.value.length;
+            const end = input.selectionEnd ?? input.value.length;
+            input.value = `${input.value.slice(0, start)}${clean}${input.value.slice(end)}`;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+
+        input.addEventListener("input", () => {
+            const clean = sanitizeFn(input.value);
+            if (clean !== input.value) {
+                const start = input.selectionStart;
+                input.value = clean;
+                if (typeof start === "number") {
+                    input.setSelectionRange(Math.min(start, clean.length), Math.min(start, clean.length));
+                }
+            }
+        });
+    }
+
     /* ══════════════════════════════════════════════════
        MODAL FORM (crear / editar)
     ══════════════════════════════════════════════════ */
@@ -40,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!modalEl || !modalBody) return;
 
         modalBody.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>`;
-        if (modalTitle) modalTitle.innerHTML = `<i class="bi bi-plus-circle me-2"></i> ${titulo}`;
+        if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-plus me-2"></i> ${titulo}`;
         modalInstance.show();
 
         try {
@@ -69,6 +110,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let nombreTimer = null;
         let videoDurationValida = true;
+
+        bindRestrictedInput(nombreInput, INPUT_RULES.textoSeguro, value => sanitizeByRule(value, INPUT_RULES.textoSeguro));
+        bindRestrictedInput(descInput, INPUT_RULES.textoSeguro, value => sanitizeByRule(value, INPUT_RULES.textoSeguro));
+        bindRestrictedInput(precioInput, INPUT_RULES.precio, value => sanitizeByRule(value, INPUT_RULES.precio));
 
         function setButtonState(enabled) {
             if (!btnGuardar) return;
@@ -120,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const v = (nombreInput?.value || "").trim();
             if (!v)              { setInvalid(nombreInput, "El nombre es obligatorio.");    updateSubmitState(); return false; }
             if (v.length < 3)    { setInvalid(nombreInput, "Mínimo 3 caracteres.");         updateSubmitState(); return false; }
-            if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s().,\-]+$/.test(v)) {
+            if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+$/.test(v)) {
                 setInvalid(nombreInput, "Contiene caracteres no permitidos."); updateSubmitState(); return false;
             }
             return new Promise(resolve => {
@@ -141,12 +186,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const v = (descInput?.value || "").trim();
             if (!v)           { setInvalid(descInput, "La descripción es obligatoria."); return false; }
             if (v.length < 10){ setInvalid(descInput, "Mínimo 10 caracteres.");          return false; }
+            if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+$/.test(v)) {
+                setInvalid(descInput, "Contiene caracteres no permitidos."); return false;
+            }
             setValid(descInput); return true;
         }
 
         function validarPrecio() {
             const v = (precioInput?.value || "").trim();
-            const n = parseFloat(v);
+            const n = parseFloat(v.replace(",", "."));
             if (!v)           { setInvalid(precioInput, "El precio es obligatorio.");  return false; }
             if (isNaN(n))     { setInvalid(precioInput, "Ingresa un precio válido.");  return false; }
             if (n <= 0)       { setInvalid(precioInput, "Debe ser mayor a 0.");        return false; }

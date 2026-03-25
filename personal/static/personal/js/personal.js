@@ -7,6 +7,70 @@ function inicializarValidacionesPersonal() {
     if (!form || !btnGuardar) return;
 
     const esEdicion = form.id === 'form-editar-personal';
+    const RULES = {
+        numeric: {
+            pattern: /[^\d]/g,
+            allow: (text) => /^\d*$/.test(text),
+        },
+        alpha: {
+            pattern: /[^\p{L}\s]/gu,
+            allow: (text) => /^[\p{L}\s]*$/u.test(text),
+        },
+        alnum: {
+            pattern: /[^\p{L}\p{N}\s]/gu,
+            allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+        },
+        text: {
+            pattern: /[<>]/g,
+            allow: (text) => !/[<>]/.test(text),
+        },
+    };
+
+    function getRule(input) {
+        if (!input) return null;
+        const rule = (input.dataset.validate || '').trim();
+        return RULES[rule] ? rule : null;
+    }
+
+    function sanitizeInput(input) {
+        if (!input || input.type === 'file') return;
+        const rule = getRule(input);
+        if (!rule) return;
+        const cleaned = String(input.value || '').replace(RULES[rule].pattern, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
+    }
+
+    function bindInputGuards(rootForm) {
+        const inputs = rootForm.querySelectorAll('[data-validate]');
+        inputs.forEach((input) => {
+            if (input.dataset.guardWired === '1') return;
+            input.dataset.guardWired = '1';
+
+            input.addEventListener('beforeinput', (e) => {
+                if (!e.inputType || !e.inputType.startsWith('insert')) return;
+                const rule = getRule(input);
+                if (!rule) return;
+                const data = e.data || '';
+                if (!RULES[rule].allow(data)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                const rule = getRule(input);
+                if (!rule) return;
+                const pasted = e.clipboardData?.getData('text') || '';
+                if (!RULES[rule].allow(pasted)) {
+                    e.preventDefault();
+                    sanitizeInput(input);
+                }
+            });
+
+            input.addEventListener('input', () => sanitizeInput(input));
+        });
+    }
 
     /* ===============================
        INICIO: ESTADO DEL BOTÓN
@@ -219,8 +283,11 @@ function inicializarValidacionesPersonal() {
     /* ===============================
        EVENTOS INPUT
     =============================== */
+    bindInputGuards(form);
+
     form.addEventListener('input', function (e) {
         const input = e.target;
+        sanitizeInput(input);
         const valor = (input.value || '').trim();
 
         /* DOCUMENTO */

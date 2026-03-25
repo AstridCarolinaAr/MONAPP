@@ -64,22 +64,20 @@
               data-src="{{ producto.imagen.url }}"
               alt="Imagen {{ producto.nombre }}"
             >
-          {% elif producto.imagen_url %}
-            <img
-              src="{{ producto.imagen_url }}"
-              class="img-thumb js-img-zoom"
-              data-src="{{ producto.imagen_url }}"
-              alt="Imagen {{ producto.nombre }}"
-            >
           {% else %}
             <div class="img-placeholder">—</div>
           {% endif %}
         </td>
 
         <td class="text-center">
-          <span class="estado-switch {% if producto.activo %}is-on{% else %}is-off{% endif %}">
+          <button type="button"
+                  class="estado-switch js-toggle-producto-estado btn p-0 border-0 bg-transparent {% if producto.activo %}is-on{% else %}is-off{% endif %}"
+                  data-url="{% url 'productos:toggle_activo_producto' producto.codigo %}"
+                  data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
+                  title="{% if producto.activo %}Inactivar{% else %}Activar{% endif %}"
+                  aria-label="{% if producto.activo %}Inactivar{% else %}Activar{% endif %} producto {{ producto.nombre }}">
             <span class="switch-thumb"></span>
-          </span>
+          </button>
         </td>
 
         <td class="col-acciones text-center">
@@ -97,7 +95,7 @@
                     data-unidad="{{ producto.unidad_medida }}"
                     data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
                     data-descripcion="{{ producto.descripcion|default:'' }}"
-                    data-imagen="{% if producto.imagen %}{{ producto.imagen.url }}{% elif producto.imagen_url %}{{ producto.imagen_url }}{% endif %}"
+                    data-imagen="{% if producto.imagen %}{{ producto.imagen.url }}{% endif %}"
                     title="Ver detalles"
                     aria-label="Ver detalles del producto {{ producto.nombre }}"
                     data-bs-placement="bottom">

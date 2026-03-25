@@ -314,7 +314,7 @@ function initAjaxFilterForms() {
         let activeController = null;
         let lastQueryString = null;
 
-        async function runAjaxRequest() {
+        async function runAjaxRequest(submitter = null) {
             const target = document.querySelector(ajaxTargetSelector);
 
             if (!target) {
@@ -323,6 +323,9 @@ function initAjaxFilterForms() {
             }
 
             const formData = new FormData(form);
+            if (submitter && submitter.name) {
+                formData.set(submitter.name, submitter.value || "");
+            }
             const params = new URLSearchParams(formData);
             const queryString = params.toString();
             const url = `${ajaxUrl}?${queryString}`;
@@ -384,20 +387,20 @@ function initAjaxFilterForms() {
             }
         }
 
-        function submitAjaxForm(immediate = false) {
+        function submitAjaxForm(immediate = false, submitter = null) {
             clearTimeout(debounceTimer);
 
             if (immediate) {
-                runAjaxRequest();
+                runAjaxRequest(submitter);
                 return;
             }
 
-            debounceTimer = setTimeout(runAjaxRequest, ajaxDebounce);
+            debounceTimer = setTimeout(() => runAjaxRequest(submitter), ajaxDebounce);
         }
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            submitAjaxForm(true);
+            submitAjaxForm(true, e.submitter || null);
         });
 
         form.querySelectorAll('select, input[type="date"], input[type="checkbox"], input[type="radio"]').forEach(function (field) {

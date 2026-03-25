@@ -24,13 +24,21 @@ def lista_productos(request):
     qs = Producto.objects.all()
 
     linea = request.GET.get("linea", "").strip()
+    estado = request.GET.get("estado", "activos").strip() or "activos"
     q = request.GET.get("q", "").strip()
     orden = request.GET.get("orden", "").strip()
     sort_param = request.GET.get("sort", "").strip()
     dir_param = request.GET.get("dir", "").strip()
 
     if linea:
-        qs = qs.filter(linea=linea)
+        qs = qs.filter(linea__iexact=linea)
+
+    if estado == "inactivos":
+        qs = qs.filter(activo=False)
+    elif estado == "todos":
+        pass
+    else:
+        qs = qs.filter(activo=True)
 
     if q:
         filtros = (
@@ -39,7 +47,6 @@ def lista_productos(request):
             | Q(marca__icontains=q)
             | Q(presentacion__icontains=q)
         )
-
         q_lower = q.lower()
 
         if q_lower in ["activo", "activa", "disponible", "si", "sí"]:
@@ -80,7 +87,9 @@ def lista_productos(request):
     total_productos = qs.count()
 
     productos_por_linea = (
-        Producto.objects.values("linea")
+        qs.exclude(linea__isnull=True)
+        .exclude(linea="")
+        .values("linea")
         .annotate(total=Count("codigo"))
         .order_by("linea")
     )
@@ -90,6 +99,7 @@ def lista_productos(request):
         "total_productos": total_productos,
         "productos_por_linea": productos_por_linea,
         "linea_seleccionada": linea,
+        "estado_seleccionado": estado,
         "orden_actual": orden,
         "q": q,
         **sorting_context(sort_key, direction),
@@ -115,8 +125,6 @@ def detalle_compra_json(request, id):
     if primer:
         if primer.producto.imagen:
             imagen = primer.producto.imagen.url
-        elif primer.producto.imagen_url:
-            imagen = primer.producto.imagen_url
 
     data = {
         "id": compra.id,
@@ -135,8 +143,6 @@ def detalle_compra_json(request, id):
 
         if d.producto.imagen:
             img = d.producto.imagen.url
-        elif d.producto.imagen_url:
-            img = d.producto.imagen_url
 
         data["detalles"].append({
             "nombre": d.producto.nombre,
@@ -177,17 +183,6 @@ def crear_producto(request):
 def editar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
-    
-    imagen_inicial_url = ""
-    if producto.imagen:
-        try:
-            imagen_inicial_url = producto.imagen.url
-            
-        except:
-            imagen_inicial_url=""
-            
-    if not imagen_inicial_url and getattr(producto,"imagen_url",""):
-        imagen_inicial_url=producto.imagen_url
     if request.method == "POST" and form.is_valid():
         producto = form.save()
         messages.success(request, f'Producto "{producto.nombre}" actualizado.')
@@ -203,7 +198,6 @@ def editar_producto(request, codigo):
         "submit_label": "Guardar cambios",
         "title": f"Editar producto: {producto.nombre}",
         "producto": producto,
-        "imagen_inicial_url":imagen_inicial_url,
     }
 
     if is_ajax(request):
@@ -246,3 +240,16 @@ def eliminar_producto(request, codigo):
             },
             status=409
         )
+
+
+@login_required
+@require_POST
+def toggle_activo_producto(request, codigo):
+    producto = get_object_or_404(Producto, codigo=codigo)
+    producto.activo = not producto.activo
+    producto.save(update_fields=["activo"])
+
+    return JsonResponse({
+        "success": True,
+        "activo": producto.activo,
+    })

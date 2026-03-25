@@ -36,6 +36,11 @@ import matplotlib.pyplot as plt
 Personal = apps.get_model("personal", "Personal")
 
 
+def _texto_seguro(valor):
+    valor = (valor or "").strip()
+    return bool(valor) and all(ch.isalnum() or ch.isspace() for ch in valor)
+
+
 def lista_ventas(request):
     q = request.GET.get("q", "").strip()
     estado = request.GET.get("estado", "activa").strip()
@@ -1229,6 +1234,8 @@ def registrar_devolucion(request, venta_id):
     # ── Validación 2: motivo obligatorio ────────────────────
     if not motivo:
         return JsonResponse({"error": "El motivo de devolución es obligatorio."}, status=400)
+    if not _texto_seguro(motivo):
+        return JsonResponse({"error": "El motivo solo puede contener letras, números y espacios."}, status=400)
 
     # ── Validación 3: al menos un ítem ─────────────────────
     if not items_devolver:

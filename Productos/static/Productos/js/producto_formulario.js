@@ -28,6 +28,88 @@
     input.value = formatMiles(input.value);
   }
 
+  const RULES = {
+    numeric: {
+      pattern: /[^\d]/g,
+      allow: (text) => /^\d*$/.test(text),
+    },
+    money: {
+      pattern: /[^\d.,\s]/g,
+      allow: (text) => /^[\d.,\s]*$/.test(text),
+    },
+    alpha: {
+      pattern: /[^\p{L}\s]/gu,
+      allow: (text) => /^[\p{L}\s]*$/u.test(text),
+    },
+    alnum: {
+      pattern: /[^\p{L}\p{N}\s]/gu,
+      allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+    },
+    text: {
+      pattern: /[<>]/g,
+      allow: (text) => !/[<>]/.test(text),
+    },
+  };
+
+  function getValidationRule(input) {
+    if (!input) return null;
+    const rule = (input.dataset.validate || "").trim();
+    if (rule && RULES[rule]) return rule;
+    return null;
+  }
+
+  function sanitizeRestrictedInput(input) {
+    if (!input || input.type === "file") return;
+
+    if (input.dataset.formatMoney === "1") {
+      const raw = String(input.value || "");
+      input.value = raw.replace(RULES.money.pattern, "");
+      return;
+    }
+
+    const rule = getValidationRule(input);
+    if (!rule) return;
+
+    const cleaned = String(input.value || "").replace(RULES[rule].pattern, "");
+    if (cleaned !== input.value) {
+      input.value = cleaned;
+    }
+  }
+
+  function bindRestrictionGuards(form) {
+    const inputs = form.querySelectorAll("[data-validate], [data-format-money='1']");
+    inputs.forEach((input) => {
+      if (input.dataset.guardWired === "1") return;
+      input.dataset.guardWired = "1";
+
+      input.addEventListener("beforeinput", (e) => {
+        if (input.type === "file") return;
+        if (!e.inputType || !e.inputType.startsWith("insert")) return;
+
+        const rule = input.dataset.formatMoney === "1" ? "money" : getValidationRule(input);
+        if (!rule) return;
+
+        const data = e.data || "";
+        const allowed = RULES[rule].allow(data);
+        if (!allowed) e.preventDefault();
+      });
+
+      input.addEventListener("paste", (e) => {
+        const rule = input.dataset.formatMoney === "1" ? "money" : getValidationRule(input);
+        if (!rule) return;
+
+        const pasted = e.clipboardData?.getData("text") || "";
+        const allowed = RULES[rule].allow(pasted);
+        if (!allowed) {
+          e.preventDefault();
+          sanitizeRestrictedInput(input);
+        }
+      });
+
+      input.addEventListener("input", () => sanitizeRestrictedInput(input));
+    });
+  }
+
   // =========================
   // Modal AJAX genérico
   // =========================
@@ -267,22 +349,8 @@
   // =========================
   // Preview imagen
   // =========================
-  function isValidUrl(url) {
-    try {
-      const u = new URL(url);
-      return u.protocol === "http:" || u.protocol === "https:";
-    } catch {
-      return false;
-    }
-  }
-
-  function isImageUrl(url) {
-    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url.split("?")[0]);
-  }
-
   function updatePreview(form) {
     const imgInput = qs(form, "#id_imagen");
-    const urlInput = qs(form, "#id_imagen_url");
     const imgEl = qs(form, "#previewProductoImagen");
     const msgEl = qs(form, "#previewProductoImagenMsg");
     const emptyEl = qs(form, "#previewEmpty");
@@ -292,7 +360,6 @@
     if (!imgEl) return;
 
     const file = imgInput?.files?.[0];
-    const url = (urlInput?.value || "").trim();
 
     const initialSrc = (imgEl.dataset.initialSrc || "").trim();
     const clearCheckbox = qs(form, "#id_imagen-clear");
@@ -327,22 +394,7 @@
       return;
     }
 
-    // 2) url
-    if (url) {
-      if (!isValidUrl(url) || !isImageUrl(url)) {
-        if (msgEl) msgEl.textContent = "URL inválida o no parece imagen.";
-        return;
-      }
-
-      imgEl.src = url;
-      imgEl.style.display = "block";
-      if (emptyEl) emptyEl.style.display = "none";
-      if (msgEl) msgEl.textContent = "Vista previa desde URL";
-      if (removeBtn) removeBtn.classList.remove("d-none");
-      return;
-    }
-
-    // 3) imagen inicial (editar)
+    // 2) imagen inicial (editar)
     if (initialSrc && !isCleared) {
       imgEl.src = initialSrc;
       imgEl.style.display = "block";
@@ -377,7 +429,7 @@
   const RE_SOLO_LETRAS = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/;
   const RE_SOLO_NUMEROS = /^\d+$/;
 
-  function validateProductoForm(scope) {
+  function validateProductoForm(scope, { force = false } = {}) {
     const form =
       scope?.tagName === "FORM"
         ? scope
@@ -386,6 +438,7 @@
     if (!form) return true;
 
     const errores = [];
+    let tienePendientes = false;
 
     const marca = qs(form, "#id_marca");
     const nombre = qs(form, "#id_nombre");
@@ -394,11 +447,13 @@
     const linea = qs(form, "#id_linea");
     const presentacion = qs(form, "#id_presentacion");
     const imgInput = qs(form, "#id_imagen");
-    const urlInput = qs(form, "#id_imagen_url");
 
     if (nombre) {
       const v = (nombre.value || "").trim();
-      if (!v) {
+      if (!v && !force) {
+        clearState(nombre);
+        tienePendientes = true;
+      } else if (!v) {
         errores.push("El nombre del producto es obligatorio.");
         markInvalid(nombre, "Nombre obligatorio");
       } else markValid(nombre);
@@ -406,7 +461,10 @@
 
     if (marca) {
       const v = (marca.value || "").trim();
-      if (!v) {
+      if (!v && !force) {
+        clearState(marca);
+        tienePendientes = true;
+      } else if (!v) {
         errores.push("La marca es obligatoria.");
         markInvalid(marca, "Marca obligatoria");
       } else markValid(marca);
@@ -415,14 +473,20 @@
     if (precio) {
       const raw = String(precio.value || "").replace(/\./g, "").replace(",", ".");
       const n = parseFloat(raw);
-      if (!Number.isFinite(n) || n <= 0) {
+      if (!String(precio.value || "").trim() && !force) {
+        clearState(precio);
+        tienePendientes = true;
+      } else if (!Number.isFinite(n) || n <= 0) {
         errores.push("El precio debe ser mayor que 0.");
         markInvalid(precio, "Mayor que 0");
       } else markValid(precio);
     }
 
     if (unidad && unidad.hasAttribute("required")) {
-      if (!unidad.value) {
+      if (!unidad.value && !force) {
+        clearState(unidad);
+        tienePendientes = true;
+      } else if (!unidad.value) {
         errores.push("La unidad de medida es obligatoria.");
         markInvalid(unidad, "Obligatoria");
       } else markValid(unidad);
@@ -435,7 +499,10 @@
     if (linea) {
       const v = (linea.value || "").trim();
 
-      if (!v) {
+      if (!v && !force) {
+        clearState(linea);
+        tienePendientes = true;
+      } else if (!v) {
         errores.push("La línea es obligatoria.");
         markInvalid(linea, "Obligatoria");
       } else if (!RE_SOLO_LETRAS.test(v)) {
@@ -449,7 +516,10 @@
     if (presentacion) {
       const v = (presentacion.value || "").trim();
 
-      if (!v) {
+      if (!v && !force) {
+        clearState(presentacion);
+        tienePendientes = true;
+      } else if (!v) {
         errores.push("La presentación es obligatoria.");
         markInvalid(presentacion, "Obligatoria");
       } else if (!RE_SOLO_NUMEROS.test(v)) {
@@ -458,15 +528,6 @@
       } else {
         markValid(presentacion);
       }
-    }
-
-    if (urlInput) {
-      const url = (urlInput.value || "").trim();
-      if (url && (!isValidUrl(url) || !isImageUrl(url))) {
-        errores.push("La URL de imagen no parece válida (http/https y termina en .jpg/.png/.webp/.gif).");
-        markInvalid(urlInput, "URL inválida");
-      } else if (url) markValid(urlInput);
-      else clearState(urlInput);
     }
 
     if (imgInput?.files?.length) {
@@ -482,9 +543,9 @@
     showGeneralErrors(form, errores);
 
     const btn = qs(form, "#btnGuardarProducto") || qs(form, 'button[type="submit"]');
-    if (btn) btn.disabled = errores.length > 0;
+    if (btn) btn.disabled = errores.length > 0 || tienePendientes;
 
-    return errores.length === 0;
+    return errores.length === 0 && !tienePendientes;
   }
 
   // =========================
@@ -535,7 +596,9 @@
     }
     form.dataset.wired = "1";
 
-    ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_imagen_url", "#id_linea", "#id_presentacion"].forEach((sel) => {
+    bindRestrictionGuards(form);
+
+    ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_linea", "#id_presentacion"].forEach((sel) => {
       const el = qs(form, sel);
       if (el) ensureWrapper(el);
     });
@@ -545,11 +608,9 @@
       removeBtn.addEventListener("click", () => {
         const imgEl = qs(form, "#previewProductoImagen");
         const imgInput = qs(form, "#id_imagen");
-        const urlInput = qs(form, "#id_imagen_url");
         const clearCheckbox = qs(form, "#id_imagen-clear");
 
         if (imgInput) imgInput.value = "";
-        if (urlInput) urlInput.value = "";
         if (clearCheckbox) clearCheckbox.checked = true;
 
         // para que no vuelva a aparecer en UI
@@ -563,6 +624,7 @@
     form.addEventListener("input", (e) => {
       
       const t = e.target;
+      sanitizeRestrictedInput(t);
       if(t.matches("#id_precio")){
         formatMoneyInput(t);
       }
@@ -571,11 +633,9 @@
         t.matches("#id_marca") ||
         t.matches("#id_precio") ||
         t.matches("#id_linea") ||
-        t.matches("#id_presentacion") ||
-        t.matches("#id_imagen_url")
+        t.matches("#id_presentacion")
       ) {
         validateProductoForm(form);
-        if (t.matches("#id_imagen_url")) updatePreview(form);
       }
     });
 
@@ -586,10 +646,8 @@
         validateProductoForm(form);
       }
       if (t.matches("#id_imagen")) {
-        const urlInput = qs(form, "#id_imagen_url");
         const clearCheckbox = qs(form, "#id_imagen-clear");
 
-        if (urlInput && t.files?.length) urlInput.value = "";
         if (clearCheckbox && t.files?.length) clearCheckbox.checked = false;
 
         updatePreview(form);
@@ -610,7 +668,7 @@
       wireEvents(scope || document);
     },
     validate(scope) {
-      return validateProductoForm(scope || document);
+      return validateProductoForm(scope || document, { force: true });
     },
   };
 
