@@ -26,6 +26,7 @@
 </head>
 
 <body class="dashboard-body">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar" id="sidebar">
@@ -72,7 +73,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'core:dashboard' %}">
                         <i class="bi bi-house-door"></i>
-                        <span>Dashboard</span>
+                        <span>Panel principal</span>
                     </a>
                 </li>
 
@@ -244,12 +245,16 @@
         </div>
     </div>
 
-    <button type="button" class="sidebar-handle" id="sidebar-handle" aria-label="Contraer o expandir menu lateral">
+    <button type="button" class="sidebar-mobile-toggle" id="sidebar-toggle" aria-label="Abrir o cerrar menú lateral">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <button type="button" class="sidebar-handle" id="sidebar-handle" aria-label="Contraer o expandir menú lateral">
         <i class="bi bi-chevron-left"></i>
     </button>
 
     <!-- ================= CONTENIDO PRINCIPAL ================= -->
-    <div class="main-content" id="main-content">
+    <main class="main-content" id="main-content" role="main">
         <!-- ── CAMPANA FLOTANTE ── -->
         {% if user.is_staff or user.is_superuser %}
             <div class="topbar-notif">
@@ -269,9 +274,9 @@
 
                     <!-- Breadcrumb -->
                     {% block breadcrumb %}
-                    <nav aria-label="breadcrumb" class="mb-3">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+                        <nav aria-label="breadcrumb" class="mb-3">
+                            <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Panel principal</a></li>
                             {% block breadcrumb_items %}{% endblock %}
                         </ol>
                     </nav>
@@ -318,9 +323,9 @@
 
                                             Swal.fire({
                                                 icon: icon,
-                                                title: "Mensaje",
+                                                title: "Aviso",
                                                 text: text,
-                                                confirmButtonText: "OK"
+                                                confirmButtonText: "Aceptar"
                                             });
                                         }
                                     });
@@ -335,7 +340,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Flags admin (dejo la funcionalidad, pero sin depender de request si no existe) -->
     <script>
@@ -353,7 +358,7 @@
                 const main = document.getElementById('main-content');
                 if (!sidebar || !handle || !main) return;
 
-                if (handle.dataset.boundSidebarFallback === 'true') return;
+                if (handle.dataset.boundSidebarFallback === 'true' || handle.dataset.sidebarBound === 'true') return;
                 handle.dataset.boundSidebarFallback = 'true';
 
                 handle.addEventListener('click', function (e) {

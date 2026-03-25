@@ -185,6 +185,40 @@
   }
 }
 
+@media (max-width: 576px) {
+  .header {
+    padding: 0.7rem 0.85rem;
+  }
+
+  .logo svg {
+    height: 78px;
+  }
+
+  .nav-glass {
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .nav-item {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.82rem;
+  }
+
+  .btn-login {
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .main-content {
+    padding: 0.85rem;
+    min-height: calc(100vh - 140px);
+  }
+
+  .footer {
+    padding: 0.8rem 0.5rem;
+  }
+}
+
 /* ===== FOOTER ===== */
 .footer {
   width: 100%;
@@ -220,6 +254,15 @@
 
 .footer-links a:hover {
   color: #000000;
+}
+
+.footer-credits {
+  margin: 0.75rem 0 0;
+  max-width: 780px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.86rem;
+  text-align: center;
+  line-height: 1.45;
 }
 /* boton login */
 

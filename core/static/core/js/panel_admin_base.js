@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
 // ==================== SIDEBAR ====================
 function initSidebar() {
     const sidebarHandle = document.getElementById('sidebar-handle');
-    const handle = sidebarHandle;
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
@@ -40,16 +39,10 @@ function initSidebar() {
         localStorage.setItem('sidebarCollapsed', isCollapsed);
     }
 
-    if (sidebarHandle) {
+    if (sidebarHandle && sidebarHandle.dataset.sidebarBound !== 'true') {
+        sidebarHandle.dataset.sidebarBound = 'true';
         sidebarHandle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleSidebar();
-        });
-    }
-
-    // ── Conectar el handle (flecha lateral) ──
-    if (handle) {
-        handle.addEventListener('click', function (e) {
+            e.preventDefault();
             e.stopPropagation();
             toggleSidebar();
         });

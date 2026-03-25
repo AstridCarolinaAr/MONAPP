@@ -212,3 +212,24 @@
         min-width: 680px;
     }
 }
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .card {
+        border-radius: 6px;
+    }
+
+    .stock-pill {
+        min-width: 58px;
+        padding: 0.36rem 0.55rem;
+        font-size: 0.72rem;
+    }
+
+    .styled-table {
+        min-width: 640px;
+    }
+}

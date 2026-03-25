@@ -528,3 +528,34 @@
         margin-left: 0;
     }
 }
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .card {
+        border-radius: 10px;
+    }
+
+    .usuarios-search-global-form .btn,
+    .usuarios-search-global-form button,
+    .usuarios-search-global-form [type="submit"] {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .styled-table {
+        min-width: 760px !important;
+    }
+
+    .modal-usuario-content {
+        width: calc(100% - 16px);
+        max-width: none;
+    }
+
+    .modal-usuario-body {
+        padding: 18px;
+    }
+}

@@ -340,3 +340,40 @@
 }
 .promo-char-count.near-limit { color: #a0715a; }
 .promo-char-count.at-limit   { color: #dc3545; font-weight: 600; }
+
+@media (max-width: 768px) {
+    .promo-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .promo-table {
+        min-width: 760px;
+    }
+
+    .promo-fab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .promo-search {
+        max-width: 100%;
+    }
+
+    .promo-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 576px) {
+    .promo-dropzone {
+        padding: 24px 16px;
+    }
+
+    .promo-table thead th,
+    .promo-table tbody td {
+        padding: 10px 12px;
+        font-size: .82rem;
+    }
+}

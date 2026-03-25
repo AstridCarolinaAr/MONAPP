@@ -701,3 +701,55 @@
   border: none !important;
   box-shadow: none !important;
 } 
+
+@media (max-width: 576px) {
+  .compras-container {
+    padding: 8px;
+  }
+
+  .titulo-modulo {
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+
+  .filtro-compras,
+  .compras-filter-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .filtro-compras-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtro-item-busqueda,
+  .filtro-item--tipo,
+  .filtro-item--estado,
+  .filtro-item--fecha,
+  .filtro-item--desde,
+  .filtro-item--hasta {
+    grid-column: span 1 !important;
+  }
+
+  .filtro-botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-botones .btn-filtro {
+    width: 100%;
+  }
+
+  .tabla-compras thead th,
+  .tabla-compras tbody td {
+    padding: 7px 8px;
+    font-size: .76rem;
+  }
+
+  #ajaxFormModal .modal-dialog,
+  #modalDetalleCompra .modal-dialog,
+  #modalComprobante .modal-dialog {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+}

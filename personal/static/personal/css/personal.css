@@ -1431,6 +1431,45 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     }
 }
 
+@media (max-width: 576px) {
+    .personal-wrapper {
+        padding-bottom: 28px;
+    }
+
+    .personal-container {
+        padding: 0 10px !important;
+    }
+
+    .personal-card {
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .personal-card-header {
+        padding: 16px 18px;
+        margin: -18px -18px 18px -18px;
+    }
+
+    .personal-search-card {
+        padding: 14px;
+    }
+
+    .personal-form-actions .personal-btn,
+    .personal-header .personal-btn {
+        width: 100%;
+    }
+
+    .personal-table,
+    .personal-table-card .styled-table {
+        min-width: 760px !important;
+    }
+
+    #modalDetallePersonal .proveedor-detail-content {
+        width: calc(100% - 16px);
+        max-width: none;
+    }
+}
+
 @media (max-width: 480px) {
     .personal-container {
         padding: 0 10px !important;

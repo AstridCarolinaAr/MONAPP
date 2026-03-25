@@ -884,3 +884,21 @@ body.sw-enter-ready .sw-enter.is-visible {
         margin: 8px auto;
     }
 }
+
+@media (max-width: 576px) {
+    .services-toolbar {
+        gap: 10px;
+    }
+
+    .sw-view-controls {
+        gap: 6px;
+    }
+
+    .sq-card {
+        height: 300px;
+    }
+
+    .services-table-wrapper .table-dashboard {
+        min-width: 680px;
+    }
+}

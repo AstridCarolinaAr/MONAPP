@@ -618,3 +618,59 @@ input:disabled {
     transform: none !important;
   }
 }
+
+@media (max-width: 768px) {
+  .ventas-filters-card {
+    padding: 12px;
+  }
+
+  .ventas-filters-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ventas-filter-search,
+  .ventas-filter-status,
+  .ventas-toolbar-actions {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .ventas-toolbar-actions {
+    margin-left: 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .ventas-toolbar-actions .btn-pill-dark,
+  .ventas-toolbar-actions .btn,
+  .ventas-toolbar-actions button,
+  .ventas-toolbar-actions a {
+    width: 100%;
+  }
+
+  .ventas-table-card {
+    overflow-x: auto;
+  }
+
+  .ventas-table-card .styled-table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ventas-table-card .styled-table {
+    min-width: 760px;
+  }
+
+  .ventas-col-codigo,
+  .ventas-col-cliente,
+  .ventas-col-total,
+  .ventas-col-estado {
+    width: auto;
+  }
+
+  .ventas-col-detalles {
+    width: auto;
+  }
+}

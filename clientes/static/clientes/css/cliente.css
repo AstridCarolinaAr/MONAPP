@@ -292,6 +292,36 @@ background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
   }
 }
 
+@media (max-width: 576px){
+  .clientes-filters-card,
+  .clientes-panel{
+    padding:10px!important;
+    border-radius:12px!important;
+  }
+
+  .clientes-busqueda-global,
+  .clientes-search-global-wrap,
+  .clientes-search-global-form{
+    max-width:100% !important;
+    width:100% !important;
+  }
+
+  .clientes-acciones{
+    width:100%;
+    flex-wrap: wrap;
+  }
+
+  .clientes-acciones .btn{
+    flex:1 1 100%;
+    width:100%;
+    min-width:0;
+  }
+
+  .styled-table{
+    min-width:760px !important;
+  }
+}
+
 .card.border-0.shadow-sm{border:1px solid #e6d7cc!important;border-radius:10px!important;overflow:hidden;box-shadow:none!important;}
 .th-sortable{cursor:pointer;user-select:none;white-space:nowrap;}
 .th-sortable:hover{background-color:rgba(99,76,64,.08);}
