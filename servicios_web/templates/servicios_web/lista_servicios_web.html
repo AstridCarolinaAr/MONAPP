@@ -25,12 +25,46 @@
 {% endblock %}
 
 {% block page_actions %}
-<button type="button"
-        class="btn btn-sm btn-pill-dark"
-        id="btnOpenCrearServicioWeb"
-        data-url="{% url 'servicios_web:crear_servicio_web' %}">
-    <i class="bi bi-plus-lg me-1"></i> Nuevo Servicio Web
-</button>
+<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between w-100">
+    <div class="dropdown view-switcher">
+        <button class="btn btn-sm sw-view-toggle dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            <i class="bi bi-layout-text-window-reverse me-2"></i>
+            Organizar vista
+        </button>
+        <ul class="dropdown-menu sw-view-menu">
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn active" data-view="table">
+                    <i class="bi bi-table me-2"></i> Tabla
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn" data-view="grid-2">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> 2 por fila
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn" data-view="grid-3">
+                    <i class="bi bi-grid-3x3-gap-fill me-2"></i> 3 por fila
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn" data-view="grid-4">
+                    <i class="bi bi-grid-fill me-2"></i> 4 por fila
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <button type="button"
+            class="btn btn-sm btn-pill-dark"
+            id="btnOpenCrearServicioWeb"
+            data-url="{% url 'servicios_web:crear_servicio_web' %}">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Servicio Web
+    </button>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -113,6 +147,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const refreshServiciosWebWidgets = () => {
+        requestAnimationFrame(() => {
+            if (typeof initServiciosWeb === 'function') initServiciosWeb();
+            if (typeof initMetaballs === 'function') initMetaballs();
+        });
+    };
+
     // Animación intro del header
     const pageHeader = document.querySelector('.page-header');
     if (pageHeader) {
@@ -123,10 +164,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const wrap = document.getElementById('sw-resultados-wrap');
     if (wrap) {
         new MutationObserver(() => {
-            if (typeof initServiciosWeb === 'function')  initServiciosWeb();
-            if (typeof initMetaballs   === 'function')  initMetaballs();
+            refreshServiciosWebWidgets();
         }).observe(wrap, { childList: true, subtree: false });
     }
+
+    refreshServiciosWebWidgets();
 
     const ajaxSearchForm = document.getElementById('swSearchBar');
     const searchInput = ajaxSearchForm?.querySelector('.search-toggle-input');

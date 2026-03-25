@@ -55,8 +55,7 @@
                                 <div class="table-action-group ms-auto">
                                     <button type="button"
                                             class="table-action-btn btn-detalle-personal"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalDetallePersonal"
+                                            onclick="abrirModalDetallePersonal({{ persona.id }}); return false;"
                                             data-personal-id="{{ persona.id }}"
                                             data-nombre="{{ persona.nombres }} {{ persona.apellidos }}"
                                             data-documento="{{ persona.numero_documento }}"

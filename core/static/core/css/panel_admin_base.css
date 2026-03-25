@@ -1805,6 +1805,203 @@ small.text-muted {
     min-width: 150px;
 }
 
+/* Botones CRUD con etiqueta al pasar el mouse */
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm, .btn-outline-dark.btn-sm)[title],
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm, .btn-outline-dark.btn-sm)[title],
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm, .btn-outline-dark.btn-sm)[title],
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm, .btn-outline-dark.btn-sm)[title],
+.acciones-proveedor :is(.btn, a)[title],
+.acciones-group :is(.btn, a)[title],
+.acciones-wrap :is(.btn, a)[title],
+.pw-actions :is(.btn, a)[title],
+.lib-card__actions .lib-card__action-btn[title],
+.lib-row__actions .lib-card__action-btn[title],
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title],
+.services-table-wrapper .table-action-group .act[title],
+.services-table-wrapper .sw-actions .act[title] {
+    position: relative;
+    overflow: hidden;
+    width: 38px;
+    min-width: 38px;
+    padding: 0 !important;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    transition: width 0.18s ease, min-width 0.18s ease, padding 0.18s ease, transform 0.18s ease, background-color 0.18s ease, color 0.18s ease !important;
+}
+
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]::after,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]::after,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]::after,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]::after,
+.acciones-proveedor :is(.btn, a)[title]::after,
+.acciones-group :is(.btn, a)[title]::after,
+.acciones-wrap :is(.btn, a)[title]::after,
+.pw-actions :is(.btn, a)[title]::after,
+.lib-card__actions .lib-card__action-btn[title]::after,
+.lib-row__actions .lib-card__action-btn[title]::after,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]::after,
+.services-table-wrapper .table-action-group .act[title]::after,
+.services-table-wrapper .sw-actions .act[title]::after {
+    content: attr(title);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(2px) scale(0.96);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title] > i,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title] > i,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title] > i,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title] > i,
+.acciones-proveedor :is(.btn, a)[title] > i,
+.acciones-group :is(.btn, a)[title] > i,
+.acciones-wrap :is(.btn, a)[title] > i,
+.pw-actions :is(.btn, a)[title] > i,
+.lib-card__actions .lib-card__action-btn[title] > i,
+.lib-row__actions .lib-card__action-btn[title] > i,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title] > i,
+.services-table-wrapper .table-action-group .act[title] > i,
+.services-table-wrapper .sw-actions .act[title] > i {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover,
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible,
+.acciones-proveedor :is(.btn, a)[title]:hover,
+.acciones-proveedor :is(.btn, a)[title]:focus-visible,
+.acciones-group :is(.btn, a)[title]:hover,
+.acciones-group :is(.btn, a)[title]:focus-visible,
+.acciones-wrap :is(.btn, a)[title]:hover,
+.acciones-wrap :is(.btn, a)[title]:focus-visible,
+.pw-actions :is(.btn, a)[title]:hover,
+.pw-actions :is(.btn, a)[title]:focus-visible,
+.lib-card__actions .lib-card__action-btn[title]:hover,
+.lib-card__actions .lib-card__action-btn[title]:focus-visible,
+.lib-row__actions .lib-card__action-btn[title]:hover,
+.lib-row__actions .lib-card__action-btn[title]:focus-visible,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]:hover,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]:focus-visible,
+.services-table-wrapper .table-action-group .act[title]:hover,
+.services-table-wrapper .table-action-group .act[title]:focus-visible,
+.services-table-wrapper .sw-actions .act[title]:hover,
+.services-table-wrapper .sw-actions .act[title]:focus-visible {
+    width: max-content;
+    min-width: 110px;
+    padding: 0 12px !important;
+    gap: 6px;
+}
+
+.table-action-group .btn-crud-wide[title]:hover,
+.table-action-group .btn-crud-wide[title]:focus-visible,
+.table-dashboard td .btn-crud-wide[title]:hover,
+.table-dashboard td .btn-crud-wide[title]:focus-visible,
+.styled-table td .btn-crud-wide[title]:hover,
+.styled-table td .btn-crud-wide[title]:focus-visible {
+    min-width: 150px;
+    padding: 0 16px !important;
+}
+
+.table-action-group .btn-crud-wide[title]::after,
+.table-dashboard td .btn-crud-wide[title]::after,
+.styled-table td .btn-crud-wide[title]::after {
+    font-size: 0.78rem;
+}
+
+.table-action-group .btn-crud-wide--devolucion[title]:hover,
+.table-action-group .btn-crud-wide--devolucion[title]:focus-visible,
+.table-dashboard td .btn-crud-wide--devolucion[title]:hover,
+.table-dashboard td .btn-crud-wide--devolucion[title]:focus-visible,
+.styled-table td .btn-crud-wide--devolucion[title]:hover,
+.styled-table td .btn-crud-wide--devolucion[title]:focus-visible {
+    min-width: 280px;
+    padding: 0 20px 0 4px !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+}
+
+.table-action-group .btn-crud-wide--devolucion[title]::after,
+.table-dashboard td .btn-crud-wide--devolucion[title]::after,
+.styled-table td .btn-crud-wide--devolucion[title]::after {
+    font-size: 0.72rem;
+    justify-content: flex-start;
+    padding-left: 4px;
+}
+
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover::after,
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible::after,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover::after,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible::after,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover::after,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible::after,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover::after,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible::after,
+.acciones-proveedor :is(.btn, a)[title]:hover::after,
+.acciones-proveedor :is(.btn, a)[title]:focus-visible::after,
+.acciones-group :is(.btn, a)[title]:hover::after,
+.acciones-group :is(.btn, a)[title]:focus-visible::after,
+.acciones-wrap :is(.btn, a)[title]:hover::after,
+.acciones-wrap :is(.btn, a)[title]:focus-visible::after,
+.pw-actions :is(.btn, a)[title]:hover::after,
+.pw-actions :is(.btn, a)[title]:focus-visible::after,
+.lib-card__actions .lib-card__action-btn[title]:hover::after,
+.lib-card__actions .lib-card__action-btn[title]:focus-visible::after,
+.lib-row__actions .lib-card__action-btn[title]:hover::after,
+.lib-row__actions .lib-card__action-btn[title]:focus-visible::after,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]:hover::after,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]:focus-visible::after,
+.services-table-wrapper .table-action-group .act[title]:hover::after,
+.services-table-wrapper .table-action-group .act[title]:focus-visible::after,
+.services-table-wrapper .sw-actions .act[title]:hover::after,
+.services-table-wrapper .sw-actions .act[title]:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover > i,
+.table-action-group :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible > i,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover > i,
+.table-dashboard td :is(.table-action-btn, .btn-action-round, .act, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible > i,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover > i,
+.styled-table td :is(.table-action-btn, .btn-action-round, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible > i,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:hover > i,
+.promo-actions :is(.btn, .btn-link, .btn-outline-info.btn-sm, .btn-outline-danger.btn-sm)[title]:focus-visible > i,
+.acciones-proveedor :is(.btn, a)[title]:hover > i,
+.acciones-proveedor :is(.btn, a)[title]:focus-visible > i,
+.acciones-group :is(.btn, a)[title]:hover > i,
+.acciones-group :is(.btn, a)[title]:focus-visible > i,
+.acciones-wrap :is(.btn, a)[title]:hover > i,
+.acciones-wrap :is(.btn, a)[title]:focus-visible > i,
+.pw-actions :is(.btn, a)[title]:hover > i,
+.pw-actions :is(.btn, a)[title]:focus-visible > i,
+.lib-card__actions .lib-card__action-btn[title]:hover > i,
+.lib-card__actions .lib-card__action-btn[title]:focus-visible > i,
+.lib-row__actions .lib-card__action-btn[title]:hover > i,
+.lib-row__actions .lib-card__action-btn[title]:focus-visible > i,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]:hover > i,
+td :is(.btn-ver-detalle, .btn-editar, .btn-devolucion)[title]:focus-visible > i,
+.services-table-wrapper .table-action-group .act[title]:hover > i,
+.services-table-wrapper .table-action-group .act[title]:focus-visible > i,
+.services-table-wrapper .sw-actions .act[title]:hover > i,
+.services-table-wrapper .sw-actions .act[title]:focus-visible > i {
+    opacity: 0;
+    transform: scale(0.35);
+}
+
 .table-action-btn,
 .styled-table td .btn.btn-link,
 .styled-table td .btn-action-round,

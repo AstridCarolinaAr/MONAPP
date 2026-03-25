@@ -51,7 +51,7 @@ Ventas
 {% block content %}
 
 <div class="module-filters-card ventas-filters-card">
-  <form method="get" class="ventas-filters-form">
+  <form method="get" class="ventas-filters-form js-instant-filter-form" data-instant-filter-debounce="300">
       {% if estado_stock %}
           <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
       {% endif %}
@@ -70,7 +70,7 @@ Ventas
       </div>
 
       <div class="ventas-filter-status">
-        <label class="module-filter-label">Filtrar</label>
+        <label class="module-filter-label">Estado</label>
         <select name="estado" class="form-select ventas-toolbar-select">
           <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
           <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
@@ -79,9 +79,6 @@ Ventas
       </div>
 
       <div class="ventas-toolbar-actions">
-        <button type="submit" class="module-filter-btn module-filter-btn--primary">
-          <i class="bi bi-funnel"></i> Filtrar
-        </button>
         <a href="{% url 'ventas:lista' %}" class="module-filter-btn module-filter-btn--secondary">
           <i class="bi bi-arrow-clockwise"></i> Limpiar
         </a>
@@ -234,7 +231,7 @@ Ventas
           {% if venta.estado == 'activa' %}
           <button
             type="button"
-            class="btn-devolucion"
+            class="btn-devolucion btn-crud-wide btn-crud-wide--devolucion"
             data-id="{{ venta.id }}"
             data-url="{% url 'ventas:devolucion_items' venta.id %}"
             data-url-registrar="{% url 'ventas:registrar_devolucion' venta.id %}"

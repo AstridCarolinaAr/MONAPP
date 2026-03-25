@@ -62,9 +62,6 @@
             </div>
 
             <div class="module-filter-actions">
-                <button type="submit" class="module-filter-btn module-filter-btn--primary">
-                    <i class="bi bi-filter"></i> Filtrar
-                </button>
                 {% if q or activa_filter or orden %}
                 <a href="{% url 'promociones:lista' %}"
                    class="module-filter-btn module-filter-btn--secondary">

@@ -6,127 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'clientes/css/cliente.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-<style>
-.clientes-page-icon{display:inline-block;opacity:0;animation:cli-icon-drive .9s cubic-bezier(.22,1,.36,1) .05s forwards;}
-.clientes-title-text{display:inline-block;opacity:0;transform:translateX(-10px);animation:cli-title-reveal .4s cubic-bezier(.34,1.56,.64,1) .75s forwards;}
-.clientes-subtitle-anim{display:inline-block;opacity:0;animation:cli-subtitle-in .35s ease 1s forwards;}
-@keyframes cli-icon-drive{0%{opacity:0;transform:translateX(120px);}65%{opacity:1;transform:translateX(-5px);}82%{transform:translateX(3px);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cli-title-reveal{0%{opacity:0;transform:translateX(-10px);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cli-subtitle-in{0%{opacity:0;transform:translateY(5px);}100%{opacity:1;transform:translateY(0);}}
-.anim-from-top{opacity:0;animation:cli-slide-top .45s cubic-bezier(.22,1,.36,1) .05s forwards;}
-.anim-from-bottom{opacity:0;animation:cli-slide-bottom .45s cubic-bezier(.22,1,.36,1) forwards;}
-@keyframes cli-slide-top{0%{opacity:0;transform:translateY(-22px);}100%{opacity:1;transform:translateY(0);}}
-@keyframes cli-slide-bottom{0%{opacity:0;transform:translateY(22px);}100%{opacity:1;transform:translateY(0);}}
-@media(prefers-reduced-motion:reduce){.clientes-page-icon,.clientes-title-text,.clientes-subtitle-anim,.anim-from-top,.anim-from-bottom{animation:none!important;opacity:1!important;transform:none!important;}}
 
-.clientes-panel{background:#fffaf6!important;border:1px solid #e6d7cc!important;border-radius:14px!important;padding:18px 20px!important;box-shadow:0 4px 12px rgba(56,40,34,.06)!important;}
-.card.border-0.shadow-sm{border:1px solid #e6d7cc!important;border-radius:10px!important;overflow:hidden;box-shadow:none!important;}
-.th-sortable{cursor:pointer;user-select:none;white-space:nowrap;}
-.th-sortable:hover{background-color:rgba(99,76,64,.08);}
-
-.switch-estado-cliente{background-color:#ced4da!important;border-color:#ced4da!important;border-radius:2em!important;}
-.switch-estado-cliente:checked{background-color:#634c40!important;border-color:#634c40!important;}
-.switch-estado-cliente:focus,.switch-estado-cliente:active{outline:none!important;}
-
-.btn-close-dev{
-  background:none;
-  border:none;
-  padding:0;
-  cursor:pointer;
-  width:32px;
-  height:32px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  transition:background .2s ease;
-}
-.btn-close-dev:hover{background:rgba(255,255,255,.12);}
-.btn-close-dev__icon{
-  display:inline-block;
-  color:rgba(255,255,255,.9);
-  font-size:1rem;
-  line-height:1;
-  transform:rotate(0deg);
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .25s ease;
-}
-.btn-close-dev:hover .btn-close-dev__icon{
-  transform:rotate(180deg);
-  color:#fff;
-}
-
-.modal-xl-custom{
-  max-width:900px!important;
-  width:85vw!important;
-  min-width:320px!important;
-  margin:0!important;
-  border-radius:14px;
-  padding:0!important;
-  position:fixed!important;
-  top:50%!important;
-  left:50%!important;
-  transform:translate(-50%,-50%)!important;
-  z-index:1060!important;
-}
-
-.form-label{font-weight:600;color:#5c4a42;}
-.modal .invalid-feedback{display:block;}
-.modal .form-control.is-valid,
-.modal .form-select.is-valid{
-  border-color:#198754!important;
-}
-.modal .form-control.is-valid:focus,
-.modal .form-select.is-valid:focus{
-  box-shadow:0 0 0 .2rem rgba(25,135,84,.15)!important;
-}
-.modal .form-control.is-invalid,
-.modal .form-select.is-invalid{
-  border-color:#dc3545!important;
-}
-.modal .form-control.is-invalid:focus,
-.modal .form-select.is-invalid:focus{
-  box-shadow:0 0 0 .2rem rgba(220,53,69,.15)!important;
-}
-
-.cliente-detail-modal{border-radius:18px;overflow:hidden;}
-.cliente-detail-header{
-  background:linear-gradient(135deg,#3a0d06 0%,#4a1d13 55%,#7a4f3b 100%);
-  border:none;padding:16px 24px;color:#fff;
-}
-.cliente-detail-header .modal-title{font-weight:700;letter-spacing:.2px;}
-.cliente-detail-header .btn-close{filter:invert(1);opacity:.95;}
-.cliente-detail-body{padding:24px 24px 10px;}
-.cliente-visual-card{
-  background:#f5efeb;border:1px solid #e2d2c6;border-radius:16px;padding:16px 12px;text-align:center;
-}
-.cliente-visual-icon-wrap{display:flex;justify-content:center;margin-bottom:10px;}
-.cliente-visual-icon-bg{
-  width:92px;height:92px;border:1px solid #d8c2b2;border-radius:24px;
-  display:flex;align-items:center;justify-content:center;background:#efe7e2;
-}
-.cliente-visual-icon{font-size:2rem;color:#7b4b32;}
-.cliente-visual-mini{margin-top:10px;}
-.cliente-mini-label{display:block;font-size:.95rem;color:#7a5a47;margin-bottom:8px;}
-.cliente-mini-badge{
-  display:inline-flex;width:48px;height:48px;border-radius:999px;background:#3f2a20;color:#fff;
-  align-items:center;justify-content:center;font-weight:700;font-size:1.05rem;
-}
-.cliente-detail-title{font-size:2rem;font-weight:800;color:#2a1d1a;line-height:1.1;}
-.cliente-detail-subtitle{font-size:1.1rem;color:#8a654f;border-bottom:1px solid #ddcec3;padding-bottom:8px;}
-.cliente-info-item{padding-right:10px;}
-.cliente-info-label{
-  display:block;font-weight:700;color:#6f3f28;font-size:1rem;margin-bottom:3px;
-}
-.cliente-info-value{display:block;color:#2d2320;font-size:1.2rem;}
-.cliente-estado-badge{
-  border-radius:999px;padding:.45rem .95rem;font-size:1rem;font-weight:700;
-}
-.cliente-estado-badge.is-activo{background:#cfe6d5;color:#1c7a3c;}
-.cliente-estado-badge.is-inactivo{background:#e2e3e5;color:#5d6267;}
-.cliente-detail-section{border-top:1px solid #ddcec3;padding-top:12px;}
-.cliente-section-title{font-size:1.35rem;font-weight:800;color:#2a1d1a;}
-.cliente-section-text{color:#5f5460;font-size:1.05rem;line-height:1.55;}
-</style>
 {% endblock %}
 
 {% block breadcrumb_items %}
@@ -156,22 +36,22 @@
 
     <!-- Panel de filtros -->
     <form method="get"
-          class="clientes-panel mb-4 js-ajax-search-form anim-from-bottom"
+          class="module-filters-card clientes-filters-card mb-4 js-ajax-search-form anim-from-bottom"
           style="animation-delay:.10s"
           data-ajax-url="{% url 'clientes:lista' %}"
           data-ajax-target=".ajax-results-container"
           data-ajax-debounce="300">
 
-        <div class="clientes-busqueda-wrap mb-3">
-            <div class="clientes-busqueda-global">
-                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
+        <div class="module-filters-form clientes-filters-form">
+            <div class="module-filter-field module-filter-field--wide clientes-search-field">
+                <label class="module-filter-label">Buscar</label>
+                <div class="clientes-busqueda-global">
+                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
+                </div>
             </div>
-        </div>
 
-        <div class="row g-3 align-items-end clientes-filtros-row">
-            <!-- ESTADO -->
-            <div class="col-xl-2 col-lg-3 col-md-6">
-                <label class="form-label clientes-label">Estado</label>
+            <div class="module-filter-field module-filter-field--small">
+                <label class="module-filter-label">Estado</label>
                 <select name="estado" class="form-select">
                     <option value="">Todos</option>
                     <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
@@ -179,9 +59,8 @@
                 </select>
             </div>
 
-            <!-- EDAD -->
-            <div class="col-xl-2 col-lg-2 col-md-6">
-                <label class="form-label clientes-label">Edad</label>
+            <div class="module-filter-field module-filter-field--small">
+                <label class="module-filter-label">Edad</label>
                 <select name="edad" class="form-select">
                     <option value="">Todas</option>
                     <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
@@ -189,9 +68,8 @@
                 </select>
             </div>
 
-            <!-- ORDEN -->
-            <div class="col-xl-3 col-lg-2 col-md-6">
-                <label class="form-label clientes-label">Ordenar</label>
+            <div class="module-filter-field module-filter-field--medium">
+                <label class="module-filter-label">Ordenar</label>
                 <select name="orden" class="form-select">
                     <option value="">Seleccionar</option>
                     <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
@@ -203,13 +81,8 @@
                 </select>
             </div>
 
-            <!-- ACCIONES -->
-            <div class="col-xl-2 col-lg-2 col-md-12">
+            <div class="module-filter-field module-filter-field--small clientes-actions-field">
                 <div class="clientes-acciones">
-                    <button type="submit" class="btn btn-outline-secondary">
-                        <i class="bi bi-filter"></i>
-                    </button>
-
                     {% if q or estado or edad or orden %}
                     <a href="{% url 'clientes:lista' %}" class="btn btn-outline-danger">
                         <i class="bi bi-x-lg"></i>
@@ -776,6 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var btn = e.target.closest('.btn-editar-cliente');
     if (!btn) return;
 
+    e.preventDefault();
     var url = btn.dataset.url;
     limpiarErroresEditar();
 
@@ -797,6 +671,10 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('editar_estado').value = data.estado || 'activo';
 
       bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarCliente')).show();
+    })
+    .catch(function(error) {
+      console.error('Error cargando cliente para edición:', error);
+      window.location.href = url;
     });
   });
 

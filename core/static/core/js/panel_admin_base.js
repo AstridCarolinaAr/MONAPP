@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initAccessibility();
     initDashboardChart();
     initAjaxFilterForms();
+    initInstantFilterForms();
     initSearchToggle();
     if (typeof initSmartFormValidation === 'function') {
         initSmartFormValidation();
@@ -406,12 +407,62 @@ function initAjaxFilterForms() {
             submitAjaxForm(true);
         });
 
-        form.querySelectorAll('select, input[type="date"]').forEach(function (field) {
+        form.querySelectorAll('select, input[type="date"], input[type="checkbox"], input[type="radio"]').forEach(function (field) {
             field.addEventListener('change', function () {
                 submitAjaxForm(true);
             });
         });
 
+        form.querySelectorAll('input[type="text"], input[type="search"], textarea').forEach(function (field) {
+            field.addEventListener('input', function () {
+                submitAjaxForm(false);
+            });
+        });
+
         form._submitAjaxSearch = submitAjaxForm;
+    });
+}
+
+function initInstantFilterForms() {
+    const forms = document.querySelectorAll('.js-instant-filter-form');
+
+    forms.forEach(function (form) {
+        if (form.dataset.instantFilterInit === 'true') return;
+        form.dataset.instantFilterInit = 'true';
+
+        let debounceTimer = null;
+        const debounceMs = parseInt(form.dataset.instantFilterDebounce || '250', 10);
+
+        function submitNow() {
+            form.submit();
+        }
+
+        function queueSubmit(immediate = false) {
+            clearTimeout(debounceTimer);
+
+            if (immediate) {
+                submitNow();
+                return;
+            }
+
+            debounceTimer = setTimeout(submitNow, debounceMs);
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitNow();
+        });
+
+        form.querySelectorAll('select, input[type="date"], input[type="checkbox"], input[type="radio"]').forEach(function (field) {
+            field.addEventListener('change', function () {
+                queueSubmit(true);
+            });
+        });
+
+        form.querySelectorAll('input[type="text"], input[type="search"], textarea').forEach(function (field) {
+            field.addEventListener('input', function () {
+                queueSubmit(false);
+            });
+        });
     });
 }

@@ -329,7 +329,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 <div class="container-fluid px-4 py-4">
 
     <div class="module-filters-card pw-filter-card">
-        <form method="get" class="module-filters-form pw-filter-form">
+        <form method="get" class="module-filters-form pw-filter-form js-instant-filter-form" data-instant-filter-debounce="300">
             <div class="module-filter-field module-filter-field--wide pw-filter-field pw-filter-field--search">
                 <label class="module-filter-label">Buscar</label>
                 {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto del catalogo...' search_value=q name='q' modo='inline' %}

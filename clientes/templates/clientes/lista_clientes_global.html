@@ -40,13 +40,13 @@
                             <i class="bi bi-eye"></i>
                         </button>
 
-                        <button type="button"
-                                class="table-action-btn btn-editar-cliente"
-                                data-url="{% url 'clientes:editar' cliente.id %}"
-                                title="Editar"
-                                aria-label="Editar cliente {{ cliente.nombre }} {{ cliente.apellido }}">
+                        <a href="{% url 'clientes:editar' cliente.id %}"
+                           class="table-action-btn btn-editar-cliente"
+                           data-url="{% url 'clientes:editar' cliente.id %}"
+                           title="Editar"
+                           aria-label="Editar cliente {{ cliente.nombre }} {{ cliente.apellido }}">
                             <i class="bi bi-pencil-square"></i>
-                        </button>
+                        </a>
                     </div>
 
                     <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">

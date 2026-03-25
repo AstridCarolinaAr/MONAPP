@@ -60,9 +60,6 @@
             <h3>{{ servicio.nombre }}</h3>
             <p class="price">${{ servicio.precio|floatformat:0 }}</p>
             <p class="text-white-50 small description-truncate">{{ servicio.descripcion }}</p>
-            <span class="badge badge-sw-coffee">
-                {% if servicio.activo %}Activo{% else %}Inactivo{% endif %}
-            </span>
         </div>
     </div>
 
@@ -107,7 +104,6 @@
                     <tr data-nombre="{{ servicio.nombre|lower }}"
                         data-precio="{{ servicio.precio }}"
                         data-descripcion="{{ servicio.descripcion|lower }}"
-                        data-estado="{% if servicio.activo %}activo{% else %}inactivo{% endif %}"
                         data-search="{{ servicio.nombre|lower }} {{ servicio.descripcion|lower }} {{ servicio.precio }} {% if servicio.activo %}activo{% else %}inactivo{% endif %}">
                         
                         <td class="text-center">

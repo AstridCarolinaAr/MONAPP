@@ -277,7 +277,10 @@ document.addEventListener("DOMContentLoaded", () => {
             serviciosWebView.dataset.view = view;
             localStorage.setItem("servicios_web_view_mode", view);
             document.querySelectorAll(".sw-view-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
-            if (view !== "table") animarCardsGrid();
+            if (view !== "table") {
+                animarCardsGrid();
+                window.initMetaballs?.();
+            }
         }
 
         document.querySelectorAll(".sw-view-btn").forEach(btn => {
