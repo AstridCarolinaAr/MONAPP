@@ -206,6 +206,40 @@ def editar_producto(request, codigo):
 
     return render(request, "productos/editar_producto.html", context)
 
+
+@login_required
+def validar_nombre_producto(request):
+    nombre = (request.GET.get("nombre") or "").strip()
+    producto_id = (request.GET.get("producto_id") or "").strip()
+
+    if not nombre:
+        return JsonResponse({"valido": False, "mensaje": "El nombre es obligatorio."})
+
+    if len(nombre) < 3:
+        return JsonResponse({"valido": False, "mensaje": "Debe tener al menos 3 caracteres."})
+
+    if not all(ch.isalnum() or ch.isspace() for ch in nombre):
+        return JsonResponse({
+            "valido": False,
+            "mensaje": "El nombre solo puede contener letras, numeros y espacios.",
+        })
+
+    qs = Producto.objects.filter(nombre__iexact=nombre)
+
+    if producto_id:
+        try:
+            qs = qs.exclude(pk=int(producto_id))
+        except (TypeError, ValueError):
+            pass
+
+    if qs.exists():
+        return JsonResponse({
+            "valido": False,
+            "mensaje": "Ya existe un producto con este nombre.",
+        })
+
+    return JsonResponse({"valido": True, "mensaje": ""})
+
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 

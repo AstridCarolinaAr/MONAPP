@@ -137,6 +137,7 @@ document.addEventListener("click", async (e) => {
   e.preventDefault();
 
   const url = btn.dataset.url;
+  const toggleUrl = btn.dataset.toggleUrl || url.replace("/eliminar/", "/toggle-activo/");
   const nombre = btn.dataset.nombre || "este producto";
   const activo = btn.dataset.activo === "1";
 
@@ -162,13 +163,16 @@ document.addEventListener("click", async (e) => {
   if (!r.isConfirmed) return;
 
   // Acción según estado
-  const action = activo ? "delete" : "activate";
+  const action = activo ? "delete" : "toggle";
 
   try {
+    const requestUrl = action === "toggle" ? toggleUrl : url;
     const formData = new FormData();
-    formData.append("action", action);
+    if (action === "delete") {
+      formData.append("action", action);
+    }
 
-    const resp = await fetch(url, {
+    const resp = await fetch(requestUrl, {
       method: "POST",
       body: formData,
       headers: {
@@ -181,9 +185,20 @@ document.addEventListener("click", async (e) => {
     const data = await resp.json().catch(() => ({}));
 
     // ✅ OK
-    if (resp.ok && (data.status === "deleted" || data.status === "activated")) {
+    const fueExitoso =
+      (data && data.success === true) ||
+      data.status === "deleted" ||
+      data.status === "activated" ||
+      data.status === "inactivated";
+
+    if (resp.ok && fueExitoso) {
       await Swal.fire({
-        title: data.status === "deleted" ? "Eliminado" : "Reactivado",
+        title:
+          data.status === "deleted"
+            ? "Eliminado"
+            : data.status === "inactivated" || data.activo === false
+              ? "Desactivado"
+              : "Reactivado",
         icon: "success",
         confirmButtonColor: "#8b5a3c",
       });
@@ -192,7 +207,7 @@ document.addEventListener("click", async (e) => {
     }
 
     // ✅ PROTEGIDO => ofrecer desactivar
-    if (resp.status === 409 || data.status === "protected") {
+  if (resp.status === 409 || data.status === "protected") {
       const r2 = await Swal.fire({
         title: data.title || "No se puede eliminar",
         html: `
@@ -208,12 +223,8 @@ document.addEventListener("click", async (e) => {
 
       if (!r2.isConfirmed) return;
 
-      const fd2 = new FormData();
-      fd2.append("action", "deactivate");
-
-      const resp2 = await fetch(url, {
+      const resp2 = await fetch(toggleUrl, {
         method: "POST",
-        body: fd2,
         headers: {
           "X-Requested-With": "XMLHttpRequest",
           "X-CSRFToken": csrf,
@@ -223,7 +234,7 @@ document.addEventListener("click", async (e) => {
 
       const data2 = await resp2.json().catch(() => ({}));
 
-      if (resp2.ok && data2.status === "inactivated") {
+      if (resp2.ok && (data2.status === "inactivated" || data2.activo === false)) {
         await Swal.fire({
           title: "Desactivado",
           text: "El producto fue desactivado correctamente.",

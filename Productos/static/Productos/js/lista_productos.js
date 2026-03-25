@@ -17,14 +17,16 @@
       });
     }
 
-    document.addEventListener("click", async (e) => {
-      const btn = e.target.closest(".js-toggle-producto-estado");
-      if (!btn) return;
+    document.addEventListener("change", async (e) => {
+      const input = e.target.closest(".js-toggle-producto-estado");
+      if (!input || input.type !== "checkbox") return;
 
-      e.preventDefault();
-
-      const url = btn.dataset.url;
+      const url = input.dataset.url;
       if (!url) return;
+
+      const nuevoEstado = input.checked;
+      const nombre = input.dataset.nombre || "el producto";
+      input.disabled = true;
 
       try {
         const response = await fetch(url, {
@@ -39,14 +41,29 @@
         const data = await response.json().catch(() => ({}));
 
         if (response.ok && data.success) {
+          input.dataset.activo = nuevoEstado ? "1" : "0";
+          if (typeof Swal !== "undefined" && Swal.fire) {
+            await Swal.fire({
+              title: "Estado actualizado",
+              text: nuevoEstado
+                ? `${nombre} ahora está activo`
+                : `${nombre} ahora ya no está activo`,
+              icon: "success",
+              confirmButtonColor: "#4b2f2a",
+            });
+          }
           window.location.reload();
           return;
         }
 
+        input.checked = !nuevoEstado;
         alert(data.message || "No se pudo cambiar el estado del producto.");
       } catch (error) {
         console.error(error);
+        input.checked = !nuevoEstado;
         alert("Error de conexión al cambiar el estado.");
+      } finally {
+        input.disabled = false;
       }
     });
   // =========================
@@ -184,8 +201,8 @@ if (
           if (d.imagen && d.imagen.trim()) {
             imgEl.src = d.imagen;
             imgEl.classList.remove("d-none");
-            imgEl.classList.add("js-img-zoom");
-            imgEl.setAttribute("data-src", d.imagen);
+            imgEl.classList.remove("js-img-zoom");
+            imgEl.removeAttribute("data-src");
 
             if (noImgEl) {
               noImgEl.classList.add("d-none");

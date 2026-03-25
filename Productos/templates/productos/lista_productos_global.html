@@ -1,6 +1,7 @@
 {% load humanize %}
 {% load sort_tags %}
 
+<div class="table-card anim-from-bottom productos-table-card">
 <div class="table-responsive">
   <table class="styled-table">
     <thead>
@@ -60,7 +61,7 @@
           {% if producto.imagen %}
             <img
               src="{{ producto.imagen.url }}"
-              class="img-thumb js-img-zoom"
+              class="img-thumb"
               data-src="{{ producto.imagen.url }}"
               alt="Imagen {{ producto.nombre }}"
             >
@@ -70,14 +71,16 @@
         </td>
 
         <td class="text-center">
-          <button type="button"
-                  class="estado-switch js-toggle-producto-estado btn p-0 border-0 bg-transparent {% if producto.activo %}is-on{% else %}is-off{% endif %}"
+          <label class="table-switch-wrapper" title="{% if producto.activo %}Inactivar{% else %}Activar{% endif %}" data-bs-placement="bottom">
+            <input type="checkbox"
+                   class="toggle-activo-checkbox js-toggle-producto-estado"
                   data-url="{% url 'productos:toggle_activo_producto' producto.codigo %}"
                   data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
-                  title="{% if producto.activo %}Inactivar{% else %}Activar{% endif %}"
-                  aria-label="{% if producto.activo %}Inactivar{% else %}Activar{% endif %} producto {{ producto.nombre }}">
-            <span class="switch-thumb"></span>
-          </button>
+                  data-nombre="{{ producto.nombre|escapejs }}"
+                   {% if producto.activo %}checked{% endif %}
+                   aria-label="{% if producto.activo %}Inactivar{% else %}Activar{% endif %} producto {{ producto.nombre }}">
+            <span class="table-switch-slider"></span>
+          </label>
         </td>
 
         <td class="col-acciones text-center">
@@ -115,6 +118,7 @@
             <button type="button"
                     class="btn btn-link btn-action-round"
                     data-url="{% url 'productos:eliminar_producto' producto.codigo %}"
+                    data-toggle-url="{% url 'productos:toggle_activo_producto' producto.codigo %}"
                     data-nombre="{{ producto.nombre|escapejs }}"
                     data-activo="{% if producto.activo %}1{% else %}0{% endif %}"
                     title="{% if producto.activo %}Eliminar{% else %}Reactivar{% endif %}"
@@ -138,4 +142,5 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
 </div>
