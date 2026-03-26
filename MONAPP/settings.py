@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'compras.apps.ComprasConfig',
     'django_bootstrap5',  
     'promociones',
-    'Gestion',
     'servicios_web',
     'servicios.apps.ServiciosConfig',
     'notificaciones',

@@ -1,11 +1,11 @@
-﻿{% extends 'core/panel_admin_base.html' %}
+{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 {% load humanize %}
 
 {% block title %}Catálogo Web{% endblock %}
 
 {% block page_icon %}<i class="bi bi-globe2 page-icon"></i>{% endblock %}
-{% block page_title %}Catalogo Web{% endblock %}
+{% block page_title %}Productos Web{% endblock %}
 {% block page_subtitle %}Gestion de productos del catalogo web{% endblock %}
 {% block page_actions %}
 <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
@@ -457,8 +457,19 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                No hay productos registrados en el catálogo web
+                            <td colspan="6" class="text-center" style="padding: 60px 20px; background-color: #fcf9f7;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                                    <div style="width: 80px; height: 80px; background: rgba(75, 47, 42, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(75, 47, 42, 0.05);">
+                                        <i class="bi bi-box-seam" style="font-size: 2.2rem; color: #4b2f2a; opacity: 0.85;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="font-size: 1.25rem; font-weight: 700; color: #3a2117; margin-bottom: 6px;">No hay productos registrados</h4>
+                                        <p style="color: #8b6f60; font-size: 0.95rem; max-width: 420px; margin: 0 auto; line-height: 1.5;">Actualmente no tienes productos en tu catálogo web. Comienza publicando tu primer producto para que sea visible en la tienda virtual.</p>
+                                    </div>
+                                    <button type="button" class="btn-pill-dark mt-3" data-bs-toggle="modal" data-bs-target="#modalAgregar" style="white-space: nowrap !important; width: fit-content !important; min-width: 200px; padding: 10px 24px; font-size: 0.95rem; border: none; outline: none; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="bi bi-plus-lg"></i> Crear nuevo producto
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
