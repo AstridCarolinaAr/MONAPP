@@ -80,14 +80,17 @@
                     </a>
                 </li>
 
+                {% if permisos.productos.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'productos:lista_productos' %}">
                         <i class="bi bi-box-seam"></i>
                         <span>Productos</span>
                     </a>
                 </li>
+                {% endif %}
 
                 <!-- Personas y Aliados (menú desplegable) -->
+                {% if permisos.personal.ver or permisos.proveedores.ver or permisos.clientes.ver %}
                 <li class="nav-item has-submenu">
                     <a class="nav-link submenu-toggle" href="#personasMenu" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="personasMenu">
@@ -97,57 +100,73 @@
                     </a>
                     <div class="collapse submenu" id="personasMenu">
                         <ul class="nav flex-column">
+                            {% if permisos.personal.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'personal:lista_personal' %}">
                                     <i class="bi bi-person-badge"></i>
                                     <span>Personal</span>
                                 </a>
                             </li>
+                            {% endif %}
+                            {% if permisos.proveedores.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'proveedores:lista_proveedor' %}">
                                     <i class="bi bi-truck"></i>
                                     <span>Proveedores</span>
                                 </a>
                             </li>
+                            {% endif %}
+                            {% if permisos.clientes.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'clientes:lista' %}">
                                     <i class="bi bi-person-heart"></i>
                                     <span>Clientes</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </li>
+                {% endif %}
 
+                {% if permisos.ventas.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'ventas:lista' %}">
                         <i class="bi bi-cart"></i>
                         <span>Ventas</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.inventario.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'inventario:inventario_lista' %}">
                         <i class="bi bi-gear"></i>
                         <span>Inventario</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.compras.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'compras:lista_compras' %}">
                         <i class="bi bi-gear"></i>
                         <span>Compras</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.servicios.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'servicios:lista_servicios' %}">
                         <i class="bi bi-stars"></i>
                         <span>Servicios</span>
                     </a>
                 </li>
+                {% endif %}
 
                 <!-- Catálogo Web (menú desplegable) -->
+                {% if permisos.productos_web.ver or permisos.promociones.ver or permisos.servicios_web.ver %}
                 <li class="nav-item has-submenu">
                     <a class="nav-link submenu-toggle" href="#catalogoWebMenu" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="catalogoWebMenu">
@@ -163,42 +182,53 @@
                                     <span>Productos Web</span>
                                 </a>
                             </li>
+                            {% if permisos.promociones.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'promociones:lista' %}">
                                     <i class="bi bi-percent"></i>
                                     <span>Promociones Web </span>
                                 </a>
                             </li>
+                            {% endif %}
+                            {% if permisos.servicios_web.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'servicios_web:lista_servicios_web' %}">
                                     <i class="bi bi-globe"></i>
                                     <span>Servicios Web</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </li>
+                {% endif %}
 
+                {% if permisos.usuarios.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'usuarios:lista_usuarios' %}">
                         <i class="bi bi-unlock-fill"></i>
                         <span>Usuarios</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.gestion_alisados.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'gestion_alisados:lista_gestion_alisados' %}">
                         <i class="bi bi-database"></i>
                         <span>Gestión de Datos</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.backup.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'backup:dashboard' %}">
                         <i class="bi bi-shield-lock"></i>
                         <span>Copia de Seguridad</span>
                     </a>
                 </li>
+                {% endif %}
 
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'core:ayuda' %}">
@@ -259,7 +289,7 @@
     <!-- ================= CONTENIDO PRINCIPAL ================= -->
     <main class="main-content" id="main-content" role="main">
         <!-- ── CAMPANA FLOTANTE ── -->
-        {% if user.is_staff or user.is_superuser %}
+        {% if permisos.notificaciones.ver %}
             <div class="topbar-notif">
                 <div class="topbar-notif-right">
                     <div id="notif-wrap"
