@@ -385,22 +385,17 @@ class DetalleDevolucionCompraForm(forms.ModelForm):
             qs_devueltas = qs_devueltas.exclude(pk=self.instance.pk)
 
         cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
-        disponible_para_devolver = max(
+        disponible_por_compra = max(
             (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
             0
         )
+        stock_actual = detalle_compra.producto.stock_actual or 0
+        disponible_para_devolver = min(disponible_por_compra, stock_actual)
 
         if cantidad > disponible_para_devolver:
             self.add_error(
                 "cantidad",
                 f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de este producto."
-            )
-
-        stock_actual = detalle_compra.producto.stock_actual or 0
-        if cantidad > stock_actual:
-            self.add_error(
-                "cantidad",
-                f"No puedes devolver {cantidad}. Stock disponible actual: {stock_actual}."
             )
 
         return cleaned_data
@@ -460,10 +455,12 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
                 qs_devueltas = qs_devueltas.exclude(pk=form.instance.pk)
 
             cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
-            disponible_para_devolver = max(
+            disponible_por_compra = max(
                 (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
                 0
             )
+            stock_actual = detalle_compra.producto.stock_actual or 0
+            disponible_para_devolver = min(disponible_por_compra, stock_actual)
 
             if total_en_formset > disponible_para_devolver:
                 form.add_error(

@@ -25,17 +25,18 @@
             <td>{% if c.usuario %}{{ c.usuario.username }}{% else %}-{% endif %}</td>
             <td>
               {% if c.anulada %}
-                <button type="button" class="btn-status-pill btn-status-pill--inactive" disabled>
-                  Anulada
-                </button>
+                <span class="compras-state-pill is-off" aria-label="Compra anulada" title="Anulada">
+                  <span class="compras-state-pill__knob"></span>
+                </span>
               {% else %}
                 <button type="button"
-                        class="btn-status-pill btn-status-pill--active js-anular-compra"
+                        class="compras-state-pill is-on js-anular-compra"
                         data-id="{{ c.id }}"
                         data-proveedor="{{ c.proveedor }}"
                         data-url="{% url 'compras:anular_compra' c.id %}"
-                        title="Anular compra">
-                  Activa
+                        aria-label="Anular compra"
+                        title="Haz clic para anular la compra">
+                  <span class="compras-state-pill__knob"></span>
                 </button>
               {% endif %}
             </td>
@@ -67,6 +68,16 @@
                       <i class="bi bi-pencil-square"></i>
                     </button>
                   {% endif %}
+
+                  <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm js-anular-compra"
+                      data-id="{{ c.id }}"
+                      data-proveedor="{{ c.proveedor }}"
+                      data-url="{% url 'compras:anular_compra' c.id %}"
+                      title="Anular compra">
+                    <i class="bi bi-trash3"></i>
+                  </button>
 
                   <button
                       type="button"
@@ -120,16 +131,17 @@
             <td>{% if d.usuario %}{{ d.usuario.username }}{% else %}-{% endif %}</td>
             <td>
               {% if d.anulada %}
-                <button type="button" class="btn-status-pill btn-status-pill--inactive" disabled>
-                  Anulada
-                </button>
+                <span class="compras-state-pill is-off" aria-label="Devolución anulada" title="Anulada">
+                  <span class="compras-state-pill__knob"></span>
+                </span>
               {% else %}
                 <button type="button"
-                        class="btn-status-pill btn-status-pill--active js-anular-devolucion"
+                        class="compras-state-pill is-on js-anular-devolucion"
                         data-id="{{ d.id }}"
                         data-url="{% url 'compras:anular_devolucion_compra' d.id %}"
-                        title="Anular devolucion">
-                  Activa
+                        aria-label="Anular devolución"
+                        title="Haz clic para anular la devolución">
+                  <span class="compras-state-pill__knob"></span>
                 </button>
               {% endif %}
             </td>

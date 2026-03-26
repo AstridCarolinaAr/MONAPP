@@ -66,6 +66,13 @@
 .modal .form-control,
 .modal .form-select {
   border-radius: 16px !important;
+  color: #2f241d !important;
+  background-color: #ffffff !important;
+}
+
+.compras-container .form-select option,
+.modal .form-select option {
+  color: #2f241d;
 }
 
 .compras-container .input-group,
@@ -198,40 +205,53 @@
 }
 
 /* ===== ESTADO EN TABLA ===== */
-.btn-status-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 74px;
-  padding: 6px 14px;
+.compras-state-pill {
+  position: relative;
+  display: inline-block;
+  width: 54px;
+  height: 28px;
   border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease, background .18s ease;
+  border: 1px solid #4f2f29;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+  vertical-align: middle;
+  overflow: hidden;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.btn-status-pill--active {
-  background: #a98c7b;
-  border-color: #a98c7b;
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(75, 47, 42, .18);
+.compras-state-pill.is-on {
+  background: #4f2f29;
 }
 
-.btn-status-pill--active:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
-}
-
-.btn-status-pill--inactive {
+.compras-state-pill.is-off {
   background: #d7cbc5;
-  border-color: #d7cbc5;
-  color: #5d463d;
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: .85;
+  border-color: #b8a49b;
+}
+
+.compras-state-pill__knob {
+  position: absolute;
+  top: 2px;
+  left: 28px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .22);
+  transition: left .2s ease, transform .2s ease;
+}
+
+.compras-state-pill.is-off .compras-state-pill__knob {
+  left: 2px;
+}
+
+.compras-state-pill.is-on .compras-state-pill__knob {
+  left: 30px;
+}
+
+.compras-state-pill:focus-visible {
+  outline: 3px solid rgba(79, 47, 41, .18);
+  outline-offset: 2px;
 }
 
 /* ===== FILTROS ===== */
@@ -763,18 +783,22 @@
 
 /* Header oscuro estilo compras */
 #ajaxFormModal .modal-header,
-#modalDetalleCompra .modal-header {
-  background: linear-gradient(90deg, #2b0704 0%, #4a1d12 45%, #5a2a1c 100%) !important;
-  border-bottom: none !important;
-  padding: 16px 22px !important;
-  min-height: 68px;
+#modalDetalleCompra .modal-header,
+#modalComprobante .modal-header {
+  background: linear-gradient(90deg, #240c08 0%, #3a2016 55%, #4b2f2a 100%) !important;
+  border-bottom: 0 !important;
+  border-top: 0 !important;
+  padding: 14px 22px !important;
+  min-height: 60px;
   display: flex;
   align-items: center;
+  box-shadow: none !important;
 }
 
 /* Título en blanco */
 #ajaxFormModal .modal-title,
-#modalDetalleCompra .modal-title {
+#modalDetalleCompra .modal-title,
+#modalComprobante .modal-title {
   color: #ffffff !important;
   font-weight: 700;
   font-size: 1.15rem;
@@ -784,41 +808,47 @@
 
 /* Botón cerrar en blanco */
 #ajaxFormModal .btn-close,
-#modalDetalleCompra .btn-close {
+#modalDetalleCompra .btn-close,
+#modalComprobante .btn-close {
   filter: brightness(0) invert(1);
   opacity: 0.95;
   box-shadow: none !important;
 }
 
 #ajaxFormModal .btn-close:hover,
-#modalDetalleCompra .btn-close:hover {
+#modalDetalleCompra .btn-close:hover,
+#modalComprobante .btn-close:hover {
   opacity: 1;
   transform: scale(1.05);
 }
 
 /* Body más limpio */
 #ajaxFormModal .modal-body,
-#modalDetalleCompra .modal-body {
+#modalDetalleCompra .modal-body,
+#modalComprobante .modal-body {
   background: #ffffff;
 }
 
 /* Si dentro del contenido AJAX vienen cards o bloques pegados arriba,
    esto ayuda a que respire mejor */
 #ajaxFormModal .modal-body > :first-child,
-#modalDetalleCompra .modal-body > :first-child {
+#modalDetalleCompra .modal-body > :first-child,
+#modalComprobante .modal-body > :first-child {
   margin-top: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   #ajaxFormModal .modal-header,
-  #modalDetalleCompra .modal-header {
-    padding: 14px 16px !important;
+  #modalDetalleCompra .modal-header,
+  #modalComprobante .modal-header {
+    padding: 12px 16px !important;
     min-height: 60px;
   }
 
   #ajaxFormModal .modal-title,
-  #modalDetalleCompra .modal-title {
+  #modalDetalleCompra .modal-title,
+  #modalComprobante .modal-title {
     font-size: 1rem;
   }
 }
@@ -831,38 +861,6 @@
   border-radius: 18px !important;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
-}
-
-#modalComprobante .modal-header {
-  background: linear-gradient(90deg, #2b0704 0%, #4a1d12 45%, #5a2a1c 100%) !important;
-  border-bottom: none !important;
-  padding: 16px 22px !important;
-  min-height: 68px;
-  display: flex;
-  align-items: center;
-}
-
-#modalComprobante .modal-title {
-  color: #fff !important;
-  font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: 0.2px;
-  margin: 0;
-}
-
-#modalComprobante .btn-close {
-  filter: brightness(0) invert(1);
-  opacity: 0.95;
-  box-shadow: none !important;
-}
-
-#modalComprobante .btn-close:hover {
-  opacity: 1;
-  transform: scale(1.05);
-}
-
-#modalComprobante .modal-body {
-  background: #fff;
 }
 /* ===== FILTRO COMPRAS SIN BORDE NI FONDO PASTEL ===== */
 .filtro-compras {
