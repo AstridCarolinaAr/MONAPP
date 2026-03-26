@@ -65,7 +65,7 @@
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         width: 90%;
         max-width: 900px;
-        max-height: 90vh;
+        max-height: 92vh;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -85,7 +85,7 @@
     }
 
     .modal-personal-header {
-        padding: 24px 32px;
+        padding: 16px 22px;
         background: linear-gradient(135deg, #1a0a0a 0%, #3a2117 60%, #4b2f2a 100%);
         color: white;
         display: flex;
@@ -96,7 +96,7 @@
 
     .modal-personal-header h3 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -124,9 +124,9 @@
     }
 
     .modal-personal-body {
-        padding: 32px;
+        padding: 18px 22px;
         overflow-y: auto;
-        max-height: calc(90vh - 100px);
+        max-height: calc(92vh - 82px);
     }
 
     #modalDetallePersonal .modal-personal-body {
@@ -468,12 +468,26 @@
                 const headers = new Headers(options.headers || {});
                 headers.set('X-Requested-With', 'XMLHttpRequest');
 
-                return fetch(url, { ...options, headers })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}`);
+                return fetch(url, { credentials: 'same-origin', ...options, headers })
+                    .then(async (response) => {
+                        const rawText = await response.text();
+                        let data = null;
+
+                        try {
+                            data = rawText ? JSON.parse(rawText) : {};
+                        } catch (e) {
+                            const snippet = (rawText || '').replace(/\s+/g, ' ').slice(0, 140);
+                            throw new Error(`Respuesta inválida del servidor (HTTP ${response.status}). ${snippet}`);
                         }
-                        return response.json();
+
+                        if (!response.ok) {
+                            const msg =
+                                (data && (data.message || data.mensaje || data.detail)) ||
+                                `HTTP ${response.status}`;
+                            throw new Error(msg);
+                        }
+
+                        return data;
                     });
             }
 
@@ -609,8 +623,8 @@
                         bindDynamicValidations();
                         bindPersonalForm('form-crear-personal', enviarFormularioPersonal);
                     })
-                    .catch(() => {
-                        showLoadError('modalPersonalBody', 'Error al cargar el formulario. Intenta nuevamente.');
+                    .catch((err) => {
+                        showLoadError('modalPersonalBody', (err && err.message) ? err.message : 'Error al cargar el formulario. Intenta nuevamente.');
                     });
             }
 
@@ -634,8 +648,8 @@
                         bindDynamicValidations();
                         bindPersonalForm('form-crear-personal', enviarFormularioPersonal);
                     })
-                    .catch(() => {
-                        showLoadError('modalPersonalBody', 'Error al guardar. Intenta nuevamente.');
+                    .catch((err) => {
+                        showLoadError('modalPersonalBody', (err && err.message) ? err.message : 'Error al guardar. Intenta nuevamente.');
                     });
             }
 
@@ -651,8 +665,8 @@
                             enviarFormularioEditarPersonal(form, personalId);
                         });
                     })
-                    .catch(() => {
-                        showLoadError('modalEditarPersonalBody', 'Error al cargar el formulario de edicion. Intenta nuevamente.');
+                    .catch((err) => {
+                        showLoadError('modalEditarPersonalBody', (err && err.message) ? err.message : 'Error al cargar el formulario de edicion. Intenta nuevamente.');
                     });
             }
 
@@ -678,8 +692,8 @@
                             enviarFormularioEditarPersonal(newForm, personalId);
                         });
                     })
-                    .catch(() => {
-                        showLoadError('modalEditarPersonalBody', 'Error al guardar cambios. Intenta nuevamente.');
+                    .catch((err) => {
+                        showLoadError('modalEditarPersonalBody', (err && err.message) ? err.message : 'Error al guardar cambios. Intenta nuevamente.');
                     });
             }
 
