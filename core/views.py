@@ -46,6 +46,15 @@ def index(request):
     )
 
 
+def handler404(request, exception):
+    return render(request, "404.html", status=404)
+
+
+def pretty_404_view(request, *args, **kwargs):
+    """Fallback para mostrar el 404 personalizado incluso con DEBUG=True."""
+    return render(request, "404.html", status=404)
+
+
 @login_required
 def dashboard_view(request):
     hoy = date.today()
@@ -299,4 +308,3 @@ def solo_admin(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapper
-

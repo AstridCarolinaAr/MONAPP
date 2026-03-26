@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&family=Roboto:wght@100;300&display=swap');
+
+:root {
+  --button: hsl(44, 0%, 70%);
+  --button-color: hsl(0, 0%, 4%);
+  --shadow: hsl(0, 0%, 0%);
+  --bg: hsl(0, 0%, 0%);
+  --header: hsl(0, 0%, 18%);
+  --color: hsl(0, 0%, 98%);
+  --lit-header: hsl(0, 0%, 85%);
+  --speed: 2s;
+  --swing-x: 0;
+  --swing-y: 0;
+}
+
+* {
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+}
+
+@property --swing-x {
+  initial-value: 0;
+  inherits: false;
+  syntax: '<integer>';
+}
+
+@property --swing-y {
+  initial-value: 0;
+  inherits: false;
+  syntax: '<integer>';
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Roboto', sans-serif;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: var(--color);
+  perspective: 1200px;
+  margin: 0;
+}
+
+.sq-404 {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  display: grid;
+  --side-w: min(520px, 40vw);
+  grid-template-columns: minmax(0, 1fr) var(--side-w);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 48px);
+  padding: clamp(16px, 4vmin, 56px);
+  overflow: hidden;
+}
+
+.sq-404-content {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 92vw);
+  display: grid;
+  justify-self: start;
+  align-content: center;
+  justify-items: start;
+  text-align: left;
+}
+
+.sq-404-side {
+  position: relative;
+  justify-self: end;
+  width: 100%;
+  height: min(900px, 90vh);
+  overflow: hidden;
+  z-index: 5;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sq-404-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: contrast(1.05) saturate(0.95) brightness(0.92);
+  background: transparent;
+  transform: scale(1.22);
+  transform-origin: 100% 50%;
+}
+
+/* evita que se vea gris del video alrededor (letterboxing) */
+.sq-404-side {
+  background: #000;
+}
+
+.sq-404-video-shade {
+  position: absolute;
+  inset: 0;
+  background: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+a {
+  text-transform: uppercase;
+  text-decoration: none;
+  background: var(--button);
+  color: var(--button-color);
+  padding: 1rem 4rem;
+  border-radius: 4rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s ease, filter .2s ease;
+}
+
+a:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+p {
+  font-weight: 100;
+  margin: 0;
+}
+
+.sq-404-title {
+  font-size: clamp(5rem, 40vmin, 20rem);
+  font-family: 'Open Sans', sans-serif;
+  margin: 0 0 1rem 0;
+  letter-spacing: clamp(0.35rem, 1.6vw, 1rem);
+  transform: translate3d(0, 0, 0vmin);
+  --x: calc(50% + (var(--swing-x) * 0.5) * 1%);
+  background: radial-gradient(var(--lit-header), var(--header) 45%) var(--x) 100% / 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  position: relative;
+  user-select: none;
+  line-height: 0.9;
+  text-align: center;
+}
+
+.sq-404-title::after {
+  content: "404";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  color: var(--shadow);
+  filter: blur(1.5vmin);
+  transform: scale(1.05) translate3d(0, 12%, -10vmin)
+    translate(calc((var(--swing-x, 0) * 0.05) * 1%), calc((var(--swing-y) * 0.05) * 1%));
+  pointer-events: none;
+}
+
+.cloak {
+  height: 100%;
+  width: 100%;
+  transform-origin: 50% 30%;
+  transform: rotate(calc(var(--swing-x) * -0.25deg));
+  background: radial-gradient(40% 40% at 50% 42%, transparent, black 35%);
+}
+
+.cloak__wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 calc(100% - var(--side-w) - 28px),
+    transparent calc(100% - var(--side-w) + 28px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 calc(100% - var(--side-w) - 28px),
+    transparent calc(100% - var(--side-w) + 28px),
+    transparent 100%
+  );
+}
+
+.cloak__wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -12vmax;
+  /* luz blanca "pendular" controlada por --swing-x/--swing-y */
+  /* anclar la luz al lado izquierdo */
+  --lx: calc(18% + (var(--swing-x) * 0.22) * 1%);
+  --ly: calc(10% + (var(--swing-y) * 0.08) * 1%);
+  background: radial-gradient(
+    52vmax 52vmax at var(--lx) var(--ly),
+    rgba(255, 255, 255, 0.32) 0%,
+    rgba(255, 255, 255, 0.14) 28%,
+    rgba(255, 255, 255, 0.06) 46%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  filter: blur(16px);
+  opacity: 0.95;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.cloak__container {
+  height: 250vmax;
+  width: 250vmax;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.info {
+  text-align: inherit;
+  line-height: 1.5;
+  max-width: clamp(16rem, 90vmin, 25rem);
+}
+
+.info > p {
+  margin-bottom: 3rem;
+}
+
+.info h2 {
+  margin: 0 0 10px 0;
+  font-weight: 300;
+  letter-spacing: .02em;
+}
+
+@media (max-width: 560px) {
+  .sq-404-title {
+    font-size: clamp(4rem, 36vmin, 10rem);
+    margin-bottom: 0.75rem;
+  }
+
+  .info > p {
+    margin-bottom: 2rem;
+  }
+
+  a {
+    width: min(92vw, 420px);
+    padding: 0.95rem 1.5rem;
+  }
+}
+
+@media (max-width: 920px) {
+  .sq-404 {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    justify-items: center;
+    --side-w: 0px;
+  }
+
+  .sq-404-side {
+    width: min(92vw, 520px);
+    height: 42vh;
+  }
+
+  .sq-404-video-shade {
+    background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.35) 45%,
+      var(--bg) 100%
+    );
+  }
+
+  .sq-404-content {
+    width: min(760px, 92vw);
+    justify-self: center;
+    justify-items: center;
+    text-align: center;
+  }
+}
+
+@keyframes swing {
+  0% {
+    --swing-x: -100;
+    --swing-y: -100;
+  }
+  50% {
+    --swing-y: 0;
+  }
+  100% {
+    --swing-y: -100;
+    --swing-x: 100;
+  }
+}
+
+/* Sin JS: animación automática */
+.sq-404-title,
+.sq-404-title::after,
+.cloak {
+  animation: swing var(--speed) infinite alternate ease-in-out;
+}
+
+.cloak {
+  animation-direction: alternate-reverse;
+}
+
+/* Con JS: el mouse controla el movimiento */
+body.has-pointer .sq-404-title,
+body.has-pointer .sq-404-title::after,
+body.has-pointer .cloak {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sq-404-title,
+  .sq-404-title::after,
+  .cloak {
+    animation: none;
+  }
+}

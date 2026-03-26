@@ -167,6 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const formData = new FormData(loginForm);
                 const response = await fetch(loginForm.action, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                     },
