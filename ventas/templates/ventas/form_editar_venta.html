@@ -30,14 +30,16 @@
     <i class="bi bi-box-seam me-1"></i> Productos
   </h6>
   <div class="table-responsive mb-4">
-    <table class="table table-sm align-middle" style="border-collapse:separate;border-spacing:0">
+    <div class="table-card">
+      <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 styled-table">
       <thead>
-        <tr style="background:#2c0909">
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em">Producto</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:80px" class="text-center">Stock</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:110px" class="text-center">Cantidad</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:140px" class="text-end">Precio</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:140px" class="text-end">Subtotal</th>
+        <tr>
+          <th>Producto</th>
+          <th class="text-center" style="width:80px">Stock</th>
+          <th class="text-center" style="width:110px">Cantidad</th>
+          <th class="text-end" style="width:140px">Precio</th>
+          <th class="text-end" style="width:140px">Subtotal</th>
         </tr>
       </thead>
       <tbody>
@@ -48,7 +50,7 @@
             <select class="form-select form-select-sm js-prod-select"
                     name="prod_codigo_{{ d.id }}"
                     data-detalle="{{ d.id }}"
-                    style="border-color:rgba(44,9,9,0.25);min-width:180px">
+                    style="min-width:180px">
               {% for item in todos_stock %}
                 <option value="{{ item.producto.codigo }}"
                         data-precio="{{ item.producto.precio }}"
@@ -61,9 +63,9 @@
           </td>
           <td class="text-center">
             {% if stock < 5 %}
-              <span class="badge rounded-pill" style="background:rgba(180,35,24,0.1);color:#b42318;font-weight:600">{{ stock }}</span>
+              <span class="badge rounded-pill js-prod-stock-badge" data-detalle="{{ d.id }}" style="background:rgba(180,35,24,0.1);color:#b42318;font-weight:600">{{ stock }}</span>
             {% else %}
-              <span class="badge rounded-pill" style="background:rgba(22,101,52,0.1);color:#166534;font-weight:600">{{ stock }}</span>
+              <span class="badge rounded-pill js-prod-stock-badge" data-detalle="{{ d.id }}" style="background:rgba(22,101,52,0.1);color:#166534;font-weight:600">{{ stock }}</span>
             {% endif %}
           </td>
           <td class="text-center">
@@ -72,6 +74,7 @@
                    name="prod_cant_{{ d.id }}"
                    value="{{ d.cantidad }}"
                    min="1"
+                   step="1"
                    max="{{ stock }}"
                    data-detalle="{{ d.id }}"
                    data-stock="{{ stock }}"
@@ -82,9 +85,11 @@
             <input type="number"
                    class="form-control form-control-sm text-end js-prod-precio"
                    name="prod_precio_{{ d.id }}"
-                   value="{{ d.precio_unitario }}"
+                   value="{{ d.producto.precio }}"
                    step="0.01" min="0"
                    data-detalle="{{ d.id }}"
+                   readonly
+                   tabindex="-1"
                    style="width:120px;margin-left:auto;border-color:rgba(44,9,9,0.25)">
           </td>
           <td class="text-end">
@@ -100,6 +105,8 @@
         {% endfor %}
       </tbody>
     </table>
+      </div>
+    </div>
   </div>
   {% endif %}
 
@@ -109,14 +116,16 @@
     <i class="bi bi-scissors me-1"></i> Servicios
   </h6>
   <div class="table-responsive mb-4">
-    <table class="table table-sm align-middle" style="border-collapse:separate;border-spacing:0">
+    <div class="table-card">
+      <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 styled-table">
       <thead>
-        <tr style="background:#2c0909">
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em">Servicio</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em">Colaborador</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:100px" class="text-center">Cant.</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:130px" class="text-end">Precio</th>
-          <th style="color:#fff;font-size:.75rem;font-weight:600;padding:9px 12px;text-transform:uppercase;letter-spacing:.04em;width:130px" class="text-end">Subtotal</th>
+        <tr>
+          <th>Servicio</th>
+          <th>Colaborador</th>
+          <th class="text-center" style="width:100px">Cant.</th>
+          <th class="text-end" style="width:130px">Precio</th>
+          <th class="text-end" style="width:130px">Subtotal</th>
         </tr>
       </thead>
       <tbody>
@@ -126,7 +135,7 @@
             <select class="form-select form-select-sm js-serv-servicio"
                     name="serv_servicio_{{ d.id }}"
                     data-detalle="{{ d.id }}"
-                    style="border-color:rgba(44,9,9,0.25);min-width:160px">
+                    style="min-width:160px">
               {% for s in servicios %}
                 <option value="{{ s.pk }}" data-precio="{{ s.precio }}"
                   {% if d.servicio_id == s.pk %}selected{% endif %}>{{ s }}</option>
@@ -136,7 +145,7 @@
           <td>
             <select class="form-select form-select-sm"
                     name="serv_personal_{{ d.id }}"
-                    style="border-color:rgba(44,9,9,0.25);min-width:140px">
+                    style="min-width:140px">
               {% for p in personal %}
                 <option value="{{ p.pk }}" {% if d.colaborador_servicio_id == p.pk %}selected{% endif %}>{{ p }}</option>
               {% endfor %}
@@ -171,6 +180,8 @@
         {% endfor %}
       </tbody>
     </table>
+      </div>
+    </div>
   </div>
   {% endif %}
 

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponseForbidden
-from django.shortcuts import redirect, resolve_url
+from django.shortcuts import redirect, resolve_url, render
 
 from .permisos import (
     PUBLIC_USER_URLS,
@@ -46,6 +46,9 @@ class RolePermissionMiddleware:
     def process_view(self, request, view_func, view_args, view_kwargs):
         path = (request.path_info or "").lower()
         resolver = getattr(request, "resolver_match", None)
+        # Si no hay coincidencia de URL, dejar que Django resuelva el 404.
+        if resolver is None:
+            return None
         namespace = getattr(resolver, "namespace", "") or ""
         url_name = getattr(resolver, "url_name", "") or ""
 
@@ -55,14 +58,16 @@ class RolePermissionMiddleware:
         if namespace in RUTAS_ADMIN_PUBLICAS or path.startswith("/admin/"):
             return None
 
-        if namespace == "usuarios" and url_name in PUBLIC_USER_URLS:
+        # Rutas pÃºblicas (no requieren sesiÃ³n)
+        if namespace == "core" and url_name == "index":
+            return None
+
+        if namespace == "usuarios" and (url_name in PUBLIC_USER_URLS or url_name == "logout"):
             return None
 
         if not getattr(request.user, "is_authenticated", False):
-            if namespace in MODULOS_PROTEGIDOS or (namespace == "usuarios" and url_name not in PUBLIC_USER_URLS):
-                login_url = resolve_url(settings.LOGIN_URL)
-                return redirect(f"{login_url}?next={request.get_full_path()}")
-            return None
+            login_url = resolve_url(settings.LOGIN_URL)
+            return redirect(f"{login_url}?next={request.get_full_path()}")
 
         if namespace == "usuarios" and url_name in USER_PROFILE_URLS:
             return None
@@ -81,3 +86,37 @@ class RolePermissionMiddleware:
             return None
 
         return HttpResponseForbidden("No tienes permisos para realizar esta acción.")
+
+
+class Pretty404Middleware:
+    """
+    Renderiza una página 404 personalizada incluso con DEBUG=True.
+
+    En modo debug Django muestra la página técnica de 404 y no usa `handler404`.
+    Este middleware intercepta respuestas 404 (HTML) y devuelve `templates/404.html`.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        if getattr(response, "status_code", None) != 404:
+            return response
+
+        path = (request.path_info or "").lower()
+        if path.startswith((settings.STATIC_URL.lower(), settings.MEDIA_URL.lower())):
+            return response
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return response
+
+        accept = (request.headers.get("accept") or "").lower()
+        if accept and ("text/html" not in accept and "*/*" not in accept):
+            return response
+
+        try:
+            return render(request, "404.html", status=404)
+        except Exception:
+            return response

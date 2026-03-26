@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'core.middleware.RolePermissionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.Pretty404Middleware',
 ]
 
 ROOT_URLCONF = 'MONAPP.urls'

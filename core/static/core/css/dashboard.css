@@ -1,4 +1,4 @@
-/* ───── TIPOGRAFÍA BASE ───── */
+css /* ───── TIPOGRAFÍA BASE ───── */
 body, .dash-wrap, .kpi-label, .qa-label, .u-name, .u-role, .bday-name, .bday-age {
     font-family: 'Inter', sans-serif;
 }

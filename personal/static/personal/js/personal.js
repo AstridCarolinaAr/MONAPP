@@ -358,6 +358,68 @@ function inicializarValidacionesPersonal() {
             actualizarEstadoBoton();
         });
     }
+
+    /* SELECT TIPO DOCUMENTO */
+    const tipoDocumento = document.getElementById('id_tipo_documento');
+    if (tipoDocumento) {
+        tipoDocumento.addEventListener('change', function () {
+            if (!this.value.trim()) invalido(this, 'El tipo de documento es obligatorio.');
+            else valido(this);
+            actualizarEstadoBoton();
+        });
+    }
+
+    /* ===============================
+       VALIDAR VALORES INICIALES (autofill / valores por defecto)
+    =============================== */
+    function validarValoresIniciales() {
+        const doc = document.getElementById('id_numero_documento');
+        const nombres = document.getElementById('id_nombres');
+        const apellidos = document.getElementById('id_apellidos');
+        const telefono = document.getElementById('id_telefono');
+        const correo = document.getElementById('id_correo');
+
+        if (tipoDocumento && (tipoDocumento.value || '').trim()) valido(tipoDocumento);
+        if (rol && (rol.value || '').trim()) valido(rol);
+
+        if (doc && (doc.value || '').trim()) {
+            validarDocumentoEnVivo(String(doc.value).trim(), doc);
+        }
+
+        if (nombres && (nombres.value || '').trim()) {
+            const valor = String(nombres.value).trim();
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+            if (!regex.test(valor)) invalido(nombres, 'Solo letras.');
+            else if (valor.length > 150) invalido(nombres, 'Máximo 150 caracteres.');
+            else valido(nombres);
+        }
+
+        if (apellidos && (apellidos.value || '').trim()) {
+            const valor = String(apellidos.value).trim();
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+            if (!regex.test(valor)) invalido(apellidos, 'Solo letras.');
+            else if (valor.length > 150) invalido(apellidos, 'Máximo 150 caracteres.');
+            else valido(apellidos);
+        }
+
+        if (telefono && (telefono.value || '').trim()) {
+            const valor = String(telefono.value).trim();
+            if (!/^\d+$/.test(valor)) invalido(telefono, 'Solo números.');
+            else if (valor.length < 10) invalido(telefono, 'Debe tener 10 dígitos.');
+            else if (valor.length > 10) {
+                telefono.value = valor.substring(0, 10);
+                valido(telefono);
+            } else valido(telefono);
+        }
+
+        if (correo && (correo.value || '').trim()) {
+            validarEmailEnVivo(String(correo.value).trim(), correo);
+        }
+
+        actualizarEstadoBoton();
+    }
+
+    setTimeout(validarValoresIniciales, 0);
 }
 
 // Inicializar al cargar la página

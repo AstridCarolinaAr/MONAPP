@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0002_servicio_video'),
+        ('servicios', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='servicio',
             name='descripcion',
-            field=models.TextField(verbose_name='Descripcion'),
+            field=models.TextField(verbose_name='Descripción'),
         ),
         migrations.AlterField(
             model_name='servicio',
             name='fecha_creacion',
-            field=models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creacion'),
+            field=models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación'),
         ),
         migrations.AlterField(
             model_name='servicio',
             name='fecha_modificacion',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ultima Modificacion'),
+            field=models.DateTimeField(auto_now=True, verbose_name='Última Modificación'),
         ),
     ]

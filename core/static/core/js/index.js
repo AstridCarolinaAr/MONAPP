@@ -465,22 +465,151 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("load", onScrollChangeBackground);
 
     /* ===============================
-       ANIMACIONES AL SCROLL
+       GLOW SIGUIENDO EL MOUSE (CONTACTO)
     =============================== */
-    const animatedSections = document.querySelectorAll(
-        ".sq-card, .sq-step, .sq-benefits div, .sq-text, .block-title, .block-content"
-    );
+    const socialCards = document.querySelectorAll(".sq-social-card");
 
-    const observer = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("visible");
-                }
-            });
-        },
-        { threshold: 0.15 }
-    );
+    function setCardGlowFromEvent(card, event) {
+        const rect = card.getBoundingClientRect();
+        const x = Math.min(Math.max(0, event.clientX - rect.left), rect.width);
+        const y = Math.min(Math.max(0, event.clientY - rect.top), rect.height);
 
-    animatedSections.forEach((el) => observer.observe(el));
+        const mx = rect.width ? (x / rect.width) * 100 : 50;
+        const my = rect.height ? (y / rect.height) * 100 : 50;
+
+        card.style.setProperty("--mx", `${mx}%`);
+        card.style.setProperty("--my", `${my}%`);
+    }
+
+    socialCards.forEach((card) => {
+        card.addEventListener("pointerenter", (e) => setCardGlowFromEvent(card, e));
+        card.addEventListener("pointermove", (e) => setCardGlowFromEvent(card, e));
+        card.addEventListener("pointerleave", () => {
+            card.style.removeProperty("--mx");
+            card.style.removeProperty("--my");
+        });
+    });
+
+    /* ===============================
+       FLIP CARD (PRODUCTOS)
+    =============================== */
+    const productCards = Array.from(document.querySelectorAll(".sq-product-card"));
+
+    function setProductCardPressed(card, pressed) {
+        card.setAttribute("aria-pressed", pressed ? "true" : "false");
+        const backFace = card.querySelector(".sq-product-face--back");
+        if (backFace) {
+            backFace.setAttribute("aria-hidden", pressed ? "false" : "true");
+        }
+    }
+
+    function closeAllProductCards(except = null) {
+        productCards.forEach((card) => {
+            if (except && card === except) return;
+            if (!card.classList.contains("is-flipped")) return;
+            card.classList.remove("is-flipped");
+            setProductCardPressed(card, false);
+        });
+    }
+
+    productCards.forEach((card) => {
+        setProductCardPressed(card, false);
+
+        card.addEventListener("click", (e) => {
+            if (e.target.closest("a, button")) return;
+
+            const willFlip = !card.classList.contains("is-flipped");
+            closeAllProductCards(card);
+            card.classList.toggle("is-flipped", willFlip);
+            setProductCardPressed(card, willFlip);
+        });
+
+        card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                card.click();
+            }
+
+            if (e.key === "Escape") {
+                if (!card.classList.contains("is-flipped")) return;
+                card.classList.remove("is-flipped");
+                setProductCardPressed(card, false);
+            }
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        const anyFlipped = productCards.some((card) => card.classList.contains("is-flipped"));
+        if (!anyFlipped) return;
+
+        const clickedCard = e.target.closest(".sq-product-card");
+        if (clickedCard) return;
+
+        closeAllProductCards(null);
+    });
+/* ===============================
+   ANIMACIONES AL SCROLL (FADE UP)
+=============================== */
+const fadeUpElements = document.querySelectorAll(
+    ".sq-intro-content, .sq-intro-media, .sq-section-head, " +
+    ".sq-product-card, .sq-social-card, .sq-contact-header, " +
+    ".sq-promo-card-mini, .sq-products-title, .sq-services-heading, " +
+    ".sq-promo-feature.is-active, .sq-promotions-head--inside, " +
+    ".footer-info-block, .footer-map, .mona-footer .footer-logo, .mona-footer .copyright, " +
+    ".sq-card"
+);
+
+fadeUpElements.forEach(el => el.classList.add("sq-fade-up"));
+
+function checkFadeElements() {
+    const windowHeight = window.innerHeight;
+
+    fadeUpElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const elementTop = rect.top;
+        const elementBottom = rect.bottom;
+
+        /* Excepción para elementos dentro de overflow:hidden del carrusel */
+        const insideTrack = el.closest(".sq-tracks-wrapper");
+        if (insideTrack) {
+            const parentRect = insideTrack.getBoundingClientRect();
+            const isParentVisible = parentRect.top < windowHeight && parentRect.bottom > 0;
+            if (isParentVisible) {
+                el.classList.add("is-visible");
+            } else {
+                el.classList.remove("is-visible");
+            }
+            return;
+        }
+
+        /* Excepción para elementos dentro del stage de promociones */
+        const insideStage = el.closest(".sq-promotions-stage");
+        if (insideStage) {
+            const parentRect = insideStage.getBoundingClientRect();
+            const isParentVisible = parentRect.top < windowHeight && parentRect.bottom > 0;
+            if (isParentVisible) {
+                el.classList.add("is-visible");
+            } else {
+                el.classList.remove("is-visible");
+            }
+            return;
+        }
+
+        const isVisible = elementTop < windowHeight * 0.88 && elementBottom > 0;
+        if (isVisible) {
+            el.classList.add("is-visible");
+        } else {
+            el.classList.remove("is-visible");
+        }
+    });
+
+    /* Fuerza visibilidad del copyright y divider siempre */
+    document.querySelectorAll(".mona-footer .copyright, .footer-divider").forEach(el => {
+        el.classList.add("is-visible");
+    });
+}
+
+window.addEventListener("scroll", checkFadeElements, { passive: true });
+window.addEventListener("resize", checkFadeElements, { passive: true });
+checkFadeElements();
 });

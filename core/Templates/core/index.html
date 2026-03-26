@@ -20,38 +20,46 @@ Servicios
     <!-- ==================== HERO ==================== -->
     <section class="sq-hero" id="inicio">
         <div class="sq-hero-inner">
-            <h1>Un gran día comienza con un cabello sano y hermoso</h1>
-            <h2>
+            <h1 class="sq-hero-brand">MONAKERATINA</h1>
+            <video class="sq-brand-video-fill" autoplay muted loop playsinline>
+                <source src="{% static 'core/mp4/brand.mp4' %}" type="video/mp4">
+            </video>
+            <h2 >
                 Alisados y tratamientos capilares profesionales que cuidan tu cabello desde la raíz.
             </h2>
-            <a href="#cta" class="sq-btn">Contáctenos</a>
+            <a href="#contactenos" class="sq-btn">Contáctenos</a>
         </div>
     </section>
 
     <!-- ==================== INTRO ==================== -->
     <section id="nosotros" class="sq-intro">
-        <div class="sq-intro-layout">
-
-            <div class="sq-intro-img left">
-                <img src="{% static 'core/IMG/img-sobrenosotros2.png' %}" alt="Mona Keratina equipo">
-            </div>
-
-            <div class="sq-intro-content">
-                <h2>SOBRE NOSOTROS</h2>
-                <p>
-                    En Mona Keratina somos un centro especializado en tratamientos capilares y alisados profesionales,
-                    con varios años de experiencia dedicados al cuidado y la salud del cabello. Trabajamos con productos
-                    de alta calidad y técnicas responsables para ofrecer resultados visibles, seguros y adaptados a cada tipo de cabello.
-                    <br><br>
-                    Contamos con sedes en Boyacá Duitama, Tunja y Sogamoso, donde acompañamos a cada persona en el proceso de transformar
-                    su cabello sin comprometer su bienestar.
+        <div class="sq-container">
+            <header class="sq-section-head">
+                <span class="sq-section-eyebrow">Mona Keratina</span>
+                <h2 class="sq-section-title">Nosotros</h2>
+                <p class="sq-section-lead">
+                    Tratamientos capilares y alisados profesionales con enfoque en salud, técnica y resultados.
                 </p>
-            </div>
+            </header>
 
-            <div class="sq-intro-img right">
-                <img src="{% static 'core/IMG/img-sobrenosotros.jpg' %}" alt="Mona Keratina experiencia">
-            </div>
+            <div class="sq-intro-layout">
+                <div class="sq-intro-media" aria-hidden="true">
+                    <img class="sq-intro-photo primary" src="{% static 'core/IMG/img-sobrenosotros.jpg' %}" alt="">
+                    <img class="sq-intro-photo secondary" src="{% static 'core/IMG/img-sobrenosotros2.png' %}" alt="">
+                </div>
 
+                <div class="sq-intro-content">
+                    <h3 class="sq-intro-title">Sobre nosotros</h3>
+                    <p>
+                        En Mona Keratina somos un centro especializado en tratamientos capilares y alisados profesionales,
+                        con varios años de experiencia dedicados al cuidado y la salud del cabello. Trabajamos con productos
+                        de alta calidad y técnicas responsables para ofrecer resultados visibles, seguros y adaptados a cada tipo de cabello.
+                        <br><br>
+                        Contamos con sedes en Boyacá Duitama, Tunja y Sogamoso, donde acompañamos a cada persona en el proceso de transformar
+                        su cabello sin comprometer su bienestar.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -210,7 +218,7 @@ Servicios
                         <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
                         <h3>{{ promo.nombre }}</h3>
                         <p>{{ promo.descripcion }}</p>
-                        <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
+                        <a href="#contactenos" class="sq-promo-btn">Reservar ahora</a>
                     </div>
                 {% empty %}
                     <div class="sq-promo-card">
@@ -222,9 +230,11 @@ Servicios
             </div>
         </div>
     </section>
+</section>
 
-    <!-- ==================== SERVICIOS (TRACKS) ==================== -->
-    <div class="sq-tracks-wrapper sq-infinite" id ="infinite">
+<!-- ==================== SERVICIOS (TRACKS) ==================== -->
+<section class="sq-services-stage" id="infinite">
+    <div class="sq-tracks-wrapper sq-infinite">
         <div class="sq-services-heading">
             <span class="sq-services-eyebrow">Experiencia Mona</span>
             <h2>Servicios</h2>
@@ -313,34 +323,54 @@ Servicios
         </div>
 
     </div>
-
 </section>
 
 <!-- ==================== PRODUCTOS ==================== -->
-<section class="sq-testimonials" id="productos">
+<section class="sq-products" id="productos">
     <h2 class="sq-products-title">Nuestros Productos</h2>
 
     {% if productos_web %}
         <div class="sq-products-grid">
             {% for producto in productos_web %}
-                <div class="sq-product-card" data-aos="fade-up">
-                    <div class="sq-product-img">
-                        {% if producto.imagen %}
-                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
-                        {% else %}
-                            <div class="sq-product-placeholder">
-                                <i class="bi bi-box-seam"></i>
+                <div class="sq-product-card" data-aos="fade-up" tabindex="0" role="button" aria-label="Ver detalles de {{ producto.nombre }}" aria-pressed="false">
+                    <div class="sq-product-inner">
+                        <div class="sq-product-face sq-product-face--front">
+                            <div class="sq-product-media">
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <div class="sq-product-placeholder">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
+
+                            <div class="sq-product-info">
+                                <h3>{{ producto.nombre }}</h3>
+
+                                {% if producto.descripcion %}
+                                    <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
+                                {% endif %}
+
+                                <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+                            </div>
+                        </div>
+
+                        <div class="sq-product-face sq-product-face--back" aria-hidden="true" {% if producto.imagen %}style="--product-bg: url('{{ producto.imagen.url }}')" {% endif %}>
+                            <div class="sq-product-back-head">
+                                <h3 class="sq-product-back-title">{{ producto.nombre }}</h3>
+                                <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+                            </div>
+
+                            {% if producto.descripcion %}
+                                <p class="sq-product-back-desc">{{ producto.descripcion|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="sq-product-back-desc sq-product-back-desc--muted">Sin descripción.</p>
+                            {% endif %}
+
+                            <div class="sq-product-back-hint">Click para volver</div>
+                        </div>
                     </div>
-
-                    <h3>{{ producto.nombre }}</h3>
-
-                    {% if producto.descripcion %}
-                        <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
-                    {% endif %}
-
-                    <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
                 </div>
             {% endfor %}
         </div>
@@ -352,7 +382,10 @@ Servicios
 </section>
 
 <!-- ==================== FINAL CTA ==================== -->
-<section class="sq-cta" id="contactenos">
+<section class="sq-cta sq-contact sq-contact--video" id="contactenos">
+    <video class="sq-contact-video" autoplay muted loop playsinline aria-hidden="true">
+        <source src="{% static 'core/mp4/fondo_contactenos.mp4' %}" type="video/mp4">
+    </video>
     <div class="sq-contact-wrapper">
 
         <header class="sq-contact-header">
@@ -396,14 +429,39 @@ Servicios
                 </div>
             </div>
 
-            <div class="sq-contact-map">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387.6692098579932!2d-73.0329069!3d5.8266966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e6a3f55fe1d0cb5%3A0x2b2c27a99cc5efea!2sMona%20Keratina%20Duitama!5e0!3m2!1ses!2sco!4v1708800000000!5m2!1ses!2sco"
-                    loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"
-                    allowfullscreen=""
-                    style="border:0; width:100%; height:100%;">
-                </iframe>
+            <div class="sq-contact-cards" aria-label="Contacto rÃ¡pido">
+                <a class="sq-social-card is-whatsapp" href="https://wa.me/573223328408" target="_blank" rel="noopener">
+                    <div class="sq-social-card-icon">
+                        <i class="bi bi-whatsapp"></i>
+                    </div>
+                    <div class="sq-social-card-body">
+                        <h3>WhatsApp</h3>
+                        <p>EscrÃ­benos para agendar tu cita</p>
+                    </div>
+                    <span class="sq-social-card-cta">Chatear</span>
+                </a>
+
+                <a class="sq-social-card is-instagram" href="https://www.instagram.com/monakeratinaduitama/" target="_blank" rel="noopener">
+                    <div class="sq-social-card-icon">
+                        <i class="bi bi-instagram"></i>
+                    </div>
+                    <div class="sq-social-card-body">
+                        <h3>Instagram</h3>
+                        <p>@monakeratinaduitama</p>
+                    </div>
+                    <span class="sq-social-card-cta">Ver perfil</span>
+                </a>
+
+                <a class="sq-social-card is-facebook" href="https://www.facebook.com/MonaKeratinaDuitama" target="_blank" rel="noopener">
+                    <div class="sq-social-card-icon">
+                        <i class="bi bi-facebook"></i>
+                    </div>
+                    <div class="sq-social-card-body">
+                        <h3>Facebook</h3>
+                        <p>Mona Keratina Duitama</p>
+                    </div>
+                    <span class="sq-social-card-cta">Visitar</span>
+                </a>
             </div>
 
         </div>
@@ -417,6 +475,16 @@ Servicios
             <span>MONA KERATINA</span>
         </div>
 
+        <div class="footer-map" aria-label="Mapa de ubicaciÃ³n">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387.6692098579932!2d-73.0329069!3d5.8266966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e6a3f55fe1d0cb5%3A0x2b2c27a99cc5efea!2sMona%20Keratina%20Duitama!5e0!3m2!1ses!2sco!4v1708800000000!5m2!1ses!2sco"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen=""
+                style="border:0; width:100%; height:100%;">
+            </iframe>
+        </div>
+
         <div class="footer-info-grid">
             <div class="footer-info-block">
                 <h4>Sede principal</h4>
@@ -426,17 +494,6 @@ Servicios
             <div class="footer-info-block">
                 <h4>Atención</h4>
                 <p>Lunes a Sábado · 8:00 a.m. – 7:00 p.m.<br>Domingos y festivos · Con cita previa</p>
-            </div>
-
-            <div class="footer-info-block">
-                <h4>Contacto directo</h4>
-                <p>WhatsApp: +57 3223328408</p>
-            </div>
-
-            <div class="footer-info-block">
-                <h4>Redes sociales</h4>
-                <a href="https://www.instagram.com/monakeratinaduitama/" target="_blank" rel="noopener">Instagram · @monakeratinaduitama</a>
-                <a href="https://www.facebook.com/MonaKeratinaDuitama" target="_blank" rel="noopener">Facebook · Mona Keratina Duitama</a>
             </div>
         </div>
 
@@ -449,6 +506,8 @@ Servicios
 </footer>
 
 {% endblock %}
+
+{% block footer %}{% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>

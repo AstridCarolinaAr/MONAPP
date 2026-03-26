@@ -9,9 +9,19 @@ html {
     scroll-behavior: smooth;
 }
 
+@font-face {
+    font-family: "Gailes";
+    src:
+        local("Gailes"),
+        url("../fonts/Gailes.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 Roboto, Helvetica, Arial, sans-serif;
+        Roboto, Helvetica, Arial, sans-serif;
     color: #111;
     background: #ffffff;
     line-height: 1.6;
@@ -65,7 +75,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-bottom: 29px;
+    padding-bottom: 0px;
     overflow: hidden;
 }
 
@@ -121,12 +131,12 @@ body {
     color: #fff;
 }
 .sq-hero {
-    min-height: 100vh;
+    min-height: 78vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 160px;
-    padding-bottom: 30px;
+    padding-top: 120px;
+    padding-bottom: 0px;
     position: relative;
     
 }
@@ -160,20 +170,57 @@ body {
     
 }
 .sq-hero h1 {
-    font-size: clamp(2.75rem, 5vw, 4rem);
-    line-height: 1.08;
+    background-image: linear-gradient(90deg, #ffffff 0%, #484848 15%, #111111 30%, #484848 45%, #ffffff 65%, #111111 85%,#111111 100%);
+    background-size: 300% 100%;
+    background-position: center 60%;  /* ← era 30%, ahora 15% sube la imagen */
+    background-clip: text;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: heroTextGradient 10s ease-in-out infinite;
+    font-size: clamp(10rem, 22vw, 20rem);
+    line-height: 1.35;
     font-weight: 500;
     letter-spacing: -0.03em;
-    margin-bottom: 60px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-top: 0.22em;
+    padding-bottom: 0.12em;
+    overflow: visible;
+}
+
+.sq-hero-brand {
+    font-family: "Gailes", serif !important;
+    font-size: clamp(5rem, 10vw, 8rem);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Más específico que `.sq-hero h1` para que sí aplique el tamaño */
+.sq-hero h1.sq-hero-brand {
+    font-size: clamp(5.8rem, 12vw, 9.5rem);
 }
 
 .sq-hero h2 {
-    font: 2em sans-serif;
+    font-family: "Gailes", serif !important;
+    font-size: 2em;
+    
     line-height: 1.08;
-    font-weight: 500;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.03em;
+    margin-top: 5px;
     margin-bottom: 60px;
     text-align: center;
+}
+@keyframes heroTextGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .sq-hero p {
@@ -192,19 +239,18 @@ body {
 /* ==================== SOBRE NOSOTROS – 3 COLUMNAS ==================== */
 
 .sq-intro {
-    padding-top: 60px;   /* antes 130px */
-    padding-bottom: 130px;
+    padding: 60px 0 120px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* Layout principal */
 .sq-intro-layout {
     display: grid;
-    grid-template-columns: 2fr 2.2fr 0.4fr; /* imagen | texto | imagen */
-    align-items: center;
-    gap: 60px;
-    max-width: 1600px;
+    grid-template-columns: 1fr 1.1fr;
+    align-items: start;
+    gap: 70px;
+    max-width: 1130px;
     margin: 0 auto;
 }
 
@@ -216,6 +262,10 @@ body {
 
 #intro {
     scroll-margin-top: 60px; 
+}
+
+#nosotros {
+    scroll-margin-top: 20px;
 }
 
 .sq-intro-img.left {
@@ -250,9 +300,14 @@ body {
 
 /* ---------- TEXTO CENTRAL ---------- */
 .sq-intro-content {
-    text-align: center;
-    margin-left: -19px;
-    margin-top: -160px;
+    text-align: left;
+    margin: 0;
+    padding: 28px 24px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
 }
 
 .sq-intro-content h2 {
@@ -263,20 +318,112 @@ body {
 
 .sq-intro-content p {
     max-width: 1000px;
-    line-height: 1.7;
+    line-height: 1.65;
     color: #e0e0e0;
     font-weight: 400;
-    font-size: 1.5rem;
-    text-align: justify;
-    text-justify: inter-word;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+/* Header del bloque */
+.sq-section-head {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto 46px;
+}
+
+.sq-section-eyebrow {
+    display: inline-block;
+    font-size: 0.82rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 12px;
+}
+
+.sq-section-title {
+    margin: 0;
+    font-family: "Gailes", serif !important;
+    font-weight: 400;
+    font-size: clamp(2.1rem, 3.8vw, 2.8rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.sq-section-lead {
+    margin: 14px auto 0;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Collage de imágenes */
+.sq-intro-media {
+    position: relative;
+    min-height: 390px;
+    margin-top: -18px;
+}
+
+.sq-intro-photo {
+    position: absolute;
+    border-radius: 18px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    height: auto;
+}
+
+.sq-intro-photo.primary {
+    left: 0;
+    top: -14px;
+    max-width: 330px;
+}
+
+.sq-intro-photo.secondary {
+    right: 0;
+    bottom: 35px;
+    max-width: 235px;
+}
+
+.sq-intro-title {
+    margin: 0 0 12px 0;
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 980px) {
+    .sq-intro-layout {
+        grid-template-columns: 1fr;
+        gap: 42px;
+    }
+
+    .sq-intro-media {
+        min-height: 330px;
+        margin-top: -10px;
+    }
+
+    .sq-intro-photo.primary {
+        max-width: 400px;
+        position: relative;
+    }
+
+    .sq-intro-photo.secondary {
+        max-width: 220px;
+        bottom: 26px;
+    }
 }
 
 /* ==================== PROMOTIONS ==================== */
+
 .sq-promotions {
-    min-height: 100vh;   /* o 130vh si quieres más imagen */
-    padding: 160px 0;
-    background: transparent; 
-    position: relative;
+    padding: 0;
+    overflow: clip;
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: transparent;
 }
 
 .sq-promotions > * {
@@ -286,8 +433,9 @@ body {
 
 .sq-promotions-title {
     text-align: center;
+    font-family: "Gailes", serif !important;
     font-size: clamp(2.6rem, 4vw, 3.2rem);
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     margin-bottom: 9px;
@@ -350,7 +498,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     background: #ffffff;
-    color: #382a23;
+    color: #241913;
     padding: 3px 6px;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
@@ -403,7 +551,7 @@ body {
     min-height: 100vh;
     display: flex;
     align-items: stretch;
-    background: #120d0b;
+    background: transparent;
 }
 
 .sq-promotions .sq-container {
@@ -452,7 +600,14 @@ body {
     margin-bottom: 0;
     text-align: left;
     letter-spacing: 0.1em;
-    font-size: clamp(2.8rem, 5vw, 4.6rem);
+    font-size: clamp(2.3rem, 4.2vw, 3.9rem);
+}
+
+.sq-promotions-head--inside .sq-promotions-title {
+    text-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.65),
+        0 6px 18px rgba(0, 0, 0, 0.40);
+    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
 }
 
 .sq-promotions-title::after {
@@ -791,24 +946,37 @@ body {
 
 .sq-promotions {
     position: relative;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 70%, #fff 100%);
 }
 
 .sq-promotions-stage {
     position: relative;
-    width: calc(100vw + 48px);
-    margin-left: calc(50% - 50vw - 24px);
-    margin-right: calc(50% - 50vw - 24px);
-    margin-top: -24px;
-    margin-bottom: -24px;
-    min-height: calc(100vh + 48px);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    min-height: clamp(780px, 100vh, 1040px);
     flex: 1 1 auto;
-    border-radius: 0;
     overflow: hidden;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 32px 140px rgba(0, 0, 0, 0.65);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
     z-index: 2;
 }
 
+.sq-promotions-stage::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 180px;
+    pointer-events: none;
+    z-index: 10;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+}
 .sq-promotions-backdrop,
 .sq-promotions-shade {
     position: absolute;
@@ -836,16 +1004,27 @@ body {
 }
 
 .sq-promotions-shade {
-    background:
-        linear-gradient(90deg, rgba(14,10,9,0.86) 0%, rgba(14,10,9,0.72) 36%, rgba(14,10,9,0.38) 60%, rgba(14,10,9,0.76) 100%),
-        linear-gradient(180deg, rgba(14,10,9,0.22) 0%, rgba(14,10,9,0.65) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.72) 0%,
+        rgba(0, 0, 0, 0.58) 45%,
+        rgba(0, 0, 0, 0.72) 100%
+    );
     z-index: 1;
+}
+
+.sq-promo-feature {
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 22px;
+    padding: 30px 28px 26px;
+    backdrop-filter: blur(10px);
 }
 
 .sq-promotions-layout {
     position: relative;
     z-index: 2;
-    min-height: calc(100vh + 48px);
+    min-height: clamp(620px, 82vh, 820px);
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(360px, 46%);
     align-items: stretch;
@@ -887,7 +1066,7 @@ body {
 
 .sq-promo-feature h3 {
     margin: 0 0 18px;
-    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    font-size: clamp(2.1rem, 4.2vw, 3.8rem);
     line-height: 0.92;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -964,7 +1143,7 @@ body {
 
 .sq-promo-card-mini {
     flex: 0 0 172px;
-    height: 500px;
+    height: 430px;
     border-radius: 28px;
     overflow: hidden;
     position: relative;
@@ -1094,7 +1273,7 @@ body {
 
     .sq-promo-card-mini {
         flex-basis: 136px;
-        height: 360px;
+        height: 320px;
     }
 
     .sq-promo-card-mini.is-active {
@@ -1105,7 +1284,7 @@ body {
 /* ==================== FONDOS POR ESTADO ==================== */
 body {
     background-color: #ffffff;
-    transition: background-color 0.8s ease;
+    transition: background-color 0.9s ease;
 }
 
 /* Infinite */
@@ -1115,43 +1294,49 @@ body.bg-white {
 
 /* Testimonials */
 body.bg-brown {
-    background-color: #634c40;
+    background-color: #1f1612;
 }
 
-/* CTA */
+/* Contacto / footer */
 body.bg-black {
-    background-color: #0f0f0f;
+    background-color: #3a2a22;
 }
 
-.sq-infinite,
 .sq-testimonials,
 .sq-contact {
     background: transparent !important;
 }
 
+.sq-services-stage {
+    position: relative;
+    background: transparent;
+}
+
+.sq-tracks-wrapper.sq-infinite {
+    background: transparent !important;
+}
+
 /* ==================== INFINITE SCROLL ==================== */
 #infinite { scroll-margin-top: 39px; }
-#productos { scroll-margin-top: 130px; }
+#productos { scroll-margin-top: 110px; }
 
 .sq-infinite {
     position: relative;
     z-index: 5;
-    height: 700px;
+    height: 760px;
     display: flex;
     align-items: flex-start;
     padding-top: 10px;
     overflow: hidden;
-}
-#infinite {
-    scroll-margin-top: 39px; 
 }
 
 .sq-products-title2 {
     position: relative;  
     z-index: 20;
     text-align: center;
+    font-family: "Gailes", serif !important;
     font-size: 2.6rem;
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-bottom: 10px;
@@ -1180,7 +1365,7 @@ body.bg-black {
 .sq-track {
     position: absolute;
     left: 0;
-    top: 190px; 
+    top: 150px; 
     display: flex;
     will-change: transform;
     padding-left: 3px;
@@ -1189,26 +1374,30 @@ body.bg-black {
 .sq-tracks-wrapper {
     position: relative;
     overflow: hidden;
-    height: 860px;
+    height: 760px;
     padding-top: 0;
-    padding-bottom: 34px;
-    background: #120d0b;
+    padding-bottom: 0;
+    background: transparent;
 }
 
 .sq-services-heading {
     position: absolute;
     top: 34px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    transform: none;
     z-index: 6;
-    color: #fff;
+    color: #221610;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .sq-services-eyebrow {
     display: inline-block;
     margin-bottom: 10px;
-    color: #f1d6ad;
+    color: #382820;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     font-size: 0.72rem;
@@ -1216,10 +1405,12 @@ body.bg-black {
 
 .sq-services-heading h2 {
     margin: 0;
+    font-family: "Gailes", serif !important;
+    font-weight: 400;
     font-size: clamp(2.4rem, 5vw, 4rem);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #ffffff;
+    color: #261b15;
     line-height: 1;
 }
 
@@ -1334,23 +1525,52 @@ body.bg-black {
 .sq-products {
     position: relative;
     z-index: 6;
-    margin-top: 0;
-    background: #4b3a30;
-    padding: 19px 6%;
+    margin-top: 35px;
+    background: transparent;
+    padding: 10px 6% 80px;
     color: #fff;
+}
+
+/* Difuminado inferior para transicionar a Contactenos sin corte */
+.sq-products::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 220px;
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.75) 55%,
+        rgba(0, 0, 0, 1) 100%
+    );
+}
+
+.sq-products > * {
+    position: relative;
+    z-index: 1;
 }
 
 
 /* TÍTULO */
 .sq-products-title {
     text-align: center;
+    font-family: "Gailes", serif !important;
     font-size: 2.6rem;
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 9px;
+    margin-bottom: 28px;
     position: relative;
-    color:#ffffff
+    color:#ffffff;
+    text-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.65),
+        0 6px 18px rgba(0, 0, 0, 0.40);
+    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
 }
 
 .sq-products-title::after {
@@ -1367,8 +1587,8 @@ body.bg-black {
 .sq-products-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    column-gap: 60px;
-    row-gap: 130px;
+    column-gap: 28px;
+    row-gap: 40px;
     max-width: 1330px; /* ⬅️ más ancho */
     margin: 0 auto;
 }
@@ -1415,18 +1635,20 @@ body.bg-black {
 /* BOTÓN PRECIO (se mantiene) */
 .sq-product-price {
     display: inline-block;
-    padding: 6px 33px;
-    border: 1.2px solid rgba(255, 255, 255, 0.75);
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.9rem;
+    padding: 4px 18px;
+    background: rgba(184, 138, 95, 0.28);
+    border: 1.2px solid rgba(184, 138, 95, 0.75);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.8rem;
     letter-spacing: 0.1em;
     border-radius: 3px;
     transition: all 0.3s ease;
 }
 
 .sq-product-card:hover .sq-product-price {
-    background: rgba(255, 255, 255, 0.85);
-    color: #ffffff;
+    background: rgba(184, 138, 95, 0.95);
+    border-color: rgba(184, 138, 95, 0.95);
+    color: #1f1612;
 }
 
 /* Placeholder cuando no hay imagen */
@@ -1448,13 +1670,263 @@ body.bg-black {
 
 /* Descripción corta del producto */
 .sq-product-desc {
-    font-size: 0.88rem;
+    font-size: 0.76rem;
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 6px;
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 /* Estado vacío */
+
+/* ===== PRODUCT CARD (NUEVO ESTILO: INFO AL HOVER + ZOOM/SHIFT) ===== */
+.sq-product-card {
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 18px !important;
+    min-height: 360px !important;
+    padding: 0 !important;
+    text-align: left !important;
+    display: block !important;
+    outline: none;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.10);
+    perspective: 1200px;
+    transition:
+        transform 0.35s ease,
+        background-color 0.35s ease,
+        border-color 0.35s ease;
+}
+
+.sq-product-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 14% 18%, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.10) 45%, rgba(0, 0, 0, 0.08) 100%);
+}
+
+.sq-product-card:hover {
+    transform: scale(1.03);
+    background: rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.85);
+}
+
+.sq-product-card:focus-within {
+    background: rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.85);
+}
+
+.sq-product-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-height: 360px;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.sq-product-card.is-flipped .sq-product-inner {
+    transform: rotateY(180deg);
+}
+
+.sq-product-face {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.sq-product-face--front {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(0deg);
+}
+
+.sq-product-face--back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 18px 18px 16px;
+    color: rgba(255, 255, 255, 0.92);
+    background-image:
+        linear-gradient(180deg, rgba(10, 8, 7, 0.25) 0%, rgba(10, 8, 7, 0.72) 55%, rgba(10, 8, 7, 0.92) 100%),
+        var(--product-bg, none);
+    background-size: cover;
+    background-position: center;
+}
+
+.sq-product-back-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sq-product-back-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.sq-product-back-desc {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.82);
+    max-height: 240px;
+    overflow: auto;
+    padding-right: 6px;
+}
+
+.sq-product-back-desc--muted {
+    opacity: 0.65;
+}
+
+.sq-product-back-desc::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sq-product-back-desc::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+}
+
+.sq-product-back-hint {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.72;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    /* En desktop: al pasar el mouse solo mostrar el nombre en el frente */
+    .sq-product-face--front .sq-product-desc,
+    .sq-product-face--front .sq-product-price {
+        display: none;
+    }
+
+    .sq-product-face--front .sq-product-info {
+        gap: 6px;
+    }
+}
+
+.sq-product-card:focus-visible {
+    box-shadow: 0 0 0 3px rgba(241, 214, 173, 0.35);
+}
+
+.sq-product-media {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    transform: none;
+}
+
+.sq-product-media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: 50% center;
+    display: block !important;
+    margin-bottom: 0 !important;
+    transform: scale(1);
+    transform-origin: left center;
+    transition:
+        transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1),
+        object-position 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sq-product-media .sq-product-placeholder {
+    height: 100% !important;
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
+}
+
+.sq-product-card:hover .sq-product-media {
+    transform: none;
+}
+
+.sq-product-card:hover .sq-product-media img {
+    transform: scale(1.16);
+    object-position: 50% center;
+}
+
+.sq-product-info {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 2;
+    width: 58%;
+    padding: 14px 14px 14px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.66) 0%,
+        rgba(0, 0, 0, 0.35) 58%,
+        rgba(0, 0, 0, 0) 100%
+    );
+
+    opacity: 0;
+    transform: translateX(-18px);
+    transition: opacity 0.35s ease, transform 0.45s ease;
+    pointer-events: none;
+}
+
+.sq-product-card:hover .sq-product-info {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.sq-product-card:focus-within .sq-product-price {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.92);
+    color: #382a23;
+}
+
+.sq-product-info h3 {
+    font-size: 0.95rem !important;
+    margin: 0 !important;
+    color: #fff !important;
+}
+
+.sq-product-info .sq-product-desc {
+    margin: 0 !important;
+}
+
+.sq-product-info .sq-product-price {
+    align-self: flex-start;
+}
+
+/* En pantallas sin hover (mÃ³vil), mostrar la info sin depender del hover */
+@media (hover: none) {
+    .sq-product-info {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+        width: 100%;
+        background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0.72) 72%,
+            rgba(0, 0, 0, 0.82) 100%
+        );
+    }
+
+    .sq-product-media {
+        transform: none !important;
+    }
+}
+
 .sq-products-empty {
     text-align: center;
     padding: 60px 9px;
@@ -1506,11 +1978,64 @@ body.bg-black {
 .sq-contact {
     padding: 160px 16px;
     color: #ffffff;
+    background: linear-gradient(180deg, rgba(99, 76, 64, 0.12) 0%, rgba(58, 42, 34, 0.82) 35%, #120d0b 100%) !important;
+}
+
+.sq-contact--video {
+    position: relative;
+    overflow: hidden;
+    background: #000 !important;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 10%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 10%, #000 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+.sq-contact--video .sq-contact-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    filter: brightness(1.05) contrast(1.08) saturate(1.05);
+    transform: scale(1.02);
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+.sq-contact--video::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        radial-gradient(circle at 50% 30%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.62) 70%),
+        linear-gradient(180deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.48) 55%, rgba(0,0,0,0.62) 100%);
+    pointer-events: none;
+}
+
+.sq-contact--video::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgba(0, 0, 0, 0.22);
+    -webkit-mask-image: radial-gradient(closest-side, transparent 82%, #000 100%);
+    mask-image: radial-gradient(closest-side, transparent 82%, #000 100%);
 }
 
 .sq-contact-wrapper {
     max-width: 1200px;
     margin: 0 auto;
+    position: relative;
+    z-index: 2;
 }
 
 /* Encabezado */
@@ -1531,8 +2056,9 @@ body.bg-black {
 }
 
 .sq-contact-header h2 {
+    font-family: "Gailes", serif !important;
     font-size: 3rem;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.1;
     margin-bottom: 23px;
     color: rgba(255,255,255,0.5);
@@ -1552,6 +2078,142 @@ body.bg-black {
     align-items: center;
     gap: 60px;
     flex-wrap: wrap;
+}
+
+/* En la nueva versiÃ³n (tipo video), ocultamos el layout viejo */
+.sq-contact-info {
+    display: none;
+}
+
+/* ==================== CONTACTO: SOCIAL CARDS (VIDEO) ==================== */
+.sq-contact-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 240px));
+    gap: 22px;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.sq-social-card {
+    --accent: rgba(255, 255, 255, 0.35);
+    --glow: rgba(255, 255, 255, 0.20);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    padding: 18px 18px 16px;
+    border-radius: 16px;
+
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.92);
+
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    transform: translateY(0);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.sq-social-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    background:
+        radial-gradient(140px 140px at var(--mx, 30%) var(--my, 18%), var(--glow), rgba(0, 0, 0, 0) 60%),
+        radial-gradient(240px 170px at var(--mx, 60%) 10%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 70%);
+    filter: blur(0.2px);
+}
+
+.sq-social-card:hover,
+.sq-social-card:focus-visible {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    background: rgba(0, 0, 0, 0.28);
+    box-shadow:
+        0 26px 60px rgba(0, 0, 0, 0.65),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 18px 60px rgba(255, 255, 255, 0.10);
+}
+
+.sq-social-card:hover::after,
+.sq-social-card:focus-visible::after {
+    opacity: 1;
+}
+
+.sq-social-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.sq-social-card-icon i {
+    font-size: 1.35rem;
+    color: rgba(255, 255, 255, 0.90);
+}
+
+.sq-social-card-body h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.sq-social-card-body p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.70);
+    line-height: 1.4;
+}
+
+.sq-social-card-cta {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.sq-social-card.is-whatsapp { --accent: rgba(37, 211, 102, 0.55); }
+.sq-social-card.is-instagram { --accent: rgba(225, 48, 108, 0.55); }
+.sq-social-card.is-facebook { --accent: rgba(24, 119, 242, 0.55); }
+
+.sq-social-card.is-whatsapp { --glow: rgba(37, 211, 102, 0.25); }
+.sq-social-card.is-instagram { --glow: rgba(225, 48, 108, 0.22); }
+.sq-social-card.is-facebook { --glow: rgba(24, 119, 242, 0.22); }
+
+@media (max-width: 860px) {
+    .sq-contact-cards {
+        grid-template-columns: repeat(2, minmax(0, 240px));
+    }
+}
+
+@media (max-width: 520px) {
+    .sq-contact-cards {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* Info */
@@ -1629,12 +2291,110 @@ body.bg-black {
 }
 
 .mona-footer {
-    background-color: #000000; /* Fondo negro */
+    background: linear-gradient(180deg, #120d0b 0%, #000000 100%);
     color: #888888;            /* Texto gris suave para que no brille tanto */
     padding: 3rem 1rem 1.5rem;
-    border-top: 1px solid #222; /* Una línea sutil arriba para separar */
+    border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separación suave */
     font-size: 0.9rem;
     text-align: center;        /* Todo centrado por defecto */
+}
+
+
+/* Footer layout (mapa + info) */
+.mona-footer .footer-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 28px;
+    align-items: start;
+    text-align: left;
+}
+
+.mona-footer .footer-logo {
+    grid-column: 1;
+}
+
+.footer-map {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 100%;
+    height: 160px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+    margin: 0;
+}
+
+.footer-map iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.footer-info-grid {
+    grid-column: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 28px;
+    text-align: left;
+    margin: 0;
+}
+
+.footer-info-block h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.footer-info-block p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.6;
+}
+
+.footer-info-block a {
+    display: block;
+    margin-top: 6px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+}
+
+.footer-info-block a:hover {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.footer-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 22px 0;
+}
+
+.footer-divider,
+.mona-footer .copyright {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+@media (max-width: 720px) {
+    .mona-footer .footer-content {
+        display: block;
+        text-align: center;
+    }
+
+    .footer-map {
+        height: 260px;
+        margin: 0 auto 22px;
+    }
+
+    .footer-info-grid {
+        grid-template-columns: 1fr;
+        text-align: left;
+        margin: 0 auto 22px;
+    }
 }
 
 .mona-footer .footer-logo span {
@@ -1686,7 +2446,7 @@ body.bg-black {
     width: 170px;
     height: 170px;
     border-radius: 50%;
-    background: #2c241f;
+    background: #51433a;
     opacity: 0.95;
 }
 
@@ -1727,7 +2487,7 @@ body.bg-black {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #2c241f;
+    background: #493c33;
 }
 /* ===== Imagen fija cuando hay imagen pero no video ===== */
 .sq-card-image {
@@ -1830,6 +2590,28 @@ body.bg-black {
 .sq-card.no-image:hover .sq-blur {
     background: rgba(0,0,0,0.18);
 }
+.sq-brand-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 60px;
+}
+
+.sq-brand-wrapper .sq-hero-brand {
+    margin-bottom: 0;
+    display: block;
+    color: #fff;
+}
+
+.sq-brand-video-fill {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 5;
+}
 /* ==========================================
    CUANDO HAY VIDEO PERO NO HAY IMAGEN
 ========================================== */
@@ -1894,5 +2676,21 @@ body.bg-black {
     }
 
 } 
+/* ==================== ANIMACIONES DE ENTRADA ==================== */
+.sq-fade-up {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1), 
+                transform 1.4s cubic-bezier(0.22, 1, 0.36, 1); /* ← era 0.9s */
+}
 
+.sq-fade-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 
+.sq-fade-up:nth-child(2) { transition-delay: 0.15s; }
+.sq-fade-up:nth-child(3) { transition-delay: 0.30s; }
+.sq-fade-up:nth-child(4) { transition-delay: 0.45s; }
+.sq-fade-up:nth-child(5) { transition-delay: 0.60s; }
+.sq-fade-up:nth-child(6) { transition-delay: 0.75s; }
