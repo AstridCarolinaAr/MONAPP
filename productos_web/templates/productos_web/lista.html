@@ -8,9 +8,11 @@
 {% block page_title %}Productos Web{% endblock %}
 {% block page_subtitle %}Gestion de productos del catalogo web{% endblock %}
 {% block page_actions %}
+{% if permisos.productos_web.crear %}
 <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
     <i class="fas fa-plus"></i> Nuevo producto
 </button>
+{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -415,6 +417,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                 <small class="text-muted">{{ p.descripcion|truncatewords:8|default:"—" }}</small>
                             </td>
                             <td data-sort="{% if p.visible %}1{% else %}2{% endif %}">
+                                {% if permisos.productos_web.editar %}
                                 <label class="pw-switch" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
                                     <input type="checkbox"
                                            {% if p.visible %}checked{% endif %}
@@ -422,6 +425,13 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                            data-nombre="{{ p.nombre }}">
                                     <span class="slider"></span>
                                 </label>
+                                {% else %}
+                                    {% if p.visible %}
+                                        <span class="pw-badge-visible">Visible</span>
+                                    {% else %}
+                                        <span class="pw-badge-hidden">Oculto</span>
+                                    {% endif %}
+                                {% endif %}
                             </td>
                             <td class="text-end pw-actions">
                                 <div class="table-action-group">
@@ -438,6 +448,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                         title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
+                                {% if permisos.productos_web.editar %}
                                 <button type="button"
                                    class="table-action-btn btn-editar-pw"
                                    data-producto-id="{{ p.pk }}"
@@ -446,12 +457,15 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                    title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </button>
+                                {% endif %}
+                                {% if permisos.productos_web.eliminar %}
                                 <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-pw"
                                         data-nombre="{{ p.nombre }}"
                                         data-url="{% url 'productos_web:eliminar' p.pk %}"
                                         title="Eliminar">
                                     <i class="bi bi-trash3"></i>
                                 </button>
+                                {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -491,6 +505,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                     &times;
                 </button>
             </div>
+            {% if permisos.productos_web.crear %}
             <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data" data-producto-id="">
                 {% csrf_token %}
                 <div class="modal-body">
@@ -543,6 +558,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                     </button>
                 </div>
             </form>
+            {% endif %}
         </div>
     </div>
 </div>
