@@ -111,48 +111,32 @@ function enviarFormularioUsuario(form) {
 }
 
 /* ════════════════════════════════
-   MODAL: ELIMINAR USUARIO
+   MODAL: DESACTIVAR USUARIO
 ════════════════════════════════ */
 function abrirModalEliminarUsuario(usuarioId) {
-    const csrftoken = getCookie('csrftoken');
-
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción no se puede deshacer',
+        title: '¿Desactivar usuario?',
+        text: 'El usuario quedará inactivo y podrás reactivarlo luego',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#5d4037',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
+        confirmButtonText: 'Sí, desactivar',
         cancelButtonText: 'Cancelar',
         background: '#fdfaf8',
         color: '#4b3621',
         showLoaderOnConfirm: true,
         preConfirm: () => {
-            return fetch(`/auth/usuarios/${usuarioId}/eliminar/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Error en la solicitud');
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Error al eliminar');
-                return data;
-            })
-            .catch(error => Swal.showValidationMessage(`Error: ${error.message}`));
+            return desactivarUsuario(usuarioId).catch(error => {
+                Swal.showValidationMessage(`Error: ${error.message}`);
+            });
         },
         allowOutsideClick: () => !Swal.isLoading()
     }).then(result => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: '¡Eliminado!',
-                text: result.value.message || 'Usuario eliminado exitosamente',
+                title: '¡Desactivado!',
+                text: result.value.message || 'Usuario desactivado exitosamente',
                 icon: 'success',
                 confirmButtonColor: '#5d4037',
                 background: '#fdfaf8',
@@ -162,6 +146,53 @@ function abrirModalEliminarUsuario(usuarioId) {
             }).then(() => location.reload());
         }
     });
+}
+
+function desactivarUsuario(usuarioId) {
+    const csrftoken = getCookie('csrftoken');
+
+    return fetch(`/auth/usuarios/${usuarioId}/eliminar/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la solicitud');
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) throw new Error(data.message || 'Error al desactivar');
+        return data;
+    });
+}
+
+function confirmarEliminarUsuario(usuarioId) {
+    desactivarUsuario(usuarioId)
+        .then(data => {
+            Swal.fire({
+                title: '¡Desactivado!',
+                text: data.message || 'Usuario desactivado exitosamente',
+                icon: 'success',
+                confirmButtonColor: '#5d4037',
+                background: '#fdfaf8',
+                color: '#4b3621',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => location.reload());
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error',
+                text: error.message || 'No se pudo desactivar el usuario',
+                icon: 'error',
+                confirmButtonColor: '#5d4037',
+                background: '#fdfaf8',
+                color: '#4b3621'
+            });
+        });
 }
 
 /* ════════════════════════════════

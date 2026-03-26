@@ -504,8 +504,6 @@ html {% extends 'core/panel_admin_base.html' %}
 {% block content %}
 <div class="db">
   <div class="db-body">
-    {% if not permisos.roles.es_colaborador_real %}
-
     <!-- ══ HERO FULL WIDTH ══ -->
     <div class="hero-outer">
       <img
@@ -893,34 +891,4 @@ html {% extends 'core/panel_admin_base.html' %}
 
   </div>
 </div>
-    {% else %}
-<div class="db">
-  <div class="db-body">
-    <div class="row" style="margin-bottom:18px;">
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>Cumpleaños Hoy</span>
-          {% if cumpleanios_hoy %}<span class="chip chip-gold">{{ cumpleanios_hoy|length }}</span>{% endif %}
-        </div>
-        <div class="card-body">
-          {% if cumpleanios_hoy %}
-            {% for p in cumpleanios_hoy %}
-            <div class="li">
-              <div class="av av-gold">{{ p.nombre|slice:":2"|upper }}</div>
-              <div class="li-info">
-                <div class="li-name">{{ p.nombre }}</div>
-                <div class="li-sub">{{ p.cargo|default:"Cliente" }}</div>
-              </div>
-              <span class="pill p-gold">🎂 {{ p.edad }} años</span>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div class="empty"><i class="bi bi-balloon"></i><p>Sin cumpleaños hoy</p></div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-    {% endif %}
 {% endblock %}
