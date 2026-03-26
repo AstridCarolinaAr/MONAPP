@@ -22,9 +22,11 @@
                 <button type="button" class="lib-card__action-btn lib-card__action-btn--edit" data-edit-url="{% url 'servicios:editar_servicio' servicio.pk %}" title="Editar" aria-label="Editar servicio {{ servicio.nombre }}">
                     <i class="bi bi-pencil" aria-hidden="true"></i>
                 </button>
+                {% if permisos.roles.es_admin %}
                 <button type="button" class="lib-card__action-btn lib-card__action-btn--del" data-delete-url="{% url 'servicios:eliminar_servicio' servicio.pk %}" data-nombre="{{ servicio.nombre|escapejs }}" title="Eliminar" aria-label="Eliminar servicio {{ servicio.nombre }}">
                     <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
+                {% endif %}
             </div>
         </div>
         <div class="lib-card__body">
@@ -65,9 +67,11 @@
             <button type="button" class="lib-card__action-btn lib-card__action-btn--edit" data-edit-url="{% url 'servicios:editar_servicio' servicio.pk %}" title="Editar" aria-label="Editar servicio {{ servicio.nombre }}">
                 <i class="bi bi-pencil" aria-hidden="true"></i>
             </button>
+            {% if permisos.roles.es_admin %}
             <button type="button" class="lib-card__action-btn lib-card__action-btn--del" data-delete-url="{% url 'servicios:eliminar_servicio' servicio.pk %}" data-nombre="{{ servicio.nombre|escapejs }}" title="Eliminar" aria-label="Eliminar servicio {{ servicio.nombre }}">
                 <i class="bi bi-trash" aria-hidden="true"></i>
             </button>
+            {% endif %}
         </div>
     </div>
     {% endfor %}

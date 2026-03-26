@@ -82,6 +82,7 @@
                                 title="Editar">
                             <i class="bi bi-pencil-square"></i>
                         </button>
+                        {% if permisos.roles.es_admin %}
                         <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-promo"
                                 data-nombre="{{ p.nombre }}"
                                 data-url="{% url 'promociones:eliminar' p.pk %}"
@@ -89,6 +90,7 @@
                                 title="Eliminar">
                             <i class="bi bi-trash3" style="font-size:24px;"></i>
                         </button>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
