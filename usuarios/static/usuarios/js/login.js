@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.getElementById('loginModalForm');
+    const attemptsInfo = document.getElementById('loginAttemptsInfo');
     const toggle = document.getElementById('togglePassword');
     const passInput = document.getElementById('password');
     if (toggle && passInput) {
@@ -87,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function () {
         drawBubbles();
     }
 
-    const loginForm = document.querySelector('#loginModal form');
     const captchaBox = document.getElementById('loginCaptchaBox');
     const captchaTrigger = document.getElementById('loginCaptchaTrigger');
     const captchaVerifiedInput = document.getElementById('captchaVerified');
@@ -124,14 +125,74 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (loginForm && captchaBox && captchaVerifiedInput) {
-        loginForm.addEventListener('submit', (event) => {
+    const setAttemptsMessage = (attempts, blockedMinutes, message) => {
+        if (!attemptsInfo) return;
+        if (!message && !attempts && !blockedMinutes) {
+            attemptsInfo.style.display = 'none';
+            attemptsInfo.textContent = '';
+            attemptsInfo.classList.remove('is-blocked');
+            return;
+        }
+        let parts = [];
+        if (message) parts.push(message);
+        if (attempts) parts.push(`Intentos: ${attempts}`);
+        if (blockedMinutes) parts.push(`Espera: ${blockedMinutes} minuto(s).`);
+        attemptsInfo.textContent = parts.join(' · ');
+        attemptsInfo.style.display = 'block';
+        attemptsInfo.classList.toggle('is-blocked', !!blockedMinutes);
+    };
+
+    if (loginForm && captchaVerifiedInput) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
             if (captchaVerifiedInput.value !== '1') {
-                event.preventDefault();
+                if (captchaBox) {
+                    captchaBox.classList.remove('verified');
+                    captchaBox.classList.add('captcha-required');
+                }
+                if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
+                if (captchaTrigger) captchaTrigger.focus();
+                return;
+            }
+
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Verificando...';
+            }
+
+            try {
+                const formData = new FormData(loginForm);
+                const response = await fetch(loginForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: formData,
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (response.ok && data.success) {
+                    setAttemptsMessage('', '', '');
+                    window.location.href = data.redirect || '/';
+                    return;
+                }
+
+                setAttemptsMessage(data.attempts || 0, data.blocked_minutes || 0, data.message || 'Usuario o contraseña incorrectos.');
+                captchaVerifiedInput.value = '0';
                 captchaBox.classList.remove('verified');
                 captchaBox.classList.add('captcha-required');
                 if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
-                captchaTrigger.focus();
+                if (passInput) passInput.focus();
+            } catch (error) {
+                setAttemptsMessage('', '', 'No se pudo validar el ingreso. Intenta de nuevo.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             }
         });
     }

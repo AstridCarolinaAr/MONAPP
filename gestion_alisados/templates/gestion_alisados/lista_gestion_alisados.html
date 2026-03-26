@@ -419,10 +419,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn text-white" style="background-color: #634c40; border-color: #634c40; border-radius: 999px;" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Cancelar
-                </button>
-                <button type="button" class="btn text-white" id="btnAnterior" style="display: none; background-color: #634c40; border-color: #634c40; border-radius: 999px;">
+                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none; background-color: #634c40; border-color: #634c40; border-radius: 999px;">
                     <i class="bi bi-arrow-left"></i> Anterior
                 </button>
                 <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40; border-radius: 999px;">
@@ -510,10 +507,17 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('click', function (event) {
         const triggerForm = event.target.closest('.js-open-gestion-form-modal');
         if (triggerForm) {
-            modal.dataset.loadUrl = triggerForm.dataset.formUrl || '{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1';
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            const url = triggerForm.dataset.formUrl || '{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1';
+            modal.dataset.loadUrl = url;
+            modal.dataset.manualLoaded = '1';
             if (modalFormTitle) {
                 modalFormTitle.innerHTML = `<i class="bi bi-file-earmark-plus"></i> ${triggerForm.dataset.formTitle || 'Gestion de datos'}`;
             }
+            cargarFormularioGestion(url);
+            bootstrap.Modal.getOrCreateInstance(modal).show();
+            return;
         }
 
         const triggerInfo = event.target.closest('.js-open-gestion-info-modal');
@@ -544,13 +548,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     modal.addEventListener('show.bs.modal', function () {
+        if (modal.dataset.manualLoaded === '1') {
+            modal.dataset.manualLoaded = '0';
+            return;
+        }
         const url = modal.dataset.loadUrl || '{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1';
         cargarFormularioGestion(url);
     });
 
     modal.addEventListener('hidden.bs.modal', function () {
-        modalContent.innerHTML = spinnerHTML;
         modal.dataset.loadUrl = '{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1';
+        modal.dataset.manualLoaded = '0';
     });
 
     function getCookie(name) {
