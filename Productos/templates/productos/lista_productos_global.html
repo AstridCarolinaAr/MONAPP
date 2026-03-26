@@ -115,6 +115,7 @@
               <i class="bi bi-pencil-square" aria-hidden="true"></i>
             </a>
 
+            {% if permisos.roles.es_admin %}
             <button type="button"
                     class="btn btn-link btn-action-round"
                     data-url="{% url 'productos:eliminar_producto' producto.codigo %}"
@@ -130,6 +131,7 @@
                 <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
               {% endif %}
             </button>
+            {% endif %}
           </div>
         </td>
       </tr>

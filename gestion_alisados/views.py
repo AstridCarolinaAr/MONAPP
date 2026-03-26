@@ -16,10 +16,15 @@ from compras.comprobante import _get_logo_path, _get_watermark_path
 from .models import GestionAlisado
 from .forms import GestionAlisadoForm
 from clientes.models import Cliente
+from promociones.models import Promocion
 
 
 def es_staff(user):
     return user.is_staff
+
+
+def _promociones_activas():
+    return Promocion.objects.filter(activa=True).order_by("nombre")
 
 
 def _filtrar_gestiones_desde_request(request):
@@ -84,6 +89,7 @@ def form_gestion_alisado_modal_content(request):
         "cliente_bloqueado": cliente_bloqueado,
         "cliente_id_bloqueado": cliente_obj.id if cliente_obj and cliente_bloqueado else "",
         "desde_clientes": desde_clientes,
+        "promociones_activas": _promociones_activas(),
     }
 
     return render(
@@ -227,7 +233,8 @@ def crear_gestion_alisado(request):
     context = {
         'form': form,
         'titulo': 'Gestión de Alisado',
-        'is_modal': is_modal
+        'is_modal': is_modal,
+        'promociones_activas': _promociones_activas(),
     }
 
     # Si es modal, usar template simplificado
@@ -288,6 +295,7 @@ def editar_gestion_alisado(request, pk):
         'gestion': gestion,
         'is_modal': is_modal,
         'action_url': request.path,
+        'promociones_activas': _promociones_activas(),
     }
     if is_modal:
         return render(request, 'gestion_alisados/form_gestion_alisado_modal_content.html', context)

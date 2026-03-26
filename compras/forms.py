@@ -55,17 +55,49 @@ class CompraForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["proveedor"].queryset = (
-            Proveedor.objects
-            .filter(estado="activo")
-            .order_by("nombre_proveedor")
+        qs_activos = Proveedor.objects.filter(estado="activo")
+        proveedor_actual = None
+
+        if self.instance and getattr(self.instance, "proveedor_id", None):
+            proveedor_actual = (
+                Proveedor.objects
+                .filter(pk=self.instance.proveedor_id)
+                .first()
+            )
+
+        if proveedor_actual:
+            qs_activos = (qs_activos | Proveedor.objects.filter(pk=proveedor_actual.pk)).distinct()
+
+        self.fields["proveedor"].queryset = qs_activos.order_by("nombre_proveedor")
+        self.fields["proveedor"].label_from_instance = lambda obj: (
+            f"{obj.nombre_proveedor} (Inactivo)" if obj.estado != "activo" else obj.nombre_proveedor
         )
+
+        if proveedor_actual and proveedor_actual.estado != "activo":
+            self.fields["proveedor"].disabled = True
+            self.fields["proveedor"].help_text = "El proveedor actual está inactivo, pero se mantiene por historial de la compra."
 
     def clean_proveedor(self):
         proveedor = self.cleaned_data.get("proveedor")
 
         if not proveedor:
+            if self.instance and getattr(self.instance, "proveedor_id", None):
+                return self.instance.proveedor
             raise forms.ValidationError("Selecciona un proveedor.")
+
+        proveedor_actual = None
+        if self.instance and getattr(self.instance, "proveedor_id", None):
+            proveedor_actual = Proveedor.objects.filter(pk=self.instance.proveedor_id).first()
+
+        if proveedor_actual and proveedor_actual.estado != "activo":
+            if proveedor.pk != proveedor_actual.pk:
+                raise forms.ValidationError(
+                    "No puedes cambiar el proveedor porque el proveedor original está inactivo."
+                )
+            return proveedor_actual
+
+        if self.instance and getattr(self.instance, "proveedor_id", None) == proveedor.pk:
+            return proveedor
 
         if proveedor.estado != "activo":
             raise forms.ValidationError(
@@ -353,22 +385,17 @@ class DetalleDevolucionCompraForm(forms.ModelForm):
             qs_devueltas = qs_devueltas.exclude(pk=self.instance.pk)
 
         cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
-        disponible_para_devolver = max(
+        disponible_por_compra = max(
             (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
             0
         )
+        stock_actual = detalle_compra.producto.stock_actual or 0
+        disponible_para_devolver = min(disponible_por_compra, stock_actual)
 
         if cantidad > disponible_para_devolver:
             self.add_error(
                 "cantidad",
                 f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de este producto."
-            )
-
-        stock_actual = detalle_compra.producto.stock_actual or 0
-        if cantidad > stock_actual:
-            self.add_error(
-                "cantidad",
-                f"No puedes devolver {cantidad}. Stock disponible actual: {stock_actual}."
             )
 
         return cleaned_data
@@ -428,10 +455,12 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
                 qs_devueltas = qs_devueltas.exclude(pk=form.instance.pk)
 
             cantidad_ya_devuelta = qs_devueltas.aggregate(total=Sum("cantidad"))["total"] or 0
-            disponible_para_devolver = max(
+            disponible_por_compra = max(
                 (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
                 0
             )
+            stock_actual = detalle_compra.producto.stock_actual or 0
+            disponible_para_devolver = min(disponible_por_compra, stock_actual)
 
             if total_en_formset > disponible_para_devolver:
                 form.add_error(

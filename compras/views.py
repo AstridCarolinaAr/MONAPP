@@ -531,7 +531,10 @@ def cargar_detalles_compra(request):
             .aggregate(total=Sum("cantidad"))["total"] or 0
         )
 
-        disponible = max((d.cantidad or 0) - cantidad_ya_devuelta, 0)
+        disponible_por_compra = max((d.cantidad or 0) - cantidad_ya_devuelta, 0)
+        stock_actual = d.producto.stock_actual or 0
+        disponible = min(disponible_por_compra, stock_actual)
+        disponible = max(disponible, 0)
 
         if disponible <= 0:
             continue

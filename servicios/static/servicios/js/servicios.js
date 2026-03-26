@@ -301,15 +301,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const cb = e.target;
         const id = cb.dataset.id;
+        const endpoint = `${window.URLS.toggleActivo}${id}/`;
 
-        fetch(`${window.URLS.toggleActivo}${id}/`, {
+        if (!id || !window.URLS || !window.URLS.toggleActivo) {
+            cb.checked = !cb.checked;
+            alert('No se pudo cambiar el estado.');
+            return;
+        }
+
+        fetch(endpoint, {
             method : 'POST',
+            credentials: 'same-origin',
             headers: {
                 'X-CSRFToken'     : getCookie('csrftoken'),
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(r => r.json())
+        .then(async r => {
+            const contentType = (r.headers.get('content-type') || '').toLowerCase();
+            const payload = contentType.includes('application/json')
+                ? await r.json()
+                : { success: false, message: await r.text() };
+
+            if (!r.ok && !payload.success) {
+                throw new Error(payload.message || `HTTP ${r.status}`);
+            }
+
+            return payload;
+        })
         .then(data => {
             if (data.success) {
                 // Sincronizar ambas vistas (grid y list)
@@ -331,12 +350,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             } else {
                 cb.checked = !cb.checked;
-                alert('Error al cambiar el estado.');
+                alert(data.message || 'Error al cambiar el estado.');
             }
         })
-        .catch(() => {
+        .catch((error) => {
+            console.error('Error cambiando estado del servicio:', error);
             cb.checked = !cb.checked;
-            alert('Error de conexión.');
+            alert(error.message || 'Error de conexión.');
         });
     });
 
@@ -354,6 +374,86 @@ document.addEventListener('DOMContentLoaded', function () {
             abrirModalEliminar(delBtn.dataset.deleteUrl, delBtn.dataset.nombre);
         }
     });
+
+    document.addEventListener('submit', function (e) {
+        const form = e.target && e.target.closest ? e.target.closest('#formEliminarServicio') : null;
+        if (!form) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === 'function') {
+            e.stopImmediatePropagation();
+        }
+
+        if (form.dataset.eliminando === '1') return;
+        form.dataset.eliminando = '1';
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton ? submitButton.innerHTML : '';
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Eliminando...';
+        }
+
+        fetch(form.action || window.location.href, {
+            method: 'POST',
+            body: new FormData(form),
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(async response => {
+            const contentType = (response.headers.get('content-type') || '').toLowerCase();
+            const data = contentType.includes('application/json')
+                ? await response.json().catch(() => ({}))
+                : { success: false, message: await response.text() };
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'No se pudo eliminar el servicio.');
+            }
+
+            const modalEl = form.closest('.modal') || document.getElementById('modalEliminarServicio');
+            const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            await Swal.fire({
+                title: 'Servicio eliminado',
+                text: data.message || 'El servicio fue eliminado correctamente.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4b2f2a',
+            });
+
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error eliminando servicio:', error);
+            if (typeof Swal !== 'undefined' && Swal.fire) {
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message || 'Ocurrió un error al eliminar el servicio.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#dc3545',
+                });
+            } else {
+                alert(error.message || 'Ocurrió un error al eliminar el servicio.');
+            }
+        })
+        .finally(() => {
+            delete form.dataset.eliminando;
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText || '<i class="bi bi-trash"></i> Sí, Eliminar';
+            }
+        });
+    }, true);
 
     // ── HELPER: ejecutar scripts inyectados por AJAX ──
     function ejecutarScripts(container) {
@@ -537,6 +637,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!rawValue) {
                 valid = false;
                 message = 'La descripción es obligatoria.';
+            } else if (rawValue.length < 10) {
+                valid = false;
+                message = 'La descripción debe tener al menos 10 caracteres.';
             }
         }
 
@@ -681,6 +784,83 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    async function recargarListadoServicios() {
+        const target = document.getElementById('lista-servicios-resultados');
+        const filtros = document.getElementById('filtrosServicios');
+        const ajaxUrl = window.URLS?.listaServicios;
+
+        if (!target || !ajaxUrl) {
+            window.location.reload();
+            return;
+        }
+
+        const params = filtros ? new URLSearchParams(new FormData(filtros)) : new URLSearchParams();
+        const url = `${ajaxUrl}?${params.toString()}`;
+
+        const response = await fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            throw new Error(`No se pudo recargar la lista (${response.status}).`);
+        }
+
+        const html = await response.text();
+        target.innerHTML = html;
+    }
+
+    function cerrarModalBootstrap(modalEl) {
+        return new Promise(resolve => {
+            if (!modalEl) {
+                resolve();
+                return;
+            }
+
+            const instance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+            if (!instance) {
+                resolve();
+                return;
+            }
+
+            let resolved = false;
+            const done = () => {
+                if (resolved) return;
+                resolved = true;
+                modalEl.removeEventListener('hidden.bs.modal', done);
+                resolve();
+            };
+
+            modalEl.addEventListener('hidden.bs.modal', done, { once: true });
+            instance.hide();
+
+            setTimeout(done, 500);
+        });
+    }
+
+    function clearServicioFormState(form) {
+        if (!form) return;
+
+        form.querySelectorAll('[name]').forEach(field => {
+            delete field.dataset.touched;
+            delete field.dataset.nombreDuplicado;
+
+            const parts = ensureFieldStructure(field);
+            if (!parts) return;
+
+            const { wrapper, icon, errorBox } = parts;
+            wrapper.classList.remove('is-valid', 'is-invalid');
+            field.classList.remove('servicio-valid-control', 'servicio-invalid-control');
+            if (icon) icon.innerHTML = '';
+            if (errorBox) {
+                errorBox.innerHTML = '';
+                errorBox.classList.remove('is-visible');
+            }
+        });
+    }
+
     async function submitServicioFormulario(form) {
         if (!form || form.dataset.servicioSubmitting === '1') return true;
         form.dataset.servicioSubmitting = '1';
@@ -688,6 +868,22 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             initServicioForms(form);
             wireServicioGuards(form);
+
+            const nombreField = form.querySelector('[name="nombre"]');
+            if (nombreField && nombreField.dataset.nombreDuplicado === '1') {
+                if (typeof Swal !== 'undefined' && Swal.fire) {
+                    await Swal.fire({
+                        title: 'Servicio duplicado',
+                        text: 'Ya existe un servicio con este nombre.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545',
+                    });
+                } else {
+                    alert('Ya existe un servicio con este nombre.');
+                }
+                return true;
+            }
 
             let ok = true;
             CAMPOS_SERVICIO.forEach(name => {
@@ -714,6 +910,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const formData = new FormData(form);
+            const requestUrl = form.action || window.location.href;
             const submitButton = form.querySelector('button[type="submit"]');
             const originalText = submitButton ? submitButton.innerHTML : 'Guardar';
 
@@ -723,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                const response = await fetch(form.action || window.location.href, {
+                const response = await fetch(requestUrl, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -732,14 +929,36 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
 
-                const data = await response.json().catch(() => ({}));
+                const rawResponse = await response.text();
+                let data = {};
 
-                if (data.success) {
-                    const successText = data.message || 'El servicio se guardó correctamente.';
+                try {
+                    data = JSON.parse(rawResponse);
+                } catch (error) {
+                    data = {};
+                }
+
+                const successByRedirect = response.ok && (
+                    response.redirected || (response.url && requestUrl && response.url !== requestUrl)
+                );
+
+                if (data.success || successByRedirect) {
+                    const successText = data.message || (form.dataset.servicioId
+                        ? 'El servicio se actualizó correctamente.'
+                        : 'El servicio se guardó correctamente.');
                     const modalEl = document.getElementById('modalFormServicio') || document.getElementById('modalEditarServicio');
                     const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
                     const isEdit = Boolean(form.dataset.servicioId);
-                    const successTitle = isEdit ? 'Servicio actualizado' : 'Servicio creado';
+                    const successTitle = isEdit ? 'Servicio actualizado' : 'Servicio guardado';
+
+                    await cerrarModalBootstrap(modalEl);
+
+                    if (!isEdit) {
+                        form.reset();
+                        clearServicioFormState(form);
+                        wireServicioGuards(form);
+                        wireNombreDuplicado(form);
+                    }
 
                     if (typeof Swal !== 'undefined' && Swal.fire) {
                         await Swal.fire({
@@ -753,7 +972,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         alert(successText);
                     }
 
-                    if (modalInstance) modalInstance.hide();
                     window.location.reload();
                     return true;
                 }
@@ -774,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             confirmButtonText: 'OK',
                             confirmButtonColor: '#dc3545',
                         });
+                        return true;
                     } else if (data.message && typeof Swal !== 'undefined' && Swal.fire) {
                         Swal.fire({
                             title: 'No se pudo guardar',
@@ -782,11 +1001,27 @@ document.addEventListener('DOMContentLoaded', function () {
                             confirmButtonText: 'OK',
                             confirmButtonColor: '#dc3545',
                         });
+                        return true;
                     } else {
-                        alert('Error al guardar el servicio. Verifica los campos.');
+                        alert(data.message || 'Error al guardar el servicio. Verifica los campos.');
+                        return true;
                     }
                 } else {
-                    alert('Error al guardar el servicio. Verifica los campos.');
+                    const serverMessage = /ya existe un servicio con este nombre/i.test(rawResponse)
+                        ? 'Ya existe un servicio con este nombre.'
+                        : (data.message || 'Error al guardar el servicio. Verifica los campos.');
+
+                    if (/ya existe un servicio con este nombre/i.test(serverMessage) && typeof Swal !== 'undefined' && Swal.fire) {
+                        await Swal.fire({
+                            title: 'Servicio duplicado',
+                            text: serverMessage,
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc3545',
+                        });
+                    } else {
+                        alert(serverMessage);
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);

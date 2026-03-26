@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
@@ -143,20 +144,16 @@ def _extraer_lineas_devolucion_validas(compra, formset):
             acumulado_por_detalle.get(detalle_compra.pk, 0) + cantidad
         )
 
-        disponible_para_devolver = max(
+        disponible_por_compra = max(
             (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
             0,
         )
+        stock_actual = detalle_compra.producto.stock_actual or 0
+        disponible_para_devolver = min(disponible_por_compra, stock_actual)
 
         if acumulado_por_detalle[detalle_compra.pk] > disponible_para_devolver:
             raise CompraServiceError(
                 f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
-            )
-
-        stock_actual = detalle_compra.producto.stock_actual or 0
-        if acumulado_por_detalle[detalle_compra.pk] > stock_actual:
-            raise CompraServiceError(
-                f"No puedes devolver más de {stock_actual} unidad(es) de {detalle_compra.producto.nombre} porque no hay stock suficiente."
             )
 
         lineas.append((detalle_compra, cantidad))
@@ -309,14 +306,20 @@ def anular_compra(*, compra, usuario):
         for pid, total in qtys:
             producto_ref = Producto.objects.get(pk=pid)
 
-            aplicar_movimiento_stock(
-                producto=producto_ref,
-                delta=-(total or 0),
-                tipo_movimiento="COMPRA_ANULACION",
-                usuario=usuario,
-                compra=compra,
-                observacion=f"Anulación de compra #{compra.id}"
-            )
+            try:
+                aplicar_movimiento_stock(
+                    producto=producto_ref,
+                    delta=-(total or 0),
+                    tipo_movimiento="COMPRA_ANULACION",
+                    usuario=usuario,
+                    compra=compra,
+                    observacion=f"Anulación de compra #{compra.id}"
+                )
+            except ValidationError as exc:
+                raise CompraServiceError(
+                    f"No se puede anular la compra porque el producto {producto_ref.nombre} "
+                    f"no tiene stock suficiente para revertir el movimiento."
+                ) from exc
 
         compra.fecha_anulada = timezone.now().date()
         compra.anulada_en = timezone.now()

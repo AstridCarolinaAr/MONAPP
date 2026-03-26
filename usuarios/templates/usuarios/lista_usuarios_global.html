@@ -21,7 +21,7 @@
                         <td>{{ usuario.get_full_name|default:"—" }}</td>
                         <td>{{ usuario.email|default:"—" }}</td>
                         <td>
-                            {% if puede_modificar %}
+                            {% if permisos.usuarios.editar %}
                                 <label class="table-switch-wrapper" title="Cambiar estado">
                                     <input type="checkbox"
                                            class="toggle-activo-usuario-checkbox"
@@ -45,14 +45,14 @@
                                         title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                {% if puede_modificar %}
+                                {% if permisos.usuarios.editar %}
                                 <button type="button" class="btn btn-link p-0"
                                         onclick="abrirModalEditarUsuario({{ usuario.id }})"
                                         title="Editar">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                                 {% endif %}
-                                {% if es_administrador %}
+                                {% if permisos.roles.es_admin %}
                                 <button type="button" class="btn btn-link p-0"
                                         onclick="abrirModalEliminarUsuario({{ usuario.id }})"
                                         title="Eliminar">

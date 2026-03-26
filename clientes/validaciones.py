@@ -1,6 +1,5 @@
 from datetime import date
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
+
 from .models import Cliente
 
 
@@ -19,6 +18,34 @@ def _sin_signos_peligrosos(valor):
     return "<" not in valor and ">" not in valor
 
 
+def _correo_seguro(correo):
+    correo = (correo or "").strip()
+    if not correo:
+        return False
+
+    if not all(ch.isalnum() or ch in "._-@" for ch in correo):
+        return False
+
+    partes = correo.split("@")
+    if len(partes) != 2:
+        return False
+
+    usuario, dominio = partes
+    if not usuario or not dominio or "." not in dominio:
+        return False
+
+    if usuario.startswith(".") or usuario.endswith("."):
+        return False
+
+    if dominio.startswith(".") or dominio.endswith("."):
+        return False
+
+    if ".." in correo:
+        return False
+
+    return True
+
+
 def validar_datos_cliente(data, cliente_id=None):
     errores = {}
 
@@ -29,10 +56,6 @@ def validar_datos_cliente(data, cliente_id=None):
     fecha_nacimiento_str = data.get('fecha_nacimiento', '').strip()
     telefono = data.get('telefono', '').strip()
     correo = data.get('correo', '').strip()
-
-    # ===============================
-    # VALIDACIONES
-    # ===============================
 
     if not tipo_documento:
         errores['tipo_documento'] = 'El tipo de documento es obligatorio.'
@@ -85,11 +108,7 @@ def validar_datos_cliente(data, cliente_id=None):
             errores['telefono'] = 'Debe tener exactamente 10 dígitos.'
 
     if correo:
-        try:
-            if not _sin_signos_peligrosos(correo):
-                raise ValidationError('Correo electrónico inválido.')
-            validate_email(correo)
-        except ValidationError:
+        if not _sin_signos_peligrosos(correo) or not _correo_seguro(correo):
             errores['correo'] = 'Correo electrónico inválido.'
 
     return errores

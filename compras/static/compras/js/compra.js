@@ -53,6 +53,27 @@
     return n.toLocaleString("es-CO");
   }
 
+  function renderCompraAnulada(row) {
+    if (!row) return;
+
+    const estadoCell = row.querySelector("td:nth-child(5)");
+    const accionesCell = row.querySelector("td:nth-child(6)");
+
+    if (estadoCell) {
+      estadoCell.innerHTML = `
+        <span class="compras-state-pill is-off" aria-label="Compra anulada" title="Anulada">
+          <span class="compras-state-pill__knob"></span>
+        </span>
+      `;
+    }
+
+    if (accionesCell) {
+      accionesCell.innerHTML = `
+        <span class="badge bg-secondary">Sin acciones</span>
+      `;
+    }
+  }
+
   const INPUT_RULES = {
     numeric: {
       pattern: /[^\d]/g,
@@ -101,7 +122,7 @@
 
     qsa(root, 'input[name$="-cantidad"]').forEach((input) => bindRestrictedInput(input, "numeric"));
     qsa(root, 'input[name$="-precio_unitario"]').forEach((input) => bindRestrictedInput(input, "money"));
-    qsa(root, "#id_motivo, #id_observacion").forEach((input) => bindRestrictedInput(input, "text"));
+    qsa(root, "#id_observacion").forEach((input) => bindRestrictedInput(input, "text"));
   }
 
   function attachCOPMask(input) {
@@ -242,7 +263,8 @@
     });
   }
 
-  function validateCompraForm(scope) {
+  function validateCompraForm(scope, options = {}) {
+    const { showErrors = true } = options;
     const root = scope || document;
     const form =
       root?.tagName === "FORM"
@@ -257,14 +279,15 @@
     const btnGuardar = qs(form, "#btnGuardarCompra");
     const modo = (form.dataset.modo || "crear").trim();
     const itemsActivos = getFormActivos(form);
+    const pintarErrores = showErrors === true;
 
     const proveedor = qs(form, "#id_proveedor");
     if (proveedor) {
       if (!String(proveedor.value || "").trim()) {
         errores.push("Selecciona un proveedor.");
-        markInvalid(proveedor, "Proveedor obligatorio.");
+        if (pintarErrores) markInvalid(proveedor, "Proveedor obligatorio.");
       } else {
-        markValid(proveedor);
+        if (pintarErrores) markValid(proveedor);
       }
     }
 
@@ -291,30 +314,30 @@
 
       if (!productoVal) {
         errores.push(`Debes seleccionar un producto en la fila ${idx + 1}.`);
-        markInvalid(productoSel, "Selecciona un producto.");
+        if (pintarErrores) markInvalid(productoSel, "Selecciona un producto.");
       } else {
         hayProductoReal = true;
-        markValid(productoSel);
+        if (pintarErrores) markValid(productoSel);
         productosUsados.set(productoVal, (productosUsados.get(productoVal) || 0) + 1);
       }
 
       const cantidad = toNumber(cantidadRaw);
       if (!Number.isInteger(cantidad) || cantidad <= 0) {
         errores.push(`La cantidad de la fila ${idx + 1} debe ser un entero mayor que 0.`);
-        markInvalid(cantidadInp, "Cantidad inválida.");
+        if (pintarErrores) markInvalid(cantidadInp, "Cantidad inválida.");
       } else if (cantidad > MAX_CANTIDAD_COMPRA) {
         errores.push(`La cantidad de la fila ${idx + 1} supera el máximo permitido.`);
-        markInvalid(cantidadInp, `Máximo ${MAX_CANTIDAD_COMPRA}.`);
+        if (pintarErrores) markInvalid(cantidadInp, `Máximo ${MAX_CANTIDAD_COMPRA}.`);
       } else {
-        markValid(cantidadInp);
+        if (pintarErrores) markValid(cantidadInp);
       }
 
       const precio = toNumber(precioRaw);
       if (precio <= 0) {
         errores.push(`El precio unitario de la fila ${idx + 1} debe ser mayor que 0.`);
-        markInvalid(precioInp, "Precio inválido.");
+        if (pintarErrores) markInvalid(precioInp, "Precio inválido.");
       } else {
-        markValid(precioInp);
+        if (pintarErrores) markValid(precioInp);
       }
     });
 
@@ -325,11 +348,13 @@
     for (const [productoId, count] of productosUsados.entries()) {
       if (count > 1) {
         errores.push("No puedes repetir el mismo producto en la compra.");
-        qsa(form, 'select[name$="-producto"]').forEach((sel) => {
-          if (String(sel.value || "") === String(productoId)) {
-            markInvalid(sel, "Producto duplicado.");
-          }
-        });
+        if (pintarErrores) {
+          qsa(form, 'select[name$="-producto"]').forEach((sel) => {
+            if (String(sel.value || "") === String(productoId)) {
+              markInvalid(sel, "Producto duplicado.");
+            }
+          });
+        }
         break;
       }
     }
@@ -338,7 +363,7 @@
       errores.push("No puedes dejar la compra sin productos.");
     }
 
-    if (errores.length) {
+    if (errores.length && showErrors) {
       showGeneralErrors(form, [...new Set(errores)]);
     }
 
@@ -369,7 +394,7 @@
     wireCompraGuards(scope || document);
     qsa(scope || document, 'input[name$="-precio_unitario"]').forEach(attachCOPMask);
     calcularTotal(scope || document);
-    validateCompraForm(scope || document);
+    validateCompraForm(scope || document, { showErrors: false });
   }
 
   async function openFormModal(url, title) {
@@ -533,7 +558,7 @@
       if (!confirm.isConfirmed) return;
 
       try {
-        const res = await fetch(url, {
+        const result = await fetchSmart(url, {
           method: "POST",
           credentials: "same-origin",
           headers: {
@@ -542,11 +567,26 @@
           },
         });
 
-        const data = await res.json();
+        if (result.type !== "json") {
+          console.error("Respuesta no JSON al anular compra:", result.data);
+          Swal.fire(
+            "Error",
+            "El servidor respondió con un formato inesperado al anular la compra.",
+            "error"
+          );
+          return;
+        }
 
-        if (data.success) {
+        const data = result.data;
+
+        if (result.ok && data.success) {
           const fila = document.getElementById(`fila-compra-${id}`);
-          if (fila) {
+          const resultados = document.getElementById("compras-resultados");
+          const estadoActual = String(resultados?.dataset.estadoActual || "activas").trim();
+
+          if (fila && estadoActual === "todas") {
+            renderCompraAnulada(fila);
+          } else if (fila) {
             fila.style.transition = "opacity .35s ease, transform .35s ease";
             fila.style.opacity = "0";
             fila.style.transform = "translateX(20px)";
@@ -560,7 +600,11 @@
             showConfirmButton: false,
           });
         } else {
-          Swal.fire("Error", data.message || "No se pudo anular.", "error");
+          Swal.fire(
+            "Error",
+            data.message || data.detail || `No se pudo anular (HTTP ${result.status}).`,
+            "error"
+          );
         }
       } catch (error) {
         console.error(error);
@@ -671,5 +715,106 @@
 
     formModalBodyEl.innerHTML = result.data;
     initCompraForm(formModalEl);
+  });
+
+  document.addEventListener("change", async (e) => {
+    const input = e.target.closest(".js-reactivar-proveedor-compra");
+    if (!input) return;
+
+    if (!input.checked) {
+      return;
+    }
+
+    const url = input.dataset.reactivarUrl;
+    const nombre = input.dataset.proveedorNombre || "este proveedor";
+    if (!url) return;
+
+    const confirm = await Swal.fire({
+      title: "¿Estás seguro que deseas activar al proveedor?",
+      text: `Se activará ${nombre}.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, activar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4b2f2a",
+      cancelButtonColor: "#6c757d",
+    });
+
+    if (!confirm.isConfirmed) {
+      input.checked = false;
+      return;
+    }
+
+    const formCompra = document.getElementById("formCompra");
+    const selectProveedor = formCompra ? formCompra.querySelector("#id_proveedor") : null;
+    const alertaInactivo = document.getElementById("alertaProveedorInactivoCompra");
+    const switchHolder = input.closest(".compra-switch-holder");
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": csrfFromCookie(),
+        },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.success) {
+        await Swal.fire({
+          title: "Proveedor activado",
+          text: data.message || `${nombre} fue activado correctamente.`,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#4b2f2a",
+        });
+        await Swal.fire({
+          title: "Listo",
+          text: "Ya puedes continuar editando la compra.",
+          icon: "info",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#4b2f2a",
+        });
+
+        if (selectProveedor) {
+          selectProveedor.disabled = false;
+          const option = selectProveedor.options[selectProveedor.selectedIndex];
+          if (option) {
+            option.text = option.text.replace(/\s*\(Inactivo\)\s*$/i, "");
+          }
+          selectProveedor.classList.remove("is-invalid");
+        }
+
+        if (alertaInactivo) {
+          alertaInactivo.remove();
+        }
+
+        if (switchHolder) {
+          switchHolder.remove();
+        }
+
+        return;
+      }
+
+      input.checked = false;
+      await Swal.fire({
+        title: "Error",
+        text: data.message || "No se pudo activar el proveedor.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
+    } catch (err) {
+      console.error("Error activando proveedor desde compras:", err);
+      input.checked = false;
+      await Swal.fire({
+        title: "Error",
+        text: "Ocurrió un error al activar el proveedor.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
+    }
   });
 })();

@@ -22,12 +22,22 @@
             <td>{{ c.id }}</td>
             <td>{{ c.proveedor }}</td>
             <td>{{ c.fecha }}</td>
-            <td>{% if c.usuario %}{{ c.usuario.username }}{% else %}—{% endif %}</td>
+            <td>{% if c.usuario %}{{ c.usuario.username }}{% else %}-{% endif %}</td>
             <td>
               {% if c.anulada %}
-                <span class="badge bg-danger">Anulada</span>
+                <span class="compras-state-pill is-off" aria-label="Compra anulada" title="Anulada">
+                  <span class="compras-state-pill__knob"></span>
+                </span>
               {% else %}
-                <span class="badge bg-success">Activa</span>
+                <button type="button"
+                        class="compras-state-pill is-on js-anular-compra"
+                        data-id="{{ c.id }}"
+                        data-proveedor="{{ c.proveedor }}"
+                        data-url="{% url 'compras:anular_compra' c.id %}"
+                        aria-label="Anular compra"
+                        title="Haz clic para anular la compra">
+                  <span class="compras-state-pill__knob"></span>
+                </button>
               {% endif %}
             </td>
 
@@ -48,12 +58,6 @@
                           title="No se puede editar: la compra tiene devoluciones activas">
                       <i class="bi bi-pencil-square"></i>
                     </span>
-
-                    <span class="btn btn-link btn-action-round disabled"
-                          style="color:#9a8f89; pointer-events:none; opacity:.55;"
-                          title="No se puede anular: la compra tiene devoluciones activas">
-                      <i class="bi bi-trash3"></i>
-                    </span>
                   {% else %}
                     <button type="button"
                             class="btn btn-link btn-action-round"
@@ -63,17 +67,17 @@
                             data-bs-placement="bottom">
                       <i class="bi bi-pencil-square"></i>
                     </button>
-
-                    <button type="button"
-                            class="btn btn-link btn-action-round js-anular-compra"
-                            data-id="{{ c.id }}"
-                            data-proveedor="{{ c.proveedor }}"
-                            data-url="{% url 'compras:anular_compra' c.id %}"
-                            title="Anular compra"
-                            data-bs-placement="bottom">
-                      <i class="bi bi-trash3"></i>
-                    </button>
                   {% endif %}
+
+                  <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm js-anular-compra"
+                      data-id="{{ c.id }}"
+                      data-proveedor="{{ c.proveedor }}"
+                      data-url="{% url 'compras:anular_compra' c.id %}"
+                      title="Anular compra">
+                    <i class="bi bi-trash3"></i>
+                  </button>
 
                   <button
                       type="button"
@@ -124,12 +128,21 @@
             <td>#{{ d.compra.id }}</td>
             <td>{{ d.proveedor }}</td>
             <td>{{ d.fecha }}</td>
-            <td>{% if d.usuario %}{{ d.usuario.username }}{% else %}—{% endif %}</td>
+            <td>{% if d.usuario %}{{ d.usuario.username }}{% else %}-{% endif %}</td>
             <td>
               {% if d.anulada %}
-                <span class="badge bg-danger">Anulada</span>
+                <span class="compras-state-pill is-off" aria-label="Devolución anulada" title="Anulada">
+                  <span class="compras-state-pill__knob"></span>
+                </span>
               {% else %}
-                <span class="badge bg-success">Activa</span>
+                <button type="button"
+                        class="compras-state-pill is-on js-anular-devolucion"
+                        data-id="{{ d.id }}"
+                        data-url="{% url 'compras:anular_devolucion_compra' d.id %}"
+                        aria-label="Anular devolución"
+                        title="Haz clic para anular la devolución">
+                  <span class="compras-state-pill__knob"></span>
+                </button>
               {% endif %}
             </td>
             <td class="text-center">
@@ -141,24 +154,11 @@
                     data-bs-target="#modalComprobante"
                     data-devolucion-id="{{ d.pk }}"
                     data-preview-url="{% url 'compras:comprobante_devolucion_compra_preview' d.pk %}"
-                    data-modal-title="Comprobante de devolución"
+                    data-modal-title="Comprobante de devolucion"
                     data-download-name="comprobante_devolucion_compra"
                     title="Ver comprobante">
                   <i class="bi bi-receipt-cutoff"></i>
                 </button>
-
-                {% if not d.anulada %}
-                  <button type="button"
-                          class="btn btn-link btn-action-round js-anular-devolucion"
-                          data-id="{{ d.id }}"
-                          data-url="{% url 'compras:anular_devolucion_compra' d.id %}"
-                          title="Anular devolución"
-                          data-bs-placement="bottom">
-                    <i class="bi bi-trash3"></i>
-                  </button>
-                {% else %}
-                  <span class="badge bg-secondary">Sin acciones</span>
-                {% endif %}
               </div>
             </td>
           </tr>

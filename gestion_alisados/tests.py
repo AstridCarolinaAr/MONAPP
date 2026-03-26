@@ -29,7 +29,7 @@ class GestionAlisadoModelTest(TestCase):
             anticipo_cliente=20000,
             medio_pago='efectivo',
             saldo_pendiente=30000,
-            procedimiento_realizado_por='Estilista Test',
+            procedimiento_realizado_por='Colaborador Test',
             tipo_alisado='Alisado Brasileño',
             requiere_resellado='no',
             porcentaje_alisado=80,

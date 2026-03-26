@@ -259,7 +259,7 @@
                         <div class="section-title">Selección de Cliente</div>
                         
                         <div class="row">
-                            <div class="col-md-10 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }} *</label>
                                 <select name="cliente" id="selectCliente" class="form-select" required>
                                     <option value="">Seleccione un cliente...</option>
@@ -272,12 +272,6 @@
                                 {% if form.cliente.errors %}
                                     <div class="text-danger">{{ form.cliente.errors }}</div>
                                 {% endif %}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="button" class="btn btn-outline-dark w-100" data-bs-toggle="modal" data-bs-target="#modalCrearCliente">
-                                    <i class="bi bi-plus-lg"></i> Nuevo
-                                </button>
                             </div>
                         </div>
                         
@@ -303,6 +297,23 @@
                                 <div id="descripcion_oferta_container" class="conditional-field">
                                     <label for="{{ form.descripcion_oferta.id_for_label }}" class="form-label">{{ form.descripcion_oferta.label }}</label>
                                     {{ form.descripcion_oferta }}
+                                </div>
+
+                                <div id="promocion_oferta_container" class="conditional-field mt-3">
+                                    <label for="promocion_oferta_select" class="form-label">Promocion activa</label>
+                                    <select id="promocion_oferta_select" class="form-select">
+                                        <option value="">Seleccione una promocion...</option>
+                                        {% for promocion in promociones_activas %}
+                                            <option value="{{ promocion.nombre }}"
+                                                    data-descripcion="{{ promocion.descripcion|default_if_none:'' }}"
+                                                    data-descuento="{{ promocion.porcentaje_descuento }}">
+                                                {{ promocion.nombre }} - {{ promocion.porcentaje_descuento }}%
+                                            </option>
+                                        {% empty %}
+                                            <option value="" disabled>No hay promociones activas</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text text-muted">Selecciona una promocion para cargarla en la descripcion.</small>
                                 </div>
                             </div>
                         </div>
@@ -1187,24 +1198,51 @@ document.addEventListener('DOMContentLoaded', function() {
         saldoInput.value = Math.max(0, saldo);
     }
     
+    anticipoInput.addEventListener('focus', function () {
+        if (this.value === '0') {
+            this.value = '';
+            calcularSaldo();
+        }
+    });
     precioInput.addEventListener('input', calcularSaldo);
     anticipoInput.addEventListener('input', calcularSaldo);
     
     // Mostrar/ocultar campo de oferta especial
     const ofertaSelect = document.getElementById('{{ form.es_oferta_especial.id_for_label }}');
     const ofertaContainer = document.getElementById('descripcion_oferta_container');
+    const promocionContainer = document.getElementById('promocion_oferta_container');
+    const promocionSelect = document.getElementById('promocion_oferta_select');
+    const descripcionOferta = document.getElementById('{{ form.descripcion_oferta.id_for_label }}');
     
     if (ofertaSelect && ofertaContainer) {
         function toggleOferta() {
-            if (ofertaSelect.value === 'si') {
+            const habilitar = ofertaSelect.value === 'si';
+            if (habilitar) {
                 ofertaContainer.classList.add('show');
+                if (promocionContainer) promocionContainer.classList.add('show');
             } else {
                 ofertaContainer.classList.remove('show');
+                if (promocionContainer) promocionContainer.classList.remove('show');
+                if (promocionSelect) promocionSelect.value = '';
+                if (descripcionOferta) descripcionOferta.value = '';
             }
         }
         
         ofertaSelect.addEventListener('change', toggleOferta);
         toggleOferta();
+    }
+
+    if (promocionSelect && descripcionOferta) {
+        promocionSelect.addEventListener('change', function () {
+            const option = this.options[this.selectedIndex];
+            if (!option || !option.value) return;
+
+            const nombre = option.value.trim();
+            const descuento = option.dataset.descuento ? ` (${option.dataset.descuento}% OFF)` : '';
+            const descripcion = option.dataset.descripcion ? ` - ${option.dataset.descripcion}` : '';
+            descripcionOferta.value = `${nombre}${descuento}${descripcion}`.trim();
+            descripcionOferta.dispatchEvent(new Event('input', { bubbles: true }));
+        });
     }
     
     // Mostrar/ocultar campo de medicamento tiroides
@@ -1441,16 +1479,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Helper para leer select o input por name
         function getValByName(name) {
-            const el = formulario.querySelector('[name="' + name + '"]');
+            const candidatos = Array.from(formulario.querySelectorAll('[name="' + name + '"]'));
+            const el = candidatos.find(field => !field.disabled && field.type !== 'hidden') || candidatos[0];
             if (!el) return '—';
+            if (el.type === 'checkbox') {
+                return el.checked ? 'Sí' : 'No';
+            }
             if (el.tagName === 'SELECT') {
                 const opt = el.options[el.selectedIndex];
-                return opt ? opt.text : '—';
+                return opt ? opt.text.trim() : '—';
             }
-            return el.value || '—';
+            return (el.value || '—').trim() || '—';
         }
         function getBoolByName(name) {
-            const el = formulario.querySelector('[name="' + name + '"]');
+            const candidatos = Array.from(formulario.querySelectorAll('[name="' + name + '"]'));
+            const el = candidatos.find(field => !field.disabled && field.type !== 'hidden') || candidatos[0];
             return (el && el.checked) ? 'Sí' : 'No';
         }
         // Convertir si/no values a Sí/No
@@ -1669,10 +1712,56 @@ document.addEventListener('DOMContentLoaded', function() {
         </body></html>`;
     }
 
+    function validarAntesDeImprimir() {
+        const campos = Array.from(formulario.querySelectorAll('[required]'));
+        const faltantes = [];
+
+        campos.forEach(campo => {
+            if (campo.disabled || campo.type === 'hidden') {
+                return;
+            }
+
+            const contenedorCondicional = campo.closest('.conditional-field');
+            if (contenedorCondicional && !contenedorCondicional.classList.contains('show')) {
+                return;
+            }
+
+            if (campo.type === 'checkbox') {
+                if (!campo.checked) {
+                    faltantes.push(campo.closest('.mb-3, .col-md-12, .col-md-6, .col-md-4, .col-md-3')?.querySelector('label')?.textContent?.replace('*', '').trim() || campo.name);
+                }
+                return;
+            }
+
+            const valor = (campo.value || '').trim();
+            const esPlaceholder = campo.tagName === 'SELECT' && (!campo.value || campo.selectedIndex === 0);
+            if (!valor || esPlaceholder) {
+                faltantes.push(campo.closest('.mb-3, .col-md-12, .col-md-6, .col-md-4, .col-md-3')?.querySelector('label')?.textContent?.replace('*', '').trim() || campo.name);
+            }
+        });
+
+        if (faltantes.length) {
+            const mensaje = 'Completa antes de imprimir: ' + faltantes.slice(0, 6).join(', ') + (faltantes.length > 6 ? '...' : '');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Faltan datos',
+                    text: mensaje,
+                    confirmButtonText: 'Aceptar',
+                });
+            } else {
+                alert(mensaje);
+            }
+        }
+
+        return true;
+    }
+
     /* ===============================
        BOTÓN: IMPRIMIR PDF
     =============================== */
     document.getElementById('btnImprimirPDF').addEventListener('click', function() {
+        if (!validarAntesDeImprimir()) return;
         const datos = recopilarDatosFormulario();
         const htmlDoc = generarHTMLDocumento(datos);
         const ventana = window.open('', '_blank', 'width=860,height=720');
@@ -1691,6 +1780,7 @@ document.addEventListener('DOMContentLoaded', function() {
        BOTÓN: IMPRIMIR WORD
     =============================== */
     document.getElementById('btnImprimirWord').addEventListener('click', function() {
+        if (!validarAntesDeImprimir()) return;
         const datos = recopilarDatosFormulario();
         const htmlDoc = generarHTMLDocumento(datos);
         const blob = new Blob(

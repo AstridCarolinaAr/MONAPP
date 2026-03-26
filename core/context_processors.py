@@ -1,21 +1,8 @@
-"""Context processors para la app core.
-
-Incluye permisos que usan las plantillas (es_administrador, es_admin_o_auxiliar).
-"""
-
-from Gestion.views import es_administrador, es_admin_o_auxiliar
+from .permisos import construir_permisos_usuario
 
 
-def gestion_permissions(request):
-    """Devuelve un diccionario con flags de permisos para usar en plantillas."""
-    user = getattr(request, 'user', None)
-    if not user or not user.is_authenticated:
-        return {
-            'es_administrador': False,
-            'es_admin_o_auxiliar': False,
-        }
-
+def permisos_usuario(request):
+    user = getattr(request, "user", None)
     return {
-        'es_administrador': es_administrador(user),
-        'es_admin_o_auxiliar': es_admin_o_auxiliar(user),
+        "permisos": construir_permisos_usuario(user) if user else {},
     }

@@ -163,7 +163,7 @@ function inicializarValidacionesPersonal() {
        ESTADO DEL BOTÓN
     =============================== */
     // Campos que tienen validación activa (excluye checkbox oculto, csrf, etc.)
-    const camposValidados = ['id_numero_documento', 'id_nombres', 'id_apellidos', 'id_rol', 'id_telefono', 'id_correo'];
+    const camposValidados = ['id_tipo_documento', 'id_numero_documento', 'id_nombres', 'id_apellidos', 'id_rol', 'id_telefono', 'id_correo'];
 
     function actualizarEstadoBoton() {
 
@@ -179,21 +179,21 @@ function inicializarValidacionesPersonal() {
             btnGuardar.disabled = hayErrores;
         } else {
             // En creación: todos los obligatorios deben estar en verde
-            const obligatorios = ['numero_documento', 'nombres', 'apellidos', 'rol'];
+            const obligatorios = ['tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'rol', 'telefono', 'correo'];
             let habilitar = true;
 
             obligatorios.forEach(id => {
                 const campo = document.getElementById('id_' + id);
-                if (!campo || (campo.value || '').trim() === '' || !campo.classList.contains('is-valid') || campo.classList.contains('is-invalid')) {
-                    habilitar = false;
+                if (!campo || (campo.value || '').trim() === '' || (!campo.classList.contains('is-valid') && campo.tagName !== 'SELECT') || campo.classList.contains('is-invalid')) {
+                    // Nota: Los SELECT como tipo_documento y rol pueden no tener 'is-valid' si no se les ha disparado el evento change,
+                    // pero verificamos que tengan valor.
+                    if (campo.tagName === 'SELECT' && (campo.value || '').trim() !== '') {
+                        // Es un select con valor, OK
+                    } else {
+                        habilitar = false;
+                    }
                 }
             });
-
-            const telefono = document.getElementById('id_telefono');
-            if (telefono && telefono.value.trim() && telefono.classList.contains('is-invalid')) habilitar = false;
-
-            const correo = document.getElementById('id_correo');
-            if (correo && correo.value.trim() && correo.classList.contains('is-invalid')) habilitar = false;
 
             btnGuardar.disabled = !habilitar;
         }
@@ -293,7 +293,16 @@ function inicializarValidacionesPersonal() {
         /* DOCUMENTO */
         if (input.id === 'id_numero_documento') {
             if (!valor) { limpiar(input); actualizarEstadoBoton(); return; }
-            validarDocumentoEnVivo(valor, input);
+            if (valor.length < 6) {
+                invalido(input, 'Mínimo 6 dígitos.');
+                actualizarEstadoBoton();
+                return;
+            }
+            if (valor.length > 12) {
+                input.value = valor.substring(0, 12); // Truncar por si acaso
+                valido(input);
+            }
+            validarDocumentoEnVivo(input.value.trim(), input);
             return;
         }
 
@@ -328,7 +337,13 @@ function inicializarValidacionesPersonal() {
         if (input.id === 'id_telefono') {
             if (!valor) { limpiar(input); actualizarEstadoBoton(); return; }
             if (!/^\d+$/.test(valor)) invalido(input, 'Solo números.');
-            else if (valor.length !== 10) invalido(input, 'Debe tener 10 dígitos.');
+            else if (valor.length < 10) {
+                invalido(input, 'Debe tener 10 dígitos.');
+            }
+            else if (valor.length > 10) {
+                input.value = valor.substring(0, 10);
+                valido(input);
+            }
             else valido(input);
             actualizarEstadoBoton();
         }

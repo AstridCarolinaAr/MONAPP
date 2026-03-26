@@ -381,8 +381,17 @@ textarea.form-control {
     .lib-card__footer {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         margin-top: 8px;
+        gap: 10px;
+    }
+    .lib-card__switch {
+        margin-left: auto;
+        transform: scale(0.92);
+        transform-origin: left center;
+    }
+    .lib-card__price {
+        margin-left: 0;
     }
     .lib-card__date {
         font-size: 0.7rem;

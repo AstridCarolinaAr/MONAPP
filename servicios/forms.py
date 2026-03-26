@@ -126,6 +126,9 @@ class ServicioForm(ValidationFormMixin, forms.ModelForm):
         if not descripcion:
             raise forms.ValidationError("La descripción es obligatoria.")
 
+        if len(descripcion) < 10:
+            raise forms.ValidationError("La descripción debe tener al menos 10 caracteres.")
+
         if not _texto_seguro(descripcion):
             raise forms.ValidationError("La descripción no puede contener los signos < o >.")
 

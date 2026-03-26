@@ -155,6 +155,13 @@ def lista_clientes(request):
 
     clientes = Cliente.objects.all()
 
+    if estado == 'activo':
+        clientes = clientes.filter(estado='activo')
+    elif estado == 'inactivo':
+        clientes = clientes.filter(estado='inactivo')
+    else:
+        clientes = clientes.filter(estado='activo')
+
     if q:
         clientes = clientes.filter(
             Q(nombre__icontains=q) |
@@ -162,9 +169,6 @@ def lista_clientes(request):
             Q(numero_documento__icontains=q) |
             Q(codigo_cliente__icontains=q)
         )
-
-    if estado in ['activo', 'inactivo']:
-        clientes = clientes.filter(estado=estado)
 
     hoy = date.today()
     if edad == 'menor':

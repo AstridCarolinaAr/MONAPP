@@ -89,6 +89,8 @@ class Servicio(models.Model):
 
             if not self._texto_seguro(self.descripcion):
                 errores["descripcion"] = "La descripción no puede contener los signos < o >."
+            elif len(self.descripcion) < 10:
+                errores["descripcion"] = "La descripción debe tener al menos 10 caracteres."
         else:
             errores["descripcion"] = "La descripción es obligatoria."
 

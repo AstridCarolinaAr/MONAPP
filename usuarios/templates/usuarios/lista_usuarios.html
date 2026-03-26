@@ -18,7 +18,7 @@
 {% block page_subtitle %}Gestion de usuarios y accesos{% endblock %}
 
 {% block page_actions %}
-{% if puede_modificar %}
+{% if permisos.usuarios.crear %}
 <button type="button"
         class="btn-pill-dark"
         onclick="abrirModalUsuario()">
@@ -33,7 +33,7 @@
     <!-- Encabezado -->
     <div class="module-toolbar">
         <h2 class="mb-0">Gestión de Usuarios</h2>
-        {% if puede_modificar %}
+        {% if permisos.usuarios.crear %}
         <button type="button"
                 class="btn btn-sm btn-pill-dark"
                 onclick="abrirModalUsuario()">
