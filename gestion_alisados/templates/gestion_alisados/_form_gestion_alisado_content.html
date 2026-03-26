@@ -514,7 +514,7 @@
                     <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
                     <p class="mb-2">He leído y comprendido toda la información anterior y acepto los términos y condiciones del tratamiento de alisado.</p>
                     
-                    <div class="form-check mb-3">
+                    <div class="form-check mb-3 consent-check">
                         <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
                         <label class="form-check-label fw-bold" for="checkboxAceptacion">
                             Acepto todos los términos, condiciones, recomendaciones y compromisos descritos anteriormente
@@ -525,7 +525,9 @@
                         <label for="{{ form.firma_consentimiento.id_for_label }}" class="form-label fw-bold text-danger">
                             <i class="bi bi-pen"></i> Cargar firma del cliente *
                         </label>
-                        {{ form.firma_consentimiento }}
+                        <div id="firmaWrapper">
+                            {{ form.firma_consentimiento }}
+                        </div>
                         <div class="form-text">Suba una imagen con la firma del cliente (formatos: JPG, PNG, etc.) - <strong>Campo obligatorio</strong></div>
                         <div id="errorFirma" class="text-danger" style="display: none;">
                             <i class="bi bi-exclamation-triangle"></i> Debe cargar la firma del cliente para continuar
@@ -552,6 +554,28 @@
                 </button>
                 <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" disabled style="background-color: #634c40; border-color: #634c40;">
                     <i class="bi bi-check-circle"></i> Aceptar y Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Visualizar Firma -->
+<div class="modal fade" id="modalVisualizarFirma" tabindex="-1" aria-labelledby="modalVisualizarFirmaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #634c40; color: white;">
+                <h5 class="modal-title" id="modalVisualizarFirmaLabel">
+                    <i class="bi bi-image"></i> Firma del Cliente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" style="padding: 2rem;">
+                <img id="imagenFirma" src="" alt="Firma del cliente" class="img-fluid" style="max-height: 500px; max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cerrar
                 </button>
             </div>
         </div>
@@ -821,10 +845,30 @@
     }
 
     /* Estilos para checkbox de consentimiento */
+    .consent-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid #d9d3cf;
+        border-radius: 12px;
+        background: #f7f4f2;
+    }
+
+    .consent-check .form-check-input {
+        float: none;
+        margin: 0;
+    }
+
+    .consent-check .form-check-label {
+        margin: 0;
+        line-height: 1.35;
+    }
+
     #checkboxAceptacion {
         width: 1.5rem;
         height: 1.5rem;
-        margin-top: 0.25rem;
+        margin-top: 0.1rem;
         border: 2.5px solid #634c40;
         border-radius: 0.4rem;
         cursor: pointer;
@@ -1391,19 +1435,28 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     
     const errorFirma = document.getElementById('errorFirma');
     
+    // Detectar si hay firma anterior (edición)
+    let tieneFilmaxAnteriora = false;
+    if (inputFirma && inputFirma.parentElement) {
+        // Buscar si hay un link o previsualización de firma anterior
+        const firmaLink = inputFirma.parentElement.querySelector('a[href*="firma"]');
+        tieneFilmaxAnteriora = !!firmaLink;
+    }
+    
     function validarConsentimiento() {
         const clienteSeleccionado = clienteIdField && clienteIdField.value !== '' ? true : false;
         const aceptacionMarcada = checkboxAceptacion.checked;
-        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
+        // Contar como válida si hay un archivo nuevo O si ya existe una firma anterior
+        const firmaValida = (inputFirma && inputFirma.files && inputFirma.files.length > 0) || tieneFilmaxAnteriora;
         
         // Mostrar/ocultar mensaje de error de firma
-        if (aceptacionMarcada && !firmaSubida) {
+        if (aceptacionMarcada && !firmaValida) {
             errorFirma.style.display = 'block';
         } else {
             errorFirma.style.display = 'none';
         }
         
-        btnConfirmarConsentimiento.disabled = !(clienteSeleccionado && aceptacionMarcada && firmaSubida);
+        btnConfirmarConsentimiento.disabled = !(clienteSeleccionado && aceptacionMarcada && firmaValida);
     }
     
     checkboxAceptacion.addEventListener('change', validarConsentimiento);
@@ -1412,6 +1465,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Agregar validación cuando se sube una firma
     if (inputFirma) {
         inputFirma.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                tieneFilmaxAnteriora = true; // Marcar que ya hay firma
+            }
             validarConsentimiento();
         });
     }
@@ -1428,8 +1484,10 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 return;
             }
             
-            // Limpiar estado del modal
-            checkboxAceptacion.checked = false;
+            // Si es edición (ya tiene firma anterior), mantener check. Si es creaci—n, resetear.
+            if (!tieneFilmaxAnteriora) {
+                checkboxAceptacion.checked = false;
+            }
             validarConsentimiento();
             
             // Actualizar información del cliente en el modal
@@ -1664,6 +1722,27 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     } else {
         initAutocomplete();
     }
+})();
+</script>
+
+<!-- Handler para Firma Modal -->
+<script>
+(function() {
+    const firmaWrapper = document.getElementById('firmaWrapper');
+    const modalVisualizarFirma = document.getElementById('modalVisualizarFirma');
+    const imagenFirma = document.getElementById('imagenFirma');
+    
+    if (!firmaWrapper || !modalVisualizarFirma) return;
+    
+    // Interceptar clicks en links de imagen dentro del wrapper
+    firmaWrapper.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (link && (link.href.includes('/media/') || link.href.includes('firmas_consentimiento'))) {
+            e.preventDefault();
+            imagenFirma.src = link.href;
+            bootstrap.Modal.getOrCreateInstance(modalVisualizarFirma).show();
+        }
+    });
 })();
 </script>
 

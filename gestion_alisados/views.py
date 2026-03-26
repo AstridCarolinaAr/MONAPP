@@ -129,9 +129,15 @@ def crear_gestion_alisado(request):
 def ver_gestion_alisado(request, pk):
     """Muestra los detalles de una gestión de alisado"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
+    is_modal = request.GET.get('modal') == '1'
     context = {
-        'gestion': gestion
+        'gestion': gestion,
+        'is_modal': is_modal,
     }
+
+    if is_modal:
+        return render(request, 'gestion_alisados/detalle_gestion_alisado_modal_content.html', context)
+
     return render(request, 'gestion_alisados/detalle_gestion_alisado.html', context)
 
 
@@ -139,6 +145,7 @@ def ver_gestion_alisado(request, pk):
 def editar_gestion_alisado(request, pk):
     """Edita una gestión de alisado existente"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
+    is_modal = request.GET.get('modal') == '1'
     es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     if request.method == 'POST':
@@ -168,8 +175,13 @@ def editar_gestion_alisado(request, pk):
         'form': form,
         'titulo': 'Editar Gestión de Alisado',
         'gestion': gestion,
-        'cliente_actual': gestion.cliente
+        'cliente_actual': gestion.cliente,
+        'is_modal': is_modal,
     }
+
+    if is_modal:
+        return render(request, 'gestion_alisados/form_gestion_alisado_modal_content.html', context)
+
     return render(request, 'gestion_alisados/form_gestion_alisado.html', context)
 
 
@@ -177,15 +189,29 @@ def editar_gestion_alisado(request, pk):
 def eliminar_gestion_alisado(request, pk):
     """Elimina una gestión de alisado"""
     gestion = get_object_or_404(GestionAlisado, pk=pk)
+    is_modal = request.GET.get('modal') == '1'
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     if request.method == 'POST':
         gestion.delete()
+
+        if es_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': 'Gestión de alisado eliminada exitosamente.'
+            })
+
         messages.success(request, 'Gestión de alisado eliminada exitosamente.')
         return redirect('gestion_alisados:lista_gestion_alisados')
     
     context = {
-        'gestion': gestion
+        'gestion': gestion,
+        'is_modal': is_modal,
     }
+
+    if is_modal:
+        return render(request, 'gestion_alisados/eliminar_gestion_alisado_modal_content.html', context)
+
     return render(request, 'gestion_alisados/eliminar_gestion_alisado.html', context)
 
 

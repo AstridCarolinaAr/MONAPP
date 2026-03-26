@@ -192,6 +192,13 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(99, 76, 64, 0.25);
     }
+
+    .detail-section {
+        background-color: #f8f9fa;
+        padding: 12px;
+        border-left: 4px solid #634c40;
+        border-radius: 8px;
+    }
 </style>
 {% endblock %}
 
@@ -307,15 +314,15 @@
                                         <i class="bi bi-printer"></i>
                                     </button>
                                     {% endif %}
-                                    <a href="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles">
+                                    <button type="button" class="btn btn-sm text-white btn-ver-gestion" style="background-color: #634c40; border-color: #634c40;" title="Ver detalles" data-url="{% url 'gestion_alisados:ver_gestion_alisado' gestion.pk %}?modal=1">
                                         <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40;" title="Editar">
+                                    </button>
+                                    <button type="button" class="btn btn-sm text-white btn-editar-gestion" style="background-color: #634c40; border-color: #634c40;" title="Editar" data-url="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}?modal=1">
                                         <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger btn-eliminar-gestion" title="Eliminar" data-url="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}?modal=1">
                                         <i class="bi bi-trash"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -423,6 +430,25 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalActionGestion" tabindex="-1" aria-labelledby="modalActionGestionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalActionGestionLabel"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalActionContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -472,36 +498,127 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const modal = document.getElementById('modalFormGestion');
     const modalContent = document.getElementById('modalFormContent');
-    const bsModal = new bootstrap.Modal(modal);
-    
-    // Cargar el formulario cuando se abre el modal
-    modal.addEventListener('show.bs.modal', function() {
-        modalContent.innerHTML = `
+    const modalFormTitle = document.getElementById('modalFormGestionLabel');
+    const defaultCreateUrl = '{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1';
+
+    const modalAction = document.getElementById('modalActionGestion');
+    const modalActionTitle = document.getElementById('modalActionGestionLabel');
+    const modalActionContent = document.getElementById('modalActionContent');
+
+    function loadingMarkup(texto) {
+        return `
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Cargando...</span>
                 </div>
-                <p class="mt-3">Cargando formulario...</p>
+                <p class="mt-3">${texto}</p>
             </div>
         `;
+    }
+
+    function ejecutarScripts(container) {
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(function(oldScript) {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+    }
+
+    function abrirModalAccion(url, titulo) {
+        modalActionTitle.innerHTML = titulo;
+        modalActionContent.innerHTML = loadingMarkup('Cargando...');
+
+        fetch(url)
+            .then(function(response) {
+                return response.text();
+            })
+            .then(function(html) {
+                modalActionContent.innerHTML = html;
+                ejecutarScripts(modalActionContent);
+            })
+            .catch(function() {
+                modalActionContent.innerHTML = `
+                    <div class="alert alert-danger mb-0">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Error al cargar la informacion. Intenta nuevamente.
+                    </div>
+                `;
+            });
+
+        bootstrap.Modal.getOrCreateInstance(modalAction).show();
+    }
+
+    document.querySelectorAll('.btn-ver-gestion').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            abrirModalAccion(this.dataset.url, '<i class="bi bi-eye"></i> Visualizar Gestion');
+        });
+    });
+
+    document.querySelectorAll('.btn-editar-gestion').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            modal.dataset.loadUrl = this.dataset.url;
+            modal.dataset.modalTitle = '<i class="bi bi-pencil"></i> Editar Gestion de datos';
+            bootstrap.Modal.getOrCreateInstance(modal).show();
+        });
+    });
+
+    document.querySelectorAll('.btn-eliminar-gestion').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            abrirModalAccion(this.dataset.url, '<i class="bi bi-trash"></i> Confirmar Eliminacion');
+        });
+    });
+
+    modalActionContent.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (!form.classList.contains('delete-gestion-form')) {
+            return;
+        }
+
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('No fue posible eliminar el registro.');
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                bootstrap.Modal.getOrCreateInstance(modalAction).hide();
+                window.location.reload();
+            }
+        })
+        .catch(function() {
+            alert('Ocurrio un error al eliminar el registro.');
+        });
+    });
+    
+    // Cargar el formulario cuando se abre el modal
+    modal.addEventListener('show.bs.modal', function() {
+        const loadUrl = modal.dataset.loadUrl || defaultCreateUrl;
+        const modalTitle = modal.dataset.modalTitle || '<i class="bi bi-file-earmark-plus"></i> Gestion de datos';
+        modalFormTitle.innerHTML = modalTitle;
+        modalContent.innerHTML = loadingMarkup('Cargando formulario...');
         
         // Cargar el formulario mediante fetch
-        fetch('{% url "gestion_alisados:crear_gestion_alisado" %}?modal=1')
+        fetch(loadUrl)
             .then(response => response.text())
             .then(html => {
                 modalContent.innerHTML = html;
-                
-                // Ejecutar scripts del contenido cargado
-                const scripts = modalContent.querySelectorAll('script');
-                scripts.forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    } else {
-                        newScript.textContent = oldScript.textContent;
-                    }
-                    oldScript.parentNode.replaceChild(newScript, oldScript);
-                });
+                ejecutarScripts(modalContent);
             })
             .catch(error => {
                 console.error('Error al cargar el formulario:', error);
@@ -516,14 +633,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Limpiar el contenido al cerrar
     modal.addEventListener('hidden.bs.modal', function() {
-        modalContent.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-                <p class="mt-3">Cargando formulario...</p>
-            </div>
-        `;
+        modalContent.innerHTML = loadingMarkup('Cargando formulario...');
+        delete modal.dataset.loadUrl;
+        delete modal.dataset.modalTitle;
     });
 });
 </script>

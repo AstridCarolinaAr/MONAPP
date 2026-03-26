@@ -1,0 +1,31 @@
+{% load humanize %}
+
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <strong>Atencion:</strong> Esta accion no se puede deshacer.
+</div>
+
+<p>Esta seguro que desea eliminar el siguiente registro?</p>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <ul class="list-unstyled mb-0">
+            <li><strong>Fecha y Hora:</strong> {{ gestion.fecha_hora|date:"d/m/Y H:i" }}</li>
+            <li><strong>Profesional:</strong> {{ gestion.procedimiento_realizado_por }}</li>
+            <li><strong>Tipo de Alisado:</strong> {{ gestion.tipo_alisado.nombre }}</li>
+            <li><strong>Precio:</strong> ${{ gestion.precio_alisado|intcomma }} COP</li>
+        </ul>
+    </div>
+</div>
+
+<form method="post" action="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="delete-gestion-form">
+    {% csrf_token %}
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Si, Eliminar
+        </button>
+    </div>
+</form>

@@ -1,0 +1,48 @@
+{% load humanize %}
+
+<div class="container-fluid px-1">
+    <div class="detail-section mb-3">
+        <h5><i class="bi bi-person"></i> Cliente y Servicio</h5>
+        <div class="row g-2">
+            <div class="col-md-6"><strong>Cliente:</strong> {{ gestion.cliente.nombre }} {{ gestion.cliente.apellido }}</div>
+            <div class="col-md-6"><strong>Fecha y Hora:</strong> {{ gestion.fecha_hora|date:"d/m/Y H:i" }}</div>
+            <div class="col-md-6"><strong>Profesional:</strong> {{ gestion.procedimiento_realizado_por }}</div>
+            <div class="col-md-6"><strong>Tipo de Alisado:</strong> {{ gestion.tipo_alisado.nombre }}</div>
+        </div>
+    </div>
+
+    <div class="detail-section mb-3">
+        <h5><i class="bi bi-cash-coin"></i> Pago</h5>
+        <div class="row g-2">
+            <div class="col-md-4"><strong>Precio:</strong> ${{ gestion.precio_alisado|intcomma }} COP</div>
+            <div class="col-md-4"><strong>Anticipo:</strong> ${{ gestion.anticipo_cliente|intcomma }} COP</div>
+            <div class="col-md-4">
+                <strong>Saldo:</strong>
+                {% if gestion.saldo_pendiente > 0 %}
+                    <span class="badge bg-warning text-dark">${{ gestion.saldo_pendiente|intcomma }} COP</span>
+                {% else %}
+                    <span class="badge bg-success">Pagado</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section mb-3">
+        <h5><i class="bi bi-scissors"></i> Caracteristicas</h5>
+        <div class="row g-2">
+            <div class="col-md-4"><strong>Porosidad:</strong> {{ gestion.get_porosidad_display }}</div>
+            <div class="col-md-4"><strong>Textura:</strong> {{ gestion.get_textura_display }}</div>
+            <div class="col-md-4"><strong>Forma Natural:</strong> {{ gestion.get_forma_natural_display }}</div>
+            <div class="col-md-4"><strong>Elasticidad:</strong> {{ gestion.get_elasticidad_display }}</div>
+            <div class="col-md-4"><strong>Longitud:</strong> {{ gestion.get_longitud_display }}</div>
+            <div class="col-md-4"><strong>Densidad:</strong> {{ gestion.get_densidad_display }}</div>
+        </div>
+    </div>
+
+    {% if gestion.recomendaciones_post_cuidados %}
+    <div class="detail-section mb-0">
+        <h5><i class="bi bi-clipboard-check"></i> Recomendaciones</h5>
+        <p class="mb-0">{{ gestion.recomendaciones_post_cuidados }}</p>
+    </div>
+    {% endif %}
+</div>
