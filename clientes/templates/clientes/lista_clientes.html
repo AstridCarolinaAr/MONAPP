@@ -98,6 +98,7 @@
     </div>
 </div>
 
+<!-- Legacy client modal block removed because it duplicated ids with the active form.
 <div class="modal fade" id="modalLegacyCrearCliente" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -254,6 +255,8 @@
   </div>
   {% endif %}
   {% endfor %}
+
+-->
 
   <div class="modal fade" id="modalCrearCliente" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -457,9 +460,6 @@
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 
 <script>
-window.URLS = {
-  cambiarEstado: "{% url 'clientes:cambiar_estado' 0 %}".replace('/0/', '/')
-};
 window.urlCrearGestionAlisado = "{% url 'gestion_alisados:crear_gestion_alisado' %}";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -474,32 +474,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (modal.parentElement !== document.body) {
         document.body.appendChild(modal);
       }
-    });
-  });
-
-  document.querySelectorAll('.switch-estado-cliente').forEach(function(sw) {
-    sw.addEventListener('change', function() {
-      var url = this.dataset.url;
-      var el = this;
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!data.ok) {
-          el.checked = !el.checked;
-          alert(data.mensaje || 'No se pudo cambiar el estado');
-        }
-      })
-      .catch(function() {
-        el.checked = !el.checked;
-        alert('Error al cambiar el estado');
-      });
     });
   });
 
@@ -678,90 +652,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  document.getElementById('formEditarCliente').addEventListener('input', function(e) {
-    var campo = e.target;
-    if (!campo.matches('.form-control, .form-select')) return;
-
-    campo.classList.remove('is-invalid');
-    var feedback = campo.parentElement.querySelector('.invalid-feedback');
-    if (feedback) feedback.textContent = '';
-
-    if (campo.value.trim() !== '') {
-      campo.classList.add('is-valid');
-    } else {
-      campo.classList.remove('is-valid');
-    }
-  });
-
-  document.getElementById('btnGuardarEditar').addEventListener('click', function() {
-    if (!validarFormularioEditar()) return;
-
-    var url = document.getElementById('editarClienteUrl').value;
-    var form = document.getElementById('formEditarCliente');
-    var formData = new FormData(form);
-    var btn = this;
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-
-    fetch(url, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente')).hide();
-        location.reload();
-        return;
-      }
-
-      limpiarErroresEditar();
-
-      var lista = document.getElementById('listaErroresEditar');
-      Object.entries(data.errores || {}).forEach(function(entry) {
-        var campo = entry[0];
-        var mensaje = entry[1];
-
-        var li = document.createElement('li');
-        li.innerHTML = '<strong>' + campo + ':</strong> ' + mensaje;
-        lista.appendChild(li);
-      });
-
-      var mapaCampos = {
-        tipo_documento: 'editar_tipo_documento',
-        numero_documento: 'editar_numero_documento',
-        nombre: 'editar_nombre',
-        apellido: 'editar_apellido',
-        fecha_nacimiento: 'editar_fecha_nacimiento',
-        telefono: 'editar_telefono',
-        correo: 'editar_correo',
-        estado: 'editar_estado'
-      };
-
-      Object.entries(data.errores || {}).forEach(function(entry) {
-        var campo = entry[0];
-        var mensaje = entry[1];
-        if (mapaCampos[campo]) {
-          marcarCampoError(mapaCampos[campo], mensaje);
-        }
-      });
-
-      document.getElementById('alertaErroresEditar').classList.remove('d-none');
-    })
-    .finally(function() {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-save me-1"></i> Guardar cambios';
-    });
-  });
-
-  document.getElementById('modalEditarCliente').addEventListener('hidden.bs.modal', function() {
-    limpiarErroresEditar();
-    document.getElementById('formEditarCliente').reset();
-  });
 });
 
 function abrirModalTratamiento(clienteId) {

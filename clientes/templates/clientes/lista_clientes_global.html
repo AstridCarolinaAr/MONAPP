@@ -22,12 +22,16 @@
                     {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
                 </td>
                 <td>{{ cliente.telefono|default:"—" }}</td>
-                <td>
-                    {% if cliente.estado == 'activo' %}
-                        <span class="badge bg-success-subtle text-success">Activo</span>
-                    {% else %}
-                        <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
-                    {% endif %}
+                <td class="text-center">
+                    <label class="table-switch-wrapper" title="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %}">
+                        <input type="checkbox"
+                               class="toggle-activo-checkbox js-toggle-cliente-estado"
+                               data-url="{% url 'clientes:cambiar_estado' cliente.id %}"
+                               data-nombre="{{ cliente.nombre }} {{ cliente.apellido|escapejs }}"
+                               data-activo="{% if cliente.estado == 'activo' %}1{% else %}0{% endif %}"
+                               {% if cliente.estado == 'activo' %}checked{% endif %}>
+                        <span class="table-switch-slider"></span>
+                    </label>
                 </td>
                 <td class="text-end">
                     <div class="table-action-group ms-auto">
@@ -47,6 +51,20 @@
                            aria-label="Editar cliente {{ cliente.nombre }} {{ cliente.apellido }}">
                             <i class="bi bi-pencil-square"></i>
                         </a>
+
+                        <button type="button"
+                                class="table-action-btn btn-toggle-cliente-estado js-toggle-cliente-accion"
+                                data-url="{% url 'clientes:cambiar_estado' cliente.id %}"
+                                data-nombre="{{ cliente.nombre }} {{ cliente.apellido|escapejs }}"
+                                data-activo="{% if cliente.estado == 'activo' %}1{% else %}0{% endif %}"
+                                title="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %}"
+                                aria-label="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %} cliente {{ cliente.nombre }} {{ cliente.apellido }}">
+                            {% if cliente.estado == 'activo' %}
+                                <i class="bi bi-trash3"></i>
+                            {% else %}
+                                <i class="bi bi-arrow-clockwise"></i>
+                            {% endif %}
+                        </button>
                     </div>
 
                     <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
@@ -118,43 +136,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {% if user.is_staff %}
-                    <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content border-0 shadow">
-                                <div class="modal-header bg-danger text-white">
-                                    <h5 class="modal-title">
-                                        <i class="bi bi-exclamation-triangle me-2"></i>
-                                        Confirmar eliminación
-                                    </h5>
-                                    <button type="button"
-                                            class="btn-close btn-close-white"
-                                            data-bs-dismiss="modal"></button>
-                                </div>
-
-                                <form method="post" action="{% url 'clientes:eliminar' cliente.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-body text-center">
-                                        <p class="fw-semibold mb-1">¿Deseas eliminar al cliente?</p>
-                                        <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
-                                    </div>
-
-                                    <div class="modal-footer justify-content-center">
-                                        <button type="button"
-                                                class="btn btn-outline-secondary"
-                                                data-bs-dismiss="modal">
-                                            Cancelar
-                                        </button>
-                                        <button type="submit" class="btn btn-danger">
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
                 </td>
             </tr>
             {% empty %}
