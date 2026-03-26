@@ -29,23 +29,30 @@ def lista_personal(request):
     personal_list = Personal.objects.all()
     form = PersonalBusquedaForm(request.GET or None)
 
-    filtro = ""
-    if form.is_valid():
+    filtro = "activo"
+    if form.is_valid() and form.cleaned_data.get("filtro"):
         filtro = form.cleaned_data.get("filtro")
+    elif not request.GET:
+        # En carga inicial, establecer el valor del formulario
+        form = PersonalBusquedaForm(initial={"filtro": "activo"})
 
     # BUSQUEDA GLOBAL
     if q:
-        personal_list = personal_list.filter(
+        query_general = (
             Q(numero_documento__icontains=q) |
             Q(nombres__icontains=q) |
             Q(apellidos__icontains=q) |
             Q(telefono__icontains=q) |
-            Q(correo__icontains=q) |
-            Q(id__icontains=q)
+            Q(correo__icontains=q)
         )
+        # Solo incluir ID si el termino de busqueda es puramente numerico para evitar ValueError
+        if q.isdigit():
+            query_general |= Q(id=q)
+            
+        personal_list = personal_list.filter(query_general)
 
-    # FILTRO
-    if filtro:
+    # FILTRO (Se ignora si el usuario está usando el buscador global activo para garantizar que encuentre lo que busca)
+    if not q:
         if filtro == "activo":
             personal_list = personal_list.filter(activo=True)
         elif filtro == "inactivo":
