@@ -547,24 +547,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
         closeAllProductCards(null);
     });
+/* ===============================
+   ANIMACIONES AL SCROLL (FADE UP)
+=============================== */
+const fadeUpElements = document.querySelectorAll(
+    ".sq-intro-content, .sq-intro-media, .sq-section-head, " +
+    ".sq-product-card, .sq-social-card, .sq-contact-header, " +
+    ".sq-promo-card-mini, .sq-products-title, .sq-services-heading, " +
+    ".sq-promo-feature.is-active, .sq-promotions-head--inside, " +
+    ".footer-info-block, .footer-map, .mona-footer .footer-logo, .mona-footer .copyright, " +
+    ".sq-card"
+);
 
-    /* ===============================
-       ANIMACIONES AL SCROLL
-    =============================== */
-    const animatedSections = document.querySelectorAll(
-        ".sq-card, .sq-step, .sq-benefits div, .sq-text, .block-title, .block-content"
-    );
+fadeUpElements.forEach(el => el.classList.add("sq-fade-up"));
 
-    const observer = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("visible");
-                }
-            });
-        },
-        { threshold: 0.15 }
-    );
+function checkFadeElements() {
+    const windowHeight = window.innerHeight;
 
-    animatedSections.forEach((el) => observer.observe(el));
+    fadeUpElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const elementTop = rect.top;
+        const elementBottom = rect.bottom;
+
+        /* Excepción para elementos dentro de overflow:hidden del carrusel */
+        const insideTrack = el.closest(".sq-tracks-wrapper");
+        if (insideTrack) {
+            const parentRect = insideTrack.getBoundingClientRect();
+            const isParentVisible = parentRect.top < windowHeight && parentRect.bottom > 0;
+            if (isParentVisible) {
+                el.classList.add("is-visible");
+            } else {
+                el.classList.remove("is-visible");
+            }
+            return;
+        }
+
+        /* Excepción para elementos dentro del stage de promociones */
+        const insideStage = el.closest(".sq-promotions-stage");
+        if (insideStage) {
+            const parentRect = insideStage.getBoundingClientRect();
+            const isParentVisible = parentRect.top < windowHeight && parentRect.bottom > 0;
+            if (isParentVisible) {
+                el.classList.add("is-visible");
+            } else {
+                el.classList.remove("is-visible");
+            }
+            return;
+        }
+
+        const isVisible = elementTop < windowHeight * 0.88 && elementBottom > 0;
+        if (isVisible) {
+            el.classList.add("is-visible");
+        } else {
+            el.classList.remove("is-visible");
+        }
+    });
+
+    /* Fuerza visibilidad del copyright y divider siempre */
+    document.querySelectorAll(".mona-footer .copyright, .footer-divider").forEach(el => {
+        el.classList.add("is-visible");
+    });
+}
+
+window.addEventListener("scroll", checkFadeElements, { passive: true });
+window.addEventListener("resize", checkFadeElements, { passive: true });
+checkFadeElements();
 });

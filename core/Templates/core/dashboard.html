@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+html {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}Panel principal — MONAPP{% endblock %}
@@ -196,9 +196,12 @@
   border-radius: 12px;
   transition: transform .28s cubic-bezier(.34,1.56,.64,1),
               background .25s ease;
-  cursor: default;
+  cursor: pointer;
   position: relative;
   z-index: 2;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .kpi-mini:hover {
@@ -501,6 +504,7 @@
 {% block content %}
 <div class="db">
   <div class="db-body">
+    {% if not permisos.roles.es_colaborador_real %}
 
     <!-- ══ HERO FULL WIDTH ══ -->
     <div class="hero-outer">
@@ -559,26 +563,26 @@
         </div>
 
         <div class="kpi-row-inner">
-          <div class="kpi-mini kpi--brown">
+          <a class="kpi-mini kpi--brown" href="{% url 'productos:lista_productos' %}" aria-label="Ir a Productos">
             <div class="kpi-mini-icon"><i class="bi bi-box-seam"></i></div>
             <span class="kpi-mini-lbl">Productos</span>
             <span class="kpi-mini-val">{{ total_productos|default:"0" }}</span>
-          </div>
-          <div class="kpi-mini kpi--gold">
+          </a>
+          <a class="kpi-mini kpi--gold" href="{% url 'clientes:lista' %}" aria-label="Ir a Clientes">
             <div class="kpi-mini-icon"><i class="bi bi-person-heart"></i></div>
             <span class="kpi-mini-lbl">Clientes</span>
             <span class="kpi-mini-val">{{ total_clientes|default:"0" }}</span>
-          </div>
-          <div class="kpi-mini kpi--sage">
+          </a>
+          <a class="kpi-mini kpi--sage" href="{% url 'ventas:lista' %}" aria-label="Ir a Ventas">
             <div class="kpi-mini-icon"><i class="bi bi-cart-check"></i></div>
             <span class="kpi-mini-lbl">Ventas</span>
             <span class="kpi-mini-val">{{ total_ventas|default:"0" }}</span>
-          </div>
-          <div class="kpi-mini kpi--blue">
+          </a>
+          <a class="kpi-mini kpi--blue" href="{% url 'usuarios:lista_usuarios' %}" aria-label="Ir a Usuarios">
             <div class="kpi-mini-icon"><i class="bi bi-people"></i></div>
             <span class="kpi-mini-lbl">Usuarios</span>
             <span class="kpi-mini-val">{{ total_usuarios|default:"0" }}</span>
-          </div>
+          </a>
         </div>
 
       </div>
@@ -660,20 +664,21 @@
             <!-- Gauge SVG -->
             <div style="position:relative; width:220px; height:220px; flex-shrink:0;">
               <svg viewBox="0 0 220 220" width="220" height="220" style="transform:rotate(0deg);">
-                <!-- Fondo del arco -->
-                <circle cx="110" cy="110" r="80" fill="none" stroke="rgba(58,34,24,.08)" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="0" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px;"/>
-                <!-- Arco ventas (verde) -->
-                <circle id="arc-ventas" cx="110" cy="110" r="80" fill="none" stroke="#096931" stroke-width="22" stroke-dasharray="502" stroke-dashoffset="502" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
-                <!-- Arco compras (rojo) -->
-                <circle id="arc-compras" cx="110" cy="110" r="65" fill="none" stroke="#b41c0b" stroke-width="16" stroke-dasharray="408" stroke-dashoffset="408" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .2s;"/>
+                <!-- Fondo -->
+                <circle cx="110" cy="110" r="80" fill="none" stroke="rgba(58,34,24,.06)" stroke-width="28" stroke-dasharray="502" stroke-dashoffset="0" stroke-linecap="butt" style="transform:rotate(-90deg);transform-origin:110px 110px;"/>
+
+                <!-- Outline blanco (separación entre secciones) -->
+                <circle id="arc-ventas-outline" cx="110" cy="110" r="80" fill="none" stroke="#ffffff" stroke-width="34" stroke-dasharray="0 502" stroke-dashoffset="0" stroke-linecap="butt" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dasharray 1.1s cubic-bezier(.4,0,.2,1), stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1);"/>
+                <circle id="arc-compras-outline" cx="110" cy="110" r="80" fill="none" stroke="#ffffff" stroke-width="34" stroke-dasharray="0 502" stroke-dashoffset="0" stroke-linecap="butt" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dasharray 1.1s cubic-bezier(.4,0,.2,1), stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1);"/>
+
+                <!-- Secciones (verde ventas / rojo compras) -->
+                <circle id="arc-ventas" cx="110" cy="110" r="80" fill="none" stroke="#27ae60" stroke-width="28" stroke-dasharray="0 502" stroke-dashoffset="0" stroke-linecap="butt" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1), stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
+                <circle id="arc-compras" cx="110" cy="110" r="80" fill="none" stroke="#e74c3c" stroke-width="28" stroke-dasharray="0 502" stroke-dashoffset="0" stroke-linecap="butt" style="transform:rotate(-90deg);transform-origin:110px 110px; transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1), stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
                 <!-- Círculo central -->
-                <circle cx="110" cy="110" r="46" fill="white" />
+                <circle cx="110" cy="110" r="55" fill="white" />
                 <text x="110" y="104" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="13" fill="#9a8070" letter-spacing="1">TOTAL</text>
                 <text id="gauge-total" x="110" y="126" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-size="17" font-weight="600" fill="#1a0e08">—</text>
               </svg>
-
-              <!-- Solo el punto central, sin aguja -->
-              <div style="position:absolute;bottom:calc(50% - 8px);left:calc(50% - 8px);width:16px;height:16px;border-radius:50%;background:var(--c1);"></div>
             </div>
 
             <!-- Stats -->
@@ -745,15 +750,60 @@
 
       // Arcos
       setTimeout(() => {
-        const arcV = 502, arcC = 408;
+        const c = 502;
+        const gap = 14;
         const pctV = grand > 0 ? totalVentas / grand : 0;
         const pctC = grand > 0 ? totalCompras / grand : 0;
-        document.getElementById('arc-ventas').style.strokeDashoffset  = arcV - arcV * pctV;
-        document.getElementById('arc-compras').style.strokeDashoffset = arcC - arcC * pctC;
+
+        const lenV = Math.max(0, (c * pctV) - gap);
+        const lenC = Math.max(0, (c * pctC) - gap);
+
+        const setSeg = (id, len, offset) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.style.strokeDasharray = `${len} ${Math.max(0, c - len)}`;
+          el.style.strokeDashoffset = offset;
+        };
+
+        // Ventas primero, luego compras con un pequeño espacio blanco entre ambas.
+        setSeg('arc-ventas-outline', lenV, 0);
+        setSeg('arc-compras-outline', lenC, -(lenV + gap));
+        setSeg('arc-ventas', lenV, 0);
+        setSeg('arc-compras', lenC, -(lenV + gap));
       }, 150);
     })();
     </script>
 
   </div>
 </div>
+    {% else %}
+<div class="db">
+  <div class="db-body">
+    <div class="row" style="margin-bottom:18px;">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>Cumpleaños Hoy</span>
+          {% if cumpleanios_hoy %}<span class="chip chip-gold">{{ cumpleanios_hoy|length }}</span>{% endif %}
+        </div>
+        <div class="card-body">
+          {% if cumpleanios_hoy %}
+            {% for p in cumpleanios_hoy %}
+            <div class="li">
+              <div class="av av-gold">{{ p.nombre|slice:":2"|upper }}</div>
+              <div class="li-info">
+                <div class="li-name">{{ p.nombre }}</div>
+                <div class="li-sub">{{ p.cargo|default:"Cliente" }}</div>
+              </div>
+              <span class="pill p-gold">🎂 {{ p.edad }} años</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><i class="bi bi-balloon"></i><p>Sin cumpleaños hoy</p></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    {% endif %}
 {% endblock %}
