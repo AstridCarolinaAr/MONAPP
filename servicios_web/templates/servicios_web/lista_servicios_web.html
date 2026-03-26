@@ -1,0 +1,134 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Servicios Web{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'servicios_web/css/servicios_web.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
+{% block page_icon %}
+<i class="bi bi-globe page-icon"></i>
+{% endblock %}
+
+{% block page_title %}Servicios Web{% endblock %}
+{% block page_subtitle %}Gestiona los servicios que se muestran en la página pública.{% endblock %}
+
+{% block page_actions %}
+<button type="button" class="btn btn-pill-dark" id="btnOpenCrearServicioWeb"
+    data-url="{% url 'servicios_web:crear_servicio_web' %}">
+    <span class="icon">+</span> Nuevo Servicio Web
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="services-grid">
+    {% for servicio in servicios_web %}
+<div class="sq-card
+            {% if not servicio.imagen %}no-image{% endif %}
+            {% if servicio.video %}has-video{% endif %}"
+     {% if servicio.imagen %}style="background-image: url('{{ servicio.imagen.url }}');"{% endif %}>
+
+    <div class="sq-blur"></div>
+
+    {% if servicio.video %}
+    <div class="sw-play-hint">
+        <i class="bi bi-play-fill"></i>
+        <span>Click para reproducir</span>
+    </div>
+    <video class="sq-video" muted loop playsinline preload="metadata">
+        <source src="{{ servicio.video.url }}" type="video/mp4">
+    </video>
+    {% endif %}
+
+        <div class="sq-blur"></div>
+
+        {# ✅ Video en el mismo recuadro #}
+        {% if servicio.video %}
+        <div class="sw-play-hint">
+            <i class="bi bi-play-fill"></i>
+            <span>Click para reproducir</span>
+        </div>
+        <video class="sq-video" muted loop playsinline preload="metadata">
+            <source src="{{ servicio.video.url }}" type="video/mp4">
+        </video>
+        {% endif %}
+
+        {# ✅ SIN imagen y SIN video => metaballs (NO placeholder) #}
+        {% if not servicio.imagen and not servicio.video %}
+        <div class="metaballs-slot" data-metaballs="1" aria-label="Servicio sin multimedia"></div>
+
+        {# ✅ SIN imagen pero CON video => placeholder simple #}
+        {% elif not servicio.imagen and servicio.video %}
+        <div class="media-placeholder">
+            <div class="icon-row">
+                <i class="bi bi-image"></i>
+                <i class="bi bi-camera-video"></i>
+            </div>
+            <div class="hint">Sin imagen</div>
+        </div>
+        {% endif %}
+
+        {# ✅ Botón editar #}
+        <div class="actions-overlay">
+            <button class="btn-action edit btn-edit-servicioweb"
+                data-url="{% url 'servicios_web:editar_servicio_web' servicio.id_servicio_web %}" title="Editar"
+                data-bs-placement="bottom">
+                <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+            </button>
+        </div>
+
+        <div class="sq-card-content">
+            <h3>{{ servicio.nombre }}</h3>
+            <p class="price">${{ servicio.precio|floatformat:0 }}</p>
+            <p class="text-white-50 small">{{ servicio.descripcion|truncatewords:15 }}</p>
+            {% if not servicio.activo %}
+            <span class="badge bg-danger">Inactivo</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% empty %}
+    <div class="empty-state w-100">
+        <i class="bi bi-cloud-slash mb-3" style="font-size: 3rem; color: #ced4da;"></i>
+        <h4>No hay servicios web creados</h4>
+        <p class="text-muted">Comienza agregando tu primer servicio para mostrarlo en la web.</p>
+        <button class="btn btn-primary mt-3" id="btnOpenCrearServicioWeb2"
+            data-url="{% url 'servicios_web:crear_servicio_web' %}">
+            Agregar Servicio
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+{# ✅ Modal #}
+<div class="modal fade" id="modalServicioWeb" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+            <div class="modal-header bg-dark text-white" style="border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title" id="modalServicioWebLabel">
+                    <i class="bi bi-plus-circle me-2"></i> Nuevo Servicio Web
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" id="modalBodyContent">
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{# OGL local #}
+<script src="{% static 'servicios_web/vendor/ogl.umd.js' %}"></script>
+
+{# JS #}
+<script src="{% static 'servicios_web/js/servicios_web.js' %}"></script>
+<script src="{% static '/servicios_web/js/metaballs.js' %}"></script>
+{% endblock %}

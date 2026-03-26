@@ -1,0 +1,263 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'productos_web:lista' %}">Catálogo Web</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+{% endblock %}
+
+{% block page_title %}
+    <i class="bi bi-globe2"></i> {{ titulo }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.pw-form-card {
+    max-width: 680px;
+    margin: 0 auto;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+.pw-form-card .card-header {
+    background: linear-gradient(135deg, #3a2a24, #5c3d2e);
+    color: #fff;
+    border-radius: 14px 14px 0 0;
+    padding: 18px 24px;
+    font-weight: 600;
+}
+.pw-dropzone {
+    background: linear-gradient(145deg, #fafafa, #f0f0f0);
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.pw-dropzone:hover,
+.pw-dropzone.dragover {
+    border-color: #382822;
+    background: linear-gradient(145deg, #fff, #f8f5f2);
+    box-shadow: 0 6px 20px rgba(141,96,74,.15);
+    transform: translateY(-2px);
+}
+.pw-dropzone i { 
+    font-size: 3.5rem; 
+    color: #382822;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.pw-dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;
+}
+.pw-dropzone .upload-text {
+    font-size: 1.05rem;
+    color: #5c3d2e;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.pw-dropzone .upload-hint {
+    font-size: 0.85rem;
+    color: #999;
+}
+.pw-preview-img {
+    max-height: 200px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+}
+/* Validación de precio */
+.pw-price-error {
+    color: #a0715a;
+    font-size: .82rem;
+    margin-top: 4px;
+    display: none;
+}
+.pw-price-error.visible {
+    display: block;
+}
+.form-control.is-invalid-price {
+    border-color: #a0715a !important;
+    box-shadow: 0 0 0 0.2rem rgba(160,113,90,.2) !important;
+}
+.form-control.is-valid-price {
+    border-color: #6ba06a !important;
+    box-shadow: 0 0 0 0.2rem rgba(107,160,106,.15) !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Mensajes Django para SweetAlert -->
+    <script id="pw-form-messages" type="application/json">
+        [{% for message in messages %}{"tags":"{{ message.tags }}","text":"{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+    </script>
+
+    <div class="card pw-form-card">
+        <div class="card-header">
+            <i class="bi bi-pencil-square me-2"></i>{{ titulo }}
+        </div>
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Precio Público ($)</label>
+                        {{ form.precio }}
+                        {% if form.precio.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
+                        {% endif %}
+                        <div class="pw-price-error" id="err_precio_form"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
+                        <div class="pw-dropzone" id="dropzoneEditar">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                            <div class="upload-text">Arrastra tu imagen aquí</div>
+                            <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                            {{ form.imagen }}
+                            {% if producto and producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" class="pw-preview-img" id="previewEditar" alt="preview">
+                            {% else %}
+                                <img class="pw-preview-img d-none" id="previewEditar" alt="preview">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            {{ form.visible }}
+                            <label class="form-check-label" for="id_visible">Visible en la Web</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'productos_web:lista' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Volver
+                    </a>
+                    <button type="submit" class="btn text-white" style="background:#3a2a24;">
+                        <i class="bi bi-check-lg me-1"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Mensajes Django como Swal toast ── */
+(function () {
+    const raw = document.getElementById('pw-form-messages');
+    if (!raw) return;
+    const msgs = JSON.parse(raw.textContent || '[]');
+    const MAP = {
+        success: { icon: 'success', background: '#f0fdf4', color: '#166534' },
+        error:   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
+        warning: { icon: 'warning', background: '#fffbeb', color: '#92400e' },
+        info:    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
+    };
+    msgs.forEach(m => {
+        const key  = Object.keys(MAP).find(k => m.tags.includes(k)) || 'info';
+        const opts = MAP[key];
+        Swal.mixin({
+            toast: true, position: 'top-end',
+            showConfirmButton: false, timer: 3500, timerProgressBar: true,
+            background: opts.background, color: opts.color,
+        }).fire({ icon: opts.icon, title: m.text });
+    });
+})();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.querySelector('#dropzoneEditar input[type="file"]');
+    const preview   = document.getElementById('previewEditar');
+    if (fileInput && preview) {
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    document.querySelectorAll('.pw-dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', () => zone.classList.remove('dragover'));
+    });
+
+    /* ── Validación de precio ── */
+    function validarPrecio(input, errorEl, submitBtn) {
+        const val = parseFloat(input.value);
+        const isEmpty = input.value.trim() === '';
+        const decimals = input.value.includes('.') ? input.value.split('.')[1].length : 0;
+        let msg = '';
+        if (isEmpty)          msg = 'El precio es obligatorio.';
+        else if (isNaN(val))  msg = 'Ingresa un número válido.';
+        else if (val <= 0)    msg = 'El precio debe ser mayor a $0.';
+        else if (val > 9999999.99) msg = 'El precio no puede superar $9,999,999.99.';
+        else if (decimals > 2)    msg = 'Máximo 2 decimales permitidos.';
+
+        if (msg) {
+            input.classList.add('is-invalid-price');
+            input.classList.remove('is-valid-price');
+            errorEl.textContent = msg;
+            errorEl.classList.add('visible');
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            input.classList.remove('is-invalid-price');
+            input.classList.add('is-valid-price');
+            errorEl.textContent = '';
+            errorEl.classList.remove('visible');
+            if (submitBtn) submitBtn.disabled = false;
+        }
+        return !msg;
+    }
+
+    const precioInput = document.getElementById('id_precio');
+    const errPrecio   = document.getElementById('err_precio_form');
+    const btnSubmit   = document.querySelector('[type="submit"]');
+    if (precioInput) {
+        precioInput.addEventListener('input', () => validarPrecio(precioInput, errPrecio, btnSubmit));
+        precioInput.addEventListener('blur',  () => validarPrecio(precioInput, errPrecio, btnSubmit));
+        precioInput.closest('form').addEventListener('submit', function(e) {
+            if (!validarPrecio(precioInput, errPrecio, btnSubmit)) {
+                e.preventDefault();
+                precioInput.focus();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

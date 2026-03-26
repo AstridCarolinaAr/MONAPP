@@ -1,0 +1,759 @@
+/* ==================== PERSONAL - ESTÉTICA MINIMALISTA ==================== */
+
+/* Reset y Base */
+.personal-wrapper {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111;
+    line-height: 1.6;
+    background: #ffffff;
+    min-height: 100vh;
+    padding-top: 23px;
+    padding-bottom: 40px;
+}
+
+/* ==================== CONTENEDOR ==================== */
+.personal-container {
+    max-width: 100%;
+    width: 98%;
+    margin: 0 auto;
+    padding: 0 5px;
+}
+
+/* ==================== HEADER SECCIÓN ==================== */
+.personal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.personal-header h1 {
+    font-size: clamp(1.34rem, 4vw, 1.87rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.personal-header h1 i {
+    color: #634c40;
+}
+
+/* ==================== BOTONES ESTILO MINIMALISTA ==================== */
+.personal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 10px;
+    border-radius: 995px;
+    border: 1px solid #111;
+    text-decoration: none;
+    color: #111;
+    font-weight: 500;
+    font-size: 0.67rem;
+    letter-spacing: 0.02em;
+    transition: all 0.35s ease;
+    cursor: pointer;
+    background: transparent;
+}
+
+.personal-btn:hover {
+    background: #111;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 9px rgba(17, 17, 17, 0.15);
+}
+
+.personal-btn.primary {
+    background: #111;
+    color: #fff;
+}
+
+.personal-btn.primary:hover {
+    background: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+.personal-btn.success {
+    background: #634c40;
+    border-color: #634c40;
+    color: #fff;
+}
+
+.personal-btn.success:hover {
+    background: #4b3a30;
+    border-color: #4b3a30;
+}
+
+.personal-btn.warning {
+    background: transparent;
+    border-color: #d4a574;
+    color: #634c40;
+}
+
+.personal-btn.warning:hover {
+    background: #d4a574;
+    border-color: #d4a574;
+    color: #fff;
+}
+
+.personal-btn.danger {
+    background: transparent;
+    border-color: #c7412b;
+    color: #c7412b;
+}
+
+.personal-btn.danger:hover {
+    background: #c7412b;
+    border-color: #c7412b;
+    color: #fff;
+}
+
+.personal-btn.info {
+    background: transparent;
+    border-color: #4a90a4;
+    color: #4a90a4;
+}
+
+.personal-btn.info:hover {
+    background: #4a90a4;
+    border-color: #4a90a4;
+    color: #fff;
+}
+
+.personal-btn.secondary {
+    background: transparent;
+    border-color: rgba(17, 17, 17, 0.3);
+    color: #666;
+}
+
+.personal-btn.secondary:hover {
+    background: rgba(17, 17, 17, 0.05);
+    border-color: rgba(17, 17, 17, 0.5);
+    color: #111;
+}
+
+/* Botones pequeños */
+.personal-btn.btn-sm {
+    padding: 3px 9px;
+    font-size: 0.9rem;
+}
+
+/* ==================== TARJETAS ==================== */
+.personal-card {
+    background: #ffffff;
+    border: 1.3px solid rgba(17, 17, 17, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: all 0.35s ease;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02);
+}
+
+.personal-card:hover {
+    border-color: rgba(17, 17, 17, 0.2);
+    box-shadow: 0 3px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.personal-card-header {
+    background: #f8f8f8;
+    border-bottom: 1.3px solid rgba(17, 17, 17, 0.1);
+    border-radius: 10px 10px 0 0;
+    padding: 23px 30px;
+    margin: -30px -30px 30px -30px;
+}
+
+.personal-card-header h4 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #111;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ==================== FORMULARIOS ==================== */
+.personal-form-group {
+    margin-bottom: 23px;
+}
+
+.personal-form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 3px;
+    letter-spacing: 0.01em;
+}
+
+.personal-form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.3px solid rgba(17, 17, 17, 0.15);
+    border-radius: 9px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #111;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.personal-form-control:focus {
+    outline: none;
+    border-color: #634c40;
+    box-shadow: 0 0 0 2px rgba(99, 76, 64, 0.1);
+}
+
+.personal-form-control::placeholder {
+    color: rgba(17, 17, 17, 0.4);
+}
+
+/* Select personalizado */
+.personal-form-control select {
+    cursor: pointer;
+}
+
+/* Checkbox personalizado */
+.personal-form-check {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 9px 9px;
+    background: #f8f8f8;
+    border-radius: 9px;
+    border: 1.3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.personal-form-check:hover {
+    background: #f0f0f0;
+    border-color: rgba(17, 17, 17, 0.1);
+}
+
+.personal-form-check input[type="checkbox"] {
+    width: 9px;
+    height: 9px;
+    cursor: pointer;
+}
+
+.personal-form-check label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+/* ==================== SWITCH TOGGLE ==================== */
+.personal-switch {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 9px;
+    background: #f8f8f8;
+    border-radius: 9px;
+    border: 1.3px solid transparent;
+    transition: all 0.3s ease;
+    margin-bottom: 9px;
+}
+
+.personal-switch:hover {
+    background: #f0f0f0;
+    border-color: rgba(17, 17, 17, 0.1);
+}
+
+.personal-switch-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 23px;
+    flex-shrink: 0;
+}
+
+.personal-switch-wrapper input[type="checkbox"],
+input[type="checkbox"].personal-switch-input,
+#id_activo {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+}
+
+.personal-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 33px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.personal-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 9px;
+    width: 9px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider,
+input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider,
+#id_activo:checked + .personal-switch-slider {
+    background-color: #634c40;
+}
+
+.personal-switch-wrapper input[type="checkbox"]:focus + .personal-switch-slider,
+input[type="checkbox"].personal-switch-input:focus + .personal-switch-slider,
+#id_activo:focus + .personal-switch-slider {
+    box-shadow: 0 0 0 2px rgba(99, 76, 64, 0.2);
+}
+
+.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider:before,
+input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:before,
+#id_activo:checked + .personal-switch-slider:before {
+    transform: translateX(23px);
+}
+
+.personal-switch-label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #111;
+    user-select: none;
+    flex-grow: 1;
+}
+
+/* ==================== BÚSQUEDA ==================== */
+.personal-search-card {
+    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+    border: 1.3px solid rgba(17, 17, 17, 0.08);
+    border-radius: 10px;
+    padding: 33px 30px;
+    margin-bottom: 30px;
+}
+
+.personal-search-form {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 0.8fr;
+    gap: 9px;
+    align-items: end;
+}
+
+/* ==================== TABLA - Hereda de panel_admin_base.css ==================== */
+
+/* ==================== BADGES ==================== */
+.personal-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 995px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.personal-badge.success {
+    background: rgba(99, 76, 64, 0.1);
+    color: #634c40;
+    border: 1px solid rgba(99, 76, 64, 0.3);
+}
+
+.personal-badge.warning {
+    background: rgba(212, 165, 116, 0.15);
+    color: #a67c52;
+    border: 1px solid rgba(212, 165, 116, 0.4);
+}
+
+.personal-badge.danger {
+    background: rgba(199, 65, 43, 0.1);
+    color: #c7412b;
+    border: 1px solid rgba(199, 65, 43, 0.3);
+}
+
+.personal-badge.info {
+    background: rgba(74, 144, 164, 0.1);
+    color: #4a90a4;
+    border: 1px solid rgba(74, 144, 164, 0.3);
+}
+
+/* ==================== BOTONES DE ACCIÓN ==================== */
+.personal-action-group {
+    display: flex;
+    gap: 3px;
+}
+
+.personal-action-btn {
+    width: 33px;
+    height: 33px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    border: 1.3px solid rgba(17, 17, 17, 0.15);
+    background: transparent;
+    color: #666;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.personal-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.personal-action-btn.info {
+    border-color: #4a90a4;
+    color: #4a90a4;
+}
+
+.personal-action-btn.info:hover {
+    background: #4a90a4;
+    color: #fff;
+}
+
+.personal-action-btn.warning {
+    border-color: #d4a574;
+    color: #d4a574;
+}
+
+.personal-action-btn.warning:hover {
+    background: #d4a574;
+    color: #fff;
+}
+
+.personal-action-btn.danger {
+    border-color: #c7412b;
+    color: #c7412b;
+}
+
+.personal-action-btn.danger:hover {
+    background: #c7412b;
+    color: #fff;
+}
+
+/* ==================== ALERTAS ==================== */
+.personal-alert {
+    padding: 9px 23px;
+    border-radius: 9px;
+    margin-bottom: 10px;
+    border: 1.3px solid;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.personal-alert.info {
+    background: rgba(74, 144, 164, 0.05);
+    border-color: rgba(74, 144, 164, 0.3);
+    color: #4a90a4;
+}
+
+.personal-alert.success {
+    background: rgba(99, 76, 64, 0.05);
+    border-color: rgba(99, 76, 64, 0.3);
+    color: #634c40;
+}
+
+.personal-alert.warning {
+    background: rgba(212, 165, 116, 0.08);
+    border-color: rgba(212, 165, 116, 0.4);
+    color: #a67c52;
+}
+
+.personal-alert.danger {
+    background: rgba(199, 65, 43, 0.05);
+    border-color: rgba(199, 65, 43, 0.3);
+    color: #c7412b;
+}
+
+/* ==================== DETALLES ==================== */
+.personal-detail-section {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.personal-detail-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.personal-detail-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(17, 17, 17, 0.5);
+    margin-bottom: 3px;
+}
+
+.personal-detail-value {
+    font-size: 1.15rem;
+    color: #111;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+.personal-detail-value a {
+    color: #634c40;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(99, 76, 64, 0.3);
+    transition: border-color 0.3s ease;
+}
+
+.personal-detail-value a:hover {
+    border-bottom-color: #634c40;
+}
+
+/* ==================== GRID DE DETALLES ==================== */
+.personal-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* ==================== MENSAJES ==================== */
+.personal-messages {
+    position: fixed;
+    top: 9px;
+    right: 9px;
+    z-index: 1000;
+    max-width: 400px;
+}
+
+.personal-message {
+    padding: 6px 10px;
+    border-radius: 9px;
+    margin-bottom: 5px;
+    border: 1.3px solid;
+    animation: slideIn 0.4s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ==================== ESTADÍSTICAS ==================== */
+.personal-stats {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 9px;
+    padding: 9px 10px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+    border-radius: 9px;
+    border: 1px solid rgba(17, 17, 17, 0.06);
+}
+
+.personal-stats strong {
+    color: #111;
+    font-weight: 600;
+}
+
+.personal-stats span {
+    color: #666;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+    .personal-search-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .personal-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 9px;
+    }
+
+    .personal-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .personal-container {
+        padding: 0 9px;
+    }
+    
+    .personal-card {
+        padding: 30px 10px;
+    }
+    
+    .personal-card-header {
+        padding: 9px 10px;
+        margin: -30px -10px 30px -10px;
+    }
+}
+
+@media (max-width: 763px) {
+    .personal-wrapper {
+        padding-top: 9px;
+        padding-bottom: 30px;
+    }
+    
+    .personal-header {
+        margin-bottom: 30px;
+        padding-bottom: 9px;
+    }
+    
+    .personal-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .personal-btn {
+        padding: 5px 10px;
+        font-size: 0.95rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .personal-search-card {
+        padding: 10px 9px;
+    }
+    
+    .personal-detail-section {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .personal-action-group {
+        gap: 3px;
+    }
+    
+    .personal-action-btn {
+        width: 16px;
+        height: 16px;
+        font-size: 0.85rem;
+    }
+    
+    .personal-container {
+        padding: 0 9px;
+    }
+    
+    .personal-card {
+        padding: 10px 9px;
+        border-radius: 9px;
+    }
+    
+    .personal-card-header {
+        padding: 9px;
+        margin: -10px -9px 10px -9px;
+        border-radius: 9px 9px 0 0;
+    }
+    
+    .personal-card-header h4 {
+        font-size: 1.2rem;
+    }
+    
+    .personal-form-control {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+    
+    .personal-messages {
+        left: 9px;
+        right: 9px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 460px) {
+    .personal-header h1 {
+        font-size: 1.5rem;
+        gap: 5px;
+    }
+    
+    .personal-btn {
+        padding: 3px 9px;
+        font-size: 0.9rem;
+    }
+    
+    .personal-table {
+        font-size: 0.8rem;
+    }
+    
+    .personal-detail-value {
+        font-size: 1rem;
+    }
+    
+    .personal-badge {
+        font-size: 0.75rem;
+        padding: 3px 5px;
+    }
+}
+
+/* ==================== VALIDACIONES EN TIEMPO REAL ==================== */
+.personal-form-control.is-valid {
+    border-color: #28a745 !important;
+    background-color: #f8fff9 !important;
+}
+
+.personal-form-control.is-invalid {
+    border-color: #c7412b !important;
+    background-color: #fff8f7 !important;
+}
+
+.invalid-feedback {
+    color: #c7412b;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    display: none;
+}
+
+.invalid-feedback.d-block {
+    display: block !important;
+}
+
+/* Estilo para botón deshabilitado */
+.personal-btn-secondary {
+    background: #ccc !important;
+    border-color: #ccc !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+}
+
+.personal-btn-secondary:hover {
+    background: #ccc !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.personal-btn-dark {
+    background: #634c40 !important;
+    border-color: #634c40 !important;
+    color: #fff !important;
+}

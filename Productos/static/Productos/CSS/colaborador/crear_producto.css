@@ -1,0 +1,206 @@
+/* =================================================
+   VARIABLES GLOBALES
+================================================= */
+:root {
+    --brand: #8a5a32;
+    --brand-dark: #6e3f1f;
+
+    --bg-page: #f4f1ee;
+    --bg-card: #ffffff;
+    --bg-section: #fbfaf9;
+
+    --border-soft: #e4dfda;
+    --border-strong: #d2c9c2;
+
+    --text-main: #1f2933;
+    --text-muted: #6b7280;
+
+    --success: #1f8f4e;
+}
+
+/* =================================================
+   CONTENEDOR GENERAL
+================================================= */
+.container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* =================================================
+   CARD PRINCIPAL
+================================================= */
+.product-form-card {
+    background: var(--bg-card);
+    border-radius: 3px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.06);
+}
+
+/* =================================================
+   HEADER
+================================================= */
+.product-form-header {
+    background: linear-gradient(90deg, var(--brand), var(--brand-dark));
+    padding: 3px 6px;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.product-form-header h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* =================================================
+   SECCIONES
+================================================= */
+.form-section {
+    background: var(--bg-section);
+    border: 1px solid var(--border-soft);
+    border-radius: 3px;
+    padding: 10px 12px;
+    margin-bottom: 5px;
+}
+
+/* Título de sección */
+.section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--brand-dark);
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* Grid */
+.form-section .row {
+    row-gap: 3px;
+}
+
+/* Labels */
+.form-section label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+/* Inputs */
+.form-section input,
+.form-section select,
+.form-section textarea {
+    height: 33px;
+    border-radius: 3px;
+    border: 1px solid var(--border-soft);
+    padding: 3px 5px;
+    font-size: 0.75rem;
+    background: #ffffff;
+    color: var(--text-main);
+}
+
+.form-section textarea {
+    min-height: 70px;
+    resize: vertical;
+}
+
+/* Focus */
+.form-section input:focus,
+.form-section select:focus,
+.form-section textarea:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(138, 90, 50, 0.25);
+    outline: none;
+}
+
+/* =================================================
+   LAYOUT VERTICAL CONTROLADO
+================================================= */
+.section-vertical-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-vertical-row > div {
+    width: 100%;
+    margin-bottom: 3px;
+}
+
+/* =================================================
+   ACCIONES
+================================================= */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 3px;
+    margin-top: 9px;
+}
+
+/* Botones */
+.form-actions .btn {
+    font-size: 0.72rem;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+/* Botón guardar */
+.btn-save {
+    background: linear-gradient(90deg, var(--success), #176f3e);
+    border: none;
+    color: #ffffff;
+}
+
+/* =================================================
+   PRECIO – ANIMACIÓN PREMIUM
+================================================= */
+.precio-formateado {
+    transition:
+        box-shadow 0.25s ease,
+        transform 0.2s ease,
+        background-color 0.25s ease;
+}
+
+
+
+/* Pulso elegante */
+@keyframes precioPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+.precio-pulse {
+    animation: precioPulse 0.25s ease-in-out;
+}
+
+/* =================================================
+   RESPONSIVE
+================================================= */
+@media (max-width: 992px) {
+    .container-fluid {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 763px) {
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+
+.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+
+

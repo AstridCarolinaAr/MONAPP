@@ -22,7 +22,8 @@ Servicios
     <!-- ==================== HERO ==================== -->
     <section class="sq-hero" id="inicio">
         <div class="sq-hero-inner">
-            <h1>Un gran día comienza con un cabello sano y hermoso</h1>
+            <h1>Un gran día comienza con un cabello sano y hermoso  
+            </h1>
             <h2>
                 Alisados y tratamientos capilares profesionales que cuidan tu cabello desde la raíz.
             </h2>
@@ -67,26 +68,25 @@ Servicios
 
             <div class="sq-promotions-grid">
 
+                {% for promo in promociones %}
                 <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Nuevo</span>
-                    <h3>20% OFF Primer Servicio</h3>
-                    <p>Válido para nuevos clientes. Aprovecha y transforma tu cabello.</p>
-                    <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
-
-                </div>
-                <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Especial</span>
-                    <h3>Combo Keratina + Hidratación</h3>
-                    <p>Ahorra más combinando nuestros tratamientos más pedidos.</p>
-                    <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
-                </div>
-
-                <div class="sq-promo-card">
-                    <span class="sq-promo-tag">Limitado</span>
-                    <h3>Descuento entre semana</h3>
-                    <p>Obtén precio especial reservando de lunes a jueves.</p>
+                    {% if promo.imagen %}
+                        <div class="sq-promo-image">
+                            <img src="{{ promo.imagen.url }}" alt="{{ promo.nombre }}">
+                        </div>
+                    {% endif %}
+                    <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
+                    <h3>{{ promo.nombre }}</h3>
+                    <p>{{ promo.descripcion }}</p>
                     <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
                 </div>
+                {% empty %}
+                <div class="sq-promo-card">
+                    <span class="sq-promo-tag">Pronto</span>
+                    <h3>Nuevas promociones en camino</h3>
+                    <p>Estamos preparando ofertas especiales para ti. ¡Vuelve pronto!</p>
+                </div>
+                {% endfor %}
 
             </div>
         </div>
@@ -407,63 +407,68 @@ Servicios
         </div>
     </section>
 </div>
+
+    <!-- ==================== SERVICIOS ADICIONALES (DINÁMICOS) ==================== -->
+    {% if servicios %}
+    <section class="sq-dynamic-services" style="padding: 60px 0; background: #f8f9fa;">
+        <div class="sq-container">
+            <h2 class="sq-products-title2" style="text-align: center; margin-bottom: 40px;">SERVICIOS ADICIONALES</h2>
+            
+            <div class="row justify-content-center">
+                {% for servicio in servicios %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s;">
+                        {% if servicio.imagen %}
+                            <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 250px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h3 class="card-title" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">{{ servicio.nombre }}</h3>
+                            <p class="card-text text-muted" style="font-size: 0.95rem;">{{ servicio.descripcion|truncatewords:20 }}</p>
+                            <p class="h4 text-primary" style="margin-top: 15px;">${{ servicio.precio|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
  
 
-    <!-- ==================== TESTIMONIALS ==================== -->
+    <!-- ==================== CATÁLOGO WEB (DINÁMICO) ==================== -->
 <section class="sq-testimonials" id="testimonials">
-        <h2 class="sq-products-title">Nuestros Productos</h2>
+    <h2 class="sq-products-title">Nuestros Productos </h2>
 
+    {% if productos_web %}
     <div class="sq-products-grid">
-
-        <div class="sq-product-card">
+        {% for producto in productos_web %}
+        <div class="sq-product-card" data-aos="fade-up">
             <div class="sq-product-img">
-                <img src="static/core/IMG/imagen1.png" alt="Producto 1">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                {% else %}
+                    <div class="sq-product-placeholder">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                {% endif %}
             </div>
-            <h3>Keratina Mona</h3>
-            <span class="sq-product-price">$120.000</span>
+            <h3>{{ producto.nombre }}</h3>
+            {% if producto.descripcion %}
+                <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
+            {% endif %}
+            <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
         </div>
-
-        <div class="sq-product-card">
-            <div class="sq-product-img">
-                <img src="static/core/IMG/imagen2.png" alt="Producto 2">
-            </div>
-            <h3>Tratamiento Reparador</h3>
-            <span class="sq-product-price">$85.000</span>
-        </div>
-
-        <div class="sq-product-card">
-            <div class="sq-product-img">
-                <img src="static/core/IMG/imagen3.png" alt="Producto 3">
-            </div>
-            <h3>Shampoo Nutritivo</h3>
-            <span class="sq-product-price">$48.000</span>
-        </div>
-
-        <div class="sq-product-card">
-            <div class="sq-product-img">
-                <img src="static/core/img/imagen4.png" alt="Producto 4">
-            </div>
-            <h3>Mascarilla Hidratante</h3>
-            <span class="sq-product-price">$62.000</span>
-        </div>
-
-        <div class="sq-product-card">
-            <div class="sq-product-img">
-                <img src="static/core/img/imagen5.png" alt="Producto 5">
-            </div>
-            <h3>Serum Capilar</h3>
-            <span class="sq-product-price">$39.000</span>
-        </div>
-
-        <div class="sq-product-card">
-            <div class="sq-product-img">
-                <img src="static/core/IMG/imagen6.png" alt="Producto 6">
-            </div>
-            <h3>Protector Térmico</h3>
-            <span class="sq-product-price">$44.000</span>
-        </div>
-
+        {% endfor %}
     </div>
+    {% else %}
+    <div class="sq-products-empty">
+        <p>Próximamente nuevos productos. ¡Mantente atento!</p>
+    </div>
+    {% endif %}
 </section>
 <!-- ==================== IMAGEN ==================== -->
 
@@ -502,7 +507,7 @@ Servicios
 
                 <div class="sq-contact-item">
                     <h3>Contacto directo</h3>
-                    <p>WhatsApp: +57 3XX XXX XXXX</p>
+                    <p>WhatsApp: +57 3223328408</p>
                 </div>
 
                 <div class="sq-contact-item">
@@ -526,9 +531,11 @@ Servicios
             <!-- Mapa -->
             <div class="sq-contact-map">
                 <iframe
-                    src="https://www.google.com/maps?q=Duitama%20Boyac%C3%A1&output=embed"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387.6692098579932!2d-73.0329069!3d5.8266966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e6a3f55fe1d0cb5%3A0x2b2c27a99cc5efea!2sMona%20Keratina%20Duitama!5e0!3m2!1ses!2sco!4v1708800000000!5m2!1ses!2sco"
                     loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade">
+                    referrerpolicy="no-referrer-when-downgrade"
+                    allowfullscreen=""
+                    style="border:0; width:100%; height:100%;">
                 </iframe>
             </div>
 
@@ -539,6 +546,23 @@ Servicios
 </section>
 {% block extra_js %}
 <script src="{% static 'core/js/index.js' %}"></script>
+
+
+
+<footer class="mona-footer">
+    <div class="footer-content">
+        <div class="footer-logo">
+            <span>MONA KERATINA</span>
+        </div>
+        <p class="copyright">
+            &copy; 2026 Mona Keratina Duitama. Todos los derechos reservados.
+        </p>
+    </div>
+</footer>
+
+<script src="{% static 'core/js/index.js' %}"></script>
+
+
 {% endblock %}
 
 {% endblock %}

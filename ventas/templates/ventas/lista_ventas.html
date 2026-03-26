@@ -1,0 +1,198 @@
+{% extends "core/panel_admin_base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Ventas</li>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block title %}Ventas{% endblock %}
+{% block page_icon %}<i class="bi bi-cart page-icon"></i>{% endblock %}
+{% block page_title %}Ventas{% endblock %}
+{% block page_subtitle %}Gestión de ventas registradas{% endblock %}
+
+{% block page_actions %}
+<button type="button"
+        class="btn-pill-dark"
+        id="btnNuevaVenta"
+        data-url="{% url 'ventas:crear' %}">
+  <i class="bi bi-plus-circle"></i> Nueva venta
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- FILTROS -->
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-4">
+    <input type="text"
+           name="q"
+           class="form-control"
+           placeholder="Buscar venta o cliente"
+           value="{{ q }}">
+  </div>
+
+  <div class="col-md-3">
+    <select name="estado" class="form-select">
+      <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
+      <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
+            <option value="">Todas</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <button class="btn btn-outline-secondary w-100">Filtrar</button>
+  </div>
+</form>
+
+<!-- TABLA -->
+<div class="table-card">
+  <table class="table table-hover align-middle mb-0 styled-table">
+    <thead>
+      <tr>
+        <th>Código venta</th>
+        <th>Cliente</th>
+        <th>Productos / Servicios</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th class="text-center">Estado</th>
+        <th class="text-end">Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for venta in ventas %}
+      <tr>
+        <td class="fw-semibold">{{ venta.codigo_venta }}</td>
+        <td>{{ venta.cliente }}</td>
+
+        <td>
+          {% for d in venta.detalles.all %}
+            <div>
+              {% if d.producto %}{{ d.producto.nombre }}{% endif %}
+              {% if d.servicio %}{{ d.servicio.nombre }}{% endif %}
+              <span class="text-muted">x{{ d.cantidad }}</span>
+            </div>
+          {% empty %}
+            <span class="text-muted">Sin detalles</span>
+          {% endfor %}
+        </td>
+
+        <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+
+        <td class="fw-semibold">
+          $ {{ venta.total|intcomma }}
+        </td>
+
+        <!-- SWITCH ESTADO -->
+        <td class="text-center">
+          <form method="post"
+                action="{% url 'ventas:toggle_estado' venta.id %}"
+                class="d-inline form-toggle-estado">
+            {% csrf_token %}
+
+            <label class="sw">
+              <input type="checkbox"
+                     class="sw__input toggle-estado"
+                     {% if venta.estado == 'activa' %}checked{% endif %}
+                     data-estado="{{ venta.estado }}">
+              <span class="sw__slider"></span>
+            </label>
+          </form>
+        </td>
+
+        <!-- ACCIONES -->
+        <td class="text-end">
+
+          <!-- Ver -->
+          <button type="button"
+                  class="btn btn-link"
+                  style="color: #382822;"
+                  data-url="{% url 'ventas:detalle_json' venta.id %}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalDetalleVenta"
+                  title="Ver detalles"
+                  data-bs-placement="bottom">
+            <i class="bi bi-eye" style="font-size: 24px;"></i>
+          </button>
+
+          <!-- Editar -->
+          <button type="button"
+                  class="btn btn-link"
+                  style="color: #382822;"
+                  data-url="{% url 'ventas:editar_modal' venta.id %}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalEditarVenta"
+                  title="Editar"
+                  data-bs-placement="bottom">
+            <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center text-muted py-4">
+          No hay ventas registradas
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal fade" id="modalDetalleVenta" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle de venta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="contenidoDetalleVenta">
+        <div class="text-center text-muted py-4">Selecciona una venta…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal fade" id="modalEditarVenta" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar venta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="contenidoEditarVenta">
+        <div class="text-center text-muted py-4">Cargando…</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL NUEVA VENTA -->
+<div class="modal fade" id="modalNuevaVenta" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva venta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="contenidoNuevaVenta">
+        <div class="text-center text-muted py-4">Cargando formulario…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+<script src="{% static 'ventas/js/ventas.js' %}"></script>
+{% endblock %}
