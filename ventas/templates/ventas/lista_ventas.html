@@ -9,6 +9,7 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+<link rel="stylesheet" href="{% static 'compras/css/comprobante.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 {% endblock %}
 
@@ -440,7 +441,7 @@ Ventas
 
                 <div class="col-12">
                   <label class="report-option">
-                    <input type="checkbox" name="incluir_grafica" value="1" />
+                    <input type="checkbox" name="incluir_grafica" value="1" disabled />
                     <span class="report-circle"></span>
                     <span class="report-label-text">Mostrar gráfica diaria</span>
                   </label>
@@ -452,7 +453,6 @@ Ventas
                     <option value="bar">Barras</option>
                     <option value="line">Líneas</option>
                     <option value="pie">Torta</option>
-                    <option value="funnel">Embudo</option>
                   </select>
                 </div>
 
@@ -549,17 +549,27 @@ Ventas
   aria-hidden="true"
 >
   <div
-    class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered"
+    class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered comprobante-print-dialog"
   >
-    <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
+    <div class="modal-content comprobante-modal">
       <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
         <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-eye me-2"></i>Vista previa del reporte</h5>
         <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
       </div>
-      <div class="modal-body" id="contenidoVistaPreviaReporte">
-        <div class="text-center text-muted py-5">
-          Configura el reporte y pulsa “Vista previa”.
+      <div class="modal-body comprobante-modal-body" id="contenidoVistaPreviaReporte">
+        <div id="reporteVentasPreviewBody" style="width:100%;">
+          <div class="text-center text-muted py-5">
+            Configura el reporte y pulsa “Vista previa”.
+          </div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" id="btnDescargarReporteVentas">
+          <i class="bi bi-download me-1"></i> Descargar
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
@@ -595,5 +605,9 @@ Ventas
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
 <script src="{% static 'ventas/js/ventas.js' %}"></script>
 {% endblock %}

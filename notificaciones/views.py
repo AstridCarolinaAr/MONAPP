@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils.timesince import timesince
 from django.utils import timezone
+import re
 from .models import Notificacion
+from .alertas_diarias import generar_alertas_para_usuario
 
 
 def _es_admin_o_auxiliar(user):
@@ -18,17 +20,32 @@ def listar_notificaciones(request):
     if not _es_admin_o_auxiliar(request.user):
         return JsonResponse({'permitido': False, 'notificaciones': [], 'total': 0, 'urgentes': 0})
 
+    # Generar alertas al abrir la campana (idempotente por usuario)
+    try:
+        generar_alertas_para_usuario(request.user)
+    except Exception:
+        # No bloquear el panel si falla la generación de alertas
+        pass
+
     notifs = Notificacion.objects.filter(
         destinatario=request.user,
         leida=False,
     ).order_by('-urgente', '-fecha_creacion')[:20]
+
+    def _mensaje_publico(msg: str) -> str:
+        if not msg:
+            return ""
+        # Ocultar marcadores internos usados para idempotencia (no mostrar al usuario)
+        msg = re.sub(r"\\s*\\[#(?:PROMO_VENCE|CUMPLE):[^\\]]+\\]", "", msg).strip()
+        msg = re.sub(r"\\s*#(?:PROMO_VENCE|CUMPLE):\\S+", "", msg).strip()
+        return msg
 
     data = []
     for n in notifs:
         data.append({
             'id':      n.id,
             'titulo':  n.titulo,
-            'mensaje': n.mensaje,
+            'mensaje': _mensaje_publico(n.mensaje),
             'tipo':    n.tipo,
             'urgente': n.urgente,
             'icono':   n.icono,

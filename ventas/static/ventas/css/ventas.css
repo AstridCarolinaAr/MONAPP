@@ -174,6 +174,103 @@ input:disabled {
   font-size: 0.9rem;
 }
 
+/* =====================================================
+   SELECTS (mismo estilo que Personal)
+===================================================== */
+.ventas-filters-card .form-select,
+#formCrearVenta .form-select,
+#formEditarVenta .form-select,
+#modalReporteVentas .form-select {
+  border: 1.5px solid rgba(17, 17, 17, 0.15);
+  border-radius: 16px;
+  color: #111;
+  background-color: #fff !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%233a2a24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+  padding-right: 2.2rem !important;
+}
+
+.ventas-filters-card .form-select:focus,
+#formCrearVenta .form-select:focus,
+#formEditarVenta .form-select:focus,
+#modalReporteVentas .form-select:focus {
+  outline: none;
+  border-color: #4b2f2a !important;
+  box-shadow: 0 0 0 2px rgba(75, 47, 42, 0.1) !important;
+}
+
+/* TomSelect (Cliente/Producto/Servicio/Personal) */
+#formCrearVenta .ts-wrapper .ts-control,
+#formEditarVenta .ts-wrapper .ts-control,
+#modalReporteVentas .ts-wrapper .ts-control,
+.ts-wrapper.form-select .ts-control,
+.ts-wrapper.form-select.single .ts-control,
+.ts-wrapper.form-select.multi .ts-control {
+  border: 1.5px solid rgba(17, 17, 17, 0.15) !important;
+  border-radius: 16px !important;
+  color: #111 !important;
+  background-color: #fff !important;
+  box-shadow: none !important;
+  outline: none !important;
+  min-height: 36px;
+  padding-right: 2.2rem !important;
+  background-image: none !important;
+}
+
+/* Oculta el <select> original cuando TomSelect ya está aplicado (evita flechas duplicadas) */
+select.tomselected,
+select.ts-hidden-accessible {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+}
+
+#formCrearVenta .ts-wrapper.focus .ts-control,
+#formCrearVenta .ts-wrapper .ts-control:focus-within,
+#formEditarVenta .ts-wrapper.focus .ts-control,
+#formEditarVenta .ts-wrapper .ts-control:focus-within,
+#modalReporteVentas .ts-wrapper.focus .ts-control,
+#modalReporteVentas .ts-wrapper .ts-control:focus-within,
+.ts-wrapper.focus .ts-control,
+.ts-wrapper.form-select.focus .ts-control,
+.ts-wrapper .ts-control:focus-within {
+  border-color: #4b2f2a !important;
+  box-shadow: 0 0 0 2px rgba(75, 47, 42, 0.1) !important;
+}
+
+.ts-dropdown {
+  border-radius: 16px !important;
+  border: 1px solid rgba(198, 162, 136, 0.25) !important;
+  box-shadow: 0 12px 30px rgba(31, 20, 18, 0.16) !important;
+  z-index: 3001 !important;
+}
+
+.ts-dropdown .option.active {
+  background: #fbf5f0 !important;
+  color: #111 !important;
+}
+
+/* Asegura que el dropdown quede por encima de tablas/cards */
+#formCrearVenta .ts-wrapper,
+#formEditarVenta .ts-wrapper,
+#modalReporteVentas .ts-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+#formCrearVenta .ts-wrapper.dropdown-active,
+#formEditarVenta .ts-wrapper.dropdown-active,
+#modalReporteVentas .ts-wrapper.dropdown-active {
+  z-index: 3000;
+}
+
 .ventas-toolbar-actions {
   display: flex;
   align-items: end;
@@ -311,7 +408,7 @@ input:disabled {
   position: absolute;
   inset: 0;
   cursor: pointer;
-  background:#9b6a57 ;
+  background: #b3b3b3;
   transition: .22s;
   border-radius: 999px;
 }

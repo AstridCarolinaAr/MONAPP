@@ -461,6 +461,7 @@ function initCrearVenta(scope = document) {
   if (selectProducto && !selectProducto.tomselect) {
     new TomSelect(selectProducto, {
       create: false,
+      dropdownParent: "body",
       sortField: {
         field: "text",
         direction: "asc",
@@ -471,6 +472,7 @@ function initCrearVenta(scope = document) {
   if (selectServicio && !selectServicio.tomselect) {
     new TomSelect(selectServicio, {
       create: false,
+      dropdownParent: "body",
       sortField: {
         field: "text",
         direction: "asc",
@@ -486,6 +488,7 @@ function initCrearVenta(scope = document) {
     new TomSelect(sel, {
       create: false,
       allowEmptyOption: true,
+      dropdownParent: "body",
       sortField: { field: "text", direction: "asc" },
     });
   }
@@ -605,6 +608,76 @@ document.addEventListener("submit", async function (e) {
 // ============================================================
 // 3) MODALES LISTA: DETALLE (JSON) + EDITAR (HTML)
 // ============================================================
+function applyTomSelectIn(scope) {
+  if (!scope || typeof TomSelect === "undefined") return;
+
+  const selects = scope.querySelectorAll(
+    "select.js-prod-select, select.js-serv-servicio, select[name^='serv_personal_']",
+  );
+
+  selects.forEach((sel) => {
+    if (!sel || sel.tomselect) return;
+
+    new TomSelect(sel, {
+      create: false,
+      allowEmptyOption: true,
+      dropdownParent: "body",
+      sortField: { field: "$order", direction: "asc" },
+    });
+  });
+}
+
+function hydrateEditarModalPrices(scope) {
+  if (!scope) return;
+
+  // Productos: precio siempre desde option[data-precio]
+  scope.querySelectorAll("select.js-prod-select").forEach((sel) => {
+    const detalleId = sel.dataset.detalle;
+    const opt = sel.options?.[sel.selectedIndex];
+    if (!detalleId || !opt) return;
+
+    const precio = parseFloat(opt.dataset.precio) || 0;
+
+    const precioInput = scope.querySelector(
+      `.js-prod-precio[data-detalle="${detalleId}"]`,
+    );
+    const cantInput = scope.querySelector(
+      `.js-prod-cant[data-detalle="${detalleId}"]`,
+    );
+    const subInput = scope.querySelector(
+      `.js-prod-subtotal[data-detalle="${detalleId}"]`,
+    );
+
+    if (precioInput) precioInput.value = precio.toFixed(2);
+    const cant = cantInput ? parseFloat(cantInput.value) || 0 : 0;
+    if (subInput) subInput.value = (cant * precio).toFixed(2);
+  });
+
+  // Servicios: precio siempre desde option[data-precio]
+  scope.querySelectorAll("select.js-serv-servicio").forEach((sel) => {
+    const detalleId = sel.dataset.detalle;
+    const opt = sel.options?.[sel.selectedIndex];
+    if (!detalleId || !opt) return;
+
+    const precio = parseFloat(opt.dataset.precio) || 0;
+    const precioInput = scope.querySelector(
+      `.js-serv-precio[data-detalle="${detalleId}"]`,
+    );
+    const cantInput = scope.querySelector(
+      `.js-serv-cant[data-detalle="${detalleId}"]`,
+    );
+    const subInput = scope.querySelector(
+      `.js-serv-subtotal[data-detalle="${detalleId}"]`,
+    );
+
+    if (precioInput) precioInput.value = precio.toFixed(2);
+    const cant = cantInput ? parseFloat(cantInput.value) || 0 : 0;
+    if (subInput) subInput.value = (cant * precio).toFixed(2);
+  });
+
+  recalcTotalEditar();
+}
+
 document.addEventListener("click", async function (e) {
   // ---- DETALLE ----
   const btnDetalle = e.target.closest(".btn-ver-detalle");
@@ -687,6 +760,8 @@ document.addEventListener("click", async function (e) {
       const data = await res.json();
 
       cont.innerHTML = data.html || "";
+      applyTomSelectIn(cont);
+      hydrateEditarModalPrices(cont);
       const modal = new bootstrap.Modal(modalEl);
       modal.show();
     } catch (err) {
@@ -772,10 +847,20 @@ document.addEventListener("input", function(e) {
     var stock = parseInt(cant.dataset.stock || "0");
     var val = parseInt(cant.value) || 0;
     var errEl = document.querySelector('.err-stock-' + id);
-    if (val > stock) {
+
+    // No permitir escribir más de lo disponible (1..stock)
+    if (stock <= 0) {
+      cant.value = 0;
       cant.classList.add("is-invalid");
-      if (errEl) errEl.classList.remove("d-none");
+      if (errEl) {
+        errEl.textContent = "Sin stock";
+        errEl.classList.remove("d-none");
+      }
     } else {
+      if (val < 1) val = 1;
+      if (val > stock) val = stock;
+      if (String(cant.value) !== String(val)) cant.value = val;
+
       cant.classList.remove("is-invalid");
       if (errEl) errEl.classList.add("d-none");
     }
@@ -815,6 +900,20 @@ document.addEventListener("change", function(e) {
     if (errEl) errEl.classList.add("d-none");
     if (subInput) subInput.value = (cant * nuevoPrecio).toFixed(2);
   }
+
+  // Actualizar badge de stock en la tabla (editar)
+  var badge = document.querySelector('.js-prod-stock-badge[data-detalle="' + id + '"]');
+  if (badge) {
+    badge.textContent = String(nuevoStock);
+    if (nuevoStock < 5) {
+      badge.style.background = "rgba(180,35,24,0.1)";
+      badge.style.color = "#b42318";
+    } else {
+      badge.style.background = "rgba(22,101,52,0.1)";
+      badge.style.color = "#166534";
+    }
+  }
+
   recalcTotalEditar();
 });
 
@@ -991,11 +1090,22 @@ document.addEventListener("change", function (e) {
 
   const inicioComp = bloque.querySelector('input[name="fecha_inicio_comp"]');
   const finComp = bloque.querySelector('input[name="fecha_fin_comp"]');
+  const form = document.getElementById("formReporteVentas");
+  const checkGrafica = form ? form.querySelector('input[name="incluir_grafica"]') : null;
+  const labelGrafica = checkGrafica ? checkGrafica.closest("label") : null;
+  const bloqueTipo = document.getElementById("bloqueTipoGraficaVentas");
 
   if (checkComparativo.checked) {
     bloque.classList.remove("d-none");
     if (inicioComp) inicioComp.required = true;
     if (finComp) finComp.required = true;
+
+    // Gráfica solo disponible en modo comparativo
+    if (checkGrafica) checkGrafica.disabled = false;
+    if (labelGrafica) {
+      labelGrafica.style.opacity = "";
+      labelGrafica.style.pointerEvents = "";
+    }
   } else {
     bloque.classList.add("d-none");
     if (inicioComp) {
@@ -1005,6 +1115,48 @@ document.addEventListener("change", function (e) {
     if (finComp) {
       finComp.required = false;
       finComp.value = "";
+    }
+
+    // Desactivar gráfica si no hay comparativo
+    if (checkGrafica) {
+      checkGrafica.checked = false;
+      checkGrafica.disabled = true;
+    }
+    if (bloqueTipo) bloqueTipo.classList.add("d-none");
+    if (labelGrafica) {
+      labelGrafica.style.opacity = "0.55";
+      labelGrafica.style.pointerEvents = "none";
+    }
+  }
+});
+
+// Estado inicial del checkbox de gráfica: solo habilitado si comparativo está activo.
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("formReporteVentas");
+  if (!form) return;
+
+  const checkComparativo = document.getElementById("checkComparativoVentas");
+  const comparativoActivo = !!(checkComparativo && checkComparativo.checked);
+
+  const checkGrafica = form.querySelector('input[name="incluir_grafica"]');
+  const labelGrafica = checkGrafica ? checkGrafica.closest("label") : null;
+  const bloqueTipo = document.getElementById("bloqueTipoGraficaVentas");
+
+  if (!comparativoActivo) {
+    if (checkGrafica) {
+      checkGrafica.checked = false;
+      checkGrafica.disabled = true;
+    }
+    if (bloqueTipo) bloqueTipo.classList.add("d-none");
+    if (labelGrafica) {
+      labelGrafica.style.opacity = "0.55";
+      labelGrafica.style.pointerEvents = "none";
+    }
+  } else {
+    if (checkGrafica) checkGrafica.disabled = false;
+    if (labelGrafica) {
+      labelGrafica.style.opacity = "";
+      labelGrafica.style.pointerEvents = "";
     }
   }
 });
@@ -1165,76 +1317,323 @@ document.addEventListener("click", async function (e) {
   const formData = new FormData(form);
   const params = new URLSearchParams(formData);
 
-  cont.innerHTML = `<div class="text-center text-muted py-5">Generando vista previa...</div>`;
+  const btnDescargar = document.getElementById("btnDescargarReporteVentas");
 
-  try {
-    const res = await fetch(
-      `/ventas/reporte/vista-previa/?${params.toString()}`,
-      {
-        headers: esAjaxRequestHeaders(),
-      },
-    );
+  function buildExcelUrl(paramsInstance) {
+    const excelParams = new URLSearchParams(paramsInstance.toString());
+    excelParams.set("formato", "excel");
+    return `/ventas/reporte/exportar/?${excelParams.toString()}`;
+  }
+
+  function buildPdfFilename(paramsInstance) {
+    const fi = paramsInstance.get("fecha_inicio") || "";
+    const ff = paramsInstance.get("fecha_fin") || "";
+    const suffix = fi && ff ? `_${fi}_${ff}` : "";
+    return `reporte_ventas${suffix}.pdf`;
+  }
+
+  const loadingHTML = `
+    <div class="comprobante-loading">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-3 mb-0">Cargando vista previa...</p>
+    </div>
+  `;
+
+  async function cargarVistaPreviaReporteVentas(paramsInstance) {
+    cont.innerHTML = loadingHTML;
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+
+    const res = await fetch(`/ventas/reporte/vista-previa/?${paramsInstance.toString()}`, {
+      headers: esAjaxRequestHeaders(),
+    });
 
     if (!res.ok) throw new Error("HTTP " + res.status);
 
     const data = await res.json();
 
     destruirChartsReporte();
-    cont.innerHTML =
-      data.html ||
-      "<div class='alert alert-danger'>No se pudo generar la vista previa.</div>";
+    cont.innerHTML = data.html || "<div class='alert alert-danger'>No se pudo generar la vista previa.</div>";
 
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
+    // Renderizar gráfica (si la pidió el usuario)
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    if (data.incluir_grafica && data.comparativo) {
+      const pLabels = data.grafica_principal_labels || [];
+      const pData   = data.grafica_principal_data   || [];
+      const cLabels = data.grafica_comp_labels || [];
+      const cData   = data.grafica_comp_data   || [];
 
-    requestAnimationFrame(() => {
-      if (data.incluir_grafica) {
-        const pLabels = data.grafica_principal_labels || [];
-        const pData   = data.grafica_principal_data   || [];
-        const cLabels = data.grafica_comp_labels || [];
-        const cData   = data.grafica_comp_data   || [];
+      function alinear(labels, vals, union) {
+        return union.map((lbl) => {
+          const i = labels.indexOf(lbl);
+          return i >= 0 ? vals[i] : null;
+        });
+      }
 
-        function alinear(labels, vals, union) {
-          return union.map(lbl => {
-            const i = labels.indexOf(lbl);
-            return i >= 0 ? vals[i] : null;
-          });
-        }
+      function parseDMY(label) {
+        if (!label || typeof label !== "string") return NaN;
+        const parts = label.split("/");
+        if (parts.length !== 3) return NaN;
+        const d = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const y = parseInt(parts[2], 10);
+        if (!d || !m || !y) return NaN;
+        return new Date(y, m - 1, d).getTime();
+      }
 
-        const allLabels = data.comparativo
-          ? [...new Set([...pLabels, ...cLabels])].sort()
-          : pLabels;
+      const allLabels = data.comparativo
+        ? [...new Set([...pLabels, ...cLabels])].sort((a, b) => {
+            const ta = parseDMY(a);
+            const tb = parseDMY(b);
+            if (!Number.isFinite(ta) || !Number.isFinite(tb)) return String(a).localeCompare(String(b));
+            return ta - tb;
+          })
+        : pLabels;
 
-        const datasets = [];
+      const datasets = [];
 
-        if (pLabels.length) {
-          datasets.push({
-            label: data.comparativo
-              ? "Principal (" + (data.fecha_inicio || "") + " — " + (data.fecha_fin || "") + ")"
-              : "Ventas",
-            data: data.comparativo ? alinear(pLabels, pData, allLabels) : pData,
-          });
-        }
+      if (pLabels.length) {
+        datasets.push({
+          label: data.comparativo
+            ? "Principal (" + (data.fecha_inicio || "") + " — " + (data.fecha_fin || "") + ")"
+            : "Ventas",
+          data: data.comparativo ? alinear(pLabels, pData, allLabels) : pData,
+        });
+      }
 
-        if (data.comparativo && cLabels.length) {
-          datasets.push({
-            label: "Comparativo (" + (data.fecha_inicio_comp || "") + " — " + (data.fecha_fin_comp || "") + ")",
-            data: alinear(cLabels, cData, allLabels),
-          });
-        }
+      if (data.comparativo && cLabels.length) {
+        datasets.push({
+          label: "Comparativo (" + (data.fecha_inicio_comp || "") + " — " + (data.fecha_fin_comp || "") + ")",
+          data: alinear(cLabels, cData, allLabels),
+        });
+      }
 
+      const canvas = document.getElementById("graficaPreviewPrincipal");
+      if (canvas) {
+        const tipo = (data.tipo_grafica || "bar").toLowerCase();
         chartPreviewPrincipal = renderizarGraficaReporte(
           "graficaPreviewPrincipal",
           datasets,
           allLabels,
-          data.tipo_grafica || "bar",
+          (tipo === "funnel" ? "bar" : tipo),
         );
       }
-    });
+    }
+
+    if (btnDescargar) {
+      btnDescargar.dataset.excelUrl = buildExcelUrl(paramsInstance);
+      btnDescargar.dataset.pdfName = buildPdfFilename(paramsInstance);
+      if (btnDescargar.dataset.autoDownload === "1") {
+        btnDescargar.click();
+      }
+    }
+  }
+
+  try {
+    await cargarVistaPreviaReporteVentas(params);
   } catch (err) {
     cont.innerHTML = `<div class="alert alert-danger mb-0">Error al generar la vista previa: ${err.message}</div>`;
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
+  }
+});
+
+document.addEventListener("click", async function (e) {
+  const btn = e.target.closest("#btnDescargarReporteVentas");
+  if (!btn) return;
+
+  const cont = document.getElementById("contenidoVistaPreviaReporte");
+  if (!cont) return;
+
+  const sheet = cont.querySelector(".invoice-sheet-premium");
+  if (!sheet) {
+    Swal.fire({
+      icon: "warning",
+      title: "Sin vista previa",
+      text: "Primero genera la vista previa del reporte.",
+    });
+    return;
+  }
+
+  const excelUrl = btn.dataset.excelUrl || "";
+  const pdfName = btn.dataset.pdfName || "reporte_ventas.pdf";
+  const autoDownload = btn.dataset.autoDownload === "1";
+  const autoFormat = (btn.dataset.autoFormat || "").toLowerCase();
+
+  function waitForImages(root) {
+    const images = Array.from(root.querySelectorAll("img"));
+    return Promise.all(
+      images.map((img) => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise((resolve) => {
+          const done = () => resolve();
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+        });
+      })
+    );
+  }
+
+  async function descargarPreviewComoPDF() {
+    if (typeof html2pdf === "undefined") {
+      throw new Error("html2pdf.js no está disponible.");
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "fixed";
+    wrapper.style.left = "-99999px";
+    wrapper.style.top = "0";
+    wrapper.style.width = "210mm";
+    wrapper.style.background = "#ffffff";
+    wrapper.style.zIndex = "-1";
+
+    const clone = sheet.cloneNode(true);
+
+    // Copiar contenido de canvases (Chart.js) a imágenes en el clon para que html2canvas lo renderice.
+    const srcCanvases = Array.from(sheet.querySelectorAll("canvas"));
+    const dstCanvases = Array.from(clone.querySelectorAll("canvas"));
+    srcCanvases.forEach((srcCanvas, idx) => {
+      const dstCanvas = dstCanvases[idx];
+      if (!dstCanvas) return;
+
+      try {
+        const dataUrl = srcCanvas.toDataURL("image/png");
+        const img = document.createElement("img");
+        img.src = dataUrl;
+        img.alt = "grafica";
+        img.style.width = "100%";
+        img.style.height = "auto";
+        img.style.display = "block";
+        dstCanvas.replaceWith(img);
+      } catch (e) {
+        // Si falla, dejar el canvas tal cual.
+      }
+    });
+
+    clone.classList.add("pdf-export-sheet");
+    clone.style.margin = "0";
+    clone.style.boxShadow = "none";
+    clone.style.border = "0";
+
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    try {
+      await waitForImages(clone);
+      const opt = {
+        margin: [4, 4, 4, 4],
+        filename: pdfName,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#f7f0e8",
+          scrollX: 0,
+          scrollY: 0,
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+        },
+        pagebreak: {
+          mode: ["avoid-all", "css", "legacy"],
+        },
+      };
+      await html2pdf().set(opt).from(clone).save();
+    } finally {
+      wrapper.remove();
+    }
+  }
+
+  if (autoDownload && autoFormat === "pdf") {
+    try {
+      Swal.fire({
+        title: "Generando PDF...",
+        text: "Espera un momento",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      await descargarPreviewComoPDF();
+      Swal.close();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo descargar",
+        text: error.message || "Error generando el PDF.",
+      });
+    } finally {
+      delete btn.dataset.autoDownload;
+      delete btn.dataset.autoFormat;
+    }
+    return;
+  }
+
+  let result;
+  if (excelUrl) {
+    result = await Swal.fire({
+      title: "Descargar reporte",
+      text: "Selecciona el formato",
+      icon: "question",
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: "PDF",
+      denyButtonText: "Excel",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: "btn btn-danger me-2",
+        denyButton: "btn btn-success me-2",
+        cancelButton: "btn btn-secondary",
+      },
+    });
+  } else {
+    result = await Swal.fire({
+      title: "Descargar reporte",
+      text: "Se descargará en PDF.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "PDF",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: "btn btn-danger me-2",
+        cancelButton: "btn btn-secondary",
+      },
+    });
+  }
+
+  if (result.isConfirmed) {
+    try {
+      Swal.fire({
+        title: "Generando PDF...",
+        text: "Espera un momento",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      await descargarPreviewComoPDF();
+      Swal.close();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo descargar",
+        text: error.message || "Error generando el PDF.",
+      });
+    }
+  } else if (result.isDenied) {
+    if (!excelUrl) {
+      Swal.fire({
+        icon: "warning",
+        title: "Sin archivo",
+        text: "No se encontró la ruta del Excel.",
+      });
+      return;
+    }
+    window.location.href = excelUrl;
   }
 });
 document.addEventListener("submit", function (e) {
@@ -1263,7 +1662,29 @@ document.addEventListener("submit", function (e) {
   }
 
   const params = new URLSearchParams(new FormData(form));
-  window.location.href = `/ventas/reporte/exportar/?${params.toString()}`;
+  const formato = (params.get("formato") || "pdf").toLowerCase();
+
+  if (formato === "excel") {
+    window.location.href = `/ventas/reporte/exportar/?${params.toString()}`;
+    return;
+  }
+
+  // PDF: generar vista previa premium y descargar desde HTML (igual que Compras)
+  const btnPreview = document.getElementById("btnVistaPreviaReporte");
+  if (btnPreview) {
+    const btnDescargar = document.getElementById("btnDescargarReporteVentas");
+    if (btnDescargar) {
+      btnDescargar.dataset.autoDownload = "1";
+      btnDescargar.dataset.autoFormat = "pdf";
+    }
+    btnPreview.click();
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "No se pudo generar el PDF",
+      text: "No se encontró el botón de vista previa.",
+    });
+  }
 });
 document.addEventListener("change", function (e) {
   const checkGrafica = e.target.closest('input[name="incluir_grafica"]');
@@ -1272,7 +1693,10 @@ document.addEventListener("change", function (e) {
   const bloqueTipo = document.getElementById("bloqueTipoGraficaVentas");
   if (!bloqueTipo) return;
 
-  if (checkGrafica.checked) {
+  const checkComparativo = document.getElementById("checkComparativoVentas");
+  const comparativoActivo = !!(checkComparativo && checkComparativo.checked);
+
+  if (checkGrafica.checked && comparativoActivo) {
     bloqueTipo.classList.remove("d-none");
   } else {
     bloqueTipo.classList.add("d-none");
