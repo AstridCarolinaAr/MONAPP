@@ -459,11 +459,6 @@
                 <div class="lib-search" style="flex:1;min-width:220px;">
                     <input type="text" id="searchInput" class="form-control" placeholder="Buscar servicio...">
                 </div>
-                <select id="estadoInput" class="form-select" style="width:140px;min-width:120px;">
-                    <option value="">Todos</option>
-                    <option value="activo">Activa</option>
-                    <option value="inactivo">Inactiva</option>
-                </select>
             </form>
             <!-- Toggle vista -->
             <div class="view-toggle">
@@ -488,6 +483,9 @@
         </div>
         <div class="lib-toolbar__right">
             <span class="lib-count" id="libCount"></span>
+            <button type="button" id="btnToggleDesactivados" class="btn btn-sm btn-outline-secondary" style="border-radius: 25px; padding: 8px 16px; font-weight: 600;">
+                <i class="bi bi-eye"></i> Ver desactivados
+            </button>
             {% if es_administrador %}
             <button type="button" class="btn btn-sm text-white" style="background-color: #634c40; border-color: #634c40; border-radius: 25px; padding: 8px 20px; font-weight: 600;"
                 data-bs-toggle="modal" data-bs-target="#modalFormServicio">
@@ -502,7 +500,7 @@
     <!-- GRID VIEW -->
     <div id="viewGrid">
         {% for servicio in servicios %}
-        <div class="lib-card" data-nombre="{{ servicio.nombre|lower }}">
+        <div class="lib-card" data-nombre="{{ servicio.nombre|lower }}" data-activo="{% if servicio.activo %}true{% else %}false{% endif %}">
             <div class="lib-card__img-wrap">
                 {% if servicio.imagen %}
                     <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}">
@@ -516,9 +514,6 @@
                 <div class="lib-card__actions">
                     <button class="lib-card__action-btn lib-card__action-btn--edit" data-url-editar="{% url 'servicios:editar_servicio' servicio.pk %}?modal=1" onclick="abrirModalEditar(this)" title="Editar">
                         <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="lib-card__action-btn lib-card__action-btn--del" data-url-eliminar="{% url 'servicios:eliminar_servicio' servicio.pk %}?modal=1" onclick="abrirModalEliminar(this)" title="Eliminar">
-                        <i class="bi bi-trash"></i>
                     </button>
                 </div>
                 {% endif %}
@@ -543,7 +538,7 @@
     <!-- LIST VIEW -->
     <div id="viewList">
         {% for servicio in servicios %}
-        <div class="lib-row" data-nombre="{{ servicio.nombre|lower }}">
+        <div class="lib-row" data-nombre="{{ servicio.nombre|lower }}" data-activo="{% if servicio.activo %}true{% else %}false{% endif %}">
             <div class="lib-row__thumb">
                 {% if servicio.imagen %}
                     <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}">
@@ -565,9 +560,6 @@
                 </label>
                 <button class="lib-card__action-btn lib-card__action-btn--edit" data-url-editar="{% url 'servicios:editar_servicio' servicio.pk %}?modal=1" onclick="abrirModalEditar(this)" title="Editar">
                     <i class="bi bi-pencil"></i>
-                </button>
-                <button class="lib-card__action-btn lib-card__action-btn--del" data-url-eliminar="{% url 'servicios:eliminar_servicio' servicio.pk %}?modal=1" onclick="abrirModalEliminar(this)" title="Eliminar">
-                    <i class="bi bi-trash"></i>
                 </button>
             </div>
             {% endif %}
@@ -660,6 +652,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let itemsPerPage   = parseInt(document.getElementById('gridSize')?.value || 12);
     let filteredGrid   = [...gridItems];
     let filteredList   = [...listItems];
+    let mostrandoInactivos = false;
 
     // ── TOGGLE VISTA ──
     document.getElementById('btnGrid').addEventListener('click', () => setView('grid'));
@@ -692,30 +685,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // ── FILTROS ──
+    function actualizarTextoBotonEstado() {
+        const btn = document.getElementById('btnToggleDesactivados');
+        if (!btn) return;
+        if (mostrandoInactivos) {
+            btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Ver activos';
+        } else {
+            btn.innerHTML = '<i class="bi bi-eye"></i> Ver desactivados';
+        }
+    }
+
     function filtrarServicios() {
         const q = document.getElementById('searchInput').value.toLowerCase().trim();
-        const estado = document.getElementById('estadoInput').value;
+        const estado = mostrandoInactivos ? 'inactivo' : 'activo';
         filteredGrid = gridItems.filter(el => {
             const nombre = el.dataset.nombre;
-            const badge = el.querySelector('.lib-card__status');
+            const activo = el.dataset.activo === 'true';
             let matchEstado = true;
-            if (estado === 'activo') matchEstado = badge && badge.classList.contains('lib-card__status--active');
-            if (estado === 'inactivo') matchEstado = badge && badge.classList.contains('lib-card__status--inactive');
+            if (estado === 'activo') matchEstado = activo;
+            if (estado === 'inactivo') matchEstado = !activo;
             return nombre.includes(q) && matchEstado;
         });
         filteredList = listItems.filter(el => {
             const nombre = el.dataset.nombre;
-            const badge = el.querySelector('.lib-card__status');
+            const activo = el.dataset.activo === 'true';
             let matchEstado = true;
-            if (estado === 'activo') matchEstado = badge && badge.classList.contains('lib-card__status--active');
-            if (estado === 'inactivo') matchEstado = badge && badge.classList.contains('lib-card__status--inactive');
+            if (estado === 'activo') matchEstado = activo;
+            if (estado === 'inactivo') matchEstado = !activo;
             return nombre.includes(q) && matchEstado;
         });
         currentPage = 1;
         render();
     }
     document.getElementById('searchInput').addEventListener('input', filtrarServicios);
-    document.getElementById('estadoInput').addEventListener('change', filtrarServicios);
+
+    const btnToggleDesactivados = document.getElementById('btnToggleDesactivados');
+    if (btnToggleDesactivados) {
+        btnToggleDesactivados.addEventListener('click', function() {
+            mostrandoInactivos = !mostrandoInactivos;
+            actualizarTextoBotonEstado();
+            filtrarServicios();
+        });
+    }
 
     // ── RENDER ──
     function render() {
@@ -786,7 +797,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Init
-    render();
+    mostrandoInactivos = false;
+    actualizarTextoBotonEstado();
+    filtrarServicios();
 
     // ── MODAL CREAR ──
     const modalCrear = document.getElementById('modalFormServicio');
@@ -823,13 +836,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.querySelectorAll(`.switch-activo[data-id="${id}"]`).forEach(el => {
                     const card = el.closest('.lib-card');
                     if (card) {
+                        card.dataset.activo = data.activo ? 'true' : 'false';
                         const badge = card.querySelector('.lib-card__status');
                         if (badge) {
                             badge.textContent = data.activo ? 'Activo' : 'Inactivo';
                             badge.className = 'lib-card__status ' + (data.activo ? 'lib-card__status--active' : 'lib-card__status--inactive');
                         }
                     }
+                    const row = el.closest('.lib-row');
+                    if (row) {
+                        row.dataset.activo = data.activo ? 'true' : 'false';
+                    }
                 });
+                filtrarServicios();
             } else {
                 cb.checked = !cb.checked;
                 document.querySelectorAll(`.switch-activo[data-id="${id}"]`).forEach(el => { el.checked = !el.checked; });

@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.db.models.functions import Lower, Trim
 import uuid
 
 class Servicio(models.Model):
@@ -26,6 +28,35 @@ class Servicio(models.Model):
         ordering = ['-fecha_creacion']
         verbose_name = 'Servicio'
         verbose_name_plural = 'Servicios'
+        constraints = [
+            models.UniqueConstraint(
+                Lower(Trim('nombre')),
+                name='servicios_nombre_normalizado_unique',
+            ),
+        ]
+
+    def _normalizar_nombre(self):
+        return ' '.join((self.nombre or '').split())
+
+    def clean(self):
+        super().clean()
+        nombre_normalizado = self._normalizar_nombre()
+
+        if not nombre_normalizado:
+            raise ValidationError({'nombre': 'El nombre del servicio es obligatorio.'})
+
+        duplicado = Servicio.objects.filter(nombre__iexact=nombre_normalizado)
+        if self.pk:
+            duplicado = duplicado.exclude(pk=self.pk)
+
+        if duplicado.exists():
+            raise ValidationError({'nombre': 'Ya existe un servicio con este nombre.'})
+
+        self.nombre = nombre_normalizado
+
+    def save(self, *args, **kwargs):
+        self.nombre = self._normalizar_nombre()
+        return super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.nombre} - ${self.precio}"

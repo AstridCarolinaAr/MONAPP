@@ -1,10 +1,10 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Eliminar Servicio{% endblock %}
+{% block title %}Desactivar Servicio{% endblock %}
 
 {% block page_title %}
-    <i class="bi bi-trash"></i> Eliminar Servicio
+    <i class="bi bi-slash-circle"></i> Desactivar Servicio
 {% endblock %}
 
 {% block extra_css %}
@@ -17,10 +17,10 @@
         <div class="col-md-6">
             <div class="card shadow border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Desactivación</h4>
                 </div>
                 <div class="card-body">
-                    <p class="lead">¿Estás seguro que deseas eliminar este servicio?</p>
+                    <p class="lead">¿Estás seguro que deseas desactivar este servicio?</p>
                     
                     <div class="alert alert-warning">
                         <strong>Servicio:</strong> {{ servicio.nombre }}<br>
@@ -32,13 +32,13 @@
                         {% endif %}
                     </div>
                     
-                    <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
+                    <p class="text-danger"><strong>Podrás reactivarlo luego desde la lista de servicios.</strong></p>
                     
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Sí, Eliminar
+                                <i class="bi bi-slash-circle"></i> Sí, Desactivar
                             </button>
                             <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-secondary">
                                 <i class="bi bi-x-circle"></i> Cancelar

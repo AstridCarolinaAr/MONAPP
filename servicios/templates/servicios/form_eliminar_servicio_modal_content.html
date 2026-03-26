@@ -4,10 +4,10 @@
 
 <div class="alert alert-warning">
     <i class="bi bi-exclamation-triangle-fill"></i>
-    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+    <strong>¡Atención!</strong> Este servicio quedará desactivado.
 </div>
 
-<p class="lead">¿Estás seguro que deseas eliminar este servicio?</p>
+<p class="lead">¿Estás seguro que deseas desactivar este servicio?</p>
 
 <div class="card mb-3">
     <div class="card-body">
@@ -31,7 +31,7 @@
             <i class="bi bi-x-circle"></i> Cancelar
         </button>
         <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash"></i> Sí, Eliminar
+            <i class="bi bi-slash-circle"></i> Sí, Desactivar
         </button>
     </div>
 </form>
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Deshabilitar el botón y mostrar spinner
             submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Eliminando...';
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Desactivando...';
             
             fetch(form.action || window.location.href, {
                 method: 'POST',
@@ -74,14 +74,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Mostrar error
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalText;
-                    alert('Error al eliminar el servicio.');
+                    if (typeof window.mostrarToastServicio === 'function') {
+                        window.mostrarToastServicio('Error al desactivar el servicio.', 'error');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalText;
-                alert('Ocurrió un error al eliminar el servicio.');
+                if (typeof window.mostrarToastServicio === 'function') {
+                    window.mostrarToastServicio('Ocurrió un error al desactivar el servicio.', 'error');
+                }
             });
         });
     }

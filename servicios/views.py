@@ -128,14 +128,15 @@ def eliminar_servicio(request, pk):
     
     if request.method == 'POST':
         nombre = servicio.nombre
-        servicio.delete()
-        messages.success(request, f'Servicio "{nombre}" eliminado exitosamente.')
+        servicio.activo = False
+        servicio.save(update_fields=['activo', 'fecha_modificacion'])
+        messages.success(request, f'Servicio "{nombre}" desactivado exitosamente.')
         
         # Si es una petición AJAX, devolver JSON
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
-                'message': f'Servicio "{nombre}" eliminado exitosamente.'
+                'message': f'Servicio "{nombre}" desactivado exitosamente.'
             })
         return redirect('servicios:lista_servicios')
     
