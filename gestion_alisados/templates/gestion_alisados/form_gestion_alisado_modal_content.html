@@ -830,8 +830,8 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 infoClienteConsentimiento.dataset.documento = numeroDocumento;
             }
             infoClienteConsentimiento.innerHTML = `
-                <strong>Nombre:</strong> ${nombreCompleto}<br>
-                <strong>Documento:</strong> ${numeroDocumento}
+                <strong>Nombre:</strong> ${escapeHtml(nombreCompleto)}<br>
+                <strong>Documento:</strong> ${escapeHtml(numeroDocumento)}
             `;
         } else {
             if (infoClienteConsentimiento) {
@@ -840,6 +840,15 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             }
             infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
         }
+    }
+
+    function escapeHtml(valor) {
+        return String(valor ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function asegurarOpcion(select, valor) {
@@ -1638,49 +1647,49 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         actualizarEstadoImpresion();
         const clienteInfo = leerClienteActual();
         return {
-            clienteNombre: clienteInfo.nombre || estadoImpresion.clienteNombre || '—',
-            clienteDocumento: clienteInfo.documento || estadoImpresion.clienteDocumento || '—',
-            precioAlisado: estadoImpresion.precioAlisado || '—',
-            esOferta: estadoImpresion.esOferta || 'No',
-            descripOferta: estadoImpresion.descripOferta || '—',
-            anticipo: estadoImpresion.anticipo || '—',
-            medioPago: estadoImpresion.medioPago || '—',
-            saldo: estadoImpresion.saldo || '—',
-            realizadoPor: estadoImpresion.realizadoPor || '—',
-            tipoAlisado: estadoImpresion.tipoAlisado || '—',
-            resellado: estadoImpresion.resellado || 'No',
-            porcentaje: estadoImpresion.porcentaje || '—',
-            porosidad: getTextoControl('porosidad'),
-            textura: getTextoControl('textura'),
-            formaNatural: getTextoControl('forma_natural'),
-            elasticidad: getTextoControl('elasticidad'),
-            longitud: getTextoControl('longitud'),
-            densidad: getTextoControl('densidad'),
-            pielCabelludo: getTextoControl('piel_cabelludo'),
-            alopecia: getTextoControl('alopecia'),
-            caida: getTextoControl('caida_cabello'),
-            caspa: getTextoControl('caspa'),
-            lactante: getTextoControl('lactante'),
-            gestante: getTextoControl('gestante'),
-            tiroides: getTextoControl('sufre_tiroides'),
-            medTiroides: getTextoControl('medicamento_tiroides'),
-            despunte: getTextoControl('despunte_hoy'),
+            clienteNombre: escapeHtml(clienteInfo.nombre || estadoImpresion.clienteNombre || '—'),
+            clienteDocumento: escapeHtml(clienteInfo.documento || estadoImpresion.clienteDocumento || '—'),
+            precioAlisado: escapeHtml(estadoImpresion.precioAlisado || '—'),
+            esOferta: escapeHtml(estadoImpresion.esOferta || 'No'),
+            descripOferta: escapeHtml(estadoImpresion.descripOferta || '—'),
+            anticipo: escapeHtml(estadoImpresion.anticipo || '—'),
+            medioPago: escapeHtml(estadoImpresion.medioPago || '—'),
+            saldo: escapeHtml(estadoImpresion.saldo || '—'),
+            realizadoPor: escapeHtml(estadoImpresion.realizadoPor || '—'),
+            tipoAlisado: escapeHtml(estadoImpresion.tipoAlisado || '—'),
+            resellado: escapeHtml(estadoImpresion.resellado || 'No'),
+            porcentaje: escapeHtml(estadoImpresion.porcentaje || '—'),
+            porosidad: escapeHtml(getTextoControl('porosidad')),
+            textura: escapeHtml(getTextoControl('textura')),
+            formaNatural: escapeHtml(getTextoControl('forma_natural')),
+            elasticidad: escapeHtml(getTextoControl('elasticidad')),
+            longitud: escapeHtml(getTextoControl('longitud')),
+            densidad: escapeHtml(getTextoControl('densidad')),
+            pielCabelludo: escapeHtml(getTextoControl('piel_cabelludo')),
+            alopecia: escapeHtml(getTextoControl('alopecia')),
+            caida: escapeHtml(getTextoControl('caida_cabello')),
+            caspa: escapeHtml(getTextoControl('caspa')),
+            lactante: escapeHtml(getTextoControl('lactante')),
+            gestante: escapeHtml(getTextoControl('gestante')),
+            tiroides: escapeHtml(getTextoControl('sufre_tiroides')),
+            medTiroides: escapeHtml(getTextoControl('medicamento_tiroides')),
+            despunte: escapeHtml(getTextoControl('despunte_hoy')),
             tintura: getTextoControl('procesos_tintura') === 'Sí',
             decoloracion: getTextoControl('procesos_decoloracion') === 'Sí',
             ondulados: getTextoControl('procesos_ondulados') === 'Sí',
             extracciones: getTextoControl('procesos_extracciones') === 'Sí',
             alisados: getTextoControl('procesos_alisados') === 'Sí',
             superAclarante: getTextoControl('procesos_super_aclarante') === 'Sí',
-            otrosProcesos: getTextoControl('procesos_otro'),
-            secador: getTextoControl('cuenta_con_secador'),
-            usaCasco: getTextoControl('usa_casco'),
-            aguaCaliente: getTextoControl('se_bana_agua_caliente'),
-            refuerzo15: getTextoControl('requiere_refuerzo_15dias'),
+            otrosProcesos: escapeHtml(getTextoControl('procesos_otro')),
+            secador: escapeHtml(getTextoControl('cuenta_con_secador')),
+            usaCasco: escapeHtml(getTextoControl('usa_casco')),
+            aguaCaliente: escapeHtml(getTextoControl('se_bana_agua_caliente')),
+            refuerzo15: escapeHtml(getTextoControl('requiere_refuerzo_15dias')),
             frecRecoge: getTextoControl('frecuencia_recoge_cabello'),
             ejercicio: getTextoControl('realiza_ejercicio'),
             frecEjercicio: getTextoControl('frecuencia_ejercicio'),
-            productos: getTextoControl('productos_capilares'),
-            recomendaciones: getTextoControl('recomendaciones_post_cuidados'),
+            productos: escapeHtml(getTextoControl('productos_capilares')),
+            recomendaciones: escapeHtml(getTextoControl('recomendaciones_post_cuidados')),
             fecha: new Date().toLocaleDateString('es-CO', {
                 year: 'numeric',
                 month: 'long',
@@ -1725,6 +1734,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             ['Ondulados Perm', datos.ondulados], ['Extracciones', datos.extracciones],
             ['Alisados', datos.alisados], ['Super Aclarante', datos.superAclarante],
         ];
+        const estaMarcado = function (valor) {
+            return valor === true || valor === 'Sí' || valor === 'Si';
+        };
         return `<!DOCTYPE html><html><head><meta charset="utf-8">
         <title>Tratamiento de Alisado - ${datos.clienteNombre}</title>
         <style>${estilos}</style></head><body>
@@ -1778,7 +1790,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         </div></div>
 
         <div class="seccion"><div class="sec-titulo">Procesos Químicos Previos</div>
-        <div class="procesos">${procesos.map(([l,v])=>`<div class="proc-item ${v==='Sí'?'proc-si':'proc-no'}">${v==='Sí'?'✓':'○'} ${l}</div>`).join('')}</div>
+        <div class="procesos">${procesos.map(([l,v])=>`<div class="proc-item ${estaMarcado(v)?'proc-si':'proc-no'}">${estaMarcado(v)?'✓':'○'} ${l}</div>`).join('')}</div>
         ${datos.otrosProcesos&&datos.otrosProcesos!=='—'?`<div style="margin-top:6px"><div class="campo-label">Otro:</div><div class="campo-valor">${datos.otrosProcesos}</div></div>`:''}
         </div>
 

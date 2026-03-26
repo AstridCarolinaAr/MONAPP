@@ -95,11 +95,13 @@
                     </div>
                     {% endif %}
 
-                    <form method="post" action="{% url 'usuarios:login' %}">
+                    <form method="post" action="{% url 'usuarios:login' %}" id="loginModalForm" data-login-ajax="1">
                         {% csrf_token %}
                         {% if request.GET.next %}
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
                         {% endif %}
+                        <input type="hidden" name="ajax_login" value="1">
+                        <div id="loginAttemptsInfo" class="small login-attempts-info mb-3" style="display:none;font-weight:600;"></div>
                         <div class="login-form-wrapper">
                             <div class="field-group">
                                 <label class="field-label">Número de documento</label>

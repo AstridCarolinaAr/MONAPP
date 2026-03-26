@@ -7,6 +7,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.core.cache import cache
 from django.db.models import Q
 from django.http import JsonResponse
 from django.template.loader import render_to_string
@@ -15,14 +16,49 @@ from .models import PerfilUsuario
 import random
 from django.utils import timezone
 from django.core.mail import send_mail
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.crypto import get_random_string
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.urls import reverse
 import traceback
+
+
+def _login_rate_limit_key(request, username):
+    ip = _get_client_ip(request)
+    normalized = (username or '').strip().lower() or 'anon'
+    return f'login_attempts:{ip}:{normalized}'
+
+
+def _login_ip_rate_limit_key(request):
+    ip = _get_client_ip(request)
+    return f'login_ip_attempts:{ip}'
+
+
+def _get_client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    if forwarded:
+        return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR', '0.0.0.0')
+    return request.META.get('REMOTE_ADDR', '0.0.0.0')
+
+
+def _login_session_key(username, suffix):
+    normalized = (username or '').strip().lower() or 'anon'
+    safe = re.sub(r'[^a-z0-9_]+', '_', normalized)
+    return f'login_{suffix}_{safe}'
+
+
+def _recovery_code_attempts_key(request):
+    user_id = request.session.get('recovery_user') or 'anon'
+    return f'recovery_code_attempts:{user_id}'
+
+
+def _recovery_code_block_key(request):
+    user_id = request.session.get('recovery_user') or 'anon'
+    return f'recovery_code_block:{user_id}'
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -33,16 +69,117 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
 
+    if request.method != 'POST':
+        return redirect(reverse('core:index') + '?login=1')
+
     if request.method == 'POST':
+        username = (request.POST.get('username') or '').strip()
+        cache_key = _login_rate_limit_key(request, username)
+        ip_cache_key = _login_ip_rate_limit_key(request)
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.POST.get('ajax_login') == '1'
+        attempt_data = cache.get(cache_key, {'count': 0, 'blocked_until': None})
+        ip_attempt_data = cache.get(ip_cache_key, {'count': 0, 'blocked_until': None})
+        blocked_until = attempt_data.get('blocked_until')
+        ip_blocked_until = ip_attempt_data.get('blocked_until')
+        session_block_until = request.session.get(_login_session_key(username, 'block_until'))
+        session_block_until_ip = request.session.get(_login_session_key(_get_client_ip(request), 'ip_block_until'))
+        now = timezone.now()
+
+        session_blocks = [dt for dt in [blocked_until, ip_blocked_until] if dt]
+        session_time_blocks = []
+        for raw_ts in [session_block_until, session_block_until_ip]:
+            try:
+                if raw_ts:
+                    session_time_blocks.append(datetime.fromtimestamp(float(raw_ts), tz=timezone.get_current_timezone()))
+            except (TypeError, ValueError, OverflowError):
+                pass
+
+        active_block_until = max(session_blocks + session_time_blocks, default=None)
+        if active_block_until and active_block_until > now:
+            remaining = int((active_block_until - now).total_seconds() // 60) or 1
+            message = f'Has superado los intentos permitidos. Intenta nuevamente en {remaining} minuto(s).'
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': message,
+                    'attempts': int(max(int(attempt_data.get("count") or 0), int(ip_attempt_data.get("count") or 0))),
+                    'blocked': True,
+                    'blocked_minutes': remaining,
+                }, status=429)
+            messages.error(request, message)
+            return redirect(request.META.get('HTTP_REFERER', 'core:index'))
+
         form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
             user = form.get_user()
+            cache.delete(cache_key)
+            cache.delete(ip_cache_key)
+            request.session.pop(_login_session_key(username, 'block_until'), None)
+            request.session.pop(_login_session_key(_get_client_ip(request), 'ip_block_until'), None)
+            request.session.pop(_login_session_key(username, 'attempts'), None)
+            request.session.pop(_login_session_key(_get_client_ip(request), 'ip_attempts'), None)
             login(request, user)
+            if is_ajax:
+                next_url = request.POST.get('next') or request.GET.get('next') or reverse('core:dashboard')
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Inicio de sesión correcto.',
+                    'redirect': next_url,
+                })
             return redirect('core:dashboard')
 
-        messages.error(request, 'Usuario o contraseña incorrectos.')
-        # Redirigir de vuelta a la página donde estaba el usuario para que el modal se pueda reabrir
+        current_count = int(attempt_data.get('count') or 0) + 1
+        ip_current_count = int(ip_attempt_data.get('count') or 0) + 1
+        block_until = None
+        if current_count >= 5 and current_count % 5 == 0:
+            wait_minutes = max(1, current_count // 5)
+            block_until = now + timedelta(minutes=wait_minutes)
+
+        ip_block_until = None
+        if ip_current_count >= 5 and ip_current_count % 5 == 0:
+            wait_minutes = max(1, ip_current_count // 5)
+            ip_block_until = now + timedelta(minutes=wait_minutes)
+
+        cache.set(
+            cache_key,
+            {
+                'count': current_count,
+                'blocked_until': block_until,
+            },
+            timeout=24 * 60 * 60,
+        )
+        if block_until:
+            request.session[_login_session_key(username, 'block_until')] = block_until.timestamp()
+        request.session[_login_session_key(username, 'attempts')] = current_count
+        cache.set(
+            ip_cache_key,
+            {
+                'count': ip_current_count,
+                'blocked_until': ip_block_until,
+            },
+            timeout=24 * 60 * 60,
+        )
+        if ip_block_until:
+            request.session[_login_session_key(_get_client_ip(request), 'ip_block_until')] = ip_block_until.timestamp()
+        request.session[_login_session_key(_get_client_ip(request), 'ip_attempts')] = ip_current_count
+
+        error_message = 'Usuario o contraseña incorrectos.'
+        attempts_total = max(current_count, ip_current_count)
+        if is_ajax:
+            blocked_minutes = 0
+            active_until = max([dt for dt in [block_until, ip_block_until] if dt], default=None)
+            if active_until and active_until > now:
+                blocked_minutes = int((active_until - now).total_seconds() // 60) or 1
+            return JsonResponse({
+                'success': False,
+                'message': error_message,
+                'attempts': attempts_total,
+                'blocked': blocked_minutes > 0,
+                'blocked_minutes': blocked_minutes,
+            }, status=400)
+
+        messages.error(request, error_message)
         return redirect(request.META.get('HTTP_REFERER', 'core:index'))
     else:
         # Para peticiones GET, creamos un formulario vacío
@@ -109,7 +246,7 @@ def solicitar_recuperacion(request):
                 request,
                 'Se ha enviado un correo con instrucciones para recuperar tu contraseña.'
             )
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
             
         except User.DoesNotExist:
             # Por seguridad, no revelar si el email existe o no
@@ -117,7 +254,7 @@ def solicitar_recuperacion(request):
                 request,
                 'Si existe una cuenta con ese correo, recibirás instrucciones para recuperar tu contraseña.'
             )
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
         except (socket.gaierror, OSError, TimeoutError) as e:
             messages.error(
                 request,
@@ -181,7 +318,7 @@ def password_reset_confirm_view(request, uidb64, token):
                 request,
                 'Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión.'
             )
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
         
         return render(request, 'usuarios/password_reset_confirm.html', {
             'validlink': True,
@@ -237,14 +374,14 @@ def username_recovery_view(request):
                 request,
                 'Se ha enviado tu nombre de usuario al correo registrado.'
             )
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
             
         except User.DoesNotExist:
             messages.success(
                 request,
                 'Si existe una cuenta con ese correo, recibirás tu nombre de usuario.'
             )
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
         except Exception as e:
             messages.error(
                 request,
@@ -659,7 +796,7 @@ def validar_email_ajax(request):
         
         if not email:
             messages.error(request, 'Por favor ingresa tu correo electrónico.')
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
 
         try:
             user = User.objects.get(email__iexact=email)
@@ -670,7 +807,7 @@ def validar_email_ajax(request):
                 'Si el correo está registrado, se procesó la solicitud. '
                 'Revisa tu bandeja de entrada.'
             )
-            return redirect('usuarios:login')
+            return redirect(reverse('core:index') + '?login=1')
 
         # Generar contraseña temporal
         nueva_pass = get_random_string(length=10, allowed_chars='abcdefghjkmnpqrstuvwxyz23456789')
@@ -683,7 +820,7 @@ def validar_email_ajax(request):
             f'¡Listo! Se generó una contraseña temporal para {user.get_full_name() or user.username}. '
             f'Tu nueva contraseña es: {nueva_pass} — Cámbiala al iniciar sesión.'
         )
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
     user = User.objects.get(email__iexact=email)
 
@@ -692,7 +829,7 @@ def validar_email_ajax(request):
         perfil = user.perfil
     except Exception:
         messages.error(request, "Este usuario no tiene perfil asociado.")
-        return redirect("usuarios:login")
+        return redirect(reverse('core:index') + '?login=1')
 
     if not perfil.recovery_code or not perfil.recovery_code_created:
         return render(request, "usuarios/verificar_codigo.html", {
@@ -720,16 +857,16 @@ def validar_email_ajax(request):
 def nueva_password(request):
     #  Verificar que el código fue validado
     if not request.session.get('codigo_validado'):
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
     user_id = request.session.get('user_id_reset')
     if not user_id:
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
     if request.method == 'POST':
         password1 = request.POST.get('password1')
@@ -752,7 +889,7 @@ def nueva_password(request):
         request.session.pop('user_id_reset', None)
 
         messages.success(request, "Contraseña actualizada correctamente. Ahora puedes iniciar sesión.")
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
     return render(request, 'usuarios/nueva_password.html')
 
@@ -763,38 +900,51 @@ def nueva_password(request):
 @never_cache
 def solicitar_recuperacion(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        email = (request.POST.get('email') or '').strip()
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return render(request, 'usuarios/recuperar.html', {
-                'error': 'El correo no está registrado'
-            })
-
-        codigo = str(random.randint(100000, 999999))
-
-        perfil = user.perfil
-        perfil.recovery_code = codigo
-        perfil.recovery_code_created = timezone.now()
-        perfil.save()
-
-        html_content = render_to_string('usuarios/correo.html', {
-            'codigo': codigo,
-            'year': timezone.now().year
-        })
-
-        email_msg = EmailMultiAlternatives(
-            subject='✨ Recuperación de contraseña - MONAPP',
-            body='Tu cliente de correo no soporta HTML',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[email],
+        # No revelar si el correo existe o no.
+        messages.success(
+            request,
+            'Si el correo está registrado, recibirás un código de recuperación.'
         )
 
-        email_msg.attach_alternative(html_content, "text/html")
-        email_msg.send()
+        user = User.objects.filter(email__iexact=email, is_active=True).first()
+        if user:
+            codigo = str(random.randint(100000, 999999))
 
-        request.session['recovery_user'] = user.id
+            perfil = user.perfil
+            perfil.recovery_code = codigo
+            perfil.recovery_code_created = timezone.now()
+            perfil.save()
+
+            request.session['recovery_user'] = user.id
+            request.session['codigo_validado'] = False
+            request.session[_recovery_code_attempts_key(request)] = 0
+            request.session.pop(_recovery_code_block_key(request), None)
+
+            html_content = render_to_string('usuarios/correo.html', {
+                'codigo': codigo,
+                'year': timezone.now().year
+            })
+
+            email_msg = EmailMultiAlternatives(
+                subject='✨ Recuperación de contraseña - MONAPP',
+                body='Tu cliente de correo no soporta HTML',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+
+            email_msg.attach_alternative(html_content, "text/html")
+            email_msg.send()
+        else:
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.success(
+                request,
+                'Si el correo está registrado, recibirás un código de recuperación.'
+            )
+            return redirect(reverse('core:index') + '?login=1')
+
         return redirect('usuarios:verificar_codigo')
 
     return render(request, 'usuarios/recuperar.html')
@@ -803,26 +953,55 @@ def solicitar_recuperacion(request):
 @never_cache
 def verificar_codigo(request):
     user_id = request.session.get('recovery_user')
+    user = User.objects.filter(id=user_id).select_related('perfil').first() if user_id else None
+    perfil = getattr(user, 'perfil', None)
+    attempts_key = _recovery_code_attempts_key(request)
+    block_key = _recovery_code_block_key(request)
+    blocked_until = request.session.get(block_key)
+    now = timezone.now()
 
-    if not user_id:
-        return redirect('usuarios:login')
+    if not user or not perfil:
+        return redirect(reverse('core:index') + '?login=1')
 
-    user = User.objects.get(id=user_id)
-    perfil = user.perfil
+    if blocked_until and hasattr(blocked_until, 'tzinfo') and blocked_until > now:
+        restantes = int((blocked_until - now).total_seconds() // 60) or 1
+        return render(request, 'usuarios/verificar_codigo.html', {
+            'error': f'Has superado los intentos permitidos. Espera {restantes} minuto(s) e intenta nuevamente.'
+        })
+    if blocked_until and hasattr(blocked_until, 'tzinfo') and blocked_until <= now:
+        request.session.pop(block_key, None)
+        request.session[attempts_key] = 0
 
     if request.method == 'POST':
         codigo = request.POST.get('codigo')
 
+        if not user or not perfil:
+            return redirect(reverse('core:index') + '?login=1')
+
+        if perfil.recovery_code_created and (now - perfil.recovery_code_created) > timedelta(minutes=5):
+            perfil.recovery_code = None
+            perfil.recovery_code_created = None
+            perfil.save(update_fields=['recovery_code', 'recovery_code_created'])
+            request.session.pop(block_key, None)
+            request.session[attempts_key] = 0
+            return render(request, 'usuarios/verificar_codigo.html', {
+                'error': 'El código ha expirado. Solicita uno nuevo.'
+            })
+
         if perfil.recovery_code != codigo:
+            current_attempts = int(request.session.get(attempts_key, 0)) + 1
+            request.session[attempts_key] = current_attempts
+
+            if current_attempts >= 5 and current_attempts % 5 == 0:
+                wait_minutes = max(1, current_attempts // 5)
+                request.session[block_key] = now + timedelta(minutes=wait_minutes)
+
             return render(request, 'usuarios/verificar_codigo.html', {
                 'error': 'Código incorrecto'
             })
 
-        if timezone.now() - perfil.recovery_code_created > timedelta(minutes=10):
-            return render(request, 'usuarios/verificar_codigo.html', {
-                'error': 'El código ha expirado'
-            })
-
+        request.session.pop(block_key, None)
+        request.session[attempts_key] = 0
         request.session['codigo_validado'] = True
         return redirect('usuarios:nueva_password')
 
@@ -832,9 +1011,12 @@ def verificar_codigo(request):
 @never_cache
 def nueva_password(request):
     if not request.session.get('codigo_validado'):
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
-    user = User.objects.get(id=request.session['recovery_user'])
+    user_id = request.session.get('recovery_user')
+    user = User.objects.filter(id=user_id).select_related('perfil').first() if user_id else None
+    if not user:
+        return redirect(reverse('core:index') + '?login=1')
 
     if request.method == 'POST':
         password1 = request.POST.get('password1')
@@ -873,9 +1055,11 @@ def nueva_password(request):
         perfil.recovery_code_created = None
         perfil.save()
 
+        request.session.pop(_recovery_code_attempts_key(request), None)
+        request.session.pop(_recovery_code_block_key(request), None)
         request.session.flush()
         messages.success(request, 'Tu contraseña ha sido actualizada exitosamente.')
-        return redirect('usuarios:login')
+        return redirect(reverse('core:index') + '?login=1')
 
     return render(request, 'usuarios/nueva_password.html')
 
