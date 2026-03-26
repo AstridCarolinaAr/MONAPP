@@ -22,7 +22,7 @@
 <button type="button"
         class="btn-pill-dark"
         onclick="abrirModalUsuario()">
-    <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+    <i class="fas fa-plus"></i> Nuevo Usuario
 </button>
 {% endif %}
 {% endblock %}
@@ -35,30 +35,29 @@
         <h2 class="mb-0">Gestión de Usuarios</h2>
         {% if puede_modificar %}
         <button type="button"
-                class="btn-pill-dark"
+                class="btn btn-sm btn-pill-dark"
                 onclick="abrirModalUsuario()">
-            <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+            <i class="fas fa-plus me-1"></i> Nuevo Usuario
         </button>
         {% endif %}
     </div>
 
     <!-- ───── FILTROS + BÚSQUEDA (un solo form AJAX) ───── -->
-    <div class="usuarios-search-card">
+    <div class="module-filters-card usuarios-search-card">
         <form method="get"
               class="js-ajax-search-form usuarios-search-form"
               data-ajax-url="{% url 'usuarios:lista_usuarios' %}"
               data-ajax-target="#usuarios-tabla-wrap"
               data-ajax-debounce="300">
 
-            <!-- Filtro desplegable -->
+            <div class="usuarios-search-global-wrap">
+                <label class="usuarios-form-label">Buscar</label>
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar usuario...' search_value=q name='busqueda' modo='inline' %}
+            </div>
+
             <div class="usuarios-form-group mb-0">
                 <label class="usuarios-form-label">Filtrar por</label>
                 {{ form.filtro }}
-            </div>
-
-            <!-- Búsqueda global -->
-            <div class="usuarios-search-global-wrap">
-                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar usuario...' search_value=q name='busqueda' modo='inline' %}
             </div>
 
         </form>
@@ -97,7 +96,7 @@
     <div class="modal-usuario-overlay" onclick="cerrarModalUsuario()"></div>
     <div class="modal-usuario-content">
         <div class="modal-usuario-header">
-            <h3><i class="bi bi-person-plus-fill"></i> Nuevo Usuario</h3>
+            <h3><i class="fas fa-plus"></i> Nuevo Usuario</h3>
             <button type="button" class="modal-usuario-close" onclick="cerrarModalUsuario()">
                 <i class="bi bi-x-lg"></i>
             </button>

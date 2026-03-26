@@ -28,6 +28,14 @@ PATRONES_TEXTO_PELIGROSO = [
 def validar_texto_seguro(valor, nombre_campo):
     valor = (valor or "").strip()
 
+    if not valor:
+        raise forms.ValidationError(f"El campo {nombre_campo} es obligatorio.")
+
+    if any(not (ch.isalnum() or ch.isspace()) for ch in valor):
+        raise forms.ValidationError(
+            f"El campo {nombre_campo} solo puede contener letras, numeros y espacios."
+        )
+
     for patron in PATRONES_TEXTO_PELIGROSO:
         if patron.search(valor):
             raise forms.ValidationError(
@@ -212,16 +220,25 @@ DetalleCompraFormSet = inlineformset_factory(
 
 
 class DevolucionCompraForm(forms.ModelForm):
+    MOTIVO_CHOICES = [
+        ("defecto_fabrica", "Defecto de fábrica"),
+        ("producto_incorrecto", "Producto incorrecto"),
+        ("producto_danado", "Producto dañado"),
+        ("garantia", "Garantía"),
+        ("otro", "Otro"),
+    ]
+
+    motivo = forms.ChoiceField(
+        choices=[("", "Seleccione un motivo")] + MOTIVO_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+
     class Meta:
         model = DevolucionCompra
         fields = ["compra", "motivo", "observacion"]
         widgets = {
             "compra": forms.Select(attrs={"class": "form-select"}),
-            "motivo": forms.TextInput(attrs={
-                "class": "form-control",
-                "maxlength": 150,
-                "autocomplete": "off",
-            }),
             "observacion": forms.Textarea(attrs={
                 "class": "form-control",
                 "rows": 3,
@@ -249,7 +266,16 @@ class DevolucionCompraForm(forms.ModelForm):
         return compra
 
     def clean_motivo(self):
-        return validar_texto_seguro(self.cleaned_data.get("motivo"), "motivo")
+        motivo = (self.cleaned_data.get("motivo") or "").strip()
+
+        validos = {valor for valor, _ in self.MOTIVO_CHOICES}
+        if not motivo:
+            raise forms.ValidationError("Selecciona un motivo.")
+
+        if motivo not in validos:
+            raise forms.ValidationError("Selecciona un motivo válido.")
+
+        return motivo
 
     def clean_observacion(self):
         observacion = validar_texto_seguro(

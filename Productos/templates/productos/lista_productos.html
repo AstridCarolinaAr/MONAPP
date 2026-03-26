@@ -1,4 +1,4 @@
-{% extends "core/panel_admin_base.html" %}
+﻿{% extends "core/panel_admin_base.html" %}
 {% load static %}
 {% load humanize %}
 {% load sort_tags %}
@@ -12,77 +12,106 @@
 {% block page_icon %}<i class="bi bi-box-seam page-icon"></i>{% endblock %}
 {% block page_title %}Productos{% endblock %}
 {% block page_subtitle %}Gestion general de productos{% endblock %}
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Productos</li>
+{% endblock %}
 {% block page_actions %}
-<a href="{% url 'productos:crear_producto' %}"
-   class="btn-pill-dark"
-   data-modal-url="{% url 'productos:crear_producto' %}"
-   data-modal-title="Nuevo producto">
-    <i class="bi bi-plus-circle"></i> Nuevo producto
-</a>
+  <a href="{% url 'productos:crear_producto' %}"
+     class="btn btn-sm btn-pill-dark d-inline-flex align-items-center text-decoration-none"
+     data-modal-url="{% url 'productos:crear_producto' %}"
+     data-modal-title="Nuevo producto">
+      <i class="fas fa-plus me-1"></i>
+      <span>Nuevo producto</span>
+  </a>
 {% endblock %}
 
 {% block content %}
-<div class="module-filters-card">
-  <div class="module-filters-form">
-    <div class="module-filter-field module-filter-field--wide">
-      <label class="module-filter-label">Buscar</label>
-      <form method="get"
-            action="{% url 'productos:lista_productos' %}"
-            class="productos-busqueda-form js-ajax-search-form"
-            data-ajax-url="{% url 'productos:lista_productos' %}"
-            data-ajax-target="#productos-resultados"
-            data-ajax-debounce="250">
-        {% if linea_seleccionada %}
-            <input type="hidden" name="linea" value="{{ linea_seleccionada }}">
-        {% endif %}
+<div class="module-filters-card mb-3">
+  <form method="get"
+        action="{% url 'productos:lista_productos' %}"
+        id="productosFiltrosForm"
+        class="productos-busqueda-form js-ajax-search-form module-filters-form"
+        data-ajax-url="{% url 'productos:lista_productos' %}"
+        data-ajax-target="#productos-resultados"
+        data-ajax-debounce="250">
+
         {% if orden_actual %}
             <input type="hidden" name="orden" value="{{ orden_actual }}">
         {% endif %}
+
         {% if estado_stock %}
             <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
         {% endif %}
+
         {% if current_sort %}
             <input type="hidden" name="sort" value="{{ current_sort }}">
         {% endif %}
+
         {% if current_dir %}
             <input type="hidden" name="dir" value="{{ current_dir }}">
         {% endif %}
 
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-      </form>
-    </div>
+        <input type="hidden" name="linea" id="lineaFiltroProductos" value="{{ linea_seleccionada|default:'' }}">
 
-    <div class="module-filter-field module-filter-field--medium">
-      <label class="module-filter-label">Filtrar</label>
-      <div class="dropdown">
-        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-funnel"></i> Filtrar
-        </button>
+        <div class="module-filter-field module-filter-field--wide">
+            <label class="module-filter-label">Buscar</label>
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+        </div>
 
-        <ul class="dropdown-menu shadow-sm">
-            <li><a class="dropdown-item" href="?orden=codigo">Codigo</a></li>
-            <li><a class="dropdown-item" href="?orden=nombre">Nombre</a></li>
-            <li><a class="dropdown-item" href="?orden=marca">Marca</a></li>
-            <li><a class="dropdown-item" href="?orden=presentacion">Presentacion</a></li>
+        <div class="module-filter-field module-filter-field--small">
+            <label class="module-filter-label">Estado</label>
+            <select name="estado" id="estadoFiltroProductos" class="form-select">
+                <option value="activos" {% if estado_seleccionado == 'activos' %}selected{% endif %}>Activos</option>
+                <option value="todos" {% if estado_seleccionado == 'todos' %}selected{% endif %}>Todos</option>
+                <option value="inactivos" {% if estado_seleccionado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+            </select>
+        </div>
 
-            <li>
-                <button class="dropdown-item" type="button" id="btnFiltroLineas">
-                    Filtrar por linea
+        <div class="module-filter-field module-filter-field--medium">
+            <label class="module-filter-label">Filtrar</label>
+            <div class="dropdown">
+                <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-funnel"></i> Filtrar
                 </button>
-            </li>
 
-            <li><hr class="dropdown-divider"></li>
-
-            <li>
-                <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
-            </li>
-        </ul>
-      </div>
-    </div>
-  </div>
+                <ul class="dropdown-menu shadow-sm">
+                    <li><a class="dropdown-item" href="?orden=codigo&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Código</a></li>
+                    <li><a class="dropdown-item" href="?orden=nombre&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Nombre</a></li>
+                    <li><a class="dropdown-item" href="?orden=marca&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Marca</a></li>
+                    <li><a class="dropdown-item" href="?orden=presentacion&q={{ q|urlencode }}&estado={{ estado_seleccionado|urlencode }}&linea={{ linea_seleccionada|urlencode }}">Presentación</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header px-3">Filtrar por línea</li>
+                    <li>
+                        <button type="submit"
+                                form="productosFiltrosForm"
+                                data-linea=""
+                                class="dropdown-item d-flex justify-content-between align-items-center {% if not linea_seleccionada %}active{% endif %}">
+                            <span>Todas</span>
+                        </button>
+                    </li>
+                    {% for item in productos_por_linea %}
+                    <li>
+                        <button type="submit"
+                                form="productosFiltrosForm"
+                                data-linea="{{ item.linea }}"
+                                class="dropdown-item d-flex justify-content-between align-items-center {% if linea_seleccionada == item.linea %}active{% endif %}">
+                            <span>{{ item.linea }}</span>
+                            <span class="badge rounded-pill bg-secondary ms-2">{{ item.total }}</span>
+                        </button>
+                    </li>
+                    {% endfor %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="?">Quitar filtros</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+  </form>
 </div>
 
-<div id="productos-resultados" class="ajax-results-container">
+ <!-- TABLA -->
+<div id="productos-resultados" class="ajax-results-container anim-from-bottom">
   {% include "productos/lista_productos_global.html" %}
 </div>
 
@@ -217,8 +246,7 @@
 <script src="{% static 'Productos/js/lista_productos.js' %}"></script>
 <script src="{% static 'Productos/js/producto_formulario.js' %}"></script>
 <script src="{% static 'Productos/js/detalle_producto.js' %}"></script>
-
-<script>
-  console.log("lista_productos: extra_js cargado");
-</script>
 {% endblock %}
+
+
+

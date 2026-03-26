@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User, Group
@@ -5,7 +7,19 @@ from core.form_validations import ValidationFormMixin
 from .models import PerfilUsuario
 
 
-class LoginForm(ValidationFormMixin, AuthenticationForm):
+_TEXTO_SEGURO_RE = re.compile(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$')
+_NUMEROS_RE = re.compile(r'^\d+$')
+
+
+def _texto_seguro(valor):
+    return bool(_TEXTO_SEGURO_RE.match((valor or '').strip()))
+
+
+def _solo_numeros(valor):
+    return bool(_NUMEROS_RE.match((valor or '').strip()))
+
+
+class LoginForm(AuthenticationForm):
     username = forms.CharField(
         label='Documento',
         max_length=20,
@@ -34,12 +48,13 @@ class LoginForm(ValidationFormMixin, AuthenticationForm):
     )
 
 
-class RegistroForm(ValidationFormMixin, UserCreationForm):
+class RegistroForm(UserCreationForm):
 
     ROL_CHOICES = [
         ('Administrador', 'Administrador'),
         ('Auxiliar', 'Auxiliar'),
         ('Colaborador', 'Colaborador'),
+        ('Estilista', 'Estilista'),
     ]
 
     rol = forms.ChoiceField(
@@ -68,7 +83,8 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
             'class': 'form-control',
             'placeholder': 'Número de documento',
             'pattern': '[0-9]+',
-            'title': 'Solo se permiten números'
+            'title': 'Solo se permiten números',
+            'inputmode': 'numeric',
         }),
         label='Documento'
     )
@@ -89,7 +105,7 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
             'class': 'form-control',
             'placeholder': 'Nombre',
             'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+',
-            'title': 'Solo se permiten letras y espacios'
+            'title': 'Solo se permiten letras y espacios',
         })
     )
 
@@ -101,7 +117,7 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
             'class': 'form-control',
             'placeholder': 'Apellido',
             'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+',
-            'title': 'Solo se permiten letras y espacios'
+            'title': 'Solo se permiten letras y espacios',
         })
     )
 
@@ -112,7 +128,8 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
             'class': 'form-control',
             'placeholder': 'Teléfono (opcional)',
             'pattern': '[0-9]+',
-            'title': 'Solo se permiten números'
+            'title': 'Solo se permiten números',
+            'inputmode': 'numeric',
         }),
         label='Teléfono'
     )
@@ -132,6 +149,9 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Ej: 1234567 (obtenida de CallMeBot)',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'inputmode': 'numeric',
         }),
         label='CallMeBot API Key',
         help_text='Opcional — para recibir alertas de stock por WhatsApp'
@@ -161,41 +181,47 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
         ])
 
     def clean_documento(self):
-        documento = self.cleaned_data.get('documento')
+        documento = (self.cleaned_data.get('documento') or '').strip()
         if documento:
-            if not documento.isdigit():
+            if not _solo_numeros(documento):
                 raise forms.ValidationError('El documento solo puede contener números.')
-            if PerfilUsuario.objects.filter(documento=documento).exists():
+            if PerfilUsuario.objects.filter(documento__iexact=documento).exists():
                 raise forms.ValidationError('Este documento ya está registrado.')
         return documento
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
+        email = (self.cleaned_data.get('email') or '').strip()
+        if '<' in email or '>' in email:
+            raise forms.ValidationError('Correo electrónico inválido.')
+        if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('Este correo electrónico ya está registrado.')
         return email
 
     def clean_first_name(self):
-        first_name = self.cleaned_data.get('first_name')
+        first_name = (self.cleaned_data.get('first_name') or '').strip()
         if first_name:
-            import re
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', first_name):
+            if not _texto_seguro(first_name):
                 raise forms.ValidationError('El nombre solo puede contener letras y espacios.')
         return first_name
 
     def clean_last_name(self):
-        last_name = self.cleaned_data.get('last_name')
+        last_name = (self.cleaned_data.get('last_name') or '').strip()
         if last_name:
-            import re
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', last_name):
+            if not _texto_seguro(last_name):
                 raise forms.ValidationError('El apellido solo puede contener letras y espacios.')
         return last_name
 
     def clean_telefono(self):
-        telefono = self.cleaned_data.get('telefono')
-        if telefono and not telefono.isdigit():
+        telefono = (self.cleaned_data.get('telefono') or '').strip()
+        if telefono and not _solo_numeros(telefono):
             raise forms.ValidationError('El teléfono solo puede contener números.')
         return telefono
+
+    def clean_whatsapp_key(self):
+        whatsapp_key = (self.cleaned_data.get('whatsapp_key') or '').strip()
+        if whatsapp_key and not _solo_numeros(whatsapp_key):
+            raise forms.ValidationError('La clave de WhatsApp solo puede contener números.')
+        return whatsapp_key
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -235,9 +261,7 @@ class RegistroForm(ValidationFormMixin, UserCreationForm):
 
         return user
 
-
 class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
-
     ROL_CHOICES = [
         ('Administrador', 'Administrador'),
         ('Auxiliar', 'Auxiliar'),
@@ -272,20 +296,21 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['first_name'].required = True
-        self.fields['last_name'].required  = True
-        self.fields['email'].required      = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+
+        self.fields['rol'].choices = [(str(v), str(l)) for v, l in self.ROL_CHOICES]
 
         if self.instance.pk:
-            grupos = self.instance.groups.values_list('name', flat=True)
-            if grupos:
-                self.fields['rol'].initial = grupos[0]
+            grupo = self.instance.groups.first()
+            if grupo:
+                self.fields['rol'].initial = str(grupo.name)
 
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name', '').strip()
         if not first_name:
             raise forms.ValidationError('El nombre es obligatorio.')
-        import re
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', first_name):
+        if not _texto_seguro(first_name):
             raise forms.ValidationError('El nombre solo puede contener letras y espacios.')
         if len(first_name) > 150:
             raise forms.ValidationError('El nombre no puede exceder 150 caracteres.')
@@ -295,8 +320,7 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
         last_name = self.cleaned_data.get('last_name', '').strip()
         if not last_name:
             raise forms.ValidationError('El apellido es obligatorio.')
-        import re
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', last_name):
+        if not _texto_seguro(last_name):
             raise forms.ValidationError('El apellido solo puede contener letras y espacios.')
         if len(last_name) > 150:
             raise forms.ValidationError('El apellido no puede exceder 150 caracteres.')
@@ -306,9 +330,11 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
         email = self.cleaned_data.get('email', '').strip()
         if not email:
             raise forms.ValidationError('El correo electrónico es obligatorio.')
+        if '<' in email or '>' in email:
+            raise forms.ValidationError('Correo electrónico inválido.')
         if '@' not in email or '.' not in email.split('@')[-1]:
             raise forms.ValidationError('Correo electrónico inválido.')
-        qs = User.objects.filter(email=email)
+        qs = User.objects.filter(email__iexact=email)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
@@ -316,7 +342,7 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
         return email
 
 
-class EditarPerfilForm(ValidationFormMixin, forms.ModelForm):
+class EditarPerfilForm(forms.ModelForm):
 
     class Meta:
         model = PerfilUsuario
@@ -359,9 +385,9 @@ class EditarPerfilForm(ValidationFormMixin, forms.ModelForm):
         documento = self.cleaned_data.get('documento', '').strip()
         if not documento:
             raise forms.ValidationError('El número de documento es obligatorio.')
-        if not documento.isdigit():
+        if not _solo_numeros(documento):
             raise forms.ValidationError('El documento solo puede contener números.')
-        qs = PerfilUsuario.objects.filter(documento=documento)
+        qs = PerfilUsuario.objects.filter(documento__iexact=documento)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
@@ -371,14 +397,20 @@ class EditarPerfilForm(ValidationFormMixin, forms.ModelForm):
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono', '').strip()
         if telefono:
-            if not telefono.isdigit():
+            if not _solo_numeros(telefono):
                 raise forms.ValidationError('El teléfono solo puede contener números.')
             if len(telefono) != 10:
                 raise forms.ValidationError('El teléfono debe tener exactamente 10 dígitos.')
         return telefono
 
+    def clean_whatsapp_key(self):
+        whatsapp_key = (self.cleaned_data.get('whatsapp_key') or '').strip()
+        if whatsapp_key and not _solo_numeros(whatsapp_key):
+            raise forms.ValidationError('La clave de WhatsApp solo puede contener números.')
+        return whatsapp_key
 
-class UsuarioBusquedaForm(ValidationFormMixin, forms.Form):
+
+class UsuarioBusquedaForm(forms.Form):
     """Formulario para búsqueda y filtrado de usuarios"""
     busqueda = forms.CharField(
         required=False,
@@ -398,6 +430,7 @@ class UsuarioBusquedaForm(ValidationFormMixin, forms.Form):
             ('rol_Administrador', 'Administrador'),
             ('rol_Auxiliar', 'Auxiliar'),
             ('rol_Colaborador', 'Colaborador'),
+            ('rol_Estilista', 'Estilista'),
         ],
         widget=forms.Select(attrs={
             'class': 'usuarios-form-control',

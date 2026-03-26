@@ -5,9 +5,15 @@
     <table class="styled-table">
         <thead>
             <tr>
-                <th><a href="{% sort_url 'nit' %}">NIT</a></th>
-                <th><a href="{% sort_url 'proveedor' %}">Proveedor</a></th>
-                <th class="text-center"><a href="{% sort_url 'estado' %}">Estado</a></th>
+                <th>
+                    <a href="{% sort_url 'nit' %}">NIT</a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'proveedor' %}">Proveedor</a>
+                </th>
+                <th class="text-center">
+                    <a href="{% sort_url 'estado' %}">Estado</a>
+                </th>
                 <th class="text-center">Acciones</th>
             </tr>
         </thead>
@@ -17,17 +23,21 @@
                 <td>{{ proveedor.nit }}</td>
                 <td>{{ proveedor.nombre_proveedor }}</td>
                 <td class="text-center">
-                    <span
-                        id="estado-proveedor-{{ proveedor.pk }}"
-                        class="estado-switch {% if proveedor.estado == 'activo' %}is-on{% else %}is-off{% endif %}"
-                        aria-label="Estado del proveedor"
-                        title="{% if proveedor.estado == 'activo' %}Activo{% else %}Desactivado{% endif %}">
-                        <span class="switch-thumb"></span>
-                    </span>
+                    <label class="table-switch-wrapper" title="{% if proveedor.estado == 'activo' %}Desactivar{% else %}Activar{% endif %}">
+                        <input type="checkbox"
+                               class="toggle-activo-checkbox js-toggle-proveedor-estado"
+                               data-id="{{ proveedor.pk }}"
+                               data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
+                               data-url-desactivar="{% url 'proveedores:desactivar' proveedor.pk %}"
+                               data-url-reactivar="{% url 'proveedores:reactivar' proveedor.pk %}"
+                               {% if proveedor.estado == 'activo' %}checked{% endif %}>
+                        <span class="table-switch-slider"></span>
+                    </label>
                 </td>
                 <td class="text-center">
-                    <div class="acciones-proveedor table-action-group">
-                        <button class="table-action-btn"
+                    <div class="acciones-proveedor table-action-group justify-content-center">
+
+                        <button class="btn btn-link"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalDetalleProveedor"
                                 data-nombre="{{ proveedor.nombre_proveedor }}"
@@ -41,7 +51,7 @@
                             <i class="bi bi-eye"></i>
                         </button>
 
-                        <button class="table-action-btn"
+                        <button class="btn btn-link"
                                 data-modal-url="{% url 'proveedores:editar_proveedor' proveedor.id %}"
                                 data-modal-title="Editar proveedor"
                                 title="Editar"
@@ -51,7 +61,7 @@
 
                         {% if proveedor.estado == 'activo' %}
                             <button type="button"
-                                    class="table-action-btn table-action-btn--danger js-eliminar-proveedor"
+                                    class="btn btn-link btn-action-round js-eliminar-proveedor"
                                     data-id="{{ proveedor.pk }}"
                                     data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
                                     data-url-eliminar="{% url 'proveedores:eliminar_proveedor' proveedor.pk %}"
@@ -61,7 +71,7 @@
                             </button>
                         {% else %}
                             <button type="button"
-                                    class="table-action-btn js-reactivar-proveedor"
+                                    class="btn-reactivar-proveedor js-reactivar-proveedor"
                                     data-id="{{ proveedor.id }}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
@@ -70,6 +80,7 @@
                                 <i class="bi bi-arrow-clockwise"></i>
                             </button>
                         {% endif %}
+
                     </div>
                 </td>
             </tr>
@@ -78,7 +89,7 @@
     </table>
 </div>
 {% else %}
-<div class="text-center py-5">
-    <p class="text-muted">No hay proveedores registrados.</p>
-</div>
+    <div class="text-center py-5">
+        <p class="text-muted mb-0">No hay proveedores registrados.</p>
+    </div>
 {% endif %}

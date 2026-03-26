@@ -7,6 +7,70 @@ function inicializarValidacionesPersonal() {
     if (!form || !btnGuardar) return;
 
     const esEdicion = form.id === 'form-editar-personal';
+    const RULES = {
+        numeric: {
+            pattern: /[^\d]/g,
+            allow: (text) => /^\d*$/.test(text),
+        },
+        alpha: {
+            pattern: /[^\p{L}\s]/gu,
+            allow: (text) => /^[\p{L}\s]*$/u.test(text),
+        },
+        alnum: {
+            pattern: /[^\p{L}\p{N}\s]/gu,
+            allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+        },
+        text: {
+            pattern: /[<>]/g,
+            allow: (text) => !/[<>]/.test(text),
+        },
+    };
+
+    function getRule(input) {
+        if (!input) return null;
+        const rule = (input.dataset.validate || '').trim();
+        return RULES[rule] ? rule : null;
+    }
+
+    function sanitizeInput(input) {
+        if (!input || input.type === 'file') return;
+        const rule = getRule(input);
+        if (!rule) return;
+        const cleaned = String(input.value || '').replace(RULES[rule].pattern, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
+    }
+
+    function bindInputGuards(rootForm) {
+        const inputs = rootForm.querySelectorAll('[data-validate]');
+        inputs.forEach((input) => {
+            if (input.dataset.guardWired === '1') return;
+            input.dataset.guardWired = '1';
+
+            input.addEventListener('beforeinput', (e) => {
+                if (!e.inputType || !e.inputType.startsWith('insert')) return;
+                const rule = getRule(input);
+                if (!rule) return;
+                const data = e.data || '';
+                if (!RULES[rule].allow(data)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                const rule = getRule(input);
+                if (!rule) return;
+                const pasted = e.clipboardData?.getData('text') || '';
+                if (!RULES[rule].allow(pasted)) {
+                    e.preventDefault();
+                    sanitizeInput(input);
+                }
+            });
+
+            input.addEventListener('input', () => sanitizeInput(input));
+        });
+    }
 
     /* ===============================
        INICIO: ESTADO DEL BOTÓN
@@ -26,41 +90,72 @@ function inicializarValidacionesPersonal() {
     /* ===============================
        FUNCIONES VISUALES
     =============================== */
+    function getWrap(input) {
+        return input?.closest('.personal-input-wrap') || null;
+    }
+
+    function getFeedback(input) {
+        const group = input.closest('.personal-form-group');
+        if (!group) return null;
+
+        let feedback = group.querySelector('.personal-field-error');
+        if (!feedback) {
+            feedback = document.createElement('div');
+            feedback.className = 'personal-field-error';
+            group.appendChild(feedback);
+        }
+        return feedback;
+    }
+
     function invalido(input, mensaje) {
         input.classList.add('is-invalid');
         input.classList.remove('is-valid');
-        let feedback = input.parentElement.querySelector('.invalid-feedback');
-        if (!feedback) {
-            feedback = document.createElement('div');
-            feedback.className = 'invalid-feedback';
-            feedback.style.cssText = 'color: #c7412b; font-size: 0.85rem; margin-top: 6px; display: block;';
-            const small = input.parentElement.querySelector('small');
-            if (small) {
-                small.parentNode.insertBefore(feedback, small.nextSibling);
-            } else {
-                input.parentElement.appendChild(feedback);
-            }
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-ok');
+            wrap.classList.add('is-error');
         }
-        feedback.textContent = mensaje;
-        feedback.style.display = 'block';
+
+        const feedback = getFeedback(input);
+        if (feedback) {
+            feedback.textContent = mensaje;
+            feedback.classList.add('is-visible');
+        }
     }
 
     function valido(input) {
         input.classList.remove('is-invalid');
         input.classList.add('is-valid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-error');
+            wrap.classList.add('is-ok');
+        }
+
+        const feedback = getFeedback(input);
         if (feedback) {
             feedback.textContent = '';
-            feedback.style.display = 'none';
+            feedback.classList.remove('is-visible');
         }
     }
 
     function limpiar(input) {
         input.classList.remove('is-invalid', 'is-valid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-ok', 'is-error');
+        }
+
+        const feedback = getFeedback(input);
         if (feedback) {
             feedback.textContent = '';
-            feedback.style.display = 'none';
+            feedback.classList.remove('is-visible');
         }
     }
 
@@ -188,8 +283,11 @@ function inicializarValidacionesPersonal() {
     /* ===============================
        EVENTOS INPUT
     =============================== */
+    bindInputGuards(form);
+
     form.addEventListener('input', function (e) {
         const input = e.target;
+        sanitizeInput(input);
         const valor = (input.value || '').trim();
 
         /* DOCUMENTO */

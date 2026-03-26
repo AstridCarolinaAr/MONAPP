@@ -48,6 +48,33 @@ def lista_promociones(request):
         'orden':         orden,
     })
 
+
+@login_required
+def validar_nombre_promocion(request):
+    nombre = (request.GET.get('nombre') or '').strip()
+    promocion_id = (request.GET.get('promocion_id') or '').strip()
+
+    if not nombre:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El nombre de la promocion es obligatorio.',
+        })
+
+    qs = Promocion.objects.filter(nombre__iexact=nombre)
+    if promocion_id:
+        qs = qs.exclude(pk=promocion_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Ya existe una promocion con este nombre.',
+        })
+
+    return JsonResponse({
+        'valid': True,
+        'message': '',
+    })
+
 # ─────────────────────── CREAR ───────────────────────
 @login_required
 def crear_promocion(request):

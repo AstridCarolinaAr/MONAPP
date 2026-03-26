@@ -23,12 +23,14 @@
             <h3 class="mb-0 fw-semibold">Inventario de Productos</h3>
             <small class="text-muted">Stock actual y estados de almacén</small>
         </div>
+        <a class="btn btn-sm btn-pill-dark"
+           href="{% url 'inventario:reporte_stock_csv' %}?q={{ q|urlencode }}&estado_stock={{ estado_stock|urlencode }}"
+           aria-label="Descargar reporte de stock en CSV">
+            <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i> Reporte stock
+        </a>
     </div>
         <div class="module-filters-card">
-            <div class="module-filters-form">
-                <div class="module-filter-field module-filter-field--wide">
-                    <label class="module-filter-label">Buscar</label>
-                    <form method="get" style="width: 100%;">
+            <form method="get" class="module-filters-form js-instant-filter-form" style="width: 100%;" data-instant-filter-debounce="300">
                         {% if estado_stock %}
                             <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
                         {% endif %}
@@ -39,54 +41,26 @@
                             <input type="hidden" name="dir" value="{{ current_dir }}">
                         {% endif %}
 
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Buscar</label>
                         {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-                    </form>
                 </div>
                 <div class="module-filter-field module-filter-field--medium">
-                    <label class="module-filter-label">Filtrar</label>
-                    <div class="dropdown mb-0">
-                <button class="btn btn-filter dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-funnel"></i>
-                    {% if estado_stock == 'bajo' %}
-                        Solo stock bajo
-                    {% elif estado_stock == 'normal' %}
-                        Stock normal
-                    {% elif estado_stock == 'alto' %}
-                        Solo stock alto
-                    {% else %}
-                        Filtrar por estado
-                    {% endif %}
-                </button>
-
-                <ul class="dropdown-menu shadow-sm">
-                    <li>
-                        <a class="dropdown-item text-danger"
-                        href="?estado_stock=bajo{% if q %}&q={{ q }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
-                            Solo stock bajo
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-success"
-                        href="?estado_stock=normal{% if q %}&q={{ q }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
-                            Stock normal
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-primary"
-                        href="?estado_stock=alto{% if q %}&q={{ q }}{% endif %}">
-                            Solo stock alto
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="?{% if q %}q={{ q }}{% endif %}">
-                            Quitar filtros
-                        </a>
-                    </li>
-                </ul>
-                    </div>
+                    <label class="module-filter-label">Estado</label>
+                    <select name="estado_stock" class="form-select">
+                        <option value="" {% if not estado_stock %}selected{% endif %}>Filtrar por estado</option>
+                        <option value="bajo" {% if estado_stock == 'bajo' %}selected{% endif %}>Solo stock bajo</option>
+                        <option value="normal" {% if estado_stock == 'normal' %}selected{% endif %}>Stock normal</option>
+                        <option value="alto" {% if estado_stock == 'alto' %}selected{% endif %}>Solo stock alto</option>
+                    </select>
                 </div>
-            </div>
+                <div class="module-filter-field module-filter-field--small">
+                    <label class="module-filter-label">&nbsp;</label>
+                    <a class="module-filter-btn module-filter-btn--secondary" href="{% url 'inventario:inventario_lista' %}">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </form>
         </div>
     <!-- Card Principal -->
     <div class="card border-0 shadow-sm">
@@ -95,7 +69,7 @@
                 <table class="styled-table">
                     <thead>
                         <tr>
-                            <th>Vista Previa</th>
+                            <th>Imagen</th>
                             <th><a href="{% sort_url 'producto' %}">Producto</a></th>
                             <th><a href="{% sort_url 'unidad' %}">Unidad de medida</a></th>
                             <th><a href="{% sort_url 'stock' %}">Stock total actual</a></th>

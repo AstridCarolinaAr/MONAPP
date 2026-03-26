@@ -17,11 +17,11 @@
 
 /* Botones */
 .btn {
-    border-radius: 11px !important;
+    border-radius: 16px !important;
 }
 
 .btn-sm {
-    border-radius: 5px !important;
+    border-radius: 12px !important;
 }
 
 .btn-close {
@@ -31,11 +31,11 @@
 /* Inputs y formularios */
 .form-control,
 .form-select {
-    border-radius: 5px !important;
+    border-radius: 16px !important;
 }
 
 textarea.form-control {
-    border-radius: 11px !important;
+    border-radius: 16px !important;
 }
 
 /* Badges */
@@ -113,17 +113,17 @@ textarea.form-control {
 
 /* Input groups */
 .input-group {
-    border-radius: 5px !important;
+    border-radius: 16px !important;
 }
 
 .input-group .form-control:first-child,
 .input-group .input-group-text:first-child {
-    border-radius: 5px 0 0 5px !important;
+    border-radius: 16px 0 0 16px !important;
 }
 
 .input-group .form-control:last-child,
 .input-group .input-group-text:last-child {
-    border-radius: 0 5px 5px 0 !important;
+    border-radius: 0 16px 16px 0 !important;
 }
 
 /* Pagination */
@@ -183,7 +183,6 @@ textarea.form-control {
         border-radius: 6px;
         padding: 3px;
         gap: 2px;
-        overflow: visible;
     }
     .view-btn {
         width: 34px;
@@ -198,12 +197,6 @@ textarea.form-control {
         justify-content: center;
         font-size: 1rem;
         transition: all 0.15s ease;
-        overflow: hidden;
-        position: relative;
-        flex-shrink: 0;
-    }
-    .view-btn.icon-text-hover-btn {
-        min-width: 34px !important;
     }
     .view-btn.active {
         background: white;
@@ -338,8 +331,6 @@ textarea.form-control {
         gap: 4px;
         opacity: 0;
         transition: opacity 0.2s;
-        overflow: visible;
-        z-index: 12;
     }
     .lib-card:hover .lib-card__actions {
         opacity: 1;
@@ -356,14 +347,19 @@ textarea.form-control {
         cursor: pointer;
         transition: all 0.15s;
     }
-    .lib-card__action-btn.table-action-btn {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-        border-radius: 10px !important;
+    .lib-card__action-btn--edit {
+        background: var(--brown-mid);
+        color: white;
     }
-    .lib-card__action-btn.icon-text-hover-btn {
-        transform-origin: left center;
+    .lib-card__action-btn--edit:hover {
+        background: var(--brown-dark);
+    }
+    .lib-card__action-btn--del {
+        background: #dc3545;
+        color: white;
+    }
+    .lib-card__action-btn--del:hover {
+        background: #b02a37;
     }
     .lib-card__body {
         padding: 10px 12px 12px;
@@ -578,3 +574,88 @@ textarea.form-control {
         background-color: rgba(99, 76, 64, 0.1);
         color: #634c40 !important;
     }
+/* =========================================
+   VALIDACION EN TIEMPO REAL - SERVICIOS
+========================================= */
+
+.servicio-input-wrap {
+    position: relative;
+}
+
+.servicio-input-wrap .form-control,
+.servicio-input-wrap .form-select {
+    padding-right: 2.6rem;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+.servicio-field-icon {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.servicio-input-wrap textarea.form-control + .servicio-field-icon {
+    top: 1rem;
+    transform: none;
+}
+
+.servicio-input-wrap.is-valid .servicio-field-icon,
+.servicio-input-wrap.is-invalid .servicio-field-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.servicio-input-wrap.is-valid .servicio-field-icon {
+    color: #198754;
+}
+
+.servicio-input-wrap.is-invalid .servicio-field-icon {
+    color: #dc3545;
+}
+
+.servicio-valid-control {
+    border: 2px solid #198754 !important;
+}
+
+.servicio-valid-control:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+.servicio-invalid-control {
+    border: 2px solid #dc3545 !important;
+}
+
+.servicio-invalid-control:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.servicio-field-error {
+    display: none;
+    margin-top: 0.4rem;
+    color: #dc3545;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.servicio-field-error.is-visible {
+    display: block;
+}
+
+.servicio-field-error ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.servicio-field-error li {
+    margin: 0;
+}

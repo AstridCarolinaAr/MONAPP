@@ -2,15 +2,16 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.db.models import Sum
+from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 from datetime import datetime, date
+from django.db.models import Sum
 
 from usuarios.forms import LoginForm
 from django.contrib.auth import login
 
 from clientes.models import Cliente
-from servicios_web.models import ServicioWeb
+from servicios.models import Servicio
 from promociones.models import Promocion
 from productos_web.models import ProductoWeb
 
@@ -29,26 +30,28 @@ def index(request):
         messages.error(request, 'Usuario o contraseña incorrectos.')
         show_login_modal = True
 
-    servicios = ServicioWeb.objects.filter(activo=True)
-    promociones = Promocion.objects.filter(activa=True)
+    servicios     = Servicio.objects.filter(activo=True)
+    promociones   = Promocion.objects.filter(activa=True)
     productos_web = ProductoWeb.objects.filter(visible=True)
 
     return render(request, 'core/index.html', {
         'show_login_modal': show_login_modal,
-        'servicios': servicios,
-        'promociones': promociones,
-        'productos_web': productos_web,
+        'servicios':        servicios,
+        'promociones':      promociones,
+        'productos_web':    productos_web,
     })
 
 
 @login_required
 def dashboard_view(request):
-    hoy = date.today()
-    mes_actual = hoy.month
+
+    hoy         = date.today()
+    mes_actual  = hoy.month
     anio_actual = hoy.year
 
-    total_usuarios = User.objects.count()
-    usuarios_activos = User.objects.filter(is_active=True).count()
+    # ── KPIs ────────────────────────────────────────────────────────────────
+    total_usuarios      = User.objects.count()
+    usuarios_activos    = User.objects.filter(is_active=True).count()
     nuevos_usuarios_mes = User.objects.filter(
         date_joined__month=mes_actual,
         date_joined__year=anio_actual
@@ -77,9 +80,10 @@ def dashboard_view(request):
     except Exception:
         productos_sin_stock = 0
 
+    # ── Total montos ventas y compras (para la gráfica) ──────────────────────
     total_monto_ventas = 0
     try:
-        from ventas.models import DetalleVenta
+        from ventas.models import Venta, DetalleVenta
         total_monto_ventas = DetalleVenta.objects.filter(
             venta__estado='activa'
         ).aggregate(t=Sum('subtotal'))['t'] or 0
@@ -95,11 +99,12 @@ def dashboard_view(request):
     except Exception:
         pass
 
+    # ── Cumpleaños hoy (clientes) ────────────────────────────────────────────
     cumpleanios_hoy = []
     try:
         clientes_bday = Cliente.objects.filter(
             fecha_nacimiento__day=hoy.day,
-            fecha_nacimiento__month=hoy.month
+            fecha_nacimiento__month=hoy.month,
         )
         for c in clientes_bday:
             edad = hoy.year - c.fecha_nacimiento.year
@@ -110,12 +115,13 @@ def dashboard_view(request):
             )
             cumpleanios_hoy.append({
                 'nombre': nombre,
-                'cargo': 'Cliente',
-                'edad': edad
+                'cargo':  'Cliente',
+                'edad':   edad,
             })
     except Exception:
         pass
 
+    # ── Productos críticos (stock ≤ 5) ───────────────────────────────────────
     productos_criticos = []
     try:
         from inventario.models import Stock
@@ -126,15 +132,19 @@ def dashboard_view(request):
         for s in stocks_criticos:
             porcentaje = min(int((s.cantidad_actual / 5) * 100), 100) if s.cantidad_actual > 0 else 0
             productos_criticos.append({
-                'nombre': s.producto.nombre,
-                'cantidad': s.cantidad_actual,
-                'porcentaje': porcentaje
+                'nombre':     s.producto.nombre,
+                'cantidad':   s.cantidad_actual,
+                'porcentaje': porcentaje,
             })
     except Exception:
         pass
 
-    ultimos_usuarios = User.objects.prefetch_related('groups').order_by('-date_joined')[:5]
+    # ── Últimos usuarios ─────────────────────────────────────────────────────
+    ultimos_usuarios = User.objects.prefetch_related(
+        'groups'
+    ).order_by('-date_joined')[:5]
 
+    # ── Últimas ventas ───────────────────────────────────────────────────────
     ultimas_ventas = []
     try:
         from ventas.models import Venta
@@ -142,6 +152,7 @@ def dashboard_view(request):
     except Exception:
         pass
 
+    # ── Últimas compras ──────────────────────────────────────────────────────
     ultimas_compras = []
     try:
         from compras.models import Compra
@@ -149,59 +160,122 @@ def dashboard_view(request):
     except Exception:
         pass
 
-    context = {
-        'total_productos': total_productos,
-        'total_clientes': total_clientes,
-        'total_ventas': total_ventas,
-        'productos_sin_stock': productos_sin_stock,
-        'total_usuarios': total_usuarios,
-        'usuarios_activos': usuarios_activos,
-        'nuevos_usuarios_mes': nuevos_usuarios_mes,
-        'total_monto_ventas': total_monto_ventas,
-        'total_monto_compras': total_monto_compras,
-        'cumpleanios_hoy': cumpleanios_hoy,
-        'productos_criticos': productos_criticos,
-        'ultimos_usuarios': ultimos_usuarios,
-        'ultimas_ventas': ultimas_ventas,
-        'ultimas_compras': ultimas_compras,
-    }
-
-    return render(request, 'core/dashboard.html', context)
+    return render(request, 'core/dashboard.html', {
+        # KPIs
+        'total_productos':      total_productos,
+        'total_clientes':       total_clientes,
+        'total_ventas':         total_ventas,
+        'productos_sin_stock':  productos_sin_stock,
+        'total_usuarios':       total_usuarios,
+        'usuarios_activos':     usuarios_activos,
+        'nuevos_usuarios_mes':  nuevos_usuarios_mes,
+        # Gráfica ventas vs compras
+        'total_monto_ventas':   total_monto_ventas,
+        'total_monto_compras':  total_monto_compras,
+        # Cards
+        'cumpleanios_hoy':      cumpleanios_hoy,
+        'productos_criticos':   productos_criticos,
+        'ultimos_usuarios':     ultimos_usuarios,
+        'ultimas_ventas':       ultimas_ventas,
+        'ultimas_compras':      ultimas_compras,
+    })
 
 
 @login_required
 def gestion_datos_view(request):
     if request.method == 'POST':
         try:
-            nombre = request.POST.get('nombre')
-            categoria = request.POST.get('categoria')
+            nombre      = request.POST.get('nombre')
+            categoria   = request.POST.get('categoria')
             descripcion = request.POST.get('descripcion')
-            fecha = request.POST.get('fecha')
-            estado = request.POST.get('estado')
+            fecha       = request.POST.get('fecha')
+            estado      = request.POST.get('estado')
 
-            return JsonResponse({
-                'success': True,
-                'message': 'Datos guardados correctamente'
-            })
+            return JsonResponse({'success': True, 'message': 'Datos guardados correctamente'})
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=400)
+            return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
-    context = {
-        'titulo': 'Gestión de Datos',
-    }
-    return render(request, 'core/gestion_datos.html', context)
+    return render(request, 'core/gestion_datos.html', {'titulo': 'Gestión de Datos'})
+
+
+def ayuda_view(request):
+    return render(request, 'core/ayuda.html')
+
+
+@login_required
+def ayuda_pdf_view(request):
+    lineas = [
+        "Manual de Usuario MONAPP",
+        "",
+        "1) Como iniciar sesion",
+        "- En la pagina principal, haz clic en Iniciar sesion.",
+        "- Escribe tu usuario y contrasena.",
+        "- Pulsa Entrar para acceder al panel.",
+        "",
+        "2) Como registrar un usuario",
+        "- Ingresa al modulo Usuarios.",
+        "- Haz clic en Nuevo usuario.",
+        "- Completa los campos obligatorios y guarda.",
+        "- Asigna el rol correspondiente.",
+        "",
+        "3) Como usar productos",
+        "- Abre el modulo Productos desde el menu lateral.",
+        "- Usa el buscador para encontrar productos existentes.",
+        "- Crea, edita o activa/inactiva productos segun necesidad.",
+        "- Verifica los mensajes de confirmacion al guardar cambios.",
+    ]
+
+    # PDF minimo generado sin dependencias externas.
+    pdf_lines = []
+    for linea in lineas:
+        safe = linea.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+        pdf_lines.append(f"({safe}) Tj")
+
+    content_stream = "BT /F1 11 Tf 40 790 Td 0 -16 Td " + " T* ".join(pdf_lines) + " ET"
+    content_bytes = content_stream.encode("latin-1", errors="replace")
+
+    objetos = []
+    objetos.append(b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
+    objetos.append(b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n")
+    objetos.append(
+        b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+        b"/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n"
+    )
+    objetos.append(b"4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n")
+    objetos.append(
+        f"5 0 obj << /Length {len(content_bytes)} >> stream\n".encode("ascii")
+        + content_bytes
+        + b"\nendstream endobj\n"
+    )
+
+    pdf = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+    for obj in objetos:
+        offsets.append(len(pdf))
+        pdf.extend(obj)
+
+    xref_start = len(pdf)
+    pdf.extend(f"xref\n0 {len(offsets)}\n".encode("ascii"))
+    pdf.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        pdf.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+
+    pdf.extend(
+        (
+            f"trailer << /Size {len(offsets)} /Root 1 0 R >>\n"
+            f"startxref\n{xref_start}\n%%EOF"
+        ).encode("ascii")
+    )
+
+    response = HttpResponse(bytes(pdf), content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="manual_usuario_monapp.pdf"'
+    return response
 
 
 def solo_admin(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_staff:
-            messages.error(
-                request,
-                "No tienes permisos para realizar esta acción."
-            )
+            messages.error(request, "No tienes permisos para realizar esta acción.")
             return redirect("core:dashboard")
         return view_func(request, *args, **kwargs)
     return wrapper

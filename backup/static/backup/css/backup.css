@@ -301,6 +301,65 @@
     font-size: .82rem;
 }
 
+.bk-actions .bk-btn.icon-only[title] {
+    position: relative;
+    overflow: hidden;
+    width: 38px;
+    min-width: 38px;
+    padding: 0 !important;
+    justify-content: center;
+}
+
+.bk-actions .bk-btn.icon-only[title]::after {
+    content: attr(title);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(2px) scale(0.96);
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+}
+
+.bk-actions .bk-btn.icon-only[title] > i {
+    transition: opacity .18s ease, transform .18s ease;
+}
+
+.bk-actions .bk-btn.icon-only[title]:hover,
+.bk-actions .bk-btn.icon-only[title]:focus-visible {
+    width: max-content;
+    min-width: 112px;
+    padding: 0 12px !important;
+    justify-content: flex-start;
+}
+
+.bk-actions .bk-btn.icon-only[title]:hover::after,
+.bk-actions .bk-btn.icon-only[title]:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.bk-actions .bk-btn.icon-only[title]:hover > i,
+.bk-actions .bk-btn.icon-only[title]:focus-visible > i {
+    opacity: 0;
+    transform: scale(0.35);
+}
+
+.bk-actions .bk-btn.icon-only[title].btn-restaurar:hover,
+.bk-actions .bk-btn.icon-only[title].btn-restaurar:focus-visible {
+    min-width: 152px;
+}
+
+.bk-actions .bk-btn.icon-only[title].btn-eliminar:hover,
+.bk-actions .bk-btn.icon-only[title].btn-eliminar:focus-visible {
+    min-width: 112px;
+}
+
 /* ---- Info BD (Grid de tablas) ---- */
 .bk-db-grid {
     display: grid;
@@ -719,5 +778,26 @@
     .bk-btn { font-size: .8rem; padding: 8px 14px; gap: 6px; }
     .bk-btn.sm { padding: 5px 10px; font-size: .74rem; }
     .bk-btn.icon-only { padding: 7px 8px; }
+}
+
+@media (max-width: 360px) {
+    .bk-stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .bk-header-actions .bk-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .bk-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .bk-actions .bk-btn.icon-only[title]:hover,
+    .bk-actions .bk-btn.icon-only[title]:focus-visible {
+        min-width: 100px;
+    }
 }
 

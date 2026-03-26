@@ -22,7 +22,7 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-
+import traceback
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -305,7 +305,7 @@ def lista_usuarios_view(request):
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'usuarios/_lista_partial.html', context)
+        return render(request, 'usuarios/lista_usuarios_global.html', context)
 
     return render(request, 'usuarios/lista_usuarios.html', context)
 
@@ -366,91 +366,102 @@ def crear_usuario_view(request):
 
 
 @login_required
-# @no_colaborador_required()
 def editar_usuario_view(request, user_id):
-    grupos = list(request.user.groups.values_list('name', flat=True))
-
     usuario = get_object_or_404(User, id=user_id)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-    if request.method == 'POST':
-        form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
-        form_perfil = EditarPerfilForm(
-            request.POST,
-            request.FILES,
-            instance=usuario.perfil
-        )
+    try:
+        perfil, _ = PerfilUsuario.objects.get_or_create(user=usuario)
 
-        if form_usuario.is_valid() and form_perfil.is_valid():
-            user_updated = form_usuario.save(commit=False)
-            
-            # Actualizar grupos según el rol
-            rol = form_usuario.cleaned_data.get('rol')
+        if request.method == 'POST':
+            form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
+            form_perfil = EditarPerfilForm(
+                request.POST,
+                request.FILES,
+                instance=perfil
+            )
+
+            if form_usuario.is_valid() and form_perfil.is_valid():
+                user_updated = form_usuario.save(commit=False)
+
+            rol = str(form_usuario.cleaned_data.get('rol', '')).strip()
             if rol:
                 user_updated.groups.clear()
-                grupo, created = Group.objects.get_or_create(name=rol)
+                grupo, _ = Group.objects.get_or_create(name=rol)
                 user_updated.groups.add(grupo)
-                
-                # Configurar is_staff según rol
-                if rol in ['Administrador', 'Auxiliar']:
-                    user_updated.is_staff = True
-                else:
-                    user_updated.is_staff = False
-            
-            user_updated.save()
-            form_perfil.save()
-            
-            if is_ajax:
-                return JsonResponse({
-                    'success': True,
-                    'message': f'Usuario {usuario.get_full_name()} actualizado exitosamente.'
-                })
-            else:
+                user_updated.is_staff = rol in ['Administrador', 'Auxiliar']
+
+                user_updated.save()
+                form_perfil.save()
+
+                if is_ajax:
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Usuario {usuario.get_full_name() or usuario.username} actualizado exitosamente.'
+                    })
+
                 messages.success(
                     request,
-                    f'Usuario {usuario.get_full_name()} actualizado.'
+                    f'Usuario {usuario.get_full_name() or usuario.username} actualizado.'
                 )
                 return redirect('usuarios:lista_usuarios')
-        else:
+
             if is_ajax:
-                html_form = render_to_string('usuarios/_formulario_editar_usuario_modal.html', 
-                                            {
-                                                'form_usuario': form_usuario,
-                                                'form_perfil': form_perfil,
-                                                'usuario': usuario
-                                            }, 
-                                            request=request)
+                html_form = render_to_string(
+                    'usuarios/_formulario_editar_usuario_modal.html',
+                    {
+                        'form_usuario': form_usuario,
+                        'form_perfil': form_perfil,
+                        'usuario': usuario,
+                    },
+                    request=request
+                )
                 return JsonResponse({
                     'success': False,
                     'html_form': html_form
-                })
+                }, status=400)
 
-    else:
-        form_usuario = EditarUsuarioForm(instance=usuario)
-        form_perfil = EditarPerfilForm(instance=usuario.perfil)
-    
-    # Si es AJAX y es GET, retornar el HTML del formulario para el modal
-    if is_ajax:
-        html_form = render_to_string('usuarios/_formulario_editar_usuario_modal.html', 
-                                     {
-                                         'form_usuario': form_usuario,
-                                         'form_perfil': form_perfil,
-                                         'usuario': usuario
-                                     }, 
-                                     request=request)
-        return JsonResponse({'html_form': html_form})
+        else:
+            form_usuario = EditarUsuarioForm(instance=usuario)
+            form_perfil = EditarPerfilForm(instance=perfil)
 
-    return render(
-        request,
-        'usuarios/editar_usuario.html',
-        {
-            'titulo': f'Editar Usuario: {usuario.get_full_name()}',
-            'form_usuario': form_usuario,
-            'form_perfil': form_perfil,
-            'usuario': usuario,
-        }
-    )
+        if is_ajax:
+            html_form = render_to_string(
+                'usuarios/_formulario_editar_usuario_modal.html',
+                {
+                    'form_usuario': form_usuario,
+                    'form_perfil': form_perfil,
+                    'usuario': usuario,
+                },
+                request=request
+            )
+            return JsonResponse({
+                'success': True,
+                'html_form': html_form
+            })
 
+        return render(
+            request,
+            'usuarios/editar_usuario.html',
+            {
+                'titulo': f'Editar Usuario: {usuario.get_full_name() or usuario.username}',
+                'form_usuario': form_usuario,
+                'form_perfil': form_perfil,
+                'usuario': usuario,
+            }
+        )
+
+    except Exception as e:
+        print("ERROR EDITAR USUARIO:")
+        print(traceback.format_exc())
+
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': str(e),
+                'trace': traceback.format_exc()
+            }, status=500)
+        raise
 
 @login_required
 # @solo_admin_required()

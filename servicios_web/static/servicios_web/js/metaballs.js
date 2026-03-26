@@ -56,6 +56,8 @@
     el.appendChild(paintCanvas);
 
     let w = 1, h = 1;
+    let initialized = false;
+    let resizeObserver = null;
 
     // Theme
     let theme = 0;
@@ -82,6 +84,27 @@
       mouse.tx = mouse.x; mouse.ty = mouse.y;
     }
     window.addEventListener("resize", resize);
+    el.__metaballsResize = () => {
+      if (el.clientWidth <= 0 || el.clientHeight <= 0) return;
+      resize();
+      if (!initialized) {
+        seedInitial();
+        lastSpawn = performance.now();
+        initialized = true;
+      }
+    };
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        if (el.clientWidth <= 0 || el.clientHeight <= 0) return;
+        resize();
+        if (!initialized) {
+          seedInitial();
+          lastSpawn = performance.now();
+          initialized = true;
+        }
+      });
+      resizeObserver.observe(el);
+    }
 
     const BALL_ALPHA   = 0.92;
     const BALL_STROKE  = 0.18;
@@ -339,9 +362,12 @@
       }
     }
 
-    resize();
-    seedInitial();
-    lastSpawn = performance.now();
+    if (el.clientWidth > 0 && el.clientHeight > 0) {
+      resize();
+      seedInitial();
+      lastSpawn = performance.now();
+      initialized = true;
+    }
 
     function loop(now) {
       step(now);
@@ -353,8 +379,13 @@
 
   function boot() {
     const slots = document.querySelectorAll('.metaballs-slot[data-metaballs="1"]');
-    console.log("Metaballs2D slots:", slots.length);
-    slots.forEach(mount);
+    slots.forEach((slot) => {
+      if (slot.dataset.metaballsMounted === "1" && typeof slot.__metaballsResize === "function") {
+        slot.__metaballsResize();
+        return;
+      }
+      mount(slot);
+    });
   }
 
   window.initMetaballs = boot;
@@ -364,4 +395,6 @@
   } else {
     boot();
   }
-})(); 
+
+  window.initMetaballs = boot;
+})();

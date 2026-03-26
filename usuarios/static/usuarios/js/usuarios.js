@@ -5,6 +5,7 @@ function inicializarValidacionesUsuario() {
     const btnGuardar = document.getElementById('btnGuardarUsuario');
 
     if (!form || !btnGuardar) return;
+    wireUsuarioInputGuards(form);
 
     /* ===============================
        INICIO: BOTÓN DESHABILITADO
@@ -382,6 +383,7 @@ function inicializarValidacionesEditarUsuario() {
     if (!form || !btnGuardar) {
         return;
     }
+    wireUsuarioInputGuards(form);
 
     /* ===============================
        INICIO: BOTÓN DESHABILITADO
@@ -715,6 +717,7 @@ function inicializarValidacionesEditarUsuarioCompleto() {
     if (!form || !btnGuardar) {
         return;
     }
+    wireUsuarioInputGuards(form);
 
     /* ===============================
        INICIO: BOTÓN DESHABILITADO
@@ -1024,4 +1027,64 @@ function inicializarValidacionesEditarUsuarioCompleto() {
             }
         });
     }, 100);
+}
+const USUARIO_INPUT_RULES = {
+    texto: /[A-Za-zÁÉÍÓÚáéíóúÑñ\s]/,
+    numeros: /[0-9]/,
+};
+
+function sanitizeByRule(value, rule) {
+    return Array.from(value || '').filter((ch) => rule.test(ch)).join('');
+}
+
+function bindRestrictedInput(input, rule, sanitizeFn) {
+    if (!input || input.dataset.restrictionBound === '1') return;
+    input.dataset.restrictionBound = '1';
+
+    input.addEventListener('beforeinput', function (event) {
+        if (!event.data || event.inputType?.startsWith('delete')) return;
+        if (!rule.test(event.data)) {
+            event.preventDefault();
+        }
+    });
+
+    input.addEventListener('paste', function (event) {
+        const text = event.clipboardData?.getData('text') || '';
+        const clean = sanitizeFn(text);
+        if (clean === text) return;
+        event.preventDefault();
+
+        const start = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+        const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : input.value.length;
+        input.value = `${input.value.slice(0, start)}${clean}${input.value.slice(end)}`;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    input.addEventListener('input', function () {
+        const clean = sanitizeFn(input.value);
+        if (clean !== input.value) {
+            const cursor = typeof input.selectionStart === 'number' ? input.selectionStart : clean.length;
+            input.value = clean;
+            if (typeof input.setSelectionRange === 'function') {
+                const pos = Math.min(cursor, clean.length);
+                input.setSelectionRange(pos, pos);
+            }
+        }
+    });
+}
+
+function wireUsuarioInputGuards(form) {
+    if (!form) return;
+
+    const documento = form.querySelector('#documento, #id_documento, input[name="documento"]');
+    const firstName = form.querySelector('#first_name, #id_first_name, input[name="first_name"]');
+    const lastName = form.querySelector('#last_name, #id_last_name, input[name="last_name"]');
+    const telefono = form.querySelector('#telefono, #id_telefono, input[name="telefono"]');
+    const whatsapp = form.querySelector('#whatsapp_key, #id_whatsapp_key, input[name="whatsapp_key"]');
+
+    bindRestrictedInput(documento, USUARIO_INPUT_RULES.numeros, (value) => sanitizeByRule(value, USUARIO_INPUT_RULES.numeros));
+    bindRestrictedInput(firstName, USUARIO_INPUT_RULES.texto, (value) => sanitizeByRule(value, USUARIO_INPUT_RULES.texto));
+    bindRestrictedInput(lastName, USUARIO_INPUT_RULES.texto, (value) => sanitizeByRule(value, USUARIO_INPUT_RULES.texto));
+    bindRestrictedInput(telefono, USUARIO_INPUT_RULES.numeros, (value) => sanitizeByRule(value, USUARIO_INPUT_RULES.numeros));
+    bindRestrictedInput(whatsapp, USUARIO_INPUT_RULES.numeros, (value) => sanitizeByRule(value, USUARIO_INPUT_RULES.numeros));
 }

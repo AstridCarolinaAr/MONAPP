@@ -170,10 +170,30 @@
         border-color: #dc3545;
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     }
+    @keyframes shakeTc {
+        0%   { transform: translateX(0); }
+        15%  { transform: translateX(-8px) rotate(-1deg); }
+        30%  { transform: translateX(8px) rotate(1deg); }
+        45%  { transform: translateX(-6px) rotate(-1deg); }
+        60%  { transform: translateX(6px) rotate(0.5deg); }
+        75%  { transform: translateX(-4px); }
+        90%  { transform: translateX(4px); }
+        100% { transform: translateX(0); }
+    }
+    .shake-tc { animation: shakeTc 0.55s cubic-bezier(.36,.07,.19,.97) both; }
+    #wrapperCheckboxAceptacion {
+        transition: background 0.3s, border-color 0.3s;
+        border-radius: 8px; padding: 10px 12px; border: 2px solid transparent;
+    }
+    #wrapperCheckboxAceptacion.alerta-tc {
+        background: rgba(220, 53, 69, 0.07); border-color: #dc3545;
+    }
+    #msgCheckboxError { display: none; color: #dc3545; font-size: 0.85em; margin-top: 6px; font-weight: 600; }
+    #msgCheckboxError.visible { display: flex; align-items: center; gap: 6px; animation: slideDown 0.3s ease; }
 </style>
 
 <!-- Indicador de progreso -->
-<div class="progress-steps">
+<div class="progress-steps" style="margin-bottom: 20px;">
     <div class="step-item active" data-step="1">
         <div class="step-circle">1</div>
         <div class="step-label">Información General</div>
@@ -184,7 +204,7 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" novalidate>
+<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{{ action_url|default:request.path }}" novalidate>
                         {% csrf_token %}
                         
                         <!-- PASO 1: Información General -->
@@ -588,31 +608,7 @@
                         </div>
                         
                         </div><!-- Fin del Paso 2 -->
-                        
-                        <!-- Botones de navegación -->
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary" id="btnCancelar">
-                                <i class="bi bi-arrow-left"></i> Cancelar
-                            </a>
-                            
-                            <div>
-                                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
-                                    <i class="bi bi-arrow-left"></i> Anterior
-                                </button>
-                                <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40;">
-                                    Siguiente <i class="bi bi-arrow-right"></i>
-                                </button>
-                                <button type="button" class="btn text-white" id="btnGuardar" style="display: none; background-color: #634c40; border-color: #634c40;">
-                                    <i class="bi bi-save"></i> Guardar
-                                </button>
-                            </div>
-                        </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal de Consentimiento Informado -->
 <div class="modal fade" id="modalConsentimiento" tabindex="-1" aria-labelledby="modalConsentimientoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -687,11 +683,15 @@
                     <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
                     <p class="mb-2">He leído y comprendido toda la información anterior y acepto los términos y condiciones del tratamiento de alisado.</p>
                     
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
-                        <label class="form-check-label fw-bold" for="checkboxAceptacion">
-                            Acepto todos los términos, condiciones, recomendaciones y compromisos descritos anteriormente
-                        </label>
+                    <div id="wrapperCheckboxAceptacion">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
+                            <label ...>Acepto todos los términos...</label>
+                        </div>
+                        <div id="msgCheckboxError">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Debes aceptar los términos y condiciones para continuar.
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -719,11 +719,20 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer flex-wrap gap-2">
+                <div class="me-auto d-flex gap-2 flex-wrap align-items-center">
+                    <button type="button" class="btn btn-outline-danger" id="btnImprimirPDF" title="Opcional: descarga un PDF con todos los datos del formulario">
+                        <i class="bi bi-file-earmark-pdf"></i> Imprimir PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="btnImprimirWord" title="Opcional: descarga un Word con todos los datos del formulario">
+                        <i class="bi bi-file-earmark-word"></i> Imprimir Word
+                    </button>
+                    <small class="text-muted fst-italic">opcionales</small>
+                </div>
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" disabled style="background-color: #634c40; border-color: #634c40;">
+                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" style="background-color: #634c40; border-color: #634c40;">
                     <i class="bi bi-check-circle"></i> Aceptar y Guardar
                 </button>
             </div>
@@ -1205,7 +1214,6 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Agregar validación cuando se sube una firma
     if (inputFirma) {
         inputFirma.addEventListener('change', function() {
-            console.log('Firma cargada:', this.files.length > 0 ? this.files[0].name : 'ninguna');
             validarConsentimiento();
         });
     }
@@ -1213,33 +1221,24 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Interceptar el clic en el botón Guardar
     document.getElementById('btnGuardar').addEventListener('click', function(e) {
         e.preventDefault();
-        
-        console.log('Botón Guardar clickeado');
-        
+
         // Validar el paso actual antes de mostrar el modal
         if (validateStep(currentStep)) {
-            console.log('Validación del paso exitosa');
             // Verificar que haya un cliente seleccionado
             if (!selectCliente.value) {
-                console.log('No hay cliente seleccionado');
                 mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
                 return;
             }
-            
-            console.log('Cliente seleccionado:', selectCliente.value);
-            
+
             // Limpiar estado del modal
             checkboxAceptacion.checked = false;
             validarConsentimiento();
             
             // Actualizar información del cliente en el modal
             actualizarInfoCliente();
-            
+
             // Mostrar el modal
-            console.log('Mostrando modal de consentimiento');
             modalConsentimiento.show();
-        } else {
-            console.log('La validación del paso falló');
         }
     });
     
@@ -1250,15 +1249,11 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     
     // Confirmar y guardar
     btnConfirmarConsentimiento.addEventListener('click', function() {
-        console.log('Botón Confirmar Consentimiento clickeado');
-        
         // Obtener datos del cliente seleccionado
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         const nombreCompleto = selectedOption.text;
         const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
-        
-        console.log('Datos del cliente:', { nombreCompleto, numeroDocumento });
-        
+
         // Agregar los datos de consentimiento al formulario como campos ocultos
         const inputNombre = document.createElement('input');
         inputNombre.type = 'hidden';
@@ -1283,23 +1278,16 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         inputAceptado.name = 'consentimiento_aceptado';
         inputAceptado.value = 'true';
         formulario.appendChild(inputAceptado);
-        
-        console.log('Cerrando modal de consentimiento y enviando formulario...');
-        
+
         // Cerrar modal
         modalConsentimiento.hide();
         
         // Pequeño delay para asegurar que el modal se cierre antes de enviar
         setTimeout(function() {
-            console.log('Disparando submit del formulario');
-            
             // Enviar directamente por AJAX en lugar de usar requestSubmit
             const formData = new FormData(formulario);
             const submitUrl = formulario.action;
-            
-            console.log('URL de envío:', submitUrl);
-            console.log('Datos del formulario:', Array.from(formData.entries()));
-            
+
             fetch(submitUrl, {
                 method: 'POST',
                 body: formData,
@@ -1308,14 +1296,12 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 }
             })
             .then(response => {
-                console.log('Respuesta recibida:', response.status);
                 if (!response.ok && response.status !== 400) {
                     throw new Error('Error del servidor');
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Datos de respuesta:', data);
                 if (data.success) {
                     // Cerrar modal principal y recargar página
                     const modalElement = document.getElementById('modalFormGestion');
@@ -1832,6 +1818,226 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     =============================== */
     modalCliente.addEventListener('shown.bs.modal', function () {
         actualizarEstadoBoton();
+    });
+
+
+    /* ===============================
+       RECOPILAR DATOS DEL FORMULARIO
+    =============================== */
+    function recopilarDatosFormulario() {
+        const datos = {};
+        const form = document.getElementById('gestionAlisadoForm');
+
+        const optCliente = selectCliente.options[selectCliente.selectedIndex];
+        datos.clienteNombre    = (selectCliente.value && optCliente) ? optCliente.text : '—';
+        datos.clienteDocumento = (selectCliente.value && optCliente) ? (optCliente.getAttribute('data-documento') || '—') : '—';
+
+        function getValByName(name) {
+            const el = form ? form.querySelector('[name="' + name + '"]') : null;
+            if (!el) return '—';
+            if (el.tagName === 'SELECT') {
+                const opt = el.options[el.selectedIndex];
+                return opt ? opt.text : '—';
+            }
+            return el.value || '—';
+        }
+        function getBoolByName(name) {
+            const el = form ? form.querySelector('[name="' + name + '"]') : null;
+            return (el && el.checked) ? 'Sí' : 'No';
+        }
+        function siNo(name) {
+            const v = getValByName(name);
+            return (v === 'si' || v === 'Sí') ? 'Sí' : (v === 'no' || v === 'No' ? 'No' : v);
+        }
+
+        datos.precioAlisado  = getValByName('precio_alisado');
+        datos.esOferta       = siNo('es_oferta_especial');
+        datos.descripOferta  = getValByName('descripcion_oferta');
+        datos.anticipo       = getValByName('anticipo_cliente');
+        datos.medioPago      = getValByName('medio_pago');
+        datos.saldo          = getValByName('saldo_pendiente');
+        datos.realizadoPor   = getValByName('procedimiento_realizado_por');
+        datos.tipoAlisado    = getValByName('tipo_alisado');
+        datos.resellado      = siNo('requiere_resellado');
+        datos.porcentaje     = getValByName('porcentaje_alisado') + '%';
+        datos.porosidad      = getValByName('porosidad');
+        datos.textura        = getValByName('textura');
+        datos.formaNatural   = getValByName('forma_natural');
+        datos.elasticidad    = getValByName('elasticidad');
+        datos.longitud       = getValByName('longitud');
+        datos.densidad       = getValByName('densidad');
+        datos.pielCabelludo  = getValByName('piel_cabelludo');
+        datos.alopecia       = getValByName('alopecia');
+        datos.caida          = getValByName('caida_cabello');
+        datos.caspa          = getValByName('caspa');
+        datos.lactante       = siNo('lactante');
+        datos.gestante       = siNo('gestante');
+        datos.tiroides       = siNo('sufre_tiroides');
+        datos.medTiroides    = getValByName('medicamento_tiroides');
+        datos.despunte       = siNo('despunte_hoy');
+        datos.tintura        = getBoolByName('procesos_tintura');
+        datos.decoloracion   = getBoolByName('procesos_decoloracion');
+        datos.ondulados      = getBoolByName('procesos_ondulados');
+        datos.extracciones   = getBoolByName('procesos_extracciones');
+        datos.alisados       = getBoolByName('procesos_alisados');
+        datos.superAclarante = getBoolByName('procesos_super_aclarante');
+        datos.otrosProcesos  = getValByName('procesos_otro');
+        datos.secador        = siNo('cuenta_con_secador');
+        datos.usaCasco       = siNo('usa_casco');
+        datos.aguaCaliente   = siNo('se_bana_agua_caliente');
+        datos.refuerzo15     = siNo('requiere_refuerzo_15dias');
+        datos.frecRecoge     = getValByName('frecuencia_recoge_cabello');
+        datos.ejercicio      = siNo('realiza_ejercicio');
+        datos.frecEjercicio  = getValByName('frecuencia_ejercicio');
+        datos.productos      = getValByName('productos_capilares');
+        datos.recomendaciones = getValByName('recomendaciones_post_cuidados');
+        datos.fecha = new Date().toLocaleDateString('es-CO', {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        return datos;
+    }
+
+    /* ===============================
+       HTML DEL DOCUMENTO
+    =============================== */
+    function generarHTMLDocumento(datos) {
+        const estilos = `
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family:Arial,sans-serif; font-size:11pt; color:#222; padding:20px; }
+            .header { border-bottom:3px solid #634c40; padding-bottom:12px; margin-bottom:18px; }
+            .header h1 { font-size:13pt; color:#634c40; font-weight:bold; }
+            .header p { font-size:9pt; color:#666; margin-top:3px; }
+            .fecha-box { text-align:right; font-size:9pt; color:#555; margin-bottom:10px; }
+            .seccion { margin-bottom:14px; }
+            .sec-titulo { background:#634c40; color:white; padding:5px 10px; font-size:10pt; font-weight:bold; border-radius:3px; margin-bottom:8px; }
+            .fila { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+            .campo { flex:1; min-width:170px; margin-bottom:4px; }
+            .campo-label { font-size:8pt; color:#634c40; font-weight:bold; text-transform:uppercase; }
+            .campo-valor { font-size:10pt; border-bottom:1px solid #ccc; padding:2px 4px; min-height:20px; }
+            .campo-valor.largo { border:1px solid #ccc; padding:4px; min-height:36px; border-radius:3px; margin-top:2px; }
+            .procesos { display:flex; flex-wrap:wrap; gap:6px; }
+            .proc-item { border:1px solid #ccc; border-radius:3px; padding:3px 8px; font-size:9.5pt; }
+            .proc-si { background:#f0e8e4; border-color:#634c40; color:#634c40; font-weight:bold; }
+            .proc-no { color:#aaa; }
+            .firmas { margin-top:30px; border-top:2px solid #634c40; padding-top:20px; display:flex; justify-content:space-between; }
+            .firma-box { text-align:center; flex:1; padding:0 20px; }
+            .firma-linea { border-top:1px solid #333; margin-top:50px; margin-bottom:5px; }
+            .firma-txt { font-size:9pt; color:#555; }
+            .consent-box { background:#f9f4f2; border:1px solid #d4b8ac; border-radius:4px; padding:10px 14px; margin-bottom:14px; font-size:9pt; color:#444; }
+            @media print { @page { margin:15mm; size:A4; } body { padding:0; } }
+        `;
+        const procesos = [
+            ['Tintura', datos.tintura], ['Decoloración', datos.decoloracion],
+            ['Ondulados Perm', datos.ondulados], ['Extracciones', datos.extracciones],
+            ['Alisados', datos.alisados], ['Super Aclarante', datos.superAclarante],
+        ];
+        return `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>Tratamiento de Alisado - ${datos.clienteNombre}</title>
+        <style>${estilos}</style></head><body>
+        <div class="header"><h1>TRATAMIENTO DE DATOS — SERVICIO DE ALISADO</h1><p>Formulario de Gestión y Consentimiento Informado</p></div>
+        <div class="fecha-box">Fecha: <strong>${datos.fecha}</strong></div>
+
+        <div class="seccion"><div class="sec-titulo">Información del Cliente</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Nombre completo</div><div class="campo-valor">${datos.clienteNombre}</div></div>
+          <div class="campo"><div class="campo-label">Documento</div><div class="campo-valor">${datos.clienteDocumento}</div></div>
+        </div></div>
+
+        <div class="seccion"><div class="sec-titulo">Servicio y Pago</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Precio</div><div class="campo-valor">$ ${datos.precioAlisado}</div></div>
+          <div class="campo"><div class="campo-label">Anticipo</div><div class="campo-valor">$ ${datos.anticipo}</div></div>
+          <div class="campo"><div class="campo-label">Saldo pendiente</div><div class="campo-valor">$ ${datos.saldo}</div></div>
+          <div class="campo"><div class="campo-label">Medio de pago</div><div class="campo-valor">${datos.medioPago}</div></div>
+          <div class="campo"><div class="campo-label">Oferta especial</div><div class="campo-valor">${datos.esOferta}${datos.esOferta==='Sí' ? ' — '+datos.descripOferta : ''}</div></div>
+        </div></div>
+
+        <div class="seccion"><div class="sec-titulo">Procedimiento</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Realizado por</div><div class="campo-valor">${datos.realizadoPor}</div></div>
+          <div class="campo"><div class="campo-label">Porcentaje</div><div class="campo-valor">${datos.porcentaje}</div></div>
+          <div class="campo"><div class="campo-label">Requiere resellado</div><div class="campo-valor">${datos.resellado}</div></div>
+        </div>
+        <div class="campo"><div class="campo-label">Tipo de alisado</div><div class="campo-valor largo">${datos.tipoAlisado}</div></div>
+        </div>
+
+        <div class="seccion"><div class="sec-titulo">Características del Cabello</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Porosidad</div><div class="campo-valor">${datos.porosidad}</div></div>
+          <div class="campo"><div class="campo-label">Textura</div><div class="campo-valor">${datos.textura}</div></div>
+          <div class="campo"><div class="campo-label">Forma natural</div><div class="campo-valor">${datos.formaNatural}</div></div>
+          <div class="campo"><div class="campo-label">Elasticidad</div><div class="campo-valor">${datos.elasticidad}</div></div>
+          <div class="campo"><div class="campo-label">Longitud</div><div class="campo-valor">${datos.longitud}</div></div>
+          <div class="campo"><div class="campo-label">Densidad</div><div class="campo-valor">${datos.densidad}</div></div>
+          <div class="campo"><div class="campo-label">Piel cabelludo</div><div class="campo-valor">${datos.pielCabelludo}</div></div>
+          <div class="campo"><div class="campo-label">Alopecia</div><div class="campo-valor">${datos.alopecia}</div></div>
+          <div class="campo"><div class="campo-label">Caída</div><div class="campo-valor">${datos.caida}</div></div>
+          <div class="campo"><div class="campo-label">Caspa</div><div class="campo-valor">${datos.caspa}</div></div>
+        </div></div>
+
+        <div class="seccion"><div class="sec-titulo">Estado de Salud</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Lactante</div><div class="campo-valor">${datos.lactante}</div></div>
+          <div class="campo"><div class="campo-label">Gestante</div><div class="campo-valor">${datos.gestante}</div></div>
+          <div class="campo"><div class="campo-label">Tiroides</div><div class="campo-valor">${datos.tiroides}${datos.tiroides==='Sí' ? ' — '+datos.medTiroides : ''}</div></div>
+          <div class="campo"><div class="campo-label">Despunte hoy</div><div class="campo-valor">${datos.despunte}</div></div>
+        </div></div>
+
+        <div class="seccion"><div class="sec-titulo">Procesos Químicos Previos</div>
+        <div class="procesos">${procesos.map(([l,v])=>`<div class="proc-item ${v==='Sí'?'proc-si':'proc-no'}">${v==='Sí'?'✓':'○'} ${l}</div>`).join('')}</div>
+        ${datos.otrosProcesos&&datos.otrosProcesos!=='—'?`<div style="margin-top:6px"><div class="campo-label">Otro:</div><div class="campo-valor">${datos.otrosProcesos}</div></div>`:''}
+        </div>
+
+        <div class="seccion"><div class="sec-titulo">Hábitos y Cuidados</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Secador</div><div class="campo-valor">${datos.secador}</div></div>
+          <div class="campo"><div class="campo-label">Usa casco</div><div class="campo-valor">${datos.usaCasco}</div></div>
+          <div class="campo"><div class="campo-label">Agua caliente</div><div class="campo-valor">${datos.aguaCaliente}</div></div>
+          <div class="campo"><div class="campo-label">Refuerzo 15 días</div><div class="campo-valor">${datos.refuerzo15}</div></div>
+          <div class="campo"><div class="campo-label">Ejercicio</div><div class="campo-valor">${datos.ejercicio}${datos.ejercicio==='Sí'?' — '+datos.frecEjercicio:''}</div></div>
+        </div>
+        <div class="campo"><div class="campo-label">¿Cada cuánto recoge el cabello?</div><div class="campo-valor largo">${datos.frecRecoge}</div></div>
+        <div class="campo" style="margin-top:6px"><div class="campo-label">Productos capilares</div><div class="campo-valor largo">${datos.productos}</div></div>
+        </div>
+
+        <div class="seccion"><div class="sec-titulo">Recomendaciones y Anotaciones</div>
+        <div class="campo"><div class="campo-valor largo">${datos.recomendaciones}</div></div>
+        </div>
+
+        <div class="consent-box"><strong>Consentimiento Informado:</strong> El/La cliente declara haber leído y comprendido todos los términos y condiciones del tratamiento de alisado, incluyendo recomendaciones, advertencias y compromisos. Acepta voluntariamente el procedimiento y sus condiciones.</div>
+
+        <div class="firmas">
+          <div class="firma-box"><div class="firma-linea"></div><div class="firma-txt"><strong>${datos.clienteNombre}</strong></div><div class="firma-txt">Doc: ${datos.clienteDocumento}</div><div class="firma-txt">Firma del Cliente</div></div>
+          <div class="firma-box"><div class="firma-linea"></div><div class="firma-txt"><strong>${datos.realizadoPor}</strong></div><div class="firma-txt">Responsable del Procedimiento</div></div>
+        </div>
+        </body></html>`;
+    }
+
+    /* BOTÓN: PDF */
+    document.getElementById('btnImprimirPDF').addEventListener('click', function() {
+        const datos = recopilarDatosFormulario();
+        const ventana = window.open('', '_blank', 'width=860,height=720');
+        if (!ventana) { mostrarNotificacion('Permite las ventanas emergentes e intenta de nuevo.', 'warning'); return; }
+        ventana.document.write(generarHTMLDocumento(datos));
+        ventana.document.close();
+        ventana.addEventListener('load', function() { setTimeout(function(){ ventana.print(); }, 400); });
+    });
+
+    /* BOTÓN: WORD */
+    document.getElementById('btnImprimirWord').addEventListener('click', function() {
+        const datos = recopilarDatosFormulario();
+        const blob = new Blob(['\ufeff' + generarHTMLDocumento(datos)], { type: 'application/msword;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const nombreLimpio = datos.clienteNombre !== '—' ? datos.clienteNombre.split(' - ')[0].replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g,'').replace(/\s+/g,'_') : 'cliente';
+        link.href = url;
+        link.download = 'Alisado_' + nombreLimpio + '_' + new Date().toISOString().slice(0,10) + '.doc';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        mostrarNotificacion('Documento Word descargado correctamente.', 'success');
     });
 
 })();

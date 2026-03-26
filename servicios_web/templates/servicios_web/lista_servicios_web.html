@@ -6,69 +6,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios_web/css/servicios_web.css' %}" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-<style>
-.sw-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-}
-
-.sw-view-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    flex-wrap: wrap;
-}
-
-.sw-view-btn {
-    width: 42px;
-    height: 42px;
-    border: 1px solid rgba(58, 42, 36, 0.16);
-    border-radius: 999px;
-    background: #fff;
-    color: #382822;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .2s ease;
-    box-shadow: 0 2px 8px rgba(56, 40, 34, 0.08);
-}
-
-.sw-view-btn:hover,
-.sw-view-btn.active {
-    background: #3a2a24;
-    color: #fff;
-    border-color: #3a2a24;
-}
-
-.sw-no-results {
-    display: none;
-    margin-top: 1rem;
-    padding: 2rem 1rem;
-    text-align: center;
-    border: 1px dashed rgba(58, 42, 36, 0.18);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.7);
-    color: #6f4e37;
-}
-
-.sw-no-results.is-visible {
-    display: block;
-}
-
-@media (max-width: 768px) {
-    .sw-toolbar {
-        align-items: stretch;
-    }
-
-    .sw-view-controls {
-        justify-content: flex-start;
-    }
-}
-</style>
 {% endblock %}
 
 {% block page_icon %}
@@ -83,48 +20,90 @@
 
 {% block page_subtitle %}
 <span class="sw-enter sw-enter-up sw-enter-delay-2">
-    Gestiona los servicios que se muestran en la pagina publica.
+    Gestiona los servicios que se muestran en la página pública.
 </span>
 {% endblock %}
 
 {% block page_actions %}
-<button type="button"
-        class="btn btn-pill-dark"
-        id="btnOpenCrearServicioWeb"
-        data-url="{% url 'servicios_web:crear_servicio_web' %}">
-    <span class="icon">+</span> Nuevo Servicio Web
-</button>
+<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between w-100">
+    <div class="dropdown view-switcher">
+        <button class="btn btn-sm sw-view-toggle dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            <i class="bi bi-layout-text-window-reverse me-2"></i>
+            Organizar vista
+        </button>
+        <ul class="dropdown-menu sw-view-menu">
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn active" data-view="table">
+                    <i class="bi bi-table me-2"></i> Tabla
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn" data-view="grid-2">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> 2 por fila
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn" data-view="grid-3">
+                    <i class="bi bi-grid-3x3-gap-fill me-2"></i> 3 por fila
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item sw-view-btn" data-view="grid-4">
+                    <i class="bi bi-grid-fill me-2"></i> 4 por fila
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <button type="button"
+            class="btn btn-sm btn-pill-dark"
+            id="btnOpenCrearServicioWeb"
+            data-url="{% url 'servicios_web:crear_servicio_web' %}">
+        <i class="fas fa-plus me-1"></i> Nuevo servicio web
+    </button>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="sw-toolbar sw-enter sw-enter-up sw-enter-delay-3">
-    <div class="sw-search-bar module-search-inline" id="swSearchBar">
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, descripcion, precio o estado...' search_value=q name='q' modo='inline' %}
-    </div>
+<div class="module-filters-card mb-3 sw-enter sw-enter-up sw-enter-delay-3">
+    <form method="get"
+          class="js-ajax-search-form module-filters-form"
+          id="swSearchBar"
+          data-ajax-url="{% url 'servicios_web:lista_servicios_web' %}"
+          data-ajax-target="#sw-resultados-wrap"
+          data-ajax-debounce="300">
+        <div class="module-filter-field module-filter-field--wide">
+            <label class="module-filter-label">Buscar</label>
+            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre o descripción...' search_value=q name='q' modo='inline' %}
+        </div>
 
-    <div class="sw-view-controls">
-        <button type="button" class="sw-view-btn" data-view="grid-2" title="Cuadricula 2" data-hover-label="Cuadricula 2">
-            <i class="bi bi-grid-1x2"></i>
-        </button>
-        <button type="button" class="sw-view-btn" data-view="grid-3" title="Cuadricula 3" data-hover-label="Cuadricula 3">
-            <i class="bi bi-grid-3x3-gap"></i>
-        </button>
-        <button type="button" class="sw-view-btn" data-view="grid-4" title="Cuadricula 4" data-hover-label="Cuadricula 4">
-            <i class="bi bi-grid"></i>
-        </button>
-        <button type="button" class="sw-view-btn" data-view="table" title="Tabla" data-hover-label="Tabla">
-            <i class="bi bi-list-ul"></i>
-        </button>
-    </div>
+        <div class="module-filter-field module-filter-field--medium">
+            <label class="module-filter-label">Estado</label>
+            <select name="estado" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+
+        <div class="module-filter-field module-filter-field--medium">
+            <label class="module-filter-label">&nbsp;</label>
+            {% if q or estado %}
+            <a href="{% url 'servicios_web:lista_servicios_web' %}"
+               class="btn btn-sm btn-outline-secondary w-100">
+                <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+            </a>
+            {% endif %}
+        </div>
+    </form>
 </div>
 
+<!-- ── Vista (grid + tabla) — target AJAX ── -->
 <div id="sw-resultados-wrap">
     {% include 'servicios_web/lista_servicios_web_global.html' %}
-</div>
-
-<div id="swNoResults" class="sw-no-results">
-    <i class="bi bi-search" style="font-size: 2rem;"></i>
-    <p class="mb-0 mt-2">No se encontraron servicios con esa busqueda.</p>
 </div>
 
 <div class="modal fade" id="modalServicioWeb" tabindex="-1" aria-hidden="true">
@@ -132,7 +111,7 @@
         <div class="modal-content border-0 shadow-lg" style="border-radius:15px">
             <div class="modal-header sw-form-header">
                 <h5 class="modal-title" id="modalServicioWebLabel">
-                    <i class="bi bi-plus-circle me-2"></i> Nuevo Servicio Web
+                    <i class="fas fa-plus me-2"></i> Nuevo servicio web
                 </h5>
                 <button type="button" class="btn-close btn-close-white sw-form-close"
                         data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -157,6 +136,7 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -167,17 +147,45 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const refreshServiciosWebWidgets = () => {
+        requestAnimationFrame(() => {
+            if (typeof initServiciosWeb === 'function') initServiciosWeb();
+            if (typeof initMetaballs === 'function') initMetaballs();
+        });
+    };
+
+    // Animación intro del header
     const pageHeader = document.querySelector('.page-header');
     if (pageHeader) {
         requestAnimationFrame(() => pageHeader.classList.add('sw-intro-ready'));
     }
 
+    // Re-inicializar metaballs y JS propio tras cada actualización AJAX
     const wrap = document.getElementById('sw-resultados-wrap');
     if (wrap) {
         new MutationObserver(() => {
-            if (typeof initServiciosWeb === 'function') initServiciosWeb();
-            if (typeof initMetaballs === 'function') initMetaballs();
+            refreshServiciosWebWidgets();
         }).observe(wrap, { childList: true, subtree: false });
+    }
+
+    refreshServiciosWebWidgets();
+
+    const ajaxSearchForm = document.getElementById('swSearchBar');
+    const searchInput = ajaxSearchForm?.querySelector('.search-toggle-input');
+    if (ajaxSearchForm && searchInput) {
+        let debounceTimer;
+        const submitLive = () => {
+            if (typeof ajaxSearchForm._submitAjaxSearch === 'function') {
+                ajaxSearchForm._submitAjaxSearch();
+            } else {
+                ajaxSearchForm.requestSubmit?.();
+            }
+        };
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(submitLive, 280);
+        });
     }
 });
 </script>

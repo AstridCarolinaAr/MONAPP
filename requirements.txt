@@ -4,7 +4,7 @@ certifi==2026.2.25
 charset-normalizer==3.4.4
 colorama==0.4.6
 Django==6.0.3
-django-bootstrap-v5==1.0.11
+django-bootstrap5
 django-filter==25.2
 djangorestframework==3.16.1
 et_xmlfile==2.0.0
@@ -23,9 +23,6 @@ soupsieve==2.8
 sqlparse==0.5.4
 typing_extensions==4.15.0
 tzdata==2025.2
+opencv-python-headless==4.13.0.92
 urllib3==2.6.3
 uv==0.9.4
-
-# Fuente (frontend): "Gailes"
-# Coloca el archivo en `MONAPP/core/static/core/fonts/` como `Gailes.woff2` (ideal),
-# o `Gailes.woff` / `Gailes.ttf` / `Gailes.otf`.

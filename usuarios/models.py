@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -95,6 +96,31 @@ class PerfilUsuario(models.Model):
     def get_nombre_completo(self):
         """Retorna el nombre completo del usuario"""
         return f"{self.user.first_name} {self.user.last_name}"
+
+    def clean(self):
+        super().clean()
+
+        documento = (self.documento or '').strip()
+        telefono = (self.telefono or '').strip()
+        whatsapp_key = (self.whatsapp_key or '').strip()
+
+        if documento and not documento.isdigit():
+            raise ValidationError({'documento': 'El documento solo puede contener números.'})
+
+        if telefono and not telefono.isdigit():
+            raise ValidationError({'telefono': 'El teléfono solo puede contener números.'})
+
+        if whatsapp_key and not whatsapp_key.isdigit():
+            raise ValidationError({'whatsapp_key': 'La clave de WhatsApp solo puede contener números.'})
+
+        if self.direccion:
+            direccion = self.direccion.strip()
+            if '<' in direccion or '>' in direccion:
+                raise ValidationError({'direccion': 'La dirección contiene caracteres no permitidos.'})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 # Señales para crear/actualizar perfil automáticamente

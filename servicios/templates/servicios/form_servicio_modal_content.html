@@ -2,8 +2,7 @@
 
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
 
-<form method="post" enctype="multipart/form-data" id="formServicio" action="{% url 'servicios:crear_servicio' %}">
-    {% csrf_token %}
+<form method="post" enctype="multipart/form-data" id="formServicio" data-servicio-form="1" data-servicio-id="{{ form.instance.pk|default:'' }}" data-servicio-validar-url="{% url 'servicios:validar_nombre_servicio' %}" action="{% url 'servicios:crear_servicio' %}" novalidate>    {% csrf_token %}
     
     <div class="mb-3">
         {{ form.nombre.label_tag }}
@@ -64,63 +63,11 @@
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
             <i class="bi bi-x-circle"></i> Cancelar
         </button>
-        <button type="submit" class="btn text-white" style="background-color: #634c40; border-color: #634c40;">
+        <button type="button" class="btn text-white" style="background-color: #634c40; border-color: #634c40;" data-servicio-submit="1">
             <i class="bi bi-check-circle"></i> Guardar
         </button>
     </div>
 </form>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('formServicio');
-    
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            const submitButton = form.querySelector('button[type="submit"]');
-            const originalText = submitButton.innerHTML;
-            
-            // Deshabilitar el botón y mostrar spinner
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
-            
-            fetch(form.action || window.location.href, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Cerrar el modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalFormServicio'));
-                    if (modal) {
-                        modal.hide();
-                    }
-                    
-                    // Recargar la página para mostrar el nuevo servicio
-                    window.location.reload();
-                } else {
-                    // Mostrar errores
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalText;
-                    
-                    if (data.errors) {
-                        alert('Error al guardar el servicio. Por favor, verifica los campos.');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalText;
-                alert('Ocurrió un error al guardar el servicio.');
-            });
-        });
-    }
-});
+    window.initServicioForms && window.initServicioForms(document);
 </script>

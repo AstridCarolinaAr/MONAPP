@@ -1,10 +1,18 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Backup — Base de Datos{% endblock %}
+{% block title %}Respaldo de base de datos{% endblock %}
 {% block page_icon %}<i class="bi bi-shield-lock page-icon"></i>{% endblock %}
 {% block page_title %}Respaldo de Base de Datos{% endblock %}
 {% block page_subtitle %}Control y monitoreo de copias de seguridad del sistema{% endblock %}
+{% block page_actions %}
+<a href="{% url 'backup:configuracion' %}" class="btn-pill-dark" style="background:#fff;color:#5e4034;border:1px solid rgba(94,64,52,.2);">
+    <i class="bi bi-gear"></i> Configuración
+</a>
+<button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalCrearBackup">
+    <i class="bi bi-plus"></i> Nueva copia
+</button>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'backup/css/backup.css' %}">
@@ -12,18 +20,6 @@
 
 {% block content %}
 <div class="bk-wrapper">
-
-    <!-- ==================== HEADER ==================== -->
-    <div class="bk-header-actions justify-content-end mb-4 anim-from-top" style="animation-delay:.12s;">
-        <div class="bk-header-actions">
-            <a href="{% url 'backup:configuracion' %}" class="bk-btn outline">
-                <i class="bi bi-gear"></i> Configuración
-            </a>
-            <button class="bk-btn primary" data-bs-toggle="modal" data-bs-target="#modalCrearBackup">
-                <i class="bi bi-plus-circle"></i> Nuevo Backup
-            </button>
-        </div>
-    </div>
 
     <!-- ==================== STATS ==================== -->
     <div class="bk-stats-row">
@@ -43,7 +39,7 @@
             </div>
             <div class="bk-stat-info">
                 <h3>{{ exitosos }}</h3>
-                <p>Backups Exitosos</p>
+                <p>Copias exitosas</p>
             </div>
         </div>
 
@@ -68,12 +64,12 @@
         </div>
     </div>
 
-    <!-- ==================== ÚLTIMO BACKUP ==================== -->
+    <!-- ==================== ÚLTIMO RESPALDO ==================== -->
     {% if ultimo_backup %}
     <div class="bk-card" style="margin-bottom: 24px;">
         <div class="bk-card-header" style="background: linear-gradient(135deg, #9d6347, #6d4637);">
             <i class="bi bi-clock-history"></i>
-            Último Backup Exitoso
+            Última copia exitosa
         </div>
         <div class="bk-card-body">
             <div class="bk-detail-grid">
@@ -112,7 +108,7 @@
             <div class="bk-card">
                 <div class="bk-card-header">
                     <i class="bi bi-list-ul"></i>
-                    Historial de Backups
+                    Historial de copias
                     <span class="ms-auto" style="font-size: .78rem; opacity: .7;">
                         {{ total_backups }} total
                     </span>
@@ -208,93 +204,22 @@
                     {% else %}
                     <div class="bk-empty">
                         <i class="bi bi-shield-exclamation d-block"></i>
-                        <h4>Sin backups registrados</h4>
-                        <p>Crea tu primer backup para proteger la información del sistema.</p>
+                        <h4>Sin copias registradas</h4>
+                        <p>Crea tu primera copia para proteger la información del sistema.</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- ==================== INFO BD ==================== -->
-        <div class="col-lg-4">
-            <div class="bk-card">
-                <div class="bk-card-header">
-                    <i class="bi bi-database-gear"></i>
-                    Estado de la Base de Datos
-                </div>
-                <div class="bk-card-body">
-                    <div style="margin-bottom: 18px;">
-                        <div class="bk-detail-item" style="margin-bottom: 14px;">
-                            <span class="label">Total de registros</span>
-                            <span class="value" style="font-size: 1.3rem;">
-                                {{ stats.total_registros|default:"0" }}
-                            </span>
-                        </div>
-                        <div class="bk-detail-item">
-                            <span class="label">Tablas ({{ stats.total_tablas }})</span>
-                        </div>
-                    </div>
-
-                    <div class="bk-db-grid">
-                        {% for tabla in stats.tablas %}
-                        <div class="bk-db-item">
-                            <span class="name" title="{{ tabla.nombre }}">{{ tabla.nombre }}</span>
-                            <span class="count">{{ tabla.registros }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Config rápida -->
-            <div class="bk-card">
-                <div class="bk-card-header">
-                    <i class="bi bi-gear"></i>
-                    Configuración Actual
-                </div>
-                <div class="bk-card-body">
-                    <div class="bk-switch-row">
-                        <div class="bk-switch-label">
-                            <strong>Backup automático</strong>
-                            <small>Cada {{ config.frecuencia_horas }}h</small>
-                        </div>
-                        <span class="bk-badge {% if config.backup_automatico %}exitoso{% else %}fallido{% endif %}">
-                            {% if config.backup_automatico %}
-                                <i class="bi bi-check-circle-fill"></i> Activo
-                            {% else %}
-                                <i class="bi bi-x-circle-fill"></i> Inactivo
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div class="bk-switch-row">
-                        <div class="bk-switch-label">
-                            <strong>Máx. backups</strong>
-                            <small>Se eliminan los más antiguos</small>
-                        </div>
-                        <span class="bk-badge-tipo">{{ config.max_backups }}</span>
-                    </div>
-                    <div class="bk-switch-row">
-                        <div class="bk-switch-label">
-                            <strong>Incluir media</strong>
-                        </div>
-                        <span class="bk-badge {% if config.incluir_media %}exitoso{% else %}fallido{% endif %}">
-                            {% if config.incluir_media %}Sí{% else %}No{% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+        
 <!-- ==================== MODAL CREAR BACKUP ==================== -->
 <div class="modal fade bk-modal" id="modalCrearBackup" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="bi bi-shield-plus"></i> Crear Nuevo Backup
+                    <i class="bi bi-shield-plus"></i> Crear nueva copia
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -304,7 +229,7 @@
 
                     <!-- Tipo de backup -->
                     <div class="bk-form-group">
-                        <label>Tipo de Backup</label>
+                        <label>Tipo de copia</label>
                         <div class="bk-tipo-selector">
                             <div class="bk-tipo-option">
                                 <input type="radio" name="tipo" value="completo" id="tipo_completo" checked>
@@ -352,7 +277,7 @@
                         <label for="backup_notas">Notas / Observaciones</label>
                         <textarea class="form-control" id="backup_notas"
                                   name="notas" rows="3"
-                                  placeholder="Ej: Backup antes de actualización..."
+                                  placeholder="Ej: copia antes de actualización..."
                                   maxlength="500"></textarea>
                         <small class="d-block mt-1" style="color: #8a7a72;">
                             <span id="char_count_notas">0</span>/500 caracteres
@@ -384,7 +309,7 @@
                 <div class="modal-footer">
                     <button type="button" class="bk-btn outline" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="bk-btn success" id="btnCrearBackup">
-                        <i class="bi bi-shield-check"></i> Crear Backup
+                        <i class="bi bi-shield-check"></i> Crear copia
                     </button>
                 </div>
             </form>
@@ -496,17 +421,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return valido;
     }
 
-    function actualizarBotón() {
+    function actualizarBotÃ³n() {
         const nombreOk = validarNombre();
         const notasOk = validarNotas();
         submitBtn.disabled = !nombreOk || !notasOk;
     }
 
-    // Event listeners para actualizar validación
-    inputNombre.addEventListener('input', actualizarBotón);
-    inputNombre.addEventListener('blur', actualizarBotón);
-    inputNotas.addEventListener('input', actualizarBotón);
-    inputNotas.addEventListener('blur', actualizarBotón);
+    // Event listeners para actualizar validaciÃ³n
+    inputNombre.addEventListener('input', actualizarBotÃ³n);
+    inputNombre.addEventListener('blur', actualizarBotÃ³n);
+    inputNotas.addEventListener('input', actualizarBotÃ³n);
+    inputNotas.addEventListener('blur', actualizarBotÃ³n);
 
     // Al abrir el modal, resetear campos
     if (modalBackup) {
@@ -519,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
             notasError.style.display = 'none';
             inputNombre.classList.remove('is-invalid');
             inputNotas.classList.remove('is-invalid');
-            actualizarBotón();
+            actualizarBotÃ³n();
         });
     }
 
@@ -577,10 +502,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const nombre = this.dataset.nombre;
 
             Swal.fire({
-                title: '¿Restaurar backup?',
+                title: 'Â¿Restaurar copia?',
                 html: `Se restaurará <strong>"${nombre}"</strong>.<br>
                        <span class="text-danger">Esto reemplazará la base de datos actual.</span><br>
-                       <small>Se recomienda crear un backup antes de restaurar.</small>`,
+                       <small>Se recomienda crear una copia antes de restaurar.</small>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3a2a24',
@@ -611,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             Swal.fire({
-                title: '¿Eliminar backup?',
+                title: 'Â¿Eliminar copia?',
                 html: `Se eliminará permanentemente <strong>"${nombre}"</strong> y su archivo asociado.`,
                 icon: 'warning',
                 showCancelButton: true,
@@ -632,3 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+
+

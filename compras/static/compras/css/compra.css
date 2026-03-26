@@ -60,6 +60,35 @@
   font-size: 11px;
 }
 
+/* ===== CAMPOS REDONDEADOS ===== */
+.compras-container .form-control,
+.compras-container .form-select,
+.modal .form-control,
+.modal .form-select {
+  border-radius: 16px !important;
+}
+
+.compras-container .input-group,
+.modal .input-group {
+  overflow: hidden;
+  border-radius: 16px !important;
+}
+
+.compras-container .input-group .input-group-text,
+.modal .input-group .input-group-text {
+  border-radius: 16px 0 0 16px !important;
+}
+
+.compras-container .input-group .form-control,
+.modal .input-group .form-control {
+  border-radius: 0 16px 16px 0 !important;
+}
+
+.compras-container .btn,
+.modal .btn {
+  border-radius: 16px;
+}
+
 .acciones-group {
   display: inline-flex;
   gap: 3px;
@@ -67,11 +96,19 @@
 
 /* ===== FILTROS ===== */
 .filtro-compras {
-  background: #fffaf6;
-  border: 1px solid #e6d7cc;
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: 0 4px 12px rgba(56, 40, 34, 0.06);
+  background: #fff;
+  border: 1px solid rgba(214, 180, 159, 0.8) !important;
+  border-radius: 24px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 28px rgba(56, 40, 34, 0.06) !important;
+}
+
+.compras-filter-card {
+  background: linear-gradient(180deg, #fffdfb 0%, #fbf5f0 100%);
+  border: 1px solid rgba(214, 180, 159, 0.8);
+  border-radius: 24px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 28px rgba(56, 40, 34, 0.06);
 }
 
 .filtro-compras-grid {
@@ -184,13 +221,10 @@
 
 /* ===== MODALES ===== */
 #ajaxFormModal .modal-content {
-  border-radius: 6px;
+  border-radius: 18px;
 }
 
-#ajaxFormModal .modal-header {
-  background: #f8fafc;
-  border-bottom: 1px solid rgba(16, 24, 40, .08);
-}
+
 
 #ajaxFormModal .detalle-item {
   background: #fff;
@@ -571,5 +605,180 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
+  }
+}
+/* =====================================================
+   HEADER OSCURO PARA MODALES DE COMPRAS
+   Crear compra | Crear devolución | Editar | Ver detalles
+===================================================== */
+
+/* Modal AJAX general */
+#ajaxFormModal .modal-content,
+#modalDetalleCompra .modal-content {
+  border: 0 !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+}
+
+/* Header oscuro estilo compras */
+#ajaxFormModal .modal-header,
+#modalDetalleCompra .modal-header {
+  background: linear-gradient(90deg, #2b0704 0%, #4a1d12 45%, #5a2a1c 100%) !important;
+  border-bottom: none !important;
+  padding: 16px 22px !important;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+}
+
+/* Título en blanco */
+#ajaxFormModal .modal-title,
+#modalDetalleCompra .modal-title {
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.2px;
+  margin: 0;
+}
+
+/* Botón cerrar en blanco */
+#ajaxFormModal .btn-close,
+#modalDetalleCompra .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+  box-shadow: none !important;
+}
+
+#ajaxFormModal .btn-close:hover,
+#modalDetalleCompra .btn-close:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* Body más limpio */
+#ajaxFormModal .modal-body,
+#modalDetalleCompra .modal-body {
+  background: #ffffff;
+}
+
+/* Si dentro del contenido AJAX vienen cards o bloques pegados arriba,
+   esto ayuda a que respire mejor */
+#ajaxFormModal .modal-body > :first-child,
+#modalDetalleCompra .modal-body > :first-child {
+  margin-top: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #ajaxFormModal .modal-header,
+  #modalDetalleCompra .modal-header {
+    padding: 14px 16px !important;
+    min-height: 60px;
+  }
+
+  #ajaxFormModal .modal-title,
+  #modalDetalleCompra .modal-title {
+    font-size: 1rem;
+  }
+}
+/* =====================================================
+   HEADER OSCURO TAMBIEN PARA MODAL DE COMPROBANTE
+===================================================== */
+
+#modalComprobante .modal-content {
+  border: 0 !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+}
+
+#modalComprobante .modal-header {
+  background: linear-gradient(90deg, #2b0704 0%, #4a1d12 45%, #5a2a1c 100%) !important;
+  border-bottom: none !important;
+  padding: 16px 22px !important;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+}
+
+#modalComprobante .modal-title {
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.2px;
+  margin: 0;
+}
+
+#modalComprobante .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+  box-shadow: none !important;
+}
+
+#modalComprobante .btn-close:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+#modalComprobante .modal-body {
+  background: #fff;
+}
+/* ===== FILTRO COMPRAS SIN BORDE NI FONDO PASTEL ===== */
+.filtro-compras {
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+} 
+
+@media (max-width: 576px) {
+  .compras-container {
+    padding: 8px;
+  }
+
+  .titulo-modulo {
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+
+  .filtro-compras,
+  .compras-filter-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .filtro-compras-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtro-item-busqueda,
+  .filtro-item--tipo,
+  .filtro-item--estado,
+  .filtro-item--fecha,
+  .filtro-item--desde,
+  .filtro-item--hasta {
+    grid-column: span 1 !important;
+  }
+
+  .filtro-botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-botones .btn-filtro {
+    width: 100%;
+  }
+
+  .tabla-compras thead th,
+  .tabla-compras tbody td {
+    padding: 7px 8px;
+    font-size: .76rem;
+  }
+
+  #ajaxFormModal .modal-dialog,
+  #modalDetalleCompra .modal-dialog,
+  #modalComprobante .modal-dialog {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
   }
 }

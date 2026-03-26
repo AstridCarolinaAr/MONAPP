@@ -7,6 +7,7 @@ from .forms import ServicioForm
 from gestion_alisados.models import GestionAlisado
 from gestion_alisados.forms import GestionAlisadoForm
 from servicios_web.models import ServicioWeb
+from django.http import JsonResponse
 def es_staff(user):
     return user.is_staff
 @login_required
@@ -29,92 +30,129 @@ def lista_servicios(request):
         return render(request, 'servicios/lista_servicios_global.html', context)
 
     return render(request, 'servicios/lista_servicios.html', context)
+
+
+@login_required
+def validar_nombre_servicio(request):
+    nombre = (request.GET.get('nombre') or '').strip()
+    servicio_id = (request.GET.get('servicio_id') or '').strip()
+
+    if not nombre:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El nombre del servicio es obligatorio.'
+        })
+
+    qs = Servicio.objects.filter(nombre__iexact=nombre)
+    if servicio_id:
+        qs = qs.exclude(pk=servicio_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Ya existe un servicio con este nombre.'
+        })
+
+    return JsonResponse({
+        'valid': True,
+        'message': ''
+    })
+
+
+def _primer_error_formulario(form):
+    for errores in form.errors.values():
+        if errores:
+            return errores[0]
+    return 'Corrige los errores del formulario.'
+
 @login_required
 def crear_servicio(request):
     is_modal = request.GET.get('modal') == '1'
-    
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
     if request.method == 'POST':
         form = ServicioForm(request.POST, request.FILES)
 
         if form.is_valid():
             servicio = form.save()
-            messages.success(request, f'Servicio "{servicio.nombre}" creado exitosamente.')
-            
-            # Si es una petición AJAX, devolver JSON
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+
+            if is_ajax:
                 return JsonResponse({
                     'success': True,
                     'message': f'Servicio "{servicio.nombre}" creado exitosamente.'
                 })
+
+            messages.success(request, f'Servicio "{servicio.nombre}" creado exitosamente.')
             return redirect('servicios:lista_servicios')
-        else:
-            # Si es una petición AJAX, devolver errores
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': form.errors
-                })
-    else:
-        form = ServicioForm()
-    
-    # Si es modal, cargar solo el contenido del formulario
-    if is_modal:
-        context = {
+
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors,
+                'message': _primer_error_formulario(form)
+            }, status=400)
+
+        messages.error(request, 'Corrige los errores del formulario.')
+        return render(request, 'servicios/form_servicio.html', {
             'form': form,
             'titulo': 'Crear Servicio'
-        }
-        return render(request, 'servicios/form_servicio_modal_content.html', context)
-    
+        })
+
+    form = ServicioForm()
+
     context = {
         'form': form,
         'titulo': 'Crear Servicio'
     }
 
+    if is_modal:
+        return render(request, 'servicios/form_servicio_modal_content.html', context)
+
     return render(request, 'servicios/form_servicio.html', context)
+
 
 @login_required
 def editar_servicio(request, pk):
     servicio = get_object_or_404(Servicio, pk=pk)
     is_modal = request.GET.get('modal') == '1'
-    
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
     if request.method == 'POST':
         form = ServicioForm(request.POST, request.FILES, instance=servicio)
+
         if form.is_valid():
             servicio = form.save()
-            messages.success(request, f'Servicio "{servicio.nombre}" actualizado exitosamente.')
-            
-            # Si es una petición AJAX, devolver JSON
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            mensaje = f'Servicio "{servicio.nombre}" actualizado exitosamente.'
+
+            if is_ajax:
                 return JsonResponse({
                     'success': True,
-                    'message': f'Servicio "{servicio.nombre}" actualizado exitosamente.'
+                    'message': mensaje
                 })
+
+            messages.success(request, mensaje)
             return redirect('servicios:lista_servicios')
-        else:
-            # Si es una petición AJAX, devolver errores
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': form.errors
-                })
+
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors,
+                'message': _primer_error_formulario(form)
+            }, status=400)
+
     else:
         form = ServicioForm(instance=servicio)
-    
-    # Si es modal, cargar solo el contenido del formulario
-    if is_modal:
-        context = {
-            'form': form,
-            'titulo': 'Editar Servicio',
-            'servicio': servicio
-        }
-        return render(request, 'servicios/form_editar_servicio_modal_content.html', context)
-    
+
     context = {
         'form': form,
         'titulo': 'Editar Servicio',
         'servicio': servicio
     }
-    return render(request, 'servicios/form_servicio.html', context)
+
+    if is_modal:
+        return render(request, 'servicios/form_editar_servicio_modal_content.html', context)
+
+    return render(request, 'servicios/editar_servicio.html', context)
 
 @login_required
 def eliminar_servicio(request, pk):
@@ -204,18 +242,17 @@ def crear_gestion_alisado(request):
         else:
             form = GestionAlisadoForm()
 
-    # ✅ Contexto definido una sola vez
+   
     context = {
         'form': form,
         'titulo': 'Gestión de datos',
         'is_modal': is_modal
     }
 
-    # ✅ Si es modal, renderiza template modal
+    
     if is_modal:
         return render(request, 'servicios/form_gestion_alisado_modal_content.html', context)
 
-    # ✅ Si no es modal, render normal
     return render(request, 'servicios/form_gestion_alisado.html', context)
 
 

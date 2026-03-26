@@ -57,9 +57,6 @@
         <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #634c40;">
             <h4 class="mb-0">Gestion de datos</h4>
             <div>
-                <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-warning">
-                    <i class="bi bi-pencil"></i> Editar
-                </a>
                 <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-light">
                     <i class="bi bi-arrow-left"></i> Volver
                 </a>
@@ -340,14 +337,6 @@
                 <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Volver a la Lista
                 </a>
-                <div>
-                    <a href="{% url 'gestion_alisados:editar_gestion_alisado' gestion.pk %}" class="btn btn-warning">
-                        <i class="bi bi-pencil"></i> Editar
-                    </a>
-                    <a href="{% url 'gestion_alisados:eliminar_gestion_alisado' gestion.pk %}" class="btn btn-danger">
-                        <i class="bi bi-trash"></i> Eliminar
-                    </a>
-                </div>
             </div>
         </div>
     </div>

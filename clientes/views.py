@@ -93,12 +93,18 @@ def validar_cliente_ajax(request):
 
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
         datos = request.POST
         errores = validar_datos_cliente(datos, cliente_id=cliente.id)
 
         if errores:
+            if es_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'errores': errores
+                }, status=400)
             messages.error(request, 'No se pudieron guardar los cambios.')
             return render(request, 'clientes/editar_cliente.html', {
                 'cliente': cliente,
@@ -116,8 +122,22 @@ def editar_cliente(request, cliente_id):
         cliente.estado = datos['estado']
         cliente.save()
 
+        if es_ajax:
+            return JsonResponse({'success': True}, status=200)
         messages.success(request, 'Cliente actualizado correctamente.')
         return redirect('clientes:lista')
+
+    if es_ajax:
+        return JsonResponse({
+            'tipo_documento': cliente.tipo_documento,
+            'numero_documento': cliente.numero_documento,
+            'nombre': cliente.nombre,
+            'apellido': cliente.apellido,
+            'fecha_nacimiento': cliente.fecha_nacimiento.isoformat() if cliente.fecha_nacimiento else '',
+            'telefono': cliente.telefono or '',
+            'correo': cliente.correo or '',
+            'estado': cliente.estado,
+        })
 
     return render(request, 'clientes/editar_cliente.html', {
         'cliente': cliente
@@ -130,10 +150,8 @@ def lista_clientes(request):
     """
     q = request.GET.get('q', '').strip()
     estado = request.GET.get('estado', '').strip()
-    codigo = request.GET.get('codigo', '').strip()
     edad = request.GET.get('edad', '').strip()
     orden = request.GET.get('orden', '').strip()
-        
 
     clientes = Cliente.objects.all()
 
@@ -141,12 +159,10 @@ def lista_clientes(request):
         clientes = clientes.filter(
             Q(nombre__icontains=q) |
             Q(apellido__icontains=q) |
-            Q(numero_documento__icontains=q)
+            Q(numero_documento__icontains=q) |
+            Q(codigo_cliente__icontains=q)
         )
 
-    if codigo:
-        clientes = clientes.filter(codigo_cliente__icontains=codigo)
-        
     if estado in ['activo', 'inactivo']:
         clientes = clientes.filter(estado=estado)
 
@@ -159,54 +175,55 @@ def lista_clientes(request):
         clientes = clientes.filter(fecha_nacimiento__lte=fecha_limite)
 
     ordenamientos = {
-    
-      'codigo_asc': ('codigo_cliente',),
-    'codigo_desc': ('-codigo_cliente',),
+        'codigo_asc': ('codigo_cliente',),
+        'codigo_desc': ('-codigo_cliente',),
 
-    'nombre_asc': ('nombre', 'apellido'),
-    'nombre_desc': ('-nombre', '-apellido'),
+        'nombre_asc': ('nombre', 'apellido'),
+        'nombre_desc': ('-nombre', '-apellido'),
 
-    'documento_asc': ('numero_documento',),
-    'documento_desc': ('-numero_documento',),
+        'apellido_asc': ('apellido', 'nombre'),
+        'apellido_desc': ('-apellido', '-nombre'),
 
-    'telefono_asc': ('telefono',),
-    'telefono_desc': ('-telefono',),
+        'documento_asc': ('numero_documento',),
+        'documento_desc': ('-numero_documento',),
 
-    'estado_asc': ('estado', 'nombre'),
-    'estado_desc': ('-estado', 'nombre'),
+        'telefono_asc': ('telefono',),
+        'telefono_desc': ('-telefono',),
 
-    'fecha_nacimiento_asc': ('fecha_nacimiento',),
-    'fecha_nacimiento_desc': ('-fecha_nacimiento',),
+        'estado_asc': ('estado', 'nombre'),
+        'estado_desc': ('-estado', 'nombre'),
 
-    'registro_asc': ('fecha_registro',),
-    'registro_desc': ('-fecha_registro',),
-}
+        'fecha_asc': ('fecha_nacimiento',),
+        'fecha_desc': ('-fecha_nacimiento',),
+
+        'registro_asc': ('fecha_registro',),
+        'registro_desc': ('-fecha_registro',),
+    }
 
     if orden in ordenamientos:
         clientes = clientes.order_by(*ordenamientos[orden])
-        
 
-    return render(request, 'clientes/lista_clientes.html', {
+    context = {
         'clientes': clientes,
         'q': q,
         'estado': estado,
-        'codigo': codigo,
         'edad': edad,
         'orden': orden,
-        
 
-        # ✅ Por defecto NO abrir modal al recargar
         'abrir_modal_cliente': False,
         'registro_fallido': False,
         'errores': {},
         'datos': {},
 
-        # ✅ Importante: NO activamos gestión por querystring aquí
         'mostrar_modal_gestion': False,
         'cliente_creado_id': None,
         'cliente_creado_nombre': "",
-    })
+    }
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'clientes/lista_clientes_global.html', context)
+
+    return render(request, 'clientes/lista_clientes.html', context)
 
 def validar_documento(request):
     numero = (request.GET.get('numero') or '').strip()

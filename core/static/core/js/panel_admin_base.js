@@ -1,180 +1,24 @@
-console.log('ARCHIVO NUEVO REAL');
-
 document.addEventListener('DOMContentLoaded', function () {
     initSidebar();
     initAlerts();
     initActiveLinks();
     initTooltips();
-    initIconSwapButtons();
+    if (typeof initIconSwapButtons === 'function') {
+        initIconSwapButtons();
+    }
     initAccessibility();
     initDashboardChart();
     initAjaxFilterForms();
+    initInstantFilterForms();
     initSearchToggle();
-    initSmartFormValidation();
-
-    console.log('Dashboard inicializado correctamente');
+    if (typeof initSmartFormValidation === 'function') {
+        initSmartFormValidation();
+    }
 });
-
-// ==================== HOVER ICONO -> TEXTO ====================
-function initIconSwapButtons() {
-    const root = document.getElementById('main-content');
-    if (!root) return;
-
-    const isTransparentColor = (value) => {
-        if (!value) return true;
-        const v = value.toLowerCase().trim();
-        if (v === 'transparent') return true;
-        if (v.startsWith('rgba(')) {
-            const parts = v.replace('rgba(', '').replace(')', '').split(',').map(s => s.trim());
-            const alpha = parseFloat(parts[3] || '1');
-            return Number.isFinite(alpha) ? alpha === 0 : false;
-        }
-        return false;
-    };
-
-    const selectors = [
-        'a.btn',
-        'button.btn',
-        '.page-actions a',
-        '.page-actions button',
-        'a[class*="btn-"]',
-        'button[class*="btn-"]',
-        'a[class*="table-action"]',
-        'button[class*="table-action"]',
-        'a[class*="action"]',
-        'button[class*="action"]',
-        'a[class*="act"]',
-        'button[class*="act"]',
-        'a.action-btn-card',
-        'a.module-container',
-        'a.qa-card',
-        '.lib-card__action-btn',
-        '.view-btn',
-        '.sw-view-btn',
-        '.btn-pill-dark',
-        '.btn-modal-save',
-        '.btn-modal-cancel'
-    ].join(', ');
-
-    const excludedSelector = [
-        '.sidebar',
-        '.sidebar-handle',
-        '.sidebar-nav',
-        '.btn-search-toggle',
-        '.btn-close',
-        '.btn-close-dev',
-        '.dropdown-toggle',
-        '[data-bs-toggle="collapse"]',
-        '[data-icon-swap="off"]'
-    ].join(', ');
-
-    root.querySelectorAll(selectors).forEach((btn) => {
-        if (btn.classList.contains('icon-text-hover-btn')) return;
-        if (btn.closest(excludedSelector)) return;
-
-        const clone = btn.cloneNode(true);
-        clone.querySelectorAll('i, svg').forEach((n) => n.remove());
-        const labelFromText = (clone.textContent || '').replace(/\s+/g, ' ').trim();
-        const classBlob = `${btn.className} ${btn.getAttribute('title') || ''} ${labelFromText}`.toLowerCase();
-        const hasIcon = !!btn.querySelector('i, svg');
-
-        function inferLabel() {
-            if (/edit|editar|pencil/.test(classBlob)) return 'Editar';
-            if (/delete|eliminar|trash|danger|remove/.test(classBlob)) return 'Eliminar';
-            if (/detail|detalle|ver|eye|view/.test(classBlob)) return 'Ver';
-            if (/add|nuevo|nueva|crear|plus/.test(classBlob)) return 'Agregar';
-            if (/save|guardar/.test(classBlob)) return 'Guardar';
-            if (/cancel|cerrar|close/.test(classBlob)) return 'Cerrar';
-            if (/reactivar|restore/.test(classBlob)) return 'Reactivar';
-            if (/toggle|estado|activo/.test(classBlob)) return 'Estado';
-            return '';
-        }
-
-        const label =
-            btn.getAttribute('data-hover-label') ||
-            labelFromText ||
-            btn.getAttribute('aria-label') ||
-            btn.getAttribute('title') ||
-            inferLabel();
-
-        if (!label) return;
-
-        const normalized = label.toLowerCase();
-        const isAddAction = /agregar|crear|nuevo|nueva|añadir|add/.test(normalized);
-
-        const hasOwnVisibleText = labelFromText.length > 0;
-        if (!hasIcon && !isAddAction) return;
-        if (
-            hasOwnVisibleText &&
-            !btn.getAttribute('data-hover-label') &&
-            !btn.getAttribute('title') &&
-            !btn.getAttribute('aria-label')
-        ) {
-            return;
-        }
-
-        let icon = btn.querySelector('i.bi, i[class*="fa-"], svg');
-        if (!icon) {
-            const fallbackIcon = document.createElement('i');
-            fallbackIcon.className = isAddAction ? 'bi bi-plus-circle' : 'bi bi-dot';
-            btn.prepend(fallbackIcon);
-            icon = fallbackIcon;
-        }
-
-        // Unificar ícono de "agregar" para todos los módulos.
-        if (isAddAction) {
-            icon.className = 'bi bi-plus-circle';
-        }
-
-        const currentWidth = Math.ceil(btn.getBoundingClientRect().width);
-
-        const iconWrap = document.createElement('span');
-        iconWrap.className = 'swap-icon';
-        iconWrap.appendChild(icon.cloneNode(true));
-
-        const textWrap = document.createElement('span');
-        textWrap.className = 'swap-text';
-        textWrap.textContent = label;
-
-        btn.innerHTML = '';
-        btn.appendChild(iconWrap);
-        btn.appendChild(textWrap);
-        btn.classList.add('icon-text-hover-btn');
-        btn.setAttribute('data-hover-label', label);
-        if (isAddAction) {
-            btn.classList.add('is-add-action');
-        }
-
-        if (currentWidth > 0) {
-            btn.style.minWidth = `${currentWidth}px`;
-        }
-
-        const measure = document.createElement('span');
-        measure.className = 'swap-measure';
-        measure.textContent = label;
-        btn.appendChild(measure);
-        const labelWidth = Math.ceil(measure.getBoundingClientRect().width) + 22;
-        measure.remove();
-
-        const baseWidth = Math.max(currentWidth || 44, 44);
-        const hoverWidth = Math.max(baseWidth, labelWidth);
-        btn.style.setProperty('--swap-base-width', `${baseWidth}px`);
-        btn.style.setProperty('--swap-hover-width', `${hoverWidth}px`);
-
-        const styles = getComputedStyle(btn);
-        const baseFg = styles.color || '#382822';
-        const rawBg = styles.backgroundColor;
-        const baseBg = isTransparentColor(rawBg) ? '#f3ece7' : rawBg;
-        const baseBorder = styles.borderColor || baseFg;
-
-        btn.style.setProperty('--swap-base-fg', baseFg);
-        btn.style.setProperty('--swap-base-bg', baseBg);
-        btn.style.setProperty('--swap-base-border', baseBorder);
-    });
-}
 // ==================== SIDEBAR ====================
 function initSidebar() {
     const sidebarHandle = document.getElementById('sidebar-handle');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
 
@@ -195,13 +39,25 @@ function initSidebar() {
         localStorage.setItem('sidebarCollapsed', isCollapsed);
     }
 
-    if (sidebarHandle) {
+    if (sidebarHandle && sidebarHandle.dataset.sidebarBound !== 'true') {
+        sidebarHandle.dataset.sidebarBound = 'true';
         sidebarHandle.addEventListener('click', function (e) {
+            e.preventDefault();
             e.stopPropagation();
             toggleSidebar();
         });
     }
 
+    // ── Conectar botón del topbar  ──
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // ── Restaurar estado guardado ──
+    // Default: sidebar abierto. Solo colapsar si el usuario lo cerró manualmente.
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
     if (sidebarCollapsed === 'true' && window.innerWidth > 991) {
         sidebar.classList.add('collapsed');
@@ -298,7 +154,6 @@ function initDashboardChart() {
 // =========================
 function initSearchToggle() {
     const wrappers = document.querySelectorAll('.search-toggle-wrapper');
-    console.log('buscadores encontrados:', wrappers.length);
 
     wrappers.forEach(function (wrapper) {
         if (wrapper.dataset.searchInit === 'true') return;
@@ -459,7 +314,7 @@ function initAjaxFilterForms() {
         let activeController = null;
         let lastQueryString = null;
 
-        async function runAjaxRequest() {
+        async function runAjaxRequest(submitter = null) {
             const target = document.querySelector(ajaxTargetSelector);
 
             if (!target) {
@@ -468,6 +323,9 @@ function initAjaxFilterForms() {
             }
 
             const formData = new FormData(form);
+            if (submitter && submitter.name) {
+                formData.set(submitter.name, submitter.value || "");
+            }
             const params = new URLSearchParams(formData);
             const queryString = params.toString();
             const url = `${ajaxUrl}?${queryString}`;
@@ -519,14 +377,6 @@ function initAjaxFilterForms() {
                 if (typeof initTooltips === 'function') {
                     initTooltips();
                 }
-
-                if (typeof initIconSwapButtons === 'function') {
-                    initIconSwapButtons();
-                }
-
-                if (typeof initSmartFormValidation === 'function') {
-                    initSmartFormValidation(target);
-                }
             } catch (error) {
                 if (error.name === 'AbortError') return;
 
@@ -537,25 +387,31 @@ function initAjaxFilterForms() {
             }
         }
 
-        function submitAjaxForm(immediate = false) {
+        function submitAjaxForm(immediate = false, submitter = null) {
             clearTimeout(debounceTimer);
 
             if (immediate) {
-                runAjaxRequest();
+                runAjaxRequest(submitter);
                 return;
             }
 
-            debounceTimer = setTimeout(runAjaxRequest, ajaxDebounce);
+            debounceTimer = setTimeout(() => runAjaxRequest(submitter), ajaxDebounce);
         }
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            submitAjaxForm(true);
+            submitAjaxForm(true, e.submitter || null);
         });
 
-        form.querySelectorAll('select, input[type="date"]').forEach(function (field) {
+        form.querySelectorAll('select, input[type="date"], input[type="checkbox"], input[type="radio"]').forEach(function (field) {
             field.addEventListener('change', function () {
                 submitAjaxForm(true);
+            });
+        });
+
+        form.querySelectorAll('input[type="text"], input[type="search"], textarea').forEach(function (field) {
+            field.addEventListener('input', function () {
+                submitAjaxForm(false);
             });
         });
 
@@ -563,211 +419,46 @@ function initAjaxFilterForms() {
     });
 }
 
-function initSmartFormValidation(root = document) {
-    const fields = root.querySelectorAll(
-        'form input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), form textarea'
-    );
+function initInstantFilterForms() {
+    const forms = document.querySelectorAll('.js-instant-filter-form');
 
-    fields.forEach(function (field) {
-        if (field.dataset.validationBound === 'true') return;
-        if (field.disabled || field.readOnly) return;
+    forms.forEach(function (form) {
+        if (form.dataset.instantFilterInit === 'true') return;
+        form.dataset.instantFilterInit = 'true';
 
-        const rule = resolveValidationRule(field);
-        if (!rule) return;
+        let debounceTimer = null;
+        const debounceMs = parseInt(form.dataset.instantFilterDebounce || '250', 10);
 
-        field.dataset.validationBound = 'true';
-        field.dataset.validate = field.dataset.validate || rule;
+        function submitNow() {
+            form.submit();
+        }
 
-        field.addEventListener('beforeinput', function (event) {
-            if (!event.data || event.inputType && !event.inputType.startsWith('insert')) return;
+        function queueSubmit(immediate = false) {
+            clearTimeout(debounceTimer);
 
-            const nextValue = buildNextValue(field, event.data);
-            if (isValueAllowed(nextValue, rule, field)) return;
-
-            event.preventDefault();
-            triggerFieldShake(field);
-        });
-
-        field.addEventListener('paste', function (event) {
-            const pastedText = (event.clipboardData || window.clipboardData).getData('text');
-            const nextValue = buildNextValue(field, pastedText);
-
-            if (isValueAllowed(nextValue, rule, field)) return;
-
-            event.preventDefault();
-            triggerFieldShake(field);
-        });
-
-        field.addEventListener('input', function () {
-            const sanitized = sanitizeValue(field.value, rule, field);
-            if (sanitized === field.value) return;
-
-            const cursor = field.selectionStart;
-            field.value = sanitized;
-            if (typeof cursor === 'number') {
-                const nextCursor = Math.max(0, Math.min(sanitized.length, cursor - 1));
-                field.setSelectionRange(nextCursor, nextCursor);
+            if (immediate) {
+                submitNow();
+                return;
             }
-            triggerFieldShake(field);
+
+            debounceTimer = setTimeout(submitNow, debounceMs);
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitNow();
+        });
+
+        form.querySelectorAll('select, input[type="date"], input[type="checkbox"], input[type="radio"]').forEach(function (field) {
+            field.addEventListener('change', function () {
+                queueSubmit(true);
+            });
+        });
+
+        form.querySelectorAll('input[type="text"], input[type="search"], textarea').forEach(function (field) {
+            field.addEventListener('input', function () {
+                queueSubmit(false);
+            });
         });
     });
-}
-
-function resolveValidationRule(field) {
-    if (field.dataset.validate) return field.dataset.validate;
-
-    const type = (field.getAttribute('type') || '').toLowerCase();
-    const signature = [
-        field.name || '',
-        field.id || '',
-        field.placeholder || '',
-        getFieldLabelText(field),
-    ].join(' ').toLowerCase();
-
-    if (['email', 'password', 'url', 'date', 'datetime-local', 'time'].includes(type)) {
-        return null;
-    }
-
-    if (/correo|email/.test(signature)) return null;
-    if (/password|contrasena|contraseña/.test(signature)) return null;
-    if (/url|sitio web|pagina web|página web/.test(signature)) return null;
-    if (/documento/.test(signature) && /usuario|username/.test(signature)) return 'alnum';
-
-    if (type === 'number') {
-        return allowsDecimal(field) ? 'decimal' : 'numeric';
-    }
-
-    if (/precio|total|saldo|anticipo|descuento|porcentaje|valor|monto|costo/.test(signature)) {
-        return 'decimal';
-    }
-
-    if (/documento|cedula|cédula|nit|telefono|teléfono|celular|cantidad|stock|codigo|código|numero|número/.test(signature)) {
-        return 'numeric';
-    }
-
-    if (/nombre/.test(signature) && /producto|servicio|promocion|promoción|web/.test(signature)) {
-        return 'alnum';
-    }
-
-    if (/nombre|nombres|apellido|apellidos|marca|linea|línea|rol|cargo/.test(signature)) {
-        return 'alpha';
-    }
-
-    if (/direccion|dirección|descripcion|descripción|observacion|observación|motivo|detalle|presentacion|presentación|placa|usuario|referencia|procedimiento|recomendacion|recomendación|medicamento|frecuencia/.test(signature)) {
-        return 'alnum';
-    }
-
-    if (field.tagName === 'TEXTAREA') {
-        return 'text';
-    }
-
-    return 'text';
-}
-
-function getFieldLabelText(field) {
-    if (field.labels && field.labels.length) {
-        return Array.from(field.labels).map(function (label) {
-            return label.textContent || '';
-        }).join(' ');
-    }
-
-    if (!field.id) return '';
-
-    const label = document.querySelector('label[for="' + field.id + '"]');
-    return label ? label.textContent || '' : '';
-}
-
-function buildNextValue(field, insertedText) {
-    const start = typeof field.selectionStart === 'number' ? field.selectionStart : field.value.length;
-    const end = typeof field.selectionEnd === 'number' ? field.selectionEnd : field.value.length;
-    return field.value.slice(0, start) + insertedText + field.value.slice(end);
-}
-
-function allowsDecimal(field) {
-    const step = String(field.getAttribute('step') || '').trim();
-    return step && step !== '1';
-}
-
-function isValueAllowed(value, rule, field) {
-    if (!value) return true;
-
-    if (rule === 'numeric') {
-        return /^[0-9]+$/.test(value);
-    }
-
-    if (rule === 'decimal') {
-        const normalized = value.replace(/,/g, '.');
-        if (!/^[0-9]+(\.[0-9]*)?$/.test(normalized)) return false;
-
-        const decimals = normalized.includes('.') ? normalized.split('.')[1].length : 0;
-        const step = String(field.getAttribute('step') || '').trim();
-        if (step === '0.01' && decimals > 2) return false;
-        return true;
-    }
-
-    if (rule === 'alpha') {
-        return /^[\p{L}\s]+$/u.test(value);
-    }
-
-    if (rule === 'alnum') {
-        return /^[\p{L}0-9\s]+$/u.test(value);
-    }
-
-    if (rule === 'text') {
-        return /^[\p{L}0-9\s\n]+$/u.test(value);
-    }
-
-    return true;
-}
-
-function sanitizeValue(value, rule, field) {
-    if (!value) return value;
-
-    if (rule === 'numeric') {
-        return value.replace(/[^0-9]/g, '');
-    }
-
-    if (rule === 'decimal') {
-        let normalized = value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
-        const firstDotIndex = normalized.indexOf('.');
-        if (firstDotIndex !== -1) {
-            normalized =
-                normalized.slice(0, firstDotIndex + 1) +
-                normalized.slice(firstDotIndex + 1).replace(/\./g, '');
-        }
-
-        const step = String(field.getAttribute('step') || '').trim();
-        if (step === '0.01' && normalized.includes('.')) {
-            const parts = normalized.split('.');
-            normalized = parts[0] + '.' + parts[1].slice(0, 2);
-        }
-
-        return normalized;
-    }
-
-    if (rule === 'alpha') {
-        return Array.from(value).filter(function (char) {
-            return /[\p{L}\s]/u.test(char);
-        }).join('');
-    }
-
-    if (rule === 'alnum') {
-        return Array.from(value).filter(function (char) {
-            return /[\p{L}0-9\s]/u.test(char);
-        }).join('');
-    }
-
-    if (rule === 'text') {
-        return Array.from(value).filter(function (char) {
-            return /[\p{L}0-9\s\n]/u.test(char);
-        }).join('');
-    }
-
-    return value;
-}
-
-function triggerFieldShake(field) {
-    field.classList.remove('field-validation-shake');
-    void field.offsetWidth;
-    field.classList.add('field-validation-shake');
 }

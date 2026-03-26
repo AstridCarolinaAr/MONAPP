@@ -1,10 +1,6 @@
-console.log('crear_proveedor.js cargado');
-
 document.addEventListener('DOMContentLoaded', () => {
 
     const numericInputs = document.querySelectorAll('input[data-only="number"]');
-
-    console.log('Inputs numéricos encontrados:', numericInputs.length);
 
     numericInputs.forEach(input => {
 
