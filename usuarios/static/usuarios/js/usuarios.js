@@ -1,3 +1,67 @@
+function mostrarAlertaArchivoNoPermitido() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Archivo no permitido',
+            text: 'No se permiten otros archivos que no sean PNG, GIF, JPG o JPEG.',
+            confirmButtonColor: '#5d4037',
+            background: '#fdfaf8',
+            color: '#4b3621'
+        });
+        return;
+    }
+
+    alert('No se permiten otros archivos que no sean PNG, GIF, JPG o JPEG.');
+}
+
+function configurarFotoPerfil(form, previewId, containerId) {
+    const input = form ? form.querySelector('input[name="foto_perfil"]') : null;
+    if (!input || input.dataset.validacionFotoPerfil === '1') return;
+    input.dataset.validacionFotoPerfil = '1';
+
+    input.addEventListener('change', function (e) {
+        const file = e.target.files && e.target.files[0];
+        const preview = document.getElementById(previewId);
+        const container = document.getElementById(containerId);
+        const icon = container ? container.querySelector('i') : null;
+
+        if (!file) {
+            if (preview) {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+            if (icon) icon.style.display = 'block';
+            return;
+        }
+
+        const nombre = (file.name || '').toLowerCase();
+        const mime = (file.type || '').toLowerCase();
+        const extValida = /\.(jpe?g|png|gif)$/.test(nombre);
+        const mimeValido = ['image/jpeg', 'image/png', 'image/gif'].includes(mime);
+
+        if (!extValida && !mimeValido) {
+            e.target.value = '';
+            if (preview) {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+            if (icon) icon.style.display = 'block';
+            mostrarAlertaArchivoNoPermitido();
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            if (preview) {
+                preview.src = ev.target.result;
+                preview.style.display = 'block';
+            }
+            if (icon) icon.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 // Función para inicializar las validaciones en tiempo real
 function inicializarValidacionesUsuario() {
 
@@ -6,6 +70,7 @@ function inicializarValidacionesUsuario() {
 
     if (!form || !btnGuardar) return;
     wireUsuarioInputGuards(form);
+    configurarFotoPerfil(form, 'preview-foto', 'preview-foto-container');
 
     /* ===============================
        INICIO: BOTÓN DESHABILITADO
@@ -384,6 +449,7 @@ function inicializarValidacionesEditarUsuario() {
         return;
     }
     wireUsuarioInputGuards(form);
+    configurarFotoPerfil(form, 'preview-foto-editar', 'preview-foto-editar-container');
 
     /* ===============================
        INICIO: BOTÓN DESHABILITADO
@@ -718,6 +784,7 @@ function inicializarValidacionesEditarUsuarioCompleto() {
         return;
     }
     wireUsuarioInputGuards(form);
+    configurarFotoPerfil(form, 'preview-foto-editar', 'preview-foto-editar-container');
 
     /* ===============================
        INICIO: BOTÓN DESHABILITADO

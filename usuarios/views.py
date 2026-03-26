@@ -294,7 +294,6 @@ def lista_usuarios_view(request):
     usuarios = usuarios.order_by('-date_joined')
 
     q = form.cleaned_data.get('busqueda', '') if form.is_valid() else ''
-
     context = {
         'titulo'          : 'Gestión de Usuarios',
         'usuarios'        : usuarios,
@@ -383,13 +382,12 @@ def editar_usuario_view(request, user_id):
 
             if form_usuario.is_valid() and form_perfil.is_valid():
                 user_updated = form_usuario.save(commit=False)
-
-            rol = str(form_usuario.cleaned_data.get('rol', '')).strip()
-            if rol:
-                user_updated.groups.clear()
-                grupo, _ = Group.objects.get_or_create(name=rol)
-                user_updated.groups.add(grupo)
-                user_updated.is_staff = rol in ['Administrador', 'Auxiliar']
+                rol = str(form_usuario.cleaned_data.get('rol', '')).strip()
+                if rol:
+                    user_updated.groups.clear()
+                    grupo, _ = Group.objects.get_or_create(name=rol)
+                    user_updated.groups.add(grupo)
+                    user_updated.is_staff = rol in ['Administrador', 'Auxiliar']
 
                 user_updated.save()
                 form_perfil.save()
@@ -482,17 +480,18 @@ def eliminar_usuario_view(request, user_id):
 
     if request.method == 'POST':
         nombre_completo = usuario.get_full_name()
-        usuario.delete()
+        usuario.is_active = False
+        usuario.save(update_fields=['is_active'])
         
         if is_ajax:
             return JsonResponse({
                 'success': True,
-                'message': f'Usuario {nombre_completo} eliminado exitosamente.'
+                'message': f'Usuario {nombre_completo} desactivado exitosamente.'
             })
         else:
             messages.success(
                 request,
-                f'Usuario {nombre_completo} eliminado.'
+                f'Usuario {nombre_completo} desactivado.'
             )
             return redirect('usuarios:lista_usuarios')
 
@@ -514,7 +513,7 @@ def eliminar_usuario_view(request, user_id):
         request,
         'usuarios/eliminar_usuario.html',
         {
-            'titulo': 'Eliminar Usuario',
+            'titulo': 'Desactivar Usuario',
             'usuario': usuario,
         }
     )
