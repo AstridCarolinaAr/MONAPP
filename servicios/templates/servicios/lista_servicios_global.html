@@ -33,6 +33,10 @@
             <div class="lib-card__name" title="{{ servicio.nombre }}">{{ servicio.nombre }}</div>
             <div class="lib-card__footer">
                 <span class="lib-card__price">${{ servicio.precio|floatformat:2 }}</span>
+                <label class="switch-toggle lib-card__switch" title="{% if servicio.activo %}Desactivar{% else %}Activar{% endif %}" aria-label="{% if servicio.activo %}Desactivar servicio {{ servicio.nombre }}{% else %}Activar servicio {{ servicio.nombre }}{% endif %}">
+                    <input type="checkbox" class="switch-activo" data-id="{{ servicio.pk }}" {% if servicio.activo %}checked{% endif %}>
+                    <span class="switch-slider"></span>
+                </label>
             </div>
             <div class="lib-card__date">{{ servicio.fecha_creacion|date:"d/m/Y" }}</div>
         </div>

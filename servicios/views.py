@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
+from django.core.exceptions import ValidationError
+from django.db.models.deletion import ProtectedError
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils import timezone
 from .models import Servicio
 from .forms import ServicioForm
 from gestion_alisados.models import GestionAlisado
@@ -11,6 +15,7 @@ from django.http import JsonResponse
 def es_staff(user):
     return user.is_staff
 @login_required
+@ensure_csrf_cookie
 def lista_servicios(request):
     servicios = Servicio.objects.all()
     q = request.GET.get('q', '').strip()
@@ -65,6 +70,27 @@ def _primer_error_formulario(form):
             return errores[0]
     return 'Corrige los errores del formulario.'
 
+
+def _validation_error_a_dict(error):
+    if hasattr(error, 'message_dict') and error.message_dict:
+        return error.message_dict
+
+    mensajes = getattr(error, 'messages', None) or [str(error)]
+    return {'__all__': mensajes}
+
+
+def _primer_mensaje_validation_error(error, fallback='No se pudo guardar el servicio.'):
+    mensajes = getattr(error, 'messages', None)
+    if mensajes:
+        return mensajes[0]
+
+    if hasattr(error, 'message_dict') and error.message_dict:
+        for valores in error.message_dict.values():
+            if valores:
+                return valores[0]
+
+    return fallback
+
 @login_required
 def crear_servicio(request):
     is_modal = request.GET.get('modal') == '1'
@@ -74,15 +100,34 @@ def crear_servicio(request):
         form = ServicioForm(request.POST, request.FILES)
 
         if form.is_valid():
-            servicio = form.save()
+            try:
+                servicio = form.save(commit=False)
+                servicio.activo = True
+                servicio.save()
+            except ValidationError as error:
+                errores = _validation_error_a_dict(error)
+                mensaje_error = _primer_mensaje_validation_error(error)
+                if is_ajax:
+                    return JsonResponse({
+                        'success': False,
+                        'errors': errores,
+                        'message': mensaje_error
+                    }, status=400)
+
+                form.add_error(None, mensaje_error)
+                messages.error(request, mensaje_error)
+                return render(request, 'servicios/form_servicio.html', {
+                    'form': form,
+                    'titulo': 'Crear Servicio'
+                })
 
             if is_ajax:
                 return JsonResponse({
                     'success': True,
-                    'message': f'Servicio "{servicio.nombre}" creado exitosamente.'
+                    'message': f'Servicio "{servicio.nombre}" guardado correctamente.'
                 })
 
-            messages.success(request, f'Servicio "{servicio.nombre}" creado exitosamente.')
+            messages.success(request, f'Servicio "{servicio.nombre}" guardado correctamente.')
             return redirect('servicios:lista_servicios')
 
         if is_ajax:
@@ -121,8 +166,27 @@ def editar_servicio(request, pk):
         form = ServicioForm(request.POST, request.FILES, instance=servicio)
 
         if form.is_valid():
-            servicio = form.save()
-            mensaje = f'Servicio "{servicio.nombre}" actualizado exitosamente.'
+            try:
+                servicio = form.save()
+            except ValidationError as error:
+                errores = _validation_error_a_dict(error)
+                mensaje_error = _primer_mensaje_validation_error(error, 'No se pudo actualizar el servicio.')
+                if is_ajax:
+                    return JsonResponse({
+                        'success': False,
+                        'errors': errores,
+                        'message': mensaje_error
+                    }, status=400)
+
+                form.add_error(None, mensaje_error)
+                messages.error(request, mensaje_error)
+                return render(request, 'servicios/editar_servicio.html', {
+                    'form': form,
+                    'titulo': 'Editar Servicio',
+                    'servicio': servicio
+                })
+
+            mensaje = f'Servicio "{servicio.nombre}" actualizado correctamente.'
 
             if is_ajax:
                 return JsonResponse({
@@ -130,7 +194,8 @@ def editar_servicio(request, pk):
                     'message': mensaje
                 })
 
-            messages.success(request, mensaje)
+            if not is_ajax:
+                messages.success(request, mensaje)
             return redirect('servicios:lista_servicios')
 
         if is_ajax:
@@ -161,8 +226,17 @@ def eliminar_servicio(request, pk):
     
     if request.method == 'POST':
         nombre = servicio.nombre
-        servicio.delete()
-        messages.success(request, f'Servicio "{nombre}" eliminado exitosamente.')
+        try:
+            servicio.delete()
+        except ProtectedError:
+            mensaje = f'No se puede eliminar "{nombre}" porque ya tiene ventas u otros registros asociados.'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': mensaje
+                }, status=400)
+            messages.error(request, mensaje)
+            return redirect('servicios:lista_servicios')
         
         # Si es una petición AJAX, devolver JSON
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -170,6 +244,7 @@ def eliminar_servicio(request, pk):
                 'success': True,
                 'message': f'Servicio "{nombre}" eliminado exitosamente.'
             })
+        messages.success(request, f'Servicio "{nombre}" eliminado exitosamente.')
         return redirect('servicios:lista_servicios')
     
     # Si es modal, cargar solo el contenido del formulario
@@ -188,11 +263,14 @@ def eliminar_servicio(request, pk):
 def toggle_activo_servicio(request, pk):
     if request.method == 'POST':
         servicio = get_object_or_404(Servicio, pk=pk)
-        servicio.activo = not servicio.activo
-        servicio.save()
+        nuevo_estado = not servicio.activo
+        Servicio.objects.filter(pk=servicio.pk).update(
+            activo=nuevo_estado,
+            fecha_modificacion=timezone.now(),
+        )
         return JsonResponse({
             'success': True,
-            'activo': servicio.activo
+            'activo': nuevo_estado
         })
     return JsonResponse({'success': False}, status=400)
 
