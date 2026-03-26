@@ -23,15 +23,45 @@ from .models import Proveedor
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
+
+@login_required
+def validar_nombre_proveedor(request):
+    nombre = (request.GET.get("nombre") or "").strip()
+    proveedor_id = (request.GET.get("proveedor_id") or "").strip()
+
+    if not nombre:
+        return JsonResponse({
+            "valid": False,
+            "message": "El nombre del proveedor es obligatorio.",
+        })
+
+    qs = Proveedor.objects.filter(nombre_proveedor__iexact=nombre)
+    if proveedor_id:
+        qs = qs.exclude(pk=proveedor_id)
+
+    if qs.exists():
+        return JsonResponse({
+            "valid": False,
+            "message": "Ya existe un proveedor con este nombre.",
+        })
+
+    return JsonResponse({
+        "valid": True,
+        "message": "",
+    })
+
 @login_required
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
     estado = request.GET.get("estado", "activo").strip()
 
-    if estado not in ["activo", "inactivo"]:
+    if estado not in ["activo", "inactivo", "todos"]:
         estado = "activo"
 
-    proveedores = Proveedor.objects.filter(estado=estado)
+    proveedores = Proveedor.objects.all()
+
+    if estado in ["activo", "inactivo"]:
+        proveedores = proveedores.filter(estado=estado)
 
     if q:
         proveedores = proveedores.filter(

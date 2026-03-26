@@ -1,8 +1,7 @@
-{% extends "core/panel_admin_base.html" %}
+﻿{% extends "core/panel_admin_base.html" %}
 {% load static %}
-{%load sort_tags%}
 
-{% block title %}Gestión de Proveedores{% endblock %}
+{% block title %}Gestion de Proveedores{% endblock %}
 
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
@@ -66,47 +65,32 @@
 
                 <div class="module-filter-field module-filter-field--medium">
                     <label class="module-filter-label">Filtrar</label>
-                    <div class="dropdown proveedores-toolbar__filter">
-                        <button class="btn btn-filter dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown">
+                    <div class="dropdown proveedores-filtros-dropdown">
+                        <button type="button" class="btn btn-filter dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-funnel"></i>
-
-                            {% if request.GET.orden == 'nombre' %}
-                                Nombre A–Z
-                            {% elif request.GET.orden == 'nombre_desc' %}
-                                Nombre Z–A
-                            {% else %}
-                                Filtrar
-                            {% endif %}
+                            Filtrar
                         </button>
 
-                        <ul class="dropdown-menu shadow-sm">
+                        <ul class="dropdown-menu shadow-sm proveedores-filtros-menu">
                             <li>
-                                <a class="dropdown-item"
-                                   href="?orden=nombre{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
-                                    Nombre A–Z
+                                <a class="dropdown-item {% if estado_actual == 'todos' %}active{% endif %}"
+                                   href="?estado=todos{% if q %}&q={{ q|urlencode }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
+                                    Todos
                                 </a>
                             </li>
-
                             <li>
-                                <a class="dropdown-item"
-                                   href="?orden=nombre_desc{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}&estado={{ estado_actual }}">
-                                    Nombre Z–A
-                                </a>
-                            </li>
-
-                            <li><hr class="dropdown-divider"></li>
-
-                            <li class="px-3 pb-2">
-                                <a href="?estado=activo" class="btn btn-success w-100 mb-1">
+                                <a class="dropdown-item {% if estado_actual == 'activo' %}active{% endif %}"
+                                   href="?estado=activo{% if q %}&q={{ q|urlencode }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
                                     Activos
                                 </a>
-                                <a href="?estado=inactivo" class="btn btn-secondary w-100">
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if estado_actual == 'inactivo' %}active{% endif %}"
+                                   href="?estado=inactivo{% if q %}&q={{ q|urlencode }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}">
                                     Inactivos
                                 </a>
                             </li>
-
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="?">
                                     Quitar filtros
@@ -157,7 +141,7 @@
                 <div>
                   <h2 class="proveedor-detail-title mb-1" id="p-nombre">Proveedor</h2>
                   <div class="proveedor-detail-subtitle">
-                    Información general del proveedor
+                    InformaciÃ³n general del proveedor
                   </div>
                 </div>
 
@@ -170,35 +154,35 @@
                 <div class="col-md-6">
                   <div class="proveedor-info-item">
                     <span class="proveedor-info-label">NIT</span>
-                    <span class="proveedor-info-value" id="p-nit">—</span>
+                    <span class="proveedor-info-value" id="p-nit">â€”</span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
                   <div class="proveedor-info-item">
                     <span class="proveedor-info-label">Estado</span>
-                    <span class="proveedor-info-value" id="p-estado">—</span>
+                    <span class="proveedor-info-value" id="p-estado">â€”</span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
                   <div class="proveedor-info-item">
-                    <span class="proveedor-info-label">Teléfono</span>
-                    <span class="proveedor-info-value" id="p-telefono">—</span>
+                    <span class="proveedor-info-label">TelÃ©fono</span>
+                    <span class="proveedor-info-value" id="p-telefono">â€”</span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
                   <div class="proveedor-info-item">
                     <span class="proveedor-info-label">Correo</span>
-                    <span class="proveedor-info-value" id="p-correo">—</span>
+                    <span class="proveedor-info-value" id="p-correo">â€”</span>
                   </div>
                 </div>
 
                 <div class="col-12">
                   <div class="proveedor-info-item">
-                    <span class="proveedor-info-label">Dirección</span>
-                    <span class="proveedor-info-value" id="p-direccion">—</span>
+                    <span class="proveedor-info-label">DirecciÃ³n</span>
+                    <span class="proveedor-info-value" id="p-direccion">â€”</span>
                   </div>
                 </div>
               </div>
@@ -206,7 +190,7 @@
               <div class="proveedor-detail-section mt-4">
                 <h6 class="proveedor-section-title">Resumen</h6>
                 <p class="proveedor-section-text mb-0">
-                  Este proveedor se encuentra registrado en el sistema MONAAPP con su información comercial y de contacto disponible para gestión administrativa y compras.
+                  Este proveedor se encuentra registrado en el sistema MONAAPP con su informaciÃ³n comercial y de contacto disponible para gestiÃ³n administrativa y compras.
                 </p>
               </div>
             </div>
@@ -232,7 +216,7 @@
                     <span class="ultra-icon"><i class="bi bi-pencil-square"></i></span>
                     <div>
                         <div class="ultra-title" id="ajaxFormModalTitle">Formulario</div>
-                        <div class="ultra-subtitle">Completa la información</div>
+                        <div class="ultra-subtitle">Completa la informaciÃ³n</div>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -254,3 +238,4 @@
 <script src="{% static 'proveedor/js/proveedor_formulario.js' %}?v=9"></script>
 <script src="{% static 'proveedor/js/proveedor.js' %}"></script>
 {% endblock %}
+

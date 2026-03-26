@@ -108,6 +108,25 @@ h2 {
     box-shadow: none !important;
 }
 
+.proveedores-filtros-dropdown .dropdown-menu {
+    min-width: 200px;
+    border-radius: 14px;
+    border: 1px solid rgba(59, 47, 47, .12);
+    padding: .5rem;
+}
+
+.proveedores-filtros-dropdown .dropdown-item {
+    border-radius: 10px;
+    padding: .55rem .75rem;
+    font-size: 12px;
+}
+
+.proveedores-filtros-dropdown .dropdown-item.active,
+.proveedores-filtros-dropdown .dropdown-item:active {
+    background: #3b2f2f;
+    color: #fff;
+}
+
 
 /* =============================
    ANIMACIÓN FILAS
@@ -126,6 +145,64 @@ h2 {
 .table tbody tr {
     animation: fadeUp .4s ease forwards;
 }
+
+/* =============================
+   SWITCH ESTADO TABLA
+============================= */
+.table-switch-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.table-switch-wrapper input[type="checkbox"] {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+}
+
+.table-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.table-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fff;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider {
+    background-color: #4b2f2a;
+}
+
+.table-switch-wrapper input[type="checkbox"]:disabled + .table-switch-slider {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider:before {
+    transform: translateX(24px);
+}
+
+.table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
+    box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
+}
+
 /* =========================
    DETALLE PROVEEDOR MODAL
 ========================= */

@@ -81,6 +81,33 @@ def detalle_producto_web_json(request, pk):
     })
 
 
+@login_required
+def validar_nombre_producto_web(request):
+    nombre = (request.GET.get('nombre') or '').strip()
+    producto_id = (request.GET.get('producto_id') or '').strip()
+
+    if not nombre:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El nombre del producto es obligatorio.',
+        })
+
+    qs = ProductoWeb.objects.filter(nombre__iexact=nombre)
+    if producto_id:
+        qs = qs.exclude(pk=producto_id)
+
+    if qs.exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Ya existe un producto con este nombre.',
+        })
+
+    return JsonResponse({
+        'valid': True,
+        'message': '',
+    })
+
+
 # ─────────────────────── EDITAR ──────────────────────
 @login_required
 def editar_producto_web(request, pk):

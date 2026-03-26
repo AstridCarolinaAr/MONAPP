@@ -266,7 +266,6 @@ class EditarUsuarioForm(ValidationFormMixin, forms.ModelForm):
         ('Administrador', 'Administrador'),
         ('Auxiliar', 'Auxiliar'),
         ('Colaborador', 'Colaborador'),
-        ('Estilista', 'Estilista'),
     ]
 
     rol = forms.ChoiceField(

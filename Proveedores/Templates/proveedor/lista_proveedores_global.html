@@ -23,13 +23,16 @@
                 <td>{{ proveedor.nit }}</td>
                 <td>{{ proveedor.nombre_proveedor }}</td>
                 <td class="text-center">
-                    <span
-                        id="estado-proveedor-{{ proveedor.pk }}"
-                        class="estado-switch {% if proveedor.estado == 'activo' %}is-on{% else %}is-off{% endif %}"
-                        aria-label="Estado del proveedor"
-                        title="{% if proveedor.estado == 'activo' %}Activo{% else %}Desactivado{% endif %}">
-                        <span class="switch-thumb"></span>
-                    </span>
+                    <label class="table-switch-wrapper" title="{% if proveedor.estado == 'activo' %}Desactivar{% else %}Activar{% endif %}">
+                        <input type="checkbox"
+                               class="toggle-activo-checkbox js-toggle-proveedor-estado"
+                               data-id="{{ proveedor.pk }}"
+                               data-nombre="{{ proveedor.nombre_proveedor|escapejs }}"
+                               data-url-desactivar="{% url 'proveedores:desactivar' proveedor.pk %}"
+                               data-url-reactivar="{% url 'proveedores:reactivar' proveedor.pk %}"
+                               {% if proveedor.estado == 'activo' %}checked{% endif %}>
+                        <span class="table-switch-slider"></span>
+                    </label>
                 </td>
                 <td class="text-center">
                     <div class="acciones-proveedor table-action-group justify-content-center">

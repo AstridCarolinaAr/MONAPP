@@ -12,6 +12,9 @@
 {% block page_icon %}<i class="bi bi-box-seam page-icon"></i>{% endblock %}
 {% block page_title %}Productos{% endblock %}
 {% block page_subtitle %}Gestion general de productos{% endblock %}
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Productos</li>
+{% endblock %}
 {% block page_actions %}
   <a href="{% url 'productos:crear_producto' %}"
      class="btn btn-sm btn-pill-dark d-inline-flex align-items-center text-decoration-none"
@@ -108,7 +111,7 @@
 </div>
 
  <!-- TABLA -->
- <div id="productos-resultados" class="ajax-results-container">
+<div id="productos-resultados" class="ajax-results-container anim-from-bottom">
   {% include "productos/lista_productos_global.html" %}
 </div>
 

@@ -156,6 +156,73 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  function getProveedorId(form) {
+    return (form?.dataset?.proveedorId || "").trim();
+  }
+
+  async function checkDuplicateNombre(form, input) {
+    if (!form || !input) return true;
+
+    const value = (input.value || "").trim();
+    if (!value) return true;
+
+    const currentId = getProveedorId(form);
+    const endpoint = (form?.dataset?.proveedorValidarUrl || "").trim();
+    if (!endpoint) return true;
+    const url = new URL(endpoint, window.location.origin);
+    url.searchParams.set("nombre", value);
+    if (currentId) url.searchParams.set("proveedor_id", currentId);
+
+    const token = String(Date.now()) + Math.random().toString(36).slice(2);
+    input.dataset.nombreCheckToken = token;
+
+    try {
+      const response = await fetch(url.toString(), {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (input.dataset.nombreCheckToken !== token) return false;
+
+      if (!data.valid) {
+        input.dataset.nombreDuplicado = "1";
+        markInvalid(input, data.message || "Ya existe un proveedor con este nombre.");
+        validateProveedorForm(form);
+        return false;
+      }
+
+      delete input.dataset.nombreDuplicado;
+      if ((value.length >= 3) || !input.hasAttribute("required")) {
+        markValid(input);
+      } else {
+        clearState(input);
+      }
+      validateProveedorForm(form);
+      return true;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  function wireNombreDuplicado(form) {
+    const input = qs(form, "#id_nombre_proveedor");
+    if (!input || input.dataset.nombreDupWired === "1") return;
+    input.dataset.nombreDupWired = "1";
+
+    let timer = null;
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const value = (input.value || "").trim();
+        if (!value || value.length < 3) return;
+        checkDuplicateNombre(form, input);
+      }, 350);
+    };
+
+    input.addEventListener("input", schedule);
+    input.addEventListener("blur", schedule);
+  }
+
   function validateField(input, { force = false } = {}) {
     if (!input) return true;
 
@@ -178,6 +245,7 @@
       case "id_nombre_proveedor":
         if (!value) message = "Nombre obligatorio";
         else if (value.length < 3) message = "Mínimo 3 letras";
+        else if (input.dataset.nombreDuplicado === "1") message = "Ya existe un proveedor con este nombre.";
         break;
 
       case "id_telefono_proveedor":
@@ -262,6 +330,7 @@
 
     form.dataset.wiredProveedor = "1";
     bindGuards(form);
+    wireNombreDuplicado(form);
 
     FIELD_SELECTORS.forEach((selector) => {
       const field = qs(form, selector);

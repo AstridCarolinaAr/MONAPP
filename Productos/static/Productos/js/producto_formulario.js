@@ -178,8 +178,9 @@
 
       e.preventDefault();
 
+      const nombreOk = await ProductoFormulario.validateNombre(form, { force: true });
       const ok = ProductoFormulario.validate(form);
-      if (!ok) return;
+      if (!ok || !nombreOk) return;
 
       const url = form.action;
 
@@ -428,6 +429,88 @@
 
   const RE_SOLO_LETRAS = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/;
   const RE_SOLO_NUMEROS = /^\d+$/;
+  const RE_NOMBRE_PRODUCTO = /^[\p{L}\p{N}\s]+$/u;
+
+  function getProductoCodigo(form) {
+    return (form?.dataset?.productoCodigo || "").trim();
+  }
+
+  function setNombreDuplicado(input, duplicado) {
+    if (!input) return;
+    input.dataset.nombreDuplicado = duplicado ? "1" : "0";
+  }
+
+  async function validarNombreProductoUnico(form, { force = false } = {}) {
+    const nombre = qs(form, "#id_nombre");
+    if (!nombre) return true;
+
+    const valor = (nombre.value || "").trim();
+    const productoCodigo = getProductoCodigo(form);
+
+    if (!valor) {
+      setNombreDuplicado(nombre, false);
+      if (force) {
+        markInvalid(nombre, "Nombre obligatorio");
+      } else {
+        clearState(nombre);
+      }
+      return false;
+    }
+
+    if (valor.length < 3) {
+      setNombreDuplicado(nombre, false);
+      markInvalid(nombre, "Debe tener al menos 3 caracteres");
+      return false;
+    }
+
+    if (!RE_NOMBRE_PRODUCTO.test(valor)) {
+      setNombreDuplicado(nombre, false);
+      markInvalid(nombre, "El nombre solo puede contener letras, números y espacios.");
+      return false;
+    }
+
+    setNombreDuplicado(nombre, false);
+
+    const controller = new AbortController();
+    if (nombre._nombreAbortController) {
+      nombre._nombreAbortController.abort();
+    }
+    nombre._nombreAbortController = controller;
+
+    try {
+      const url = new URL("/Productos/validar-nombre/", window.location.origin);
+      url.searchParams.set("nombre", valor);
+      if (productoCodigo) {
+        url.searchParams.set("producto_id", productoCodigo);
+      }
+
+      const res = await fetch(url.toString(), {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+        signal: controller.signal,
+      });
+
+      const data = await res.json();
+
+      if (!data.valido) {
+        setNombreDuplicado(nombre, true);
+        markInvalid(nombre, data.mensaje || "Nombre no válido.");
+        return false;
+      }
+
+      setNombreDuplicado(nombre, false);
+      markValid(nombre);
+      return true;
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error validando nombre de producto:", error);
+      }
+      return !nombre.classList.contains("is-invalid");
+    } finally {
+      if (nombre._nombreAbortController === controller) {
+        nombre._nombreAbortController = null;
+      }
+    }
+  }
 
   function validateProductoForm(scope, { force = false } = {}) {
     const form =
@@ -450,12 +533,23 @@
 
     if (nombre) {
       const v = (nombre.value || "").trim();
+      const nombreDuplicado = nombre.dataset.nombreDuplicado === "1";
       if (!v && !force) {
+        setNombreDuplicado(nombre, false);
         clearState(nombre);
         tienePendientes = true;
       } else if (!v) {
         errores.push("El nombre del producto es obligatorio.");
         markInvalid(nombre, "Nombre obligatorio");
+      } else if (nombreDuplicado) {
+        errores.push("Ya existe un producto con este nombre.");
+        markInvalid(nombre, "Ya existe un producto con este nombre.");
+      } else if (!RE_NOMBRE_PRODUCTO.test(v)) {
+        errores.push("El nombre solo puede contener letras, números y espacios.");
+        markInvalid(nombre, "Solo letras, números y espacios");
+      } else if (v.length < 3) {
+        errores.push("El nombre debe tener al menos 3 caracteres.");
+        markInvalid(nombre, "Mínimo 3 caracteres");
       } else markValid(nombre);
     }
 
@@ -598,6 +692,8 @@
 
     bindRestrictionGuards(form);
 
+    let nombreTimer = null;
+
     ["#id_nombre", "#id_marca", "#id_precio", "#id_unidad_medida", "#id_linea", "#id_presentacion"].forEach((sel) => {
       const el = qs(form, sel);
       if (el) ensureWrapper(el);
@@ -635,6 +731,13 @@
         t.matches("#id_linea") ||
         t.matches("#id_presentacion")
       ) {
+        if (t.matches("#id_nombre")) {
+          setNombreDuplicado(t, false);
+          if (nombreTimer) clearTimeout(nombreTimer);
+          nombreTimer = setTimeout(() => {
+            validarNombreProductoUnico(form);
+          }, 350);
+        }
         validateProductoForm(form);
       }
     });
@@ -644,6 +747,11 @@
 
       if (t.matches("#id_unidad_medida, #id_linea, #id_presentacion")) {
         validateProductoForm(form);
+      }
+      if (t.matches("#id_nombre")) {
+        setNombreDuplicado(t, false);
+        if (nombreTimer) clearTimeout(nombreTimer);
+        validarNombreProductoUnico(form, { force: true });
       }
       if (t.matches("#id_imagen")) {
         const clearCheckbox = qs(form, "#id_imagen-clear");
@@ -669,6 +777,13 @@
     },
     validate(scope) {
       return validateProductoForm(scope || document, { force: true });
+    },
+    validateNombre(scope, options = {}) {
+      const form =
+        scope?.tagName === "FORM"
+          ? scope
+          : qs(scope, "form.producto-form") || qs(scope, "#productoForm") || qs(scope, "form");
+      return validarNombreProductoUnico(form || document, options);
     },
   };
 

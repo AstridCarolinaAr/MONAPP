@@ -21,6 +21,35 @@ input:disabled {
 }
 
 /* =====================================================
+   INPUTS REDONDEADOS EN FORMULARIOS Y MODALES
+===================================================== */
+.ventas-filters-card .form-control,
+.ventas-filters-card .form-select,
+.modal .form-control,
+.modal .form-select {
+  border-radius: 16px !important;
+}
+
+.modal .input-group {
+  overflow: hidden;
+  border-radius: 16px !important;
+}
+
+.modal .input-group .input-group-text {
+  border-radius: 16px 0 0 16px !important;
+}
+
+.modal .input-group .form-control {
+  border-radius: 0 16px 16px 0 !important;
+}
+
+.ventas-filters-card .btn,
+.modal .btn,
+.ventas-table-card .btn {
+  border-radius: 16px;
+}
+
+/* =====================================================
    EMPTY STATE
 ===================================================== */
 

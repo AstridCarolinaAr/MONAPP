@@ -1,66 +1,73 @@
-document.addEventListener('DOMContentLoaded', function () {
+const INPUT_RULES = {
+    alnum: {
+        pattern: /[^\p{L}\p{N}\s]/gu,
+        allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+    },
+    numeric: {
+        pattern: /[^\d]/g,
+        allow: (text) => /^\d*$/.test(text),
+    },
+    money: {
+        pattern: /[^\d.,\s]/g,
+        allow: (text) => /^[\d.,\s]*$/.test(text),
+    },
+    text: {
+        pattern: /[<>]/g,
+        allow: (text) => !/[<>]/.test(text),
+    },
+};
 
-    const INPUT_RULES = {
-        alnum: {
-            pattern: /[^\p{L}\p{N}\s]/gu,
-            allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
-        },
-        numeric: {
-            pattern: /[^\d]/g,
-            allow: (text) => /^\d*$/.test(text),
-        },
-        money: {
-            pattern: /[^\d.,\s]/g,
-            allow: (text) => /^[\d.,\s]*$/.test(text),
-        },
+function bindRestrictedInput(input, ruleName) {
+    if (!input || input.dataset.guardWired === '1' || !INPUT_RULES[ruleName]) return;
+    input.dataset.guardWired = '1';
+
+    const rule = INPUT_RULES[ruleName];
+    const sanitize = () => {
+        const cleaned = String(input.value || '').replace(rule.pattern, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
     };
 
-    function bindRestrictedInput(input, ruleName) {
-        if (!input || input.dataset.guardWired === '1' || !INPUT_RULES[ruleName]) return;
-        input.dataset.guardWired = '1';
+    input.addEventListener('beforeinput', function (e) {
+        if (!e.inputType || !e.inputType.startsWith('insert')) return;
+        if (!rule.allow(e.data || '')) e.preventDefault();
+    });
 
-        const rule = INPUT_RULES[ruleName];
-        const sanitize = () => {
-            const cleaned = String(input.value || '').replace(rule.pattern, '');
-            if (cleaned !== input.value) {
-                input.value = cleaned;
-            }
-        };
+    input.addEventListener('paste', function (e) {
+        const pasted = e.clipboardData?.getData('text') || '';
+        if (!rule.allow(pasted)) {
+            e.preventDefault();
+            sanitize();
+        }
+    });
 
-        input.addEventListener('beforeinput', function (e) {
-            if (!e.inputType || !e.inputType.startsWith('insert')) return;
-            if (!rule.allow(e.data || '')) e.preventDefault();
-        });
+    input.addEventListener('input', sanitize);
+}
 
-        input.addEventListener('paste', function (e) {
-            const pasted = e.clipboardData?.getData('text') || '';
-            if (!rule.allow(pasted)) {
-                e.preventDefault();
-                sanitize();
-            }
-        });
+function wireServicioGuards(scope) {
+    const root = scope || document;
+    const fields = [
+        ['[name="nombre"]', 'alnum'],
+        ['[name="precio"]', 'money'],
+        ['[name="descripcion"]', 'text'],
+    ];
 
-        input.addEventListener('input', sanitize);
-    }
+    fields.forEach(function (pair) {
+        const input = root.querySelector(pair[0]) || document.querySelector(pair[0]);
+        if (input) bindRestrictedInput(input, pair[1]);
+    });
+}
 
-    function wireServicioGuards(scope) {
-        const root = scope || document;
-        const fields = [
-            ['[name="nombre"]', 'alnum'],
-            ['[name="precio"]', 'money'],
-            ['[name="descripcion"]', 'alnum'],
-        ];
+document.addEventListener('DOMContentLoaded', function () {
 
-        fields.forEach(function (pair) {
-            const input = root.querySelector(pair[0]) || document.querySelector(pair[0]);
-            if (input) bindRestrictedInput(input, pair[1]);
-        });
-    }
+    // Aplicar guards también al cargar
+    wireServicioGuards(document);
 
     // ── ESTADO DE VISTA ──
     let currentView  = 'grid';
     let currentPage  = 1;
-    let itemsPerPage = parseInt(document.getElementById('gridSize')?.value || 4) * 3;
+    let itemsPerPage = parseInt(document.getElementById('gridSize')?.value || 4, 10) * 3;
 
     // ── TOGGLE VISTA ──
     const btnGrid = document.getElementById('btnGrid');
@@ -89,14 +96,14 @@ document.addEventListener('DOMContentLoaded', function () {
         gridSizeEl.addEventListener('change', () => {
             const vg = document.getElementById('viewGrid');
             if (vg) vg.style.setProperty('--cols', gridSizeEl.value);
-            itemsPerPage = parseInt(gridSizeEl.value) * 3;
+            itemsPerPage = parseInt(gridSizeEl.value, 10) * 3;
             currentPage = 1;
             render();
         });
 
         const vg = document.getElementById('viewGrid');
         if (vg) vg.style.setProperty('--cols', gridSizeEl.value);
-        itemsPerPage = parseInt(gridSizeEl.value) * 3;
+        itemsPerPage = parseInt(gridSizeEl.value, 10) * 3;
     }
 
     // ── RENDER (paginación client-side sobre resultados actuales del DOM) ──
@@ -196,41 +203,96 @@ document.addEventListener('DOMContentLoaded', function () {
             content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Cargando...</p></div>';
             fetch(window.URLS.crearServicio + '?modal=1')
                 .then(r => r.text())
-                .then(html => { content.innerHTML = html; ejecutarScripts(content); })
+                .then(html => {
+                    content.innerHTML = html;
+                    ejecutarScripts(content);
+                    window.initServicioForms && window.initServicioForms(content);
+                })
                 .catch(() => { content.innerHTML = '<div class="alert alert-danger m-3">Error al cargar.</div>'; });
         });
     }
 
     // ── MODAL EDITAR ──
-    window.abrirModalEditar = function (pk) {
+    window.abrirModalEditar = function (editUrl) {
         const modal   = document.getElementById('modalEditarServicio');
         const content = document.getElementById('modalEditarContent');
         if (!modal || !content) return;
+
+        const url = (editUrl || '').trim();
+        if (!url) {
+            alert('No se pudo abrir el formulario de edición.');
+            return;
+        }
 
         content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Cargando...</p></div>';
         const bsModal = bootstrap.Modal.getOrCreateInstance(modal);
         bsModal.show();
 
-        fetch(`${window.URLS.editarServicio}${pk}/?modal=1`)
+        fetch(`${url}?modal=1`)
             .then(r => r.text())
-            .then(html => { content.innerHTML = html; ejecutarScripts(content); })
+            .then(html => {
+                content.innerHTML = html;
+                ejecutarScripts(content);
+                window.initServicioForms && window.initServicioForms(content);
+            })
             .catch(() => { content.innerHTML = '<div class="alert alert-danger m-3">Error al cargar.</div>'; });
     };
 
     // ── MODAL ELIMINAR ──
-    window.abrirModalEliminar = function (pk) {
-        const modal   = document.getElementById('modalEliminarServicio');
-        const content = document.getElementById('modalEliminarContent');
-        if (!modal || !content) return;
+    window.abrirModalEliminar = function (deleteUrl, nombre) {
+        const url = (deleteUrl || '').trim();
+        if (!url) {
+            alert('No se pudo abrir la confirmación de eliminación.');
+            return;
+        }
 
-        content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-danger" role="status"></div><p class="mt-3">Cargando...</p></div>';
-        const bsModal = bootstrap.Modal.getOrCreateInstance(modal);
-        bsModal.show();
+        const label = nombre || 'este servicio';
 
-        fetch(`${window.URLS.eliminarServicio}${pk}/?modal=1`)
-            .then(r => r.text())
-            .then(html => { content.innerHTML = html; ejecutarScripts(content); })
-            .catch(() => { content.innerHTML = '<div class="alert alert-danger m-3">Error al cargar.</div>'; });
+        Swal.fire({
+            title: '¿Eliminar servicio?',
+            html: `¿Seguro que deseas eliminar <strong>${label}</strong>? Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(async response => {
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'No se pudo eliminar el servicio.');
+                }
+
+                await Swal.fire({
+                    title: 'Servicio eliminado',
+                    text: data.message || 'El servicio fue eliminado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#4b2f2a',
+                });
+
+                window.location.reload();
+            })
+            .catch(err => {
+                Swal.fire({
+                    title: 'Error',
+                    text: err.message || 'Ocurrió un error al eliminar el servicio.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#dc3545',
+                });
+            });
+        });
     };
 
     // ── SWITCH ACTIVO ──
@@ -278,6 +340,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    document.addEventListener('click', function (e) {
+        const editBtn = e.target.closest('.lib-card__action-btn--edit');
+        if (editBtn) {
+            e.preventDefault();
+            abrirModalEditar(editBtn.dataset.editUrl);
+            return;
+        }
+
+        const delBtn = e.target.closest('.lib-card__action-btn--del');
+        if (delBtn) {
+            e.preventDefault();
+            abrirModalEliminar(delBtn.dataset.deleteUrl, delBtn.dataset.nombre);
+        }
+    });
+
     // ── HELPER: ejecutar scripts inyectados por AJAX ──
     function ejecutarScripts(container) {
         container.querySelectorAll('script').forEach(old => {
@@ -289,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+
 /* =========================================
    VALIDACION EN TIEMPO REAL - SERVICIOS
 ========================================= */
@@ -305,12 +383,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getFieldGroup(field) {
-        return field.closest('.mb-3');
+        return field.closest('.mb-3') || field.closest('.form-check');
     }
 
     function ensureFieldStructure(field) {
         const group = getFieldGroup(field);
         if (!group) return null;
+
+        if (field.type === 'checkbox') {
+            let errorBox = group.querySelector('.servicio-field-error');
+            if (!errorBox) {
+                errorBox = document.createElement('div');
+                errorBox.className = 'servicio-field-error';
+                group.appendChild(errorBox);
+            }
+            return { group, wrapper: group, icon: null, errorBox };
+        }
 
         let wrapper = field.parentElement;
         if (!wrapper.classList.contains('servicio-input-wrap')) {
@@ -356,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.classList.remove('is-valid', 'is-invalid');
         field.classList.remove('servicio-valid-control', 'servicio-invalid-control');
 
-        icon.innerHTML = '';
+        if (icon) icon.innerHTML = '';
         errorBox.innerHTML = '';
         errorBox.classList.remove('is-visible');
     }
@@ -373,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function () {
         field.classList.remove('servicio-invalid-control');
         field.classList.add('servicio-valid-control');
 
-        icon.innerHTML = '<i class="bi bi-check-lg"></i>';
+        if (icon) icon.innerHTML = '<i class="bi bi-check-lg"></i>';
 
         errorBox.innerHTML = '';
         errorBox.classList.remove('is-visible');
@@ -391,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function () {
         field.classList.remove('servicio-valid-control');
         field.classList.add('servicio-invalid-control');
 
-        icon.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i>';
+        if (icon) icon.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i>';
 
         errorBox.innerHTML = message || 'Campo inválido.';
         errorBox.classList.add('is-visible');
@@ -400,6 +488,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function isEmptyValue(field) {
         if (field.type === 'file') {
             return !(field.files && field.files.length);
+        }
+        if (field.type === 'checkbox') {
+            return false;
         }
         return !(field.value || '').trim();
     }
@@ -411,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const touched = field.dataset.touched === '1' || force;
         const name = field.name;
-        const rawValue = field.type === 'file' ? '' : (field.value || '').trim();
+        const rawValue = field.type === 'file' || field.type === 'checkbox' ? '' : (field.value || '').trim();
 
         let valid = true;
         let message = '';
@@ -420,6 +511,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!rawValue) {
                 valid = false;
                 message = 'El nombre del servicio es obligatorio.';
+            } else if (field.dataset.nombreDuplicado === '1') {
+                valid = false;
+                message = 'Ya existe un servicio con este nombre.';
             }
         }
 
@@ -427,12 +521,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!rawValue) {
                 valid = false;
                 message = 'El precio es obligatorio.';
-            } else if (isNaN(Number(rawValue))) {
-                valid = false;
-                message = 'Ingresa un precio válido.';
-            } else if (Number(rawValue) < 0) {
-                valid = false;
-                message = 'El precio no puede ser negativo.';
+            } else {
+                const normalized = rawValue.replace(',', '.').replace(/\s+/g, '');
+                if (isNaN(Number(normalized))) {
+                    valid = false;
+                    message = 'Ingresa un precio válido.';
+                } else if (Number(normalized) < 0) {
+                    valid = false;
+                    message = 'El precio no puede ser negativo.';
+                }
             }
         }
 
@@ -444,10 +541,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (name === 'activo') {
-            if (!field.value) {
-                valid = false;
-                message = 'Selecciona el estado del servicio.';
-            }
+            valid = true;
         }
 
         if (name === 'imagen') {
@@ -481,6 +575,92 @@ document.addEventListener('DOMContentLoaded', function () {
         return valid;
     }
 
+    function getServicioId(form) {
+        return (form?.dataset?.servicioId || '').trim();
+    }
+
+    function wireNombreDuplicado(form) {
+        const field = form.querySelector('[name="nombre"]');
+        if (!field || field.dataset.nombreDupWired === '1') return;
+        field.dataset.nombreDupWired = '1';
+
+        let timer = null;
+        const schedule = () => {
+            clearTimeout(timer);
+            timer = setTimeout(async () => {
+                const value = (field.value || '').trim();
+                if (!value || value.length < 2) return;
+
+                const endpoint = (form.dataset.servicioValidarUrl || '').trim();
+                if (!endpoint) return;
+                const url = new URL(endpoint, window.location.origin);
+                url.searchParams.set('nombre', value);
+                const servicioId = getServicioId(form);
+                if (servicioId) url.searchParams.set('servicio_id', servicioId);
+
+                const token = String(Date.now()) + Math.random().toString(36).slice(2);
+                field.dataset.nombreCheckToken = token;
+
+                try {
+                    const response = await fetch(url.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    const data = await response.json().catch(() => ({}));
+                    if (field.dataset.nombreCheckToken !== token) return;
+
+                    if (!data.valid) {
+                        field.dataset.nombreDuplicado = '1';
+                        setInvalid(field, data.message || 'Ya existe un servicio con este nombre.');
+                        return;
+                    }
+                    delete field.dataset.nombreDuplicado;
+                    setValid(field);
+                } catch (error) {
+                    console.warn('No se pudo validar el nombre del servicio:', error);
+                }
+            }, 350);
+        };
+
+        field.addEventListener('input', schedule);
+        field.addEventListener('blur', schedule);
+    }
+
+    async function validarNombreServicioAntesDeGuardar(form) {
+        const field = form.querySelector('[name="nombre"]');
+        if (!field) return true;
+
+        const value = (field.value || '').trim();
+        if (!value) return false;
+
+        const endpoint = (form.dataset.servicioValidarUrl || '').trim();
+        if (!endpoint) return true;
+
+        const url = new URL(endpoint, window.location.origin);
+        url.searchParams.set('nombre', value);
+        const servicioId = getServicioId(form);
+        if (servicioId) url.searchParams.set('servicio_id', servicioId);
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (!data.valid) {
+                field.dataset.nombreDuplicado = '1';
+                field.dataset.touched = '1';
+                setInvalid(field, data.message || 'Ya existe un servicio con este nombre.');
+                return false;
+            }
+
+            delete field.dataset.nombreDuplicado;
+            return true;
+        } catch (error) {
+            console.warn('No se pudo validar el nombre del servicio antes de guardar:', error);
+            return true;
+        }
+    }
+
     function applyServerErrors(form, errors) {
         if (!errors) return;
 
@@ -501,6 +681,150 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    async function submitServicioFormulario(form) {
+        if (!form || form.dataset.servicioSubmitting === '1') return true;
+        form.dataset.servicioSubmitting = '1';
+
+        try {
+            initServicioForms(form);
+            wireServicioGuards(form);
+
+            let ok = true;
+            CAMPOS_SERVICIO.forEach(name => {
+                const field = form.querySelector(`[name="${name}"]`);
+                if (!field) return;
+                field.dataset.touched = '1';
+                if (!validateField(field, true)) ok = false;
+            });
+
+            if (!ok) return true;
+
+            const nombreValido = await validarNombreServicioAntesDeGuardar(form);
+            if (!nombreValido) {
+                if (typeof Swal !== 'undefined' && Swal.fire) {
+                    Swal.fire({
+                        title: 'Servicio duplicado',
+                        text: 'Ya existe un servicio con este nombre.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545',
+                    });
+                }
+                return true;
+            }
+
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton ? submitButton.innerHTML : 'Guardar';
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+            }
+
+            try {
+                const response = await fetch(form.action || window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (data.success) {
+                    const successText = data.message || 'El servicio se guardó correctamente.';
+                    const modalEl = document.getElementById('modalFormServicio') || document.getElementById('modalEditarServicio');
+                    const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+                    const isEdit = Boolean(form.dataset.servicioId);
+                    const successTitle = isEdit ? 'Servicio actualizado' : 'Servicio creado';
+
+                    if (typeof Swal !== 'undefined' && Swal.fire) {
+                        await Swal.fire({
+                            title: successTitle,
+                            text: successText,
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#4b2f2a',
+                        });
+                    } else {
+                        alert(successText);
+                    }
+
+                    if (modalInstance) modalInstance.hide();
+                    window.location.reload();
+                    return true;
+                }
+
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }
+
+                if (data.errors) {
+                    applyServerErrors(form, data.errors);
+                    const nombreError = Array.isArray(data.errors.nombre) ? data.errors.nombre[0] : data.errors.nombre;
+                    if (nombreError && /ya existe un servicio con este nombre/i.test(String(nombreError)) && typeof Swal !== 'undefined' && Swal.fire) {
+                        Swal.fire({
+                            title: 'Servicio duplicado',
+                            text: String(nombreError),
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc3545',
+                        });
+                    } else if (data.message && typeof Swal !== 'undefined' && Swal.fire) {
+                        Swal.fire({
+                            title: 'No se pudo guardar',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc3545',
+                        });
+                    } else {
+                        alert('Error al guardar el servicio. Verifica los campos.');
+                    }
+                } else {
+                    alert('Error al guardar el servicio. Verifica los campos.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Guardar';
+                }
+
+                if (typeof Swal !== 'undefined' && Swal.fire) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrió un error al guardar el servicio.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545',
+                    });
+                } else {
+                    alert('Ocurrió un error al guardar el servicio.');
+                }
+            }
+        } finally {
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton && submitButton.disabled) {
+                const isEdit = Boolean(form.dataset.servicioId);
+                submitButton.disabled = false;
+                submitButton.innerHTML = isEdit
+                    ? '<i class="bi bi-check-circle"></i> Actualizar'
+                    : '<i class="bi bi-check-circle"></i> Guardar';
+            }
+
+            delete form.dataset.servicioSubmitting;
+        }
+
+        return true;
+    }
+
     function initServicioForms(scope = document) {
         const forms = getForms(scope);
 
@@ -509,6 +833,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.dataset.servicioInit = '1';
 
             wireServicioGuards(form);
+            wireNombreDuplicado(form);
 
             CAMPOS_SERVICIO.forEach(name => {
                 const field = form.querySelector(`[name="${name}"]`);
@@ -533,11 +858,30 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    document.addEventListener('submit', function (e) {
+        const form = e.target && e.target.closest ? e.target.closest('#formServicio, #formServicioPage, form[data-servicio-form="1"]') : null;
+        if (!form) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === 'function') {
+            e.stopImmediatePropagation();
+        }
+
+        form.dataset.servicioHandled = '1';
+        submitServicioFormulario(form).finally(() => {
+            delete form.dataset.servicioHandled;
+        });
+    }, true);
+
     document.addEventListener('input', function (e) {
         const field = e.target;
         if (!field.name || !CAMPOS_SERVICIO.includes(field.name)) return;
         if (!field.closest('#formServicio, #formServicioPage, form[data-servicio-form="1"]')) return;
 
+        if (field.name === 'nombre') {
+            delete field.dataset.nombreDuplicado;
+        }
         field.dataset.touched = '1';
         validateField(field);
     });
@@ -559,103 +903,6 @@ document.addEventListener('DOMContentLoaded', function () {
         field.dataset.touched = '1';
         validateField(field);
     }, true);
-
-    // Submit normal para formulario de página completa
-    document.addEventListener('submit', function (e) {
-        const form = e.target;
-        if (!form.matches('#formServicioPage, form[data-servicio-form="1"]:not(#formServicio)')) return;
-
-        initServicioForms(document);
-        wireServicioGuards(form);
-
-        let ok = true;
-        CAMPOS_SERVICIO.forEach(name => {
-            const field = form.querySelector(`[name="${name}"]`);
-            if (!field) return;
-            field.dataset.touched = '1';
-            if (!validateField(field, true)) ok = false;
-        });
-
-        if (!ok) {
-            e.preventDefault();
-        }
-    });
-
-    // Submit AJAX para modal
-    document.addEventListener('submit', function (e) {
-        const form = e.target;
-        if (!form.matches('#formServicio')) return;
-
-        e.preventDefault();
-        initServicioForms(document);
-        wireServicioGuards(form);
-
-        let ok = true;
-        CAMPOS_SERVICIO.forEach(name => {
-            const field = form.querySelector(`[name="${name}"]`);
-            if (!field) return;
-            field.dataset.touched = '1';
-            if (!validateField(field, true)) ok = false;
-        });
-
-        if (!ok) return;
-
-        const formData = new FormData(form);
-        const submitButton = form.querySelector('button[type="submit"]');
-        const originalText = submitButton ? submitButton.innerHTML : 'Guardar';
-
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
-        }
-
-        fetch(form.action || window.location.href, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
-        })
-        .then(async response => {
-            const data = await response.json();
-            return { response, data };
-        })
-        .then(({ response, data }) => {
-            if (data.success) {
-                const modalEl = document.getElementById('modalFormServicio') || document.getElementById('modalEditarServicio');
-                const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
-
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-
-                window.location.reload();
-                return;
-            }
-
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalText;
-            }
-
-            if (data.errors) {
-                applyServerErrors(form, data.errors);
-            } else {
-                alert('Error al guardar el servicio. Verifica los campos.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalText;
-            }
-
-            alert('Ocurrió un error al guardar el servicio.');
-        });
-    });
 
     window.initServicioForms = initServicioForms;
 

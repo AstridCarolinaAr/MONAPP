@@ -682,6 +682,7 @@
     font-size: 13px;
     min-height: 38px;
     padding: 0.45rem 0.75rem;
+    border-radius: 16px;
 }
 
 #modalServicioWeb textarea.form-control {
@@ -693,6 +694,19 @@
     padding: 0.45rem 0.7rem;
 }
 
+#modalServicioWeb .input-group {
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+#modalServicioWeb .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+
+#modalServicioWeb .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
+
 #modalServicioWeb .invalid-feedback,
 #modalServicioWeb .text-danger {
     font-size: 11px;
@@ -701,6 +715,7 @@
 #modalServicioWeb .btn {
     font-size: 12px;
     padding: 0.45rem 0.85rem;
+    border-radius: 16px;
 }
 
 #modalServicioWeb .modal-footer {

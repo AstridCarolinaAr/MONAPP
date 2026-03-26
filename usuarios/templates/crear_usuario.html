@@ -36,6 +36,23 @@
     box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
 }
 
+/* Campos redondeados */
+.form-control,
+.form-select,
+.btn,
+.input-group {
+    border-radius: 16px;
+}
+.input-group {
+    overflow: hidden;
+}
+.input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
+
 /* Mensajes de error en línea */
 .usr-field-error {
     color: #dc3545;

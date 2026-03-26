@@ -5,6 +5,13 @@ from core.form_validations import ValidationFormMixin
 from .models import ProductoWeb
 
 
+def _nombre_producto_duplicado(nombre, producto_id=None):
+    qs = ProductoWeb.objects.filter(nombre__iexact=nombre)
+    if producto_id:
+        qs = qs.exclude(pk=producto_id)
+    return qs.exists()
+
+
 class ProductoWebForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = ProductoWeb
@@ -58,6 +65,9 @@ class ProductoWebForm(ValidationFormMixin, forms.ModelForm):
             raise forms.ValidationError(
                 'El nombre contiene caracteres no permitidos. Use letras, números y los símbolos -.,()&+/#*!?:.\'"'
             )
+        producto_id = getattr(self.instance, 'pk', None)
+        if _nombre_producto_duplicado(nombre, producto_id):
+            raise forms.ValidationError('Ya existe un producto con este nombre.')
         return nombre
 
     # ── Precio COP ──────────────────────────────────────────────────────

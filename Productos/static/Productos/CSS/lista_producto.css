@@ -37,6 +37,36 @@ h2 {
     font-size: 14px !important;
 }
 
+/* ANIMACION DE ENTRADA DEL LISTADO */
+.anim-from-bottom {
+    opacity: 0;
+    animation: slide-from-bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.productos-table-card {
+    margin-top: 2px;
+    border-radius: 24px;
+    box-shadow: 0 12px 28px rgba(48, 29, 22, 0.10);
+}
+
+@keyframes slide-from-bottom {
+    0% {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .anim-from-bottom {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
 
 /* TABLA - HEREDA DE panel_admin_base.css */
 
@@ -113,6 +143,48 @@ h2 {
     border-radius: 999px;
     padding: 2px 7px;
     font-size: 11px;
+}
+
+/* =========================
+   DROPDOWN FILTROS
+========================= */
+.module-filters-card .dropdown-menu {
+    min-width: 220px;
+    border-radius: 18px;
+    border: 1px solid rgba(58, 42, 36, 0.10);
+    box-shadow: 0 12px 28px rgba(58, 42, 36, 0.12);
+    padding: .6rem;
+    overflow: hidden;
+}
+
+.module-filters-card .dropdown-item {
+    border-radius: 14px;
+    padding: .78rem 1rem;
+    font-size: 14px;
+    color: #2f2724;
+}
+
+.module-filters-card .dropdown-item:hover,
+.module-filters-card .dropdown-item:focus {
+    background: #f1ece9;
+    color: #2f2724;
+}
+
+.module-filters-card .dropdown-item.active,
+.module-filters-card .dropdown-item:active {
+    background: #3a2a24;
+    color: #fff;
+}
+
+.module-filters-card .dropdown-item.text-danger:hover,
+.module-filters-card .dropdown-item.text-danger:focus {
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+}
+
+.module-filters-card .dropdown-divider {
+    margin: .55rem 0;
+    border-top-color: rgba(58, 42, 36, 0.12);
 }
 /* .badge {
     padding: 3px 5px !important;
@@ -975,16 +1047,22 @@ z-index:2000 !important;
   border-radius:16px;
   overflow:hidden;
   border:1px solid #eef1f4;
-  background:#fafbfc;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f8fa 100%);
   min-height:220px;
-  display:grid;
-  place-items:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 12px;
 }
 #previewProductoImagen{
   width:100%;
-  height:220px;
-  object-fit:cover;
+  height:auto;
+  max-height:280px;
+  object-fit:contain;
   display:none;
+  background:#fff;
+  border-radius:12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.06);
 }
 .preview-empty{
   text-align:center;
@@ -1439,100 +1517,58 @@ z-index:2000 !important;
    SWITCH ESTADO - TABLA PRODUCTOS
 ========================================================= */
 
-.styled-table td .estado-switch {
+.styled-table td .table-switch-wrapper {
   position: relative;
   display: inline-block;
-  width: 38px;
-  height: 22px;
-  border-radius: 999px;
-  background: #8b5e3c;
-  border: 1px solid #6f472d;
-  vertical-align: middle;
-  box-sizing: border-box;
-  overflow: hidden;
+  width: 50px;
+  height: 26px;
 }
 
-/* Bola */
-.styled-table td .estado-switch .switch-thumb {
+.styled-table td .table-switch-wrapper input[type="checkbox"] {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+}
+
+.styled-table td .table-switch-slider {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
-  transition: left 0.18s ease;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 34px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Activo: oscuro estilo ventas */
-.styled-table td .estado-switch.is-on {
-  background: #2c0909;
-  border-color: #2c0909;
-}
-
-.styled-table td .estado-switch.is-on .switch-thumb {
-  left: 18px;
-}
-
-/* Inactivo */
-.styled-table td .estado-switch.is-off {
-  background: #8b5e3c;
-  border-color: #6f472d;
-}
-
-.styled-table td .estado-switch.is-off .switch-thumb {
-  left: 2px;
-}
-
-/* =========================================================
-   SWITCH ESTADO - TABLA PRODUCTOS
-========================================================= */
-
-.styled-table td .estado-switch {
-  position: relative;
-  display: inline-block;
-  width: 38px;
-  height: 22px;
-  border-radius: 999px;
-  background: #2c0909;
-  border: 1px solid #2c0909;
-  vertical-align: middle;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.styled-table td .estado-switch .switch-thumb {
+.styled-table td .table-switch-slider:before {
   position: absolute;
-  top: 50%;
-  left: 2px;
-  width: 14px;
-  height: 14px;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #fff;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
-  transform: translateY(-50%);
-  transition: left 0.18s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Activo */
-.styled-table td .estado-switch.is-on {
-  background: #2c0909;
-  border-color: #2c0909;
+.styled-table td .table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider {
+  background-color: #4b2f2a;
 }
 
-.styled-table td .estado-switch.is-on .switch-thumb {
-  left: 20px;
+.styled-table td .table-switch-wrapper input[type="checkbox"]:disabled + .table-switch-slider {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
-/* Inactivo */
-.styled-table td .estado-switch.is-off {
-  background: #8b5e3c;
-  border-color: #6f472d;
+.styled-table td .table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider:before {
+  transform: translateX(24px);
 }
 
-.styled-table td .estado-switch.is-off .switch-thumb {
-  left: 2px;
+.styled-table td .table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
+  box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
 }
 
 /* =========================================
@@ -1557,6 +1593,7 @@ z-index:2000 !important;
   padding-right: 2.6rem !important;
   background-image: none !important;
   transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+  border-radius: 16px !important;
 }
 
 .producto-form .producto-valid-icon,
@@ -1707,10 +1744,24 @@ z-index:2000 !important;
   min-height: 38px;
   padding: 8px 10px;
   font-size: .94rem;
+  border-radius: 16px !important;
 }
 
 #ajaxFormModalBody .producto-form textarea.form-control{
   min-height: 96px;
+}
+
+#ajaxFormModalBody .producto-form .input-group{
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+#ajaxFormModalBody .producto-form .input-group .input-group-text{
+  border-radius: 16px 0 0 16px;
+}
+
+#ajaxFormModalBody .producto-form .input-group .form-control{
+  border-radius: 0 16px 16px 0 !important;
 }
 
 #ajaxFormModalBody .dropzone-pro-lg{
@@ -1748,11 +1799,16 @@ z-index:2000 !important;
 }
 
 #ajaxFormModalBody #previewProductoImagen{
-  height: 190px;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  background:#fff;
+  border-radius:12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.06);
 }
 
 #ajaxFormModalBody .pm-grow #previewProductoImagen{
-  max-height: 260px;
+  max-height: 320px;
 }
 
 #ajaxFormModalBody .estado-opt{
@@ -1768,6 +1824,14 @@ z-index:2000 !important;
   background: #fff;
   padding-top: 8px;
   border-top: 1px solid #eceff3;
+}
+
+#ajaxFormModalBody .producto-form .btn,
+#ajaxFormModalBody .producto-form .btn-pill-dark,
+#ajaxFormModalBody .producto-form .btn-primary,
+#ajaxFormModalBody .producto-form .btn-light,
+#ajaxFormModalBody .producto-form .btn-outline-secondary {
+  border-radius: 16px;
 }
 
 /* Restaurar estilo anterior de botones solo en modal de producto */

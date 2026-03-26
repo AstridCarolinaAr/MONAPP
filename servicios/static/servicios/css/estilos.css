@@ -17,11 +17,11 @@
 
 /* Botones */
 .btn {
-    border-radius: 11px !important;
+    border-radius: 16px !important;
 }
 
 .btn-sm {
-    border-radius: 5px !important;
+    border-radius: 12px !important;
 }
 
 .btn-close {
@@ -31,11 +31,11 @@
 /* Inputs y formularios */
 .form-control,
 .form-select {
-    border-radius: 5px !important;
+    border-radius: 16px !important;
 }
 
 textarea.form-control {
-    border-radius: 11px !important;
+    border-radius: 16px !important;
 }
 
 /* Badges */
@@ -113,17 +113,17 @@ textarea.form-control {
 
 /* Input groups */
 .input-group {
-    border-radius: 5px !important;
+    border-radius: 16px !important;
 }
 
 .input-group .form-control:first-child,
 .input-group .input-group-text:first-child {
-    border-radius: 5px 0 0 5px !important;
+    border-radius: 16px 0 0 16px !important;
 }
 
 .input-group .form-control:last-child,
 .input-group .input-group-text:last-child {
-    border-radius: 0 5px 5px 0 !important;
+    border-radius: 0 16px 16px 0 !important;
 }
 
 /* Pagination */

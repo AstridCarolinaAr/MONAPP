@@ -1,5 +1,23 @@
 {% load static %}
 
+<style>
+.modal-usuario .form-control,
+.modal-usuario .form-select,
+.modal-usuario .btn,
+.modal-usuario .input-group {
+    border-radius: 16px;
+}
+.modal-usuario .input-group {
+    overflow: hidden;
+}
+.modal-usuario .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.modal-usuario .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
+</style>
+
 <!-- Cargar JavaScript de validaciones -->
 <script src="{% static 'usuarios/js/usuarios.js' %}"></script>
 

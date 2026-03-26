@@ -8,9 +8,16 @@ def _solo_letras_numeros_y_espacios(valor):
     return bool(valor) and all(ch.isalnum() or ch.isspace() for ch in valor)
 
 
-def _sin_signos_peligrosos(valor):
+def _texto_seguro(valor):
     valor = (valor or "").strip()
     return "<" not in valor and ">" not in valor
+
+
+def _nombre_servicio_duplicado(nombre, servicio_id=None):
+    qs = Servicio.objects.filter(nombre__iexact=nombre.strip())
+    if servicio_id:
+        qs = qs.exclude(pk=servicio_id)
+    return qs.exists()
 
 
 class ServicioForm(ValidationFormMixin, forms.ModelForm):
@@ -22,6 +29,7 @@ class ServicioForm(ValidationFormMixin, forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "placeholder": "Nombre del servicio",
+                    "autocomplete": "off",
                     "data-validate": "alnum",
                 }
             ),
@@ -39,68 +47,106 @@ class ServicioForm(ValidationFormMixin, forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "rows": 4,
-                    "placeholder": "Descripcion del servicio",
-                    "data-validate": "alnum",
+                    "placeholder": "Descripción del servicio",
+                    "data-validate": "text",
                 }
             ),
-            "imagen": forms.FileInput(attrs={
-                "class": "form-control",
-                "accept": "image/*",
-            }),
-            "video": forms.FileInput(attrs={
-                "class": "form-control",
-                "accept": "video/*",
-            }),
+            "imagen": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*",
+                }
+            ),
+            "video": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "video/*",
+                }
+            ),
+            "activo": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                }
+            ),
         }
         labels = {
             "nombre": "Nombre del Servicio",
             "precio": "Precio ($)",
-            "descripcion": "Descripcion",
+            "descripcion": "Descripción",
             "imagen": "Imagen del Servicio",
             "video": "Video del Servicio",
-            "activo": "Estado del Servicio",
+            "activo": "Activo",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # En edición normalmente no obligas a volver a subir archivos
+        if "imagen" in self.fields:
+            self.fields["imagen"].required = False
+
+        if "video" in self.fields:
+            self.fields["video"].required = False
+
+        if "activo" in self.fields:
+            self.fields["activo"].required = False
 
     def clean_nombre(self):
         nombre = (self.cleaned_data.get("nombre") or "").strip()
+
         if not nombre:
             raise forms.ValidationError("El nombre del servicio es obligatorio.")
-        if not _sin_signos_peligrosos(nombre):
-            raise forms.ValidationError("El nombre no puede contener signos especiales.")
+
+        if not _texto_seguro(nombre):
+            raise forms.ValidationError("El nombre no puede contener los signos < o >.")
+
         if not _solo_letras_numeros_y_espacios(nombre):
-            raise forms.ValidationError("El nombre solo puede contener letras, numeros y espacios.")
-        return nombre.title()
+            raise forms.ValidationError("El nombre solo puede contener letras, números y espacios.")
+
+        servicio_id = getattr(self.instance, "pk", None)
+        if _nombre_servicio_duplicado(nombre, servicio_id):
+            raise forms.ValidationError("Ya existe un servicio con este nombre.")
+
+        return " ".join(nombre.split())
 
     def clean_precio(self):
         precio = self.cleaned_data.get("precio")
+
         if precio is None:
             raise forms.ValidationError("El precio es obligatorio.")
+
         if precio < 0:
             raise forms.ValidationError("El precio no puede ser negativo.")
+
         return precio
 
     def clean_descripcion(self):
         descripcion = (self.cleaned_data.get("descripcion") or "").strip()
+
         if not descripcion:
-            raise forms.ValidationError("La descripcion es obligatoria.")
-        if not _sin_signos_peligrosos(descripcion):
-            raise forms.ValidationError("La descripcion no puede contener signos HTML.")
-        if not _solo_letras_numeros_y_espacios(descripcion):
-            raise forms.ValidationError("La descripcion solo puede contener letras, numeros y espacios.")
+            raise forms.ValidationError("La descripción es obligatoria.")
+
+        if not _texto_seguro(descripcion):
+            raise forms.ValidationError("La descripción no puede contener los signos < o >.")
+
         return descripcion
 
     def clean_imagen(self):
         imagen = self.cleaned_data.get("imagen")
+
         if imagen:
             content_type = getattr(imagen, "content_type", "")
             if content_type and not content_type.startswith("image/"):
-                raise forms.ValidationError("Debes subir un archivo de imagen valido.")
+                raise forms.ValidationError("Debes subir un archivo de imagen válido.")
+
         return imagen
 
     def clean_video(self):
         video = self.cleaned_data.get("video")
+
         if video:
             content_type = getattr(video, "content_type", "")
             if content_type and not content_type.startswith("video/"):
-                raise forms.ValidationError("Debes subir un archivo de video valido.")
+                raise forms.ValidationError("Debes subir un archivo de video válido.")
+
         return video
