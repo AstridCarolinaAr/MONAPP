@@ -672,4 +672,93 @@
     formModalBodyEl.innerHTML = result.data;
     initCompraForm(formModalEl);
   });
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".js-reactivar-proveedor-compra");
+    if (!btn) return;
+
+    e.preventDefault();
+
+    const url = btn.dataset.reactivarUrl;
+    const nombre = btn.dataset.proveedorNombre || "este proveedor";
+    if (!url) return;
+
+    const confirm = await Swal.fire({
+      title: "¿Estás seguro que deseas activar al proveedor?",
+      text: `Se activará ${nombre}.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, activar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4b2f2a",
+      cancelButtonColor: "#6c757d",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const formCompra = document.getElementById("formCompra");
+    const selectProveedor = formCompra ? formCompra.querySelector("#id_proveedor") : null;
+    const alertaInactivo = document.getElementById("alertaProveedorInactivoCompra");
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": csrfFromCookie(),
+        },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.success) {
+        await Swal.fire({
+          title: "Proveedor activado",
+          text: data.message || `${nombre} fue activado correctamente.`,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#4b2f2a",
+        });
+        await Swal.fire({
+          title: "Listo",
+          text: "Ya puedes continuar editando la compra.",
+          icon: "info",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#4b2f2a",
+        });
+
+        if (selectProveedor) {
+          selectProveedor.disabled = false;
+          const option = selectProveedor.options[selectProveedor.selectedIndex];
+          if (option) {
+            option.text = option.text.replace(/\s*\(Inactivo\)\s*$/i, "");
+          }
+          selectProveedor.classList.remove("is-invalid");
+        }
+
+        if (alertaInactivo) {
+          alertaInactivo.remove();
+        }
+
+        return;
+      }
+
+      await Swal.fire({
+        title: "Error",
+        text: data.message || "No se pudo activar el proveedor.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
+    } catch (err) {
+      console.error("Error activando proveedor desde compras:", err);
+      await Swal.fire({
+        title: "Error",
+        text: "Ocurrió un error al activar el proveedor.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
+    }
+  });
 })();
