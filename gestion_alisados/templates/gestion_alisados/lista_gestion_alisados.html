@@ -215,9 +215,9 @@
         <a href="{% url 'gestion_alisados:exportar_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn-pill-dark" style="background-color: #c0392b; text-decoration: none; display: inline-flex; align-items: center;">
             <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
         </a>
-        <button type="button" id="btnImprimirTyC" class="btn-pill-dark" style="text-decoration: none; display: inline-flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#modalFirmadosTyC">
+        <a id="btnImprimirTyC" class="btn-pill-dark" style="text-decoration: none; display: inline-flex; align-items: center;" href="{% url 'gestion_alisados:imprimir_terminos_firmados' %}?autoprint=1">
             <i class="bi bi-printer"></i> Imprimir T&C Firmados
-        </button>
+        </a>
     </div>
 
     <!-- FILTROS -->

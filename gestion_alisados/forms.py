@@ -1,3 +1,5 @@
+import os
+
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -6,6 +8,15 @@ from clientes.models import Cliente
 
 
 class GestionAlisadoForm(forms.ModelForm):
+    ALLOWED_SIGNATURE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'}
+    ALLOWED_SIGNATURE_MIME_TYPES = {
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+        'image/bmp',
+    }
+
     procedimiento_realizado_por = forms.ChoiceField(
         required=True,
         label='Procedimiento realizado por',
@@ -265,3 +276,25 @@ class GestionAlisadoForm(forms.ModelForm):
             cleaned_data['saldo_pendiente'] = precio - anticipo
         
         return cleaned_data
+
+    def clean_firma_consentimiento(self):
+        firma = self.cleaned_data.get('firma_consentimiento')
+        if not firma:
+            return firma
+
+        extension = os.path.splitext(firma.name)[1].lower()
+        if extension not in self.ALLOWED_SIGNATURE_EXTENSIONS:
+            raise forms.ValidationError(
+                'Solo se permiten imagenes para la firma (JPG, JPEG, PNG, WEBP, GIF o BMP).'
+            )
+
+        content_type = (getattr(firma, 'content_type', '') or '').lower()
+        if content_type and (
+            content_type not in self.ALLOWED_SIGNATURE_MIME_TYPES and
+            not content_type.startswith('image/')
+        ):
+            raise forms.ValidationError(
+                'El archivo cargado no es una imagen valida.'
+            )
+
+        return firma

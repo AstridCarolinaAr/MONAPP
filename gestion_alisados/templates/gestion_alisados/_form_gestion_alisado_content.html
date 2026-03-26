@@ -1465,6 +1465,20 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Agregar validación cuando se sube una firma
     if (inputFirma) {
         inputFirma.addEventListener('change', function() {
+            const archivo = this.files && this.files[0] ? this.files[0] : null;
+            if (archivo) {
+                const nombre = (archivo.name || '').toLowerCase();
+                const esImagenPorMime = (archivo.type || '').toLowerCase().startsWith('image/');
+                const esImagenPorExtension = /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(nombre);
+
+                if (!esImagenPorMime || !esImagenPorExtension) {
+                    this.value = '';
+                    mostrarNotificacion('Solo se permiten archivos de imagen para la firma (JPG, JPEG, PNG, WEBP, GIF o BMP).', 'warning');
+                    validarConsentimiento();
+                    return;
+                }
+            }
+
             if (this.files.length > 0) {
                 tieneFilmaxAnteriora = true; // Marcar que ya hay firma
             }
