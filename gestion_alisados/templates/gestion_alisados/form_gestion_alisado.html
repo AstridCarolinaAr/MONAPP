@@ -284,11 +284,13 @@
                                 <select name="cliente" id="selectCliente" class="form-select" required>
                                     <option value="">Seleccione un cliente...</option>
                                     {% for cliente in form.fields.cliente.queryset %}
-                                        <option value="{{ cliente.id }}" data-documento="{{ cliente.numero_documento }}">
+                                        <option value="{{ cliente.id }}" data-nombre="{{ cliente.nombre }} {{ cliente.apellido }}" data-documento="{{ cliente.numero_documento }}">
                                             {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.numero_documento }}
                                         </option>
                                     {% endfor %}
                                 </select>
+                                <input type="hidden" id="clienteNombreImpresion" name="cliente_nombre_impresion" value="">
+                                <input type="hidden" id="clienteDocumentoImpresion" name="cliente_documento_impresion" value="">
                                 {% if form.cliente.errors %}
                                     <div class="text-danger">{{ form.cliente.errors }}</div>
                                 {% endif %}
@@ -901,13 +903,27 @@ document.addEventListener('DOMContentLoaded', function() {
     function actualizarInfoCliente() {
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         if (selectCliente.value) {
-            const nombreCompleto = selectedOption.text;
-            const numeroDocumento = selectedOption.getAttribute('data-documento') || 'N/A';
+            const textoCompleto = (selectedOption.text || '').trim();
+            const separador = textoCompleto.lastIndexOf(' - ');
+            const partes = separador >= 0 ? {
+                nombre: textoCompleto.slice(0, separador).trim(),
+                documento: textoCompleto.slice(separador + 3).trim(),
+            } : { nombre: textoCompleto, documento: '' };
+            const nombreCompleto = (selectedOption.getAttribute('data-nombre') || partes.nombre || textoCompleto || 'N/A').trim() || 'N/A';
+            const numeroDocumento = (selectedOption.getAttribute('data-documento') || partes.documento || 'N/A').trim() || 'N/A';
+            const inputNombre = document.getElementById('clienteNombreImpresion');
+            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+            if (inputNombre) inputNombre.value = nombreCompleto;
+            if (inputDocumento) inputDocumento.value = numeroDocumento;
             infoClienteConsentimiento.innerHTML = `
                 <strong>Nombre:</strong> ${nombreCompleto}<br>
                 <strong>Documento:</strong> ${numeroDocumento}
             `;
         } else {
+            const inputNombre = document.getElementById('clienteNombreImpresion');
+            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+            if (inputNombre) inputNombre.value = '';
+            if (inputDocumento) inputDocumento.value = '';
             infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
         }
     }
@@ -1451,10 +1467,25 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectCliente) return null;
         const opcion = selectCliente.selectedOptions && selectCliente.selectedOptions[0];
         if (!selectCliente.value || !opcion) return null;
+        const nombreGuardado = (document.getElementById('clienteNombreImpresion')?.value || '').trim();
+        const documentoGuardado = (document.getElementById('clienteDocumentoImpresion')?.value || '').trim();
+        if (nombreGuardado || documentoGuardado) {
+            return {
+                value: selectCliente.value,
+                nombre: nombreGuardado || '—',
+                documento: documentoGuardado || '—',
+            };
+        }
+        const textoCompleto = (opcion.text || '').trim();
+        const separador = textoCompleto.lastIndexOf(' - ');
+        const partes = separador >= 0 ? {
+            nombre: textoCompleto.slice(0, separador).trim(),
+            documento: textoCompleto.slice(separador + 3).trim(),
+        } : { nombre: textoCompleto, documento: '' };
         return {
             value: selectCliente.value,
-            nombre: (opcion.text || '').trim(),
-            documento: (opcion.getAttribute('data-documento') || '').trim(),
+            nombre: (opcion.getAttribute('data-nombre') || partes.nombre || '').trim(),
+            documento: (opcion.getAttribute('data-documento') || partes.documento || '').trim(),
         };
     }
 
@@ -2470,7 +2501,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!selectCliente || !selectCliente.value) return VACIO;
         const opcion = selectCliente.selectedOptions && selectCliente.selectedOptions[0];
         if (!opcion) return VACIO;
-        return (opcion.text || VACIO).trim() || VACIO;
+        const nombreGuardado = (document.getElementById('clienteNombreImpresion')?.value || '').trim();
+        if (nombreGuardado) return nombreGuardado;
+        const textoCompleto = (opcion.text || '').trim();
+        const separador = textoCompleto.lastIndexOf(' - ');
+        const partes = separador >= 0 ? {
+            nombre: textoCompleto.slice(0, separador).trim(),
+            documento: textoCompleto.slice(separador + 3).trim(),
+        } : { nombre: textoCompleto, documento: '' };
+        return (opcion.getAttribute('data-nombre') || partes.nombre || VACIO).trim() || VACIO;
     }
 
     function getDocumentoCliente() {
@@ -2478,7 +2517,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!selectCliente || !selectCliente.value) return VACIO;
         const opcion = selectCliente.selectedOptions && selectCliente.selectedOptions[0];
         if (!opcion) return VACIO;
-        return (opcion.getAttribute('data-documento') || VACIO).trim() || VACIO;
+        const documentoGuardado = (document.getElementById('clienteDocumentoImpresion')?.value || '').trim();
+        if (documentoGuardado) return documentoGuardado;
+        const textoCompleto = (opcion.text || '').trim();
+        const separador = textoCompleto.lastIndexOf(' - ');
+        const partes = separador >= 0 ? {
+            nombre: textoCompleto.slice(0, separador).trim(),
+            documento: textoCompleto.slice(separador + 3).trim(),
+        } : { nombre: textoCompleto, documento: '' };
+        return (opcion.getAttribute('data-documento') || partes.documento || VACIO).trim() || VACIO;
     }
 
     function recopilarDatosImpresion() {

@@ -6,9 +6,9 @@
 {% block page_title %}Respaldo de Base de Datos{% endblock %}
 {% block page_subtitle %}Control y monitoreo de copias de seguridad del sistema{% endblock %}
 {% block page_actions %}
-<a href="{% url 'backup:configuracion' %}" class="btn-pill-dark" style="background:#fff;color:#5e4034;border:1px solid rgba(94,64,52,.2);">
+<button type="button" class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalConfiguracionBackup" style="background:#fff;color:#5e4034;border:1px solid rgba(94,64,52,.2);">
     <i class="bi bi-gear"></i> Configuración
-</a>
+</button>
 <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalCrearBackup">
     <i class="bi bi-plus"></i> Nueva copia
 </button>
@@ -64,6 +64,37 @@
         </div>
     </div>
 
+    <div class="module-filters-card" style="margin-bottom: 24px;">
+        <form id="backupSearchForm" class="module-filters-form" method="get" action="{% url 'backup:dashboard' %}">
+            <div class="module-filter-field module-filter-field--search">
+                <label class="module-filter-label" for="backupSearchNombre">Buscar</label>
+                <div class="search-toggle-wrapper busqueda-global--inline {% if query or estado or tipo or fecha_desde or fecha_hasta %}is-open{% endif %}">
+                    <button
+                        type="button"
+                        class="btn-search-toggle"
+                        aria-label="Abrir búsqueda"
+                        aria-expanded="{% if query or estado or tipo or fecha_desde or fecha_hasta %}true{% else %}false{% endif %}">
+                        <span class="icon-wrapper">
+                            <i class="bi bi-search search-icon" aria-hidden="true"></i>
+                            <i class="bi bi-x-lg close-icon" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <div class="search-toggle-box {% if query or estado or tipo or fecha_desde or fecha_hasta %}is-open{% endif %}">
+                        <input
+                            type="search"
+                            id="backupSearchNombre"
+                            name="q"
+                            class="search-toggle-input"
+                            placeholder="Nombre, estado, tipo o usuario"
+                            value="{{ query|default:'' }}"
+                            autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+
     <!-- ==================== ÚLTIMO RESPALDO ==================== -->
     {% if ultimo_backup %}
     <div class="bk-card" style="margin-bottom: 24px;">
@@ -72,7 +103,7 @@
             Última copia exitosa
         </div>
         <div class="bk-card-body">
-            <div class="bk-detail-grid">
+            <div class="bk-detail-grid bk-detail-grid-top">
                 <div class="bk-detail-item">
                     <span class="label">Nombre</span>
                     <span class="value">{{ ultimo_backup.nombre }}</span>
@@ -102,7 +133,7 @@
     </div>
     {% endif %}
 
-    <div class="row g-4">
+    <div class="row g-4 align-items-start">
         <!-- ==================== HISTORIAL ==================== -->
         <div class="col-lg-8">
             <div class="bk-card">
@@ -110,7 +141,7 @@
                     <i class="bi bi-list-ul"></i>
                     Historial de copias
                     <span class="ms-auto" style="font-size: .78rem; opacity: .7;">
-                        {{ total_backups }} total
+                        {{ historial_total }} resultado{{ historial_total|pluralize }}
                     </span>
                 </div>
                 <div class="bk-card-body" style="padding: 0;">
@@ -129,9 +160,12 @@
                             </thead>
                             <tbody>
                                 {% for b in backups %}
-                                <tr>
+                                <tr data-nombre="{{ b.nombre|lower }}"
+                                    data-estado="{{ b.estado }}"
+                                    data-fecha="{{ b.fecha_creacion|date:'Y-m-d' }}"
+                                    data-search-text="{{ b.nombre|lower }} {{ b.get_tipo_display|lower }} {{ b.get_estado_display|lower }} {{ b.fecha_creacion|date:'Y-m-d H:i' }} {{ b.usuario|default:'Sistema'|lower }}">
                                     <td>
-                                        <strong>{{ b.nombre|truncatechars:30 }}</strong>
+                                        <strong class="bk-backup-name">{{ b.nombre|truncatechars:30 }}</strong>
                                         {% if b.es_automatico %}
                                             <span class="bk-badge" style="background: var(--bk-blue-soft); color: var(--bk-blue); font-size:.68rem; padding:2px 8px;">
                                                 <i class="bi bi-robot"></i> Auto
@@ -168,11 +202,12 @@
                                     <td>{{ b.fecha_creacion|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <div class="bk-actions">
-                                            <a href="{% url 'backup:detalle' b.pk %}"
-                                               class="bk-btn outline sm icon-only"
-                                               title="Ver detalle">
+                                            <button type="button"
+                                                    class="bk-btn outline sm icon-only btn-backup-detalle"
+                                                    data-url="{% url 'backup:detalle' b.pk %}?modal=1"
+                                                    title="Ver detalle">
                                                 <i class="bi bi-eye"></i>
-                                            </a>
+                                            </button>
                                             {% if b.archivo_existe and b.estado in 'exitoso,restaurado' %}
                                             <a href="{% url 'backup:descargar' b.pk %}"
                                                class="bk-btn success sm icon-only"
@@ -183,7 +218,9 @@
                                                     class="bk-btn primary sm icon-only btn-restaurar"
                                                     data-id="{{ b.pk }}"
                                                     data-nombre="{{ b.nombre }}"
-                                                    title="Restaurar de nuevo">
+                                                    data-url="{% url 'backup:restaurar' b.pk %}"
+                                                    data-preview-url="{% url 'backup:detalle' b.pk %}?modal=1"
+                                                    title="Ver contenido y restaurar">
                                                 <i class="bi bi-arrow-counterclockwise"></i>
                                             </button>
                                             {% endif %}
@@ -191,6 +228,7 @@
                                                     class="bk-btn danger sm icon-only btn-eliminar"
                                                     data-id="{{ b.pk }}"
                                                     data-nombre="{{ b.nombre }}"
+                                                    data-url="{% url 'backup:eliminar' b.pk %}"
                                                     title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -201,59 +239,132 @@
                             </tbody>
                         </table>
                     </div>
+                    {% if page_obj.paginator.num_pages > 1 %}
+                    <div class="bk-pagination-wrap">
+                        <div class="bk-pagination-info">
+                            Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ historial_total }}
+                        </div>
+                        <nav aria-label="Paginación de backups">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                                </li>
+                                {% endif %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                                </li>
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Siguiente</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
                     {% else %}
                     <div class="bk-empty">
                         <i class="bi bi-shield-exclamation d-block"></i>
+                        {% if query or estado or tipo or fecha_desde or fecha_hasta %}
+                        <h4>Sin resultados</h4>
+                        <p>No hay copias que coincidan con los filtros actuales.</p>
+                        {% else %}
                         <h4>Sin copias registradas</h4>
                         <p>Crea tu primera copia para proteger la información del sistema.</p>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        
+        <!-- ==================== SIDEBAR ==================== -->
+        <div class="col-lg-4">
+            <!-- ==================== IMPORTAR RESPALDO ==================== -->
+            <div class="bk-card" style="margin-bottom: 24px;">
+                <div class="bk-card-header" style="background: linear-gradient(135deg, #3a2a24, #2a1d18);">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    Importar respaldo
+                </div>
+                <div class="bk-card-body">
+                    <form id="formImportBackup" method="post" action="{% url 'backup:importar' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="d-grid gap-3">
+                            <div>
+                                <label for="backup_archivo" class="form-label fw-semibold" style="color:#5a4a42;">
+                                    Archivo ZIP
+                                </label>
+                                <input type="file"
+                                       class="form-control"
+                                       id="backup_archivo"
+                                       name="archivo_backup"
+                                       accept=".zip"
+                                       required>
+                                <small class="d-block mt-2" style="color:#8a7a72;">
+                                    Solo se permiten archivos <strong>.zip</strong> generados por el sistema.
+                                </small>
+                                <div id="archivo_error" class="alert alert-danger alert-sm mt-2" style="display:none; padding: 8px 12px; font-size: .78rem; margin: 0;">
+                                    <i class="bi bi-exclamation-circle me-1"></i><span id="archivo_error_msg"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="backup_import_notas" class="form-label fw-semibold" style="color:#5a4a42;">
+                                    Notas / Observaciones
+                                </label>
+                                <textarea class="form-control"
+                                          id="backup_import_notas"
+                                          name="notas"
+                                          rows="3"
+                                          maxlength="500"
+                                          placeholder="Opcional: deja una nota sobre el origen del archivo"></textarea>
+                                <small class="d-block mt-2" style="color:#8a7a72;">
+                                    <span id="import_notas_count">0</span>/500 caracteres
+                                </small>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="restaurar_despues"
+                                       id="backup_restaurar_despues">
+                                <label class="form-check-label fw-semibold" for="backup_restaurar_despues" style="color:#5a4a42;">
+                                    Restaurar inmediatamente después de importar
+                                </label>
+                                <small class="d-block mt-1" style="color:#8a7a72;">
+                                    El ZIP quedará guardado en el historial y además se aplicará sobre la base actual.
+                                </small>
+                            </div>
+                            <button type="submit" class="bk-btn primary w-100" id="btnImportarBackup">
+                                <i class="bi bi-upload"></i> Importar copia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 <!-- ==================== MODAL CREAR BACKUP ==================== -->
 <div class="modal fade bk-modal" id="modalCrearBackup" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="bi bi-shield-plus"></i> Crear nueva copia
+                    <i class="bi bi-shield-plus"></i> Crear nueva copia completa
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="post" action="{% url 'backup:crear' %}">
                 {% csrf_token %}
                 <div class="modal-body">
-
-                    <!-- Tipo de backup -->
-                    <div class="bk-form-group">
-                        <label>Tipo de copia</label>
-                        <div class="bk-tipo-selector">
-                            <div class="bk-tipo-option">
-                                <input type="radio" name="tipo" value="completo" id="tipo_completo" checked>
-                                <label for="tipo_completo">
-                                    <i class="bi bi-archive"></i>
-                                    <span>Completo</span>
-                                    <small style="font-size:.7rem;color:#8a7a72;">BD + Media</small>
-                                </label>
-                            </div>
-                            <div class="bk-tipo-option">
-                                <input type="radio" name="tipo" value="base_datos" id="tipo_bd">
-                                <label for="tipo_bd">
-                                    <i class="bi bi-database"></i>
-                                    <span>Base de Datos</span>
-                                    <small style="font-size:.7rem;color:#8a7a72;">Solo BD</small>
-                                </label>
-                            </div>
-                            <div class="bk-tipo-option">
-                                <input type="radio" name="tipo" value="media" id="tipo_media">
-                                <label for="tipo_media">
-                                    <i class="bi bi-images"></i>
-                                    <span>Media</span>
-                                    <small style="font-size:.7rem;color:#8a7a72;">Solo archivos</small>
-                                </label>
+                    <div class="alert alert-info d-flex align-items-start gap-2 mb-4" style="border-radius: 12px;">
+                        <i class="bi bi-shield-check mt-1"></i>
+                        <div>
+                            <strong>Esta copia será completa.</strong>
+                            <div style="font-size:.9rem; line-height:1.45;">
+                                El sistema incluirá automáticamente base de datos y archivos media.
+                                No necesitas elegir tipo de copia.
                             </div>
                         </div>
                     </div>
@@ -309,7 +420,139 @@
                 <div class="modal-footer">
                     <button type="button" class="bk-btn outline" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="bk-btn success" id="btnCrearBackup">
-                        <i class="bi bi-shield-check"></i> Crear copia
+                        <i class="bi bi-shield-check"></i> Crear copia completa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL DETALLE BACKUP ==================== -->
+<div class="modal fade bk-modal" id="modalDetalleBackup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" id="detalleBackupModalContent">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-check"></i>
+                    Detalle de copia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" style="min-height: 220px; display:flex; align-items:center; justify-content:center;">
+                <div class="text-center text-muted">
+                    <div class="spinner-border" style="color:#8a5a3c;" role="status"></div>
+                    <div class="mt-3">Cargando detalle...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CONFIGURACIÓN BACKUP ==================== -->
+<div class="modal fade bk-modal" id="modalConfiguracionBackup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-gear"></i>
+                    Configuración de copias de seguridad
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="post" action="{% url 'backup:configuracion' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="bk-switch-row">
+                        <div class="bk-switch-label">
+                            <strong>
+                                <i class="bi bi-clock-history me-1"></i>
+                                Copia automática
+                            </strong>
+                            <small>Ejecuta una copia periódicamente de forma automática</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                   name="backup_automatico" id="backupAutoModal"
+                                   {% if config.backup_automatico %}checked{% endif %}
+                                   style="width: 48px; height: 24px;">
+                        </div>
+                    </div>
+
+                    <div class="bk-switch-row">
+                        <div class="bk-switch-label">
+                            <strong>
+                                <i class="bi bi-arrow-repeat me-1"></i>
+                                Frecuencia
+                            </strong>
+                            <small>Cada cuántas horas se realiza una copia automática</small>
+                        </div>
+                        <div style="width: 120px;">
+                            <div class="input-group input-group-sm">
+                                <input type="number" class="form-control" name="frecuencia_horas"
+                                       value="{{ config.frecuencia_horas }}" min="1" max="720"
+                                       style="border-radius: 10px 0 0 10px; border-color: rgba(141,96,74,0.2);">
+                                <span class="input-group-text"
+                                      style="border-radius: 0 10px 10px 0; background: #f8f5f3; border-color: rgba(141,96,74,0.2); font-size: .82rem;">
+                                    horas
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bk-switch-row">
+                        <div class="bk-switch-label">
+                            <strong>
+                                <i class="bi bi-stack me-1"></i>
+                                Máximo de copias
+                            </strong>
+                            <small>Las copias más antiguas se eliminan automáticamente</small>
+                        </div>
+                        <div style="width: 100px;">
+                            <input type="number" class="form-control form-control-sm"
+                                   name="max_backups" value="{{ config.max_backups }}"
+                                   min="1" max="100"
+                                   style="border-radius: 10px; border-color: rgba(141,96,74,0.2); text-align: center;">
+                        </div>
+                    </div>
+
+                    <div class="bk-switch-row">
+                        <div class="bk-switch-label">
+                            <strong>
+                                <i class="bi bi-images me-1"></i>
+                                Incluir archivos multimedia
+                            </strong>
+                            <small>Incluir fotos, documentos e imágenes subidas en la copia automática</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                   name="incluir_media" id="inclMediaModal"
+                                   {% if config.incluir_media %}checked{% endif %}
+                                   style="width: 48px; height: 24px;">
+                        </div>
+                    </div>
+
+                    <div class="bk-switch-row" style="border-bottom: none;">
+                        <div class="bk-switch-label" style="flex: 1;">
+                            <strong>
+                                <i class="bi bi-folder me-1"></i>
+                                Ruta de Almacenamiento
+                            </strong>
+                            <small>Dejar vacío para usar la ruta por defecto (backups/)</small>
+                            <div style="margin-top: 10px;">
+                                <input type="text" class="form-control form-control-sm"
+                                       name="ruta_backups" value="{{ config.ruta_backups }}"
+                                       placeholder="Ej: C:\backups\monapp"
+                                       style="border-radius: 10px; border-color: rgba(141,96,74,0.2);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="bk-btn outline" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="bk-btn primary">
+                        <i class="bi bi-check-lg"></i> Guardar configuración
                     </button>
                 </div>
             </form>
@@ -343,6 +586,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('btnCrearBackup');
     const modalBackup = document.getElementById('modalCrearBackup');
     const formBackup = modalBackup ? modalBackup.querySelector('form') : null;
+    const inputArchivoImport = document.getElementById('backup_archivo');
+    const importNotas = document.getElementById('backup_import_notas');
+    const importNotasCount = document.getElementById('import_notas_count');
+    const archivoError = document.getElementById('archivo_error');
+    const archivoErrorMsg = document.getElementById('archivo_error_msg');
+    const submitImportBtn = document.getElementById('btnImportarBackup');
+    const formImport = document.getElementById('formImportBackup');
+    const modalDetalleEl = document.getElementById('modalDetalleBackup');
+    const modalDetalleContent = document.getElementById('detalleBackupModalContent');
+    const modalDetalleInstance = (modalDetalleEl && typeof bootstrap !== 'undefined')
+        ? new bootstrap.Modal(modalDetalleEl)
+        : null;
+    const detalleLoadingHtml = `
+        <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="bi bi-shield-check"></i>
+                Detalle de copia
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" style="min-height: 220px; display:flex; align-items:center; justify-content:center;">
+            <div class="text-center text-muted">
+                <div class="spinner-border" style="color:#8a5a3c;" role="status"></div>
+                <div class="mt-3">Cargando detalle...</div>
+            </div>
+        </div>`;
+    let detalleAbortController = null;
 
     // Validar que los elementos existan
     if (!inputNombre || !inputNotas || !submitBtn || !formBackup) {
@@ -421,17 +691,69 @@ document.addEventListener('DOMContentLoaded', function() {
         return valido;
     }
 
-    function actualizarBotÃ³n() {
+    function actualizarBoton() {
         const nombreOk = validarNombre();
         const notasOk = validarNotas();
         submitBtn.disabled = !nombreOk || !notasOk;
     }
 
+    function validarArchivoImportado() {
+        if (!inputArchivoImport || !archivoError || !archivoErrorMsg || !submitImportBtn) {
+            return true;
+        }
+
+        const file = inputArchivoImport.files && inputArchivoImport.files[0];
+        let valido = true;
+        let mensaje = '';
+
+        if (!file) {
+            valido = false;
+            mensaje = 'Selecciona un archivo ZIP para importar.';
+        } else {
+            const extension = (file.name.split('.').pop() || '').toLowerCase();
+            if (extension !== 'zip') {
+                valido = false;
+                mensaje = 'Solo se permiten archivos ZIP.';
+            }
+        }
+
+        if (!valido) {
+            archivoError.style.display = 'block';
+            archivoErrorMsg.textContent = mensaje;
+            inputArchivoImport.classList.add('is-invalid');
+        } else {
+            archivoError.style.display = 'none';
+            inputArchivoImport.classList.remove('is-invalid');
+        }
+
+        submitImportBtn.disabled = !valido;
+        return valido;
+    }
+
     // Event listeners para actualizar validaciÃ³n
-    inputNombre.addEventListener('input', actualizarBotÃ³n);
-    inputNombre.addEventListener('blur', actualizarBotÃ³n);
-    inputNotas.addEventListener('input', actualizarBotÃ³n);
-    inputNotas.addEventListener('blur', actualizarBotÃ³n);
+    inputNombre.addEventListener('input', actualizarBoton);
+    inputNombre.addEventListener('blur', actualizarBoton);
+    inputNotas.addEventListener('input', actualizarBoton);
+    inputNotas.addEventListener('blur', actualizarBoton);
+
+    if (inputArchivoImport && submitImportBtn && formImport) {
+        if (importNotas && importNotasCount) {
+            importNotas.addEventListener('input', function () {
+                importNotasCount.textContent = this.value.length;
+            });
+        }
+
+        inputArchivoImport.addEventListener('change', validarArchivoImportado);
+        formImport.addEventListener('submit', function (e) {
+            if (!validarArchivoImportado()) {
+                e.preventDefault();
+                return false;
+            }
+
+            submitImportBtn.disabled = true;
+            submitImportBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Importando...';
+        });
+    }
 
     // Al abrir el modal, resetear campos
     if (modalBackup) {
@@ -444,8 +766,65 @@ document.addEventListener('DOMContentLoaded', function() {
             notasError.style.display = 'none';
             inputNombre.classList.remove('is-invalid');
             inputNotas.classList.remove('is-invalid');
-            actualizarBotÃ³n();
+            actualizarBoton();
         });
+    }
+
+    if (inputArchivoImport && archivoError && archivoErrorMsg) {
+        inputArchivoImport.addEventListener('input', validarArchivoImportado);
+        validarArchivoImportado();
+    }
+
+    async function cargarDetalleBackup(url) {
+        if (!modalDetalleEl || !modalDetalleContent) return;
+
+        modalDetalleContent.innerHTML = detalleLoadingHtml;
+        if (modalDetalleInstance) {
+            modalDetalleInstance.show();
+        }
+
+        if (detalleAbortController) {
+            detalleAbortController.abort();
+        }
+        const controller = new AbortController();
+        detalleAbortController = controller;
+        const timeout = setTimeout(() => controller.abort(), 12000);
+
+        try {
+            const response = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller.signal,
+            });
+
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el detalle.');
+            }
+
+            const html = await response.text();
+            modalDetalleContent.innerHTML = html;
+        } catch (error) {
+            const mensaje = error.name === 'AbortError'
+                ? 'La carga del detalle tardó demasiado. Intenta nuevamente.'
+                : (error.message || 'No se pudo cargar el detalle.');
+            modalDetalleContent.innerHTML = `
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-shield-check"></i>
+                        Detalle de copia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-0">
+                        ${mensaje}
+                    </div>
+                </div>`;
+        } finally {
+            clearTimeout(timeout);
+            if (detalleAbortController === controller) {
+                detalleAbortController = null;
+            }
+        }
     }
 
     // Validar formulario antes de enviar
@@ -495,14 +874,31 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creando...';
     });
 
-    // ---- Restaurar ----
-    document.querySelectorAll('.btn-restaurar').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const nombre = this.dataset.nombre;
+    document.addEventListener('click', function (e) {
+        const btnDetalle = e.target.closest('.btn-backup-detalle');
+        if (btnDetalle) {
+            e.preventDefault();
+            const url = btnDetalle.dataset.url || btnDetalle.getAttribute('href');
+            if (url) {
+                cargarDetalleBackup(url);
+            }
+            return;
+        }
+
+        const btnRestaurar = e.target.closest('.btn-restaurar');
+        if (btnRestaurar) {
+            e.preventDefault();
+            const url = btnRestaurar.dataset.url;
+            const previewUrl = btnRestaurar.dataset.previewUrl;
+            const nombre = btnRestaurar.dataset.nombre;
+
+            if (previewUrl) {
+                cargarDetalleBackup(previewUrl);
+                return;
+            }
 
             Swal.fire({
-                title: 'Â¿Restaurar copia?',
+                title: '¿Restaurar copia?',
                 html: `Se restaurará <strong>"${nombre}"</strong>.<br>
                        <span class="text-danger">Esto reemplazará la base de datos actual.</span><br>
                        <small>Se recomienda crear una copia antes de restaurar.</small>`,
@@ -516,18 +912,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     const form = document.getElementById('formRestaurar');
-                    form.action = `/backup/restaurar/${id}/`;
-                    form.submit();
+                    if (form && url) {
+                        form.action = url;
+                        form.submit();
+                    }
                 }
             });
-        });
-    });
+            return;
+        }
 
-    // ---- Eliminar ----
-    document.querySelectorAll('.btn-eliminar').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const nombre = this.dataset.nombre;
+        const btnEliminar = e.target.closest('.btn-eliminar');
+        if (btnEliminar) {
+            e.preventDefault();
+            const url = btnEliminar.dataset.url;
+            const nombre = btnEliminar.dataset.nombre;
 
             if (!window.ES_ADMIN) {
                 var modal = new bootstrap.Modal(document.getElementById('modalAccionNoPermitida'));
@@ -536,7 +934,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             Swal.fire({
-                title: 'Â¿Eliminar copia?',
+                title: '¿Eliminar copia?',
                 html: `Se eliminará permanentemente <strong>"${nombre}"</strong> y su archivo asociado.`,
                 icon: 'warning',
                 showCancelButton: true,
@@ -548,16 +946,86 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     const form = document.getElementById('formEliminar');
-                    form.action = `/backup/eliminar/${id}/`;
-                    form.submit();
+                    if (form && url) {
+                        form.action = url;
+                        form.submit();
+                    }
                 }
             });
-        });
+        }
     });
+
+    if (modalDetalleEl) {
+        modalDetalleEl.addEventListener('hidden.bs.modal', function () {
+            if (detalleAbortController) {
+                detalleAbortController.abort();
+                detalleAbortController = null;
+            }
+            modalDetalleContent.innerHTML = detalleLoadingHtml;
+        });
+    }
+
+    const formBusquedaBackup = document.getElementById('backupSearchForm');
+    const inputBuscarBackup = document.getElementById('backupSearchNombre');
+    const filasBackup = Array.from(document.querySelectorAll('.bk-table tbody tr[data-nombre]'));
+
+    function escapeHtml(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function escapeRegExp(text) {
+        return String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function resaltarNombre(nombreEl, texto) {
+        if (!nombreEl) return;
+
+        if (!nombreEl.dataset.originalText) {
+            nombreEl.dataset.originalText = nombreEl.textContent || '';
+        }
+
+        const original = nombreEl.dataset.originalText;
+        if (!texto) {
+            nombreEl.textContent = original;
+            return;
+        }
+
+        const partes = original.split(new RegExp(`(${escapeRegExp(texto)})`, 'ig'));
+        nombreEl.innerHTML = partes.map((parte) => {
+            if (parte.toLowerCase() === texto.toLowerCase()) {
+                return `<mark class="bk-highlight">${escapeHtml(parte)}</mark>`;
+            }
+            return escapeHtml(parte);
+        }).join('');
+    }
+
+    function resaltarResultadosBusqueda() {
+        const texto = (inputBuscarBackup && inputBuscarBackup.value ? inputBuscarBackup.value : '').trim().toLowerCase();
+
+        filasBackup.forEach((fila) => {
+            fila.classList.toggle('bk-row-hit', !!texto);
+            resaltarNombre(fila.querySelector('.bk-backup-name'), texto);
+        });
+    }
+
+    if (formBusquedaBackup) {
+        formBusquedaBackup.addEventListener('change', function (e) {
+            if (e.target && e.target.matches('select, input[type="date"]')) {
+                if (typeof formBusquedaBackup.requestSubmit === 'function') {
+                    formBusquedaBackup.requestSubmit();
+                } else {
+                    formBusquedaBackup.submit();
+                }
+            }
+        });
+    }
+
+    resaltarResultadosBusqueda();
 });
 </script>
 {% endblock %}
-
-
-
-

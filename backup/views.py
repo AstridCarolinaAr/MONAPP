@@ -1,17 +1,21 @@
-import os
+﻿import os
 import json
+from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import FileResponse, JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 from .models import BackupRecord, BackupConfig
 from .services import (
     crear_backup_base_datos,
     crear_backup_completo,
     crear_backup_media,
+    importar_backup_desde_archivo,
     restaurar_backup,
     get_database_stats,
     get_all_tables,
@@ -28,25 +32,71 @@ def es_administrador(user):
 @login_required
 @user_passes_test(es_administrador)
 def backup_dashboard(request):
-    """Vista principal del módulo de backup."""
-    backups = BackupRecord.objects.all()[:20]
+    """Vista principal del mÃ³dulo de backup."""
+    query = request.GET.get('q', '').strip()
+    backups_qs = BackupRecord.objects.exclude(estado='en_progreso').order_by('-fecha_creacion')
+    if query:
+        backups_qs = backups_qs.filter(
+            Q(nombre__icontains=query)
+            | Q(notas__icontains=query)
+            | Q(tipo__icontains=query)
+            | Q(estado__icontains=query)
+            | Q(usuario__username__icontains=query)
+        )
+    estado = request.GET.get('estado', '').strip()
+    tipo = request.GET.get('tipo', '').strip()
+    fecha_desde_raw = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta_raw = request.GET.get('fecha_hasta', '').strip()
+
+    if estado and estado in dict(BackupRecord.ESTADO_CHOICES):
+        backups_qs = backups_qs.filter(estado=estado)
+    if tipo and tipo in dict(BackupRecord.TIPO_CHOICES):
+        backups_qs = backups_qs.filter(tipo=tipo)
+    try:
+        if fecha_desde_raw:
+            backups_qs = backups_qs.filter(fecha_creacion__date__gte=date.fromisoformat(fecha_desde_raw))
+    except ValueError:
+        fecha_desde_raw = ''
+    try:
+        if fecha_hasta_raw:
+            backups_qs = backups_qs.filter(fecha_creacion__date__lte=date.fromisoformat(fecha_hasta_raw))
+    except ValueError:
+        fecha_hasta_raw = ''
+
+    paginator = Paginator(backups_qs, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    backups = page_obj.object_list
     config = BackupConfig.get_config()
     stats = get_database_stats()
 
-    # Estadísticas de backups
-    total_backups = BackupRecord.objects.count()
+    # EstadÃ­sticas de backups
+    total_backups = BackupRecord.objects.exclude(estado='en_progreso').count()
     exitosos = BackupRecord.objects.filter(estado='exitoso').count()
     fallidos = BackupRecord.objects.filter(estado='fallido').count()
-    ultimo = BackupRecord.objects.filter(estado='exitoso').first()
+    ultimo = BackupRecord.objects.filter(estado='exitoso').order_by('-fecha_creacion').first()
+    historial_total = backups_qs.count()
+
+    querystring = request.GET.copy()
+    querystring.pop('page', None)
 
     context = {
         'backups': backups,
+        'page_obj': page_obj,
         'config': config,
         'stats': stats,
         'total_backups': total_backups,
+        'historial_total': historial_total,
         'exitosos': exitosos,
         'fallidos': fallidos,
         'ultimo_backup': ultimo,
+        'query': query,
+        'estado': estado,
+        'tipo': tipo,
+        'fecha_desde': fecha_desde_raw,
+        'fecha_hasta': fecha_hasta_raw,
+        'querystring': querystring.urlencode(),
+        'tipo_choices': BackupRecord.TIPO_CHOICES,
+        'estado_choices': BackupRecord.ESTADO_CHOICES,
     }
     return render(request, 'backup/dashboard.html', context)
 
@@ -57,19 +107,10 @@ def backup_dashboard(request):
 @user_passes_test(es_administrador)
 @require_POST
 def crear_backup(request):
-    """Crea un nuevo backup según el tipo seleccionado."""
-    tipo = request.POST.get('tipo', 'completo').strip()
+    """Crea un nuevo backup completo."""
     nombre = request.POST.get('nombre', '').strip()
     notas = request.POST.get('notas', '').strip()
 
-    # ==================== VALIDACIONES ====================
-    # Validar tipo
-    tipos_validos = ['completo', 'base_datos', 'media']
-    if tipo not in tipos_validos:
-        messages.error(request, 'Tipo de backup inválido.')
-        return redirect('backup:dashboard')
-
-    # Validar nombre si no está vacío
     if nombre:
         if len(nombre) < 3:
             messages.error(request, 'El nombre debe tener al menos 3 caracteres.')
@@ -77,59 +118,85 @@ def crear_backup(request):
         if len(nombre) > 255:
             messages.error(request, 'El nombre no puede exceder 255 caracteres.')
             return redirect('backup:dashboard')
-        # Validar caracteres permitidos
+
         import re
-        if not re.match(r'^[a-zA-Z0-9_\-áéíóúñ\s\.]+$', nombre):
+        if not re.fullmatch(r'[a-zA-Z0-9_\-áéíóúñ\s\.]+', nombre):
             messages.error(request, 'El nombre contiene caracteres no permitidos.')
             return redirect('backup:dashboard')
 
-    # Validar notas
     if len(notas) > 500:
         messages.error(request, 'Las notas no pueden exceder 500 caracteres.')
         return redirect('backup:dashboard')
 
-    # No permitir solo espacios
-    if nombre == '' and notas != '':
-        # OK, puede tener notas sin nombre
-        pass
-
     try:
-        if tipo == 'base_datos':
-            record = crear_backup_base_datos(
-                nombre=nombre or None,
-                usuario=request.user,
-                notas=notas,
-            )
-        elif tipo == 'media':
-            record = crear_backup_media(
-                nombre=nombre or None,
-                usuario=request.user,
-                notas=notas,
-            )
-        else:  # completo
-            record = crear_backup_completo(
-                nombre=nombre or None,
-                usuario=request.user,
-                notas=notas,
-            )
+        record = crear_backup_completo(
+            nombre=nombre or None,
+            usuario=request.user,
+            notas=notas,
+        )
 
-        # Actualizar último backup en config
         config = BackupConfig.get_config()
         config.ultimo_backup = timezone.now()
         config.save()
 
         messages.success(
             request,
-            f'Backup "{record.nombre}" creado exitosamente. '
-            f'Tamaño: {record.tamano_legible} | Duración: {record.duracion_segundos}s'
+            f'Backup "{record.nombre}" creado correctamente como copia completa.'
+        )
+    except Exception as e:
+        messages.error(request, f'No se pudo crear el backup: {str(e)}')
+
+    return redirect('backup:dashboard')
+
+
+@login_required
+@user_passes_test(es_administrador)
+@require_POST
+def importar_backup_view(request):
+    """Importa un archivo ZIP de backup compatible."""
+    archivo = request.FILES.get('archivo_backup')
+    notas = request.POST.get('notas', '').strip()
+    restaurar_despues = request.POST.get('restaurar_despues') == 'on'
+
+    if not archivo:
+        messages.error(request, 'Debes seleccionar un archivo ZIP para importar.')
+        return redirect('backup:dashboard')
+
+    try:
+        record = importar_backup_desde_archivo(
+            archivo,
+            usuario=request.user,
+            notas=notas,
         )
 
+        if restaurar_despues:
+            try:
+                restaurar_backup(record)
+                if request.session.session_key:
+                    # La restauración reemplaza la BD y puede borrar la fila de sesión.
+                    request.session.cycle_key()
+                messages.success(
+                    request,
+                    f'Backup "{record.nombre}" importado y restaurado correctamente. '
+                    f'El archivo quedó registrado en el historial para futuras restauraciones.'
+                )
+            except Exception as e:
+                messages.warning(
+                    request,
+                    f'Backup "{record.nombre}" importado correctamente, pero no se pudo restaurar: {str(e)}'
+                )
+        else:
+            messages.success(
+                request,
+                f'Backup "{record.nombre}" importado correctamente. '
+                f'Ya puedes restaurarlo desde el historial si lo necesitas.'
+            )
+    except ValueError as e:
+        messages.error(request, str(e))
     except FileNotFoundError as e:
         messages.error(request, f'Error de archivo: {str(e)}')
-    except PermissionError as e:
-        messages.error(request, f'Error de permisos: {str(e)}')
     except Exception as e:
-        messages.error(request, f'Error al crear el backup: {str(e)}')
+        messages.error(request, f'No se pudo importar el backup: {str(e)}')
 
     return redirect('backup:dashboard')
 
@@ -165,6 +232,10 @@ def restaurar_backup_view(request, pk):
 
     try:
         restaurar_backup(record)
+        if request.session.session_key:
+            # La restauración reemplaza la BD y puede borrar la fila de sesión.
+            # Generamos una nueva sesión en la BD restaurada para evitar SessionInterrupted.
+            request.session.cycle_key()
         messages.success(
             request,
             f'Backup "{record.nombre}" restaurado exitosamente. '
@@ -216,6 +287,8 @@ def detalle_backup(request, pk):
         'backup': record,
         'meta': meta,
     }
+    if request.GET.get('modal') == '1' or request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'backup/detalle_modal_content.html', context)
     return render(request, 'backup/detalle.html', context)
 
 
@@ -251,4 +324,5 @@ def info_base_datos(request):
     """Devuelve información de la base de datos en formato JSON."""
     stats = get_database_stats()
     return JsonResponse(stats)
+
 
