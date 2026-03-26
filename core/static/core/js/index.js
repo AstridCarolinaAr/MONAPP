@@ -491,6 +491,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* ===============================
+       FLIP CARD (PRODUCTOS)
+    =============================== */
+    const productCards = Array.from(document.querySelectorAll(".sq-product-card"));
+
+    function setProductCardPressed(card, pressed) {
+        card.setAttribute("aria-pressed", pressed ? "true" : "false");
+        const backFace = card.querySelector(".sq-product-face--back");
+        if (backFace) {
+            backFace.setAttribute("aria-hidden", pressed ? "false" : "true");
+        }
+    }
+
+    function closeAllProductCards(except = null) {
+        productCards.forEach((card) => {
+            if (except && card === except) return;
+            if (!card.classList.contains("is-flipped")) return;
+            card.classList.remove("is-flipped");
+            setProductCardPressed(card, false);
+        });
+    }
+
+    productCards.forEach((card) => {
+        setProductCardPressed(card, false);
+
+        card.addEventListener("click", (e) => {
+            if (e.target.closest("a, button")) return;
+
+            const willFlip = !card.classList.contains("is-flipped");
+            closeAllProductCards(card);
+            card.classList.toggle("is-flipped", willFlip);
+            setProductCardPressed(card, willFlip);
+        });
+
+        card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                card.click();
+            }
+
+            if (e.key === "Escape") {
+                if (!card.classList.contains("is-flipped")) return;
+                card.classList.remove("is-flipped");
+                setProductCardPressed(card, false);
+            }
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        const anyFlipped = productCards.some((card) => card.classList.contains("is-flipped"));
+        if (!anyFlipped) return;
+
+        const clickedCard = e.target.closest(".sq-product-card");
+        if (clickedCard) return;
+
+        closeAllProductCards(null);
+    });
+
+    /* ===============================
        ANIMACIONES AL SCROLL
     =============================== */
     const animatedSections = document.querySelectorAll(

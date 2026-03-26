@@ -75,7 +75,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-bottom: 29px;
+    padding-bottom: 0px;
     overflow: hidden;
 }
 
@@ -135,7 +135,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 160px;
+    padding-top: 120px;
     padding-bottom: 0px;
     position: relative;
     
@@ -170,21 +170,25 @@ body {
     
 }
 .sq-hero h1 {
-    background-image: url("../img/modeloos.jpeg");
-    background-size: 80%;
+    background-image: linear-gradient(90deg, #ffffff 0%, #484848 15%, #111111 30%, #484848 45%, #ffffff 65%, #111111 85%,#111111 100%);
+    background-size: 300% 100%;
     background-position: center 60%;  /* ← era 30%, ahora 15% sube la imagen */
     background-clip: text;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
     -webkit-background-clip: text;
     color: transparent;
-    animation: animate 20s linear infinite;
+    -webkit-text-fill-color: transparent;
+    animation: heroTextGradient 10s ease-in-out infinite;
     font-size: clamp(10rem, 22vw, 20rem);
     line-height: 1.35;
     font-weight: 500;
     letter-spacing: -0.03em;
-    margin-bottom: 60px;
-    padding-top: 1px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-top: 0.22em;
+    padding-bottom: 0.12em;
     overflow: visible;
-    -webkit-text-stroke: 0.5px rgb(255, 255, 255); /* ← borde */
 }
 
 .sq-hero-brand {
@@ -201,18 +205,22 @@ body {
 }
 
 .sq-hero h2 {
-    font: 2em sans-serif;
+    font-family: "Gailes", serif !important;
+    font-size: 2em;
     
     line-height: 1.08;
-    font-weight: 500;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.03em;
+    margin-top: 5px;
     margin-bottom: 60px;
     text-align: center;
 }
-@keyframes animate {
-    to {
-        background-position-x:-500px ;
-    }
+@keyframes heroTextGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .sq-hero p {
@@ -234,24 +242,6 @@ body {
     padding: 60px 0 120px;
     position: relative;
     overflow: visible;
-}
-
-/* Mezcla suave entre Nosotros → Promociones */
-.sq-intro::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 150px;
-    pointer-events: none;
-    z-index: 1;
-    background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(18, 13, 11, 0.55) 55%,
-        rgba(18, 13, 11, 0.85) 100%
-    );
 }
 
 /* Layout principal */
@@ -424,28 +414,14 @@ body {
 }
 
 /* ==================== PROMOTIONS ==================== */
-.sq-promotions {
-    min-height: 100vh;   /* o 130vh si quieres más imagen */
-    padding: 160px 0;
-    background: transparent; 
-    position: relative;
-}
 
-.sq-promotions::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: -1px;
-    height: 150px;
-    pointer-events: none;
-    z-index: 1;
-    background: linear-gradient(
-        180deg,
-        rgba(18, 13, 11, 0.85) 0%,
-        rgba(18, 13, 11, 0.55) 45%,
-        rgba(0, 0, 0, 0) 100%
-    );
+.sq-promotions {
+    padding: 0;
+    overflow: clip;
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: transparent;
 }
 
 .sq-promotions > * {
@@ -519,7 +495,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     background: #ffffff;
-    color: #382a23;
+    color: #241913;
     padding: 3px 6px;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
@@ -572,7 +548,7 @@ body {
     min-height: 100vh;
     display: flex;
     align-items: stretch;
-    background: #120d0b;
+    background: transparent;
 }
 
 .sq-promotions .sq-container {
@@ -621,7 +597,14 @@ body {
     margin-bottom: 0;
     text-align: left;
     letter-spacing: 0.1em;
-    font-size: clamp(2.8rem, 5vw, 4.6rem);
+    font-size: clamp(2.3rem, 4.2vw, 3.9rem);
+}
+
+.sq-promotions-head--inside .sq-promotions-title {
+    text-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.65),
+        0 6px 18px rgba(0, 0, 0, 0.40);
+    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
 }
 
 .sq-promotions-title::after {
@@ -960,24 +943,37 @@ body {
 
 .sq-promotions {
     position: relative;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 70%, #fff 100%);
 }
 
 .sq-promotions-stage {
     position: relative;
-    width: calc(100vw + 48px);
-    margin-left: calc(50% - 50vw - 24px);
-    margin-right: calc(50% - 50vw - 24px);
-    margin-top: -24px;
-    margin-bottom: -24px;
-    min-height: calc(100vh + 48px);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    min-height: clamp(780px, 100vh, 1040px);
     flex: 1 1 auto;
-    border-radius: 0;
     overflow: hidden;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 32px 140px rgba(0, 0, 0, 0.65);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
     z-index: 2;
 }
 
+.sq-promotions-stage::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 180px;
+    pointer-events: none;
+    z-index: 10;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+}
 .sq-promotions-backdrop,
 .sq-promotions-shade {
     position: absolute;
@@ -1005,16 +1001,27 @@ body {
 }
 
 .sq-promotions-shade {
-    background:
-        linear-gradient(90deg, rgba(14,10,9,0.86) 0%, rgba(14,10,9,0.72) 36%, rgba(14,10,9,0.38) 60%, rgba(14,10,9,0.76) 100%),
-        linear-gradient(180deg, rgba(14,10,9,0.22) 0%, rgba(14,10,9,0.65) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.72) 0%,
+        rgba(0, 0, 0, 0.58) 45%,
+        rgba(0, 0, 0, 0.72) 100%
+    );
     z-index: 1;
+}
+
+.sq-promo-feature {
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 22px;
+    padding: 30px 28px 26px;
+    backdrop-filter: blur(10px);
 }
 
 .sq-promotions-layout {
     position: relative;
     z-index: 2;
-    min-height: calc(100vh + 48px);
+    min-height: clamp(620px, 82vh, 820px);
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(360px, 46%);
     align-items: stretch;
@@ -1056,7 +1063,7 @@ body {
 
 .sq-promo-feature h3 {
     margin: 0 0 18px;
-    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    font-size: clamp(2.1rem, 4.2vw, 3.8rem);
     line-height: 0.92;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -1133,7 +1140,7 @@ body {
 
 .sq-promo-card-mini {
     flex: 0 0 172px;
-    height: 500px;
+    height: 430px;
     border-radius: 28px;
     overflow: hidden;
     position: relative;
@@ -1263,7 +1270,7 @@ body {
 
     .sq-promo-card-mini {
         flex-basis: 136px;
-        height: 360px;
+        height: 320px;
     }
 
     .sq-promo-card-mini.is-active {
@@ -1284,7 +1291,7 @@ body.bg-white {
 
 /* Testimonials */
 body.bg-brown {
-    background-color: #634c40;
+    background-color: #1f1612;
 }
 
 /* Contacto / footer */
@@ -1308,7 +1315,7 @@ body.bg-black {
 
 /* ==================== INFINITE SCROLL ==================== */
 #infinite { scroll-margin-top: 39px; }
-#productos { scroll-margin-top: 130px; }
+#productos { scroll-margin-top: 110px; }
 
 .sq-infinite {
     position: relative;
@@ -1375,14 +1382,14 @@ body.bg-black {
     left: 50%;
     transform: translateX(-50%);
     z-index: 6;
-    color: #5c3d2e;
+    color: #221610;
     text-align: center;
 }
 
 .sq-services-eyebrow {
     display: inline-block;
     margin-bottom: 10px;
-    color: #8d604a;
+    color: #382820;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     font-size: 0.72rem;
@@ -1393,7 +1400,7 @@ body.bg-black {
     font-size: clamp(2.4rem, 5vw, 4rem);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #8d604a;
+    color: #261b15;
     line-height: 1;
 }
 
@@ -1508,9 +1515,9 @@ body.bg-black {
 .sq-products {
     position: relative;
     z-index: 6;
-    margin-top: 0;
-    background: #4b3a30;
-    padding: 32px 6%;
+    margin-top: 35px;
+    background: transparent;
+    padding: 10px 6% 80px;
     color: #fff;
 }
 
@@ -1522,9 +1529,13 @@ body.bg-black {
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 9px;
+    margin-bottom: 28px;
     position: relative;
-    color:#ffffff
+    color:#ffffff;
+    text-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.65),
+        0 6px 18px rgba(0, 0, 0, 0.40);
+    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
 }
 
 .sq-products-title::after {
@@ -1590,8 +1601,9 @@ body.bg-black {
 .sq-product-price {
     display: inline-block;
     padding: 4px 18px;
-    border: 1.2px solid rgba(255, 255, 255, 0.75);
-    color: rgba(255, 255, 255, 0.85);
+    background: rgba(184, 138, 95, 0.28);
+    border: 1.2px solid rgba(184, 138, 95, 0.75);
+    color: rgba(255, 255, 255, 0.92);
     font-size: 0.8rem;
     letter-spacing: 0.1em;
     border-radius: 3px;
@@ -1599,8 +1611,9 @@ body.bg-black {
 }
 
 .sq-product-card:hover .sq-product-price {
-    background: rgba(255, 255, 255, 0.85);
-    color: #ffffff;
+    background: rgba(184, 138, 95, 0.95);
+    border-color: rgba(184, 138, 95, 0.95);
+    color: #1f1612;
 }
 
 /* Placeholder cuando no hay imagen */
@@ -1642,6 +1655,11 @@ body.bg-black {
     outline: none;
     cursor: pointer;
     background: rgba(0, 0, 0, 0.10);
+    perspective: 1200px;
+    transition:
+        transform 0.35s ease,
+        background-color 0.35s ease,
+        border-color 0.35s ease;
 }
 
 .sq-product-card::before {
@@ -1653,11 +1671,114 @@ body.bg-black {
     background: radial-gradient(circle at 14% 18%, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.10) 45%, rgba(0, 0, 0, 0.08) 100%);
 }
 
-.sq-product-card:hover,
-.sq-product-card:focus-within {
+.sq-product-card:hover {
     transform: scale(1.03);
     background: rgba(0, 0, 0, 0.25);
     border-color: rgba(255, 255, 255, 0.85);
+}
+
+.sq-product-card:focus-within {
+    background: rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.85);
+}
+
+.sq-product-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-height: 360px;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.sq-product-card.is-flipped .sq-product-inner {
+    transform: rotateY(180deg);
+}
+
+.sq-product-face {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.sq-product-face--front {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(0deg);
+}
+
+.sq-product-face--back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 18px 18px 16px;
+    color: rgba(255, 255, 255, 0.92);
+    background-image:
+        linear-gradient(180deg, rgba(10, 8, 7, 0.25) 0%, rgba(10, 8, 7, 0.72) 55%, rgba(10, 8, 7, 0.92) 100%),
+        var(--product-bg, none);
+    background-size: cover;
+    background-position: center;
+}
+
+.sq-product-back-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sq-product-back-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.sq-product-back-desc {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.82);
+    max-height: 240px;
+    overflow: auto;
+    padding-right: 6px;
+}
+
+.sq-product-back-desc--muted {
+    opacity: 0.65;
+}
+
+.sq-product-back-desc::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sq-product-back-desc::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+}
+
+.sq-product-back-hint {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.72;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    /* En desktop: al pasar el mouse solo mostrar el nombre en el frente */
+    .sq-product-face--front .sq-product-desc,
+    .sq-product-face--front .sq-product-price {
+        display: none;
+    }
+
+    .sq-product-face--front .sq-product-info {
+        gap: 6px;
+    }
 }
 
 .sq-product-card:focus-visible {
@@ -1691,13 +1812,11 @@ body.bg-black {
     border-radius: 0 !important;
 }
 
-.sq-product-card:hover .sq-product-media,
-.sq-product-card:focus-within .sq-product-media {
+.sq-product-card:hover .sq-product-media {
     transform: none;
 }
 
-.sq-product-card:hover .sq-product-media img,
-.sq-product-card:focus-within .sq-product-media img {
+.sq-product-card:hover .sq-product-media img {
     transform: scale(1.16);
     object-position: 50% center;
 }
@@ -1727,16 +1846,16 @@ body.bg-black {
     pointer-events: none;
 }
 
-.sq-product-card:hover .sq-product-info,
-.sq-product-card:focus-within .sq-product-info {
+.sq-product-card:hover .sq-product-info {
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
 }
 
 .sq-product-card:focus-within .sq-product-price {
-    background: rgba(255, 255, 255, 0.85);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.92);
+    color: #382a23;
 }
 
 .sq-product-info h3 {
@@ -2211,7 +2330,7 @@ body.bg-black {
     width: 170px;
     height: 170px;
     border-radius: 50%;
-    background: #2c241f;
+    background: #51433a;
     opacity: 0.95;
 }
 
@@ -2252,7 +2371,7 @@ body.bg-black {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #2c241f;
+    background: #493c33;
 }
 /* ===== Imagen fija cuando hay imagen pero no video ===== */
 .sq-card-image {

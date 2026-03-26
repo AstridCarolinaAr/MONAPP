@@ -27,7 +27,7 @@ Servicios
             <h2 >
                 Alisados y tratamientos capilares profesionales que cuidan tu cabello desde la raíz.
             </h2>
-            <a href="#cta" class="sq-btn">Contáctenos</a>
+            <a href="#contactenos" class="sq-btn">Contáctenos</a>
         </div>
     </section>
 
@@ -218,7 +218,7 @@ Servicios
                         <span class="sq-promo-tag">{{ promo.get_etiqueta_display }}</span>
                         <h3>{{ promo.nombre }}</h3>
                         <p>{{ promo.descripcion }}</p>
-                        <a href="#cta" class="sq-promo-btn">Reservar ahora</a>
+                        <a href="#contactenos" class="sq-promo-btn">Reservar ahora</a>
                     </div>
                 {% empty %}
                     <div class="sq-promo-card">
@@ -326,31 +326,50 @@ Servicios
 </section>
 
 <!-- ==================== PRODUCTOS ==================== -->
-<section class="sq-products sq-testimonials" id="productos">
+<section class="sq-products" id="productos">
     <h2 class="sq-products-title">Nuestros Productos</h2>
 
     {% if productos_web %}
         <div class="sq-products-grid">
             {% for producto in productos_web %}
-                <div class="sq-product-card" data-aos="fade-up" tabindex="0">
-                    <div class="sq-product-media">
-                        {% if producto.imagen %}
-                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
-                        {% else %}
-                            <div class="sq-product-placeholder">
-                                <i class="bi bi-box-seam"></i>
+                <div class="sq-product-card" data-aos="fade-up" tabindex="0" role="button" aria-label="Ver detalles de {{ producto.nombre }}" aria-pressed="false">
+                    <div class="sq-product-inner">
+                        <div class="sq-product-face sq-product-face--front">
+                            <div class="sq-product-media">
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <div class="sq-product-placeholder">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
 
-                    <div class="sq-product-info">
-                        <h3>{{ producto.nombre }}</h3>
+                            <div class="sq-product-info">
+                                <h3>{{ producto.nombre }}</h3>
 
-                        {% if producto.descripcion %}
-                            <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
-                        {% endif %}
+                                {% if producto.descripcion %}
+                                    <p class="sq-product-desc">{{ producto.descripcion|truncatewords:12 }}</p>
+                                {% endif %}
 
-                        <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+                                <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+                            </div>
+                        </div>
+
+                        <div class="sq-product-face sq-product-face--back" aria-hidden="true" {% if producto.imagen %}style="--product-bg: url('{{ producto.imagen.url }}')" {% endif %}>
+                            <div class="sq-product-back-head">
+                                <h3 class="sq-product-back-title">{{ producto.nombre }}</h3>
+                                <span class="sq-product-price">${{ producto.precio|floatformat:0 }}</span>
+                            </div>
+
+                            {% if producto.descripcion %}
+                                <p class="sq-product-back-desc">{{ producto.descripcion|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="sq-product-back-desc sq-product-back-desc--muted">Sin descripción.</p>
+                            {% endif %}
+
+                            <div class="sq-product-back-hint">Click para volver</div>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
