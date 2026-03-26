@@ -22,14 +22,21 @@ def _sin_signos_peligrosos(valor):
 class PersonalForm(ValidationFormMixin, forms.ModelForm):
     class Meta:
         model = Personal
-        fields = ["numero_documento", "nombres", "apellidos", "telefono", "correo", "rol", "activo"]
+        fields = ["tipo_documento", "numero_documento", "nombres", "apellidos", "telefono", "correo", "rol", "activo"]
         widgets = {
+            "tipo_documento": forms.Select(
+                attrs={
+                    "class": "personal-form-control",
+                }
+            ),
             "numero_documento": forms.TextInput(
                 attrs={
                     "class": "personal-form-control",
                     "placeholder": "Ingrese numero de documento",
                     "pattern": "[0-9]+",
                     "title": "Solo se permiten numeros",
+                    "maxlength": "12",
+                    "data-validate": "numeric",
                 }
             ),
             "nombres": forms.TextInput(
@@ -37,6 +44,7 @@ class PersonalForm(ValidationFormMixin, forms.ModelForm):
                     "class": "personal-form-control",
                     "placeholder": "Ingrese nombres",
                     "title": "Solo se permiten letras y espacios",
+                    "data-validate": "alpha",
                 }
             ),
             "apellidos": forms.TextInput(
@@ -44,6 +52,7 @@ class PersonalForm(ValidationFormMixin, forms.ModelForm):
                     "class": "personal-form-control",
                     "placeholder": "Ingrese apellidos",
                     "title": "Solo se permiten letras y espacios",
+                    "data-validate": "alpha",
                 }
             ),
             "telefono": forms.TextInput(
@@ -52,12 +61,15 @@ class PersonalForm(ValidationFormMixin, forms.ModelForm):
                     "placeholder": "Ingrese telefono",
                     "pattern": "[0-9]+",
                     "title": "Solo se permiten numeros",
+                    "maxlength": "10",
+                    "data-validate": "numeric",
                 }
             ),
             "correo": forms.EmailInput(
                 attrs={
                     "class": "personal-form-control",
                     "placeholder": "Ingrese correo electronico",
+                    "data-validate": "text",
                 }
             ),
             "rol": forms.Select(
@@ -103,7 +115,7 @@ class PersonalForm(ValidationFormMixin, forms.ModelForm):
     def clean_telefono(self):
         telefono = (self.cleaned_data.get("telefono") or "").strip()
         if not telefono:
-            return telefono
+            raise ValidationError("El telefono es obligatorio.")
         if not _sin_signos_peligrosos(telefono):
             raise ValidationError("El telefono no puede contener signos especiales.")
         if not _solo_numeros(telefono):
@@ -112,7 +124,9 @@ class PersonalForm(ValidationFormMixin, forms.ModelForm):
 
     def clean_correo(self):
         correo = (self.cleaned_data.get("correo") or "").strip()
-        if correo and not _sin_signos_peligrosos(correo):
+        if not correo:
+            raise ValidationError("El correo electronico es obligatorio.")
+        if not _sin_signos_peligrosos(correo):
             raise ValidationError("El correo no puede contener signos especiales.")
         return correo
 
@@ -132,11 +146,12 @@ class PersonalBusquedaForm(ValidationFormMixin, forms.Form):
         required=False,
         label="Filtrar por",
         choices=[
-            ("", "Todos"),
             ("activo", "Activos"),
             ("inactivo", "Inactivos"),
+            ("todos", "Todos"),
         ]
         + [("rol_" + rol[0], rol[1]) for rol in Personal.ROLES],
+        initial="activo",
         widget=forms.Select(
             attrs={
                 "class": "personal-form-control",
