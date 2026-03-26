@@ -25,7 +25,7 @@ class LoginForm(AuthenticationForm):
         max_length=20,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingrese su documento o usuario',
+            'placeholder': 'Número de documento',
             'autofocus': True
         })
     )
@@ -137,7 +137,7 @@ class RegistroForm(UserCreationForm):
         required=False,
         widget=forms.FileInput(attrs={
             'class': 'form-control',
-            'accept': 'image/*'
+            'accept': '.jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif'
         }),
         label='Foto de Perfil'
     )
@@ -221,6 +221,18 @@ class RegistroForm(UserCreationForm):
         if whatsapp_key and not _solo_numeros(whatsapp_key):
             raise forms.ValidationError('La clave de WhatsApp solo puede contener números.')
         return whatsapp_key
+
+    def clean_foto_perfil(self):
+        foto = self.cleaned_data.get('foto_perfil')
+        if not foto:
+            return foto
+
+        nombre = (getattr(foto, 'name', '') or '').lower()
+        permitidas = ('.jpg', '.jpeg', '.png', '.gif')
+        if not nombre.endswith(permitidas):
+            raise forms.ValidationError('Solo se permiten archivos JPG, JPEG, PNG o GIF.')
+
+        return foto
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -367,7 +379,8 @@ class EditarPerfilForm(forms.ModelForm):
                 'title': 'Solo se permiten números'
             }),
             'foto_perfil': forms.FileInput(attrs={
-                'class': 'form-control'
+                'class': 'form-control',
+                'accept': '.jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif'
             }),
             'whatsapp_key': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -407,6 +420,17 @@ class EditarPerfilForm(forms.ModelForm):
         if whatsapp_key and not _solo_numeros(whatsapp_key):
             raise forms.ValidationError('La clave de WhatsApp solo puede contener números.')
         return whatsapp_key
+
+    def clean_foto_perfil(self):
+        foto = self.cleaned_data.get('foto_perfil')
+        if not foto:
+            return foto
+
+        nombre = (getattr(foto, 'name', '') or '').lower()
+        if not nombre.endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            raise forms.ValidationError('Solo se permiten archivos JPG, JPEG, PNG o GIF.')
+
+        return foto
 
 
 class UsuarioBusquedaForm(forms.Form):

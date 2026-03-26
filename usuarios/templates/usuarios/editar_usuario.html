@@ -74,6 +74,7 @@
 						</h5>
 						<div class="row g-3">
 							{% for field in form_perfil %}
+								{% if field.name != 'whatsapp_key' %}
 								<div class="col-12">
 									<label class="form-label">{{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
 									{{ field }}
@@ -85,6 +86,7 @@
 										<div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
 									{% endif %}
 								</div>
+								{% endif %}
 							{% endfor %}
 						</div>
 					</div>

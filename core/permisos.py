@@ -131,6 +131,5 @@ def construir_permisos_usuario(user):
         "es_admin": ROL_ADMIN in roles or getattr(user, "is_superuser", False),
         "es_auxiliar": ROL_AUXILIAR in roles or getattr(user, "is_superuser", False),
         "es_colaborador": ROL_COLABORADOR in roles or getattr(user, "is_superuser", False),
-        "es_colaborador_real": ROL_COLABORADOR in roles,
     }
     return permisos
