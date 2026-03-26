@@ -760,6 +760,21 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   to { transform: rotate(360deg); }
 }
 
+.login-attempts-info {
+  color: var(--color-cafe-principal);
+  background: rgba(59, 47, 47, 0.06);
+  border-left: 3px solid var(--color-cafe-claro);
+  border-radius: 4px;
+  padding: 8px 10px;
+  line-height: 1.35;
+}
+
+.login-attempts-info.is-blocked {
+  background: rgba(59, 47, 47, 0.12);
+  color: var(--color-cafe-principal);
+  border-left-color: #2b1a14;
+}
+
 
 
 

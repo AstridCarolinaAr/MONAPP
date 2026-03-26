@@ -1,113 +1,112 @@
 {% load static %}
 
-<div style="padding: 0;">
+<div class="row g-4 align-items-start">
+    <div class="col-lg-2 col-md-3">
+        <div class="proveedor-visual-card personal-visual-card">
+            <div class="proveedor-visual-icon-wrap">
+                <div class="proveedor-visual-icon-bg">
+                    <i class="bi bi-person-badge proveedor-visual-icon personal-visual-icon"></i>
+                </div>
+            </div>
 
-    <!-- Fila 1: ID | Estado | Nombres | Apellidos -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 16px 0;">
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">ID</span>
-            <p class="personal-detail-value"><strong>{{ personal.id }}</strong></p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Estado</span>
-            <p class="personal-detail-value">
-                {% if personal.activo %}
-                    <span class="personal-badge success">Activo</span>
-                {% else %}
-                    <span class="personal-badge danger">Inactivo</span>
-                {% endif %}
-            </p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Nombres</span>
-            <p class="personal-detail-value">{{ personal.nombres }}</p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Apellidos</span>
-            <p class="personal-detail-value">{{ personal.apellidos }}</p>
-        </div>
-    </div>
-
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 12px 0;">
-
-    <!-- Fila 2: Documento | Rol | Teléfono | Correo -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Número de Documento</span>
-            <p class="personal-detail-value">{{ personal.numero_documento }}</p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Rol</span>
-            <p class="personal-detail-value">
-                <span class="personal-badge {% if personal.rol == 'AUX' %}warning{% elif personal.rol == 'ADM' %}info{% else %}success{% endif %}">
-                    {{ personal.get_rol_display }}
+            <div class="proveedor-visual-mini">
+                <span class="proveedor-mini-label">Personal</span>
+                <span class="proveedor-mini-badge" id="p-iniciales">
+                    {{ personal.nombres|default:"P"|first|upper }}{{ personal.apellidos|default:""|first|upper }}
                 </span>
-            </p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Teléfono</span>
-            <p class="personal-detail-value">
-                <a href="tel:{{ personal.telefono }}" style="color: #634c40; text-decoration: none;">
-                    <i class="fas fa-phone"></i> {{ personal.telefono }}
-                </a>
-            </p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Correo Electrónico</span>
-            <p class="personal-detail-value" style="word-break: break-all;">
-                <a href="mailto:{{ personal.correo }}" style="color: #634c40; text-decoration: none;">
-                    <i class="fas fa-envelope"></i> {{ personal.correo }}
-                </a>
-            </p>
+            </div>
         </div>
     </div>
 
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 12px 0;">
+    <div class="col-lg-10 col-md-9">
+        <div class="proveedor-detail-main personal-detail-main">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h2 class="proveedor-detail-title mb-1" id="p-nombre">
+                        {{ personal.nombres }} {{ personal.apellidos }}
+                    </h2>
+                    <div class="proveedor-detail-subtitle">
+                        Información general del personal
+                    </div>
+                </div>
 
-    <!-- Fila 3: Fecha creación | Última actualización | Usuario del sistema -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Fecha de Creación</span>
-            <p class="personal-detail-value">
-                <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
-                {{ personal.fecha_creacion|date:"d/m/Y H:i" }}
-            </p>
-        </div>
-        <div class="personal-detail-section">
-            <span class="personal-detail-label">Última Actualización</span>
-            <p class="personal-detail-value">
-                <i class="fas fa-clock" style="color: #634c40; margin-right: 4px;"></i>
-                {{ personal.fecha_actualizacion|date:"d/m/Y H:i" }}
-            </p>
-        </div>
-        {% if personal.usuario %}
-        <div class="personal-detail-section" style="grid-column: span 2;">
-            <span class="personal-detail-label">Usuario del Sistema</span>
-            <p class="personal-detail-value">
-                <i class="fas fa-user-shield" style="color: #634c40; margin-right: 6px;"></i>
-                {{ personal.usuario.username }} ({{ personal.usuario.first_name }})
-            </p>
-        </div>
-        {% endif %}
-    </div>
+                <div>
+                    <span class="badge proveedor-estado-badge {% if personal.activo %}activo{% else %}inactivo{% endif %}" id="p-estado-badge">
+                        {% if personal.activo %}Activo{% else %}Inactivo{% endif %}
+                    </span>
+                </div>
+            </div>
 
-    <hr style="border: none; height: 1px; background: rgba(17, 17, 17, 0.08); margin: 20px 0;">
+            <div class="row g-3 proveedor-info-grid">
+                <div class="col-md-6">
+                    <div class="proveedor-info-item">
+                        <span class="proveedor-info-label">Documento</span>
+                        <span class="proveedor-info-value" id="p-documento">{{ personal.numero_documento }}</span>
+                    </div>
+                </div>
 
-    <div style="display: flex; gap: 12px;">
-        {% if puede_modificar %}
-        <button type="button" class="personal-btn warning" style="flex: 1;" onclick="cerrarModalDetallePersonal(); abrirModalEditarPersonal({{ personal.id }});" title="Editar" data-bs-placement="bottom">
-            <i class="bi bi-pencil-square" style="font-size: 24px;"></i> Editar
-        </button>
-        {% endif %}
-        {% if es_administrador %}
-        <button type="button" class="personal-btn" style="flex: 1; background: #d4a574; border-color: #d4a574; color: white;" onclick="cerrarModalDetallePersonal(); abrirModalEliminarPersonal({{ personal.id }});" title="Eliminar" data-bs-placement="bottom">
-            <i class="bi bi-trash3" style="font-size: 24px;"></i> Eliminar
-        </button>
-        {% endif %}
-        {% if not puede_modificar and not es_administrador %}
-        <button type="button" class="personal-btn secondary" style="flex: 1;" onclick="cerrarModalDetallePersonal()">
-            <i class="fas fa-times"></i> Cerrar
-        </button>
-        {% endif %}
+                <div class="col-md-6">
+                    <div class="proveedor-info-item">
+                        <span class="proveedor-info-label">Estado</span>
+                        <span class="proveedor-info-value" id="p-estado">
+                            {% if personal.activo %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="proveedor-info-item">
+                        <span class="proveedor-info-label">Teléfono</span>
+                        <span class="proveedor-info-value" id="p-telefono">
+                            {% if personal.telefono %}
+                                <a href="tel:{{ personal.telefono }}" style="color: #4b2f2a; text-decoration: none;">
+                                    <i class="fas fa-phone"></i> {{ personal.telefono }}
+                                </a>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="proveedor-info-item">
+                        <span class="proveedor-info-label">Correo</span>
+                        <span class="proveedor-info-value" id="p-correo">
+                            {% if personal.correo %}
+                                <a href="mailto:{{ personal.correo }}" style="color: #4b2f2a; text-decoration: none; word-break: break-word;">
+                                    <i class="fas fa-envelope"></i> {{ personal.correo }}
+                                </a>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="proveedor-info-item">
+                        <span class="proveedor-info-label">Rol</span>
+                        <span class="proveedor-info-value" id="p-rol">{{ personal.get_rol_display }}</span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="proveedor-info-item">
+                        <span class="proveedor-info-label">Tipo de documento</span>
+                        <span class="proveedor-info-value" id="p-tipo-documento">
+                            {{ personal.tipo_documento|default:"—" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="proveedor-detail-section mt-4">
+                <h6 class="proveedor-section-title">Resumen</h6>
+                <p class="proveedor-section-text mb-0">
+                    Este personal se encuentra registrado en el sistema MONAAPP con su información de contacto y rol operativo disponible para gestión administrativa.
+                </p>
+            </div>
+        </div>
     </div>
 </div>

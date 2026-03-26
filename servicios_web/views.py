@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
@@ -5,6 +7,9 @@ from .forms import ServicioWebForm
 from .models import ServicioWeb
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+
+
+_TEXTO_SEGURO_RE = re.compile(r'^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+$')
 
 def crear_servicio_web(request):
     is_modal = request.GET.get('modal') == '1' or request.POST.get('modal') == '1'
@@ -86,16 +91,22 @@ def lista_servicios_web(request):
     servicios_web = ServicioWeb.objects.all()
 
     q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '').strip()
+
     if q:
         servicios_web = servicios_web.filter(
             Q(nombre__icontains=q) |
             Q(descripcion__icontains=q)
         )
 
+    if estado.lower() in ('activo', 'inactivo'):
+        servicios_web = servicios_web.filter(activo=(estado.lower() == 'activo'))
+
     context = {
         'servicios_web': servicios_web,
         'titulo': 'Lista de Servicios Web',
         'q': q,
+        'estado': estado,
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -147,6 +158,18 @@ def validar_nombre_servicio_web(request):
         return JsonResponse({
             'valido': False,
             'mensaje': 'El nombre es obligatorio.'
+        })
+
+    if len(nombre) < 3:
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Debe tener al menos 3 caracteres.'
+        })
+
+    if not _TEXTO_SEGURO_RE.match(nombre):
+        return JsonResponse({
+            'valido': False,
+            'mensaje': 'Solo se permiten letras, números y espacios.'
         })
 
     qs = ServicioWeb.objects.filter(nombre__iexact=nombre)

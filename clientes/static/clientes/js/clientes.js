@@ -1,7 +1,30 @@
 document.addEventListener('DOMContentLoaded', function () {
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : '';
+    }
     /* =========================================================
        UTILIDADES
     ========================================================= */
+    const RULES = {
+        numeric: {
+            pattern: /[^\d]/g,
+            allow: (text) => /^\d*$/.test(text),
+        },
+        alpha: {
+            pattern: /[^\p{L}\s]/gu,
+            allow: (text) => /^[\p{L}\s]*$/u.test(text),
+        },
+        text: {
+            pattern: /[<>]/g,
+            allow: (text) => !/[<>]/.test(text),
+        },
+        email: {
+            pattern: /[^A-Za-z0-9@._-]/g,
+            allow: (text) => /^[A-Za-z0-9@._-]*$/.test(text),
+        },
+    };
+
     function setButtonState(button, enabled) {
         if (!button) return;
 
@@ -57,6 +80,70 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function sanitizeValueByRule(input, rule) {
+        if (!input || !rule || !RULES[rule]) return;
+        const cleaned = String(input.value || '').replace(RULES[rule].pattern, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
+    }
+
+    function wireInputGuards(root) {
+        if (!root) return;
+
+        const selectors = [
+            '#numero_documento',
+            '#nombre',
+            '#apellido',
+            '#telefono',
+            '#correo',
+            '#editar_numero_documento',
+            '#editar_nombre',
+            '#editar_apellido',
+            '#editar_telefono',
+            '#editar_correo',
+            '#numero_documento_legacy',
+            '#nombre_legacy',
+            '#apellido_legacy',
+            '#correo_legacy'
+        ];
+
+        selectors.forEach(function(selector) {
+            const input = root.querySelector(selector) || document.querySelector(selector);
+            if (!input || input.dataset.guardWired === '1') return;
+            input.dataset.guardWired = '1';
+
+            const rule =
+                input.id.includes('numero_documento') || input.id.includes('telefono')
+                    ? 'numeric'
+                    : input.id.includes('nombre') || input.id.includes('apellido')
+                        ? 'alpha'
+                        : input.id.includes('correo')
+                            ? 'email'
+                        : 'text';
+
+            input.addEventListener('beforeinput', function(e) {
+                if (!e.inputType || !e.inputType.startsWith('insert')) return;
+                const data = e.data || '';
+                if (!RULES[rule].allow(data)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                const pasted = e.clipboardData?.getData('text') || '';
+                if (!RULES[rule].allow(pasted)) {
+                    e.preventDefault();
+                    sanitizeValueByRule(input, rule);
+                }
+            });
+
+            input.addEventListener('input', function() {
+                sanitizeValueByRule(input, rule);
+            });
+        });
+    }
+
     /* =========================================================
        INICIALIZADOR FORMULARIO CLIENTE CON VALIDACIÓN EN TIEMPO REAL
     ========================================================= */
@@ -79,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const correo = document.getElementById(config.fields.correo);
 
         setButtonState(btnGuardar, false);
+        wireInputGuards(form);
 
         function esCampoValido(input) {
             if (!input) return false;
@@ -116,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (id === config.fields.correo) {
-                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+                return /^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$/.test(valor);
             }
 
             return true;
@@ -174,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function validarCorreo(input) {
             const valor = (input.value || '').trim();
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex = /^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$/;
 
             if (!valor) {
                 limpiar(input);
@@ -411,9 +499,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     const listaErrores = document.getElementById(config.errorListId);
                     if (listaErrores) listaErrores.innerHTML = '';
 
-                    if (typeof mostrarNotificacion === 'function') {
-                        mostrarNotificacion('Cliente registrado correctamente', 'success');
-                    }
+                    await Swal.fire({
+                        title: 'Cliente guardado',
+                        text: 'El cliente se guardó correctamente.',
+                        icon: 'success',
+                        confirmButtonColor: '#634c40',
+                        confirmButtonText: 'Aceptar'
+                    });
+
+                    location.reload();
                 } else {
                     const alertaErrores = document.getElementById(config.errorAlertId);
                     const listaErrores = document.getElementById(config.errorListId);
@@ -431,9 +525,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (alertaErrores) alertaErrores.classList.remove('d-none');
                 }
             } catch (error) {
-                if (typeof mostrarNotificacion === 'function') {
-                    mostrarNotificacion('Error al guardar el cliente. Por favor, intenta nuevamente.', 'error');
-                }
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al guardar el cliente. Por favor, intenta nuevamente.',
+                    icon: 'error',
+                    confirmButtonColor: '#634c40',
+                    confirmButtonText: 'Aceptar'
+                });
             } finally {
                 btnGuardar.innerHTML = config.submitText || 'Guardar cliente';
                 actualizarEstadoBoton();
@@ -525,6 +623,255 @@ document.addEventListener('DOMContentLoaded', function () {
     /* =========================================================
        CONFIRMAR GESTIÓN DE ALISADOS DESDE CLIENTES
     ========================================================= */
+    const formEditarCliente = document.getElementById('formEditarCliente');
+    const btnGuardarEditar = document.getElementById('btnGuardarEditar');
+    const modalEditarCliente = document.getElementById('modalEditarCliente');
+    const editarCampos = {
+        tipo_documento: document.getElementById('editar_tipo_documento'),
+        numero_documento: document.getElementById('editar_numero_documento'),
+        nombre: document.getElementById('editar_nombre'),
+        apellido: document.getElementById('editar_apellido'),
+        fecha_nacimiento: document.getElementById('editar_fecha_nacimiento'),
+        telefono: document.getElementById('editar_telefono'),
+        correo: document.getElementById('editar_correo'),
+        estado: document.getElementById('editar_estado')
+    };
+
+    function asegurarWrapEditar(campo) {
+        if (!campo || campo.dataset.wrapValidacion === '1') return;
+        if (campo.parentElement && campo.parentElement.classList.contains('cliente-input-wrap')) {
+            campo.dataset.wrapValidacion = '1';
+            return;
+        }
+
+        const wrap = document.createElement('div');
+        wrap.className = 'cliente-input-wrap';
+        campo.parentNode.insertBefore(wrap, campo);
+        wrap.appendChild(campo);
+
+        const validIcon = document.createElement('span');
+        validIcon.className = 'cliente-valid-icon';
+        validIcon.innerHTML = '<i class="bi bi-check-lg"></i>';
+
+        const invalidIcon = document.createElement('span');
+        invalidIcon.className = 'cliente-invalid-icon';
+        invalidIcon.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i>';
+
+        wrap.appendChild(validIcon);
+        wrap.appendChild(invalidIcon);
+        campo.dataset.wrapValidacion = '1';
+    }
+
+    function actualizarIconosEditar(campo, estado) {
+        if (!campo) return;
+        const wrap = campo.closest('.cliente-input-wrap');
+        if (!wrap) return;
+
+        wrap.classList.remove('is-ok', 'is-error');
+        campo.classList.remove('is-valid', 'is-invalid');
+
+        if (estado === 'ok') {
+            wrap.classList.add('is-ok');
+            campo.classList.add('is-valid');
+        } else if (estado === 'error') {
+            wrap.classList.add('is-error');
+            campo.classList.add('is-invalid');
+        }
+    }
+
+    function limpiarIconosEditar(campo) {
+        if (!campo) return;
+        const wrap = campo.closest('.cliente-input-wrap');
+        if (wrap) wrap.classList.remove('is-ok', 'is-error');
+        campo.classList.remove('is-valid', 'is-invalid');
+    }
+
+    function validarCampoEditar(campo) {
+        if (!campo) return true;
+
+        const valor = (campo.value || '').trim();
+        const id = campo.id;
+
+        if (!valor && ['editar_telefono', 'editar_correo'].includes(id)) {
+            limpiarIconosEditar(campo);
+            return true;
+        }
+
+        if (id === 'editar_tipo_documento') {
+            if (!valor) {
+                actualizarIconosEditar(campo, 'error');
+                return false;
+            }
+            actualizarIconosEditar(campo, 'ok');
+            return true;
+        }
+
+        if (id === 'editar_numero_documento') {
+            const ok = /^\d{6,12}$/.test(valor);
+            actualizarIconosEditar(campo, ok ? 'ok' : 'error');
+            return ok;
+        }
+
+        if (id === 'editar_nombre' || id === 'editar_apellido') {
+            const ok = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(valor);
+            actualizarIconosEditar(campo, ok ? 'ok' : 'error');
+            return ok;
+        }
+
+        if (id === 'editar_fecha_nacimiento') {
+            if (!valor) {
+                actualizarIconosEditar(campo, 'error');
+                return false;
+            }
+            const fecha = new Date(campo.value + 'T00:00:00');
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const ok = fecha <= hoy;
+            actualizarIconosEditar(campo, ok ? 'ok' : 'error');
+            return ok;
+        }
+
+        if (id === 'editar_telefono') {
+            const ok = /^\d{10}$/.test(valor);
+            actualizarIconosEditar(campo, ok ? 'ok' : 'error');
+            return ok;
+        }
+
+        if (id === 'editar_correo') {
+            const ok = /^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$/.test(valor);
+            actualizarIconosEditar(campo, ok ? 'ok' : 'error');
+            return ok;
+        }
+
+        if (id === 'editar_estado') {
+            actualizarIconosEditar(campo, valor ? 'ok' : 'error');
+            return !!valor;
+        }
+
+        return true;
+    }
+
+    function validarFormularioEditarTiempoReal() {
+        return Object.values(editarCampos).every(function(campo) {
+            return validarCampoEditar(campo);
+        });
+    }
+
+    if (formEditarCliente && btnGuardarEditar && modalEditarCliente) {
+        Object.values(editarCampos).forEach(asegurarWrapEditar);
+
+        formEditarCliente.addEventListener('input', function (e) {
+            const campo = e.target;
+            if (!campo || !campo.id || !campo.closest('#formEditarCliente')) return;
+            validarCampoEditar(campo);
+        });
+
+        formEditarCliente.addEventListener('change', function (e) {
+            const campo = e.target;
+            if (!campo || !campo.id || !campo.closest('#formEditarCliente')) return;
+            validarCampoEditar(campo);
+        });
+
+        formEditarCliente.addEventListener('blur', function (e) {
+            const campo = e.target;
+            if (!campo || !campo.id || !campo.closest('#formEditarCliente')) return;
+            validarCampoEditar(campo);
+        }, true);
+
+        modalEditarCliente.addEventListener('shown.bs.modal', function () {
+            Object.values(editarCampos).forEach(asegurarWrapEditar);
+            Object.values(editarCampos).forEach(validarCampoEditar);
+        });
+
+        modalEditarCliente.addEventListener('hidden.bs.modal', function () {
+            Object.values(editarCampos).forEach(function (campo) {
+                if (!campo) return;
+                limpiarIconosEditar(campo);
+            });
+
+            const alertaErrores = document.getElementById('alertaErroresEditar');
+            const listaErrores = document.getElementById('listaErroresEditar');
+            if (alertaErrores) alertaErrores.classList.add('d-none');
+            if (listaErrores) listaErrores.innerHTML = '';
+        });
+
+        btnGuardarEditar.addEventListener('click', async function () {
+            const url = document.getElementById('editarClienteUrl')?.value;
+            if (!url) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se encontró la URL de edición del cliente.',
+                    icon: 'error',
+                    confirmButtonColor: '#634c40',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            const formData = new FormData(formEditarCliente);
+            const btn = btnGuardarEditar;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || !data.success) {
+                    const listaErrores = document.getElementById('listaErroresEditar');
+                    const alertaErrores = document.getElementById('alertaErroresEditar');
+
+                    if (listaErrores) {
+                        listaErrores.innerHTML = '';
+                        const errores = data.errores || {};
+                        Object.entries(errores).forEach(([campo, mensaje]) => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<strong>${campo}:</strong> ${mensaje}`;
+                            listaErrores.appendChild(li);
+                        });
+                    }
+
+                    if (alertaErrores) {
+                        alertaErrores.classList.remove('d-none');
+                    }
+                    return;
+                }
+
+                const modalInstance = bootstrap.Modal.getInstance(modalEditarCliente);
+                if (modalInstance) modalInstance.hide();
+
+                await Swal.fire({
+                    title: 'Cliente actualizado',
+                    text: 'Los cambios se guardaron correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#634c40',
+                    confirmButtonText: 'Aceptar'
+                });
+
+                location.reload();
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo actualizar el cliente.',
+                    icon: 'error',
+                    confirmButtonColor: '#634c40',
+                    confirmButtonText: 'Aceptar'
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-save me-1"></i> Guardar cambios';
+            }
+        });
+    }
+
     if (window.mostrarModalGestion) {
         const modalConfirmacionEl = document.getElementById('modalGestionDatos');
         const btnAbrirGestion = document.getElementById('btnAbrirGestionDesdeCliente');
@@ -586,33 +933,218 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /* =========================================================
-       CONTROL ELIMINAR
-    ========================================================= */
-    document.querySelectorAll('.btn-eliminar[data-control-eliminar]').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            const esAdmin = this.dataset.esAdmin === 'true';
-            const modalId = this.dataset.modalId;
+        document.addEventListener('change', function (e) {
+        const switchInput = e.target.closest('.js-toggle-cliente-estado');
+        if (!switchInput) return;
 
-            if (esAdmin) {
-                const modalEl = document.getElementById(modalId);
-                if (!modalEl) return;
-                new bootstrap.Modal(modalEl).show();
-            } else {
-                e.preventDefault();
+        const url = switchInput.dataset.url;
+        if (!url) {
+            switchInput.checked = !switchInput.checked;
+            alert('No se pudo cambiar el estado.');
+            return;
+        }
 
-                const modalNoPermitido = document.getElementById('modalAccionNoPermitida');
-                if (!modalNoPermitido) return;
-
-                const bsModal = new bootstrap.Modal(modalNoPermitido);
-                bsModal.show();
-
-                setTimeout(() => {
-                    bsModal.hide();
-                    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
-                    document.body.classList.remove('modal-open');
-                }, 3500);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
             }
+        })
+        .then(async function (response) {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.ok) {
+                throw new Error(data.mensaje || 'No se pudo cambiar el estado');
+            }
+
+            const row = switchInput.closest('tr');
+            if (row) {
+                const checked = data.estado === 'activo';
+                const stateCell = row.querySelector('td:nth-child(5)');
+                const actionBtn = row.querySelector('.js-toggle-cliente-accion');
+                const estadoFilter = document.querySelector('select[name="estado"]');
+                const filtroEstado = estadoFilter ? estadoFilter.value : '';
+
+                if (stateCell) {
+                    stateCell.innerHTML = `
+                        <label class="table-switch-wrapper" title="${checked ? 'Desactivar' : 'Activar'}">
+                            <input type="checkbox"
+                                   class="toggle-activo-checkbox js-toggle-cliente-estado"
+                                   data-url="${url}"
+                                   data-nombre="${(switchInput.dataset.nombre || '').replace(/"/g, '&quot;')}"
+                                   data-activo="${checked ? '1' : '0'}"
+                                   ${checked ? 'checked' : ''}>
+                            <span class="table-switch-slider"></span>
+                        </label>
+                    `;
+                }
+
+                if (actionBtn) {
+                    actionBtn.dataset.activo = checked ? '1' : '0';
+                    actionBtn.title = checked ? 'Desactivar' : 'Activar';
+                    actionBtn.setAttribute('aria-label', `${checked ? 'Desactivar' : 'Activar'} cliente ${(switchInput.dataset.nombre || '').trim()}`);
+                    actionBtn.innerHTML = checked
+                        ? '<i class="bi bi-trash3"></i>'
+                        : '<i class="bi bi-arrow-clockwise"></i>';
+                }
+
+                const debeOcultarse = (!checked && filtroEstado !== 'inactivo') || (checked && filtroEstado === 'inactivo');
+
+                await Swal.fire({
+                    title: checked ? 'Cliente activado' : 'Cliente desactivado',
+                    text: checked
+                        ? `El cliente ${(switchInput.dataset.nombre || '').trim()} se activó correctamente.`
+                        : `El cliente ${(switchInput.dataset.nombre || '').trim()} se desactivó correctamente.`,
+                    icon: 'success',
+                    confirmButtonColor: '#634c40',
+                    confirmButtonText: 'Aceptar'
+                });
+
+                if (debeOcultarse) {
+                    row.remove();
+                }
+            }
+        })
+        .catch(function (error) {
+            switchInput.checked = !switchInput.checked;
+            alert(error.message || 'Error al cambiar el estado');
         });
+    });
+
+    document.addEventListener('click', async function (e) {
+        const btnToggle = e.target.closest('.js-toggle-cliente-accion');
+        if (!btnToggle) return;
+
+        e.preventDefault();
+
+        const url = btnToggle.dataset.url;
+        const nombre = btnToggle.dataset.nombre || 'este cliente';
+        const estaActivo = btnToggle.dataset.activo === '1';
+
+        const result = await Swal.fire({
+            title: estaActivo ? 'Desactivar cliente' : 'Activar cliente',
+            text: estaActivo
+                ? `¿Deseas desactivar a ${nombre}?`
+                : `¿Deseas activar a ${nombre}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: estaActivo ? 'Desactivar' : 'Activar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#634c40',
+            cancelButtonColor: '#6c757d'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.ok) {
+                throw new Error(data.mensaje || 'No se pudo cambiar el estado');
+            }
+
+            const row = btnToggle.closest('tr');
+            if (row) {
+                const switchInput = row.querySelector('.js-toggle-cliente-estado');
+                if (switchInput) {
+                    switchInput.checked = data.estado === 'activo';
+                    switchInput.dataset.activo = data.estado === 'activo' ? '1' : '0';
+                }
+
+                const stateCell = row.querySelector('td:nth-child(5)');
+                if (stateCell && switchInput) {
+                    const checked = data.estado === 'activo';
+                    stateCell.innerHTML = `
+                        <label class="table-switch-wrapper" title="${checked ? 'Desactivar' : 'Activar'}">
+                            <input type="checkbox"
+                                   class="toggle-activo-checkbox js-toggle-cliente-estado"
+                                   data-url="${url}"
+                                   data-nombre="${(nombre || '').replace(/"/g, '&quot;')}"
+                                   data-activo="${checked ? '1' : '0'}"
+                                   ${checked ? 'checked' : ''}>
+                            <span class="table-switch-slider"></span>
+                        </label>
+                    `;
+                }
+
+                btnToggle.dataset.activo = data.estado === 'activo' ? '1' : '0';
+                btnToggle.title = data.estado === 'activo' ? 'Desactivar' : 'Activar';
+                btnToggle.setAttribute('aria-label', `${data.estado === 'activo' ? 'Desactivar' : 'Activar'} cliente ${nombre}`);
+                btnToggle.innerHTML = data.estado === 'activo'
+                    ? '<i class="bi bi-trash3"></i>'
+                    : '<i class="bi bi-arrow-clockwise"></i>';
+            }
+
+            await Swal.fire({
+                title: data.estado === 'activo' ? 'Cliente activado' : 'Cliente desactivado',
+                text: data.estado === 'activo'
+                    ? `El cliente ${nombre} se activó correctamente.`
+                    : `El cliente ${nombre} se desactivó correctamente.`,
+                icon: 'success',
+                confirmButtonColor: '#634c40',
+                confirmButtonText: 'Aceptar'
+            });
+        } catch (error) {
+            Swal.fire({
+                title: 'Error',
+                text: error.message || 'No se pudo cambiar el estado',
+                icon: 'error',
+                confirmButtonColor: '#634c40'
+            });
+        }
+    });
+
+    document.addEventListener('click', async function (e) {
+        const btnEditar = e.target.closest('.btn-editar-cliente');
+        if (!btnEditar) return;
+
+        e.preventDefault();
+
+        const url = btnEditar.dataset.url || btnEditar.getAttribute('href');
+        const modalEl = document.getElementById('modalEditarCliente');
+        if (!url || !modalEl) return;
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+            const setValue = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value || '';
+            };
+
+            setValue('editar_tipo_documento', data.tipo_documento);
+            setValue('editar_numero_documento', data.numero_documento);
+            setValue('editar_nombre', data.nombre);
+            setValue('editar_apellido', data.apellido);
+            setValue('editar_fecha_nacimiento', data.fecha_nacimiento);
+            setValue('editar_telefono', data.telefono);
+            setValue('editar_correo', data.correo);
+            setValue('editar_estado', data.estado || 'activo');
+
+            const hiddenUrl = document.getElementById('editarClienteUrl');
+            if (hiddenUrl) hiddenUrl.value = url;
+
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        } catch (error) {
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo cargar el cliente para edición.',
+                icon: 'error',
+                confirmButtonColor: '#634c40',
+                confirmButtonText: 'Aceptar'
+            });
+        }
     });
 });

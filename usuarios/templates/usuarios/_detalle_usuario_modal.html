@@ -7,7 +7,7 @@
     <div style="text-align: center; margin-bottom: 20px;">
         <img src="{{ usuario.perfil.foto_perfil.url }}"
              alt="Foto de perfil"
-             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #634c40;">
+             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #4b2f2a;">
     </div>
     {% endif %}
 
@@ -45,7 +45,7 @@
             <span style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8b7355;">Correo Electrónico</span>
             <p style="margin: 5px 0 0; font-size: 0.95rem; color: #2d2d2d; word-break: break-all;">
                 {% if usuario.email %}
-                    <a href="mailto:{{ usuario.email }}" style="color: #634c40; text-decoration: none;">
+                    <a href="mailto:{{ usuario.email }}" style="color: #4b2f2a; text-decoration: none;">
                         <i class="bi bi-envelope"></i> {{ usuario.email }}
                     </a>
                 {% else %}—{% endif %}
@@ -55,10 +55,10 @@
             <span style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8b7355;">Grupos / Rol</span>
             <p style="margin: 5px 0 0;">
                 {% if usuario.is_superuser %}
-                    <span style="background: #634c40; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">Superusuario</span>
+                    <span style="background: #4b2f2a; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">Superusuario</span>
                 {% else %}
                     {% for grupo in usuario.groups.all %}
-                        <span style="background: #634c40; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-right: 4px;">{{ grupo.name }}</span>
+                        <span style="background: #4b2f2a; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-right: 4px;">{{ grupo.name }}</span>
                     {% empty %}
                         <span style="color: #aaa;">Sin grupos</span>
                     {% endfor %}
@@ -77,7 +77,7 @@
             <span style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8b7355;">Teléfono</span>
             <p style="margin: 5px 0 0; font-size: 0.95rem; color: #2d2d2d;">
                 {% if usuario.perfil.telefono %}
-                    <a href="tel:{{ usuario.perfil.telefono }}" style="color: #634c40; text-decoration: none;">
+                    <a href="tel:{{ usuario.perfil.telefono }}" style="color: #4b2f2a; text-decoration: none;">
                         <i class="bi bi-telephone"></i> {{ usuario.perfil.telefono }}
                     </a>
                 {% else %}—{% endif %}
@@ -92,7 +92,7 @@
         <div>
             <span style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8b7355;">Fecha de Registro</span>
             <p style="margin: 5px 0 0; font-size: 0.95rem; color: #2d2d2d;">
-                <i class="bi bi-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
+                <i class="bi bi-calendar-alt" style="color: #4b2f2a; margin-right: 4px;"></i>
                 {{ usuario.date_joined|date:"d/m/Y H:i" }}
             </p>
         </div>
@@ -100,39 +100,10 @@
             <span style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8b7355;">Último Acceso</span>
             <p style="margin: 5px 0 0; font-size: 0.95rem; color: #2d2d2d;">
                 {% if usuario.last_login %}
-                    <i class="bi bi-clock" style="color: #634c40; margin-right: 4px;"></i>
+                    <i class="bi bi-clock" style="color: #4b2f2a; margin-right: 4px;"></i>
                     {{ usuario.last_login|date:"d/m/Y H:i" }}
                 {% else %}—{% endif %}
             </p>
         </div>
-    </div>
-
-    <hr style="border: none; height: 1px; background: rgba(17,17,17,0.08); margin: 20px 0;">
-
-    <!-- Botones -->
-    <div style="display: flex; gap: 12px;">
-        {% if puede_modificar %}
-        <button type="button"
-                class="btn"
-                style="flex: 1; background-color: #634c40; color: #ffffff; border: none;"
-                onmouseover="this.style.backgroundColor='#523d33'"
-                onmouseout="this.style.backgroundColor='#634c40'"
-                onclick="cerrarModalDetalleUsuario(); abrirModalEditarUsuario({{ usuario.id }});">
-            <i class="bi bi-pencil-square me-1"></i> Editar
-        </button>
-        {% endif %}
-        {% if es_administrador %}
-        <button type="button"
-                class="btn btn-danger"
-                style="flex: 1;"
-                onclick="cerrarModalDetalleUsuario(); abrirModalEliminarUsuario({{ usuario.id }});">
-            <i class="bi bi-trash-fill me-1"></i> Eliminar
-        </button>
-        {% endif %}
-        {% if not puede_modificar and not es_administrador %}
-        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="cerrarModalDetalleUsuario()">
-            <i class="bi bi-x-lg me-1"></i> Cerrar
-        </button>
-        {% endif %}
     </div>
 </div>

@@ -1,7 +1,17 @@
-from django import forms
-from .models import ServicioWeb
 import re
+
+from django import forms
+
 from core.form_validations import ValidationFormMixin
+
+from .models import ServicioWeb
+
+
+_TEXTO_SEGURO_RE = re.compile(r'^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+$')
+
+
+def _texto_seguro(valor: str) -> bool:
+    return bool(_TEXTO_SEGURO_RE.match((valor or '').strip()))
 
 
 class ServicioWebForm(ValidationFormMixin, forms.ModelForm):
@@ -11,18 +21,22 @@ class ServicioWebForm(ValidationFormMixin, forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre del servicio web'
+                'placeholder': 'Nombre del servicio web',
+                'maxlength': '200',
+                'pattern': r'[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+',
+                'title': 'Solo letras, números y espacios',
             }),
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Descripción detallada del servicio web'
+                'placeholder': 'Descripción detallada del servicio web',
             }),
             'precio': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'step': '0.01',
                 'min': '0',
-                'placeholder': 'Precio al público'
+                'placeholder': 'Precio al público',
+                'inputmode': 'decimal',
             }),
             'imagen': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -54,8 +68,8 @@ class ServicioWebForm(ValidationFormMixin, forms.ModelForm):
         if len(nombre) < 3:
             raise forms.ValidationError('Debe tener al menos 3 caracteres.')
 
-        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s().,\-]+$', nombre):
-            raise forms.ValidationError('Contiene caracteres no permitidos.')
+        if not _texto_seguro(nombre):
+            raise forms.ValidationError('Solo se permiten letras, números y espacios.')
 
         qs = ServicioWeb.objects.filter(nombre__iexact=nombre)
         if self.instance and self.instance.pk:
@@ -74,6 +88,9 @@ class ServicioWebForm(ValidationFormMixin, forms.ModelForm):
 
         if len(descripcion) < 10:
             raise forms.ValidationError('Debe tener al menos 10 caracteres.')
+
+        if not _texto_seguro(descripcion):
+            raise forms.ValidationError('Solo se permiten letras, números y espacios.')
 
         return descripcion
 

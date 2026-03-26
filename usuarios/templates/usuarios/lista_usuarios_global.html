@@ -21,7 +21,7 @@
                         <td>{{ usuario.get_full_name|default:"—" }}</td>
                         <td>{{ usuario.email|default:"—" }}</td>
                         <td>
-                            {% if puede_modificar %}
+                            {% if permisos.usuarios.editar %}
                                 <label class="table-switch-wrapper" title="Cambiar estado">
                                     <input type="checkbox"
                                            class="toggle-activo-usuario-checkbox"
@@ -30,33 +30,20 @@
                                            {% if usuario.is_active %}checked{% endif %}>
                                     <span class="table-switch-slider"></span>
                                 </label>
-                            {% else %}
-                                {% if usuario.is_active %}
-                                    <span class="badge bg-success">Activo</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Inactivo</span>
-                                {% endif %}
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <div class="table-action-group">
-                                <button type="button" class="table-action-btn"
+                            <div class="table-action-group ms-auto">
+                                <button type="button" class="btn btn-link p-0"
                                         onclick="abrirModalDetalleUsuario({{ usuario.id }})"
                                         title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                {% if puede_modificar %}
-                                <button type="button" class="table-action-btn"
+                                {% if permisos.usuarios.editar %}
+                                <button type="button" class="btn btn-link p-0"
                                         onclick="abrirModalEditarUsuario({{ usuario.id }})"
                                         title="Editar">
                                     <i class="bi bi-pencil-square"></i>
-                                </button>
-                                {% endif %}
-                                {% if es_administrador %}
-                                <button type="button" class="table-action-btn table-action-btn--danger"
-                                        onclick="abrirModalEliminarUsuario({{ usuario.id }})"
-                                        title="Eliminar">
-                                    <i class="bi bi-trash3"></i>
                                 </button>
                                 {% endif %}
                             </div>
@@ -64,7 +51,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="6" class="text-center table-empty-state">
                             No hay usuarios registrados
                         </td>
                     </tr>

@@ -4,6 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Panel{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'notificaciones/notificaciones.css' %}">
 
@@ -13,8 +14,13 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <!-- CSS BASE DEL PANEL -->
-    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=4.2">
+    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=4.3">
+    <!-- Estilos para modales de detalle tipo producto/proveedor -->
+    <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}?v=1">
 
     <!-- SweetAlert2 (mantengo el que ya tenías) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -23,9 +29,11 @@
 </head>
 
 <body class="dashboard-body">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar" id="sidebar">
+
         <div class="sidebar-header">
 
             <div class="user-avatar">
@@ -63,22 +71,26 @@
         <!-- MENÚ (un solo menú, con TODOS tus links) -->
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
+                
 
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'core:dashboard' %}">
                         <i class="bi bi-house-door"></i>
-                        <span>Dashboard</span>
+                        <span>Panel principal</span>
                     </a>
                 </li>
 
+                {% if permisos.productos.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'productos:lista_productos' %}">
                         <i class="bi bi-box-seam"></i>
                         <span>Productos</span>
                     </a>
                 </li>
+                {% endif %}
 
                 <!-- Personas y Aliados (menú desplegable) -->
+                {% if permisos.personal.ver or permisos.proveedores.ver or permisos.clientes.ver %}
                 <li class="nav-item has-submenu">
                     <a class="nav-link submenu-toggle" href="#personasMenu" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="personasMenu">
@@ -88,57 +100,73 @@
                     </a>
                     <div class="collapse submenu" id="personasMenu">
                         <ul class="nav flex-column">
+                            {% if permisos.personal.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'personal:lista_personal' %}">
                                     <i class="bi bi-person-badge"></i>
                                     <span>Personal</span>
                                 </a>
                             </li>
+                            {% endif %}
+                            {% if permisos.proveedores.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'proveedores:lista_proveedor' %}">
                                     <i class="bi bi-truck"></i>
                                     <span>Proveedores</span>
                                 </a>
                             </li>
+                            {% endif %}
+                            {% if permisos.clientes.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'clientes:lista' %}">
                                     <i class="bi bi-person-heart"></i>
                                     <span>Clientes</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </li>
+                {% endif %}
 
+                {% if permisos.ventas.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'ventas:lista' %}">
                         <i class="bi bi-cart"></i>
                         <span>Ventas</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.inventario.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'inventario:inventario_lista' %}">
                         <i class="bi bi-gear"></i>
                         <span>Inventario</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.compras.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'compras:lista_compras' %}">
                         <i class="bi bi-gear"></i>
-                        <span>compras</span>
+                        <span>Compras</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.servicios.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'servicios:lista_servicios' %}">
                         <i class="bi bi-stars"></i>
                         <span>Servicios</span>
                     </a>
                 </li>
+                {% endif %}
 
                 <!-- Catálogo Web (menú desplegable) -->
+                {% if permisos.productos_web.ver or permisos.promociones.ver or permisos.servicios_web.ver %}
                 <li class="nav-item has-submenu">
                     <a class="nav-link submenu-toggle" href="#catalogoWebMenu" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="catalogoWebMenu">
@@ -154,40 +182,58 @@
                                     <span>Productos Web</span>
                                 </a>
                             </li>
+                            {% if permisos.promociones.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'promociones:lista' %}">
                                     <i class="bi bi-percent"></i>
                                     <span>Promociones Web </span>
                                 </a>
                             </li>
+                            {% endif %}
+                            {% if permisos.servicios_web.ver %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'servicios_web:lista_servicios_web' %}">
                                     <i class="bi bi-globe"></i>
                                     <span>Servicios Web</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </li>
+                {% endif %}
 
+                {% if permisos.usuarios.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'usuarios:lista_usuarios' %}">
                         <i class="bi bi-unlock-fill"></i>
                         <span>Usuarios</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.gestion_alisados.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'gestion_alisados:lista_gestion_alisados' %}">
                         <i class="bi bi-database"></i>
                         <span>Gestión de Datos</span>
                     </a>
                 </li>
+                {% endif %}
 
+                {% if permisos.backup.ver %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'backup:dashboard' %}">
                         <i class="bi bi-shield-lock"></i>
                         <span>Copia de Seguridad</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:ayuda' %}">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Ayuda</span>
                     </a>
                 </li>
 
@@ -202,7 +248,7 @@
         </nav>
     </div>
 
-    <!-- ================= MODAL ACCIÓN NO PERMITIDA (UNA SOLA VEZ) ================= -->
+    <!-- ================= MODAL ACCIÓN NO PERMITIDA  ================= -->
     <div class="modal fade" id="modalAccionNoPermitida" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0">
@@ -232,13 +278,18 @@
         </div>
     </div>
 
-    <button type="button" class="sidebar-handle" id="sidebar-handle" aria-label="Contraer o expandir menu lateral">
+    <button type="button" class="sidebar-mobile-toggle" id="sidebar-toggle" aria-label="Abrir o cerrar menú lateral">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <button type="button" class="sidebar-handle" id="sidebar-handle" aria-label="Contraer o expandir menú lateral">
         <i class="bi bi-chevron-left"></i>
     </button>
 
-    <!-- ================= CONTENIDO (UNA SOLA VEZ) ================= -->
-        <div id="main-content" class="main-content">
-        {% if user.is_staff or user.is_superuser %}
+    <!-- ================= CONTENIDO PRINCIPAL ================= -->
+    <main class="main-content" id="main-content" role="main">
+        <!-- ── CAMPANA FLOTANTE ── -->
+        {% if permisos.notificaciones.ver %}
             <div class="topbar-notif">
                 <div class="topbar-notif-right">
                     <div id="notif-wrap"
@@ -249,15 +300,16 @@
                 </div>
             </div>
         {% endif %}
-     <div class="page-bg">
+
+        <div class="page-bg">
             <div class="page-container">
                 <div class="page-card">
 
                     <!-- Breadcrumb -->
                     {% block breadcrumb %}
-                    <nav aria-label="breadcrumb" class="mb-3">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+                        <nav aria-label="breadcrumb" class="mb-3">
+                            <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Panel principal</a></li>
                             {% block breadcrumb_items %}{% endblock %}
                         </ol>
                     </nav>
@@ -302,11 +354,15 @@
                                                 (tags.includes("error") ? "error" :
                                                     (tags.includes("warning") ? "warning" : "info"));
 
+                                            let titulo = icon === 'success' ? 'Éxito' : (icon === 'error' ? 'Atención' : 'Aviso');
+                                            
                                             Swal.fire({
                                                 icon: icon,
-                                                title: "Mensaje",
+                                                title: titulo,
                                                 text: text,
-                                                confirmButtonText: "OK"
+                                                showConfirmButton: false,
+                                                timer: 2500,
+                                                customClass: { popup: 'rounded-4' }
                                             });
                                         }
                                     });
@@ -321,7 +377,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Flags admin (dejo la funcionalidad, pero sin depender de request si no existe) -->
     <script>
@@ -330,94 +386,104 @@
 
     <!-- BOOTSTRAP JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- JS GENERAL -->
-    <script src="{% static 'core/js/main.js' %}"></script>
-
-    <!-- Sienna accessibility (Carolina) -->
-    <script src="{% static 'core/js/sienna.js' %}" defer></script>
+    <script src="{% static 'core/js/panel_admin_base.js' %}?v=6.2"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof SiennaAccessibility !== 'undefined') {
-                SiennaAccessibility.init();
-            }
-        });
-    </script>
+        (function initSidebarFallback() {
+            document.addEventListener('DOMContentLoaded', function () {
+                const sidebar = document.getElementById('sidebar');
+                const handle = document.getElementById('sidebar-handle');
+                const main = document.getElementById('main-content');
+                if (!sidebar || !handle || !main) return;
 
-    <script>
-        (function initSiennaDraggable() {
-            function makeDraggable() {
-                const btn = document.querySelector('.asw-menu-btn');
-                if (!btn) { setTimeout(makeDraggable, 300); return; }
+                if (handle.dataset.boundSidebarFallback === 'true' || handle.dataset.sidebarBound === 'true') return;
+                handle.dataset.boundSidebarFallback = 'true';
 
-                let isDragging = false, hasMoved = false, offsetX, offsetY;
-                btn.style.cursor = 'grab';
-
-                btn.addEventListener('mousedown', (e) => {
-                    isDragging = true; hasMoved = false;
-                    const rect = btn.getBoundingClientRect();
-                    offsetX = e.clientX - rect.left;
-                    offsetY = e.clientY - rect.top;
-                    btn.style.cursor = 'grabbing';
-                    btn.style.transition = 'none';
+                handle.addEventListener('click', function (e) {
                     e.preventDefault();
-                });
+                    e.stopPropagation();
 
-                document.addEventListener('mousemove', (e) => {
-                    if (!isDragging) return;
-                    hasMoved = true;
-                    let x = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, e.clientX - offsetX));
-                    let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, e.clientY - offsetY));
-                    btn.style.left = x + 'px';
-                    btn.style.top = y + 'px';
-                    btn.style.right = 'auto';
-                    btn.style.bottom = 'auto';
-                });
-
-                document.addEventListener('mouseup', () => {
-                    if (isDragging) { isDragging = false; btn.style.cursor = 'grab'; }
-                });
-
-                btn.addEventListener('touchstart', (e) => {
-                    const t = e.touches[0];
-                    isDragging = true;
-                    hasMoved = false;
-                    const rect = btn.getBoundingClientRect();
-                    offsetX = t.clientX - rect.left;
-                    offsetY = t.clientY - rect.top;
-                    btn.style.transition = 'none';
-                }, { passive: true });
-
-                document.addEventListener('touchmove', (e) => {
-                    if (!isDragging) return;
-                    hasMoved = true;
-                    const t = e.touches[0];
-                    let x = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, t.clientX - offsetX));
-                    let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, t.clientY - offsetY));
-                    btn.style.left = x + 'px';
-                    btn.style.top = y + 'px';
-                    btn.style.right = 'auto';
-                    btn.style.bottom = 'auto';
-                }, { passive: true });
-
-                document.addEventListener('touchend', () => { isDragging = false; });
-
-                btn.addEventListener('click', (e) => {
-                    if (hasMoved) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        hasMoved = false;
+                    if (window.innerWidth <= 991) {
+                        sidebar.classList.toggle('active');
+                        document.body.classList.toggle('sidebar-mobile-open', sidebar.classList.contains('active'));
+                        return;
                     }
-                }, true);
-            }
-            makeDraggable();
+
+                    sidebar.classList.toggle('collapsed');
+                    main.classList.toggle('expanded');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+                    localStorage.setItem('sidebarCollapsed', isCollapsed ? 'true' : 'false');
+                });
+            });
         })();
     </script>
+           <script src="{% static 'core/js/sienna.js' %}" defer></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                if (typeof SiennaAccessibility !== 'undefined')
+                    SiennaAccessibility.init();
+            });
+        </script>
 
-    <!-- SweetAlert2 (tu archivo tenía 2 formas; dejo UNA sola porque ya lo cargas arriba) -->
-    {# <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script> #}
-    
-    <script src="{% static 'core/js/panel_admin_base.js' %}?v=150"></script>
+        <!-- Drag Sienna -->
+        <script>
+            (function initSiennaDraggable() {
+                function makeDraggable() {
+                    const btn = document.querySelector('.asw-menu-btn');
+                    if (!btn) { setTimeout(makeDraggable, 300); return; }
+
+                    let isDragging = false, hasMoved = false, offsetX, offsetY;
+                    btn.style.cursor = 'grab';
+
+                    btn.addEventListener('mousedown', (e) => {
+                        isDragging = true; hasMoved = false;
+                        const rect = btn.getBoundingClientRect();
+                        offsetX = e.clientX - rect.left;
+                        offsetY = e.clientY - rect.top;
+                        btn.style.cursor = 'grabbing';
+                        btn.style.transition = 'none';
+                        e.preventDefault();
+                    });
+
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isDragging) return;
+                        hasMoved = true;
+                        let x = Math.max(0, Math.min(window.innerWidth  - btn.offsetWidth,  e.clientX - offsetX));
+                        let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, e.clientY - offsetY));
+                        btn.style.left = x + 'px'; btn.style.top = y + 'px';
+                        btn.style.right = 'auto';  btn.style.bottom = 'auto';
+                    });
+
+                    document.addEventListener('mouseup', () => {
+                        if (isDragging) { isDragging = false; btn.style.cursor = 'grab'; }
+                    });
+
+                    btn.addEventListener('touchstart', (e) => {
+                        const t = e.touches[0]; isDragging = true; hasMoved = false;
+                        const rect = btn.getBoundingClientRect();
+                        offsetX = t.clientX - rect.left; offsetY = t.clientY - rect.top;
+                        btn.style.transition = 'none';
+                    }, { passive: true });
+
+                    document.addEventListener('touchmove', (e) => {
+                        if (!isDragging) return;
+                        hasMoved = true;
+                        const t = e.touches[0];
+                        let x = Math.max(0, Math.min(window.innerWidth  - btn.offsetWidth,  t.clientX - offsetX));
+                        let y = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, t.clientY - offsetY));
+                        btn.style.left = x + 'px'; btn.style.top = y + 'px';
+                        btn.style.right = 'auto';  btn.style.bottom = 'auto';
+                    }, { passive: true });
+
+                    document.addEventListener('touchend', () => { isDragging = false; });
+
+                    btn.addEventListener('click', (e) => {
+                        if (hasMoved) { e.preventDefault(); e.stopImmediatePropagation(); hasMoved = false; }
+                    }, true);
+                }
+                makeDraggable();
+            })();
+        </script>
     {% block extra_js %}{% endblock %}
     <script src="{% static 'notificaciones/notificaciones.js' %}"></script>
 </body>

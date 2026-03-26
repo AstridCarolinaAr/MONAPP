@@ -6,88 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'clientes/css/cliente.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-<style>
-.clientes-page-icon{display:inline-block;opacity:0;animation:cli-icon-drive .9s cubic-bezier(.22,1,.36,1) .05s forwards;}
-.clientes-title-text{display:inline-block;opacity:0;transform:translateX(-10px);animation:cli-title-reveal .4s cubic-bezier(.34,1.56,.64,1) .75s forwards;}
-.clientes-subtitle-anim{display:inline-block;opacity:0;animation:cli-subtitle-in .35s ease 1s forwards;}
-@keyframes cli-icon-drive{0%{opacity:0;transform:translateX(120px);}65%{opacity:1;transform:translateX(-5px);}82%{transform:translateX(3px);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cli-title-reveal{0%{opacity:0;transform:translateX(-10px);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cli-subtitle-in{0%{opacity:0;transform:translateY(5px);}100%{opacity:1;transform:translateY(0);}}
-.anim-from-top{opacity:0;animation:cli-slide-top .45s cubic-bezier(.22,1,.36,1) .05s forwards;}
-.anim-from-bottom{opacity:0;animation:cli-slide-bottom .45s cubic-bezier(.22,1,.36,1) forwards;}
-@keyframes cli-slide-top{0%{opacity:0;transform:translateY(-22px);}100%{opacity:1;transform:translateY(0);}}
-@keyframes cli-slide-bottom{0%{opacity:0;transform:translateY(22px);}100%{opacity:1;transform:translateY(0);}}
-@media(prefers-reduced-motion:reduce){.clientes-page-icon,.clientes-title-text,.clientes-subtitle-anim,.anim-from-top,.anim-from-bottom{animation:none!important;opacity:1!important;transform:none!important;}}
 
-.clientes-panel{background:#fffaf6!important;border:1px solid #e6d7cc!important;border-radius:14px!important;padding:18px 20px!important;box-shadow:0 4px 12px rgba(56,40,34,.06)!important;}
-.card.border-0.shadow-sm{border:1px solid #e6d7cc!important;border-radius:10px!important;overflow:hidden;box-shadow:none!important;}
-.th-sortable{cursor:pointer;user-select:none;white-space:nowrap;}
-.th-sortable:hover{background-color:rgba(99,76,64,.08);}
-
-.switch-estado-cliente{background-color:#ced4da!important;border-color:#ced4da!important;border-radius:2em!important;}
-.switch-estado-cliente:checked{background-color:#634c40!important;border-color:#634c40!important;}
-.switch-estado-cliente:focus,.switch-estado-cliente:active{outline:none!important;}
-
-.btn-close-dev{
-  background:none;
-  border:none;
-  padding:0;
-  cursor:pointer;
-  width:32px;
-  height:32px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  transition:background .2s ease;
-}
-.btn-close-dev:hover{background:rgba(255,255,255,.12);}
-.btn-close-dev__icon{
-  display:inline-block;
-  color:rgba(255,255,255,.9);
-  font-size:1rem;
-  line-height:1;
-  transform:rotate(0deg);
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .25s ease;
-}
-.btn-close-dev:hover .btn-close-dev__icon{
-  transform:rotate(180deg);
-  color:#fff;
-}
-
-.modal-xl-custom{
-  max-width:900px!important;
-  width:85vw!important;
-  min-width:320px!important;
-  margin:0!important;
-  border-radius:14px;
-  padding:0!important;
-  position:fixed!important;
-  top:50%!important;
-  left:50%!important;
-  transform:translate(-50%,-50%)!important;
-  z-index:1060!important;
-}
-
-.form-label{font-weight:600;color:#5c4a42;}
-.modal .invalid-feedback{display:block;}
-.modal .form-control.is-valid,
-.modal .form-select.is-valid{
-  border-color:#198754!important;
-}
-.modal .form-control.is-valid:focus,
-.modal .form-select.is-valid:focus{
-  box-shadow:0 0 0 .2rem rgba(25,135,84,.15)!important;
-}
-.modal .form-control.is-invalid,
-.modal .form-select.is-invalid{
-  border-color:#dc3545!important;
-}
-.modal .form-control.is-invalid:focus,
-.modal .form-select.is-invalid:focus{
-  box-shadow:0 0 0 .2rem rgba(220,53,69,.15)!important;
-}
-</style>
 {% endblock %}
 
 {% block breadcrumb_items %}
@@ -107,7 +26,7 @@
 {% block page_actions %}
 <div class="anim-from-top">
   <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalCrearCliente">
-    <i class="bi bi-plus-circle"></i> Nuevo cliente
+    <i class="fas fa-plus"></i> Nuevo cliente
   </button>
 </div>
 {% endblock %}
@@ -115,90 +34,173 @@
 {% block content %}
 <div class="container-fluid px-4 py-1">
 
-  <form method="get" class="clientes-panel mb-4 js-ajax-search-form anim-from-bottom" style="animation-delay:.10s">
-    <div class="clientes-busqueda-wrap">
-      <div class="clientes-busqueda-global">
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
-      </div>
+    <!-- Panel de filtros -->
+    <form method="get"
+          class="module-filters-card clientes-filters-card mb-4 js-ajax-search-form anim-from-bottom"
+          style="animation-delay:.10s"
+          data-ajax-url="{% url 'clientes:lista' %}"
+          data-ajax-target=".ajax-results-container"
+          data-ajax-debounce="300">
+
+        <div class="module-filters-form clientes-filters-form">
+            <div class="module-filter-field module-filter-field--wide clientes-search-field">
+                <label class="module-filter-label">Buscar</label>
+                <div class="clientes-busqueda-global">
+                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar cliente...' search_value=q name='q' modo='inline' %}
+                </div>
+            </div>
+
+            <div class="module-filter-field module-filter-field--small">
+                <label class="module-filter-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+
+            <div class="module-filter-field module-filter-field--small">
+                <label class="module-filter-label">Edad</label>
+                <select name="edad" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="menor" {% if edad == 'menor' %}selected{% endif %}>Menores</option>
+                    <option value="mayor" {% if edad == 'mayor' %}selected{% endif %}>Mayores</option>
+                </select>
+            </div>
+
+            <div class="module-filter-field module-filter-field--medium">
+                <label class="module-filter-label">Ordenar</label>
+                <select name="orden" class="form-select">
+                    <option value="">Seleccionar</option>
+                    <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
+                    <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z-A</option>
+                    <option value="apellido_asc" {% if orden == 'apellido_asc' %}selected{% endif %}>Apellido A-Z</option>
+                    <option value="apellido_desc" {% if orden == 'apellido_desc' %}selected{% endif %}>Apellido Z-A</option>
+                    <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Cumpleaños ↑</option>
+                    <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Cumpleaños ↓</option>
+                </select>
+            </div>
+
+            <div class="module-filter-field module-filter-field--small clientes-actions-field">
+                <div class="clientes-acciones">
+                    {% if q or estado or edad or orden %}
+                    <a href="{% url 'clientes:lista' %}" class="btn btn-outline-danger">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="card border-0 shadow-sm">
+    <div class="card-body p-0 ajax-results-container">
+        {% include 'clientes/lista_clientes_global.html' %}
     </div>
-  </form>
+</div>
 
-  <div class="card border-0 shadow-sm anim-from-bottom" style="animation-delay:.22s">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="styled-table" id="tablaClientes">
-          <thead>
-            <tr>
-              <th class="th-sortable" data-col="0">Código</th>
-              <th class="th-sortable" data-col="1">Cliente</th>
-              <th class="th-sortable" data-col="2">Documento</th>
-              <th class="th-sortable" data-col="3">Teléfono</th>
-              <th class="th-sortable" data-col="4">Estado</th>
-              <th class="text-end">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for cliente in clientes %}
-            <tr>
-              <td class="fw-medium">{{ cliente.codigo_cliente }}</td>
-              <td>
-                {{ cliente.nombre }} {{ cliente.apellido }}<br>
-                <small class="text-muted">{{ cliente.correo|default:"—" }}</small>
-              </td>
-              <td>{{ cliente.tipo_documento }} {{ cliente.numero_documento }}</td>
-              <td>{{ cliente.telefono|default:"—" }}</td>
-              <td>
-                <div class="form-check form-switch mb-0">
-                  <input class="form-check-input switch-estado-cliente"
-                         type="checkbox" role="switch"
-                         id="switch-{{ cliente.id }}"
-                         data-url="{% url 'clientes:cambiar_estado' cliente.id %}"
-                         {% if cliente.estado == 'activo' %}checked{% endif %}
-                         style="width:3em;height:1.55em;cursor:pointer;">
-                </div>
-              </td>
-              <td class="text-end">
-                <div class="table-action-group">
-                                  <button class="table-action-btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalDetalleCliente{{ cliente.id }}"
-                        title="Ver detalles">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button type="button" class="table-action-btn btn-editar-cliente"
-                        title="Editar"
-                        data-id="{{ cliente.id }}"
-                        data-url="{% url 'clientes:editar' cliente.id %}">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
+<!-- Legacy client modal block removed because it duplicated ids with the active form.
+<div class="modal fade" id="modalLegacyCrearCliente" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form method="post"
+                  id="formCrearClienteLegacy"
+                  action="{% url 'clientes:crear' %}"
+                  autocomplete="off">
+                {% csrf_token %}
 
-                {% if user.is_staff %}
-                <button type="button" class="table-action-btn table-action-btn--danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalEliminarCliente{{ cliente.id }}"
-                        title="Eliminar">
-                  <i class="bi bi-trash3"></i>
-                </button>
-                {% endif %}
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i> Nuevo cliente
+                    </h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
                 </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center py-4" style="color:#9e9e9e;font-style:italic;">
-                <i class="bi bi-person-heart" style="font-size:1.5rem;display:block;margin-bottom:8px;color:#ccc;"></i>
-                No hay clientes registrados aún.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de documento</label>
+                            <select id ="tipo_documento" name="tipo_documento" class="form-select" required>
+                                <option value="">Seleccionar</option>
+                                <option value="CC">Cédula de ciudadanía</option>
+                                <option value="TI">Tarjeta de identidad</option>
+                                <option value="CE">Cédula de extranjería</option>
+                                <option value="PP">Pasaporte</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Número de documento</label>
+                            <input id="numero_documento_legacy"
+                                   type="text"
+                                   name="numero_documento"
+                                   class="form-control"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input id="nombre_legacy"
+                                   type="text"
+                                   name="nombre"
+                                   class="form-control"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Apellido</label>
+                            <input id="apellido_legacy"
+                            type="text"
+                                   name="apellido"
+                                   class="form-control"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de nacimiento</label>
+                            <input id="fecha_nacimiento_legacy"
+                            type="date"
+                                   name="fecha_nacimiento"
+                                   class="form-control"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input id
+                            type="text"
+                                   name="telefono"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Correo</label>
+                            <input id="correo_legacy"
+                            type="email"
+                                   name="correo"
+                                   class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnGuardarClienteLegacy" class="btn-pill-dark">
+                        <i class="bi bi-save me-1"></i> Guardar cliente
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
   </div>
 
   {% for cliente in clientes %}
-  <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="modalLegacyDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
@@ -220,18 +222,12 @@
             <div class="col-12"><strong>Correo:</strong><br>{{ cliente.correo|default:"—" }}</div>
           </div>
         </div>
-        <div class="modal-footer">
-          <a href="{% url 'clientes:editar' cliente.id %}" class="btn-pill-dark">
-            <i class="bi bi-pencil-square me-1"></i> Editar cliente
-          </a>
-          <button class="btn-modal-cancel" data-bs-dismiss="modal">Cerrar</button>
-        </div>
       </div>
     </div>
   </div>
 
   {% if user.is_staff %}
-  <div class="modal fade" id="modalEliminarCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="modalLegacyEliminarCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow">
         <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
@@ -257,13 +253,15 @@
   {% endif %}
   {% endfor %}
 
+-->
+
   <div class="modal fade" id="modalCrearCliente" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content border-0 shadow">
         <form id="formCrearCliente" method="post" action="{% url 'clientes:crear' %}" autocomplete="off" novalidate>
           {% csrf_token %}
           <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
-            <h5 class="modal-title text-white"><i class="bi bi-person-plus me-2"></i>Nuevo cliente</h5>
+            <h5 class="modal-title text-white"><i class="fas fa-plus me-2"></i>Nuevo cliente</h5>
             <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar">
               <span class="btn-close-dev__icon">✕</span>
             </button>
@@ -459,9 +457,6 @@
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
 
 <script>
-window.URLS = {
-  cambiarEstado: "{% url 'clientes:cambiar_estado' 0 %}".replace('/0/', '/')
-};
 window.urlCrearGestionAlisado = "{% url 'gestion_alisados:crear_gestion_alisado' %}";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -476,32 +471,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (modal.parentElement !== document.body) {
         document.body.appendChild(modal);
       }
-    });
-  });
-
-  document.querySelectorAll('.switch-estado-cliente').forEach(function(sw) {
-    sw.addEventListener('change', function() {
-      var url = this.dataset.url;
-      var el = this;
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!data.ok) {
-          el.checked = !el.checked;
-          alert(data.mensaje || 'No se pudo cambiar el estado');
-        }
-      })
-      .catch(function() {
-        el.checked = !el.checked;
-        alert('Error al cambiar el estado');
-      });
     });
   });
 
@@ -651,6 +620,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var btn = e.target.closest('.btn-editar-cliente');
     if (!btn) return;
 
+    e.preventDefault();
     var url = btn.dataset.url;
     limpiarErroresEditar();
 
@@ -672,93 +642,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('editar_estado').value = data.estado || 'activo';
 
       bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarCliente')).show();
+    })
+    .catch(function(error) {
+      console.error('Error cargando cliente para edición:', error);
+      window.location.href = url;
     });
   });
 
-  document.getElementById('formEditarCliente').addEventListener('input', function(e) {
-    var campo = e.target;
-    if (!campo.matches('.form-control, .form-select')) return;
-
-    campo.classList.remove('is-invalid');
-    var feedback = campo.parentElement.querySelector('.invalid-feedback');
-    if (feedback) feedback.textContent = '';
-
-    if (campo.value.trim() !== '') {
-      campo.classList.add('is-valid');
-    } else {
-      campo.classList.remove('is-valid');
-    }
-  });
-
-  document.getElementById('btnGuardarEditar').addEventListener('click', function() {
-    if (!validarFormularioEditar()) return;
-
-    var url = document.getElementById('editarClienteUrl').value;
-    var form = document.getElementById('formEditarCliente');
-    var formData = new FormData(form);
-    var btn = this;
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-
-    fetch(url, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente')).hide();
-        location.reload();
-        return;
-      }
-
-      limpiarErroresEditar();
-
-      var lista = document.getElementById('listaErroresEditar');
-      Object.entries(data.errores || {}).forEach(function(entry) {
-        var campo = entry[0];
-        var mensaje = entry[1];
-
-        var li = document.createElement('li');
-        li.innerHTML = '<strong>' + campo + ':</strong> ' + mensaje;
-        lista.appendChild(li);
-      });
-
-      var mapaCampos = {
-        tipo_documento: 'editar_tipo_documento',
-        numero_documento: 'editar_numero_documento',
-        nombre: 'editar_nombre',
-        apellido: 'editar_apellido',
-        fecha_nacimiento: 'editar_fecha_nacimiento',
-        telefono: 'editar_telefono',
-        correo: 'editar_correo',
-        estado: 'editar_estado'
-      };
-
-      Object.entries(data.errores || {}).forEach(function(entry) {
-        var campo = entry[0];
-        var mensaje = entry[1];
-        if (mapaCampos[campo]) {
-          marcarCampoError(mapaCampos[campo], mensaje);
-        }
-      });
-
-      document.getElementById('alertaErroresEditar').classList.remove('d-none');
-    })
-    .finally(function() {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-save me-1"></i> Guardar cambios';
-    });
-  });
-
-  document.getElementById('modalEditarCliente').addEventListener('hidden.bs.modal', function() {
-    limpiarErroresEditar();
-    document.getElementById('formEditarCliente').reset();
-  });
 });
 
 function abrirModalTratamiento(clienteId) {

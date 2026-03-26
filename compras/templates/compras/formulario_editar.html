@@ -9,6 +9,21 @@
     <div class="col-md-6">
       <label class="form-label">Proveedor</label>
       {{ form.proveedor }}
+      {% if compra and compra.proveedor and compra.proveedor.estado != 'activo' %}
+        <div class="compra-switch-holder d-flex align-items-center gap-3 mb-2">
+          <label class="compras-switch-wrapper" title="Activar proveedor">
+            <input type="checkbox"
+                   class="js-reactivar-proveedor-compra compras-switch-input"
+                   data-reactivar-url="{% url 'proveedores:reactivar' compra.proveedor.pk %}"
+                   data-proveedor-nombre="{{ compra.proveedor.nombre_proveedor|escapejs }}">
+            <span class="compras-switch-slider"></span>
+          </label>
+          <span class="compras-switch-label">Activar proveedor</span>
+        </div>
+        <div class="alert alert-light border mt-2 mb-0 py-2 px-3" id="alertaProveedorInactivoCompra">
+          Este proveedor está inactivo. Puedes activarlo con la píldora de arriba.
+        </div>
+      {% endif %}
       {% for e in form.proveedor.errors %}
         <div class="text-danger small">{{ e }}</div>
       {% endfor %}
@@ -27,8 +42,8 @@
 
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="mb-0">Productos</h5>
-    <button type="button" class="btn btn-outline-primary btn-sm" id="btnAgregarProducto">
-      <i class="bi bi-plus-circle me-1"></i> Agregar producto
+    <button type="button" class="btn-pill-dark btn-sm" id="btnAgregarProducto">
+      <i class="fas fa-plus me-1"></i> Nuevo producto
     </button>
   </div>
 
@@ -66,7 +81,7 @@
           </div>
 
           <div class="col-md-3">
-            <label class="form-label">Precio unitario</label>
+            <label class="form-label">Precio unitario de compra</label>
             {{ f.precio_unitario }}
           </div>
         </div>
@@ -99,7 +114,7 @@
         </div>
 
         <div class="col-md-3">
-          <label class="form-label">Precio unitario</label>
+          <label class="form-label">Precio unitario de compra</label>
           {{ formset.empty_form.precio_unitario }}
         </div>
       </div>

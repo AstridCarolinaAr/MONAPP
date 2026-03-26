@@ -7,6 +7,70 @@ function inicializarValidacionesPersonal() {
     if (!form || !btnGuardar) return;
 
     const esEdicion = form.id === 'form-editar-personal';
+    const RULES = {
+        numeric: {
+            pattern: /[^\d]/g,
+            allow: (text) => /^\d*$/.test(text),
+        },
+        alpha: {
+            pattern: /[^\p{L}\s]/gu,
+            allow: (text) => /^[\p{L}\s]*$/u.test(text),
+        },
+        alnum: {
+            pattern: /[^\p{L}\p{N}\s]/gu,
+            allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
+        },
+        text: {
+            pattern: /[<>]/g,
+            allow: (text) => !/[<>]/.test(text),
+        },
+    };
+
+    function getRule(input) {
+        if (!input) return null;
+        const rule = (input.dataset.validate || '').trim();
+        return RULES[rule] ? rule : null;
+    }
+
+    function sanitizeInput(input) {
+        if (!input || input.type === 'file') return;
+        const rule = getRule(input);
+        if (!rule) return;
+        const cleaned = String(input.value || '').replace(RULES[rule].pattern, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
+    }
+
+    function bindInputGuards(rootForm) {
+        const inputs = rootForm.querySelectorAll('[data-validate]');
+        inputs.forEach((input) => {
+            if (input.dataset.guardWired === '1') return;
+            input.dataset.guardWired = '1';
+
+            input.addEventListener('beforeinput', (e) => {
+                if (!e.inputType || !e.inputType.startsWith('insert')) return;
+                const rule = getRule(input);
+                if (!rule) return;
+                const data = e.data || '';
+                if (!RULES[rule].allow(data)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                const rule = getRule(input);
+                if (!rule) return;
+                const pasted = e.clipboardData?.getData('text') || '';
+                if (!RULES[rule].allow(pasted)) {
+                    e.preventDefault();
+                    sanitizeInput(input);
+                }
+            });
+
+            input.addEventListener('input', () => sanitizeInput(input));
+        });
+    }
 
     /* ===============================
        INICIO: ESTADO DEL BOTÓN
@@ -26,41 +90,72 @@ function inicializarValidacionesPersonal() {
     /* ===============================
        FUNCIONES VISUALES
     =============================== */
+    function getWrap(input) {
+        return input?.closest('.personal-input-wrap') || null;
+    }
+
+    function getFeedback(input) {
+        const group = input.closest('.personal-form-group');
+        if (!group) return null;
+
+        let feedback = group.querySelector('.personal-field-error');
+        if (!feedback) {
+            feedback = document.createElement('div');
+            feedback.className = 'personal-field-error';
+            group.appendChild(feedback);
+        }
+        return feedback;
+    }
+
     function invalido(input, mensaje) {
         input.classList.add('is-invalid');
         input.classList.remove('is-valid');
-        let feedback = input.parentElement.querySelector('.invalid-feedback');
-        if (!feedback) {
-            feedback = document.createElement('div');
-            feedback.className = 'invalid-feedback';
-            feedback.style.cssText = 'color: #c7412b; font-size: 0.85rem; margin-top: 6px; display: block;';
-            const small = input.parentElement.querySelector('small');
-            if (small) {
-                small.parentNode.insertBefore(feedback, small.nextSibling);
-            } else {
-                input.parentElement.appendChild(feedback);
-            }
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-ok');
+            wrap.classList.add('is-error');
         }
-        feedback.textContent = mensaje;
-        feedback.style.display = 'block';
+
+        const feedback = getFeedback(input);
+        if (feedback) {
+            feedback.textContent = mensaje;
+            feedback.classList.add('is-visible');
+        }
     }
 
     function valido(input) {
         input.classList.remove('is-invalid');
         input.classList.add('is-valid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-error');
+            wrap.classList.add('is-ok');
+        }
+
+        const feedback = getFeedback(input);
         if (feedback) {
             feedback.textContent = '';
-            feedback.style.display = 'none';
+            feedback.classList.remove('is-visible');
         }
     }
 
     function limpiar(input) {
         input.classList.remove('is-invalid', 'is-valid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
+        input.style.backgroundImage = 'none';
+
+        const wrap = getWrap(input);
+        if (wrap) {
+            wrap.classList.remove('is-ok', 'is-error');
+        }
+
+        const feedback = getFeedback(input);
         if (feedback) {
             feedback.textContent = '';
-            feedback.style.display = 'none';
+            feedback.classList.remove('is-visible');
         }
     }
 
@@ -68,7 +163,7 @@ function inicializarValidacionesPersonal() {
        ESTADO DEL BOTÓN
     =============================== */
     // Campos que tienen validación activa (excluye checkbox oculto, csrf, etc.)
-    const camposValidados = ['id_numero_documento', 'id_nombres', 'id_apellidos', 'id_rol', 'id_telefono', 'id_correo'];
+    const camposValidados = ['id_tipo_documento', 'id_numero_documento', 'id_nombres', 'id_apellidos', 'id_rol', 'id_telefono', 'id_correo'];
 
     function actualizarEstadoBoton() {
 
@@ -84,21 +179,21 @@ function inicializarValidacionesPersonal() {
             btnGuardar.disabled = hayErrores;
         } else {
             // En creación: todos los obligatorios deben estar en verde
-            const obligatorios = ['numero_documento', 'nombres', 'apellidos', 'rol'];
+            const obligatorios = ['tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'rol', 'telefono', 'correo'];
             let habilitar = true;
 
             obligatorios.forEach(id => {
                 const campo = document.getElementById('id_' + id);
-                if (!campo || (campo.value || '').trim() === '' || !campo.classList.contains('is-valid') || campo.classList.contains('is-invalid')) {
-                    habilitar = false;
+                if (!campo || (campo.value || '').trim() === '' || (!campo.classList.contains('is-valid') && campo.tagName !== 'SELECT') || campo.classList.contains('is-invalid')) {
+                    // Nota: Los SELECT como tipo_documento y rol pueden no tener 'is-valid' si no se les ha disparado el evento change,
+                    // pero verificamos que tengan valor.
+                    if (campo.tagName === 'SELECT' && (campo.value || '').trim() !== '') {
+                        // Es un select con valor, OK
+                    } else {
+                        habilitar = false;
+                    }
                 }
             });
-
-            const telefono = document.getElementById('id_telefono');
-            if (telefono && telefono.value.trim() && telefono.classList.contains('is-invalid')) habilitar = false;
-
-            const correo = document.getElementById('id_correo');
-            if (correo && correo.value.trim() && correo.classList.contains('is-invalid')) habilitar = false;
 
             btnGuardar.disabled = !habilitar;
         }
@@ -188,14 +283,26 @@ function inicializarValidacionesPersonal() {
     /* ===============================
        EVENTOS INPUT
     =============================== */
+    bindInputGuards(form);
+
     form.addEventListener('input', function (e) {
         const input = e.target;
+        sanitizeInput(input);
         const valor = (input.value || '').trim();
 
         /* DOCUMENTO */
         if (input.id === 'id_numero_documento') {
             if (!valor) { limpiar(input); actualizarEstadoBoton(); return; }
-            validarDocumentoEnVivo(valor, input);
+            if (valor.length < 6) {
+                invalido(input, 'Mínimo 6 dígitos.');
+                actualizarEstadoBoton();
+                return;
+            }
+            if (valor.length > 12) {
+                input.value = valor.substring(0, 12); // Truncar por si acaso
+                valido(input);
+            }
+            validarDocumentoEnVivo(input.value.trim(), input);
             return;
         }
 
@@ -230,7 +337,13 @@ function inicializarValidacionesPersonal() {
         if (input.id === 'id_telefono') {
             if (!valor) { limpiar(input); actualizarEstadoBoton(); return; }
             if (!/^\d+$/.test(valor)) invalido(input, 'Solo números.');
-            else if (valor.length !== 10) invalido(input, 'Debe tener 10 dígitos.');
+            else if (valor.length < 10) {
+                invalido(input, 'Debe tener 10 dígitos.');
+            }
+            else if (valor.length > 10) {
+                input.value = valor.substring(0, 10);
+                valido(input);
+            }
             else valido(input);
             actualizarEstadoBoton();
         }

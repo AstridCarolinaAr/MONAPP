@@ -1,23 +1,71 @@
-(() => {
+﻿(() => {
   document.addEventListener("DOMContentLoaded", () => {
-    // =========================
-    // 1) Filtro por líneas
-    // =========================
-    const btnFiltroLineas = document.getElementById("btnFiltroLineas");
-    const panelFiltroLineas = document.getElementById("panelFiltroLineas");
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+      return match ? decodeURIComponent(match[2]) : "";
+    };
 
-    console.log("JS lista_productos cargado ✅", {
-      btnFiltroLineas: !!btnFiltroLineas,
-      panelFiltroLineas: !!panelFiltroLineas,
-    });
+    const filtrosForm = document.getElementById("productosFiltrosForm");
+    const lineaInput = document.getElementById("lineaFiltroProductos");
 
-    if (btnFiltroLineas && panelFiltroLineas) {
-      btnFiltroLineas.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        panelFiltroLineas.classList.toggle("d-none");
+    if (filtrosForm && lineaInput) {
+      filtrosForm.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-linea]");
+        if (!btn) return;
+
+        lineaInput.value = btn.dataset.linea || "";
       });
     }
+
+    document.addEventListener("change", async (e) => {
+      const input = e.target.closest(".js-toggle-producto-estado");
+      if (!input || input.type !== "checkbox") return;
+
+      const url = input.dataset.url;
+      if (!url) return;
+
+      const nuevoEstado = input.checked;
+      const nombre = input.dataset.nombre || "el producto";
+      input.disabled = true;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok && data.success) {
+          input.dataset.activo = nuevoEstado ? "1" : "0";
+          if (typeof Swal !== "undefined" && Swal.fire) {
+            await Swal.fire({
+              title: "Estado actualizado",
+              text: nuevoEstado
+                ? `${nombre} ahora está activo`
+                : `${nombre} ahora ya no está activo`,
+              icon: "success",
+              confirmButtonColor: "#4b2f2a",
+            });
+          }
+          window.location.reload();
+          return;
+        }
+
+        input.checked = !nuevoEstado;
+        alert(data.message || "No se pudo cambiar el estado del producto.");
+      } catch (error) {
+        console.error(error);
+        input.checked = !nuevoEstado;
+        alert("Error de conexión al cambiar el estado.");
+      } finally {
+        input.disabled = false;
+      }
+    });
   // =========================
 // Buscador de productos
 // =========================
@@ -153,8 +201,8 @@ if (
           if (d.imagen && d.imagen.trim()) {
             imgEl.src = d.imagen;
             imgEl.classList.remove("d-none");
-            imgEl.classList.add("js-img-zoom");
-            imgEl.setAttribute("data-src", d.imagen);
+            imgEl.classList.remove("js-img-zoom");
+            imgEl.removeAttribute("data-src");
 
             if (noImgEl) {
               noImgEl.classList.add("d-none");
@@ -202,3 +250,6 @@ if (
     }
   });
 })();
+
+
+

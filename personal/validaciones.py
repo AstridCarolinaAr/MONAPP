@@ -74,9 +74,11 @@ def validar_datos_personal(data, personal_id=None):
         errores['rol'] = 'Rol inválido.'
 
     # ===============================
-    # VALIDACIÓN CORREO (opcional)
+    # VALIDACIÓN CORREO
     # ===============================
-    if correo:
+    if not correo:
+        errores['correo'] = 'El correo electrónico es obligatorio.'
+    else:
         try:
             validate_email(correo)
             # Verificar unicidad del correo
@@ -89,12 +91,13 @@ def validar_datos_personal(data, personal_id=None):
             errores['correo'] = 'Correo electrónico inválido.'
 
     # ===============================
-    # VALIDACIÓN TELÉFONO (opcional)
+    # VALIDACIÓN TELÉFONO
     # ===============================
-    if telefono:
-        if not telefono.isdigit():
-            errores['telefono'] = 'El teléfono solo puede contener números.'
-        elif len(telefono) != 10:
-            errores['telefono'] = 'Debe tener exactamente 10 dígitos.'
+    if not telefono:
+        errores['telefono'] = 'El teléfono es obligatorio.'
+    elif not telefono.isdigit():
+        errores['telefono'] = 'El teléfono solo puede contener números.'
+    elif len(telefono) != 10:
+        errores['telefono'] = 'Debe tener exactamente 10 dígitos.'
 
     return errores

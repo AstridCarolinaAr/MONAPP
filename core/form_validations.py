@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.encoding import force_str
 
 
 NUMERIC_KEYWORDS = (
@@ -73,9 +74,9 @@ SKIP_KEYWORDS = (
 
 def _signature(field_name, field):
     parts = [
-        field_name or "",
-        getattr(field, "label", "") or "",
-        field.widget.attrs.get("placeholder", "") or "",
+        force_str(field_name or ""),
+        force_str(getattr(field, "label", "") or ""),
+        force_str(field.widget.attrs.get("placeholder", "") or ""),
     ]
     return " ".join(parts).lower()
 

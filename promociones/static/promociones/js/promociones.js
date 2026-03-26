@@ -108,7 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
         modalEditar.addEventListener('show.bs.modal', function (e) {
             const btn = e.relatedTarget;
             // Set form action
-            document.getElementById('formEditar').action = btn.dataset.editUrl;
+            const formEditar = document.getElementById('formEditar');
+            formEditar.action = btn.dataset.editUrl;
+            formEditar.dataset.promocionId = btn.dataset.promocionId || btn.dataset.pk || '';
             // Fill fields
             document.getElementById('edit_nombre').value    = btn.dataset.nombre;
             document.getElementById('edit_etiqueta').value  = btn.dataset.etiqueta;
@@ -188,7 +190,42 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (v.length < 2)       msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)     msg = 'Máximo 200 caracteres.';
         else if (!PROMO_REG.test(v)) msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+        else if (input.dataset.nombreDuplicado === '1') msg = 'Ya existe una promocion con este nombre.';
         return promoErr(input, errEl, msg);
+    }
+
+    const PROMO_DUP_URL = "/promociones/validar-nombre/";
+
+    async function promoNombreDuplicado(input, errEl) {
+        const v = (input.value || '').trim();
+        if (!v || v.length < 2) return true;
+
+        const form = input.closest('form');
+        const promocionId = (form?.dataset?.promocionId || '').trim();
+        const url = new URL(PROMO_DUP_URL, window.location.origin);
+        url.searchParams.set('nombre', v);
+        if (promocionId) url.searchParams.set('promocion_id', promocionId);
+
+        const token = String(Date.now()) + Math.random().toString(36).slice(2);
+        input.dataset.dupToken = token;
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json().catch(() => ({}));
+            if (input.dataset.dupToken !== token) return false;
+            if (!data.valid) {
+                input.dataset.nombreDuplicado = '1';
+                promoErr(input, errEl, data.message || 'Ya existe una promocion con este nombre.');
+                return false;
+            }
+            delete input.dataset.nombreDuplicado;
+            promoErr(input, errEl, '');
+            return true;
+        } catch (error) {
+            return true;
+        }
     }
 
     /* Descripción contador */
@@ -197,35 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (len > max) textarea.value = textarea.value.substring(0, max);
         contEl.textContent = `${Math.min(len, max)}/${max} caracteres`;
         contEl.className = 'promo-char-count' +
-             (len >= max        ? ' at-limit'   :
-              len >= max * 0.85 ? ' near-limit' : '');
-    }
-
-    function promoFmtLocalDate(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${y}-${m}-${day}`;
-    }
-
-    function promoMaxInicio() {
-        const d = new Date();
-        const originalDay = d.getDate();
-        d.setFullYear(d.getFullYear() + 1);
-        if (d.getDate() !== originalDay) d.setDate(0);
-        return promoFmtLocalDate(d);
-    }
-
-    function promoMinDate() {
-        const d = new Date();
-        const originalDay = d.getDate();
-        d.setFullYear(d.getFullYear() - 1);
-        if (d.getDate() !== originalDay) d.setDate(0);
-        return promoFmtLocalDate(d);
-    }
-
-    function promoMaxFin() {
-        return promoMaxInicio();
+            (len >= max        ? ' at-limit'   :
+             len >= max * 0.85 ? ' near-limit' : '');
     }
 
     /* Descuento */
@@ -244,14 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Fechas: inicio + fin + rango */
     function promoFechas(inEl, finEl, errInEl, errFinEl) {
-        const minDate = promoMinDate();
-        const maxDate = promoMaxInicio();
         let okIn = true, okFin = true;
         if (!inEl.value) {
             promoErr(inEl, errInEl, 'La fecha de inicio es obligatoria.');
-            okIn = false;
-        } else if (inEl.value < minDate || inEl.value > maxDate) {
-            promoErr(inEl, errInEl, 'La fecha de inicio debe estar dentro del ultimo año y no superar un año hacia el futuro.');
             okIn = false;
         } else {
             promoErr(inEl, errInEl, '');
@@ -322,14 +327,19 @@ document.addEventListener('DOMContentLoaded', () => {
         btn:      document.getElementById('btnGuardarAg'),
     };
 
-    if (ag.nombre)  { ag.nombre.addEventListener('input', () => promoNombre(ag.nombre, ag.errN));   ag.nombre.addEventListener('blur', () => promoNombre(ag.nombre, ag.errN)); }
+    if (ag.nombre)  {
+        ag.nombre.addEventListener('input', () => {
+            promoNombre(ag.nombre, ag.errN);
+            promoNombreDuplicado(ag.nombre, ag.errN);
+        });
+        ag.nombre.addEventListener('blur', () => {
+            promoNombre(ag.nombre, ag.errN);
+            promoNombreDuplicado(ag.nombre, ag.errN);
+        });
+    }
     if (ag.desc)      ag.desc.addEventListener('input', () => promoCtr(ag.desc, ag.ctrDesc, 500));
     if (ag.pct)     { ag.pct.addEventListener('input', () => promoDescuento(ag.pct, ag.errD));       ag.pct.addEventListener('blur', () => promoDescuento(ag.pct, ag.errD)); }
     if (ag.inicio && ag.fin) {
-        ag.inicio.min = promoMinDate();
-        ag.inicio.max = promoMaxInicio();
-        ag.fin.min = promoMinDate();
-        ag.fin.max = promoMaxFin();
         const chkAg = () => promoFechas(ag.inicio, ag.fin, ag.errI, ag.errF);
         ag.inicio.addEventListener('change', chkAg);
         ag.fin.addEventListener('change', chkAg);
@@ -385,14 +395,19 @@ document.addEventListener('DOMContentLoaded', () => {
         btn:     document.getElementById('btnGuardarEd'),
     };
 
-    if (ed.nombre)  { ed.nombre.addEventListener('input', () => promoNombre(ed.nombre, ed.errN));   ed.nombre.addEventListener('blur', () => promoNombre(ed.nombre, ed.errN)); }
+    if (ed.nombre)  {
+        ed.nombre.addEventListener('input', () => {
+            promoNombre(ed.nombre, ed.errN);
+            promoNombreDuplicado(ed.nombre, ed.errN);
+        });
+        ed.nombre.addEventListener('blur', () => {
+            promoNombre(ed.nombre, ed.errN);
+            promoNombreDuplicado(ed.nombre, ed.errN);
+        });
+    }
     if (ed.desc)      ed.desc.addEventListener('input', () => promoCtr(ed.desc, ed.ctrDesc, 500));
     if (ed.pct)     { ed.pct.addEventListener('input', () => promoDescuento(ed.pct, ed.errD));       ed.pct.addEventListener('blur', () => promoDescuento(ed.pct, ed.errD)); }
     if (ed.inicio && ed.fin) {
-        ed.inicio.min = promoMinDate();
-        ed.inicio.max = promoMaxInicio();
-        ed.fin.min = promoMinDate();
-        ed.fin.max = promoMaxFin();
         const chkEd = () => promoFechas(ed.inicio, ed.fin, ed.errI, ed.errF);
         ed.inicio.addEventListener('change', chkEd);
         ed.fin.addEventListener('change', chkEd);

@@ -44,6 +44,16 @@
     .conditional-field.show {
         display: block;
     }
+
+    .gestion-alisado-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 15;
+        background: #fff;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.08);
+    }
     
     .checkbox-group {
         display: grid;
@@ -170,10 +180,30 @@
         border-color: #dc3545;
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     }
+    @keyframes shakeTc {
+        0%   { transform: translateX(0); }
+        15%  { transform: translateX(-8px) rotate(-1deg); }
+        30%  { transform: translateX(8px) rotate(1deg); }
+        45%  { transform: translateX(-6px) rotate(-1deg); }
+        60%  { transform: translateX(6px) rotate(0.5deg); }
+        75%  { transform: translateX(-4px); }
+        90%  { transform: translateX(4px); }
+        100% { transform: translateX(0); }
+    }
+    .shake-tc { animation: shakeTc 0.55s cubic-bezier(.36,.07,.19,.97) both; }
+    #wrapperCheckboxAceptacion {
+        transition: background 0.3s, border-color 0.3s;
+        border-radius: 8px; padding: 10px 12px; border: 2px solid transparent;
+    }
+    #wrapperCheckboxAceptacion.alerta-tc {
+        background: rgba(220, 53, 69, 0.07); border-color: #dc3545;
+    }
+    #msgCheckboxError { display: none; color: #dc3545; font-size: 0.85em; margin-top: 6px; font-weight: 600; }
+    #msgCheckboxError.visible { display: flex; align-items: center; gap: 6px; animation: slideDown 0.3s ease; }
 </style>
 
 <!-- Indicador de progreso -->
-<div class="progress-steps">
+<div class="progress-steps" style="margin-bottom: 20px;">
     <div class="step-item active" data-step="1">
         <div class="step-circle">1</div>
         <div class="step-label">Información General</div>
@@ -184,7 +214,7 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{% url 'gestion_alisados:crear_gestion_alisado' %}" novalidate>
+<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{{ action_url|default:request.path }}" novalidate data-es-edicion="{% if gestion %}1{% else %}0{% endif %}">
                         {% csrf_token %}
                         
                         <!-- PASO 1: Información General -->
@@ -193,12 +223,14 @@
                         <!-- Sección: Selección de Cliente -->
                         <div class="section-title">Selección de Cliente</div>
                         <div class="row">
-                            <div class="col-md-10 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label for="{{ form.cliente.id_for_label }}" class="form-label">
                                     {{ form.cliente.label }} *
                                 </label>
 
                                 {{ form.cliente }}
+                                <input type="hidden" id="clienteNombreImpresion" name="cliente_nombre_impresion" value="">
+                                <input type="hidden" id="clienteDocumentoImpresion" name="cliente_documento_impresion" value="">
 
                                 {% if cliente_bloqueado %}
                                     <input type="hidden" name="cliente" value="{{ cliente_id_bloqueado }}">
@@ -209,16 +241,6 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-2 mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="button"
-                                        class="btn btn-outline-dark w-100"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalCrearCliente"
-                                        {% if cliente_bloqueado %}disabled{% endif %}>
-                                    <i class="bi bi-plus-lg"></i> Nuevo
-                                </button>
-                            </div>
                         </div>
                         
                         <!-- Sección: Información del Servicio y Pago -->
@@ -243,6 +265,23 @@
                                 <div id="descripcion_oferta_container" class="conditional-field">
                                     <label for="{{ form.descripcion_oferta.id_for_label }}" class="form-label">{{ form.descripcion_oferta.label }}</label>
                                     {{ form.descripcion_oferta }}
+                                </div>
+
+                                <div id="promocion_oferta_container" class="conditional-field mt-3">
+                                    <label for="promocion_oferta_select" class="form-label">Promocion activa</label>
+                                    <select id="promocion_oferta_select" class="form-select">
+                                        <option value="">Seleccione una promocion...</option>
+                                        {% for promocion in promociones_activas %}
+                                            <option value="{{ promocion.nombre }}"
+                                                    data-descripcion="{{ promocion.descripcion|default_if_none:'' }}"
+                                                    data-descuento="{{ promocion.porcentaje_descuento }}">
+                                                {{ promocion.nombre }} - {{ promocion.porcentaje_descuento }}%
+                                            </option>
+                                        {% empty %}
+                                            <option value="" disabled>No hay promociones activas</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text text-muted">Selecciona una promocion para cargarla en la descripcion.</small>
                                 </div>
                             </div>
                         </div>
@@ -588,31 +627,7 @@
                         </div>
                         
                         </div><!-- Fin del Paso 2 -->
-                        
-                        <!-- Botones de navegación -->
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary" id="btnCancelar">
-                                <i class="bi bi-arrow-left"></i> Cancelar
-                            </a>
-                            
-                            <div>
-                                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
-                                    <i class="bi bi-arrow-left"></i> Anterior
-                                </button>
-                                <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40;">
-                                    Siguiente <i class="bi bi-arrow-right"></i>
-                                </button>
-                                <button type="button" class="btn text-white" id="btnGuardar" style="display: none; background-color: #634c40; border-color: #634c40;">
-                                    <i class="bi bi-save"></i> Guardar
-                                </button>
-                            </div>
-                        </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal de Consentimiento Informado -->
 <div class="modal fade" id="modalConsentimiento" tabindex="-1" aria-labelledby="modalConsentimientoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -687,11 +702,15 @@
                     <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
                     <p class="mb-2">He leído y comprendido toda la información anterior y acepto los términos y condiciones del tratamiento de alisado.</p>
                     
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
-                        <label class="form-check-label fw-bold" for="checkboxAceptacion">
-                            Acepto todos los términos, condiciones, recomendaciones y compromisos descritos anteriormente
-                        </label>
+                    <div id="wrapperCheckboxAceptacion">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
+                            <label ...>Acepto todos los términos...</label>
+                        </div>
+                        <div id="msgCheckboxError">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Debes aceptar los términos y condiciones para continuar.
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -719,11 +738,20 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer flex-wrap gap-2 gestion-alisado-actions">
+                <div class="me-auto d-flex gap-2 flex-wrap align-items-center">
+                    <button type="button" class="btn btn-outline-danger" id="btnImprimirPDF" title="Opcional: descarga un PDF con todos los datos del formulario">
+                        <i class="bi bi-file-earmark-pdf"></i> Imprimir PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="btnImprimirWord" title="Opcional: descarga un Word con todos los datos del formulario">
+                        <i class="bi bi-file-earmark-word"></i> Imprimir Word
+                    </button>
+                    <small class="text-muted fst-italic">opcionales</small>
+                </div>
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" disabled style="background-color: #634c40; border-color: #634c40;">
+                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" style="background-color: #634c40; border-color: #634c40;">
                     <i class="bi bi-check-circle"></i> Aceptar y Guardar
                 </button>
             </div>
@@ -789,26 +817,186 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Inicializar información del cliente en consentimiento
     const selectCliente = document.getElementById('selectCliente');
     const infoClienteConsentimiento = document.getElementById('infoClienteConsentimiento');
-    
+    const formularioGestion = document.getElementById('gestionAlisadoForm');
+    const esEdicionGestion = formularioGestion && formularioGestion.dataset.esEdicion === '1';
+    const urlUltimaGestionCliente = "{% url 'gestion_alisados:ultima_gestion_cliente' %}";
+
     function actualizarInfoCliente() {
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         if (selectCliente.value) {
-            const nombreCompleto = selectedOption.text;
-            const numeroDocumento = selectedOption.getAttribute('data-documento') || 'N/A';
+            const textoCompleto = (selectedOption.text || '').trim();
+            const partes = descomponerTextoCliente(textoCompleto);
+            const nombreCompleto = (selectedOption.getAttribute('data-nombre') || partes.nombre || textoCompleto || 'N/A').trim() || 'N/A';
+            const numeroDocumento = (selectedOption.getAttribute('data-documento') || partes.documento || 'N/A').trim() || 'N/A';
+            if (infoClienteConsentimiento) {
+                infoClienteConsentimiento.dataset.nombre = nombreCompleto;
+                infoClienteConsentimiento.dataset.documento = numeroDocumento;
+            }
+            const inputNombre = document.getElementById('clienteNombreImpresion');
+            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+            if (inputNombre) inputNombre.value = nombreCompleto;
+            if (inputDocumento) inputDocumento.value = numeroDocumento;
             infoClienteConsentimiento.innerHTML = `
-                <strong>Nombre:</strong> ${nombreCompleto}<br>
-                <strong>Documento:</strong> ${numeroDocumento}
+                <strong>Nombre:</strong> ${escapeHtml(nombreCompleto)}<br>
+                <strong>Documento:</strong> ${escapeHtml(numeroDocumento)}
             `;
         } else {
+            if (infoClienteConsentimiento) {
+                infoClienteConsentimiento.dataset.nombre = '';
+                infoClienteConsentimiento.dataset.documento = '';
+            }
+            const inputNombre = document.getElementById('clienteNombreImpresion');
+            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+            if (inputNombre) inputNombre.value = '';
+            if (inputDocumento) inputDocumento.value = '';
             infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
+        }
+    }
+
+    function escapeHtml(valor) {
+        return String(valor ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function descomponerTextoCliente(textoCompleto) {
+        const texto = String(textoCompleto || '').trim();
+        if (!texto) {
+            return { nombre: '', documento: '' };
+        }
+
+        const separador = texto.lastIndexOf(' - ');
+        if (separador >= 0) {
+            return {
+                nombre: texto.slice(0, separador).trim(),
+                documento: texto.slice(separador + 3).trim(),
+            };
+        }
+
+        return { nombre: texto, documento: '' };
+    }
+
+    function asegurarOpcion(select, valor) {
+        if (!select || valor === null || valor === undefined || valor === '') return;
+        const texto = String(valor);
+        const existe = Array.from(select.options).some(function (opt) {
+            return opt.value === texto;
+        });
+        if (!existe) {
+            select.add(new Option(texto, texto, true, true));
+        } else {
+            select.value = texto;
+        }
+    }
+
+    function aplicarDatosHistorial(datos) {
+        if (!datos || esEdicionGestion || !formularioGestion) return;
+
+        formularioGestion.reset();
+        if (datos.cliente) {
+            selectCliente.value = datos.cliente;
+        }
+
+        const mapaCampos = {
+            precio_alisado: datos.precio_alisado,
+            es_oferta_especial: datos.es_oferta_especial,
+            descripcion_oferta: datos.descripcion_oferta,
+            anticipo_cliente: datos.anticipo_cliente,
+            medio_pago: datos.medio_pago,
+            saldo_pendiente: datos.saldo_pendiente,
+            procedimiento_realizado_por: datos.procedimiento_realizado_por,
+            tipo_alisado: datos.tipo_alisado,
+            requiere_resellado: datos.requiere_resellado,
+            porcentaje_alisado: datos.porcentaje_alisado,
+            porosidad: datos.porosidad,
+            textura: datos.textura,
+            forma_natural: datos.forma_natural,
+            elasticidad: datos.elasticidad,
+            longitud: datos.longitud,
+            densidad: datos.densidad,
+            piel_cabelludo: datos.piel_cabelludo,
+            alopecia: datos.alopecia,
+            caida_cabello: datos.caida_cabello,
+            lactante: datos.lactante,
+            gestante: datos.gestante,
+            caspa: datos.caspa,
+            procesos_otro: datos.procesos_otro,
+            cuenta_con_secador: datos.cuenta_con_secador,
+            frecuencia_recoge_cabello: datos.frecuencia_recoge_cabello,
+            realiza_ejercicio: datos.realiza_ejercicio,
+            frecuencia_ejercicio: datos.frecuencia_ejercicio,
+            usa_casco: datos.usa_casco,
+            productos_capilares: datos.productos_capilares,
+            se_bana_agua_caliente: datos.se_bana_agua_caliente,
+            requiere_refuerzo_15dias: datos.requiere_refuerzo_15dias,
+            sufre_tiroides: datos.sufre_tiroides,
+            medicamento_tiroides: datos.medicamento_tiroides,
+            despunte_hoy: datos.despunte_hoy,
+            recomendaciones_post_cuidados: datos.recomendaciones_post_cuidados
+        };
+
+        Object.keys(mapaCampos).forEach(function (nombre) {
+            const control = formularioGestion.elements.namedItem(nombre);
+            const valor = mapaCampos[nombre];
+            if (!control) return;
+
+            if (control.type === 'checkbox') {
+                control.checked = Boolean(valor);
+                return;
+            }
+
+            if (control.tagName === 'SELECT') {
+                asegurarOpcion(control, valor);
+                return;
+            }
+
+            control.value = valor == null ? '' : String(valor);
+        });
+
+        actualizarInfoCliente();
+        if (typeof calcularSaldo === 'function') {
+            calcularSaldo();
+        }
+    }
+
+    async function cargarHistorialClienteSeleccionado() {
+        if (esEdicionGestion || !selectCliente || !selectCliente.value) return;
+
+        const clienteActual = selectCliente.value;
+        formularioGestion.reset();
+        selectCliente.value = clienteActual;
+        actualizarInfoCliente();
+
+        try {
+            const response = await fetch(`${urlUltimaGestionCliente}?cliente=${encodeURIComponent(selectCliente.value)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+
+            if (data && data.success && data.tiene_historial && data.datos) {
+                aplicarDatosHistorial(data.datos);
+            }
+        } catch (error) {
+            console.warn('No se pudo cargar el historial del cliente.', error);
         }
     }
     
     // Actualizar info cuando cambia el cliente
-    selectCliente.addEventListener('change', actualizarInfoCliente);
+    selectCliente.addEventListener('change', function () {
+        actualizarInfoCliente();
+        cargarHistorialClienteSeleccionado();
+    });
     
     // Actualizar al cargar
     actualizarInfoCliente();
+    if (selectCliente.value && !esEdicionGestion) {
+        cargarHistorialClienteSeleccionado();
+    }
     
     // ========== VALIDACIÓN EN TIEMPO REAL ==========
     function validarCampoTiempoReal(campo) {
@@ -1079,24 +1267,51 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         saldoInput.value = Math.max(0, saldo);
     }
     
+    anticipoInput.addEventListener('focus', function () {
+        if (this.value === '0') {
+            this.value = '';
+            calcularSaldo();
+        }
+    });
     precioInput.addEventListener('input', calcularSaldo);
     anticipoInput.addEventListener('input', calcularSaldo);
     
     // Mostrar/ocultar campo de oferta especial
     const ofertaSelect = document.getElementById('{{ form.es_oferta_especial.id_for_label }}');
     const ofertaContainer = document.getElementById('descripcion_oferta_container');
+    const promocionContainer = document.getElementById('promocion_oferta_container');
+    const promocionSelect = document.getElementById('promocion_oferta_select');
+    const descripcionOferta = document.getElementById('{{ form.descripcion_oferta.id_for_label }}');
     
     if (ofertaSelect && ofertaContainer) {
         function toggleOferta() {
-            if (ofertaSelect.value === 'si') {
+            const habilitar = ofertaSelect.value === 'si';
+            if (habilitar) {
                 ofertaContainer.classList.add('show');
+                if (promocionContainer) promocionContainer.classList.add('show');
             } else {
                 ofertaContainer.classList.remove('show');
+                if (promocionContainer) promocionContainer.classList.remove('show');
+                if (promocionSelect) promocionSelect.value = '';
+                if (descripcionOferta) descripcionOferta.value = '';
             }
         }
         
         ofertaSelect.addEventListener('change', toggleOferta);
         toggleOferta();
+    }
+
+    if (promocionSelect && descripcionOferta) {
+        promocionSelect.addEventListener('change', function () {
+            const option = this.options[this.selectedIndex];
+            if (!option || !option.value) return;
+
+            const nombre = option.value.trim();
+            const descuento = option.dataset.descuento ? ` (${option.dataset.descuento}% OFF)` : '';
+            const descripcion = option.dataset.descripcion ? ` - ${option.dataset.descripcion}` : '';
+            descripcionOferta.value = `${nombre}${descuento}${descripcion}`.trim();
+            descripcionOferta.dispatchEvent(new Event('input', { bubbles: true }));
+        });
     }
     
     // Mostrar/ocultar campo de medicamento tiroides
@@ -1163,6 +1378,148 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             this.value = 100;
         }
     });
+
+    const estadoImpresion = {
+        clienteNombre: '—',
+        clienteDocumento: '—',
+        precioAlisado: '—',
+        esOferta: 'No',
+        descripOferta: '—',
+        anticipo: '—',
+        medioPago: '—',
+        saldo: '—',
+        realizadoPor: '—',
+        tipoAlisado: '—',
+        resellado: 'No',
+        porcentaje: '—',
+    };
+
+    function leerTextoSeleccion(el) {
+        if (!el) return '—';
+        if (el.tagName !== 'SELECT') return (el.value || '—').trim() || '—';
+        const opt = el.selectedOptions && el.selectedOptions[0];
+        if (!opt || !el.value || !opt.value) return '—';
+        return opt.text.trim() || '—';
+    }
+
+    function getClienteSeleccionado() {
+        if (!selectCliente) return null;
+        const valor = (selectCliente.value || '').trim();
+        if (!valor) return null;
+        const opciones = Array.from(selectCliente.options || []);
+        const opcion = (selectCliente.selectedOptions && selectCliente.selectedOptions[0]) ||
+            opciones.find(function (opt) { return opt && opt.value === valor; }) ||
+            selectCliente.options[selectCliente.selectedIndex] || null;
+        if (!opcion) return null;
+        const textoCompleto = (opcion.text || '').trim();
+        const partes = descomponerTextoCliente(textoCompleto);
+        const nombre = (opcion.getAttribute('data-nombre') || partes.nombre || textoCompleto).trim();
+        const documento = (opcion.getAttribute('data-documento') || partes.documento || '').trim();
+        return {
+            value: valor,
+            nombre: nombre || '—',
+            documento: documento || '—',
+        };
+    }
+
+    function getTextoControl(nombre) {
+        const form = document.getElementById('gestionAlisadoForm');
+        if (!form) return '—';
+        const control = form.elements.namedItem(nombre);
+        if (!control) return '—';
+
+        if (typeof control.length === 'number' && !control.tagName) {
+            const candidato = Array.from(control).find(function (el) {
+                return el && !el.disabled && el.type !== 'hidden';
+            }) || control[0] || null;
+            if (!candidato) return '—';
+            if (candidato.type === 'checkbox') {
+                return candidato.checked ? 'Sí' : 'No';
+            }
+            if (candidato.tagName === 'SELECT') {
+                const opcion = candidato.selectedOptions && candidato.selectedOptions[0];
+                return (opcion && opcion.value) ? (opcion.text || '—').trim() || '—' : '—';
+            }
+            return (candidato.value || '—').trim() || '—';
+        }
+
+        if (control.type === 'checkbox') {
+            return control.checked ? 'Sí' : 'No';
+        }
+        if (control.tagName === 'SELECT') {
+            const opcion = control.selectedOptions && control.selectedOptions[0];
+            return (opcion && opcion.value) ? (opcion.text || '—').trim() || '—' : '—';
+        }
+        return (control.value || '—').trim() || '—';
+    }
+
+    function leerValorActual(id) {
+        const el = document.getElementById(id);
+        if (!el) return '—';
+        if (el.tagName === 'SELECT') {
+            const opcion = el.selectedOptions && el.selectedOptions[0];
+            return (opcion && opcion.value) ? (opcion.text || '—').trim() || '—' : '—';
+        }
+        if (el.type === 'checkbox') {
+            return el.checked ? 'Sí' : 'No';
+        }
+        return (el.value || '—').trim() || '—';
+    }
+
+    function leerClienteActual() {
+        const select = document.getElementById('selectCliente');
+        if (!select) {
+            return { nombre: '—', documento: '—' };
+        }
+        const inputNombre = document.getElementById('clienteNombreImpresion');
+        const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+        const nombreGuardado = (inputNombre && inputNombre.value || '').trim();
+        const documentoGuardado = (inputDocumento && inputDocumento.value || '').trim();
+        if (nombreGuardado || documentoGuardado) {
+            return {
+                nombre: nombreGuardado || '—',
+                documento: documentoGuardado || '—',
+            };
+        }
+        const opcion = (select.selectedOptions && select.selectedOptions[0]) || select.options[select.selectedIndex] || null;
+        if (!opcion || !select.value) {
+            const info = document.getElementById('infoClienteConsentimiento');
+            const nombreInfo = info && info.dataset ? (info.dataset.nombre || '').trim() : '';
+            const documentoInfo = info && info.dataset ? (info.dataset.documento || '').trim() : '';
+            return {
+                nombre: nombreInfo || '—',
+                documento: documentoInfo || '—',
+            };
+        }
+        return {
+            nombre: (opcion.text || '—').trim() || '—',
+            documento: (opcion.getAttribute('data-documento') || '—').trim() || '—',
+        };
+    }
+
+    function actualizarEstadoImpresion() {
+        const cliente = leerClienteActual();
+        estadoImpresion.clienteNombre = cliente.nombre;
+        estadoImpresion.clienteDocumento = cliente.documento;
+        estadoImpresion.precioAlisado = leerValorActual('{{ form.precio_alisado.id_for_label }}');
+        estadoImpresion.anticipo = leerValorActual('{{ form.anticipo_cliente.id_for_label }}');
+        estadoImpresion.medioPago = leerTextoSeleccion(document.getElementById('{{ form.medio_pago.id_for_label }}'));
+        estadoImpresion.realizadoPor = leerTextoSeleccion(document.getElementById('{{ form.procedimiento_realizado_por.id_for_label }}'));
+        estadoImpresion.tipoAlisado = leerTextoSeleccion(document.getElementById('{{ form.tipo_alisado.id_for_label }}'));
+        estadoImpresion.porcentaje = leerValorActual('{{ form.porcentaje_alisado.id_for_label }}');
+        estadoImpresion.saldo = leerValorActual('{{ form.saldo_pendiente.id_for_label }}');
+        estadoImpresion.esOferta = leerTextoSeleccion(document.getElementById('{{ form.es_oferta_especial.id_for_label }}')) || 'No';
+        estadoImpresion.descripOferta = (descripcionOferta && descripcionOferta.value.trim()) ? descripcionOferta.value.trim() : '—';
+        estadoImpresion.resellado = leerTextoSeleccion(document.getElementById('{{ form.requiere_resellado.id_for_label }}')) || 'No';
+    }
+
+
+    [selectCliente, precioInput, anticipoInput, porcentajeInput, ofertaSelect, promocionSelect, descripcionOferta, document.getElementById('{{ form.medio_pago.id_for_label }}'), document.getElementById('{{ form.procedimiento_realizado_por.id_for_label }}'), document.getElementById('{{ form.tipo_alisado.id_for_label }}'), document.getElementById('{{ form.requiere_resellado.id_for_label }}')].forEach(function (el) {
+        if (!el) return;
+        const ev = el.tagName === 'SELECT' ? 'change' : 'input';
+        el.addEventListener(ev, actualizarEstadoImpresion);
+    });
+    actualizarEstadoImpresion();
     
     // Variables para el modal de consentimiento
     const modalConsentimiento = new bootstrap.Modal(document.getElementById('modalConsentimiento'));
@@ -1184,49 +1541,68 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     const inputFirma = document.getElementById('{{ form.firma_consentimiento.id_for_label }}');
     const errorFirma = document.getElementById('errorFirma');
     
+    const wrapperCheck = document.getElementById('wrapperCheckboxAceptacion');
+    const msgCheckError = document.getElementById('msgCheckboxError');
+
+    /* Dispara el pulso + estado visual de alerta en el checkbox */
+    function sacudirCheckbox() {
+        // Quitar clase para poder re-disparar la animación
+        wrapperCheck.classList.remove('alerta-tc');
+        msgCheckError.classList.remove('visible');
+
+        // Forzar reflow para reiniciar la animación
+        void wrapperCheck.offsetWidth;
+
+        // Aplicar alerta
+        wrapperCheck.classList.add('alerta-tc');
+        msgCheckError.classList.add('visible');
+
+        // Scroll suave hacia el checkbox dentro del modal
+        wrapperCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Limpiar estilo cuando el usuario lo marque
+        checkboxAceptacion.addEventListener('change', function limpiarAlerta() {
+            if (this.checked) {
+                wrapperCheck.classList.remove('alerta-tc');
+                msgCheckError.classList.remove('visible');
+            }
+            this.removeEventListener('change', limpiarAlerta);
+        });
+    }
+
     function validarConsentimiento() {
-        const clienteSeleccionado = selectCliente.value !== '';
-        const aceptacionMarcada = checkboxAceptacion.checked;
-        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
-        
+        const clienteSeleccionado = !!getClienteSeleccionado();
+        const aceptacionMarcada   = checkboxAceptacion.checked;
+        const firmaSubida         = inputFirma && inputFirma.files && inputFirma.files.length > 0;
+
         // Mostrar/ocultar mensaje de error de firma
         if (aceptacionMarcada && !firmaSubida) {
             errorFirma.style.display = 'block';
         } else {
             errorFirma.style.display = 'none';
         }
-        
+
         btnConfirmarConsentimiento.disabled = !(clienteSeleccionado && aceptacionMarcada && firmaSubida);
     }
-    
+
     checkboxAceptacion.addEventListener('change', validarConsentimiento);
     selectCliente.addEventListener('change', validarConsentimiento);
-    
-    // Agregar validación cuando se sube una firma
+
     if (inputFirma) {
-        inputFirma.addEventListener('change', function() {
-            console.log('Firma cargada:', this.files.length > 0 ? this.files[0].name : 'ninguna');
-            validarConsentimiento();
-        });
+        inputFirma.addEventListener('change', validarConsentimiento);
     }
     
     // Interceptar el clic en el botón Guardar
     document.getElementById('btnGuardar').addEventListener('click', function(e) {
         e.preventDefault();
         
-        console.log('Botón Guardar clickeado');
-        
         // Validar el paso actual antes de mostrar el modal
         if (validateStep(currentStep)) {
-            console.log('Validación del paso exitosa');
             // Verificar que haya un cliente seleccionado
             if (!selectCliente.value) {
-                console.log('No hay cliente seleccionado');
                 mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
                 return;
             }
-            
-            console.log('Cliente seleccionado:', selectCliente.value);
             
             // Limpiar estado del modal
             checkboxAceptacion.checked = false;
@@ -1236,10 +1612,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             actualizarInfoCliente();
             
             // Mostrar el modal
-            console.log('Mostrando modal de consentimiento');
             modalConsentimiento.show();
-        } else {
-            console.log('La validación del paso falló');
         }
     });
     
@@ -1250,589 +1623,386 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     
     // Confirmar y guardar
     btnConfirmarConsentimiento.addEventListener('click', function() {
-        console.log('Botón Confirmar Consentimiento clickeado');
-        
+        const cliente = getClienteSeleccionado();
+        if (!cliente) {
+            mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
+            return;
+        }
+
+        // 1. Verificar checkbox de aceptaci?n
+        if (!checkboxAceptacion.checked) {
+            sacudirCheckbox();
+            return;
+        }
+
+        // 2. Verificar firma
+        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
+        if (!firmaSubida) {
+            errorFirma.style.display = 'block';
+            errorFirma.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         // Obtener datos del cliente seleccionado
-        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
-        const nombreCompleto = selectedOption.text;
-        const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
-        
-        console.log('Datos del cliente:', { nombreCompleto, numeroDocumento });
-        
+        const nombreCompleto = cliente.nombre;
+        const numeroDocumento = cliente.documento || '';
+
         // Agregar los datos de consentimiento al formulario como campos ocultos
         const inputNombre = document.createElement('input');
         inputNombre.type = 'hidden';
         inputNombre.name = 'consentimiento_nombre';
         inputNombre.value = nombreCompleto;
         formulario.appendChild(inputNombre);
-        
+
         const inputCedula = document.createElement('input');
         inputCedula.type = 'hidden';
         inputCedula.name = 'consentimiento_cedula';
         inputCedula.value = numeroDocumento;
         formulario.appendChild(inputCedula);
-        
+
         const inputFecha = document.createElement('input');
         inputFecha.type = 'hidden';
         inputFecha.name = 'consentimiento_fecha';
         inputFecha.value = fechaActual;
         formulario.appendChild(inputFecha);
-        
+
         const inputAceptado = document.createElement('input');
         inputAceptado.type = 'hidden';
         inputAceptado.name = 'consentimiento_aceptado';
         inputAceptado.value = 'true';
         formulario.appendChild(inputAceptado);
-        
-        console.log('Cerrando modal de consentimiento y enviando formulario...');
-        
+
         // Cerrar modal
         modalConsentimiento.hide();
-        
-        // Pequeño delay para asegurar que el modal se cierre antes de enviar
-        setTimeout(function() {
-            console.log('Disparando submit del formulario');
-            
-            // Enviar directamente por AJAX en lugar de usar requestSubmit
-            const formData = new FormData(formulario);
-            const submitUrl = formulario.action;
-            
-            console.log('URL de envío:', submitUrl);
-            console.log('Datos del formulario:', Array.from(formData.entries()));
-            
-            fetch(submitUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                console.log('Respuesta recibida:', response.status);
-                if (!response.ok && response.status !== 400) {
-                    throw new Error('Error del servidor');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Datos de respuesta:', data);
-                if (data.success) {
-                    // Cerrar modal principal y recargar página
-                    const modalElement = document.getElementById('modalFormGestion');
-                    if (modalElement) {
-                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        if (modalInstance) {
-                            modalInstance.hide();
-                        }
-                    }
-                    mostrarNotificacion('Gestión de datos guardada exitosamente', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Mostrar errores
-                    let errorMsg = data.message || 'Error al guardar';
-                    if (data.errors) {
-                        errorMsg += ':\n';
-                        for (let field in data.errors) {
-                            errorMsg += `\n- ${field}: ${data.errors[field].join(', ')}`;
-                        }
-                    }
-                    mostrarNotificacion(errorMsg, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarNotificacion('Ocurrió un error al guardar. Por favor, intenta nuevamente.', 'error');
-            });
-        }, 300);
+
+        // Enviar el formulario
+        formulario.submit();
     });
-})();
-</script>
-
-<!-- Modal Crear Cliente -->
-<div class="modal fade" id="modalCrearCliente" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-
-      <form method="post" id="formCrearClienteModal" autocomplete="off">
-        {% csrf_token %}
-
-        <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="bi bi-person-plus me-2"></i> Nuevo cliente
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <div id="alertaErroresClienteModal" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
-            <strong><i class="bi bi-exclamation-triangle"></i> Por favor corrige los siguientes errores:</strong>
-            <ul id="listaErroresClienteModal" class="mb-0 mt-2 small"></ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-          
-          <div class="row g-3">
-            <!-- TIPO DOCUMENTO -->
-            <div class="col-md-6">
-              <label class="form-label">Tipo documento <span class="text-danger">*</span></label>
-              <select name="tipo_documento"
-                      id="tipo_documento_cliente_modal"
-                      class="form-select">
-                <option value="">Seleccione</option>
-                <option value="CC">Cédula</option>
-                <option value="TI">Tarjeta</option>
-                <option value="CE">Extranjería</option>
-                <option value="PP">Pasaporte</option>
-              </select>
-              <div class="invalid-feedback"></div>
-            </div>
-            
-            <!-- NÚMERO DOCUMENTO -->
-            <div class="col-md-6">
-              <label class="form-label">Número documento <span class="text-danger">*</span></label>
-              <input type="text"
-                     id="numero_documento_cliente_modal"
-                     name="numero_documento"
-                     class="form-control"
-                     maxlength="12"
-                     placeholder="Ej: 1234567890"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- NOMBRE -->
-            <div class="col-md-6">
-              <label class="form-label">Nombre <span class="text-danger">*</span></label>
-              <input type="text"
-                     id="nombre_cliente_modal"
-                     name="nombre"
-                     class="form-control"
-                     placeholder="Ej: Juan"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- APELLIDO -->
-            <div class="col-md-6">
-              <label class="form-label">Apellido <span class="text-danger">*</span></label>
-              <input type="text"
-                     id="apellido_cliente_modal"
-                     name="apellido"
-                     class="form-control"
-                     placeholder="Ej: Pérez"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- FECHA NACIMIENTO -->
-            <div class="col-md-6">
-              <label class="form-label">Fecha nacimiento <span class="text-danger">*</span></label>
-              <input type="date"
-                     id="fecha_nacimiento_cliente_modal"
-                     name="fecha_nacimiento"
-                     class="form-control">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- TELÉFONO -->
-            <div class="col-md-6">
-              <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
-              <input type="text"
-                     id="telefono_cliente_modal"
-                     name="telefono"
-                     class="form-control"
-                     maxlength="10"
-                     placeholder="Ej: 3001234567"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- CORREO -->
-            <div class="col-12">
-              <label class="form-label">Correo electrónico <small class="text-muted">(opcional)</small></label>
-              <input type="email"
-                     id="correo_cliente_modal"
-                     name="correo"
-                     class="form-control"
-                     placeholder="ejemplo@correo.com"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-secondary" id="btnGuardarClienteModalGestion" disabled>
-              Guardar cliente
-            </button>
-          </div>
-        </div>
-
-      </form>
-
-    </div>
-  </div>
-</div>
-
-<style>
-  .invalid-feedback {
-    display: block !important;
-    font-size: 0.875em;
-    margin-top: 0.25rem;
-  }
-  
-  .form-control.is-invalid,
-  .form-select.is-invalid {
-    border-color: #dc3545 !important;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  }
-  
-  .form-control.is-valid,
-  .form-select.is-valid {
-    border-color: #198754 !important;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  }
-</style>
-
-<script>
-(function () {
-    const modalCliente = document.getElementById('modalCrearCliente');
-    const formCliente = document.getElementById('formCrearClienteModal');
-    const btnGuardar = document.getElementById('btnGuardarClienteModalGestion');
-    const selectCliente = document.getElementById('selectCliente');
-
-    if (!modalCliente || !formCliente || !btnGuardar) return;
 
     /* ===============================
-       FUNCIÓN: ESTADO DEL BOTÓN
+       RECOPILAR DATOS DEL FORMULARIO
     =============================== */
-    function actualizarEstadoBoton() {
-        const obligatorios = [
-            'tipo_documento_cliente_modal',
-            'numero_documento_cliente_modal',
-            'nombre_cliente_modal',
-            'apellido_cliente_modal',
-            'fecha_nacimiento_cliente_modal'
+    function recopilarDatosFormulario() {
+        actualizarEstadoImpresion();
+        const clienteInfo = leerClienteActual();
+        return {
+            clienteNombre: escapeHtml(clienteInfo.nombre || estadoImpresion.clienteNombre || '—'),
+            clienteDocumento: escapeHtml(clienteInfo.documento || estadoImpresion.clienteDocumento || '—'),
+            precioAlisado: escapeHtml(estadoImpresion.precioAlisado || '—'),
+            esOferta: escapeHtml(estadoImpresion.esOferta || 'No'),
+            descripOferta: escapeHtml(estadoImpresion.descripOferta || '—'),
+            anticipo: escapeHtml(estadoImpresion.anticipo || '—'),
+            medioPago: escapeHtml(estadoImpresion.medioPago || '—'),
+            saldo: escapeHtml(estadoImpresion.saldo || '—'),
+            realizadoPor: escapeHtml(estadoImpresion.realizadoPor || '—'),
+            tipoAlisado: escapeHtml(estadoImpresion.tipoAlisado || '—'),
+            resellado: escapeHtml(estadoImpresion.resellado || 'No'),
+            porcentaje: escapeHtml(estadoImpresion.porcentaje || '—'),
+            porosidad: escapeHtml(getTextoControl('porosidad')),
+            textura: escapeHtml(getTextoControl('textura')),
+            formaNatural: escapeHtml(getTextoControl('forma_natural')),
+            elasticidad: escapeHtml(getTextoControl('elasticidad')),
+            longitud: escapeHtml(getTextoControl('longitud')),
+            densidad: escapeHtml(getTextoControl('densidad')),
+            pielCabelludo: escapeHtml(getTextoControl('piel_cabelludo')),
+            alopecia: escapeHtml(getTextoControl('alopecia')),
+            caida: escapeHtml(getTextoControl('caida_cabello')),
+            caspa: escapeHtml(getTextoControl('caspa')),
+            lactante: escapeHtml(getTextoControl('lactante')),
+            gestante: escapeHtml(getTextoControl('gestante')),
+            tiroides: escapeHtml(getTextoControl('sufre_tiroides')),
+            medTiroides: escapeHtml(getTextoControl('medicamento_tiroides')),
+            despunte: escapeHtml(getTextoControl('despunte_hoy')),
+            tintura: getTextoControl('procesos_tintura') === 'Sí',
+            decoloracion: getTextoControl('procesos_decoloracion') === 'Sí',
+            ondulados: getTextoControl('procesos_ondulados') === 'Sí',
+            extracciones: getTextoControl('procesos_extracciones') === 'Sí',
+            alisados: getTextoControl('procesos_alisados') === 'Sí',
+            superAclarante: getTextoControl('procesos_super_aclarante') === 'Sí',
+            otrosProcesos: escapeHtml(getTextoControl('procesos_otro')),
+            secador: escapeHtml(getTextoControl('cuenta_con_secador')),
+            usaCasco: escapeHtml(getTextoControl('usa_casco')),
+            aguaCaliente: escapeHtml(getTextoControl('se_bana_agua_caliente')),
+            refuerzo15: escapeHtml(getTextoControl('requiere_refuerzo_15dias')),
+            frecRecoge: getTextoControl('frecuencia_recoge_cabello'),
+            ejercicio: getTextoControl('realiza_ejercicio'),
+            frecEjercicio: getTextoControl('frecuencia_ejercicio'),
+            productos: escapeHtml(getTextoControl('productos_capilares')),
+            recomendaciones: escapeHtml(getTextoControl('recomendaciones_post_cuidados')),
+            fecha: new Date().toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        };
+    }
+
+    /* ===============================
+       HTML DEL DOCUMENTO
+    =============================== */
+    function generarHTMLDocumento(datos) {
+        const estilos = `
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family:Arial,sans-serif; font-size:11pt; color:#222; padding:20px; background:#f7f4f2; }
+            .preview-toolbar {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 14px;
+                margin: -20px -20px 18px;
+                background: #ffffff;
+                border-bottom: 1px solid #d8ccc6;
+                box-shadow: 0 2px 10px rgba(0,0,0,.06);
+            }
+            .preview-toolbar .toolbar-title {
+                font-size: 10pt;
+                font-weight: bold;
+                color: #634c40;
+            }
+            .preview-toolbar .toolbar-actions {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .preview-toolbar button {
+                border: 1px solid #634c40;
+                background: #fff;
+                color: #634c40;
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 9.5pt;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .preview-toolbar button.print-btn {
+                background: #634c40;
+                color: #fff;
+            }
+            .preview-toolbar button:hover {
+                opacity: 0.94;
+            }
+            .header { border-bottom:3px solid #634c40; padding-bottom:12px; margin-bottom:18px; }
+            .header h1 { font-size:13pt; color:#634c40; font-weight:bold; }
+            .header p { font-size:9pt; color:#666; margin-top:3px; }
+            .fecha-box { text-align:right; font-size:9pt; color:#555; margin-bottom:10px; }
+            .seccion { margin-bottom:14px; }
+            .sec-titulo { background:#634c40; color:white; padding:5px 10px; font-size:10pt; font-weight:bold; border-radius:3px; margin-bottom:8px; }
+            .fila { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+            .campo { flex:1; min-width:170px; margin-bottom:4px; }
+            .campo-label { font-size:8pt; color:#634c40; font-weight:bold; text-transform:uppercase; }
+            .campo-valor { font-size:10pt; border-bottom:1px solid #ccc; padding:2px 4px; min-height:20px; }
+            .campo-valor.largo { border:1px solid #ccc; padding:4px; min-height:36px; border-radius:3px; margin-top:2px; }
+            .procesos { display:flex; flex-wrap:wrap; gap:6px; }
+            .proc-item { border:1px solid #ccc; border-radius:3px; padding:3px 8px; font-size:9.5pt; }
+            .proc-si { background:#f0e8e4; border-color:#634c40; color:#634c40; font-weight:bold; }
+            .proc-no { color:#aaa; }
+            .firmas { margin-top:30px; border-top:2px solid #634c40; padding-top:20px; display:flex; justify-content:space-between; }
+            .firma-box { text-align:center; flex:1; padding:0 20px; }
+            .firma-linea { border-top:1px solid #333; margin-top:50px; margin-bottom:5px; }
+            .firma-txt { font-size:9pt; color:#555; }
+            .consent-box { background:#f9f4f2; border:1px solid #d4b8ac; border-radius:4px; padding:10px 14px; margin-bottom:14px; font-size:9pt; color:#444; }
+            @media print {
+                @page { margin:15mm; size:A4; }
+                body { padding:0; background:#fff; }
+                .preview-toolbar { display:none !important; }
+            }
+        `;
+        const procesos = [
+            ['Tintura', datos.tintura], ['Decoloración', datos.decoloracion],
+            ['Ondulados Perm', datos.ondulados], ['Extracciones', datos.extracciones],
+            ['Alisados', datos.alisados], ['Super Aclarante', datos.superAclarante],
         ];
+        const estaMarcado = function (valor) {
+            return valor === true || valor === 'Sí' || valor === 'Si';
+        };
+        return `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>Tratamiento de Alisado - ${datos.clienteNombre}</title>
+        <style>${estilos}</style></head><body>
+        <div class="preview-toolbar">
+          <div class="toolbar-title">Vista previa del documento</div>
+          <div class="toolbar-actions">
+            <button type="button" class="print-btn" onclick="window.print();">Imprimir</button>
+            <button type="button" onclick="if (window.opener && !window.opener.closed) { window.opener.__gestionAlisadoPdfPreview = null; } window.close();">Cerrar</button>
+          </div>
+        </div>
+        <div class="header"><h1>TRATAMIENTO DE DATOS — SERVICIO DE ALISADO</h1><p>Formulario de Gestión y Consentimiento Informado</p></div>
+        <div class="fecha-box">Fecha: <strong>${datos.fecha}</strong></div>
 
-        let hayError = false;
-        let hayVacios = false;
-        let noValidos = false;
+        <div class="seccion"><div class="sec-titulo">Información del Cliente</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Nombre completo</div><div class="campo-valor">${datos.clienteNombre}</div></div>
+          <div class="campo"><div class="campo-label">Documento</div><div class="campo-valor">${datos.clienteDocumento}</div></div>
+        </div></div>
 
-        obligatorios.forEach(id => {
-            const campo = document.getElementById(id);
-            if (!campo) return;
+        <div class="seccion"><div class="sec-titulo">Servicio y Pago</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Precio</div><div class="campo-valor">$ ${datos.precioAlisado}</div></div>
+          <div class="campo"><div class="campo-label">Anticipo</div><div class="campo-valor">$ ${datos.anticipo}</div></div>
+          <div class="campo"><div class="campo-label">Saldo pendiente</div><div class="campo-valor">$ ${datos.saldo}</div></div>
+          <div class="campo"><div class="campo-label">Medio de pago</div><div class="campo-valor">${datos.medioPago}</div></div>
+          <div class="campo"><div class="campo-label">Oferta especial</div><div class="campo-valor">${datos.esOferta}${datos.esOferta==='Sí' ? ' — '+datos.descripOferta : ''}</div></div>
+        </div></div>
 
-            if (campo.value.trim() === '') {
-                hayVacios = true;
-            }
+        <div class="seccion"><div class="sec-titulo">Procedimiento</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Realizado por</div><div class="campo-valor">${datos.realizadoPor}</div></div>
+          <div class="campo"><div class="campo-label">Porcentaje</div><div class="campo-valor">${datos.porcentaje}</div></div>
+          <div class="campo"><div class="campo-label">Requiere resellado</div><div class="campo-valor">${datos.resellado}</div></div>
+        </div>
+        <div class="campo"><div class="campo-label">Tipo de alisado</div><div class="campo-valor largo">${datos.tipoAlisado}</div></div>
+        </div>
 
-            if (campo.classList.contains('is-invalid')) {
-                hayError = true;
-            }
+        <div class="seccion"><div class="sec-titulo">Características del Cabello</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Porosidad</div><div class="campo-valor">${datos.porosidad}</div></div>
+          <div class="campo"><div class="campo-label">Textura</div><div class="campo-valor">${datos.textura}</div></div>
+          <div class="campo"><div class="campo-label">Forma natural</div><div class="campo-valor">${datos.formaNatural}</div></div>
+          <div class="campo"><div class="campo-label">Elasticidad</div><div class="campo-valor">${datos.elasticidad}</div></div>
+          <div class="campo"><div class="campo-label">Longitud</div><div class="campo-valor">${datos.longitud}</div></div>
+          <div class="campo"><div class="campo-label">Densidad</div><div class="campo-valor">${datos.densidad}</div></div>
+          <div class="campo"><div class="campo-label">Piel cabelludo</div><div class="campo-valor">${datos.pielCabelludo}</div></div>
+          <div class="campo"><div class="campo-label">Alopecia</div><div class="campo-valor">${datos.alopecia}</div></div>
+          <div class="campo"><div class="campo-label">Caída</div><div class="campo-valor">${datos.caida}</div></div>
+          <div class="campo"><div class="campo-label">Caspa</div><div class="campo-valor">${datos.caspa}</div></div>
+        </div></div>
 
-            if (campo.value.trim() !== '' && !campo.classList.contains('is-valid')) {
-                noValidos = true;
-            }
-        });
+        <div class="seccion"><div class="sec-titulo">Estado de Salud</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Lactante</div><div class="campo-valor">${datos.lactante}</div></div>
+          <div class="campo"><div class="campo-label">Gestante</div><div class="campo-valor">${datos.gestante}</div></div>
+          <div class="campo"><div class="campo-label">Tiroides</div><div class="campo-valor">${datos.tiroides}${datos.tiroides==='Sí' ? ' — '+datos.medTiroides : ''}</div></div>
+          <div class="campo"><div class="campo-label">Despunte hoy</div><div class="campo-valor">${datos.despunte}</div></div>
+        </div></div>
 
-        if (hayError || hayVacios || noValidos) {
-            btnGuardar.disabled = true;
-            btnGuardar.classList.remove('btn-dark');
-            btnGuardar.classList.add('btn-secondary');
-        } else {
-            btnGuardar.disabled = false;
-            btnGuardar.classList.remove('btn-secondary');
-            btnGuardar.classList.add('btn-dark');
-        }
+        <div class="seccion"><div class="sec-titulo">Procesos Químicos Previos</div>
+        <div class="procesos">${procesos.map(([l,v])=>`<div class="proc-item ${estaMarcado(v)?'proc-si':'proc-no'}">${estaMarcado(v)?'✓':'○'} ${l}</div>`).join('')}</div>
+        ${datos.otrosProcesos&&datos.otrosProcesos!=='—'?`<div style="margin-top:6px"><div class="campo-label">Otro:</div><div class="campo-valor">${datos.otrosProcesos}</div></div>`:''}
+        </div>
+
+        <div class="seccion"><div class="sec-titulo">Hábitos y Cuidados</div>
+        <div class="fila">
+          <div class="campo"><div class="campo-label">Secador</div><div class="campo-valor">${datos.secador}</div></div>
+          <div class="campo"><div class="campo-label">Usa casco</div><div class="campo-valor">${datos.usaCasco}</div></div>
+          <div class="campo"><div class="campo-label">Agua caliente</div><div class="campo-valor">${datos.aguaCaliente}</div></div>
+          <div class="campo"><div class="campo-label">Refuerzo 15 días</div><div class="campo-valor">${datos.refuerzo15}</div></div>
+          <div class="campo"><div class="campo-label">Ejercicio</div><div class="campo-valor">${datos.ejercicio}${datos.ejercicio==='Sí'?' — '+datos.frecEjercicio:''}</div></div>
+        </div>
+        <div class="campo"><div class="campo-label">¿Cada cuánto recoge el cabello?</div><div class="campo-valor largo">${datos.frecRecoge}</div></div>
+        <div class="campo" style="margin-top:6px"><div class="campo-label">Productos capilares</div><div class="campo-valor largo">${datos.productos}</div></div>
+        </div>
+
+        <div class="seccion"><div class="sec-titulo">Recomendaciones y Anotaciones</div>
+        <div class="campo"><div class="campo-valor largo">${datos.recomendaciones}</div></div>
+        </div>
+
+        <div class="consent-box"><strong>Consentimiento Informado:</strong> El/La cliente declara haber leído y comprendido todos los términos y condiciones del tratamiento de alisado, incluyendo recomendaciones, advertencias y compromisos. Acepta voluntariamente el procedimiento y sus condiciones.</div>
+
+        <div class="firmas">
+          <div class="firma-box"><div class="firma-linea"></div><div class="firma-txt"><strong>${datos.clienteNombre}</strong></div><div class="firma-txt">Doc: ${datos.clienteDocumento}</div><div class="firma-txt">Firma del Cliente</div></div>
+          <div class="firma-box"><div class="firma-linea"></div><div class="firma-txt"><strong>${datos.realizadoPor}</strong></div><div class="firma-txt">Responsable del Procedimiento</div></div>
+        </div>
+        <script>
+            window.addEventListener('beforeunload', function () {
+                try {
+                    if (window.opener && !window.opener.closed && window.opener.__gestionAlisadoPdfPreview === window) {
+                        window.opener.__gestionAlisadoPdfPreview = null;
+                    }
+                } catch (e) {}
+            });
+        <\/script>
+        </body></html>`;
     }
 
-    /* ===============================
-       FUNCIONES AUXILIARES
-    =============================== */
-    function invalido(input, feedback, mensaje) {
-        input.classList.add('is-invalid');
-        input.classList.remove('is-valid');
-        feedback.textContent = mensaje;
+    function mostrarExito(mensaje) {
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Documento',
+                text: mensaje,
+                confirmButtonColor: '#634c40'
+            });
+            return;
+        }
+        alert(mensaje);
     }
 
-    function valido(input, feedback) {
-        input.classList.remove('is-invalid');
-        input.classList.add('is-valid');
-        feedback.textContent = '';
-    }
-
-    function limpiar(input, feedback) {
-        input.classList.remove('is-invalid', 'is-valid');
-        feedback.textContent = '';
-    }
-
-    /* ===============================
-       VALIDACIONES EN TIEMPO REAL
-    =============================== */
-    document.addEventListener('input', async function (e) {
-        const input = e.target;
-        const feedback = input.nextElementSibling;
-        if (!feedback || !input.id.includes('_cliente_modal')) return;
-
-        const valor = input.value.trim();
-
-        /* ===== NÚMERO DOCUMENTO ===== */
-        if (input.id === 'numero_documento_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length < 6 || valor.length > 12) {
-                invalido(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            try {
-                const url = `/clientes/validar-documento/?numero=${valor}`;
-                const res = await fetch(url);
-                const data = await res.json();
-
-                if (!data.valido) {
-                    invalido(input, feedback, data.mensaje);
-                } else {
-                    valido(input, feedback);
-                }
-            } catch {
-                invalido(input, feedback, 'Error validando el documento.');
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== NOMBRE / APELLIDO ===== */
-        if (input.id === 'nombre_cliente_modal' || input.id === 'apellido_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-            if (!soloLetras.test(valor)) {
-                invalido(
-                    input,
-                    feedback,
-                    input.id === 'nombre_cliente_modal'
-                        ? 'El nombre solo puede contener letras.'
-                        : 'El apellido solo puede contener letras.'
-                );
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== TELÉFONO ===== */
-        if (input.id === 'telefono_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length !== 10) {
-                const digitosActuales = valor.length;
-                const faltanOSobran = digitosActuales < 10 
-                    ? `Faltan ${10 - digitosActuales} dígito${10 - digitosActuales > 1 ? 's' : ''}`
-                    : `Sobran ${digitosActuales - 10} dígito${digitosActuales - 10 > 1 ? 's' : ''}`;
-                invalido(input, feedback, `Debe tener exactamente 10 dígitos. ${faltanOSobran}.`);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            valido(input, feedback);
-            actualizarEstadoBoton();
-        }
-
-        /* ===== CORREO ===== */
-        if (input.id === 'correo_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailRegex.test(valor)) {
-                invalido(input, feedback, 'Correo electrónico inválido.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== FECHA NACIMIENTO ===== */
-        if (input.id === 'fecha_nacimiento_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const fecha = new Date(valor);
-            const hoy = new Date();
-
-            if (fecha > hoy) {
-                invalido(input, feedback, 'La fecha no puede ser futura.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-    });
-
-    /* ===============================
-       VALIDACIÓN TIPO DOCUMENTO (SELECT)
-    =============================== */
-    const tipoDocumentoSelect = document.getElementById('tipo_documento_cliente_modal');
-    
-    if (tipoDocumentoSelect) {
-        tipoDocumentoSelect.addEventListener('change', function() {
-            const feedback = this.nextElementSibling;
-            
-            if (this.value.trim() === '') {
-                limpiar(this, feedback);
-            } else {
-                valido(this, feedback);
-            }
-            
-            actualizarEstadoBoton();
-        });
-    }
-
-    /* ===============================
-       SUBMIT DEL FORMULARIO
-    =============================== */
-    formCliente.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        btnGuardar.disabled = true;
-        btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-        
-        const formData = new FormData(formCliente);
-        
+    function descargarPdf() {
         try {
-            const response = await fetch('/clientes/crear/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+            const datos = recopilarDatosFormulario();
+            const htmlDoc = generarHTMLDocumento(datos);
+            if (window.__gestionAlisadoPdfPreview && !window.__gestionAlisadoPdfPreview.closed) {
+                try {
+                    window.__gestionAlisadoPdfPreview.close();
+                } catch (err) {
+                    console.warn('No se pudo cerrar la vista previa anterior.', err);
+                }
+            }
+            const ventana = window.open('', '_blank', 'width=860,height=720');
+            if (!ventana) {
+                throw new Error('Permite las ventanas emergentes e intenta de nuevo.');
+            }
+            window.__gestionAlisadoPdfPreview = ventana;
+            ventana.document.open();
+            ventana.document.write(htmlDoc);
+            ventana.document.close();
+            ventana.focus();
+            ventana.document.title = 'Vista previa - Tratamiento de Alisado';
+            ventana.addEventListener('afterprint', function () {
+                try {
+                    ventana.close();
+                } catch (err) {
+                    console.warn('No se pudo cerrar la vista previa del PDF.', err);
                 }
             });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Agregar el nuevo cliente al select
-                const option = document.createElement('option');
-                option.value = data.cliente.id;
-                option.textContent = `${data.cliente.nombre} ${data.cliente.apellido} - ${data.cliente.numero_documento}`;
-                option.setAttribute('data-documento', data.cliente.numero_documento);
-                option.selected = true;
-                selectCliente.appendChild(option);
-                
-                // Cerrar el modal
-                const modalInstancia = bootstrap.Modal.getInstance(modalCliente);
-                modalInstancia.hide();
-                
-                // Limpiar el formulario
-                formCliente.reset();
-                formCliente.querySelectorAll('.form-control, .form-select').forEach(el => {
-                    el.classList.remove('is-valid', 'is-invalid');
-                });
-                
-                // Mostrar mensaje de éxito
-                mostrarNotificacion('Cliente registrado correctamente', 'success');
-            } else {
-                // Mostrar errores
-                const alertaErrores = document.getElementById('alertaErroresClienteModal');
-                const listaErrores = document.getElementById('listaErroresClienteModal');
-                listaErrores.innerHTML = '';
-                
-                for (const [campo, mensaje] of Object.entries(data.errores)) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${campo}:</strong> ${mensaje}`;
-                    listaErrores.appendChild(li);
+            ventana.addEventListener('beforeunload', function () {
+                if (window.__gestionAlisadoPdfPreview === ventana) {
+                    window.__gestionAlisadoPdfPreview = null;
                 }
-                
-                alertaErrores.classList.remove('d-none');
-            }
+            });
         } catch (error) {
-            mostrarNotificacion('Error al guardar el cliente. Por favor, intenta nuevamente.', 'error');
-        } finally {
-            btnGuardar.disabled = false;
-            btnGuardar.innerHTML = 'Guardar cliente';
-            actualizarEstadoBoton();
+            console.warn('No se pudo abrir la vista previa del PDF.', error);
+            mostrarNotificacion(error.message || 'No se pudo abrir la vista previa del PDF.', 'warning');
         }
-    });
+    }
 
-    /* ===============================
-       LIMPIAR TODO AL CERRAR MODAL
-    =============================== */
-    modalCliente.addEventListener('hidden.bs.modal', function () {
-        formCliente.reset();
+    function descargarWord() {
+        const datos = recopilarDatosFormulario();
+        const blob = new Blob(['﻿' + generarHTMLDocumento(datos)], { type: 'application/msword;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        const nombreLimpio = (datos.clienteNombre || 'cliente').split(' - ')[0].replace(/[^a-zA-Z0-9????????????\s]/g, '').replace(/\s+/g, '_') || 'cliente';
+        enlace.href = url;
+        enlace.download = 'Alisado_' + nombreLimpio + '_' + new Date().toISOString().slice(0, 10) + '.doc';
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+        URL.revokeObjectURL(url);
+        mostrarExito('Documento Word descargado correctamente.');
+    }
 
-        formCliente.querySelectorAll('input, select, textarea').forEach(el => {
-            el.value = '';
-            el.defaultValue = '';
-            el.classList.remove('is-valid', 'is-invalid');
+    if (!window.__gestionAlisadoPrintHandlersBound) {
+        window.__gestionAlisadoPrintHandlersBound = true;
+        document.addEventListener('click', function (e) {
+            const pdfBtn = e.target.closest('#btnImprimirPDF');
+            if (pdfBtn) {
+                e.preventDefault();
+                descargarPdf();
+                return;
+            }
+
+            const wordBtn = e.target.closest('#btnImprimirWord');
+            if (wordBtn) {
+                e.preventDefault();
+                descargarWord();
+            }
         });
-
-        formCliente.querySelectorAll('.invalid-feedback').forEach(el => {
-            el.textContent = '';
-        });
-
-        const alertaErrores = document.getElementById('alertaErroresClienteModal');
-        alertaErrores.classList.add('d-none');
-
-        btnGuardar.disabled = true;
-        btnGuardar.classList.remove('btn-dark');
-        btnGuardar.classList.add('btn-secondary');
-    });
-
-    /* ===============================
-       AL ABRIR MODAL → BOTÓN BLOQUEADO
-    =============================== */
-    modalCliente.addEventListener('shown.bs.modal', function () {
-        actualizarEstadoBoton();
-    });
+    }
 
 })();
 </script>

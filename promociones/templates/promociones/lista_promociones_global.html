@@ -49,8 +49,7 @@
                         </label>
                     </td>
                     <td class="text-center promo-actions">
-                        <div class="table-action-group">
-                        <button type="button" class="table-action-btn btn-detalle-promo"
+                        <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-promo"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalDetallePromo"
                                 data-nombre="{{ p.nombre|escapejs }}"
@@ -66,10 +65,11 @@
                                 title="Ver detalles">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <button type="button" class="table-action-btn btn-edit"
+                        <button type="button" class="btn btn-link btn-edit p-0"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalEditar"
                                 data-pk="{{ p.pk }}"
+                                data-promocion-id="{{ p.pk }}"
                                 data-nombre="{{ p.nombre }}"
                                 data-etiqueta="{{ p.etiqueta }}"
                                 data-descripcion="{{ p.descripcion }}"
@@ -82,13 +82,15 @@
                                 title="Editar">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                        <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-promo"
+                        {% if permisos.roles.es_admin %}
+                        <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-promo"
                                 data-nombre="{{ p.nombre }}"
                                 data-url="{% url 'promociones:eliminar' p.pk %}"
+                                style="color:#382822;"
                                 title="Eliminar">
-                            <i class="bi bi-trash3"></i>
+                            <i class="bi bi-trash3" style="font-size:24px;"></i>
                         </button>
-                        </div>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

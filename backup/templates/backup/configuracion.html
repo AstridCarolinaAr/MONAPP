@@ -1,8 +1,8 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Configuración de Backup{% endblock %}
-{% block page_title %}Configuración de Backup{% endblock %}
+{% block title %}Configuración de copias de seguridad{% endblock %}
+{% block page_title %}Configuración de copias de seguridad{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'backup/css/backup.css' %}">
@@ -15,11 +15,11 @@
     <div class="bk-page-header">
         <h1>
             <i class="bi bi-gear"></i>
-            Configuración de Backups
+            Configuración de copias de seguridad
         </h1>
         <div class="bk-header-actions">
             <a href="{% url 'backup:dashboard' %}" class="bk-btn outline">
-                <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                <i class="bi bi-arrow-left"></i> Volver al panel
             </a>
         </div>
     </div>
@@ -57,14 +57,14 @@
                     </div>
                     <div class="bk-card-body">
 
-                        <!-- Backup automático -->
+                        <!-- Copia automática -->
                         <div class="bk-switch-row">
                             <div class="bk-switch-label">
                                 <strong>
                                     <i class="bi bi-clock-history me-1"></i>
-                                    Backup Automático
+                                    Copia automática
                                 </strong>
-                                <small>Ejecuta un backup periódicamente de forma automática</small>
+                                <small>Ejecuta una copia periódicamente de forma automática</small>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox"
@@ -81,7 +81,7 @@
                                     <i class="bi bi-arrow-repeat me-1"></i>
                                     Frecuencia
                                 </strong>
-                                <small>Cada cuántas horas se realiza un backup automático</small>
+                                <small>Cada cuántas horas se realiza una copia automática</small>
                             </div>
                             <div style="width: 120px;">
                                 <div class="input-group input-group-sm">
@@ -96,14 +96,14 @@
                             </div>
                         </div>
 
-                        <!-- Máximo backups -->
+                        <!-- Máximo copias -->
                         <div class="bk-switch-row">
                             <div class="bk-switch-label">
                                 <strong>
                                     <i class="bi bi-stack me-1"></i>
-                                    Máximo de Backups
+                                    Máximo de copias
                                 </strong>
-                                <small>Los backups más antiguos se eliminan automáticamente</small>
+                                <small>Las copias más antiguas se eliminan automáticamente</small>
                             </div>
                             <div style="width: 100px;">
                                 <input type="number" class="form-control form-control-sm"
@@ -118,9 +118,9 @@
                             <div class="bk-switch-label">
                                 <strong>
                                     <i class="bi bi-images me-1"></i>
-                                    Incluir Archivos Media
+                                    Incluir archivos multimedia
                                 </strong>
-                                <small>Incluir fotos, documentos e imágenes subidas en el backup automático</small>
+                                <small>Incluir fotos, documentos e imágenes subidas en la copia automática</small>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox"
@@ -152,7 +152,7 @@
                 <div class="d-flex justify-content-end gap-3">
                     <a href="{% url 'backup:dashboard' %}" class="bk-btn outline">Cancelar</a>
                     <button type="submit" class="bk-btn primary">
-                        <i class="bi bi-check-lg"></i> Guardar Configuración
+                        <i class="bi bi-check-lg"></i> Guardar configuración
                     </button>
                 </div>
             </form>
@@ -172,25 +172,25 @@
                             <div>
                                 <strong style="font-size: .84rem; color: #3a2a24;">Frecuencia diaria</strong>
                                 <p style="font-size: .78rem; color: #8a7a72; margin: 2px 0 0;">
-                                    Se recomienda hacer un backup al menos cada 24 horas.
+                                    Se recomienda hacer una copia al menos cada 24 horas.
                                 </p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 12px; align-items: flex-start;">
                             <i class="bi bi-check2-circle" style="color: var(--bk-brown-success); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;"></i>
                             <div>
-                                <strong style="font-size: .84rem; color: #3a2a24;">Mínimo 5 backups</strong>
+                                <strong style="font-size: .84rem; color: #3a2a24;">Mínimo 5 copias</strong>
                                 <p style="font-size: .78rem; color: #8a7a72; margin: 2px 0 0;">
-                                    Mantener al menos 5 backups permite restaurar versiones anteriores.
+                                    Mantener al menos 5 copias permite restaurar versiones anteriores.
                                 </p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 12px; align-items: flex-start;">
                             <i class="bi bi-check2-circle" style="color: var(--bk-brown-success); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;"></i>
                             <div>
-                                <strong style="font-size: .84rem; color: #3a2a24;">Incluir media</strong>
+                                <strong style="font-size: .84rem; color: #3a2a24;">Incluir archivos multimedia</strong>
                                 <p style="font-size: .78rem; color: #8a7a72; margin: 2px 0 0;">
-                                    Las fotos de perfil y documentos subidos son difíciles de recuperar sin backup.
+                                    Las fotos de perfil y documentos subidos son difíciles de recuperar sin una copia.
                                 </p>
                             </div>
                         </div>
@@ -199,7 +199,7 @@
                             <div>
                                 <strong style="font-size: .84rem; color: #3a2a24;">Copia externa</strong>
                                 <p style="font-size: .78rem; color: #8a7a72; margin: 2px 0 0;">
-                                    Descarga los backups periódicamente y guárdalos en otra ubicación.
+                                    Descarga las copias periódicamente y guárdalas en otra ubicación.
                                 </p>
                             </div>
                         </div>
@@ -211,7 +211,7 @@
             <div class="bk-card">
                 <div class="bk-card-header">
                     <i class="bi bi-clock"></i>
-                    Último Backup
+                    Última copia
                 </div>
                 <div class="bk-card-body">
                     <div class="bk-detail-item">
@@ -225,3 +225,7 @@
     </div>
 </div>
 {% endblock %}
+
+
+
+

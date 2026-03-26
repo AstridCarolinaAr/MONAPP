@@ -1,41 +1,37 @@
-<div class="table-responsive">
-    {% if personal_list %}
-        <table class="table styled-table table-hover align-middle w-100">
+<div class="table-card anim-from-bottom personal-table-card" style="animation-delay:.15s">
+    <div class="personal-table-scroll">
+        <table class="table styled-table table-hover align-middle mb-0 w-100 personal-table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Documento</th>
-                    <th>Nombres</th>
-                    <th>Teléfono</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Fecha de Registro</th>
-                    <th class="text-end">Acciones</th>
+                    <th class="personal-col-id">Codigo</th>
+                    <th class="personal-col-documento">Documento</th>
+                    <th class="personal-col-nombres">Nombres</th>
+                    <th class="personal-col-telefono">Telefono</th>
+                    <th class="personal-col-correo">Correo</th>
+                    <th class="personal-col-rol">Rol</th>
+                    <th class="personal-col-estado text-center">Estado</th>
+                    <th class="personal-col-fecha">Fecha de Registro</th>
+                    <th class="personal-col-acciones text-end">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for persona in personal_list %}
                     <tr>
-                        <td data-label="#"><strong>{{ persona.id }}</strong></td>
-                        <td data-label="Documento">{{ persona.numero_documento }}</td>
-                        <td data-label="Nombres">{{ persona.nombres }} {{ persona.apellidos }}</td>
-                        <td data-label="Teléfono">
-                            <a href="tel:{{ persona.telefono }}" style="color: #634c40; text-decoration: none;">
-                                <i class="fas fa-phone"></i> {{ persona.telefono }}
-                            </a>
+                        <td data-label="Codigo" class="fw-semibold personal-cell-id">{{ persona.id }}</td>
+                        <td data-label="Documento" class="personal-cell-documento">{{ persona.numero_documento }}</td>
+                        <td data-label="Nombres" class="personal-cell-nombres">{{ persona.nombres }} {{ persona.apellidos }}</td>
+                        <td data-label="Telefono" class="personal-cell-telefono">
+                            <a href="tel:{{ persona.telefono }}" class="personal-link-compact">{{ persona.telefono }}</a>
                         </td>
-                        <td data-label="Correo">
-                            <a href="mailto:{{ persona.correo }}" style="color: #634c40; text-decoration: none;">
-                                <i class="fas fa-envelope"></i> {{ persona.correo }}
-                            </a>
+                        <td data-label="Correo" class="personal-cell-correo">
+                            <a href="mailto:{{ persona.correo }}" class="personal-link-compact">{{ persona.correo }}</a>
                         </td>
-                        <td data-label="Rol">
+                        <td data-label="Rol" class="personal-cell-rol">
                             <span class="personal-badge {% if persona.rol == 'AUX' %}warning{% elif persona.rol == 'ADM' %}info{% else %}success{% endif %}">
                                 {{ persona.get_rol_display }}
                             </span>
                         </td>
-                        <td data-label="Estado">
+                        <td data-label="Estado" class="text-center personal-cell-estado">
                             {% if puede_modificar %}
                                 <label class="table-switch-wrapper" title="Cambiar estado" data-bs-placement="bottom">
                                     <input type="checkbox"
@@ -53,15 +49,23 @@
                                 {% endif %}
                             {% endif %}
                         </td>
-                        <td data-label="Fecha de Registro" style="font-size: 0.9rem;">
-                            <i class="fas fa-calendar-alt" style="color: #634c40; margin-right: 4px;"></i>
-                            {{ persona.fecha_creacion|date:"d/m/Y" }}<br>
-                            <i class="fas fa-clock" style="color: #634c40; margin-right: 4px;"></i>
-                            {{ persona.fecha_creacion|date:"H:i" }}
-                        </td>
-                        <td data-label="Acciones" class="text-end">
-                            <div class="table-action-group">
-                                <button type="button" class="table-action-btn" onclick="abrirModalDetallePersonal({{ persona.id }})" title="Ver detalles">
+                        <td data-label="Fecha de Registro" class="personal-cell-fecha">{{ persona.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        <td data-label="Acciones" class="text-end personal-cell-acciones">
+                            <div class="table-action-group ms-auto">
+                                <button type="button"
+                                        class="table-action-btn btn-detalle-personal"
+                                        onclick="abrirModalDetallePersonal({{ persona.id }}); return false;"
+                                        data-personal-id="{{ persona.id }}"
+                                        data-nombre="{{ persona.nombres }} {{ persona.apellidos }}"
+                                        data-documento="{{ persona.numero_documento }}"
+                                        data-rol="{{ persona.get_rol_display }}"
+                                        data-telefono="{{ persona.telefono|default:'—' }}"
+                                        data-correo="{{ persona.correo|default:'—' }}"
+                                        data-estado="{% if persona.activo %}Activo{% else %}Inactivo{% endif %}"
+                                        data-fecha-creacion="{{ persona.fecha_creacion|date:'d/m/Y H:i' }}"
+                                        data-fecha-actualizacion="{{ persona.fecha_actualizacion|date:'d/m/Y H:i' }}"
+                                        data-usuario="{% if persona.usuario %}{{ persona.usuario.username }}{% if persona.usuario.first_name %} ({{ persona.usuario.first_name }}){% endif %}{% endif %}"
+                                        title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 {% if puede_modificar %}
@@ -77,19 +81,31 @@
                             </div>
                         </td>
                     </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center" style="padding: 60px 20px; background-color: #fdfaf7;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                                <div style="width: 80px; height: 80px; background: rgba(75, 47, 42, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(75, 47, 42, 0.05);">
+                                    <i class="fas fa-users" style="font-size: 2rem; color: #4b2f2a; opacity: 0.8;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 1.25rem; font-weight: 700; color: #3a2117; margin-bottom: 6px;">No hay personal registrado</h4>
+                                    <p style="color: #8b6f60; font-size: 0.95rem; max-width: 400px; margin: 0 auto; line-height: 1.5;">Actualmente no tienes auxiliares ni colaboradores en tu equipo. Comienza registrando al primer integrante para facilitar tu gestión.</p>
+                                </div>
+                                <button type="button" class="personal-btn success mt-3" onclick="abrirModalPersonal();" style="padding: 12px 28px; font-weight: 600; box-shadow: 0 4px 14px rgba(75, 47, 42, 0.2); border: none;">
+                                    <i class="fas fa-plus mr-2"></i> Crear nuevo personal
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
 
-        <div class="personal-stats">
-            <strong>Total:</strong> <span>{{ personal_list|length }} registros</span>
-        </div>
-    {% else %}
-        <div style="padding: 40px; text-align: center;">
-            <div class="personal-alert info" style="display: inline-flex;">
-                <i class="fas fa-info-circle"></i>
-                <span>No hay personal registrado. <a href="#" onclick="abrirModalPersonal(); return false;" style="color: inherit; font-weight: 600;">Crear nuevo personal</a></span>
-            </div>
-        </div>
+    {% if personal_list %}
+    <div class="personal-stats">
+        <strong>Total:</strong> <span>{{ personal_list|length }} registros</span>
+    </div>
     {% endif %}
 </div>

@@ -7,81 +7,87 @@
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Promociones</li>
 {% endblock %}
-
-{% block page_title %}
-    <i class="bi bi-percent"></i> Gestión de Promociones
+{% block page_icon %}<i class="bi bi-percent page-icon"></i>{% endblock %}
+{% block page_title %}Gestion de Promociones{% endblock %}
+{% block page_subtitle %}Promociones activas y configuracion comercial{% endblock %}
+{% block page_actions %}
+<button class="btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+    <i class="fa fa-plus"></i> Nueva promoción
+</button>
 {% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'promociones/css/promociones.css' %}?v=1">
+<style>
+.modal-content .form-control,
+.modal-content .form-select,
+.modal-content .btn {
+    border-radius: 16px;
+}
+.modal-content .input-group {
+    overflow: hidden;
+    border-radius: 16px;
+}
+.modal-content .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.modal-content .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
-        </div>
-        <button class="promo-fab" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-            <i class="bi bi-plus-lg me-1"></i> Nueva promoción
-        </button>
+    <div class="mb-4">
+        <small class="text-muted">{{ promociones|length }} promoción{{ promociones|length|pluralize:"es" }} encontrada{{ promociones|length|pluralize:",s" }}</small>
     </div>
 
     <!-- ───── FILTROS ───── -->
-    <form method="get"
-          class="js-ajax-search-form row g-2 align-items-center mb-4"
-          data-ajax-url="{% url 'promociones:lista' %}"
-          data-ajax-target="#promo-tabla-wrap"
-          data-ajax-debounce="300">
+    <div class="module-filters-card mb-4">
+        <form method="get"
+              class="js-ajax-search-form module-filters-form"
+              data-ajax-url="{% url 'promociones:lista' %}"
+              data-ajax-target="#promo-tabla-wrap"
+              data-ajax-debounce="300">
 
-        <!-- BÚSQUEDA GLOBAL -->
-        <div class="col-md-3">
-            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar promoción...' search_value=q name='q' modo='inline' %}
-        </div>
+            <div class="module-filter-field module-filter-field--wide">
+                <label class="module-filter-label">Buscar</label>
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar promoción...' search_value=q name='q' modo='inline' %}
+            </div>
 
-        <!-- ESTADO -->
-        <div class="col-md-2">
-            <select name="activa" class="form-select">
-                <option value="">Estado</option>
-                <option value="si" {% if activa_filter == 'si' %}selected{% endif %}>Activa</option>
-                <option value="no" {% if activa_filter == 'no' %}selected{% endif %}>Inactiva</option>
-            </select>
-        </div>
+            <div class="module-filter-field module-filter-field--small">
+                <label class="module-filter-label">Estado</label>
+                <select name="activa" class="form-select">
+                    <option value="">Estado</option>
+                    <option value="si" {% if activa_filter == 'si' %}selected{% endif %}>Activa</option>
+                    <option value="no" {% if activa_filter == 'no' %}selected{% endif %}>Inactiva</option>
+                </select>
+            </div>
 
-        <!-- ORDEN -->
-        <div class="col-md-2">
-            <select name="orden" class="form-select">
-                <option value="">Ordenar</option>
-                <option value="nombre_asc"  {% if orden == 'nombre_asc'  %}selected{% endif %}>Nombre A–Z</option>
-                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
-                <option value="desc_asc"    {% if orden == 'desc_asc'    %}selected{% endif %}>Descuento ↑</option>
-                <option value="desc_desc"   {% if orden == 'desc_desc'   %}selected{% endif %}>Descuento ↓</option>
-                <option value="fecha_asc"   {% if orden == 'fecha_asc'   %}selected{% endif %}>Más antiguos</option>
-                <option value="fecha_desc"  {% if orden == 'fecha_desc'  %}selected{% endif %}>Más recientes</option>
-            </select>
-        </div>
+            <div class="module-filter-field module-filter-field--medium">
+                <label class="module-filter-label">Ordenar</label>
+                <select name="orden" class="form-select">
+                    <option value="">Ordenar</option>
+                    <option value="nombre_asc"  {% if orden == 'nombre_asc'  %}selected{% endif %}>Nombre A–Z</option>
+                    <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
+                    <option value="desc_asc"    {% if orden == 'desc_asc'    %}selected{% endif %}>Descuento ↑</option>
+                    <option value="desc_desc"   {% if orden == 'desc_desc'   %}selected{% endif %}>Descuento ↓</option>
+                    <option value="fecha_asc"   {% if orden == 'fecha_asc'   %}selected{% endif %}>Más antiguos</option>
+                    <option value="fecha_desc"  {% if orden == 'fecha_desc'  %}selected{% endif %}>Más recientes</option>
+                </select>
+            </div>
 
-        <!-- APLICAR -->
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-outline-secondary w-100" title="Aplicar filtros">
-                <i class="bi bi-filter"></i>
-            </button>
-        </div>
-
-        <!-- LIMPIAR -->
-        {% if q or activa_filter or orden %}
-        <div class="col-md-1">
-            <a href="{% url 'promociones:lista' %}"
-               class="btn btn-outline-danger w-100"
-               title="Limpiar filtros">
-                <i class="bi bi-x-lg"></i>
-            </a>
-        </div>
-        {% endif %}
-
-    </form>
+            <div class="module-filter-actions">
+                {% if q or activa_filter or orden %}
+                <a href="{% url 'promociones:lista' %}"
+                   class="module-filter-btn module-filter-btn--secondary">
+                    <i class="bi bi-x-lg"></i> Limpiar
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
 
     <!-- ───── TABLA (target AJAX) ───── -->
     <div id="promo-tabla-wrap">
@@ -170,13 +176,16 @@
                 <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Promoción</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formEditar" method="post" action="" enctype="multipart/form-data">
+            <form id="formEditar" method="post" action="" enctype="multipart/form-data" data-promocion-id="">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Nombre</label>
-                            <input type="text" name="nombre" id="edit_nombre" class="form-control" placeholder="Nombre de la promoción" required>
+                            <div class="promo-input-wrapper">
+                                <input type="text" name="nombre" id="edit_nombre" class="form-control" placeholder="Nombre de la promoción" required>
+                                <i class="bi bi-check-lg promo-validation-icon" id="icon_nombre_ed"></i>
+                            </div>
                             <div class="promo-field-error" id="err_nombre_ed"></div>
                         </div>
                         <div class="col-md-6">
@@ -283,9 +292,6 @@
                         <p id="promoDetDesc" class="mt-1" style="white-space:pre-wrap;"></p>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

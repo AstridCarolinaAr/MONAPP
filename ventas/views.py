@@ -36,6 +36,11 @@ import matplotlib.pyplot as plt
 Personal = apps.get_model("personal", "Personal")
 
 
+def _texto_seguro(valor):
+    valor = (valor or "").strip()
+    return bool(valor) and all(ch.isalnum() or ch.isspace() for ch in valor)
+
+
 def lista_ventas(request):
     q = request.GET.get("q", "").strip()
     estado = request.GET.get("estado", "activa").strip()
@@ -178,7 +183,6 @@ def render_crear_venta(request, form, productos_stock, servicios, personal, stat
 
 @transaction.atomic
 def crear_venta(request):
-    print(">>> ENTRÓ A crear_venta (views.py correcto)")
     productos = Producto.objects.all()
     productos_stock = []
 
@@ -214,13 +218,8 @@ def crear_venta(request):
         "nombres", "apellidos"
     )
     if request.method == "POST":
-        print(">>> POST LLEGÓ")
         form = VentaForm(request.POST)
         items_json = request.POST.get("items")
-
-        print(">>> items_json RAW:", items_json)
-        print(">>> form.is_valid:", form.is_valid())
-        print(">>> form.errors:", form.errors)
 
         # 1) Validar items_json
         if not items_json:
@@ -254,8 +253,6 @@ def crear_venta(request):
                     "personal": personal,
                 },
             )
-
-        print(">>> items PARSEADOS:", items)
 
         # 3) Debe haber items
         if not items:
@@ -1237,6 +1234,8 @@ def registrar_devolucion(request, venta_id):
     # ── Validación 2: motivo obligatorio ────────────────────
     if not motivo:
         return JsonResponse({"error": "El motivo de devolución es obligatorio."}, status=400)
+    if not _texto_seguro(motivo):
+        return JsonResponse({"error": "El motivo solo puede contener letras, números y espacios."}, status=400)
 
     # ── Validación 3: al menos un ítem ─────────────────────
     if not items_devolver:

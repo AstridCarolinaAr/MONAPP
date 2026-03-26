@@ -36,7 +36,7 @@ Ventas
           class="btn-pill-dark"
           id="btnNuevaVenta"
           data-url="{% url 'ventas:crear' %}">
-    <i class="bi bi-plus-circle"></i> Nueva venta
+    <i class="fas fa-plus"></i> Nueva venta
   </button>
 
   <button type="button"
@@ -50,49 +50,48 @@ Ventas
 
 {% block content %}
 
-<!-- FILTROS -->
-<div class="module-filters-card ventas-filters-card mb-3">
-  <form method="get" class="module-filters-form ventas-filters-form">
-    {% if current_sort %}
-      <input type="hidden" name="sort" value="{{ current_sort }}">
-    {% endif %}
-    {% if current_dir %}
-      <input type="hidden" name="dir" value="{{ current_dir }}">
-    {% endif %}
+<div class="module-filters-card ventas-filters-card">
+  <form method="get" class="ventas-filters-form js-instant-filter-form" data-instant-filter-debounce="300">
+      {% if estado_stock %}
+          <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
+      {% endif %}
+      {% if current_sort %}
+        <input type="hidden" name="sort" value="{{ current_sort }}">
+      {% endif %}
+      {% if current_dir %}
+        <input type="hidden" name="dir" value="{{ current_dir }}">
+      {% endif %}
 
-    <div class="module-filter-field module-filter-field--wide">
-      <label class="module-filter-label">Buscar</label>
-      <div class="module-search-inline">
-        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar venta...' search_value=q name='q' modo='inline' %}
+      <div class="ventas-filter-search">
+        <label class="module-filter-label">Buscar</label>
+        <div class="ventas-search-inline">
+          {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar venta...' search_value=q name='q' modo='inline' %}
+        </div>
       </div>
-    </div>
 
-    <div class="module-filter-field module-filter-field--medium">
-      <label class="module-filter-label">Filtrar</label>
-      <select name="estado" class="form-select">
-        <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
-        <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
-        <option value="" {% if not estado %}selected{% endif %}>Todas</option>
-      </select>
-    </div>
+      <div class="ventas-filter-status">
+        <label class="module-filter-label">Estado</label>
+        <select name="estado" class="form-select ventas-toolbar-select">
+          <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activa</option>
+          <option value="anulada" {% if estado == 'anulada' %}selected{% endif %}>Anulada</option>
+          <option value="" {% if not estado %}selected{% endif %}>Todas</option>
+        </select>
+      </div>
 
-    <div class="module-filter-actions">
-      <button type="submit" class="module-filter-btn module-filter-btn--primary">
-        <i class="bi bi-funnel"></i> Filtrar
-      </button>
-      <a href="{% url 'ventas:lista' %}" class="module-filter-btn module-filter-btn--secondary">
-        <i class="bi bi-arrow-clockwise"></i> Limpiar
-      </a>
-    </div>
+      <div class="ventas-toolbar-actions">
+        <a href="{% url 'ventas:lista' %}" class="module-filter-btn module-filter-btn--secondary">
+          <i class="bi bi-arrow-clockwise"></i> Limpiar
+        </a>
+      </div>
   </form>
 </div>
 
 <!-- TABLA -->
-<div class="table-card anim-from-bottom" style="animation-delay:.18s">
+<div class="table-card anim-from-bottom ventas-table-card" style="animation-delay:.18s">
   <table class="table table-hover align-middle mb-0 styled-table">
     <thead>
       <tr>
-        <th>
+        <th class="ventas-col-codigo">
           <a
             href="?q={{ q }}&estado={{ estado }}&sort=codigo_venta&dir={% if sort == 'codigo_venta' and direction == 'asc' %}desc{% else %}asc{% endif %}"
             class="text-decoration-none text-white"
@@ -104,7 +103,7 @@ Ventas
           </a>
         </th>
 
-        <th>
+        <th class="ventas-col-cliente">
           <a
             href="?q={{ q }}&estado={{ estado }}&sort=cliente&dir={% if sort == 'cliente' and direction == 'asc' %}desc{% else %}asc{% endif %}"
             class="text-decoration-none text-white"
@@ -116,9 +115,9 @@ Ventas
           </a>
         </th>
 
-        <th class="text-white">Productos / Servicios</th>
+        <th class="text-white ventas-col-detalles">Productos / Servicios</th>
 
-        <th>
+        <th class="ventas-col-fecha">
           <a
             href="?q={{ q }}&estado={{ estado }}&sort=fecha&dir={% if sort == 'fecha' and direction == 'asc' %}desc{% else %}asc{% endif %}"
             class="text-decoration-none text-white"
@@ -130,7 +129,7 @@ Ventas
           </a>
         </th>
 
-        <th>
+        <th class="ventas-col-total">
           <a
             href="?q={{ q }}&estado={{ estado }}&sort=total&dir={% if sort == 'total' and direction == 'asc' %}desc{% else %}asc{% endif %}"
             class="text-decoration-none text-white"
@@ -142,7 +141,7 @@ Ventas
           </a>
         </th>
 
-        <th class="text-center">
+        <th class="text-center ventas-col-estado">
           <a
             href="?q={{ q }}&estado={{ estado }}&sort=estado&dir={% if sort == 'estado' and direction == 'asc' %}desc{% else %}asc{% endif %}"
             class="text-decoration-none text-white"
@@ -154,19 +153,19 @@ Ventas
           </a>
         </th>
 
-        <th class="text-end text-white">Acciones</th>
+        <th class="text-end text-white ventas-col-acciones">Acciones</th>
       </tr>
     </thead>
 
     <tbody>
       {% for venta in ventas %}
       <tr>
-        <td class="fw-semibold">{{ venta.codigo_venta }}</td>
-        <td>{{ venta.cliente }}</td>
+        <td class="fw-semibold ventas-cell-codigo">{{ venta.codigo_venta }}</td>
+        <td class="ventas-cell-cliente">{{ venta.cliente }}</td>
 
-        <td>
+        <td class="ventas-cell-detalles">
           {% for d in venta.detalles.all %}
-            <div>
+            <div class="ventas-item-detalle">
               {% if d.producto %}
                 {{ d.producto.nombre }}
               {% elif d.servicio %}
@@ -174,19 +173,19 @@ Ventas
               {% else %}
                 <span class="text-muted">Ítem sin nombre</span>
               {% endif %}
-              <span class="text-muted">x{{ d.cantidad }}</span>
+              <span class="text-muted ventas-item-cantidad">x{{ d.cantidad }}</span>
             </div>
           {% empty %}
             <span class="text-muted">Sin detalles</span>
           {% endfor %}
         </td>
 
-        <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+        <td class="ventas-cell-fecha">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
 
-        <td class="fw-semibold">$ {{ venta.total|intcomma }}</td>
+        <td class="fw-semibold ventas-cell-total">$ {{ venta.total|intcomma }}</td>
 
         <!-- SWITCH ESTADO -->
-        <td class="text-center">
+        <td class="text-center ventas-cell-estado">
           <form
             method="post"
             action="{% url 'ventas:toggle_estado' venta.id %}"
@@ -207,11 +206,11 @@ Ventas
         </td>
 
         <!-- ACCIONES -->
-        <td class="text-end">
-          <div class="table-action-group">
+        <td class="text-end ventas-cell-acciones">
+          <div class="table-action-group ms-auto">
           <button
             type="button"
-            class="table-action-btn btn-ver-detalle"
+            class="btn-ver-detalle"
             data-url="{% url 'ventas:detalle_json' venta.id %}"
             data-bs-toggle="modal"
             data-bs-target="#modalDetalleVenta"
@@ -222,7 +221,7 @@ Ventas
 
           <button
             type="button"
-            class="table-action-btn btn-editar"
+            class="btn-editar"
             data-url="{% url 'ventas:editar_modal' venta.id %}"
             title="Editar"
           >
@@ -232,7 +231,7 @@ Ventas
           {% if venta.estado == 'activa' %}
           <button
             type="button"
-            class="table-action-btn btn-devolucion"
+            class="btn-devolucion btn-crud-wide btn-crud-wide--devolucion"
             data-id="{{ venta.id }}"
             data-url="{% url 'ventas:devolucion_items' venta.id %}"
             data-url-registrar="{% url 'ventas:registrar_devolucion' venta.id %}"
@@ -246,7 +245,7 @@ Ventas
       </tr>
       {% empty %}
       <tr>
-        <td colspan="7" class="text-center text-muted py-4">
+        <td colspan="7" class="text-center table-empty-state">
           No hay ventas registradas
         </td>
       </tr>
@@ -290,7 +289,7 @@ Ventas
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(58,33,23,0.18);">
       <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
-        <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="bi bi-plus-circle me-2"></i>Nueva venta</h5>
+        <h5 class="modal-title text-white fw-semibold" style="font-size:1rem;letter-spacing:.01em;"><i class="fas fa-plus me-2"></i>Nueva venta</h5>
         <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar"><span class="btn-close-dev__icon">✕</span></button>
       </div>
 

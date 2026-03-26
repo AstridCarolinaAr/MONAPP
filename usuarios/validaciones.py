@@ -26,6 +26,7 @@ def validar_datos_usuario(data, user_id=None):
     last_name = data.get('last_name', '').strip()
     email = data.get('email', '').strip()
     telefono = data.get('telefono', '').strip()
+    whatsapp_key = data.get('whatsapp_key', '').strip()
     fecha_nacimiento_str = data.get('fecha_nacimiento', '').strip()
     username = data.get('username', '').strip()
 
@@ -115,6 +116,13 @@ def validar_datos_usuario(data, user_id=None):
             errores['telefono'] = 'El teléfono solo puede contener números.'
         elif len(telefono) != 10:
             errores['telefono'] = 'Debe tener exactamente 10 dígitos.'
+
+    # ===============================
+    # VALIDACIÓN WHATSAPP KEY (opcional)
+    # ===============================
+    if whatsapp_key:
+        if not whatsapp_key.isdigit():
+            errores['whatsapp_key'] = 'La clave de WhatsApp solo puede contener números.'
 
     # ===============================
     # VALIDACIÓN FECHA DE NACIMIENTO (opcional)

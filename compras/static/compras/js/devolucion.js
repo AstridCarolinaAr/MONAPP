@@ -10,6 +10,13 @@
   }
 
   const PATRON_TEXTO_PELIGROSO = /({{|}}|{%|%}|<\s*script|javascript\s*:|on\w+\s*=)/i;
+  const MOTIVOS_VALIDOS = new Set([
+    "defecto_fabrica",
+    "producto_incorrecto",
+    "producto_danado",
+    "garantia",
+    "otro",
+  ]);
 
   function actualizarOpcionesDetalles(form, detalles) {
     const selects = qsa(
@@ -33,6 +40,40 @@
         select.appendChild(option);
       });
     });
+  }
+
+  function sincronizarCantidadDisponible(form) {
+    if (!form) return;
+
+    qsa(form, ".detalle-item").forEach((item) => {
+      if (item.classList.contains("d-none")) return;
+
+      const del = qs(item, 'input[name$="-DELETE"]');
+      if (del && del.checked) return;
+
+      const detalleSelect = qs(item, 'select[name$="-detalle_compra"], select[id$="-detalle_compra"]');
+      const cantidadInput = qs(item, 'input[name$="-cantidad"]');
+
+      if (!detalleSelect || !cantidadInput) return;
+
+      const option = detalleSelect.options[detalleSelect.selectedIndex];
+      const disponible = Number(option?.dataset?.disponible || 0);
+
+      if (disponible > 0) {
+        cantidadInput.max = String(disponible);
+        cantidadInput.dataset.disponible = String(disponible);
+
+        const actual = Number(cantidadInput.value || 0);
+        if (!actual || actual > disponible) {
+          cantidadInput.value = String(disponible);
+        }
+      } else {
+        cantidadInput.removeAttribute("max");
+        delete cantidadInput.dataset.disponible;
+      }
+    });
+
+    calcularTotalDevolucion(form);
   }
 
   function calcularTotalDevolucion(form) {
@@ -72,7 +113,7 @@
 
     if (!compraSelect || !compraSelect.value) {
       actualizarOpcionesDetalles(form, []);
-      calcularTotalDevolucion(form);
+      sincronizarCantidadDisponible(form);
       return;
     }
 
@@ -85,11 +126,11 @@
 
       const data = await res.json();
       actualizarOpcionesDetalles(form, data.detalles || []);
-      calcularTotalDevolucion(form);
+      sincronizarCantidadDisponible(form);
     } catch (error) {
       console.error("Error cargando detalles de compra:", error);
       actualizarOpcionesDetalles(form, []);
-      calcularTotalDevolucion(form);
+      sincronizarCantidadDisponible(form);
     }
   }
 
@@ -128,8 +169,8 @@
     const observacion = qs(form, "#id_observacion");
 
     if (!compra || !compra.value) return false;
+    if (!motivo || !motivo.value || !MOTIVOS_VALIDOS.has(motivo.value)) return false;
 
-    if (PATRON_TEXTO_PELIGROSO.test((motivo?.value || "").trim())) return false;
     if (PATRON_TEXTO_PELIGROSO.test((observacion?.value || "").trim())) return false;
 
     const items = qsa(form, ".detalle-item").filter((item) => {
@@ -216,6 +257,10 @@
       e.target.matches('select[id$="-detalle_compra"]') ||
       e.target.matches('input[name$="-cantidad"]')
     ) {
+      if (e.target.matches('select[name$="-detalle_compra"]') || e.target.matches('select[id$="-detalle_compra"]')) {
+        sincronizarCantidadDisponible(form);
+        return;
+      }
       calcularTotalDevolucion(form);
     }
   });

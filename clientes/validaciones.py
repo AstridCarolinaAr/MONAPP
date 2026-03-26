@@ -1,8 +1,49 @@
 from datetime import date
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-import re
+
 from .models import Cliente
+
+
+def _solo_letras_y_espacios(valor):
+    valor = (valor or "").strip()
+    return bool(valor) and all(ch.isalpha() or ch.isspace() for ch in valor)
+
+
+def _solo_numeros(valor):
+    valor = (valor or "").strip()
+    return bool(valor) and valor.isdigit()
+
+
+def _sin_signos_peligrosos(valor):
+    valor = (valor or "").strip()
+    return "<" not in valor and ">" not in valor
+
+
+def _correo_seguro(correo):
+    correo = (correo or "").strip()
+    if not correo:
+        return False
+
+    if not all(ch.isalnum() or ch in "._-@" for ch in correo):
+        return False
+
+    partes = correo.split("@")
+    if len(partes) != 2:
+        return False
+
+    usuario, dominio = partes
+    if not usuario or not dominio or "." not in dominio:
+        return False
+
+    if usuario.startswith(".") or usuario.endswith("."):
+        return False
+
+    if dominio.startswith(".") or dominio.endswith("."):
+        return False
+
+    if ".." in correo:
+        return False
+
+    return True
 
 
 def validar_datos_cliente(data, cliente_id=None):
@@ -16,16 +57,14 @@ def validar_datos_cliente(data, cliente_id=None):
     telefono = data.get('telefono', '').strip()
     correo = data.get('correo', '').strip()
 
-    # ===============================
-    # VALIDACIONES
-    # ===============================
-
     if not tipo_documento:
         errores['tipo_documento'] = 'El tipo de documento es obligatorio.'
 
     if not numero_documento:
         errores['numero_documento'] = 'El número de documento es obligatorio.'
-    elif not numero_documento.isdigit():
+    elif not _sin_signos_peligrosos(numero_documento):
+        errores['numero_documento'] = 'El número de documento no puede contener signos especiales.'
+    elif not _solo_numeros(numero_documento):
         errores['numero_documento'] = 'Solo se permiten números.'
     elif not (6 <= len(numero_documento) <= 12):
         errores['numero_documento'] = 'Debe tener entre 6 y 12 dígitos.'
@@ -38,13 +77,17 @@ def validar_datos_cliente(data, cliente_id=None):
 
     if not nombre:
         errores['nombre'] = 'El nombre es obligatorio.'
-    elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', nombre):
-        errores['nombre'] = 'El nombre solo puede contener letras.'
+    elif not _sin_signos_peligrosos(nombre):
+        errores['nombre'] = 'El nombre no puede contener signos especiales.'
+    elif not _solo_letras_y_espacios(nombre):
+        errores['nombre'] = 'El nombre solo puede contener letras y espacios.'
 
     if not apellido:
         errores['apellido'] = 'El apellido es obligatorio.'
-    elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', apellido):
-        errores['apellido'] = 'El apellido solo puede contener letras.'
+    elif not _sin_signos_peligrosos(apellido):
+        errores['apellido'] = 'El apellido no puede contener signos especiales.'
+    elif not _solo_letras_y_espacios(apellido):
+        errores['apellido'] = 'El apellido solo puede contener letras y espacios.'
 
     if not fecha_nacimiento_str:
         errores['fecha_nacimiento'] = 'La fecha de nacimiento es obligatoria.'
@@ -57,15 +100,15 @@ def validar_datos_cliente(data, cliente_id=None):
             errores['fecha_nacimiento'] = 'Fecha inválida.'
 
     if telefono:
-        if not telefono.isdigit():
+        if not _sin_signos_peligrosos(telefono):
+            errores['telefono'] = 'El teléfono no puede contener signos especiales.'
+        elif not _solo_numeros(telefono):
             errores['telefono'] = 'El teléfono solo puede contener números.'
         elif len(telefono) != 10:
             errores['telefono'] = 'Debe tener exactamente 10 dígitos.'
 
     if correo:
-        try:
-            validate_email(correo)
-        except ValidationError:
+        if not _sin_signos_peligrosos(correo) or not _correo_seguro(correo):
             errores['correo'] = 'Correo electrónico inválido.'
 
     return errores

@@ -36,6 +36,23 @@
     box-shadow: 0 0 0 0.2rem rgba(220,53,69,.2) !important;
 }
 
+/* Campos redondeados */
+.form-control,
+.form-select,
+.btn,
+.input-group {
+    border-radius: 16px;
+}
+.input-group {
+    overflow: hidden;
+}
+.input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
+
 /* Mensajes de error en línea */
 .usr-field-error {
     color: #dc3545;
@@ -74,7 +91,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1 class="display-6 fw-bold"><i class="bi bi-person-plus"></i> {{ titulo }}</h1>
+            <h1 class="display-6 fw-bold"><i class="fas fa-plus"></i> {{ titulo }}</h1>
         </div>
         <div class="col-md-4 text-end">
             <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary">

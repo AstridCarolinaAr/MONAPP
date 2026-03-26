@@ -21,6 +21,35 @@ input:disabled {
 }
 
 /* =====================================================
+   INPUTS REDONDEADOS EN FORMULARIOS Y MODALES
+===================================================== */
+.ventas-filters-card .form-control,
+.ventas-filters-card .form-select,
+.modal .form-control,
+.modal .form-select {
+  border-radius: 16px !important;
+}
+
+.modal .input-group {
+  overflow: hidden;
+  border-radius: 16px !important;
+}
+
+.modal .input-group .input-group-text {
+  border-radius: 16px 0 0 16px !important;
+}
+
+.modal .input-group .form-control {
+  border-radius: 0 16px 16px 0 !important;
+}
+
+.ventas-filters-card .btn,
+.modal .btn,
+.ventas-table-card .btn {
+  border-radius: 16px;
+}
+
+/* =====================================================
    EMPTY STATE
 ===================================================== */
 
@@ -43,16 +72,20 @@ input:disabled {
 
 .btn-pill-dark {
   display: inline-flex;
-  padding: 3px 5px;
-  border-radius: 995px;
-  background: linear-gradient(90deg, #3a2a24, #4b2f2a);
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  min-height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3a2a24 0%, #1f1412 100%);
+  border: 1px solid #2a1d18;
   color: #fff !important;
   text-decoration: none !important;
   font-weight: 700;
-  box-shadow: 0 3px 15px rgba(117, 36, 36, 0.18);
-  border: 0;
-  transition: .2s ease;
-  font-size: 12px
+  box-shadow: 0 6px 16px rgba(31, 20, 18, 0.28);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+  font-size: 0.95rem;
 }
 
 .btn-guardar-venta {
@@ -82,6 +115,178 @@ input:disabled {
     color: #fff !important;
     opacity: 1 !important;
     cursor: not-allowed;
+}
+
+.ventas-filters-card {
+  margin: 8px 0 14px;
+  padding: 8px 12px;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.ventas-filters-form {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.ventas-filter-search {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ventas-filter-status {
+  flex: 0 0 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ventas-search-inline {
+  min-width: 0;
+}
+
+.ventas-search-inline .search-toggle-wrapper.busqueda-global--inline {
+  width: 100%;
+  min-width: 0;
+}
+
+.ventas-search-inline .search-toggle-box.is-open {
+  width: 100%;
+  max-width: 100%;
+}
+
+.ventas-search-inline .search-toggle-input {
+  width: 100%;
+  max-width: 100%;
+}
+
+.ventas-toolbar-select {
+  min-height: 36px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.ventas-toolbar-actions {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.ventas-filters-card .module-filter-label {
+  font-size: 0.8rem;
+}
+
+.ventas-filters-card .module-filter-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.ventas-search-inline .btn-search-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+.ventas-search-inline .search-toggle-box.is-open,
+.ventas-search-inline .search-toggle-input {
+  min-height: 36px;
+  height: 36px;
+}
+
+.ventas-table-card {
+  margin-top: 2px;
+  border-radius: 24px;
+  box-shadow: 0 12px 28px rgba(48, 29, 22, 0.10);
+}
+
+.ventas-table-card .styled-table {
+  table-layout: fixed;
+}
+
+.ventas-col-codigo {
+  width: 14%;
+}
+
+.ventas-col-cliente {
+  width: 14%;
+}
+
+.ventas-col-detalles {
+  width: 21%;
+}
+
+.ventas-col-fecha {
+  width: 16%;
+}
+
+.ventas-col-total {
+  width: 11%;
+}
+
+.ventas-col-estado {
+  width: 9%;
+}
+
+.ventas-col-acciones {
+  width: 15%;
+}
+
+.ventas-cell-codigo,
+.ventas-cell-fecha,
+.ventas-cell-total {
+  white-space: nowrap;
+}
+
+.ventas-cell-total {
+  color: #35231e;
+}
+
+.ventas-cell-detalles {
+  color: #4a3932;
+}
+
+.ventas-item-detalle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ventas-item-detalle + .ventas-item-detalle {
+  margin-top: 2px;
+}
+
+.ventas-item-cantidad {
+  margin-left: 4px;
+}
+
+.ventas-cell-acciones .table-action-group {
+  min-width: 132px;
+}
+
+.ventas-table-card .styled-table tbody td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.ventas-table-card .styled-table thead th {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.ventas-table-card .styled-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 
@@ -195,68 +400,6 @@ input:disabled {
     box-shadow: none;
 }
 
-.btn-ver-detalle,
-.btn-editar {
-    color: #2c0909 !important;
-}
-
-/* =====================================================
-   FILTROS VENTAS COMPACTOS
-===================================================== */
-.ventas-filters-card {
-  padding: 14px 16px;
-  margin-bottom: 16px !important;
-}
-
-.ventas-filters-form {
-  display: flex !important;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: end;
-}
-
-.ventas-filters-form .module-filter-field,
-.ventas-filters-form .module-filter-field--wide,
-.ventas-filters-form .module-filter-field--medium,
-.ventas-filters-form .module-filter-actions {
-  grid-column: auto;
-  margin: 0;
-}
-
-.ventas-filters-form .module-filter-field--wide {
-  flex: 1 1 360px;
-  min-width: 260px;
-}
-
-.ventas-filters-form .module-filter-field--medium {
-  flex: 0 1 210px;
-  min-width: 180px;
-}
-
-.ventas-filters-form .module-filter-actions {
-  flex: 0 0 auto;
-  margin-left: auto;
-}
-
-.ventas-filters-form .module-search-inline {
-  width: 100%;
-  min-width: 0;
-  flex: 0 0 auto;
-}
-
-.ventas-filters-form .module-filter-btn {
-  min-height: 42px;
-  padding: 0 14px;
-}
-
-@media (max-width: 1200px) {
-  .ventas-filters-form .module-filter-field--wide,
-  .ventas-filters-form .module-filter-field--medium,
-  .ventas-filters-form .module-filter-actions {
-    flex: 1 1 100%;
-    margin-left: 0;
-  }
-}
 .report-option {
   display: flex;
   align-items: center;
@@ -385,6 +528,32 @@ input:disabled {
     transform: none !important;
   }
 }
+
+@media (max-width: 992px) {
+  .ventas-filters-form {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .ventas-table-card .styled-table {
+    table-layout: auto;
+  }
+
+  .ventas-filter-search,
+  .ventas-filter-status,
+  .ventas-toolbar-actions {
+    max-width: 100%;
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .ventas-toolbar-actions {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+}
 /* ============================================================
    MODAL DEVOLUCIÓN — HEADER Y BOTÓN X CON GIRO
 ============================================================ */
@@ -476,5 +645,61 @@ input:disabled {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .ventas-filters-card {
+    padding: 12px;
+  }
+
+  .ventas-filters-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ventas-filter-search,
+  .ventas-filter-status,
+  .ventas-toolbar-actions {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .ventas-toolbar-actions {
+    margin-left: 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .ventas-toolbar-actions .btn-pill-dark,
+  .ventas-toolbar-actions .btn,
+  .ventas-toolbar-actions button,
+  .ventas-toolbar-actions a {
+    width: 100%;
+  }
+
+  .ventas-table-card {
+    overflow-x: auto;
+  }
+
+  .ventas-table-card .styled-table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ventas-table-card .styled-table {
+    min-width: 760px;
+  }
+
+  .ventas-col-codigo,
+  .ventas-col-cliente,
+  .ventas-col-total,
+  .ventas-col-estado {
+    width: auto;
+  }
+
+  .ventas-col-detalles {
+    width: auto;
   }
 }

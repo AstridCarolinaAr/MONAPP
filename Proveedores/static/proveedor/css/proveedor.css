@@ -17,22 +17,6 @@
     width: 100% !important; /* Forzar ancho completo */
 }
 
-/* Forzar que el contenedor de la tabla sea del 100% */
-.table-responsive {
-    width: 100% !important;
-    margin: 0;
-    padding: 0;
-}
-
-.styled-table {
-    width: 100% !important;
-    min-width: 100%;
-    margin-bottom: 0;
-    border-collapse: collapse;
-}
-.styled-table td:last-child {
-    vertical-align: middle;
-}
 /* =============================
    TÍTULO
 ============================= */
@@ -77,7 +61,6 @@ h2 {
 ============================= */
 .buscador-proveedor {
     padding: 3px 5px;
-    font-size: 9 6px;
     font-size: 12px;
 }
 
@@ -90,78 +73,6 @@ h2 {
     font-size: 12px;
 }
 
-/* =============================
-   ACCIONES
-============================= */
-.table td .d-flex {
-    gap: 3px;
-}
-
-/* BOTONES DE ACCIÓN */
-.table td .btn-sm:not(.js-reactivar-proveedor) {
-    width: 22px;
-    height: 22px;
-    border-radius: 3px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-}
-
-.btn-sm i {
-    font-size: .9rem;
-    color: #fff;
-}
-
-/* VER */
-.btn-info {
-    background: linear-gradient(135deg, #4fc3f7, #039be5);
-    border: none;
-}
-
-/* EDITAR */
-.btn-primary {
-    background: linear-gradient(135deg, #b39ddb, #9575cd);
-    border: none;
-}
-
-/* ELIMINAR */
-.btn-danger {
-    background: rgba(224,122,122,.15);
-    border: 1px solid rgba(224,122,122,.35);
-}
-
-.btn-danger i {
-    color: #c85c5c;
-}
-/* BOTÓN REACTIVAR */
-.btn-reactivar-proveedor {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: 1px solid #6F4E37;
-    border-radius: 8px;
-    background: #6F4E37;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-reactivar-proveedor i {
-    font-size: 14px;
-    line-height: 1;
-    color: #fff;
-}
-.btn-reactivar-proveedor:hover {
-    background: #5d412f;
-    border-color: #5d412f;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(111, 78, 55, 0.22);
-}
 /* =============================
    BOTÓN FILTRAR – ESTILO MONA
 ============================= */
@@ -197,6 +108,25 @@ h2 {
     box-shadow: none !important;
 }
 
+.proveedores-filtros-dropdown .dropdown-menu {
+    min-width: 200px;
+    border-radius: 14px;
+    border: 1px solid rgba(59, 47, 47, .12);
+    padding: .5rem;
+}
+
+.proveedores-filtros-dropdown .dropdown-item {
+    border-radius: 10px;
+    padding: .55rem .75rem;
+    font-size: 12px;
+}
+
+.proveedores-filtros-dropdown .dropdown-item.active,
+.proveedores-filtros-dropdown .dropdown-item:active {
+    background: #3b2f2f;
+    color: #fff;
+}
+
 
 /* =============================
    ANIMACIÓN FILAS
@@ -215,122 +145,64 @@ h2 {
 .table tbody tr {
     animation: fadeUp .4s ease forwards;
 }
-/* ===============================
-   ACCIONES PROVEEDOR – MONA STYLE
-================================ */
-.acciones-proveedor {
-    display: flex;
-    justify-content: flex-end;
-    gap: 3px;
+
+/* =============================
+   SWITCH ESTADO TABLA
+============================= */
+.table-switch-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
 }
 
-.btn-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.table-switch-wrapper input[type="checkbox"] {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+}
+
+.table-switch-slider {
+    position: absolute;
     cursor: pointer;
-    transition: all .25s ease;
-    background: none;
-    border: none;
-    padding: 3px;
-
+    inset: 0;
+    background-color: #ccc;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.btn-icon i {
-    font-size: 22px;
-    color: #382822;
-    transition: color 0.2s;
+.table-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fff;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* VER */
-.btn-ver {
-    background: none;
-    border: none;
-    padding: 3px 5px;
-    border-radius: 30px;
-    transition: all 0.2s;
+.table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider {
+    background-color: #4b2f2a;
 }
 
-.btn-ver:hover {
-    background: #382822;
-    transform: none;
+.table-switch-wrapper input[type="checkbox"]:disabled + .table-switch-slider {
+    opacity: .5;
+    cursor: not-allowed;
 }
 
-.btn-ver:hover i {
-    color: white;
+.table-switch-wrapper input[type="checkbox"]:checked + .table-switch-slider:before {
+    transform: translateX(24px);
 }
 
-.btn-ver i {
-    color: #382822;
+.table-switch-wrapper input[type="checkbox"]:focus + .table-switch-slider {
+    box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
 }
 
-/* EDITAR */
-.btn-editar {
-    background: none;
-    border: none;
-    padding: 3px 5px;
-    border-radius: 30px;
-    transition: all 0.2s;
-}
-
-.btn-editar:hover {
-    background: #382822;
-    transform: none;
-}
-
-.btn-editar:hover i {
-    color: white;
-}
-
-.btn-editar i {
-    color: #382822;
-}
-
-/* ELIMINAR */
-.btn-eliminar {
-    background: none;
-    border: none;
-    padding: 3px 5px;
-    border-radius: 30px;
-    transition: all 0.2s;
-}
-
-.btn-eliminar:hover {
-    background: #382822;
-    transform: none;
-}
-
-.btn-eliminar:hover i {
-    color: white;
-}
-
-.btn-eliminar i {
-    color: #382822;
-}
-
-
-
-
-.form-validated{
-  position: relative;
-}
-.form-validated .valid-check{
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  pointer-events: none;
-}
-.form-validated.is-ok .valid-check{
-  opacity: 1;
-}
-
-/* deja espacio para el ícono */
-.form-validated input.form-control,
-.form-validated select.form-select{
-  padding-right: 2.2rem;
-}
 /* =========================
    DETALLE PROVEEDOR MODAL
 ========================= */
@@ -340,14 +212,20 @@ h2 {
 }
 
 .proveedor-detail-header {
-  background: #f8f5f2;
-  border-bottom: 1px solid #eee4dc;
+  background: linear-gradient(90deg, #2a0703 0%, #402019 38%, #5a3529 70%, #6f4938 100%);
+  border-bottom: none;
+  padding: 18px 24px;
 }
 
 .proveedor-detail-header .modal-title {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #382822;
+  color: #fff;
+}
+
+.proveedor-detail-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: .95;
 }
 
 .proveedor-detail-body {
@@ -720,11 +598,7 @@ a.proveedores-btn-add {
    ACCIONES ALINEADAS
 ============================= */
 .acciones-proveedor {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 32px;
+    min-height: 38px;
 }
 
 .acciones-proveedor > button,
@@ -738,41 +612,36 @@ a.proveedores-btn-add {
     vertical-align: middle;
 }
 
-/* Botones ver y editar */
-.acciones-proveedor .btn-link {
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    text-decoration: none;
-}
-
-/* Íconos ver y editar */
-.acciones-proveedor .btn-link i {
-    font-size: 22px !important;
-    line-height: 1;
-    display: block;
-}
-
 /* Botón reactivar */
 .btn-reactivar-proveedor {
-    width: 28px;
-    height: 28px;
-    border: 1px solid #6F4E37;
-    border-radius: 8px;
-    background: #6F4E37;
-    color: #fff;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: #2c0909;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.18s ease;
     position: static !important;
     top: auto !important;
 }
 
 .btn-reactivar-proveedor i {
-    font-size: 14px;
+    font-size: 1.1rem;
     line-height: 1;
     display: block;
-    color: #fff;
+    color: inherit;
+}
+
+.btn-reactivar-proveedor:hover {
+    background: rgba(138, 90, 68, 0.12);
+    color: #2c0909;
+    transform: translateY(-1px);
+}
+
+.btn-reactivar-proveedor:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.15rem rgba(138, 90, 68, 0.18);
 }
 .proveedores-header {
     display: flex;
@@ -836,4 +705,152 @@ a.proveedores-btn-add {
     .proveedores-busqueda-wrap {
         max-width: 100%;
     }
+}
+
+/* ===============================
+   VALIDACIÓN PROVEEDOR
+   SOLO CHULO, SIN CÍRCULO, SIN FONDO
+================================= */
+/* =========================================
+   AJUSTE FINAL VALIDACION PROVEEDOR
+========================================= */
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap {
+    position: relative;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea {
+    padding-right: 2.6rem !important;
+    background-image: none !important;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-invalid-icon {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-valid-icon i {
+    color: #198754 !important;
+    font-size: 1.05rem !important;
+    line-height: 1 !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-invalid-icon i {
+    color: #dc3545 !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid ~ .proveedor-valid-icon {
+    display: inline-flex !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid ~ .proveedor-invalid-icon {
+    display: inline-flex !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid ~ .proveedor-invalid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid ~ .proveedor-invalid-icon {
+    display: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid ~ .proveedor-valid-icon,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid ~ .proveedor-valid-icon {
+    display: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .form-control,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok input,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok textarea,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid {
+    border: 2px solid #198754 !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok .form-control:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok input:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok select:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-ok textarea:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-valid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-valid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-valid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-valid:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15) !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .form-control,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error input,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error select,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error textarea,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid {
+    border: 2px solid #dc3545 !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error .form-control:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error input:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error select:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap.is-error textarea:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap .form-control.is-invalid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap input.is-invalid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap select.is-invalid:focus,
+#ajaxFormModal #proveedorForm .proveedor-input-wrap textarea.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15) !important;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-field-error {
+    display: none;
+    margin-top: 0.4rem;
+    color: #dc3545 !important;
+    font-size: 0.875rem !important;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+#ajaxFormModal #proveedorForm .proveedor-field-error.is-visible {
+    display: block;
 }

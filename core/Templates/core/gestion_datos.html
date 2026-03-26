@@ -61,9 +61,11 @@
     <!-- Botón para abrir el modal -->
     <div class="row mb-3">
         <div class="col-12">
+            {% if permisos.gestion_alisados.crear %}
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gestionDatosModal">
                 <i class="bi bi-plus-circle"></i> Nuevo Registro
             </button>
+            {% endif %}
         </div>
     </div>
 

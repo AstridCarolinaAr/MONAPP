@@ -1,6 +1,8 @@
 from django import forms
 from .models import GestionAlisado
 from clientes.models import Cliente
+from personal.models import Personal
+from servicios.models import Servicio
 from core.form_validations import ValidationFormMixin
 
 
@@ -208,7 +210,45 @@ class GestionAlisadoForm(ValidationFormMixin, forms.ModelForm):
         self.fields['cliente'].queryset = Cliente.objects.filter(estado='activo').order_by('nombre', 'apellido')
         # Función para mostrar nombre completo y documento
         self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellido} - {obj.numero_documento}"
-    
+
+        colaboradores = Personal.objects.filter(rol='Colaborador', activo=True).order_by('nombres', 'apellidos')
+        colaborador_choices = [('', 'Seleccione un colaborador...')]
+        colaborador_choices.extend([(str(personal), str(personal)) for personal in colaboradores])
+
+        valor_actual = (self.initial.get('procedimiento_realizado_por') or self.data.get('procedimiento_realizado_por') or '').strip()
+        if valor_actual and valor_actual not in {value for value, _ in colaborador_choices}:
+            colaborador_choices.append((valor_actual, valor_actual))
+
+        self.fields['procedimiento_realizado_por'] = forms.ChoiceField(
+            choices=colaborador_choices,
+            required=True,
+            widget=forms.Select(attrs={
+                'class': 'form-select',
+                'required': 'required',
+            })
+        )
+        if valor_actual:
+            self.fields['procedimiento_realizado_por'].initial = valor_actual
+
+        servicios = Servicio.objects.filter(activo=True).order_by('nombre')
+        servicio_choices = [('', 'Seleccione un servicio...')]
+        servicio_choices.extend([(servicio.nombre, servicio.nombre) for servicio in servicios])
+
+        tipo_actual = (self.initial.get('tipo_alisado') or self.data.get('tipo_alisado') or '').strip()
+        if tipo_actual and tipo_actual not in {value for value, _ in servicio_choices}:
+            servicio_choices.append((tipo_actual, tipo_actual))
+
+        self.fields['tipo_alisado'] = forms.ChoiceField(
+            choices=servicio_choices,
+            required=True,
+            widget=forms.Select(attrs={
+                'class': 'form-select',
+                'required': 'required',
+            })
+        )
+        if tipo_actual:
+            self.fields['tipo_alisado'].initial = tipo_actual
+
     def clean(self):
         cleaned_data = super().clean()
         precio = cleaned_data.get('precio_alisado')
@@ -219,3 +259,18 @@ class GestionAlisadoForm(ValidationFormMixin, forms.ModelForm):
             cleaned_data['saldo_pendiente'] = precio - anticipo
         
         return cleaned_data
+
+    def clean_tipo_alisado(self):
+        tipo_alisado = (self.cleaned_data.get('tipo_alisado') or '').strip()
+        if not tipo_alisado:
+            raise forms.ValidationError('Debes seleccionar un servicio.')
+
+        existe_en_catalogo = Servicio.objects.filter(nombre__iexact=tipo_alisado).exists()
+        es_valor_existente = bool(
+            getattr(self.instance, 'pk', None) and (self.instance.tipo_alisado or '').strip() == tipo_alisado
+        )
+
+        if not existe_en_catalogo and not es_valor_existente:
+            raise forms.ValidationError('El servicio seleccionado no es válido.')
+
+        return tipo_alisado

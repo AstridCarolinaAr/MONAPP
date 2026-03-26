@@ -1,16 +1,18 @@
-﻿{% extends 'core/panel_admin_base.html' %}
+{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 {% load humanize %}
 
 {% block title %}Catálogo Web{% endblock %}
 
 {% block page_icon %}<i class="bi bi-globe2 page-icon"></i>{% endblock %}
-{% block page_title %}Catalogo Web{% endblock %}
+{% block page_title %}Productos Web{% endblock %}
 {% block page_subtitle %}Gestion de productos del catalogo web{% endblock %}
 {% block page_actions %}
+{% if permisos.productos_web.crear %}
 <button class="btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-    <i class="bi bi-plus-lg me-1"></i> Nuevo producto
+    <i class="fas fa-plus"></i> Nuevo producto
 </button>
+{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -130,30 +132,112 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 }
 .modal-header.pw-header .btn-close { filter: brightness(0) invert(1); }
 .modal-content { border-radius: 12px; border: none; box-shadow: 0 12px 40px rgba(0,0,0,.2); }
-
-/* Dropzone de imagen */
-.pw-dropzone {
-    background: linear-gradient(145deg, #fafafa, #f0f0f0);
-    border: 2px solid #e0e0e0; border-radius: 16px;
-    padding: 40px 30px; text-align: center; cursor: pointer;
-    transition: all .3s ease; position: relative;
-    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+.modal-content .form-control,
+.modal-content .form-select,
+.modal-content .btn {
+    border-radius: 16px;
 }
-.pw-dropzone:hover, .pw-dropzone.dragover {
-    border-color: #382822;
-    background: linear-gradient(145deg, #fff, #f8f5f2);
-    box-shadow: 0 6px 20px rgba(141,96,74,.15);
+.modal-content .input-group {
+    overflow: hidden;
+    border-radius: 16px;
+}
+.modal-content .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.modal-content .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
+
+/* Dropzone de imagen Ultra-premium */
+.pw-dropzone {
+    background: linear-gradient(145deg, #fdfbf9, #f4eee9);
+    border: 2px dashed #d1c4bc;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    position: relative;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .02);
+}
+.pw-dropzone:hover,
+.pw-dropzone.dragover {
+    border-color: #8b6f60;
+    background: linear-gradient(145deg, #ffffff, #fbf5f0);
+    box-shadow: 0 6px 20px rgba(141, 96, 74, .10);
     transform: translateY(-2px);
 }
 .pw-dropzone i {
-    font-size: 3.5rem; color: #382822; margin-bottom: 8px; display: block;
+    font-size: 3.5rem;
+    color: #8b6f60;
+    margin-bottom: 8px;
+    display: block;
     animation: float 3s ease-in-out infinite;
 }
-@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-.pw-dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10; }
-.pw-dropzone .upload-text { font-size: 1.05rem; color: #5c3d2e; font-weight: 500; margin-bottom: 5px; }
-.pw-dropzone .upload-hint { font-size: 0.85rem; color: #999; }
-.pw-preview-img { max-height: 200px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,.2); border: 3px solid #fff; }
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+.pw-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+.pw-dropzone .upload-text {
+    font-size: 1.05rem;
+    color: #5c3d2e;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.pw-dropzone .upload-hint {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+/* Estado cuando tiene imagen cargada */
+.pw-dropzone.has-image {
+    padding: 8px;
+    border-style: solid;
+    border-color: rgba(198, 162, 136, 0.4);
+    background: #ffffff;
+}
+.pw-dropzone.has-image i,
+.pw-dropzone.has-image .upload-text,
+.pw-dropzone.has-image .upload-hint {
+    display: none !important;
+}
+.pw-dropzone.has-image::after {
+    content: 'Cambiar Imagen';
+    position: absolute;
+    inset: 8px;
+    background: rgba(58, 42, 36, 0.7);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.2s ease, backdrop-filter 0.2s ease;
+    backdrop-filter: blur(2px);
+    pointer-events: none; /* Permite el clic en el input invisible */
+    z-index: 15;
+}
+.pw-dropzone.has-image:hover::after {
+    opacity: 1;
+}
+
+.pw-preview-img {
+    width: 100%;
+    height: 240px;
+    object-fit: contain;
+    background: #fbf5f0;
+    border-radius: 12px;
+    margin-top: 0;
+}
 
 /* Badges */
 .pw-badge-visible { background: rgba(107,176,122,.15); color: #3d7a4e; font-weight: 600; border-radius: 20px; padding: 4px 12px; font-size: .78rem; }
@@ -164,6 +248,40 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 .pw-search .form-control { border-radius: 20px; border: 1px solid #d4c4ba; padding-left: 38px; transition: all 0.3s; }
 .pw-search .form-control:focus { border-color: #8d604a; box-shadow: 0 0 0 0.2rem rgba(141,96,74,.15); outline: none; }
 .pw-search .bi-search { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9a8579; }
+
+/* Búsqueda Premium (Pill) */
+.premium-search-bar {
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 8px 12px;
+    border: 1px solid rgba(198, 162, 136, 0.3);
+    position: relative;
+    z-index: 1050;
+    box-shadow: 0 2px 12px rgba(141, 96, 74, .08);
+}
+.btn-pill-premium {
+    background: linear-gradient(135deg, #3a2a24 0%, #1f1412 100%);
+    color: #ffffff;
+    border: 1px solid #2a1d18;
+    border-radius: 999px;
+    padding: 8px 22px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(31, 20, 18, 0.25);
+    transition: all 0.2s ease;
+}
+.btn-pill-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(31, 20, 18, 0.35);
+    color: #ffffff;
+}
+@media (max-width: 768px) {
+    .premium-search-bar { border-radius: 18px; padding: 16px; flex-direction: column; gap: 12px !important; }
+    .btn-pill-premium { width: 100%; justify-content: center; }
+}
 
 /* ── Responsive ── */
 
@@ -191,7 +309,10 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
     }
 
     /* Barra de búsqueda ocupa todo el ancho */
-    .pw-search { max-width: 100% !important; width: 100%; }
+    .pw-search,
+    .pw-filter-field,
+    .pw-filter-field--search,
+    .pw-filter-actions { max-width: 100% !important; width: 100%; }
 
     /* Celda compacta */
     .pw-table thead th { padding: 10px 8px; font-size: .78rem; }
@@ -301,30 +422,63 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
-    <!-- Búsqueda y filtros -->
-    <form method="get" class="module-filters-card module-filters-form">
-        <div class="module-filter-field module-filter-field--wide">
-            <label class="module-filter-label">Busqueda</label>
-            {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-        </div>
+    <!-- ───── FILTROS PREMIUM (Pill) ───── -->
+    <div class="premium-search-bar mb-4 anim-from-bottom" style="animation-delay: 0.05s;">
+        <form method="get" class="js-instant-filter-form w-100 m-0 d-flex flex-column flex-md-row align-items-md-center gap-3" data-instant-filter-debounce="300" autocomplete="off">
+            
+            <!-- Buscador Global -->
+            <div class="flex-grow-1 position-relative d-flex align-items-center" style="min-height: 42px;">
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto por nombre o descripción...' search_value=q name='q' modo='inline' %}
+            </div>
 
-        <div class="module-filter-field module-filter-field--small">
-            <label class="module-filter-label">Estado</label>
-            <select name="visible" class="form-select" onchange="this.form.submit()">
-                <option value="">Todos</option>
-                <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visibles</option>
-                <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Ocultos</option>
-            </select>
-        </div>
+            <!-- Custom Select: Visibilidad -->
+            <div class="custom-select-wrapper position-relative" style="min-width: 160px;">
+                <div class="custom-select-trigger d-flex align-items-center rounded-pill px-3" 
+                     style="height: 42px; background: #fbf5f0; border: 1px solid rgba(198, 162, 136, 0.2); cursor: pointer; color: #4b2f2a; font-weight: 600; font-size: 0.88rem;"
+                     onclick="const menu = this.nextElementSibling; document.querySelectorAll('.custom-select-options').forEach(m => { if(m!==menu) m.style.display='none'; }); menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';">
+                    <i class="bi bi-eye-fill me-2" style="color: #a38f85; font-size: 0.9rem;"></i>
+                    <span id="labelVisibilidad" class="flex-grow-1 text-start">
+                        {% if visible_filter == 'si' %}Visible{% elif visible_filter == 'no' %}Oculto{% else %}Todos{% endif %}
+                    </span>
+                    <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem; color: #8b6f60;"></i>
+                </div>
+                
+                <div class="custom-select-options position-absolute w-100 shadow-sm" 
+                     style="top: 100%; left: 0; margin-top: 8px; background: #ffffff; border-radius: 16px; border: 1px solid rgba(198, 162, 136, 0.15); z-index: 1050; display: none; overflow: hidden; padding: 6px 0;">
+                    
+                    <div class="custom-select-option px-3 py-2" 
+                         style="cursor: pointer; transition: background-color 0.2s; font-size: 0.9rem; color: #4b2f2a; font-weight: {% if visible_filter == '' %}700{% else %}500{% endif %}; background-color: {% if visible_filter == '' %}#eaddd3{% else %}transparent{% endif %};"
+                         onclick="document.getElementById('hidden_visible').value=''; document.getElementById('labelVisibilidad').innerText='Todos'; this.closest('form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));">Todos</div>
+                    
+                    <div class="custom-select-option px-3 py-2" 
+                         style="cursor: pointer; transition: background-color 0.2s; font-size: 0.9rem; color: #4b2f2a; font-weight: {% if visible_filter == 'si' %}700{% else %}500{% endif %}; background-color: {% if visible_filter == 'si' %}#eaddd3{% else %}transparent{% endif %};"
+                         onclick="document.getElementById('hidden_visible').value='si'; document.getElementById('labelVisibilidad').innerText='Visible'; this.closest('form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));">Visible</div>
+                    
+                    <div class="custom-select-option px-3 py-2" 
+                         style="cursor: pointer; transition: background-color 0.2s; font-size: 0.9rem; color: #4b2f2a; font-weight: {% if visible_filter == 'no' %}700{% else %}500{% endif %}; background-color: {% if visible_filter == 'no' %}#eaddd3{% else %}transparent{% endif %};"
+                         onclick="document.getElementById('hidden_visible').value='no'; document.getElementById('labelVisibilidad').innerText='Oculto'; this.closest('form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));">Oculto</div>
+                </div>
+                <input type="hidden" name="visible" id="hidden_visible" value="{{ visible_filter|default:'' }}">
+            </div>
 
-        <div class="module-filter-actions">
-            {% if q or visible_filter %}
-            <a href="{% url 'productos_web:lista' %}" class="module-filter-btn module-filter-btn--secondary">
-                <i class="bi bi-x-circle"></i> Limpiar
-            </a>
-            {% endif %}
-        </div>
-    </form>
+            <!-- Botones de Acción -->
+            <div class="d-flex align-items-center ms-md-auto">
+                <button type="button" class="btn btn-pill-premium" onclick="window.location.href='{% url 'productos_web:lista' %}'">
+                    <i class="bi bi-eraser"></i> Limpiar
+                </button>
+            </div>
+            
+        </form>
+    </div>
+    <script>
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.custom-select-wrapper')) {
+                document.querySelectorAll('.custom-select-options').forEach(menu => {
+                    menu.style.display = 'none';
+                });
+            }
+        });
+    </script>
 
     <!-- ───── TABLA ───── -->
     <div class="table-container-custom">
@@ -354,11 +508,12 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                 {% endif %}
                             </td>
                             <td class="fw-semibold">{{ p.nombre }}</td>
-                            <td>${{ p.precio|intcomma }}</td>
+                            <td>${{ p.precio|floatformat:0|intcomma }}</td>
                             <td>
                                 <small class="text-muted">{{ p.descripcion|truncatewords:8|default:"—" }}</small>
                             </td>
                             <td data-sort="{% if p.visible %}1{% else %}2{% endif %}">
+                                {% if permisos.productos_web.editar %}
                                 <label class="pw-switch" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
                                     <input type="checkbox"
                                            {% if p.visible %}checked{% endif %}
@@ -366,6 +521,13 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                            data-nombre="{{ p.nombre }}">
                                     <span class="slider"></span>
                                 </label>
+                                {% else %}
+                                    {% if p.visible %}
+                                        <span class="pw-badge-visible">Visible</span>
+                                    {% else %}
+                                        <span class="pw-badge-hidden">Oculto</span>
+                                    {% endif %}
+                                {% endif %}
                             </td>
                             <td class="text-end pw-actions">
                                 <div class="table-action-group">
@@ -382,23 +544,42 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                         title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                <a href="{% url 'productos_web:editar' p.pk %}"
-                                   class="table-action-btn" title="Editar">
+                                {% if permisos.productos_web.editar %}
+                                <button type="button"
+                                   class="table-action-btn btn-editar-pw"
+                                   data-producto-id="{{ p.pk }}"
+                                   data-edit-url="{% url 'productos_web:editar' p.pk %}"
+                                   data-detail-url="{% url 'productos_web:detalle_json' p.pk %}"
+                                   title="Editar">
                                     <i class="bi bi-pencil"></i>
-                                </a>
+                                </button>
+                                {% endif %}
+                                {% if permisos.productos_web.eliminar %}
                                 <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-pw"
                                         data-nombre="{{ p.nombre }}"
                                         data-url="{% url 'productos_web:eliminar' p.pk %}"
                                         title="Eliminar">
                                     <i class="bi bi-trash3"></i>
                                 </button>
+                                {% endif %}
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                No hay productos registrados en el catálogo web
+                            <td colspan="6" class="text-center" style="padding: 60px 20px; background-color: #fcf9f7;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                                    <div style="width: 80px; height: 80px; background: rgba(75, 47, 42, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(75, 47, 42, 0.05);">
+                                        <i class="bi bi-box-seam" style="font-size: 2.2rem; color: #4b2f2a; opacity: 0.85;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="font-size: 1.25rem; font-weight: 700; color: #3a2117; margin-bottom: 6px;">No hay productos registrados</h4>
+                                        <p style="color: #8b6f60; font-size: 0.95rem; max-width: 420px; margin: 0 auto; line-height: 1.5;">Actualmente no tienes productos en tu catálogo web. Comienza publicando tu primer producto para que sea visible en la tienda virtual.</p>
+                                    </div>
+                                    <button type="button" class="btn-pill-dark mt-3" data-bs-toggle="modal" data-bs-target="#modalAgregar" style="white-space: nowrap !important; width: fit-content !important; min-width: 200px; padding: 10px 24px; font-size: 0.95rem; border: none; outline: none; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="bi bi-plus-lg"></i> Crear nuevo producto
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -420,7 +601,8 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                     &times;
                 </button>
             </div>
-            <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data">
+            {% if permisos.productos_web.crear %}
+            <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data" data-producto-id="">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row g-3">
@@ -472,46 +654,134 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                     </button>
                 </div>
             </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ MODAL EDITAR ═══════════════ -->
+<div class="modal fade" id="modalEditarPW" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header pw-header">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Producto Web</h5>
+                <button type="button" class="btn-cerrar-modal" data-bs-dismiss="modal">
+                    &times;
+                </button>
+            </div>
+            <form method="post" id="formEditarPW" enctype="multipart/form-data" data-producto-id="">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="pwEditNombre">Nombre</label>
+                            <div class="pw-input-wrapper">
+                                <input type="text" class="form-control" id="pwEditNombre" name="nombre" maxlength="200" required>
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_nombre_editar"></i>
+                            </div>
+                            <div class="pw-name-error" id="err_nombre_editar"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="pwEditPrecio">Precio Público <small
+                                    class="text-muted">(pesos colombianos)</small></label>
+                            <div class="pw-input-wrapper">
+                                <input type="text" class="form-control" id="pwEditPrecio" name="precio" required>
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_precio_editar"></i>
+                            </div>
+                            <span class="pw-cop-preview" id="cop_preview_editar"></span>
+                            <div class="pw-price-error" id="err_precio_editar"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="pwEditDescripcion">Descripción</label>
+                            <textarea class="form-control" id="pwEditDescripcion" name="descripcion" rows="4" maxlength="500"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
+                            <div class="pw-dropzone" id="dropzoneEditar">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <div class="upload-text">Arrastra tu imagen aquí</div>
+                                <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                                <input type="file" class="form-control" id="pwEditImagen" name="imagen" accept="image/jpeg,image/png,image/webp,image/gif">
+                                <img id="previewEditar" class="pw-preview-img d-none" alt="preview">
+                            </div>
+                            <div class="small text-muted mt-2" id="pwEditImagenActualWrap">
+                                Imagen actual:
+                                <a href="#" id="pwEditImagenActualLink" target="_blank" rel="noopener noreferrer">ver imagen</a>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="pwEditVisible" name="visible">
+                                <label class="form-check-label" for="pwEditVisible">Visible en la Web</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background:#3a2a24;">
+                        <i class="bi bi-check-lg me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <!-- ═══ MODAL VER DETALLES PRODUCTO WEB ═══ -->
 <div class="modal fade" id="modalDetallePW" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header" style="background:linear-gradient(135deg,#3a2a24,#2a1d18);color:#fff;">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content app-detail-modal">
+            <div class="modal-header app-detail-header">
                 <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Detalle del Producto</h5>
                 <button type="button" class="btn-cerrar-modal" data-bs-dismiss="modal">
                     &times;
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="row g-4">
-                    <div class="col-md-4 text-center">
-                        <img id="pwDetImg" src="" class="img-fluid rounded shadow-sm" style="max-height:200px;object-fit:cover;display:none;" alt="Imagen">
-                        <div id="pwDetImgPh" class="d-flex align-items-center justify-content-center rounded" style="height:180px;background:#f0e8e3;font-size:3rem;color:#b8a49a;">
-                            <i class="bi bi-box-seam"></i>
+            <div class="modal-body app-detail-body p-4 p-md-5">
+                
+                <!-- Cabecera: Imagen + Título -->
+                <div class="d-flex flex-column flex-md-row gap-4 align-items-md-center mb-4 pb-4 border-bottom position-relative">
+                    
+                    <!-- Imagen del producto -->
+                    <div class="flex-shrink-0" style="width: 140px; height: 140px;">
+                        <div class="w-100 h-100 rounded-4 overflow-hidden shadow-sm" style="border: 1px solid rgba(198, 162, 136, 0.3); background: #ffffff;">
+                            <img id="pwDetImg" src="" alt="Imagen del producto web" style="display:none; width: 100%; height: 100%; object-fit: contain;">
+                            <div id="pwDetImgPh" class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: #fbf5f0;">
+                                <i class="bi bi-image" style="font-size: 3.5rem; color: #c6a288;"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-8">
-                        <h4 id="pwDetNombre" class="fw-bold mb-3"></h4>
-                        <table class="table table-sm table-borderless">
-                            <tbody>
-                                <tr><th style="width:110px;color:#6d5050;">Precio</th><td id="pwDetPrecio"></td></tr>
-                                <tr><th style="color:#6d5050;">Estado</th><td id="pwDetVisible"></td></tr>
-                                <tr><th style="color:#6d5050;">Creado</th><td id="pwDetCreado"></td></tr>
-                                <tr><th style="color:#6d5050;">Modificado</th><td id="pwDetModificado"></td></tr>
-                            </tbody>
-                        </table>
-                        <hr class="my-2">
-                        <p class="small text-muted mb-0"><strong>Descripción:</strong></p>
-                        <p id="pwDetDesc" class="mt-1" style="white-space:pre-wrap;"></p>
+
+                    <!-- Textos principales -->
+                    <div class="flex-grow-1 pe-md-5">
+                        <h2 id="pwDetNombre" class="fs-1 fw-bold mb-1" style="color: #2a1d18;">Producto web</h2>
+                        <div class="text-muted fs-6" style="color: #8b6f60 !important;">Información general del producto web</div>
                     </div>
+
+                    <!-- Badge -->
+                    <div class="position-absolute top-0 end-0 mt-2 mt-md-0 position-md-static">
+                        <span id="pwDetVisibleBadge" class="app-detail-badge is-active" style="font-size: 0.95rem; padding: 6px 16px;">Visible</span>
+                    </div>
+
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+
+                <!-- Información detallada -->
+                <div class="app-detail-grid mb-4">
+                    <div class="app-detail-field"><div class="app-detail-label">Precio</div><div id="pwDetPrecio" class="app-detail-value"></div></div>
+                    <div class="app-detail-field"><div class="app-detail-label">Estado</div><div id="pwDetVisible" class="app-detail-value"></div></div>
+                    <div class="app-detail-field"><div class="app-detail-label">Creado</div><div id="pwDetCreado" class="app-detail-value"></div></div>
+                    <div class="app-detail-field"><div class="app-detail-label">Modificado</div><div id="pwDetModificado" class="app-detail-value"></div></div>
+                </div>
+
+                <hr class="app-detail-separator mt-4 mb-4">
+
+                <!-- Resumen -->
+                <div>
+                    <div class="app-detail-summary-title mb-2">Resumen</div>
+                    <p id="pwDetDesc" class="app-detail-summary-text" style="font-size: 1.05rem; line-height: 1.6;"></p>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -525,41 +795,6 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 
 {% block extra_js %}
 <script>
-window.PW_MESSAGES = [
-    {% for message in messages %}
-    { tags: "{{ message.tags }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-];
-/* ─── Mensajes Django como Swal toast ─── */
-const PW_MESSAGES = window.PW_MESSAGES || [];
-
-const PW_TAGS_MAP = {
-    'success': { icon: 'success', background: '#f0fdf4', color: '#166534' },
-    'error':   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
-    'warning': { icon: 'warning', background: '#fffbeb', color: '#92400e' },
-    'info':    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
-};
-
-if (PW_MESSAGES.length) {
-    PW_MESSAGES.forEach(m => {
-        if (m.tags.includes('created')) {
-            Swal.fire({
-                icon: 'success', title: '¡Producto creado!', text: m.text,
-                confirmButtonText: 'Aceptar', confirmButtonColor: '#3a2a24',
-                background: '#fff', color: '#3a2a24',
-                customClass: { popup: 'rounded-4' },
-            });
-        } else {
-            const tag  = Object.keys(PW_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
-            const opts = PW_TAGS_MAP[tag];
-            Swal.mixin({
-                toast: true, position: 'top-end',
-                showConfirmButton: false, timer: 3500, timerProgressBar: true,
-                background: opts.background, color: opts.color,
-            }).fire({ icon: opts.icon, title: m.text });
-        }
-    });
-}
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -595,11 +830,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar la visibilidad.', timer: 2500, showConfirmButton: false });
                         return;
                     }
-                    Swal.mixin({
-                        toast: true, position: 'top-end',
-                        showConfirmButton: false, timer: 2000, timerProgressBar: true,
-                        background: '#f0fdf4', color: '#166534',
-                    }).fire({ icon: 'success', title: visNow ? 'Producto visible' : 'Producto oculto' });
+
+                    // Actualizar el botón de "Ver detalles" en la línea actual
+                    const tr = el.closest('tr');
+                    if (tr) {
+                        const btnDetalle = tr.querySelector('.btn-detalle-pw');
+                        if (btnDetalle) {
+                            btnDetalle.dataset.visible = visNow ? 'Sí' : 'No';
+                        }
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Estado actualizado',
+                        text: `${nombre} ahora ${visNow ? 'está visible' : 'ya no está visible'} en el catálogo`,
+                        showConfirmButton: false,
+                        timer: 2500,
+                        customClass: { popup: 'rounded-4' }
+                    });
                 })
                 .catch(() => {
                     el.checked = !visNow;
@@ -672,7 +920,42 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
         else if (!REG.test(v))     msg = 'Solo se permiten letras, espacios y los caracteres: . , - ( )';
+        else if (input.dataset.nombreDuplicado === '1') msg = 'Ya existe un producto con este nombre.';
         return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
+    }
+
+    const PW_DUP_URL = "{% url 'productos_web:validar_nombre_producto_web' %}";
+
+    async function pwValidarNombreDuplicado(input, errEl, iconEl) {
+        const v = (input.value || '').trim();
+        if (!v || v.length < 2) return true;
+
+        const form = input.closest('form');
+        const productoId = (form?.dataset?.productoId || '').trim();
+        const url = new URL(PW_DUP_URL, window.location.origin);
+        url.searchParams.set('nombre', v);
+        if (productoId) url.searchParams.set('producto_id', productoId);
+
+        const token = String(Date.now()) + Math.random().toString(36).slice(2);
+        input.dataset.dupToken = token;
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json().catch(() => ({}));
+            if (input.dataset.dupToken !== token) return false;
+            if (!data.valid) {
+                input.dataset.nombreDuplicado = '1';
+                pwSetError(input, errEl, data.message || 'Ya existe un producto con este nombre.', 'is-valid-name', 'is-invalid-name', iconEl);
+                return false;
+            }
+            delete input.dataset.nombreDuplicado;
+            pwSetError(input, errEl, '', 'is-valid-name', 'is-invalid-name', iconEl);
+            return true;
+        } catch (error) {
+            return true;
+        }
     }
 
     function pwBloquearCaracteresPrecio(e) {
@@ -722,20 +1005,32 @@ document.addEventListener('DOMContentLoaded', () => {
         errEl.textContent = ''; errEl.classList.remove('visible');
         if (!input.files || !input.files[0]) return true;
         const f = input.files[0];
+        const resetPreview = () => {
+            if (previewEl) {
+                previewEl.classList.add('d-none');
+                const dz = previewEl.closest('.pw-dropzone');
+                if(dz) dz.classList.remove('has-image');
+            }
+        };
         if (!TIPOS.includes(f.type)) {
             errEl.textContent = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
             errEl.classList.add('visible'); input.value = '';
-            if (previewEl) previewEl.classList.add('d-none'); return false;
+            resetPreview(); return false;
         }
         const mb = f.size / (1024 * 1024);
         if (mb > MAX_MB) {
             errEl.textContent = `La imagen pesa ${mb.toFixed(1)} MB. Máximo ${MAX_MB} MB.`;
             errEl.classList.add('visible'); input.value = '';
-            if (previewEl) previewEl.classList.add('d-none'); return false;
+            resetPreview(); return false;
         }
         if (previewEl) {
             const reader = new FileReader();
-            reader.onload = e => { previewEl.src = e.target.result; previewEl.classList.remove('d-none'); };
+            reader.onload = e => { 
+                previewEl.src = e.target.result; 
+                previewEl.classList.remove('d-none'); 
+                const dz = previewEl.closest('.pw-dropzone');
+                if(dz) dz.classList.add('has-image');
+            };
             reader.readAsDataURL(f);
         }
         return true;
@@ -760,8 +1055,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ag.nombre) {
         ag.nombre.addEventListener('keydown', pwBloquearCaracteresNombre);
-        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
-        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
+        ag.nombre.addEventListener('input', () => {
+            pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre);
+            pwValidarNombreDuplicado(ag.nombre, ag.errNombre, ag.iconNombre);
+        });
+        ag.nombre.addEventListener('blur',  () => {
+            pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre);
+            pwValidarNombreDuplicado(ag.nombre, ag.errNombre, ag.iconNombre);
+        });
         ag.nombre.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto  = (e.clipboardData || window.clipboardData).getData('text');
@@ -816,9 +1117,103 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (ag.ctrDesc) ag.ctrDesc.textContent = '';
             if (ag.copPrev) { ag.copPrev.textContent = ''; ag.copPrev.classList.remove('visible'); }
-            if (ag.prevImg) ag.prevImg.classList.add('d-none');
+            if (ag.prevImg) {
+                ag.prevImg.classList.add('d-none');
+                const dz = ag.prevImg.closest('.pw-dropzone');
+                if(dz) dz.classList.remove('has-image');
+            }
         });
     }
+
+    const edit = {
+        modalEl:     document.getElementById('modalEditarPW'),
+        form:        document.getElementById('formEditarPW'),
+        nombre:      document.getElementById('pwEditNombre'),
+        errNombre:   document.getElementById('err_nombre_editar'),
+        iconNombre:  document.getElementById('icon_nombre_editar'),
+        precio:      document.getElementById('pwEditPrecio'),
+        errPrecio:   document.getElementById('err_precio_editar'),
+        iconPrecio:  document.getElementById('icon_precio_editar'),
+        copPrev:     document.getElementById('cop_preview_editar'),
+        descripcion: document.getElementById('pwEditDescripcion'),
+        imagen:      document.getElementById('pwEditImagen'),
+        preview:     document.getElementById('previewEditar'),
+        visible:     document.getElementById('pwEditVisible'),
+        imgWrap:     document.getElementById('pwEditImagenActualWrap'),
+        imgLink:     document.getElementById('pwEditImagenActualLink'),
+    };
+
+    if (edit.imagen) {
+        edit.imagen.addEventListener('change', () => pwValidarImagen(edit.imagen, { textContent: '', classList: { add(){}, remove(){} } }, edit.preview));
+    }
+
+    if (edit.nombre) {
+        edit.nombre.addEventListener('keydown', pwBloquearCaracteresNombre);
+        edit.nombre.addEventListener('input', () => {
+            pwValidarNombre(edit.nombre, edit.errNombre, edit.iconNombre);
+            pwValidarNombreDuplicado(edit.nombre, edit.errNombre, edit.iconNombre);
+        });
+        edit.nombre.addEventListener('blur', () => {
+            pwValidarNombre(edit.nombre, edit.errNombre, edit.iconNombre);
+            pwValidarNombreDuplicado(edit.nombre, edit.errNombre, edit.iconNombre);
+        });
+    }
+
+    if (edit.precio) {
+        edit.precio.addEventListener('keydown', pwBloquearCaracteresPrecio);
+        edit.precio.addEventListener('input', () => pwValidarPrecio(edit.precio, edit.errPrecio, edit.copPrev, edit.iconPrecio));
+        edit.precio.addEventListener('blur',  () => pwValidarPrecio(edit.precio, edit.errPrecio, edit.copPrev, edit.iconPrecio));
+    }
+
+    document.querySelectorAll('.btn-editar-pw').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!edit.form || !edit.modalEl) return;
+            edit.form.action = btn.dataset.editUrl;
+            edit.form.dataset.productoId = btn.dataset.productoId || '';
+            edit.nombre.value = '';
+            edit.precio.value = '';
+            edit.descripcion.value = '';
+            edit.visible.checked = false;
+            edit.imagen.value = '';
+            edit.preview.classList.add('d-none');
+            const dz = edit.preview.closest('.pw-dropzone');
+            if(dz) dz.classList.remove('has-image');
+            edit.imgWrap.style.display = 'none';
+
+            try {
+                const response = await fetch(btn.dataset.detailUrl, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                if (!response.ok) throw new Error('bad_response');
+                const data = await response.json();
+                if (edit.nombre) edit.nombre.value = data.nombre || '';
+                if (edit.precio) edit.precio.value = data.precio ? Math.round(data.precio) : '';
+                if (edit.descripcion) edit.descripcion.value = data.descripcion || '';
+                edit.visible.checked = !!data.visible;
+
+                // Validar inicialmente para mostrar previews verdes (COP) e iconos
+                if (edit.precio) pwValidarPrecio(edit.precio, edit.errPrecio, edit.copPrev, edit.iconPrecio);
+                if (edit.nombre) pwValidarNombre(edit.nombre, edit.errNombre, edit.iconNombre);
+
+                if (data.imagen_url) {
+                    edit.preview.src = data.imagen_url;
+                    edit.preview.classList.remove('d-none');
+                    if(dz) dz.classList.add('has-image');
+                    edit.imgWrap.style.display = '';
+                    edit.imgLink.href = data.imagen_url;
+                }
+
+                bootstrap.Modal.getOrCreateInstance(edit.modalEl).show();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo cargar el producto',
+                    text: 'Intenta de nuevo en unos segundos.',
+                    confirmButtonColor: '#3a2a24',
+                });
+            }
+        });
+    });
 
     /* ── Drag & drop highlight ── */
     document.querySelectorAll('.pw-dropzone').forEach(zone => {
@@ -831,18 +1226,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-detalle-pw').forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('pwDetNombre').textContent     = btn.dataset.nombre;
-            document.getElementById('pwDetPrecio').textContent     = '$' + parseFloat(btn.dataset.precio).toLocaleString('es-CO');
+            document.getElementById('pwDetPrecio').textContent     = '$' + parseFloat(btn.dataset.precio).toLocaleString('es-CO', { maximumFractionDigits: 0 });
             document.getElementById('pwDetCreado').textContent     = btn.dataset.creado;
             document.getElementById('pwDetModificado').textContent = btn.dataset.modificado;
             document.getElementById('pwDetDesc').textContent       = btn.dataset.descripcion || '—';
-            document.getElementById('pwDetVisible').innerHTML =
-                btn.dataset.visible === 'Sí'
-                ? '<span class="badge bg-success-subtle text-success">Visible</span>'
-                : '<span class="badge bg-secondary-subtle text-secondary">Oculto</span>';
+            document.getElementById('pwDetVisible').textContent    = btn.dataset.visible === 'Sí' ? 'Visible' : 'Oculto';
+            
+            const visibleBadge = document.getElementById('pwDetVisibleBadge');
+            visibleBadge.textContent = btn.dataset.visible === 'Sí' ? 'Visible' : 'Oculto';
+            visibleBadge.classList.remove('is-active', 'is-inactive');
+            visibleBadge.classList.add(btn.dataset.visible === 'Sí' ? 'is-active' : 'is-inactive');
+            
             const img = document.getElementById('pwDetImg');
             const ph  = document.getElementById('pwDetImgPh');
-            if (btn.dataset.imagenUrl) { img.src = btn.dataset.imagenUrl; img.style.display = ''; ph.style.display = 'none'; }
-            else                       { img.style.display = 'none'; ph.style.display = ''; }
+            if (btn.dataset.imagenUrl) { 
+                img.src = btn.dataset.imagenUrl; 
+                img.style.display = ''; 
+                ph.style.display = 'none'; 
+                ph.classList.remove('d-flex');
+            } else { 
+                img.style.display = 'none'; 
+                ph.style.display = ''; 
+                ph.classList.add('d-flex');
+            }
         });
     });
 });

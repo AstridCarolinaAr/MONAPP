@@ -28,12 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const badge = document.getElementById("p-estado-badge");
     if (badge) {
       badge.textContent = estado;
-      badge.classList.remove("activo", "inactivo");
+      badge.classList.remove("activo", "inactivo", "is-active", "is-inactive");
 
       if (estado.toLowerCase().includes("activo")) {
-        badge.classList.add("activo");
+        badge.classList.add("activo", "is-active");
       } else {
-        badge.classList.add("inactivo");
+        badge.classList.add("inactivo", "is-inactive");
       }
     }
 

@@ -1,9 +1,4 @@
-/* ─────────────────────────────────────────────────────────────────
-   lista_usuarios.js
-   Lógica de la página de gestión de usuarios (modales, CRUD, switch).
-   Las URLs con tags de Django se inyectan desde el HTML como:
-       window.USUARIOS_URLS = { crearUsuario: "..." };
-───────────────────────────────────────────────────────────────── */
+
 
 /* ── Utilidad CSRF ── */
 function getCookie(name) {
@@ -116,48 +111,32 @@ function enviarFormularioUsuario(form) {
 }
 
 /* ════════════════════════════════
-   MODAL: ELIMINAR USUARIO
+   MODAL: DESACTIVAR USUARIO
 ════════════════════════════════ */
 function abrirModalEliminarUsuario(usuarioId) {
-    const csrftoken = getCookie('csrftoken');
-
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción no se puede deshacer',
+        title: '¿Desactivar usuario?',
+        text: 'El usuario quedará inactivo y podrás reactivarlo luego',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#5d4037',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
+        confirmButtonText: 'Sí, desactivar',
         cancelButtonText: 'Cancelar',
         background: '#fdfaf8',
         color: '#4b3621',
         showLoaderOnConfirm: true,
         preConfirm: () => {
-            return fetch(`/auth/usuarios/${usuarioId}/eliminar/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Error en la solicitud');
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Error al eliminar');
-                return data;
-            })
-            .catch(error => Swal.showValidationMessage(`Error: ${error.message}`));
+            return desactivarUsuario(usuarioId).catch(error => {
+                Swal.showValidationMessage(`Error: ${error.message}`);
+            });
         },
         allowOutsideClick: () => !Swal.isLoading()
     }).then(result => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: '¡Eliminado!',
-                text: result.value.message || 'Usuario eliminado exitosamente',
+                title: '¡Desactivado!',
+                text: result.value.message || 'Usuario desactivado exitosamente',
                 icon: 'success',
                 confirmButtonColor: '#5d4037',
                 background: '#fdfaf8',
@@ -167,6 +146,53 @@ function abrirModalEliminarUsuario(usuarioId) {
             }).then(() => location.reload());
         }
     });
+}
+
+function desactivarUsuario(usuarioId) {
+    const csrftoken = getCookie('csrftoken');
+
+    return fetch(`/auth/usuarios/${usuarioId}/eliminar/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la solicitud');
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) throw new Error(data.message || 'Error al desactivar');
+        return data;
+    });
+}
+
+function confirmarEliminarUsuario(usuarioId) {
+    desactivarUsuario(usuarioId)
+        .then(data => {
+            Swal.fire({
+                title: '¡Desactivado!',
+                text: data.message || 'Usuario desactivado exitosamente',
+                icon: 'success',
+                confirmButtonColor: '#5d4037',
+                background: '#fdfaf8',
+                color: '#4b3621',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => location.reload());
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error',
+                text: error.message || 'No se pudo desactivar el usuario',
+                icon: 'error',
+                confirmButtonColor: '#5d4037',
+                background: '#fdfaf8',
+                color: '#4b3621'
+            });
+        });
 }
 
 /* ════════════════════════════════
@@ -230,13 +256,37 @@ function abrirModalEditarUsuario(usuarioId) {
 
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    modalBody.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-secondary" role="status"></div>
+            <p class="mt-2 mb-0">Cargando formulario...</p>
+        </div>
+    `;
 
     fetch(`/auth/usuarios/${usuarioId}/editar/`, {
         method: 'GET',
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
-    .then(response => response.json())
+    .then(async response => {
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText.substring(0, 300)}`);
+        }
+
+        if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`La respuesta no es JSON válido: ${text.substring(0, 300)}`);
+        }
+
+        return response.json();
+    })
     .then(data => {
+        if (!data.success && !data.html_form) {
+            throw new Error(data.message || 'No se pudo cargar el formulario.');
+        }
+
         modalBody.innerHTML = data.html_form;
 
         const form = document.getElementById('form-editar-usuario');
@@ -256,18 +306,38 @@ function abrirModalEditarUsuario(usuarioId) {
         }, 200);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error al abrir modal editar:', error);
+
         modalBody.innerHTML = `
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 Error al cargar el formulario. Por favor, intenta nuevamente.
-            </div>`;
+                <br><small>${error.message || 'Error desconocido del servidor'}</small>
+            </div>
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalEditarUsuario()">
+                    Cerrar
+                </button>
+            </div>
+        `;
     });
 }
 
 function cerrarModalEditarUsuario() {
-    document.getElementById('modalEditarUsuario').style.display = 'none';
+    const modal = document.getElementById('modalEditarUsuario');
+    const modalBody = document.getElementById('modalEditarUsuarioBody');
+
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+    }
+
+    if (modalBody) {
+        modalBody.innerHTML = '';
+    }
+
     document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
 }
 
 function enviarFormularioEditarUsuario(form, usuarioId) {
@@ -279,8 +349,18 @@ function enviarFormularioEditarUsuario(form, usuarioId) {
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(async response => {
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Respuesta inválida del servidor: ${text.substring(0, 300)}`);
+        }
+
+        const data = await response.json();
+        return { response, data };
+    })
+    .then(({ response, data }) => {
         if (data.success) {
             cerrarModalEditarUsuario();
             Swal.fire({
@@ -293,7 +373,10 @@ function enviarFormularioEditarUsuario(form, usuarioId) {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => location.reload());
-        } else {
+            return;
+        }
+
+        if (data.html_form) {
             modalBody.innerHTML = data.html_form;
 
             const newForm = document.getElementById('form-editar-usuario');
@@ -311,18 +394,21 @@ function enviarFormularioEditarUsuario(form, usuarioId) {
                     window.inicializarValidacionesEditarUsuario();
                 }
             }, 200);
+            return;
         }
+
+        throw new Error(data.message || `Error ${response.status} al guardar`);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error al guardar edición:', error);
         modalBody.innerHTML = `
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 Error al guardar. Por favor, intenta nuevamente.
+                <br><small>${error.message}</small>
             </div>`;
     });
 }
-
 /* ════════════════════════════════
    EVENT DELEGATION & TECLADO
 ════════════════════════════════ */
