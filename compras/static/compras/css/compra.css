@@ -94,6 +94,146 @@
   gap: 3px;
 }
 
+/* ===== BOTONES CAFÉ MONAAP ===== */
+.compras-container .btn-pill-dark,
+.modal .btn-pill-dark {
+  background: linear-gradient(135deg, #3a2a24 0%, #1f1412 100%) !important;
+  border: 1px solid #2a1d18 !important;
+  border-radius: 10px !important;
+  padding: 8px 14px !important;
+  min-height: 38px !important;
+  font-weight: 700;
+  font-size: .95rem !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  width: auto !important;
+  height: auto !important;
+  min-width: max-content;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(31, 20, 18, 0.28);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.compras-container .btn-pill-dark:hover,
+.modal .btn-pill-dark:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 8px 18px rgba(31, 20, 18, 0.32);
+}
+
+.compras-container .btn-pill-dark i,
+.modal .btn-pill-dark i {
+  font-size: 14px !important;
+}
+
+/* ===== SWITCH DE ESTADO ===== */
+.compras-switch-holder {
+  margin-top: 6px;
+}
+
+.compras-switch-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 58px;
+  height: 30px;
+  margin: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.compras-switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.compras-switch-slider {
+  position: absolute;
+  inset: 0;
+  background: #4b2f2a;
+  border: 1px solid #3a2a24;
+  border-radius: 999px;
+  transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+.compras-switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  top: 3px;
+  left: 33px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.22);
+  transition: transform .22s ease, left .22s ease;
+}
+
+.compras-switch-input:focus + .compras-switch-slider {
+  box-shadow: 0 0 0 3px rgba(75, 47, 42, .16), inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+.compras-switch-input:checked + .compras-switch-slider {
+  background: #4b2f2a;
+  border-color: #4b2f2a;
+}
+
+.compras-switch-input:not(:checked) + .compras-switch-slider::before {
+  left: 3px;
+}
+
+.compras-switch-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b2f2a;
+  line-height: 1;
+}
+
+/* ===== ESTADO EN TABLA ===== */
+.btn-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.btn-status-pill--active {
+  background: #a98c7b;
+  border-color: #a98c7b;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(75, 47, 42, .18);
+}
+
+.btn-status-pill--active:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.btn-status-pill--inactive {
+  background: #d7cbc5;
+  border-color: #d7cbc5;
+  color: #5d463d;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: .85;
+}
+
 /* ===== FILTROS ===== */
 .filtro-compras {
   background: #fff;

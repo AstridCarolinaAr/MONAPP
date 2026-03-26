@@ -673,14 +673,16 @@
     initCompraForm(formModalEl);
   });
 
-  document.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".js-reactivar-proveedor-compra");
-    if (!btn) return;
+  document.addEventListener("change", async (e) => {
+    const input = e.target.closest(".js-reactivar-proveedor-compra");
+    if (!input) return;
 
-    e.preventDefault();
+    if (!input.checked) {
+      return;
+    }
 
-    const url = btn.dataset.reactivarUrl;
-    const nombre = btn.dataset.proveedorNombre || "este proveedor";
+    const url = input.dataset.reactivarUrl;
+    const nombre = input.dataset.proveedorNombre || "este proveedor";
     if (!url) return;
 
     const confirm = await Swal.fire({
@@ -694,11 +696,15 @@
       cancelButtonColor: "#6c757d",
     });
 
-    if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) {
+      input.checked = false;
+      return;
+    }
 
     const formCompra = document.getElementById("formCompra");
     const selectProveedor = formCompra ? formCompra.querySelector("#id_proveedor") : null;
     const alertaInactivo = document.getElementById("alertaProveedorInactivoCompra");
+    const switchHolder = input.closest(".compra-switch-holder");
 
     try {
       const response = await fetch(url, {
@@ -740,9 +746,14 @@
           alertaInactivo.remove();
         }
 
+        if (switchHolder) {
+          switchHolder.remove();
+        }
+
         return;
       }
 
+      input.checked = false;
       await Swal.fire({
         title: "Error",
         text: data.message || "No se pudo activar el proveedor.",
@@ -752,6 +763,7 @@
       });
     } catch (err) {
       console.error("Error activando proveedor desde compras:", err);
+      input.checked = false;
       await Swal.fire({
         title: "Error",
         text: "Ocurrió un error al activar el proveedor.",

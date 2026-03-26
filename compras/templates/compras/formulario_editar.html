@@ -10,16 +10,18 @@
       <label class="form-label">Proveedor</label>
       {{ form.proveedor }}
       {% if compra and compra.proveedor and compra.proveedor.estado != 'activo' %}
-        <div class="d-flex justify-content-start mb-2">
-              <button type="button"
-                      class="btn-pill-dark btn-sm js-reactivar-proveedor-compra"
-                      data-reactivar-url="{% url 'proveedores:reactivar' compra.proveedor.pk %}"
-                      data-proveedor-nombre="{{ compra.proveedor.nombre_proveedor|escapejs }}">
-            <i class="fas fa-plus me-1"></i> Activar proveedor
-              </button>
+        <div class="compra-switch-holder d-flex align-items-center gap-3 mb-2">
+          <label class="compras-switch-wrapper" title="Activar proveedor">
+            <input type="checkbox"
+                   class="js-reactivar-proveedor-compra compras-switch-input"
+                   data-reactivar-url="{% url 'proveedores:reactivar' compra.proveedor.pk %}"
+                   data-proveedor-nombre="{{ compra.proveedor.nombre_proveedor|escapejs }}">
+            <span class="compras-switch-slider"></span>
+          </label>
+          <span class="compras-switch-label">Activar proveedor</span>
         </div>
         <div class="alert alert-light border mt-2 mb-0 py-2 px-3" id="alertaProveedorInactivoCompra">
-          Este proveedor está inactivo. Puedes activarlo sin salir de esta compra.
+          Este proveedor está inactivo. Puedes activarlo con la píldora de arriba.
         </div>
       {% endif %}
       {% for e in form.proveedor.errors %}
