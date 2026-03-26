@@ -65,6 +65,22 @@
     font-size: 0.85rem;
     color: #999;
 }
+.pw-form-card .form-control,
+.pw-form-card .form-select,
+.pw-form-card .btn,
+.pw-form-card .input-group,
+.pw-form-card .input-group .input-group-text {
+    border-radius: 16px;
+}
+.pw-form-card .input-group {
+    overflow: hidden;
+}
+.pw-form-card .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.pw-form-card .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
 .pw-preview-img {
     max-height: 200px;
     border-radius: 12px;
@@ -361,7 +377,7 @@
                     <i class="bi bi-pencil-square me-2"></i>{{ titulo }}
                 </div>
                 <div class="card-body p-4">
-                <form method="post" enctype="multipart/form-data" id="pwProductoForm" novalidate>
+                <form method="post" enctype="multipart/form-data" id="pwProductoForm" data-producto-id="{{ producto.pk|default:'' }}" novalidate>
                     {% csrf_token %}
                     <div class="row g-3">
                     <div class="col-md-6">
@@ -558,8 +574,54 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
+        if (input.dataset.nombreDuplicado === '1') {
+            markInvalid(input, 'Ya existe un producto con este nombre.');
+            return false;
+        }
+
         markValid(input);
         return true;
+    }
+
+    const productoForm = document.getElementById('pwProductoForm');
+    const PRODUCTO_DUP_URL = "{% url 'productos_web:validar_nombre_producto_web' %}";
+
+    async function validarNombreDuplicadoProducto() {
+        const input = document.getElementById('id_nombre');
+        if (!input) return true;
+
+        const value = (input.value || '').trim();
+        if (!value || value.length < 2) return true;
+
+        const productoId = (productoForm?.dataset?.productoId || '').trim();
+        const url = new URL(PRODUCTO_DUP_URL, window.location.origin);
+        url.searchParams.set('nombre', value);
+        if (productoId) url.searchParams.set('producto_id', productoId);
+
+        const token = String(Date.now()) + Math.random().toString(36).slice(2);
+        input.dataset.dupToken = token;
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json().catch(() => ({}));
+            if (input.dataset.dupToken !== token) return false;
+            if (!data.valid) {
+                input.dataset.nombreDuplicado = '1';
+                markInvalid(input, data.message || 'Ya existe un producto con este nombre.');
+                validarFormulario();
+                return false;
+            }
+            delete input.dataset.nombreDuplicado;
+            if ((value || '').length >= 2) {
+                markValid(input);
+            }
+            validarFormulario();
+            return true;
+        } catch (error) {
+            return true;
+        }
     }
 
     function validarPrecio() {
@@ -659,9 +721,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.setSelectionRange(Math.min(pos, limpio.length), Math.min(pos, limpio.length));
             }
             validarFormulario();
+            validarNombreDuplicadoProducto();
         });
 
-        nombreInput.addEventListener('blur', validarFormulario);
+        nombreInput.addEventListener('blur', function () {
+            validarFormulario();
+            validarNombreDuplicadoProducto();
+        });
     }
 
     if (precioInput) {

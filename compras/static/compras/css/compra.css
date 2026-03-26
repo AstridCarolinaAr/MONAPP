@@ -60,6 +60,35 @@
   font-size: 11px;
 }
 
+/* ===== CAMPOS REDONDEADOS ===== */
+.compras-container .form-control,
+.compras-container .form-select,
+.modal .form-control,
+.modal .form-select {
+  border-radius: 16px !important;
+}
+
+.compras-container .input-group,
+.modal .input-group {
+  overflow: hidden;
+  border-radius: 16px !important;
+}
+
+.compras-container .input-group .input-group-text,
+.modal .input-group .input-group-text {
+  border-radius: 16px 0 0 16px !important;
+}
+
+.compras-container .input-group .form-control,
+.modal .input-group .form-control {
+  border-radius: 0 16px 16px 0 !important;
+}
+
+.compras-container .btn,
+.modal .btn {
+  border-radius: 16px;
+}
+
 .acciones-group {
   display: inline-flex;
   gap: 3px;

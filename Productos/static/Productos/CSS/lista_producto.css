@@ -144,6 +144,48 @@ h2 {
     padding: 2px 7px;
     font-size: 11px;
 }
+
+/* =========================
+   DROPDOWN FILTROS
+========================= */
+.module-filters-card .dropdown-menu {
+    min-width: 220px;
+    border-radius: 18px;
+    border: 1px solid rgba(58, 42, 36, 0.10);
+    box-shadow: 0 12px 28px rgba(58, 42, 36, 0.12);
+    padding: .6rem;
+    overflow: hidden;
+}
+
+.module-filters-card .dropdown-item {
+    border-radius: 14px;
+    padding: .78rem 1rem;
+    font-size: 14px;
+    color: #2f2724;
+}
+
+.module-filters-card .dropdown-item:hover,
+.module-filters-card .dropdown-item:focus {
+    background: #f1ece9;
+    color: #2f2724;
+}
+
+.module-filters-card .dropdown-item.active,
+.module-filters-card .dropdown-item:active {
+    background: #3a2a24;
+    color: #fff;
+}
+
+.module-filters-card .dropdown-item.text-danger:hover,
+.module-filters-card .dropdown-item.text-danger:focus {
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+}
+
+.module-filters-card .dropdown-divider {
+    margin: .55rem 0;
+    border-top-color: rgba(58, 42, 36, 0.12);
+}
 /* .badge {
     padding: 3px 5px !important;
     font-size: 0.85rem;
@@ -1551,6 +1593,7 @@ z-index:2000 !important;
   padding-right: 2.6rem !important;
   background-image: none !important;
   transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+  border-radius: 16px !important;
 }
 
 .producto-form .producto-valid-icon,
@@ -1701,10 +1744,24 @@ z-index:2000 !important;
   min-height: 38px;
   padding: 8px 10px;
   font-size: .94rem;
+  border-radius: 16px !important;
 }
 
 #ajaxFormModalBody .producto-form textarea.form-control{
   min-height: 96px;
+}
+
+#ajaxFormModalBody .producto-form .input-group{
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+#ajaxFormModalBody .producto-form .input-group .input-group-text{
+  border-radius: 16px 0 0 16px;
+}
+
+#ajaxFormModalBody .producto-form .input-group .form-control{
+  border-radius: 0 16px 16px 0 !important;
 }
 
 #ajaxFormModalBody .dropzone-pro-lg{
@@ -1767,6 +1824,14 @@ z-index:2000 !important;
   background: #fff;
   padding-top: 8px;
   border-top: 1px solid #eceff3;
+}
+
+#ajaxFormModalBody .producto-form .btn,
+#ajaxFormModalBody .producto-form .btn-pill-dark,
+#ajaxFormModalBody .producto-form .btn-primary,
+#ajaxFormModalBody .producto-form .btn-light,
+#ajaxFormModalBody .producto-form .btn-outline-secondary {
+  border-radius: 16px;
 }
 
 /* Restaurar estilo anterior de botones solo en modal de producto */

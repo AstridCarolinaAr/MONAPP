@@ -63,6 +63,20 @@ class Promocion(models.Model):
         verbose_name = 'Promoción'
         verbose_name_plural = 'Promociones'
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        errores = {}
+        if self.nombre:
+            nombre = self.nombre.strip()
+            qs = Promocion.objects.filter(nombre__iexact=nombre)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                errores['nombre'] = 'Ya existe una promocion con este nombre.'
+        if errores:
+            raise ValidationError(errores)
+
     def resize_image(self):
         """Redimensiona la imagen a un tamaño máximo de 400x300px manteniendo la proporción"""
         if self.imagen:
@@ -97,6 +111,7 @@ class Promocion(models.Model):
         # Si hay una imagen nueva, redimensionarla
         if self.imagen:
             self.resize_image()
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):

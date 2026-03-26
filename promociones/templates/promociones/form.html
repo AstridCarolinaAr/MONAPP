@@ -72,6 +72,21 @@
     box-shadow: 0 4px 15px rgba(0,0,0,.2);
     border: 3px solid #fff;
 }
+.promo-form-card .form-control,
+.promo-form-card .form-select,
+.promo-form-card .btn,
+.promo-form-card .input-group {
+    border-radius: 16px;
+}
+.promo-form-card .input-group {
+    overflow: hidden;
+}
+.promo-form-card .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.promo-form-card .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
 .form-label.fw-semibold { color: #5c3d2e; }
 .form-control:focus, .form-select:focus {
     border-color: #8d604a;
@@ -148,7 +163,7 @@
             <i class="bi bi-pencil-square me-2"></i>{{ titulo }}
         </div>
         <div class="card-body p-4">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" data-promocion-id="{{ promocion.pk|default:'' }}">
                 {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -347,7 +362,45 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
         else if (!PROMO_REG.test(v)) msg = 'Solo se permiten letras y espacios. No se admiten números ni caracteres especiales.';
+        else if (input.dataset.nombreDuplicado === '1') msg = 'Ya existe una promocion con este nombre.';
         return promoErr(input, errEl, msg, iconEl);
+    }
+
+    const PROMO_DUP_URL = "{% url 'promociones:validar_nombre_promocion' %}";
+    const promoFormEl = document.querySelector('form[data-promocion-id]');
+
+    async function validarNombreDuplicadoPromo() {
+        const input = document.getElementById('id_nombre');
+        if (!input) return true;
+
+        const v = (input.value || '').trim();
+        if (!v || v.length < 2) return true;
+
+        const promocionId = (promoFormEl?.dataset?.promocionId || '').trim();
+        const url = new URL(PROMO_DUP_URL, window.location.origin);
+        url.searchParams.set('nombre', v);
+        if (promocionId) url.searchParams.set('promocion_id', promocionId);
+
+        const token = String(Date.now()) + Math.random().toString(36).slice(2);
+        input.dataset.dupToken = token;
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json().catch(() => ({}));
+            if (input.dataset.dupToken !== token) return false;
+            if (!data.valid) {
+                input.dataset.nombreDuplicado = '1';
+                promoErr(input, document.getElementById('err_nombre_promo_form'), data.message || 'Ya existe una promocion con este nombre.', document.getElementById('icon_nombre_form'));
+                return false;
+            }
+            delete input.dataset.nombreDuplicado;
+            promoErr(input, document.getElementById('err_nombre_promo_form'), '', document.getElementById('icon_nombre_form'));
+            return true;
+        } catch (error) {
+            return true;
+        }
     }
 
     function validarDescuentoPromo(input, errEl, iconEl) {
@@ -435,8 +488,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconNombre     = document.getElementById('icon_nombre_form');
     if (nombreInput && errNombre) {
         nombreInput.addEventListener('keydown', bloquearCaracteresNombre);
-        nombreInput.addEventListener('input', () => validarNombrePromo(nombreInput, errNombre, iconNombre));
-        nombreInput.addEventListener('blur',  () => validarNombrePromo(nombreInput, errNombre, iconNombre));
+        nombreInput.addEventListener('input', () => {
+            validarNombrePromo(nombreInput, errNombre, iconNombre);
+            validarNombreDuplicadoPromo();
+        });
+        nombreInput.addEventListener('blur',  () => {
+            validarNombrePromo(nombreInput, errNombre, iconNombre);
+            validarNombreDuplicadoPromo();
+        });
         nombreInput.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto = (e.clipboardData || window.clipboardData).getData('text');

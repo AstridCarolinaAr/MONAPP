@@ -130,6 +130,21 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
 }
 .modal-header.pw-header .btn-close { filter: brightness(0) invert(1); }
 .modal-content { border-radius: 12px; border: none; box-shadow: 0 12px 40px rgba(0,0,0,.2); }
+.modal-content .form-control,
+.modal-content .form-select,
+.modal-content .btn {
+    border-radius: 16px;
+}
+.modal-content .input-group {
+    overflow: hidden;
+    border-radius: 16px;
+}
+.modal-content .input-group .input-group-text {
+    border-radius: 16px 0 0 16px;
+}
+.modal-content .input-group .form-control {
+    border-radius: 0 16px 16px 0 !important;
+}
 
 /* Dropzone de imagen */
 .pw-dropzone {
@@ -425,6 +440,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                                 </button>
                                 <button type="button"
                                    class="table-action-btn btn-editar-pw"
+                                   data-producto-id="{{ p.pk }}"
                                    data-edit-url="{% url 'productos_web:editar' p.pk %}"
                                    data-detail-url="{% url 'productos_web:detalle_json' p.pk %}"
                                    title="Editar">
@@ -464,7 +480,7 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                     &times;
                 </button>
             </div>
-            <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data">
+            <form method="post" action="{% url 'productos_web:crear' %}" enctype="multipart/form-data" data-producto-id="">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row g-3">
@@ -530,13 +546,17 @@ th[data-sort].desc::after { content: ' ↓'; opacity: 1; }
                     &times;
                 </button>
             </div>
-            <form method="post" id="formEditarPW" enctype="multipart/form-data">
+            <form method="post" id="formEditarPW" enctype="multipart/form-data" data-producto-id="">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold" for="pwEditNombre">Nombre</label>
-                            <input type="text" class="form-control" id="pwEditNombre" name="nombre" maxlength="200" required>
+                            <div class="pw-input-wrapper">
+                                <input type="text" class="form-control" id="pwEditNombre" name="nombre" maxlength="200" required>
+                                <i class="bi bi-check-lg pw-validation-icon" id="icon_nombre_editar"></i>
+                            </div>
+                            <div class="pw-name-error" id="err_nombre_editar"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold" for="pwEditPrecio">Precio Público <small class="text-muted">(pesos colombianos)</small></label>
@@ -794,7 +814,42 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (v.length < 2)     msg = 'Mínimo 2 caracteres.';
         else if (v.length > 200)   msg = 'Máximo 200 caracteres.';
         else if (!REG.test(v))     msg = 'Solo se permiten letras, espacios y los caracteres: . , - ( )';
+        else if (input.dataset.nombreDuplicado === '1') msg = 'Ya existe un producto con este nombre.';
         return pwSetError(input, errEl, msg, 'is-valid-name', 'is-invalid-name', iconEl);
+    }
+
+    const PW_DUP_URL = "{% url 'productos_web:validar_nombre_producto_web' %}";
+
+    async function pwValidarNombreDuplicado(input, errEl, iconEl) {
+        const v = (input.value || '').trim();
+        if (!v || v.length < 2) return true;
+
+        const form = input.closest('form');
+        const productoId = (form?.dataset?.productoId || '').trim();
+        const url = new URL(PW_DUP_URL, window.location.origin);
+        url.searchParams.set('nombre', v);
+        if (productoId) url.searchParams.set('producto_id', productoId);
+
+        const token = String(Date.now()) + Math.random().toString(36).slice(2);
+        input.dataset.dupToken = token;
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json().catch(() => ({}));
+            if (input.dataset.dupToken !== token) return false;
+            if (!data.valid) {
+                input.dataset.nombreDuplicado = '1';
+                pwSetError(input, errEl, data.message || 'Ya existe un producto con este nombre.', 'is-valid-name', 'is-invalid-name', iconEl);
+                return false;
+            }
+            delete input.dataset.nombreDuplicado;
+            pwSetError(input, errEl, '', 'is-valid-name', 'is-invalid-name', iconEl);
+            return true;
+        } catch (error) {
+            return true;
+        }
     }
 
     function pwBloquearCaracteresPrecio(e) {
@@ -882,8 +937,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ag.nombre) {
         ag.nombre.addEventListener('keydown', pwBloquearCaracteresNombre);
-        ag.nombre.addEventListener('input', () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
-        ag.nombre.addEventListener('blur',  () => pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre));
+        ag.nombre.addEventListener('input', () => {
+            pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre);
+            pwValidarNombreDuplicado(ag.nombre, ag.errNombre, ag.iconNombre);
+        });
+        ag.nombre.addEventListener('blur',  () => {
+            pwValidarNombre(ag.nombre, ag.errNombre, ag.iconNombre);
+            pwValidarNombreDuplicado(ag.nombre, ag.errNombre, ag.iconNombre);
+        });
         ag.nombre.addEventListener('paste', function (e) {
             e.preventDefault();
             const texto  = (e.clipboardData || window.clipboardData).getData('text');
@@ -946,6 +1007,8 @@ document.addEventListener('DOMContentLoaded', () => {
         modalEl: document.getElementById('modalEditarPW'),
         form: document.getElementById('formEditarPW'),
         nombre: document.getElementById('pwEditNombre'),
+        errNombre: document.getElementById('err_nombre_editar'),
+        iconNombre: document.getElementById('icon_nombre_editar'),
         precio: document.getElementById('pwEditPrecio'),
         descripcion: document.getElementById('pwEditDescripcion'),
         imagen: document.getElementById('pwEditImagen'),
@@ -959,10 +1022,22 @@ document.addEventListener('DOMContentLoaded', () => {
         edit.imagen.addEventListener('change', () => pwValidarImagen(edit.imagen, { textContent: '', classList: { add(){}, remove(){} } }, edit.preview));
     }
 
+    if (edit.nombre) {
+        edit.nombre.addEventListener('input', () => {
+            pwValidarNombre(edit.nombre, edit.errNombre, edit.iconNombre);
+            pwValidarNombreDuplicado(edit.nombre, edit.errNombre, edit.iconNombre);
+        });
+        edit.nombre.addEventListener('blur', () => {
+            pwValidarNombre(edit.nombre, edit.errNombre, edit.iconNombre);
+            pwValidarNombreDuplicado(edit.nombre, edit.errNombre, edit.iconNombre);
+        });
+    }
+
     document.querySelectorAll('.btn-editar-pw').forEach(btn => {
         btn.addEventListener('click', async () => {
             if (!edit.form || !edit.modalEl) return;
             edit.form.action = btn.dataset.editUrl;
+            edit.form.dataset.productoId = btn.dataset.productoId || '';
             edit.nombre.value = '';
             edit.precio.value = '';
             edit.descripcion.value = '';

@@ -545,9 +545,29 @@
 
       if (result.type === "json") {
         if (result.data?.success) {
-          modal?.hide();
-          if (result.data.redirect_url) window.location.href = result.data.redirect_url;
-          else window.location.reload();
+          const esEdicion = Boolean(form.dataset.proveedorId);
+          const successTitle = esEdicion ? "Proveedor actualizado" : "Proveedor guardado";
+          const successText = result.data.message || (esEdicion
+            ? "El proveedor se actualizó correctamente."
+            : "El proveedor se guardó correctamente.");
+
+          const finalizar = () => {
+            modal?.hide();
+            if (result.data.redirect_url) window.location.href = result.data.redirect_url;
+            else window.location.reload();
+          };
+
+          if (typeof Swal !== "undefined" && Swal.fire) {
+            await Swal.fire({
+              title: successTitle,
+              text: successText,
+              icon: "success",
+              confirmButtonText: "OK",
+              confirmButtonColor: "#198754",
+            });
+          }
+
+          finalizar();
           return;
         }
 

@@ -8,6 +8,13 @@ from core.form_validations import ValidationFormMixin
 from .models import Promocion
 
 
+def _nombre_promocion_duplicado(nombre, promocion_id=None):
+    qs = Promocion.objects.filter(nombre__iexact=nombre)
+    if promocion_id:
+        qs = qs.exclude(pk=promocion_id)
+    return qs.exists()
+
+
 class PromocionForm(ValidationFormMixin, forms.ModelForm):
     @staticmethod
     def get_date_limits():
@@ -100,6 +107,9 @@ class PromocionForm(ValidationFormMixin, forms.ModelForm):
             raise forms.ValidationError(
                 "El nombre solo puede contener letras y espacios. No se permiten numeros ni caracteres especiales."
             )
+        promocion_id = getattr(self.instance, "pk", None)
+        if _nombre_promocion_duplicado(nombre, promocion_id):
+            raise forms.ValidationError("Ya existe una promocion con este nombre.")
         return nombre
 
     def clean_descripcion(self):

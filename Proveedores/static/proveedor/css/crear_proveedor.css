@@ -64,7 +64,7 @@
 .form-grid input,
 .form-grid select {
     width: 100%;
-    border-radius: 3px;
+    border-radius: 16px;
     padding: 3px 5px;
     border: 1px solid #d6cfc9;
     font-size: 12px;
@@ -121,6 +121,11 @@
     text-decoration: none;
 }
 
+.proveedor-form .btn,
+.ultra-modal .btn {
+    border-radius: 16px;
+}
+
 /* =========================================
    VALIDACION VISUAL EXACTA TIPO SERVICIOS
 ========================================= */
@@ -138,6 +143,7 @@
     padding-right: 2.6rem !important;
     transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
     background-image: none !important;
+    border-radius: 16px !important;
 }
 
 /* QUITAR ICONOS NATIVOS DE BOOTSTRAP */

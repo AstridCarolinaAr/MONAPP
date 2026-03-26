@@ -25,7 +25,7 @@
                     <h4 class="mb-0">{{ titulo }}</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="formServicioPage" data-servicio-form="1">
+                    <form method="post" enctype="multipart/form-data" id="formServicioPage" data-servicio-form="1" data-servicio-id="{{ servicio.pk|default:'' }}" data-servicio-validar-url="{% url 'servicios:validar_nombre_servicio' %}">
                         {% csrf_token %}
                         
                         <div class="mb-3">
