@@ -27,6 +27,114 @@ def _promociones_activas():
     return Promocion.objects.filter(activa=True).order_by("nombre")
 
 
+def _iniciales_ultima_gestion(cliente_obj):
+    if not cliente_obj:
+        return {}
+
+    ultima = GestionAlisado.objects.filter(cliente=cliente_obj).order_by("-fecha_hora").first()
+    if not ultima:
+        return {"cliente": cliente_obj}
+
+    return {
+        "cliente": cliente_obj,
+        "precio_alisado": ultima.precio_alisado,
+        "es_oferta_especial": ultima.es_oferta_especial,
+        "descripcion_oferta": ultima.descripcion_oferta or "",
+        "anticipo_cliente": ultima.anticipo_cliente,
+        "medio_pago": ultima.medio_pago,
+        "saldo_pendiente": ultima.saldo_pendiente,
+        "procedimiento_realizado_por": ultima.procedimiento_realizado_por,
+        "tipo_alisado": ultima.tipo_alisado,
+        "requiere_resellado": ultima.requiere_resellado,
+        "porcentaje_alisado": ultima.porcentaje_alisado,
+        "porosidad": ultima.porosidad,
+        "textura": ultima.textura,
+        "forma_natural": ultima.forma_natural,
+        "elasticidad": ultima.elasticidad,
+        "longitud": ultima.longitud,
+        "densidad": ultima.densidad,
+        "piel_cabelludo": ultima.piel_cabelludo,
+        "alopecia": ultima.alopecia,
+        "caida_cabello": ultima.caida_cabello,
+        "lactante": ultima.lactante,
+        "gestante": ultima.gestante,
+        "caspa": ultima.caspa,
+        "procesos_tintura": ultima.procesos_tintura,
+        "procesos_decoloracion": ultima.procesos_decoloracion,
+        "procesos_ondulados": ultima.procesos_ondulados,
+        "procesos_extracciones": ultima.procesos_extracciones,
+        "procesos_alisados": ultima.procesos_alisados,
+        "procesos_super_aclarante": ultima.procesos_super_aclarante,
+        "procesos_otro": ultima.procesos_otro or "",
+        "cuenta_con_secador": ultima.cuenta_con_secador,
+        "frecuencia_recoge_cabello": ultima.frecuencia_recoge_cabello,
+        "realiza_ejercicio": ultima.realiza_ejercicio,
+        "frecuencia_ejercicio": ultima.frecuencia_ejercicio or "",
+        "usa_casco": ultima.usa_casco,
+        "productos_capilares": ultima.productos_capilares,
+        "se_bana_agua_caliente": ultima.se_bana_agua_caliente,
+        "requiere_refuerzo_15dias": ultima.requiere_refuerzo_15dias,
+        "sufre_tiroides": ultima.sufre_tiroides,
+        "medicamento_tiroides": ultima.medicamento_tiroides or "",
+        "despunte_hoy": ultima.despunte_hoy,
+        "recomendaciones_post_cuidados": ultima.recomendaciones_post_cuidados,
+    }
+
+
+def _datos_ultima_gestion(cliente_obj):
+    if not cliente_obj:
+        return {}
+    ultima = GestionAlisado.objects.filter(cliente=cliente_obj).order_by("-fecha_hora").first()
+    if not ultima:
+        return {}
+    return {
+        "cliente": str(cliente_obj.pk),
+        "cliente_nombre": f"{cliente_obj.nombre} {cliente_obj.apellido}",
+        "cliente_documento": cliente_obj.numero_documento,
+        "precio_alisado": ultima.precio_alisado,
+        "es_oferta_especial": ultima.es_oferta_especial,
+        "descripcion_oferta": ultima.descripcion_oferta or "",
+        "anticipo_cliente": ultima.anticipo_cliente,
+        "medio_pago": ultima.medio_pago,
+        "saldo_pendiente": ultima.saldo_pendiente,
+        "procedimiento_realizado_por": ultima.procedimiento_realizado_por,
+        "tipo_alisado": ultima.tipo_alisado,
+        "requiere_resellado": ultima.requiere_resellado,
+        "porcentaje_alisado": ultima.porcentaje_alisado,
+        "porosidad": ultima.porosidad,
+        "textura": ultima.textura,
+        "forma_natural": ultima.forma_natural,
+        "elasticidad": ultima.elasticidad,
+        "longitud": ultima.longitud,
+        "densidad": ultima.densidad,
+        "piel_cabelludo": ultima.piel_cabelludo,
+        "alopecia": ultima.alopecia,
+        "caida_cabello": ultima.caida_cabello,
+        "lactante": ultima.lactante,
+        "gestante": ultima.gestante,
+        "caspa": ultima.caspa,
+        "procesos_tintura": ultima.procesos_tintura,
+        "procesos_decoloracion": ultima.procesos_decoloracion,
+        "procesos_ondulados": ultima.procesos_ondulados,
+        "procesos_extracciones": ultima.procesos_extracciones,
+        "procesos_alisados": ultima.procesos_alisados,
+        "procesos_super_aclarante": ultima.procesos_super_aclarante,
+        "procesos_otro": ultima.procesos_otro or "",
+        "cuenta_con_secador": ultima.cuenta_con_secador,
+        "frecuencia_recoge_cabello": ultima.frecuencia_recoge_cabello,
+        "realiza_ejercicio": ultima.realiza_ejercicio,
+        "frecuencia_ejercicio": ultima.frecuencia_ejercicio or "",
+        "usa_casco": ultima.usa_casco,
+        "productos_capilares": ultima.productos_capilares,
+        "se_bana_agua_caliente": ultima.se_bana_agua_caliente,
+        "requiere_refuerzo_15dias": ultima.requiere_refuerzo_15dias,
+        "sufre_tiroides": ultima.sufre_tiroides,
+        "medicamento_tiroides": ultima.medicamento_tiroides or "",
+        "despunte_hoy": ultima.despunte_hoy,
+        "recomendaciones_post_cuidados": ultima.recomendaciones_post_cuidados,
+    }
+
+
 def _filtrar_gestiones_desde_request(request):
     gestiones = GestionAlisado.objects.select_related("cliente").all()
     buscar = request.GET.get("buscar", "")
@@ -70,10 +178,7 @@ def form_gestion_alisado_modal_content(request):
         except (ValueError, Cliente.DoesNotExist):
             cliente_obj = None
 
-    if cliente_obj:
-        form = GestionAlisadoForm(initial={"cliente": cliente_obj})
-    else:
-        form = GestionAlisadoForm()
+    form = GestionAlisadoForm(initial=_iniciales_ultima_gestion(cliente_obj) if cliente_obj else None)
 
     form.fields["cliente"].widget.attrs["id"] = "selectCliente"
     form.fields["cliente"].widget.attrs["class"] = "form-select"
@@ -224,7 +329,7 @@ def crear_gestion_alisado(request):
         if cliente_id:
             try:
                 cliente_obj = Cliente.objects.get(id=int(cliente_id))
-                form = GestionAlisadoForm(initial={"cliente": cliente_obj})
+                form = GestionAlisadoForm(initial=_iniciales_ultima_gestion(cliente_obj))
             except (ValueError, Cliente.DoesNotExist):
                 form = GestionAlisadoForm()
         else:
@@ -244,6 +349,25 @@ def crear_gestion_alisado(request):
     if is_modal:
         return render(request, 'gestion_alisados/form_gestion_alisado_modal_content.html', context)
     return render(request, 'gestion_alisados/form_gestion_alisado.html', context)
+
+
+@login_required
+def ultima_gestion_cliente(request):
+    cliente_id = (request.GET.get("cliente") or "").strip()
+    if not cliente_id:
+        return JsonResponse({"success": False, "message": "Cliente no indicado."}, status=400)
+
+    try:
+        cliente_obj = Cliente.objects.get(pk=int(cliente_id))
+    except (ValueError, Cliente.DoesNotExist):
+        return JsonResponse({"success": False, "message": "Cliente no válido."}, status=404)
+
+    datos = _datos_ultima_gestion(cliente_obj)
+    return JsonResponse({
+        "success": True,
+        "tiene_historial": bool(datos),
+        "datos": datos,
+    })
 
 
 @login_required

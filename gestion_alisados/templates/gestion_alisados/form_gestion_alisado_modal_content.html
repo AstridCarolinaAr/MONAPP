@@ -44,6 +44,16 @@
     .conditional-field.show {
         display: block;
     }
+
+    .gestion-alisado-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 15;
+        background: #fff;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.08);
+    }
     
     .checkbox-group {
         display: grid;
@@ -204,7 +214,7 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{{ action_url|default:request.path }}" novalidate>
+<form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" action="{{ action_url|default:request.path }}" novalidate data-es-edicion="{% if gestion %}1{% else %}0{% endif %}">
                         {% csrf_token %}
                         
                         <!-- PASO 1: Información General -->
@@ -726,7 +736,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer flex-wrap gap-2">
+            <div class="modal-footer flex-wrap gap-2 gestion-alisado-actions">
                 <div class="me-auto d-flex gap-2 flex-wrap align-items-center">
                     <button type="button" class="btn btn-outline-danger" id="btnImprimirPDF" title="Opcional: descarga un PDF con todos los datos del formulario">
                         <i class="bi bi-file-earmark-pdf"></i> Imprimir PDF
@@ -805,26 +815,151 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     // Inicializar información del cliente en consentimiento
     const selectCliente = document.getElementById('selectCliente');
     const infoClienteConsentimiento = document.getElementById('infoClienteConsentimiento');
-    
+    const formularioGestion = document.getElementById('gestionAlisadoForm');
+    const esEdicionGestion = formularioGestion && formularioGestion.dataset.esEdicion === '1';
+    const urlUltimaGestionCliente = "{% url 'gestion_alisados:ultima_gestion_cliente' %}";
+
     function actualizarInfoCliente() {
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         if (selectCliente.value) {
-            const nombreCompleto = selectedOption.text;
-            const numeroDocumento = selectedOption.getAttribute('data-documento') || 'N/A';
+            const textoCompleto = (selectedOption.text || '').trim();
+            const nombreCompleto = textoCompleto.split(' - ')[0].trim() || textoCompleto || 'N/A';
+            const numeroDocumento = (selectedOption.getAttribute('data-documento') || textoCompleto.split(' - ').pop() || 'N/A').trim() || 'N/A';
+            if (infoClienteConsentimiento) {
+                infoClienteConsentimiento.dataset.nombre = nombreCompleto;
+                infoClienteConsentimiento.dataset.documento = numeroDocumento;
+            }
             infoClienteConsentimiento.innerHTML = `
                 <strong>Nombre:</strong> ${nombreCompleto}<br>
                 <strong>Documento:</strong> ${numeroDocumento}
             `;
         } else {
+            if (infoClienteConsentimiento) {
+                infoClienteConsentimiento.dataset.nombre = '';
+                infoClienteConsentimiento.dataset.documento = '';
+            }
             infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
+        }
+    }
+
+    function asegurarOpcion(select, valor) {
+        if (!select || valor === null || valor === undefined || valor === '') return;
+        const texto = String(valor);
+        const existe = Array.from(select.options).some(function (opt) {
+            return opt.value === texto;
+        });
+        if (!existe) {
+            select.add(new Option(texto, texto, true, true));
+        } else {
+            select.value = texto;
+        }
+    }
+
+    function aplicarDatosHistorial(datos) {
+        if (!datos || esEdicionGestion || !formularioGestion) return;
+
+        formularioGestion.reset();
+        if (datos.cliente) {
+            selectCliente.value = datos.cliente;
+        }
+
+        const mapaCampos = {
+            precio_alisado: datos.precio_alisado,
+            es_oferta_especial: datos.es_oferta_especial,
+            descripcion_oferta: datos.descripcion_oferta,
+            anticipo_cliente: datos.anticipo_cliente,
+            medio_pago: datos.medio_pago,
+            saldo_pendiente: datos.saldo_pendiente,
+            procedimiento_realizado_por: datos.procedimiento_realizado_por,
+            tipo_alisado: datos.tipo_alisado,
+            requiere_resellado: datos.requiere_resellado,
+            porcentaje_alisado: datos.porcentaje_alisado,
+            porosidad: datos.porosidad,
+            textura: datos.textura,
+            forma_natural: datos.forma_natural,
+            elasticidad: datos.elasticidad,
+            longitud: datos.longitud,
+            densidad: datos.densidad,
+            piel_cabelludo: datos.piel_cabelludo,
+            alopecia: datos.alopecia,
+            caida_cabello: datos.caida_cabello,
+            lactante: datos.lactante,
+            gestante: datos.gestante,
+            caspa: datos.caspa,
+            procesos_otro: datos.procesos_otro,
+            cuenta_con_secador: datos.cuenta_con_secador,
+            frecuencia_recoge_cabello: datos.frecuencia_recoge_cabello,
+            realiza_ejercicio: datos.realiza_ejercicio,
+            frecuencia_ejercicio: datos.frecuencia_ejercicio,
+            usa_casco: datos.usa_casco,
+            productos_capilares: datos.productos_capilares,
+            se_bana_agua_caliente: datos.se_bana_agua_caliente,
+            requiere_refuerzo_15dias: datos.requiere_refuerzo_15dias,
+            sufre_tiroides: datos.sufre_tiroides,
+            medicamento_tiroides: datos.medicamento_tiroides,
+            despunte_hoy: datos.despunte_hoy,
+            recomendaciones_post_cuidados: datos.recomendaciones_post_cuidados
+        };
+
+        Object.keys(mapaCampos).forEach(function (nombre) {
+            const control = formularioGestion.elements.namedItem(nombre);
+            const valor = mapaCampos[nombre];
+            if (!control) return;
+
+            if (control.type === 'checkbox') {
+                control.checked = Boolean(valor);
+                return;
+            }
+
+            if (control.tagName === 'SELECT') {
+                asegurarOpcion(control, valor);
+                return;
+            }
+
+            control.value = valor == null ? '' : String(valor);
+        });
+
+        actualizarInfoCliente();
+        if (typeof calcularSaldo === 'function') {
+            calcularSaldo();
+        }
+    }
+
+    async function cargarHistorialClienteSeleccionado() {
+        if (esEdicionGestion || !selectCliente || !selectCliente.value) return;
+
+        const clienteActual = selectCliente.value;
+        formularioGestion.reset();
+        selectCliente.value = clienteActual;
+        actualizarInfoCliente();
+
+        try {
+            const response = await fetch(`${urlUltimaGestionCliente}?cliente=${encodeURIComponent(selectCliente.value)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+
+            if (data && data.success && data.tiene_historial && data.datos) {
+                aplicarDatosHistorial(data.datos);
+            }
+        } catch (error) {
+            console.warn('No se pudo cargar el historial del cliente.', error);
         }
     }
     
     // Actualizar info cuando cambia el cliente
-    selectCliente.addEventListener('change', actualizarInfoCliente);
+    selectCliente.addEventListener('change', function () {
+        actualizarInfoCliente();
+        cargarHistorialClienteSeleccionado();
+    });
     
     // Actualizar al cargar
     actualizarInfoCliente();
+    if (selectCliente.value && !esEdicionGestion) {
+        cargarHistorialClienteSeleccionado();
+    }
     
     // ========== VALIDACIÓN EN TIEMPO REAL ==========
     function validarCampoTiempoReal(campo) {
@@ -1206,6 +1341,137 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             this.value = 100;
         }
     });
+
+    const estadoImpresion = {
+        clienteNombre: '—',
+        clienteDocumento: '—',
+        precioAlisado: '—',
+        esOferta: 'No',
+        descripOferta: '—',
+        anticipo: '—',
+        medioPago: '—',
+        saldo: '—',
+        realizadoPor: '—',
+        tipoAlisado: '—',
+        resellado: 'No',
+        porcentaje: '—',
+    };
+
+    function leerTextoSeleccion(el) {
+        if (!el) return '—';
+        if (el.tagName !== 'SELECT') return (el.value || '—').trim() || '—';
+        const opt = el.selectedOptions && el.selectedOptions[0];
+        if (!opt || !el.value || !opt.value) return '—';
+        return opt.text.trim() || '—';
+    }
+
+    function getClienteSeleccionado() {
+        if (!selectCliente) return null;
+        const valor = (selectCliente.value || '').trim();
+        if (!valor) return null;
+        const opciones = Array.from(selectCliente.options || []);
+        const opcion = (selectCliente.selectedOptions && selectCliente.selectedOptions[0]) ||
+            opciones.find(function (opt) { return opt && opt.value === valor; }) ||
+            selectCliente.options[selectCliente.selectedIndex] || null;
+        if (!opcion) return null;
+        const textoCompleto = (opcion.text || '').trim();
+        const nombre = textoCompleto.split(' - ')[0].trim() || textoCompleto;
+        const documento = (opcion.getAttribute('data-documento') || textoCompleto.split(' - ').pop() || '').trim();
+        return {
+            value: valor,
+            nombre: nombre || '—',
+            documento: documento || '—',
+        };
+    }
+
+    function getTextoControl(nombre) {
+        const form = document.getElementById('gestionAlisadoForm');
+        if (!form) return '—';
+        const control = form.elements.namedItem(nombre);
+        if (!control) return '—';
+
+        if (typeof control.length === 'number' && !control.tagName) {
+            const candidato = Array.from(control).find(function (el) {
+                return el && !el.disabled && el.type !== 'hidden';
+            }) || control[0] || null;
+            if (!candidato) return '—';
+            if (candidato.type === 'checkbox') {
+                return candidato.checked ? 'Sí' : 'No';
+            }
+            if (candidato.tagName === 'SELECT') {
+                const opcion = candidato.selectedOptions && candidato.selectedOptions[0];
+                return (opcion && opcion.value) ? (opcion.text || '—').trim() || '—' : '—';
+            }
+            return (candidato.value || '—').trim() || '—';
+        }
+
+        if (control.type === 'checkbox') {
+            return control.checked ? 'Sí' : 'No';
+        }
+        if (control.tagName === 'SELECT') {
+            const opcion = control.selectedOptions && control.selectedOptions[0];
+            return (opcion && opcion.value) ? (opcion.text || '—').trim() || '—' : '—';
+        }
+        return (control.value || '—').trim() || '—';
+    }
+
+    function leerValorActual(id) {
+        const el = document.getElementById(id);
+        if (!el) return '—';
+        if (el.tagName === 'SELECT') {
+            const opcion = el.selectedOptions && el.selectedOptions[0];
+            return (opcion && opcion.value) ? (opcion.text || '—').trim() || '—' : '—';
+        }
+        if (el.type === 'checkbox') {
+            return el.checked ? 'Sí' : 'No';
+        }
+        return (el.value || '—').trim() || '—';
+    }
+
+    function leerClienteActual() {
+        const select = document.getElementById('selectCliente');
+        if (!select) {
+            return { nombre: '—', documento: '—' };
+        }
+        const opcion = (select.selectedOptions && select.selectedOptions[0]) || select.options[select.selectedIndex] || null;
+        if (!opcion || !select.value) {
+            const info = document.getElementById('infoClienteConsentimiento');
+            const nombreInfo = info && info.dataset ? (info.dataset.nombre || '').trim() : '';
+            const documentoInfo = info && info.dataset ? (info.dataset.documento || '').trim() : '';
+            return {
+                nombre: nombreInfo || '—',
+                documento: documentoInfo || '—',
+            };
+        }
+        return {
+            nombre: (opcion.text || '—').trim() || '—',
+            documento: (opcion.getAttribute('data-documento') || '—').trim() || '—',
+        };
+    }
+
+    function actualizarEstadoImpresion() {
+        const cliente = leerClienteActual();
+        estadoImpresion.clienteNombre = cliente.nombre;
+        estadoImpresion.clienteDocumento = cliente.documento;
+        estadoImpresion.precioAlisado = leerValorActual('{{ form.precio_alisado.id_for_label }}');
+        estadoImpresion.anticipo = leerValorActual('{{ form.anticipo_cliente.id_for_label }}');
+        estadoImpresion.medioPago = leerTextoSeleccion(document.getElementById('{{ form.medio_pago.id_for_label }}'));
+        estadoImpresion.realizadoPor = leerTextoSeleccion(document.getElementById('{{ form.procedimiento_realizado_por.id_for_label }}'));
+        estadoImpresion.tipoAlisado = leerTextoSeleccion(document.getElementById('{{ form.tipo_alisado.id_for_label }}'));
+        estadoImpresion.porcentaje = leerValorActual('{{ form.porcentaje_alisado.id_for_label }}');
+        estadoImpresion.saldo = leerValorActual('{{ form.saldo_pendiente.id_for_label }}');
+        estadoImpresion.esOferta = leerTextoSeleccion(document.getElementById('{{ form.es_oferta_especial.id_for_label }}')) || 'No';
+        estadoImpresion.descripOferta = (descripcionOferta && descripcionOferta.value.trim()) ? descripcionOferta.value.trim() : '—';
+        estadoImpresion.resellado = leerTextoSeleccion(document.getElementById('{{ form.requiere_resellado.id_for_label }}')) || 'No';
+    }
+
+
+    [selectCliente, precioInput, anticipoInput, porcentajeInput, ofertaSelect, promocionSelect, descripcionOferta, document.getElementById('{{ form.medio_pago.id_for_label }}'), document.getElementById('{{ form.procedimiento_realizado_por.id_for_label }}'), document.getElementById('{{ form.tipo_alisado.id_for_label }}'), document.getElementById('{{ form.requiere_resellado.id_for_label }}')].forEach(function (el) {
+        if (!el) return;
+        const ev = el.tagName === 'SELECT' ? 'change' : 'input';
+        el.addEventListener(ev, actualizarEstadoImpresion);
+    });
+    actualizarEstadoImpresion();
     
     // Variables para el modal de consentimiento
     const modalConsentimiento = new bootstrap.Modal(document.getElementById('modalConsentimiento'));
@@ -1227,35 +1493,61 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     const inputFirma = document.getElementById('{{ form.firma_consentimiento.id_for_label }}');
     const errorFirma = document.getElementById('errorFirma');
     
+    const wrapperCheck = document.getElementById('wrapperCheckboxAceptacion');
+    const msgCheckError = document.getElementById('msgCheckboxError');
+
+    /* Dispara el pulso + estado visual de alerta en el checkbox */
+    function sacudirCheckbox() {
+        // Quitar clase para poder re-disparar la animación
+        wrapperCheck.classList.remove('alerta-tc');
+        msgCheckError.classList.remove('visible');
+
+        // Forzar reflow para reiniciar la animación
+        void wrapperCheck.offsetWidth;
+
+        // Aplicar alerta
+        wrapperCheck.classList.add('alerta-tc');
+        msgCheckError.classList.add('visible');
+
+        // Scroll suave hacia el checkbox dentro del modal
+        wrapperCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Limpiar estilo cuando el usuario lo marque
+        checkboxAceptacion.addEventListener('change', function limpiarAlerta() {
+            if (this.checked) {
+                wrapperCheck.classList.remove('alerta-tc');
+                msgCheckError.classList.remove('visible');
+            }
+            this.removeEventListener('change', limpiarAlerta);
+        });
+    }
+
     function validarConsentimiento() {
-        const clienteSeleccionado = selectCliente.value !== '';
-        const aceptacionMarcada = checkboxAceptacion.checked;
-        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
-        
+        const clienteSeleccionado = !!getClienteSeleccionado();
+        const aceptacionMarcada   = checkboxAceptacion.checked;
+        const firmaSubida         = inputFirma && inputFirma.files && inputFirma.files.length > 0;
+
         // Mostrar/ocultar mensaje de error de firma
         if (aceptacionMarcada && !firmaSubida) {
             errorFirma.style.display = 'block';
         } else {
             errorFirma.style.display = 'none';
         }
-        
+
         btnConfirmarConsentimiento.disabled = !(clienteSeleccionado && aceptacionMarcada && firmaSubida);
     }
-    
+
     checkboxAceptacion.addEventListener('change', validarConsentimiento);
     selectCliente.addEventListener('change', validarConsentimiento);
-    
-    // Agregar validación cuando se sube una firma
+
     if (inputFirma) {
-        inputFirma.addEventListener('change', function() {
-            validarConsentimiento();
-        });
+        inputFirma.addEventListener('change', validarConsentimiento);
     }
     
     // Interceptar el clic en el botón Guardar
     document.getElementById('btnGuardar').addEventListener('click', function(e) {
         e.preventDefault();
-
+        
         // Validar el paso actual antes de mostrar el modal
         if (validateStep(currentStep)) {
             // Verificar que haya un cliente seleccionado
@@ -1263,14 +1555,14 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
                 return;
             }
-
+            
             // Limpiar estado del modal
             checkboxAceptacion.checked = false;
             validarConsentimiento();
             
             // Actualizar información del cliente en el modal
             actualizarInfoCliente();
-
+            
             // Mostrar el modal
             modalConsentimiento.show();
         }
@@ -1283,10 +1575,29 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     
     // Confirmar y guardar
     btnConfirmarConsentimiento.addEventListener('click', function() {
+        const cliente = getClienteSeleccionado();
+        if (!cliente) {
+            mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
+            return;
+        }
+
+        // 1. Verificar checkbox de aceptaci?n
+        if (!checkboxAceptacion.checked) {
+            sacudirCheckbox();
+            return;
+        }
+
+        // 2. Verificar firma
+        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
+        if (!firmaSubida) {
+            errorFirma.style.display = 'block';
+            errorFirma.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         // Obtener datos del cliente seleccionado
-        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
-        const nombreCompleto = selectedOption.text;
-        const numeroDocumento = selectedOption.getAttribute('data-documento') || '';
+        const nombreCompleto = cliente.nombre;
+        const numeroDocumento = cliente.documento || '';
 
         // Agregar los datos de consentimiento al formulario como campos ocultos
         const inputNombre = document.createElement('input');
@@ -1294,19 +1605,19 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         inputNombre.name = 'consentimiento_nombre';
         inputNombre.value = nombreCompleto;
         formulario.appendChild(inputNombre);
-        
+
         const inputCedula = document.createElement('input');
         inputCedula.type = 'hidden';
         inputCedula.name = 'consentimiento_cedula';
         inputCedula.value = numeroDocumento;
         formulario.appendChild(inputCedula);
-        
+
         const inputFecha = document.createElement('input');
         inputFecha.type = 'hidden';
         inputFecha.name = 'consentimiento_fecha';
         inputFecha.value = fechaActual;
         formulario.appendChild(inputFecha);
-        
+
         const inputAceptado = document.createElement('input');
         inputAceptado.type = 'hidden';
         inputAceptado.name = 'consentimiento_aceptado';
@@ -1315,626 +1626,69 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
 
         // Cerrar modal
         modalConsentimiento.hide();
-        
-        // Pequeño delay para asegurar que el modal se cierre antes de enviar
-        setTimeout(function() {
-            // Enviar directamente por AJAX en lugar de usar requestSubmit
-            const formData = new FormData(formulario);
-            const submitUrl = formulario.action;
 
-            fetch(submitUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok && response.status !== 400) {
-                    throw new Error('Error del servidor');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Cerrar modal principal y recargar página
-                    const modalElement = document.getElementById('modalFormGestion');
-                    if (modalElement) {
-                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        if (modalInstance) {
-                            modalInstance.hide();
-                        }
-                    }
-                    mostrarNotificacion('Gestión de datos guardada exitosamente', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Mostrar errores
-                    let errorMsg = data.message || 'Error al guardar';
-                    if (data.errors) {
-                        errorMsg += ':\n';
-                        for (let field in data.errors) {
-                            errorMsg += `\n- ${field}: ${data.errors[field].join(', ')}`;
-                        }
-                    }
-                    mostrarNotificacion(errorMsg, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarNotificacion('Ocurrió un error al guardar. Por favor, intenta nuevamente.', 'error');
-            });
-        }, 300);
+        // Enviar el formulario
+        formulario.submit();
     });
-})();
-</script>
-
-<!-- Modal Crear Cliente -->
-<div class="modal fade" id="modalCrearCliente" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-
-      <form method="post" id="formCrearClienteModal" autocomplete="off">
-        {% csrf_token %}
-
-        <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="bi bi-person-plus me-2"></i> Nuevo cliente
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <div id="alertaErroresClienteModal" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
-            <strong><i class="bi bi-exclamation-triangle"></i> Por favor corrige los siguientes errores:</strong>
-            <ul id="listaErroresClienteModal" class="mb-0 mt-2 small"></ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-          
-          <div class="row g-3">
-            <!-- TIPO DOCUMENTO -->
-            <div class="col-md-6">
-              <label class="form-label">Tipo documento <span class="text-danger">*</span></label>
-              <select name="tipo_documento"
-                      id="tipo_documento_cliente_modal"
-                      class="form-select">
-                <option value="">Seleccione</option>
-                <option value="CC">Cédula</option>
-                <option value="TI">Tarjeta</option>
-                <option value="CE">Extranjería</option>
-                <option value="PP">Pasaporte</option>
-              </select>
-              <div class="invalid-feedback"></div>
-            </div>
-            
-            <!-- NÚMERO DOCUMENTO -->
-            <div class="col-md-6">
-              <label class="form-label">Número documento <span class="text-danger">*</span></label>
-              <input type="text"
-                     id="numero_documento_cliente_modal"
-                     name="numero_documento"
-                     class="form-control"
-                     maxlength="12"
-                     placeholder="Ej: 1234567890"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- NOMBRE -->
-            <div class="col-md-6">
-              <label class="form-label">Nombre <span class="text-danger">*</span></label>
-              <input type="text"
-                     id="nombre_cliente_modal"
-                     name="nombre"
-                     class="form-control"
-                     placeholder="Ej: Juan"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- APELLIDO -->
-            <div class="col-md-6">
-              <label class="form-label">Apellido <span class="text-danger">*</span></label>
-              <input type="text"
-                     id="apellido_cliente_modal"
-                     name="apellido"
-                     class="form-control"
-                     placeholder="Ej: Pérez"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- FECHA NACIMIENTO -->
-            <div class="col-md-6">
-              <label class="form-label">Fecha nacimiento <span class="text-danger">*</span></label>
-              <input type="date"
-                     id="fecha_nacimiento_cliente_modal"
-                     name="fecha_nacimiento"
-                     class="form-control">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- TELÉFONO -->
-            <div class="col-md-6">
-              <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
-              <input type="text"
-                     id="telefono_cliente_modal"
-                     name="telefono"
-                     class="form-control"
-                     maxlength="10"
-                     placeholder="Ej: 3001234567"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-
-            <!-- CORREO -->
-            <div class="col-12">
-              <label class="form-label">Correo electrónico <small class="text-muted">(opcional)</small></label>
-              <input type="email"
-                     id="correo_cliente_modal"
-                     name="correo"
-                     class="form-control"
-                     placeholder="ejemplo@correo.com"
-                     autocomplete="off">
-              <div class="invalid-feedback"></div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-secondary" id="btnGuardarClienteModalGestion" disabled>
-              Guardar cliente
-            </button>
-          </div>
-        </div>
-
-      </form>
-
-    </div>
-  </div>
-</div>
-
-<style>
-  .invalid-feedback {
-    display: block !important;
-    font-size: 0.875em;
-    margin-top: 0.25rem;
-  }
-  
-  .form-control.is-invalid,
-  .form-select.is-invalid {
-    border-color: #dc3545 !important;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  }
-  
-  .form-control.is-valid,
-  .form-select.is-valid {
-    border-color: #198754 !important;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  }
-</style>
-
-<script>
-(function () {
-    const modalCliente = document.getElementById('modalCrearCliente');
-    const formCliente = document.getElementById('formCrearClienteModal');
-    const btnGuardar = document.getElementById('btnGuardarClienteModalGestion');
-    const selectCliente = document.getElementById('selectCliente');
-
-    if (!modalCliente || !formCliente || !btnGuardar) return;
-
-    /* ===============================
-       FUNCIÓN: ESTADO DEL BOTÓN
-    =============================== */
-    function actualizarEstadoBoton() {
-        const obligatorios = [
-            'tipo_documento_cliente_modal',
-            'numero_documento_cliente_modal',
-            'nombre_cliente_modal',
-            'apellido_cliente_modal',
-            'fecha_nacimiento_cliente_modal'
-        ];
-
-        let hayError = false;
-        let hayVacios = false;
-        let noValidos = false;
-
-        obligatorios.forEach(id => {
-            const campo = document.getElementById(id);
-            if (!campo) return;
-
-            if (campo.value.trim() === '') {
-                hayVacios = true;
-            }
-
-            if (campo.classList.contains('is-invalid')) {
-                hayError = true;
-            }
-
-            if (campo.value.trim() !== '' && !campo.classList.contains('is-valid')) {
-                noValidos = true;
-            }
-        });
-
-        if (hayError || hayVacios || noValidos) {
-            btnGuardar.disabled = true;
-            btnGuardar.classList.remove('btn-dark');
-            btnGuardar.classList.add('btn-secondary');
-        } else {
-            btnGuardar.disabled = false;
-            btnGuardar.classList.remove('btn-secondary');
-            btnGuardar.classList.add('btn-dark');
-        }
-    }
-
-    /* ===============================
-       FUNCIONES AUXILIARES
-    =============================== */
-    function invalido(input, feedback, mensaje) {
-        input.classList.add('is-invalid');
-        input.classList.remove('is-valid');
-        feedback.textContent = mensaje;
-    }
-
-    function valido(input, feedback) {
-        input.classList.remove('is-invalid');
-        input.classList.add('is-valid');
-        feedback.textContent = '';
-    }
-
-    function limpiar(input, feedback) {
-        input.classList.remove('is-invalid', 'is-valid');
-        feedback.textContent = '';
-    }
-
-    /* ===============================
-       VALIDACIONES EN TIEMPO REAL
-    =============================== */
-    document.addEventListener('input', async function (e) {
-        const input = e.target;
-        const feedback = input.nextElementSibling;
-        if (!feedback || !input.id.includes('_cliente_modal')) return;
-
-        const valor = input.value.trim();
-
-        /* ===== NÚMERO DOCUMENTO ===== */
-        if (input.id === 'numero_documento_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length < 6 || valor.length > 12) {
-                invalido(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            try {
-                const url = `/clientes/validar-documento/?numero=${valor}`;
-                const res = await fetch(url);
-                const data = await res.json();
-
-                if (!data.valido) {
-                    invalido(input, feedback, data.mensaje);
-                } else {
-                    valido(input, feedback);
-                }
-            } catch {
-                invalido(input, feedback, 'Error validando el documento.');
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== NOMBRE / APELLIDO ===== */
-        if (input.id === 'nombre_cliente_modal' || input.id === 'apellido_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-            if (!soloLetras.test(valor)) {
-                invalido(
-                    input,
-                    feedback,
-                    input.id === 'nombre_cliente_modal'
-                        ? 'El nombre solo puede contener letras.'
-                        : 'El apellido solo puede contener letras.'
-                );
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== TELÉFONO ===== */
-        if (input.id === 'telefono_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length !== 10) {
-                const digitosActuales = valor.length;
-                const faltanOSobran = digitosActuales < 10 
-                    ? `Faltan ${10 - digitosActuales} dígito${10 - digitosActuales > 1 ? 's' : ''}`
-                    : `Sobran ${digitosActuales - 10} dígito${digitosActuales - 10 > 1 ? 's' : ''}`;
-                invalido(input, feedback, `Debe tener exactamente 10 dígitos. ${faltanOSobran}.`);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            valido(input, feedback);
-            actualizarEstadoBoton();
-        }
-
-        /* ===== CORREO ===== */
-        if (input.id === 'correo_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailRegex.test(valor)) {
-                invalido(input, feedback, 'Correo electrónico inválido.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== FECHA NACIMIENTO ===== */
-        if (input.id === 'fecha_nacimiento_cliente_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const fecha = new Date(valor);
-            const hoy = new Date();
-
-            if (fecha > hoy) {
-                invalido(input, feedback, 'La fecha no puede ser futura.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-    });
-
-    /* ===============================
-       VALIDACIÓN TIPO DOCUMENTO (SELECT)
-    =============================== */
-    const tipoDocumentoSelect = document.getElementById('tipo_documento_cliente_modal');
-    
-    if (tipoDocumentoSelect) {
-        tipoDocumentoSelect.addEventListener('change', function() {
-            const feedback = this.nextElementSibling;
-            
-            if (this.value.trim() === '') {
-                limpiar(this, feedback);
-            } else {
-                valido(this, feedback);
-            }
-            
-            actualizarEstadoBoton();
-        });
-    }
-
-    /* ===============================
-       SUBMIT DEL FORMULARIO
-    =============================== */
-    formCliente.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        btnGuardar.disabled = true;
-        btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-        
-        const formData = new FormData(formCliente);
-        
-        try {
-            const response = await fetch('/clientes/crear/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Agregar el nuevo cliente al select
-                const option = document.createElement('option');
-                option.value = data.cliente.id;
-                option.textContent = `${data.cliente.nombre} ${data.cliente.apellido} - ${data.cliente.numero_documento}`;
-                option.setAttribute('data-documento', data.cliente.numero_documento);
-                option.selected = true;
-                selectCliente.appendChild(option);
-                
-                // Cerrar el modal
-                const modalInstancia = bootstrap.Modal.getInstance(modalCliente);
-                modalInstancia.hide();
-                
-                // Limpiar el formulario
-                formCliente.reset();
-                formCliente.querySelectorAll('.form-control, .form-select').forEach(el => {
-                    el.classList.remove('is-valid', 'is-invalid');
-                });
-                
-                // Mostrar mensaje de éxito
-                mostrarNotificacion('Cliente registrado correctamente', 'success');
-            } else {
-                // Mostrar errores
-                const alertaErrores = document.getElementById('alertaErroresClienteModal');
-                const listaErrores = document.getElementById('listaErroresClienteModal');
-                listaErrores.innerHTML = '';
-                
-                for (const [campo, mensaje] of Object.entries(data.errores)) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${campo}:</strong> ${mensaje}`;
-                    listaErrores.appendChild(li);
-                }
-                
-                alertaErrores.classList.remove('d-none');
-            }
-        } catch (error) {
-            mostrarNotificacion('Error al guardar el cliente. Por favor, intenta nuevamente.', 'error');
-        } finally {
-            btnGuardar.disabled = false;
-            btnGuardar.innerHTML = 'Guardar cliente';
-            actualizarEstadoBoton();
-        }
-    });
-
-    /* ===============================
-       LIMPIAR TODO AL CERRAR MODAL
-    =============================== */
-    modalCliente.addEventListener('hidden.bs.modal', function () {
-        formCliente.reset();
-
-        formCliente.querySelectorAll('input, select, textarea').forEach(el => {
-            el.value = '';
-            el.defaultValue = '';
-            el.classList.remove('is-valid', 'is-invalid');
-        });
-
-        formCliente.querySelectorAll('.invalid-feedback').forEach(el => {
-            el.textContent = '';
-        });
-
-        const alertaErrores = document.getElementById('alertaErroresClienteModal');
-        alertaErrores.classList.add('d-none');
-
-        btnGuardar.disabled = true;
-        btnGuardar.classList.remove('btn-dark');
-        btnGuardar.classList.add('btn-secondary');
-    });
-
-    /* ===============================
-       AL ABRIR MODAL → BOTÓN BLOQUEADO
-    =============================== */
-    modalCliente.addEventListener('shown.bs.modal', function () {
-        actualizarEstadoBoton();
-    });
-
 
     /* ===============================
        RECOPILAR DATOS DEL FORMULARIO
     =============================== */
     function recopilarDatosFormulario() {
-        const datos = {};
-        const form = document.getElementById('gestionAlisadoForm');
-
-        const optCliente = selectCliente.options[selectCliente.selectedIndex];
-        datos.clienteNombre    = (selectCliente.value && optCliente) ? optCliente.text : '—';
-        datos.clienteDocumento = (selectCliente.value && optCliente) ? (optCliente.getAttribute('data-documento') || '—') : '—';
-
-        function getValByName(name) {
-            const candidatos = Array.from(form ? form.querySelectorAll('[name="' + name + '"]') : []);
-            const el = candidatos.find(field => !field.disabled && field.type !== 'hidden') || candidatos[0];
-            if (!el) return '—';
-            if (el.type === 'checkbox') {
-                return el.checked ? 'Sí' : 'No';
-            }
-            if (el.tagName === 'SELECT') {
-                const opt = el.options[el.selectedIndex];
-                return opt ? opt.text.trim() : '—';
-            }
-            return (el.value || '—').trim() || '—';
-        }
-        function getBoolByName(name) {
-            const candidatos = Array.from(form ? form.querySelectorAll('[name="' + name + '"]') : []);
-            const el = candidatos.find(field => !field.disabled && field.type !== 'hidden') || candidatos[0];
-            return (el && el.checked) ? 'Sí' : 'No';
-        }
-        function siNo(name) {
-            const v = getValByName(name);
-            return (v === 'si' || v === 'Sí') ? 'Sí' : (v === 'no' || v === 'No' ? 'No' : v);
-        }
-
-        datos.precioAlisado  = getValByName('precio_alisado');
-        datos.esOferta       = siNo('es_oferta_especial');
-        datos.descripOferta  = getValByName('descripcion_oferta');
-        datos.anticipo       = getValByName('anticipo_cliente');
-        datos.medioPago      = getValByName('medio_pago');
-        datos.saldo          = getValByName('saldo_pendiente');
-        datos.realizadoPor   = getValByName('procedimiento_realizado_por');
-        datos.tipoAlisado    = getValByName('tipo_alisado');
-        datos.resellado      = siNo('requiere_resellado');
-        datos.porcentaje     = getValByName('porcentaje_alisado') + '%';
-        datos.porosidad      = getValByName('porosidad');
-        datos.textura        = getValByName('textura');
-        datos.formaNatural   = getValByName('forma_natural');
-        datos.elasticidad    = getValByName('elasticidad');
-        datos.longitud       = getValByName('longitud');
-        datos.densidad       = getValByName('densidad');
-        datos.pielCabelludo  = getValByName('piel_cabelludo');
-        datos.alopecia       = getValByName('alopecia');
-        datos.caida          = getValByName('caida_cabello');
-        datos.caspa          = getValByName('caspa');
-        datos.lactante       = siNo('lactante');
-        datos.gestante       = siNo('gestante');
-        datos.tiroides       = siNo('sufre_tiroides');
-        datos.medTiroides    = getValByName('medicamento_tiroides');
-        datos.despunte       = siNo('despunte_hoy');
-        datos.tintura        = getBoolByName('procesos_tintura');
-        datos.decoloracion   = getBoolByName('procesos_decoloracion');
-        datos.ondulados      = getBoolByName('procesos_ondulados');
-        datos.extracciones   = getBoolByName('procesos_extracciones');
-        datos.alisados       = getBoolByName('procesos_alisados');
-        datos.superAclarante = getBoolByName('procesos_super_aclarante');
-        datos.otrosProcesos  = getValByName('procesos_otro');
-        datos.secador        = siNo('cuenta_con_secador');
-        datos.usaCasco       = siNo('usa_casco');
-        datos.aguaCaliente   = siNo('se_bana_agua_caliente');
-        datos.refuerzo15     = siNo('requiere_refuerzo_15dias');
-        datos.frecRecoge     = getValByName('frecuencia_recoge_cabello');
-        datos.ejercicio      = siNo('realiza_ejercicio');
-        datos.frecEjercicio  = getValByName('frecuencia_ejercicio');
-        datos.productos      = getValByName('productos_capilares');
-        datos.recomendaciones = getValByName('recomendaciones_post_cuidados');
-        datos.fecha = new Date().toLocaleDateString('es-CO', {
-            year: 'numeric', month: 'long', day: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        });
-        return datos;
+        actualizarEstadoImpresion();
+        const clienteInfo = leerClienteActual();
+        return {
+            clienteNombre: clienteInfo.nombre || estadoImpresion.clienteNombre || '—',
+            clienteDocumento: clienteInfo.documento || estadoImpresion.clienteDocumento || '—',
+            precioAlisado: estadoImpresion.precioAlisado || '—',
+            esOferta: estadoImpresion.esOferta || 'No',
+            descripOferta: estadoImpresion.descripOferta || '—',
+            anticipo: estadoImpresion.anticipo || '—',
+            medioPago: estadoImpresion.medioPago || '—',
+            saldo: estadoImpresion.saldo || '—',
+            realizadoPor: estadoImpresion.realizadoPor || '—',
+            tipoAlisado: estadoImpresion.tipoAlisado || '—',
+            resellado: estadoImpresion.resellado || 'No',
+            porcentaje: estadoImpresion.porcentaje || '—',
+            porosidad: getTextoControl('porosidad'),
+            textura: getTextoControl('textura'),
+            formaNatural: getTextoControl('forma_natural'),
+            elasticidad: getTextoControl('elasticidad'),
+            longitud: getTextoControl('longitud'),
+            densidad: getTextoControl('densidad'),
+            pielCabelludo: getTextoControl('piel_cabelludo'),
+            alopecia: getTextoControl('alopecia'),
+            caida: getTextoControl('caida_cabello'),
+            caspa: getTextoControl('caspa'),
+            lactante: getTextoControl('lactante'),
+            gestante: getTextoControl('gestante'),
+            tiroides: getTextoControl('sufre_tiroides'),
+            medTiroides: getTextoControl('medicamento_tiroides'),
+            despunte: getTextoControl('despunte_hoy'),
+            tintura: getTextoControl('procesos_tintura') === 'Sí',
+            decoloracion: getTextoControl('procesos_decoloracion') === 'Sí',
+            ondulados: getTextoControl('procesos_ondulados') === 'Sí',
+            extracciones: getTextoControl('procesos_extracciones') === 'Sí',
+            alisados: getTextoControl('procesos_alisados') === 'Sí',
+            superAclarante: getTextoControl('procesos_super_aclarante') === 'Sí',
+            otrosProcesos: getTextoControl('procesos_otro'),
+            secador: getTextoControl('cuenta_con_secador'),
+            usaCasco: getTextoControl('usa_casco'),
+            aguaCaliente: getTextoControl('se_bana_agua_caliente'),
+            refuerzo15: getTextoControl('requiere_refuerzo_15dias'),
+            frecRecoge: getTextoControl('frecuencia_recoge_cabello'),
+            ejercicio: getTextoControl('realiza_ejercicio'),
+            frecEjercicio: getTextoControl('frecuencia_ejercicio'),
+            productos: getTextoControl('productos_capilares'),
+            recomendaciones: getTextoControl('recomendaciones_post_cuidados'),
+            fecha: new Date().toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        };
     }
 
     /* ===============================
@@ -2053,79 +1807,90 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         </body></html>`;
     }
 
-    function validarAntesDeImprimir() {
-        const formulario = document.getElementById('gestionAlisadoForm');
-        const campos = Array.from(formulario ? formulario.querySelectorAll('[required]') : []);
-        const faltantes = [];
-
-        campos.forEach(campo => {
-            if (campo.disabled || campo.type === 'hidden') {
-                return;
-            }
-
-            const contenedorCondicional = campo.closest('.conditional-field');
-            if (contenedorCondicional && !contenedorCondicional.classList.contains('show')) {
-                return;
-            }
-
-            if (campo.type === 'checkbox') {
-                if (!campo.checked) {
-                    faltantes.push(campo.closest('.mb-3, .col-md-12, .col-md-6, .col-md-4, .col-md-3')?.querySelector('label')?.textContent?.replace('*', '').trim() || campo.name);
-                }
-                return;
-            }
-
-            const valor = (campo.value || '').trim();
-            const esPlaceholder = campo.tagName === 'SELECT' && (!campo.value || campo.selectedIndex === 0);
-            if (!valor || esPlaceholder) {
-                faltantes.push(campo.closest('.mb-3, .col-md-12, .col-md-6, .col-md-4, .col-md-3')?.querySelector('label')?.textContent?.replace('*', '').trim() || campo.name);
-            }
-        });
-
-        if (faltantes.length) {
-            const mensaje = 'Completa antes de imprimir: ' + faltantes.slice(0, 6).join(', ') + (faltantes.length > 6 ? '...' : '');
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Faltan datos',
-                    text: mensaje,
-                    confirmButtonText: 'Aceptar',
-                });
-            } else {
-                alert(mensaje);
-            }
+    function mostrarExito(mensaje) {
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Documento',
+                text: mensaje,
+                confirmButtonColor: '#634c40'
+            });
+            return;
         }
-
-        return true;
+        alert(mensaje);
     }
 
-    /* BOTÓN: PDF */
-    document.getElementById('btnImprimirPDF').addEventListener('click', function() {
-        if (!validarAntesDeImprimir()) return;
-        const datos = recopilarDatosFormulario();
-        const ventana = window.open('', '_blank', 'width=860,height=720');
-        if (!ventana) { mostrarNotificacion('Permite las ventanas emergentes e intenta de nuevo.', 'warning'); return; }
-        ventana.document.write(generarHTMLDocumento(datos));
-        ventana.document.close();
-        ventana.addEventListener('load', function() { setTimeout(function(){ ventana.print(); }, 400); });
-    });
+    function descargarPdf() {
+        try {
+            const datos = recopilarDatosFormulario();
+            const htmlDoc = generarHTMLDocumento(datos);
+            if (window.__gestionAlisadoPdfPreview && !window.__gestionAlisadoPdfPreview.closed) {
+                try {
+                    window.__gestionAlisadoPdfPreview.close();
+                } catch (err) {
+                    console.warn('No se pudo cerrar la vista previa anterior.', err);
+                }
+            }
+            const ventana = window.open('', '_blank', 'width=860,height=720');
+            if (!ventana) {
+                throw new Error('Permite las ventanas emergentes e intenta de nuevo.');
+            }
+            window.__gestionAlisadoPdfPreview = ventana;
+            ventana.document.open();
+            ventana.document.write(htmlDoc);
+            ventana.document.close();
+            ventana.focus();
+            ventana.document.title = 'Vista previa - Tratamiento de Alisado';
+            ventana.addEventListener('afterprint', function () {
+                try {
+                    ventana.close();
+                } catch (err) {
+                    console.warn('No se pudo cerrar la vista previa del PDF.', err);
+                }
+            });
+            ventana.addEventListener('beforeunload', function () {
+                if (window.__gestionAlisadoPdfPreview === ventana) {
+                    window.__gestionAlisadoPdfPreview = null;
+                }
+            });
+        } catch (error) {
+            console.warn('No se pudo abrir la vista previa del PDF.', error);
+            mostrarNotificacion(error.message || 'No se pudo abrir la vista previa del PDF.', 'warning');
+        }
+    }
 
-    /* BOTÓN: WORD */
-    document.getElementById('btnImprimirWord').addEventListener('click', function() {
-        if (!validarAntesDeImprimir()) return;
+    function descargarWord() {
         const datos = recopilarDatosFormulario();
-        const blob = new Blob(['\ufeff' + generarHTMLDocumento(datos)], { type: 'application/msword;charset=utf-8' });
+        const blob = new Blob(['﻿' + generarHTMLDocumento(datos)], { type: 'application/msword;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        const nombreLimpio = datos.clienteNombre !== '—' ? datos.clienteNombre.split(' - ')[0].replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g,'').replace(/\s+/g,'_') : 'cliente';
-        link.href = url;
-        link.download = 'Alisado_' + nombreLimpio + '_' + new Date().toISOString().slice(0,10) + '.doc';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const enlace = document.createElement('a');
+        const nombreLimpio = (datos.clienteNombre || 'cliente').split(' - ')[0].replace(/[^a-zA-Z0-9????????????\s]/g, '').replace(/\s+/g, '_') || 'cliente';
+        enlace.href = url;
+        enlace.download = 'Alisado_' + nombreLimpio + '_' + new Date().toISOString().slice(0, 10) + '.doc';
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
         URL.revokeObjectURL(url);
-        mostrarNotificacion('Documento Word descargado correctamente.', 'success');
-    });
+        mostrarExito('Documento Word descargado correctamente.');
+    }
+
+    if (!window.__gestionAlisadoPrintHandlersBound) {
+        window.__gestionAlisadoPrintHandlersBound = true;
+        document.addEventListener('click', function (e) {
+            const pdfBtn = e.target.closest('#btnImprimirPDF');
+            if (pdfBtn) {
+                e.preventDefault();
+                descargarPdf();
+                return;
+            }
+
+            const wordBtn = e.target.closest('#btnImprimirWord');
+            if (wordBtn) {
+                e.preventDefault();
+                descargarWord();
+            }
+        });
+    }
 
 })();
 </script>
