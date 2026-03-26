@@ -3,21 +3,27 @@ from django.core.exceptions import ValidationError
 
 
 class Personal(models.Model):
+    TIPOS_DOCUMENTO = [
+        ("CC", "Cédula de Ciudadanía"),
+        ("TI", "Tarjeta de Identidad"),
+        ("PAS", "Pasaporte"),
+        ("NIT", "NIT"),
+    ]
+
     ROLES = [
         ("Administrador", "Administrador"),
         ("Auxiliar", "Auxiliar"),
         ("Colaborador", "Colaborador"),
-        ("Estilista", "Estilista"),
     ]
 
-    tipo_documento = models.CharField(max_length=30, blank=True, null=True)
+    tipo_documento = models.CharField(max_length=5, choices=TIPOS_DOCUMENTO, default="CC")
     numero_documento = models.CharField(max_length=20, unique=True)
 
     nombres = models.CharField(max_length=150)
     apellidos = models.CharField(max_length=150)
 
-    correo = models.EmailField(blank=True, null=True)
-    telefono = models.CharField(max_length=15, blank=True, null=True)
+    correo = models.EmailField()
+    telefono = models.CharField(max_length=15)
 
     rol = models.CharField(max_length=20, choices=ROLES, default="Colaborador")
 
