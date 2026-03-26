@@ -565,15 +565,31 @@
     }
 
     if (precio) {
+      const copPrev = qs(form, "#cop_preview_producto");
       const raw = String(precio.value || "").replace(/\./g, "").replace(",", ".");
       const n = parseFloat(raw);
-      if (!String(precio.value || "").trim() && !force) {
-        clearState(precio);
-        tienePendientes = true;
-      } else if (!Number.isFinite(n) || n <= 0) {
-        errores.push("El precio debe ser mayor que 0.");
-        markInvalid(precio, "Mayor que 0");
-      } else markValid(precio);
+      let msg = "";
+
+      if (!String(precio.value || "").trim()) {
+        if (force) msg = "Precio obligatorio";
+        else { clearState(precio); if(copPrev) copPrev.classList.remove("visible"); tienePendientes = true; }
+      } else if (isNaN(n) || n < 100) {
+        msg = "Mínimo $100";
+      } else if (n > 99999999) {
+        msg = "Máximo $99.999.999";
+      }
+
+      if (msg) {
+        errores.push(msg);
+        markInvalid(precio, msg);
+        if (copPrev) copPrev.classList.remove("visible");
+      } else if (String(precio.value || "").trim()) {
+        markValid(precio);
+        if (copPrev) {
+          copPrev.textContent = formatMiles(raw) ? "$ " + formatMiles(raw) : "";
+          copPrev.classList.add("visible");
+        }
+      }
     }
 
     if (unidad && unidad.hasAttribute("required")) {

@@ -354,11 +354,15 @@
                                                 (tags.includes("error") ? "error" :
                                                     (tags.includes("warning") ? "warning" : "info"));
 
+                                            let titulo = icon === 'success' ? 'Éxito' : (icon === 'error' ? 'Atención' : 'Aviso');
+                                            
                                             Swal.fire({
                                                 icon: icon,
-                                                title: "Aviso",
+                                                title: titulo,
                                                 text: text,
-                                                confirmButtonText: "Aceptar"
+                                                showConfirmButton: false,
+                                                timer: 2500,
+                                                customClass: { popup: 'rounded-4' }
                                             });
                                         }
                                     });

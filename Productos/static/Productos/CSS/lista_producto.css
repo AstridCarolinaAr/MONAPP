@@ -1855,3 +1855,15 @@ z-index:2000 !important;
   background: #704a2f !important;
   border-color: #704a2f !important;
 }
+
+/* Validación de precio estilo Monaapp */
+.pw-price-error { color: #a0715a; font-size: .82rem; margin-top: 4px; display: none; }
+.pw-price-error.visible { display: block; }
+.pw-cop-preview {
+    display: inline-block; margin-top: 5px;
+    font-size: .88rem; font-weight: 700; color: #3d7a4e;
+    background: rgba(107,176,122,.1); border-radius: 8px; padding: 3px 10px; display: none;
+}
+.pw-cop-preview.visible { display: inline-block; }
+.pw-cop-preview.is-error { color: #a04040; background: rgba(180,90,90,.1); }
+
