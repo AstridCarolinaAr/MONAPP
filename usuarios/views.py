@@ -879,6 +879,7 @@ def validar_email_ajax(request):
         nueva_pass = get_random_string(length=10, allowed_chars='abcdefghjkmnpqrstuvwxyz23456789')
         user.set_password(nueva_pass)
         user.save()
+        user.refresh_from_db()
 
         # Mostrar la nueva contraseña al usuario (en desarrollo)
         messages.success(
@@ -1143,6 +1144,15 @@ def nueva_password(request):
         perfil.recovery_code = None
         perfil.recovery_code_created = None
         perfil.save()
+
+        login_username = (user.username or '').strip()
+        client_ip = _get_client_ip(request)
+        cache.delete(_login_rate_limit_key(request, login_username))
+        cache.delete(_login_ip_rate_limit_key(request))
+        request.session.pop(_login_session_key(login_username, 'attempts'), None)
+        request.session.pop(_login_session_key(login_username, 'block_until'), None)
+        request.session.pop(_login_session_key(client_ip, 'ip_attempts'), None)
+        request.session.pop(_login_session_key(client_ip, 'ip_block_until'), None)
 
         request.session.pop(_recovery_code_attempts_key(request), None)
         request.session.pop(_recovery_code_block_key(request), None)

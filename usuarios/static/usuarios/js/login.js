@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const captchaVerifiedInput = document.getElementById('captchaVerified');
     const captchaHelpText = document.getElementById('captchaHelpText');
     const requiresCaptcha = !!(captchaBox && captchaTrigger && captchaVerifiedInput);
+
     if (toggle && passInput) {
         const toggleIcon = toggle.querySelector('i') || toggle;
         toggle.addEventListener('click', () => {
@@ -134,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             attemptsInfo.classList.remove('is-blocked');
             return;
         }
-        let parts = [];
+        const parts = [];
         if (message) parts.push(message);
         if (attempts) parts.push(`Intentos: ${attempts}`);
         if (blockedMinutes) parts.push(`Espera: ${blockedMinutes} minuto(s).`);
@@ -147,7 +148,11 @@ document.addEventListener('DOMContentLoaded', function () {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            if (requiresCaptcha && captchaVerifiedInput.value !== '1') {
+            const captchaIsVerified = !requiresCaptcha
+                || captchaVerifiedInput.value === '1'
+                || (captchaBox && captchaBox.classList.contains('verified'));
+
+            if (requiresCaptcha && !captchaIsVerified) {
                 if (captchaBox) {
                     captchaBox.classList.remove('verified');
                     captchaBox.classList.add('captcha-required');
@@ -155,6 +160,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
                 if (captchaTrigger) captchaTrigger.focus();
                 return;
+            }
+
+            if (requiresCaptcha && captchaVerifiedInput.value !== '1' && captchaBox && captchaBox.classList.contains('verified')) {
+                captchaVerifiedInput.value = '1';
             }
 
             const submitBtn = loginForm.querySelector('button[type="submit"]');
@@ -183,12 +192,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 setAttemptsMessage(data.attempts || 0, data.blocked_minutes || 0, data.message || 'Usuario o contraseña incorrectos.');
-                if (requiresCaptcha) {
-                    captchaVerifiedInput.value = '0';
-                    captchaBox.classList.remove('verified');
-                    captchaBox.classList.add('captcha-required');
-                    if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
-                }
                 if (passInput) passInput.focus();
             } catch (error) {
                 setAttemptsMessage('', '', 'No se pudo validar el ingreso. Intenta de nuevo.');
