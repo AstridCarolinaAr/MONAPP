@@ -1,6 +1,7 @@
 {% extends "core/panel_admin_base.html" %}
 {% load static %}
 {% load humanize %}
+{% load sort_tags %}
 
 {% block breadcrumb_items %}
 <li class="breadcrumb-item active" aria-current="page">Ventas</li>
@@ -89,29 +90,30 @@ Ventas
 
 <!-- TABLA -->
 <div class="table-card anim-from-bottom ventas-table-card" style="animation-delay:.18s">
+  <div class="table-responsive" aria-label="Tabla de ventas">
   <table class="table table-hover align-middle mb-0 styled-table">
     <thead>
       <tr>
         <th class="ventas-col-codigo">
           <a
-            href="?q={{ q }}&estado={{ estado }}&sort=codigo_venta&dir={% if sort == 'codigo_venta' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            href="{% sort_url 'codigo_venta' %}"
             class="text-decoration-none text-white"
           >
             Código venta
-            {% if sort == 'codigo_venta' %}
-              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% if current_sort == 'codigo_venta' %}
+              <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill"></i>
             {% endif %}
           </a>
         </th>
 
         <th class="ventas-col-cliente">
           <a
-            href="?q={{ q }}&estado={{ estado }}&sort=cliente&dir={% if sort == 'cliente' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            href="{% sort_url 'cliente' %}"
             class="text-decoration-none text-white"
           >
             Cliente
-            {% if sort == 'cliente' %}
-              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% if current_sort == 'cliente' %}
+              <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill"></i>
             {% endif %}
           </a>
         </th>
@@ -120,36 +122,36 @@ Ventas
 
         <th class="ventas-col-fecha">
           <a
-            href="?q={{ q }}&estado={{ estado }}&sort=fecha&dir={% if sort == 'fecha' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            href="{% sort_url 'fecha' %}"
             class="text-decoration-none text-white"
           >
             Fecha
-            {% if sort == 'fecha' %}
-              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% if current_sort == 'fecha' %}
+              <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill"></i>
             {% endif %}
           </a>
         </th>
 
         <th class="ventas-col-total">
           <a
-            href="?q={{ q }}&estado={{ estado }}&sort=total&dir={% if sort == 'total' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            href="{% sort_url 'total' %}"
             class="text-decoration-none text-white"
           >
             Total
-            {% if sort == 'total' %}
-              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% if current_sort == 'total' %}
+              <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill"></i>
             {% endif %}
           </a>
         </th>
 
         <th class="text-center ventas-col-estado">
           <a
-            href="?q={{ q }}&estado={{ estado }}&sort=estado&dir={% if sort == 'estado' and direction == 'asc' %}desc{% else %}asc{% endif %}"
+            href="{% sort_url 'estado' %}"
             class="text-decoration-none text-white"
           >
             Estado
-            {% if sort == 'estado' %}
-              <i class="bi bi-caret-{% if direction == 'asc' %}up{% else %}down{% endif %}-fill"></i>
+            {% if current_sort == 'estado' %}
+              <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill"></i>
             {% endif %}
           </a>
         </th>
@@ -253,6 +255,7 @@ Ventas
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 
 <!-- MODAL DETALLE -->

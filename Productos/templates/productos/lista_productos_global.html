@@ -7,15 +7,21 @@
     <thead>
       <tr>
         <th class="col-codigo">
-          <a href="{% sort_url 'codigo' %}">CÓDIGO</a>
+          <a href="{% sort_url 'codigo' %}">CÓDIGO
+            {% if current_sort == 'codigo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+          </a>
         </th>
 
         <th class="col-producto">
-          <a href="{% sort_url 'nombre' %}">PRODUCTO</a>
+          <a href="{% sort_url 'nombre' %}">PRODUCTO
+            {% if current_sort == 'nombre' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+          </a>
         </th>
 
         <th class="col-linea">
-          <a href="{% sort_url 'linea' %}">LÍNEA</a>
+          <a href="{% sort_url 'linea' %}">LÍNEA
+            {% if current_sort == 'linea' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+          </a>
         </th>
 
         <th class="col-imagen">Imagen</th>

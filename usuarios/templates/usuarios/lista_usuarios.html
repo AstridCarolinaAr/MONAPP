@@ -49,6 +49,12 @@
               data-ajax-url="{% url 'usuarios:lista_usuarios' %}"
               data-ajax-target="#usuarios-tabla-wrap"
               data-ajax-debounce="300">
+            {% if current_sort %}
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            {% endif %}
+            {% if current_dir %}
+                <input type="hidden" name="dir" value="{{ current_dir }}">
+            {% endif %}
 
             <div class="usuarios-search-global-wrap">
                 <label class="usuarios-form-label">Buscar</label>

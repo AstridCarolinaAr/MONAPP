@@ -70,10 +70,26 @@
                     <thead>
                         <tr>
                             <th>Imagen</th>
-                            <th><a href="{% sort_url 'producto' %}">Producto</a></th>
-                            <th><a href="{% sort_url 'unidad' %}">Unidad de medida</a></th>
-                            <th><a href="{% sort_url 'stock' %}">Stock total actual</a></th>
-                            <th><a href="{% sort_url 'actualizacion' %}">Última actualización</a></th>
+                            <th>
+                                <a href="{% sort_url 'producto' %}">Producto
+                                    {% if current_sort == 'producto' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{% sort_url 'unidad' %}">Unidad de medida
+                                    {% if current_sort == 'unidad' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{% sort_url 'stock' %}">Stock total actual
+                                    {% if current_sort == 'stock' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{% sort_url 'actualizacion' %}">Última actualización
+                                    {% if current_sort == 'actualizacion' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

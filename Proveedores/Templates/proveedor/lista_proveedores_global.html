@@ -5,13 +5,19 @@
         <thead>
             <tr>
                 <th>
-                    <a href="{% sort_url 'nit' %}">NIT</a>
+                    <a href="{% sort_url 'nit' %}">NIT
+                        {% if current_sort == 'nit' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
                 </th>
                 <th>
-                    <a href="{% sort_url 'proveedor' %}">Proveedor</a>
+                    <a href="{% sort_url 'proveedor' %}">Proveedor
+                        {% if current_sort == 'proveedor' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
                 </th>
                 <th class="text-center">
-                    <a href="{% sort_url 'estado' %}">Estado</a>
+                    <a href="{% sort_url 'estado' %}">Estado
+                        {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
                 </th>
                 <th class="text-center">Acciones</th>
             </tr>

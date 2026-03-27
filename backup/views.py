@@ -34,7 +34,12 @@ def es_administrador(user):
 def backup_dashboard(request):
     """Vista principal del mÃ³dulo de backup."""
     query = request.GET.get('q', '').strip()
-    backups_qs = BackupRecord.objects.exclude(estado='en_progreso').order_by('-fecha_creacion')
+    current_sort = request.GET.get('sort', 'fecha').strip()
+    current_dir = request.GET.get('dir', 'desc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'desc'
+
+    backups_qs = BackupRecord.objects.exclude(estado='en_progreso')
     if query:
         backups_qs = backups_qs.filter(
             Q(nombre__icontains=query)
@@ -62,6 +67,24 @@ def backup_dashboard(request):
             backups_qs = backups_qs.filter(fecha_creacion__date__lte=date.fromisoformat(fecha_hasta_raw))
     except ValueError:
         fecha_hasta_raw = ''
+
+    sort_map = {
+        'nombre': ('nombre',),
+        'tipo': ('tipo', 'nombre'),
+        'estado': ('estado', 'nombre'),
+        'tamano': ('tamano', 'nombre'),
+        'fecha': ('fecha_creacion',),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        backups_qs = backups_qs.order_by(*order_fields)
+    else:
+        current_sort = 'fecha'
+        current_dir = 'desc'
+        backups_qs = backups_qs.order_by('-fecha_creacion')
 
     paginator = Paginator(backups_qs, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
@@ -97,6 +120,8 @@ def backup_dashboard(request):
         'querystring': querystring.urlencode(),
         'tipo_choices': BackupRecord.TIPO_CHOICES,
         'estado_choices': BackupRecord.ESTADO_CHOICES,
+        'current_sort': current_sort,
+        'current_dir': current_dir,
     }
     return render(request, 'backup/dashboard.html', context)
 

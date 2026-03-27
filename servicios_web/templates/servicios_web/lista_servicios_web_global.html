@@ -49,6 +49,7 @@
             <button class="btn-action toggle-activo-servicioweb"
                     data-url="{% url 'servicios_web:toggle_estado_servicio_web' servicio.id_servicio_web %}"
                     data-activo="{{ servicio.activo|yesno:'true,false' }}"
+                    data-nombre="{{ servicio.nombre|escape }}"
                     title="Activar / Desactivar">
                 {% if servicio.activo %}
                     <i class="bi bi-toggle-on text-white" style="font-size:28px"></i>
@@ -142,6 +143,7 @@
                                     class="sw-status-toggle toggle-activo-servicioweb"
                                     data-url="{% url 'servicios_web:toggle_estado_servicio_web' servicio.id_servicio_web %}"
                                     data-activo="{{ servicio.activo|yesno:'true,false' }}"
+                                    data-nombre="{{ servicio.nombre|escape }}"
                                     title="{% if servicio.activo %}Desactivar{% else %}Activar{% endif %}">
                                 {% if servicio.activo %}
                                     <i class="bi bi-toggle-on"></i>

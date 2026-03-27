@@ -3,6 +3,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
         return match ? decodeURIComponent(match[2]) : '';
     }
+
+    function getCSRFToken() {
+        const hiddenToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (hiddenToken && hiddenToken.value) {
+            return hiddenToken.value;
+        }
+        return getCookie('csrftoken');
+    }
     /* =========================================================
        UTILIDADES
     ========================================================= */
@@ -944,10 +952,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        switchInput.disabled = true;
+
         fetch(url, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
+                'X-CSRFToken': getCSRFToken(),
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
@@ -961,7 +972,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (row) {
                 const checked = data.estado === 'activo';
                 const stateCell = row.querySelector('td:nth-child(5)');
-                const actionBtn = row.querySelector('.js-toggle-cliente-accion');
                 const estadoFilter = document.querySelector('select[name="estado"]');
                 const filtroEstado = estadoFilter ? estadoFilter.value : '';
 
@@ -977,15 +987,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             <span class="table-switch-slider"></span>
                         </label>
                     `;
-                }
-
-                if (actionBtn) {
-                    actionBtn.dataset.activo = checked ? '1' : '0';
-                    actionBtn.title = checked ? 'Desactivar' : 'Activar';
-                    actionBtn.setAttribute('aria-label', `${checked ? 'Desactivar' : 'Activar'} cliente ${(switchInput.dataset.nombre || '').trim()}`);
-                    actionBtn.innerHTML = checked
-                        ? '<i class="bi bi-trash3"></i>'
-                        : '<i class="bi bi-arrow-clockwise"></i>';
                 }
 
                 const debeOcultarse = (!checked && filtroEstado !== 'inactivo') || (checked && filtroEstado === 'inactivo');
@@ -1005,101 +1006,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         })
-        .catch(function (error) {
-            switchInput.checked = !switchInput.checked;
-            alert(error.message || 'Error al cambiar el estado');
-        });
-    });
-
-    document.addEventListener('click', async function (e) {
-        const btnToggle = e.target.closest('.js-toggle-cliente-accion');
-        if (!btnToggle) return;
-
-        e.preventDefault();
-
-        const url = btnToggle.dataset.url;
-        const nombre = btnToggle.dataset.nombre || 'este cliente';
-        const estaActivo = btnToggle.dataset.activo === '1';
-
-        const result = await Swal.fire({
-            title: estaActivo ? 'Desactivar cliente' : 'Activar cliente',
-            text: estaActivo
-                ? `¿Deseas desactivar a ${nombre}?`
-                : `¿Deseas activar a ${nombre}?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: estaActivo ? 'Desactivar' : 'Activar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#634c40',
-            cancelButtonColor: '#6c757d'
-        });
-
-        if (!result.isConfirmed) return;
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok || !data.ok) {
-                throw new Error(data.mensaje || 'No se pudo cambiar el estado');
-            }
-
-            const row = btnToggle.closest('tr');
-            if (row) {
-                const switchInput = row.querySelector('.js-toggle-cliente-estado');
-                if (switchInput) {
-                    switchInput.checked = data.estado === 'activo';
-                    switchInput.dataset.activo = data.estado === 'activo' ? '1' : '0';
-                }
-
-                const stateCell = row.querySelector('td:nth-child(5)');
-                if (stateCell && switchInput) {
-                    const checked = data.estado === 'activo';
-                    stateCell.innerHTML = `
-                        <label class="table-switch-wrapper" title="${checked ? 'Desactivar' : 'Activar'}">
-                            <input type="checkbox"
-                                   class="toggle-activo-checkbox js-toggle-cliente-estado"
-                                   data-url="${url}"
-                                   data-nombre="${(nombre || '').replace(/"/g, '&quot;')}"
-                                   data-activo="${checked ? '1' : '0'}"
-                                   ${checked ? 'checked' : ''}>
-                            <span class="table-switch-slider"></span>
-                        </label>
-                    `;
-                }
-
-                btnToggle.dataset.activo = data.estado === 'activo' ? '1' : '0';
-                btnToggle.title = data.estado === 'activo' ? 'Desactivar' : 'Activar';
-                btnToggle.setAttribute('aria-label', `${data.estado === 'activo' ? 'Desactivar' : 'Activar'} cliente ${nombre}`);
-                btnToggle.innerHTML = data.estado === 'activo'
-                    ? '<i class="bi bi-trash3"></i>'
-                    : '<i class="bi bi-arrow-clockwise"></i>';
-            }
-
-            await Swal.fire({
-                title: data.estado === 'activo' ? 'Cliente activado' : 'Cliente desactivado',
-                text: data.estado === 'activo'
-                    ? `El cliente ${nombre} se activó correctamente.`
-                    : `El cliente ${nombre} se desactivó correctamente.`,
-                icon: 'success',
-                confirmButtonColor: '#634c40',
-                confirmButtonText: 'Aceptar'
-            });
-        } catch (error) {
-            Swal.fire({
-                title: 'Error',
-                text: error.message || 'No se pudo cambiar el estado',
-                icon: 'error',
-                confirmButtonColor: '#634c40'
-            });
-        }
-    });
+          .catch(function (error) {
+              switchInput.checked = !switchInput.checked;
+              alert(error.message || 'Error al cambiar el estado');
+          })
+          .finally(function () {
+              switchInput.disabled = false;
+          });
+      });
 
     document.addEventListener('click', async function (e) {
         const btnEditar = e.target.closest('.btn-editar-cliente');
@@ -1148,3 +1062,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+

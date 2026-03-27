@@ -26,6 +26,9 @@
     <div class="logo">
         {% include "core/partials/logo_monakeratina.svg" %}
     </div>
+    <button type="button" class="nav-toggle" data-nav-toggle aria-label="Abrir menú" aria-expanded="false">
+        <i class="bi bi-list"></i>
+    </button>
     <nav class="nav nav-glass">
         <a href="#inicio" class="nav-item">Inicio</a>
         <a href="#nosotros" class="nav-item">Nosotros</a>
@@ -34,6 +37,7 @@
         <a href="#productos" class="nav-item">Productos</a>
         <a href="#contactenos" class="nav-item">Contactenos</a>
     </nav>
+    <div class="nav-backdrop" data-nav-backdrop aria-hidden="true"></div>
     <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal">
         Iniciar sesión
     </button>

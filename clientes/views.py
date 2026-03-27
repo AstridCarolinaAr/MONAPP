@@ -158,6 +158,10 @@ def lista_clientes(request):
     estado = request.GET.get('estado', '').strip()
     edad = request.GET.get('edad', '').strip()
     orden = request.GET.get('orden', '').strip()
+    current_sort = request.GET.get('sort', '').strip()
+    current_dir = request.GET.get('dir', 'asc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'asc'
 
     clientes = Cliente.objects.all()
 
@@ -210,8 +214,24 @@ def lista_clientes(request):
         'registro_desc': ('-fecha_registro',),
     }
 
-    if orden in ordenamientos:
+    sort_map = {
+        'codigo': ('codigo_cliente',),
+        'cliente': ('nombre', 'apellido'),
+        'documento': ('numero_documento',),
+        'telefono': ('telefono',),
+        'estado': ('estado', 'nombre', 'apellido'),
+        'registro': ('fecha_registro',),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        clientes = clientes.order_by(*order_fields)
+    elif orden in ordenamientos:
         clientes = clientes.order_by(*ordenamientos[orden])
+    else:
+        current_sort = ''
 
     context = {
         'clientes': clientes,
@@ -219,6 +239,8 @@ def lista_clientes(request):
         'estado': estado,
         'edad': edad,
         'orden': orden,
+        'current_sort': current_sort,
+        'current_dir': current_dir,
 
         'abrir_modal_cliente': False,
         'registro_fallido': False,
@@ -294,10 +316,11 @@ def cambiar_estado_cliente(request, cliente_id):
     except Cliente.DoesNotExist:
         return JsonResponse({'ok': False, 'mensaje': 'Cliente no encontrado'}, status=404)
 
-    cliente.estado = 'inactivo' if cliente.estado == 'activo' else 'activo'
-    cliente.save(update_fields=['estado'])
+    nuevo_estado = 'inactivo' if cliente.estado == 'activo' else 'activo'
+    Cliente.objects.filter(id=cliente_id).update(estado=nuevo_estado)
 
     return JsonResponse({
         'ok': True,
-        'estado': cliente.estado,
+        'success': True,
+        'estado': nuevo_estado,
     })

@@ -1,41 +1,27 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 {% load humanize %}
+{% load sort_tags %}
 
-{% block title %}Catálogo Web{% endblock %}
+{% block title %}Productos Web{% endblock %}
 
 {% block breadcrumb_items %}
-
+<li class="breadcrumb-item active" aria-current="page">Catálogo Web</li>
 {% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-globe2"></i> Catálogo Web de Productos
+{% block page_icon %}<i class="bi bi-globe2 page-icon"></i>{% endblock %}
+{% block page_title %}Productos Web{% endblock %}
+{% block page_subtitle %}Gestión de productos del catálogo web{% endblock %}
+
+{% block page_actions %}
+<button type="button" class="btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+    <i class="bi bi-plus-lg"></i> Nuevo producto
+</button>
 {% endblock %}
 
 {% block extra_css %}
 <style>
 /* ============ TABLA ============ */
-.table-container-custom {
-    width: 100% !important;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,.05);
-}
-
-.table-responsive {
-    width: 100% !important;
-    margin: 0;
-    padding: 0;
-}
-
-.styled-table {
-    width: 100% !important;
-    min-width: 100% !important;
-    margin-bottom: 0;
-    border-collapse: collapse;
-}
-
 .pw-table {
     width: 100%;
 }
@@ -62,6 +48,16 @@
     vertical-align: middle;
     border-bottom: 1px solid rgba(0,0,0,.06);
     font-size: .92rem;
+}
+
+/* Ajuste visual del SweetAlert de exito */
+.pw-success-modal .swal2-icon.swal2-success {
+    margin: 1.1em auto 0.8em !important;
+}
+
+.pw-success-modal .swal2-success .swal2-success-ring {
+    transform: scale(.96);
+    transform-origin: center;
 }
 
 /* Imagen miniatura */
@@ -137,22 +133,6 @@
     background: #3a2a24;
     color: #fff;
 }
-
-/* Acciones de fila */
-.pw-actions a,
-.pw-actions button {
-    padding: 8px 12px;
-    border-radius: 50px;
-    font-size: .92rem;
-    transition: all .2s;
-    background: none;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-.pw-actions .btn-edit        { color: #382822; display: inline-flex; align-items: center; }
-.pw-actions .btn-del         { color: #382822; display: inline-flex; align-items: center; }
 
 /* Vista vacía */
 .pw-empty {
@@ -385,16 +365,23 @@
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+    <div class="module-filters-card">
+        <form method="get"
+              class="module-filters-form js-instant-filter-form"
+              data-instant-filter-debounce="300"
+              autocomplete="off">
 
-            <small class="text-muted">Gestión de productos del catálogo web</small>
-        </div>
-        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo producto
-        </button>
-    </div>
+            {% if current_sort %}
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            {% endif %}
+            {% if current_dir %}
+                <input type="hidden" name="dir" value="{{ current_dir }}">
+            {% endif %}
+
+            <div class="module-filter-field module-filter-field--wide">
+                <label class="module-filter-label">Buscar</label>
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+            </div>
 
     <!-- ───── BARRA DE FILTROS (ESTILO PROVEEDORES) ───── -->
     <div class="module-filters-card">
@@ -516,17 +503,29 @@
     }
     </script>
     <!-- ───── TABLA ───── -->
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+    <div class="card border-0 shadow-sm table-card pw-table-card" style="overflow: hidden;">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="pw-tabla">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0 styled-table pw-table" id="pw-tabla">
+                    <thead>
                         <tr>
                             <th>Foto</th>
-                            <th>Nombre</th>
-                            <th>Precio</th>
+                            <th>
+                                <a href="{% sort_url 'nombre' %}">Nombre
+                                    {% if current_sort == 'nombre' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{% sort_url 'precio' %}">Precio
+                                    {% if current_sort == 'precio' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
                             <th>Descripción</th>
-                            <th>Estado</th>
+                            <th class="text-center">
+                                <a href="{% sort_url 'estado' %}">Estado
+                                    {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
@@ -547,44 +546,44 @@
                             <td>
                                 <small class="text-muted">{{ p.descripcion|truncatewords:8|default:"—" }}</small>
                             </td>
-                            <td>
-                                {% if p.visible %}
-                                    <span class="badge bg-success-subtle text-success">Visible</span>
-                                {% else %}
-                                    <span class="badge bg-secondary-subtle text-secondary">Oculto</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end pw-actions">
-                                <label class="pw-switch me-2" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
+                            <td class="text-center">
+                                <label class="pw-switch" title="Alternar visibilidad" aria-label="Alternar visibilidad de {{ p.nombre }}">
                                     <input type="checkbox"
                                            {% if p.visible %}checked{% endif %}
                                            data-toggle-url="{% url 'productos_web:toggle_visible' p.pk %}"
                                            data-nombre="{{ p.nombre }}">
                                     <span class="slider"></span>
                                 </label>
-                                <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-pw"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetallePW"
-                                        data-nombre="{{ p.nombre|escapejs }}"
-                                        data-precio="{{ p.precio }}"
-                                        data-descripcion="{{ p.descripcion|escapejs }}"
-                                        data-visible="{{ p.visible|yesno:'Sí,No' }}"
-                                        data-imagen-url="{% if p.imagen %}{{ p.imagen.url }}{% endif %}"
-                                        data-creado="{{ p.fecha_creacion|date:'d/m/Y H:i' }}"
-                                        data-modificado="{{ p.fecha_modificacion|date:'d/m/Y H:i' }}"
-                                        title="Ver detalles">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <a href="{% url 'productos_web:editar' p.pk %}"
-                                   class="btn btn-outline-secondary btn-sm" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-pw"
-                                        data-nombre="{{ p.nombre }}"
-                                        data-url="{% url 'productos_web:eliminar' p.pk %}"
-                                        title="Eliminar">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
+                            </td>
+                            <td class="text-end pw-actions">
+                                <div class="table-action-group ms-auto">
+                                    <button type="button" class="table-action-btn btn-detalle-pw"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalDetallePW"
+                                            data-nombre="{{ p.nombre|escapejs }}"
+                                            data-precio="{{ p.precio }}"
+                                            data-descripcion="{{ p.descripcion|escapejs }}"
+                                            data-visible="{{ p.visible|yesno:'Sí,No' }}"
+                                            data-imagen-url="{% if p.imagen %}{{ p.imagen.url }}{% endif %}"
+                                            data-creado="{{ p.fecha_creacion|date:'d/m/Y H:i' }}"
+                                            data-modificado="{{ p.fecha_modificacion|date:'d/m/Y H:i' }}"
+                                            title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button type="button"
+                                            class="table-action-btn btn-editar-pw"
+                                            data-url="{% url 'productos_web:detalle_json' p.pk %}"
+                                            data-edit-url="{% url 'productos_web:editar' p.pk %}"
+                                            title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-pw"
+                                            data-nombre="{{ p.nombre }}"
+                                            data-url="{% url 'productos_web:eliminar' p.pk %}"
+                                            title="Eliminar">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
@@ -661,6 +660,63 @@
 </div>
 
 <!-- ═══ MODAL VER DETALLES PRODUCTO WEB ═══ -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header pw-header">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Producto Web</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nombre</label>
+                            <input type="text" name="nombre" class="form-control" id="id_nombre_editar" maxlength="200">
+                            <div class="pw-name-error" id="err_nombre_editar"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Precio Público <small class="text-muted">(pesos colombianos)</small></label>
+                            <input type="text" name="precio" class="form-control" id="id_precio_editar">
+                            <span class="pw-cop-preview" id="cop_preview_editar"></span>
+                            <div class="pw-price-error" id="err_precio_editar"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción</label>
+                            <textarea name="descripcion" class="form-control" rows="4" id="id_descripcion_editar" maxlength="500"></textarea>
+                            <small class="pw-char-count" id="char_desc_editar"></small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold mb-3">Imagen del Producto</label>
+                            <div class="pw-dropzone" id="dropzoneEditar">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <div class="upload-text">Arrastra tu imagen aqui</div>
+                                <div class="upload-hint">o haz clic para seleccionar desde tu equipo</div>
+                                <input type="file" name="imagen" class="form-control" id="id_imagen_editar" accept="image/jpeg,image/png,image/webp,image/gif">
+                                <img id="previewEditar" class="pw-preview-img d-none" alt="preview">
+                            </div>
+                            <div class="pw-img-error" id="err_img_editar"></div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="visible" class="form-check-input" id="id_visible_editar">
+                                <label class="form-check-label" for="id_visible_editar">Visible en la Web</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background:#3a2a24;">
+                        <i class="bi bi-check-lg me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalDetallePW" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
@@ -707,6 +763,8 @@
 
 {% block extra_js %}
 <script>
+window.suppressBaseMessages = true;
+
 /* ─── Mensajes Django como Swal toast ─── */
 const PW_MESSAGES = [
     {% for message in messages %}
@@ -715,7 +773,6 @@ const PW_MESSAGES = [
 ];
 
 const PW_TAGS_MAP = {
-    'success': { icon: 'success', background: '#f0fdf4', color: '#166534' },
     'error':   { icon: 'error',   background: '#fef2f2', color: '#991b1b' },
     'warning': { icon: 'warning', background: '#fffbeb', color: '#92400e' },
     'info':    { icon: 'info',    background: '#eff6ff', color: '#1e40af' },
@@ -723,6 +780,17 @@ const PW_TAGS_MAP = {
 
 if (PW_MESSAGES.length) {
     PW_MESSAGES.forEach(m => {
+        if (m.tags.includes('success')) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Mensaje',
+                text: m.text,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3a2a24',
+            });
+            return;
+        }
+
         const tag  = Object.keys(PW_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
         const opts = PW_TAGS_MAP[tag];
         Swal.mixin({
@@ -777,11 +845,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar la visibilidad.', timer: 2500, showConfirmButton: false });
                         return;
                     }
-                    Swal.mixin({
-                        toast: true, position: 'top-end',
-                        showConfirmButton: false, timer: 2000, timerProgressBar: true,
-                        background: '#f0fdf4', color: '#166534',
-                    }).fire({ icon: 'success', title: visNow ? 'Producto visible' : 'Producto oculto' });
+                    Swal.fire({
+                        icon: 'success',
+                        title: visNow ? 'Producto visible' : 'Producto oculto',
+                        text: visNow ? 'El producto ya aparece en el catálogo web.' : 'El producto ya quedó oculto en el catálogo web.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3a2a24',
+                        customClass: {
+                            popup: 'pw-success-modal',
+                        },
+                    });
                 })
                 .catch(() => {
                     el.checked = !visNow;
@@ -848,8 +921,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return !msg;
     }
 
+    function pwSanitizarNombre(input) {
+        const limpio = input.value.replace(/[<>`{}\[\];]/g, '');
+        if (limpio !== input.value) {
+            input.value = limpio;
+        }
+    }
+
     /* ── Validar nombre ── */
     function pwValidarNombre(input, errEl) {
+        pwSanitizarNombre(input);
         const v = input.value.trim();
         // Regex: letras (incluyendo tildes/ñ), números, espacios y -.,()&+/#*!?:'"
         const REG = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.,\(\)&\+\/\#\*\!\?:\'"]+$/;
@@ -1002,6 +1083,99 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ── Drag & drop highlight ── */
+    document.querySelectorAll('.btn-editar-pw').forEach(btn => {
+        btn.addEventListener('click', async function () {
+            const urlDetalle = this.dataset.url;
+            const urlEditar = this.dataset.editUrl;
+            const modalEditarEl = document.getElementById('modalEditar');
+            if (!modalEditarEl) return;
+
+            const formEditar = modalEditarEl.querySelector('form');
+            const ed = {
+                nombre:     modalEditarEl.querySelector('[name="nombre"]'),
+                errNombre:  document.getElementById('err_nombre_editar'),
+                desc:       modalEditarEl.querySelector('[name="descripcion"]'),
+                ctrDesc:    document.getElementById('char_desc_editar'),
+                precio:     modalEditarEl.querySelector('[name="precio"]'),
+                errPrecio:  document.getElementById('err_precio_editar'),
+                copPrev:    document.getElementById('cop_preview_editar'),
+                img:        modalEditarEl.querySelector('[name="imagen"]'),
+                errImg:     document.getElementById('err_img_editar'),
+                prevImg:    document.getElementById('previewEditar'),
+                visible:    modalEditarEl.querySelector('[name="visible"]'),
+            };
+
+            if (!formEditar || !ed.nombre || !ed.precio || !ed.desc || !ed.img || !ed.visible) return;
+
+            try {
+                const res = await fetch(urlDetalle, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const data = await res.json();
+
+                formEditar.action = urlEditar;
+                ed.nombre.value = data.nombre || '';
+                ed.precio.value = data.precio || '';
+                ed.desc.value = data.descripcion || '';
+                ed.visible.checked = !!data.visible;
+                ed.img.value = '';
+
+                if (ed.prevImg) {
+                    if (data.imagen_url) {
+                        ed.prevImg.src = data.imagen_url;
+                        ed.prevImg.classList.remove('d-none');
+                    } else {
+                        ed.prevImg.removeAttribute('src');
+                        ed.prevImg.classList.add('d-none');
+                    }
+                }
+
+                if (ed.ctrDesc) {
+                    pwActualizarContador(ed.desc, ed.ctrDesc, 500);
+                }
+                if (ed.copPrev) {
+                    ed.copPrev.textContent = '';
+                    ed.copPrev.classList.remove('visible');
+                }
+                [ed.errNombre, ed.errPrecio, ed.errImg].forEach(el => {
+                    if (el) {
+                        el.textContent = '';
+                        el.classList.remove('visible');
+                    }
+                });
+
+                ed.nombre.classList.remove('is-valid-name', 'is-invalid-name');
+                ed.precio.classList.remove('is-valid-price', 'is-invalid-price');
+
+                ed.nombre.oninput = () => pwValidarNombre(ed.nombre, ed.errNombre);
+                ed.nombre.onblur = () => pwValidarNombre(ed.nombre, ed.errNombre);
+                ed.precio.oninput = () => pwValidarPrecio(ed.precio, ed.errPrecio, ed.copPrev);
+                ed.precio.onblur = () => pwValidarPrecio(ed.precio, ed.errPrecio, ed.copPrev);
+                ed.desc.oninput = () => pwActualizarContador(ed.desc, ed.ctrDesc, 500);
+                ed.img.onchange = () => pwValidarImagen(ed.img, ed.errImg, ed.prevImg);
+
+                formEditar.onsubmit = function (e) {
+                    const ok1 = pwValidarNombre(ed.nombre, ed.errNombre);
+                    const ok2 = pwValidarPrecio(ed.precio, ed.errPrecio, ed.copPrev);
+                    const ok3 = pwValidarImagen(ed.img, ed.errImg, ed.prevImg);
+                    if (!ok1 || !ok2 || !ok3) {
+                        e.preventDefault();
+                        if (!ok1) ed.nombre.focus();
+                        else if (!ok2) ed.precio.focus();
+                    }
+                };
+
+                bootstrap.Modal.getOrCreateInstance(modalEditarEl).show();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo abrir el formulario de edición.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3a2a24',
+                });
+            }
+        });
+    });
+
     document.querySelectorAll('.pw-dropzone').forEach(zone => {
         zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
         zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));

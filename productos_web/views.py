@@ -16,6 +16,10 @@ def lista_productos_web(request):
     q = request.GET.get('q', '').strip()
     visible_filter = request.GET.get('visible', '').strip()
     orden = request.GET.get('orden', '').strip()
+    current_sort = request.GET.get('sort', '').strip()
+    current_dir = request.GET.get('dir', 'asc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'asc'
 
     if q:
         productos = productos.filter(nombre__icontains=q)
@@ -33,8 +37,23 @@ def lista_productos_web(request):
         'fecha_asc': 'fecha_creacion',
         'fecha_desc': '-fecha_creacion',
     }
-    if orden in orden_map:
+
+    sort_map = {
+        'nombre': ('nombre',),
+        'precio': ('precio', 'nombre'),
+        'estado': ('visible', 'nombre'),
+        'fecha': ('fecha_creacion', 'nombre'),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        productos = productos.order_by(*order_fields)
+    elif orden in orden_map:
         productos = productos.order_by(orden_map[orden])
+    else:
+        current_sort = ''
 
     form = ProductoWebForm()                       # formulario para el modal "Agregar"
     return render(request, 'productos_web/lista.html', {
@@ -43,6 +62,9 @@ def lista_productos_web(request):
         'q': q,
         'visible_filter': visible_filter,
         'orden': orden,
+        'current_sort': current_sort,
+        'current_dir': current_dir,
+        'suppress_base_messages': True,
     })
 
 

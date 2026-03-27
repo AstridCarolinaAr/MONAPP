@@ -28,6 +28,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const CSRF = () => document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
 
+    document.addEventListener('change', async function (e) {
+        const input = e.target.closest('.promo-switch input');
+        if (!input) return;
+
+        const url = input.dataset.toggleUrl;
+        const nombre = input.dataset.nombre || 'la promoción';
+        if (!url) {
+            input.checked = !input.checked;
+            return;
+        }
+
+        input.disabled = true;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': CSRF(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || data.mensaje || 'No se pudo cambiar el estado.');
+            }
+
+            const activa = !!data.activa;
+            const row = input.closest('tr');
+
+            if (row) {
+                const badge = row.querySelector('.promo-badge-active, .promo-badge-inactive');
+                if (badge) {
+                    badge.className = activa ? 'promo-badge-active' : 'promo-badge-inactive';
+                    badge.textContent = activa ? 'Activa' : 'Inactiva';
+                }
+
+                const displayInput = row.querySelector('.promo-switch input');
+                if (displayInput) {
+                    displayInput.checked = activa;
+                    displayInput.dataset.toggleUrl = url;
+                }
+            }
+
+            if (typeof Swal !== 'undefined' && Swal.fire) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Estado actualizado',
+                    text: activa
+                        ? `${nombre} quedó activa correctamente.`
+                        : `${nombre} quedó inactiva correctamente.`,
+                    confirmButtonColor: '#3a2a24',
+                    confirmButtonText: 'OK',
+                });
+            }
+        } catch (error) {
+            input.checked = !input.checked;
+            if (typeof Swal !== 'undefined' && Swal.fire) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo cambiar el estado',
+                    text: error.message || 'Intenta nuevamente.',
+                    confirmButtonColor: '#3a2a24',
+                    confirmButtonText: 'OK',
+                });
+            } else {
+                alert(error.message || 'No se pudo cambiar el estado');
+            }
+        } finally {
+            input.disabled = false;
+        }
+    });
+
     /* ── Función maestra para rellenar el modal ── */
     function fillEditModal(btn) {
         if (!btn) return;

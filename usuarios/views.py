@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm, UsuarioBusquedaForm
 from .models import PerfilUsuario
 import random
+import smtplib
 from django.utils import timezone
 from django.core.mail import send_mail
 from datetime import timedelta, datetime
@@ -430,6 +431,10 @@ def lista_usuarios_view(request):
     form = UsuarioBusquedaForm(request.GET)
 
     usuarios = User.objects.select_related('perfil').all()
+    current_sort = (request.GET.get('sort') or '').strip()
+    current_dir = (request.GET.get('dir') or 'asc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'asc'
 
     if form.is_valid():
         busqueda = form.cleaned_data.get('busqueda')
@@ -453,7 +458,22 @@ def lista_usuarios_view(request):
                 rol_valor = filtro.replace('rol_', '')
                 usuarios = usuarios.filter(groups__name=rol_valor)
 
-    usuarios = usuarios.order_by('-date_joined')
+    sort_map = {
+        'username': ('username',),
+        'nombre': ('first_name', 'last_name', 'username'),
+        'email': ('email', 'username'),
+        'estado': ('is_active', 'username'),
+        'registro': ('date_joined',),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        usuarios = usuarios.order_by(*order_fields)
+    else:
+        current_sort = ''
+        usuarios = usuarios.order_by('-date_joined')
 
     q = form.cleaned_data.get('busqueda', '') if form.is_valid() else ''
     context = {
@@ -463,6 +483,8 @@ def lista_usuarios_view(request):
         'es_administrador': es_administrador,
         'puede_modificar' : puede_modificar,
         'q'               : q,
+        'current_sort'    : current_sort,
+        'current_dir'     : current_dir,
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -857,6 +879,7 @@ def validar_email_ajax(request):
         nueva_pass = get_random_string(length=10, allowed_chars='abcdefghjkmnpqrstuvwxyz23456789')
         user.set_password(nueva_pass)
         user.save()
+        user.refresh_from_db()
 
         # Mostrar la nueva contraseña al usuario (en desarrollo)
         messages.success(
@@ -946,48 +969,71 @@ def solicitar_recuperacion(request):
     if request.method == 'POST':
         email = (request.POST.get('email') or '').strip()
 
-        # No revelar si el correo existe o no.
+        user = User.objects.filter(email__iexact=email, is_active=True).first()
+        if not user:
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.error(request, 'Ingresa un correo válido registrado en el sistema.')
+            return render(request, 'usuarios/recuperar.html')
+
+        codigo = str(random.randint(100000, 999999))
+
+        perfil = user.perfil
+        PerfilUsuario.objects.filter(pk=perfil.pk).update(
+            recovery_code=codigo,
+            recovery_code_created=timezone.now(),
+        )
+
+        html_content = render_to_string('usuarios/correo.html', {
+            'codigo': codigo,
+            'year': timezone.now().year
+        })
+
+        email_msg = EmailMultiAlternatives(
+            subject='✨ Recuperación de contraseña - MONAPP',
+            body='Tu cliente de correo no soporta HTML',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email],
+        )
+
+        email_msg.attach_alternative(html_content, "text/html")
+
+        try:
+            email_msg.send()
+        except smtplib.SMTPAuthenticationError:
+            PerfilUsuario.objects.filter(pk=perfil.pk).update(
+                recovery_code=None,
+                recovery_code_created=None,
+            )
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.error(
+                request,
+                'No se pudo enviar el correo. Gmail rechazó la autenticación. '
+                'Debes usar una contraseña de aplicación válida.'
+            )
+            return render(request, 'usuarios/recuperar.html')
+        except (smtplib.SMTPException, socket.gaierror, OSError, TimeoutError):
+            PerfilUsuario.objects.filter(pk=perfil.pk).update(
+                recovery_code=None,
+                recovery_code_created=None,
+            )
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.error(
+                request,
+                'No se pudo enviar el correo en este momento. Intenta de nuevo más tarde.'
+            )
+            return render(request, 'usuarios/recuperar.html')
+
+        request.session['recovery_user'] = user.id
+        request.session['codigo_validado'] = False
+        request.session[_recovery_code_attempts_key(request)] = 0
+        request.session.pop(_recovery_code_block_key(request), None)
         messages.success(
             request,
             'Si el correo está registrado, recibirás un código de recuperación.'
         )
-
-        user = User.objects.filter(email__iexact=email, is_active=True).first()
-        if user:
-            codigo = str(random.randint(100000, 999999))
-
-            perfil = user.perfil
-            perfil.recovery_code = codigo
-            perfil.recovery_code_created = timezone.now()
-            perfil.save()
-
-            request.session['recovery_user'] = user.id
-            request.session['codigo_validado'] = False
-            request.session[_recovery_code_attempts_key(request)] = 0
-            request.session.pop(_recovery_code_block_key(request), None)
-
-            html_content = render_to_string('usuarios/correo.html', {
-                'codigo': codigo,
-                'year': timezone.now().year
-            })
-
-            email_msg = EmailMultiAlternatives(
-                subject='✨ Recuperación de contraseña - MONAPP',
-                body='Tu cliente de correo no soporta HTML',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[email],
-            )
-
-            email_msg.attach_alternative(html_content, "text/html")
-            email_msg.send()
-        else:
-            request.session.pop('recovery_user', None)
-            request.session['codigo_validado'] = False
-            messages.success(
-                request,
-                'Si el correo está registrado, recibirás un código de recuperación.'
-            )
-            return redirect(reverse('core:index') + '?login=1')
 
         return redirect('usuarios:verificar_codigo')
 
@@ -1098,6 +1144,15 @@ def nueva_password(request):
         perfil.recovery_code = None
         perfil.recovery_code_created = None
         perfil.save()
+
+        login_username = (user.username or '').strip()
+        client_ip = _get_client_ip(request)
+        cache.delete(_login_rate_limit_key(request, login_username))
+        cache.delete(_login_ip_rate_limit_key(request))
+        request.session.pop(_login_session_key(login_username, 'attempts'), None)
+        request.session.pop(_login_session_key(login_username, 'block_until'), None)
+        request.session.pop(_login_session_key(client_ip, 'ip_attempts'), None)
+        request.session.pop(_login_session_key(client_ip, 'ip_block_until'), None)
 
         request.session.pop(_recovery_code_attempts_key(request), None)
         request.session.pop(_recovery_code_block_key(request), None)

@@ -554,16 +554,16 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
 .personal-table-scroll {
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto;
     -webkit-overflow-scrolling: touch;
 }
 
 .personal-table-card.table-responsive,
 .personal-table-card .table-responsive {
-    overflow: visible !important;
-    max-width: none !important;
-    width: auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 .personal-table,
@@ -584,15 +584,19 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
 .personal-table thead th {
     background: linear-gradient(90deg, #2a120d 0%, #4a2a1f 28%, #2a120d 100%);
     color: #ffffff;
-    padding: 18px 14px;
+    padding: 14px 12px;
     text-align: left;
-    font-size: 0.92rem;
+    font-size: 0.86rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     border-bottom: none !important;
     white-space: nowrap;
     vertical-align: middle;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: 0 10px 18px rgba(42, 18, 13, 0.12);
 }
 
 .personal-table thead th:first-child {
@@ -606,6 +610,11 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
 .personal-table tbody tr {
     border-bottom: 1px solid rgba(17, 17, 17, 0.06);
     transition: background 0.25s ease;
+    background: #fff;
+}
+
+.personal-table tbody tr:nth-child(even) {
+    background: rgba(99, 76, 64, 0.02);
 }
 
 .personal-table tbody tr:hover {
@@ -613,12 +622,12 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
 }
 
 .personal-table tbody td {
-    padding: 18px 14px;
-    font-size: 0.96rem;
+    padding: 14px 12px;
+    font-size: 0.9rem;
     color: #43342d;
     vertical-align: middle;
     border-bottom: 1px solid #eee7e3;
-    background: #fff;
+    background: transparent;
 }
 
 .personal-table tbody tr:last-child td {
@@ -726,9 +735,9 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 7px 16px;
+    padding: 6px 12px;
     border-radius: 999px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     letter-spacing: 0.02em;
     max-width: 100%;
@@ -815,11 +824,45 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
 }
 
 .personal-table-card .table-action-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0 !important;
+    border-radius: 999px;
+    border: 1px solid rgba(75, 47, 42, 0.18);
+    background: rgba(255, 255, 255, 0.75);
     color: #2c0909 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.personal-table-card .table-action-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(75, 47, 42, 0.06);
+    border-color: rgba(75, 47, 42, 0.28);
+    box-shadow: 0 10px 18px rgba(75, 47, 42, 0.12);
+}
+
+.personal-table-card .table-action-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.18), 0 10px 18px rgba(75, 47, 42, 0.12);
+}
+
+.personal-table-card .table-action-btn--danger {
+    border-color: rgba(199, 65, 43, 0.22);
+    color: #c7412b !important;
+}
+
+.personal-table-card .table-action-btn--danger:hover {
+    background: rgba(199, 65, 43, 0.08);
+    border-color: rgba(199, 65, 43, 0.35);
+    box-shadow: 0 10px 18px rgba(199, 65, 43, 0.12);
 }
 
 .personal-table-card .table-action-btn i {
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 /* ==================== ALERTAS ==================== */

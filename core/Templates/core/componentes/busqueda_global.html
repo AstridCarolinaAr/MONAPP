@@ -2,7 +2,8 @@
   <button
     type="button"
     class="btn-search-toggle"
-    aria-label="Abrir búsqueda"
+    aria-label="{% if search_value %}Cerrar búsqueda{% else %}Buscar{% endif %}"
+    title="{% if search_value %}Cerrar búsqueda{% else %}Buscar{% endif %}"
     aria-expanded="{% if search_value %}true{% else %}false{% endif %}">
     <span class="icon-wrapper">
       <i class="bi bi-search search-icon" aria-hidden="true"></i>

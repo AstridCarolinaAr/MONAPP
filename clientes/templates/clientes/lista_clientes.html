@@ -42,6 +42,13 @@
           data-ajax-target=".ajax-results-container"
           data-ajax-debounce="300">
 
+        {% if current_sort %}
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+        {% endif %}
+        {% if current_dir %}
+            <input type="hidden" name="dir" value="{{ current_dir }}">
+        {% endif %}
+
         <div class="module-filters-form clientes-filters-form">
             <div class="module-filter-field module-filter-field--wide clientes-search-field">
                 <label class="module-filter-label">Buscar</label>
@@ -226,31 +233,6 @@
     </div>
   </div>
 
-  {% if user.is_staff %}
-  <div class="modal fade" id="modalLegacyEliminarCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header" style="background:linear-gradient(135deg,#1a0a0a 0%,#3a2117 60%,#4b2f2a 100%);border:none;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
-          <h5 class="modal-title text-white"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar eliminación</h5>
-          <button type="button" class="btn-close-dev" data-bs-dismiss="modal" aria-label="Cerrar">
-            <span class="btn-close-dev__icon">✕</span>
-          </button>
-        </div>
-        <form method="post" action="{% url 'clientes:eliminar' cliente.id %}">
-          {% csrf_token %}
-          <div class="modal-body text-center">
-            <p class="fw-semibold mb-1">¿Deseas eliminar al cliente?</p>
-            <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
-          </div>
-          <div class="modal-footer justify-content-center">
-            <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-danger">Eliminar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  {% endif %}
   {% endfor %}
 
 -->
@@ -709,3 +691,4 @@ function abrirModalTratamiento(clienteId) {
 }
 </script>
 {% endblock %}
+

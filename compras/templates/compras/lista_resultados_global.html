@@ -7,11 +7,11 @@
       <table class="styled-table">
         <thead>
           <tr>
-            <th><a href="{% sort_url 'id' %}">ID</a></th>
-            <th><a href="{% sort_url 'proveedor' %}">Proveedor</a></th>
-            <th><a href="{% sort_url 'fecha' %}">Fecha</a></th>
-            <th><a href="{% sort_url 'usuario' %}">Usuario</a></th>
-            <th><a href="{% sort_url 'anulada' %}">Estado</a></th>
+            <th><a href="{% sort_url 'id' %}">ID{% if current_sort == 'id' %} <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill" aria-hidden="true"></i>{% endif %}</a></th>
+            <th><a href="{% sort_url 'proveedor' %}">Proveedor{% if current_sort == 'proveedor' %} <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill" aria-hidden="true"></i>{% endif %}</a></th>
+            <th><a href="{% sort_url 'fecha' %}">Fecha{% if current_sort == 'fecha' %} <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill" aria-hidden="true"></i>{% endif %}</a></th>
+            <th><a href="{% sort_url 'usuario' %}">Usuario{% if current_sort == 'usuario' %} <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill" aria-hidden="true"></i>{% endif %}</a></th>
+            <th><a href="{% sort_url 'anulada' %}">Estado{% if current_sort == 'anulada' %} <i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill" aria-hidden="true"></i>{% endif %}</a></th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>

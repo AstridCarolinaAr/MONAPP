@@ -1,12 +1,33 @@
+{% load sort_tags %}
 <div class="table-responsive">
     <table class="styled-table">
         <thead>
             <tr>
-                <th>Código</th>
-                <th>Cliente</th>
-                <th>Documento</th>
-                <th>Teléfono</th>
-                <th>Estado</th>
+                <th>
+                    <a href="{% sort_url 'codigo' %}">Código
+                        {% if current_sort == 'codigo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'cliente' %}">Cliente
+                        {% if current_sort == 'cliente' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'documento' %}">Documento
+                        {% if current_sort == 'documento' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'telefono' %}">Teléfono
+                        {% if current_sort == 'telefono' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'estado' %}">Estado
+                        {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
                 <th class="text-end">Acciones</th>
             </tr>
         </thead>
@@ -52,19 +73,6 @@
                             <i class="bi bi-pencil-square"></i>
                         </a>
 
-                        <button type="button"
-                                class="table-action-btn btn-toggle-cliente-estado js-toggle-cliente-accion"
-                                data-url="{% url 'clientes:cambiar_estado' cliente.id %}"
-                                data-nombre="{{ cliente.nombre }} {{ cliente.apellido|escapejs }}"
-                                data-activo="{% if cliente.estado == 'activo' %}1{% else %}0{% endif %}"
-                                title="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %}"
-                                aria-label="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %} cliente {{ cliente.nombre }} {{ cliente.apellido }}">
-                            {% if cliente.estado == 'activo' %}
-                                <i class="bi bi-trash3"></i>
-                            {% else %}
-                                <i class="bi bi-arrow-clockwise"></i>
-                            {% endif %}
-                        </button>
                     </div>
 
                     <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">
