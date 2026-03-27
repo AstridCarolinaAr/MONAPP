@@ -389,8 +389,7 @@ class DetalleDevolucionCompraForm(forms.ModelForm):
             (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
             0
         )
-        stock_actual = detalle_compra.producto.stock_actual or 0
-        disponible_para_devolver = min(disponible_por_compra, stock_actual)
+        disponible_para_devolver = disponible_por_compra
 
         if cantidad > disponible_para_devolver:
             self.add_error(
@@ -409,7 +408,7 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
             return
 
         hay_detalle = False
-        acumulado_por_detalle = {}
+        vistos_por_detalle = {}
 
         for form in self.forms:
             if not hasattr(form, "cleaned_data"):
@@ -424,11 +423,27 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
             if not detalle_compra and not cantidad:
                 continue
 
-            if detalle_compra and cantidad > 0:
-                hay_detalle = True
-                acumulado_por_detalle[detalle_compra.pk] = (
-                    acumulado_por_detalle.get(detalle_compra.pk, 0) + cantidad
+            if not detalle_compra:
+                form.add_error("detalle_compra", "Selecciona un detalle de compra.")
+                continue
+
+            if cantidad <= 0:
+                form.add_error("cantidad", "La cantidad debe ser mayor que 0.")
+                continue
+
+            if detalle_compra.pk in vistos_por_detalle:
+                form.add_error(
+                    "detalle_compra",
+                    "No puedes repetir el mismo detalle de compra en la misma devolucion.",
                 )
+                vistos_por_detalle[detalle_compra.pk].add_error(
+                    "detalle_compra",
+                    "No puedes repetir el mismo detalle de compra en la misma devolucion.",
+                )
+                continue
+
+            hay_detalle = True
+            vistos_por_detalle[detalle_compra.pk] = form
 
         if not hay_detalle:
             raise forms.ValidationError("Debes agregar al menos un producto a devolver.")
@@ -444,8 +459,6 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
             if not detalle_compra:
                 continue
 
-            total_en_formset = acumulado_por_detalle.get(detalle_compra.pk, 0)
-
             qs_devueltas = DetalleDevolucionCompra.objects.filter(
                 detalle_compra=detalle_compra,
                 devolucion__anulada=False
@@ -459,13 +472,12 @@ class BaseDetalleDevolucionCompraFormSet(BaseInlineFormSet):
                 (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
                 0
             )
-            stock_actual = detalle_compra.producto.stock_actual or 0
-            disponible_para_devolver = min(disponible_por_compra, stock_actual)
+            disponible_para_devolver = disponible_por_compra
 
-            if total_en_formset > disponible_para_devolver:
+            if cantidad > disponible_para_devolver:
                 form.add_error(
                     "cantidad",
-                    f"Entre todas las filas solo puedes devolver hasta {disponible_para_devolver} unidad(es) de este producto."
+                    f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de este producto."
                 )
 
 

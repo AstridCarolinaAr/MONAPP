@@ -5,5 +5,5 @@ class ComprasConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'compras'
 
-def ready(self):
-    import compras.signals
+    def ready(self):
+        import compras.signals  # noqa: F401

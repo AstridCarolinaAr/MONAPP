@@ -7,6 +7,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
 from django.core.cache import cache
 from django.db.models import Q
 from django.http import JsonResponse
@@ -59,6 +60,11 @@ def _recovery_code_attempts_key(request):
 def _recovery_code_block_key(request):
     user_id = request.session.get('recovery_user') or 'anon'
     return f'recovery_code_block:{user_id}'
+
+
+def _puede_modificar_usuarios(user):
+    grupos = list(user.groups.values_list('name', flat=True))
+    return user.is_superuser or 'Administrador' in grupos or 'Auxiliar' in grupos
 
 # ==================== VISTAS DE AUTENTICACIÓN ====================
 
@@ -449,6 +455,11 @@ def lista_usuarios_view(request):
 #@no_colaborador_required()
 def crear_usuario_view(request):
     grupos = list(request.user.groups.values_list('name', flat=True))
+    if not _puede_modificar_usuarios(request.user):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'No tienes permisos para crear usuarios.'}, status=403)
+        messages.error(request, 'No tienes permisos para crear usuarios.')
+        return redirect('usuarios:lista_usuarios')
     
     # Verificar si es una petición AJAX para cargar el modal
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -505,6 +516,11 @@ def crear_usuario_view(request):
 def editar_usuario_view(request, user_id):
     usuario = get_object_or_404(User, id=user_id)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not _puede_modificar_usuarios(request.user):
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': 'No tienes permisos para editar usuarios.'}, status=403)
+        messages.error(request, 'No tienes permisos para editar usuarios.')
+        return redirect('usuarios:lista_usuarios')
 
     try:
         perfil, _ = PerfilUsuario.objects.get_or_create(user=usuario)
@@ -605,6 +621,11 @@ def eliminar_usuario_view(request, user_id):
 
     usuario = get_object_or_404(User, id=user_id)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not _puede_modificar_usuarios(request.user):
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': 'No tienes permisos para desactivar usuarios.'}, status=403)
+        messages.error(request, 'No tienes permisos para desactivar usuarios.')
+        return redirect('usuarios:lista_usuarios')
 
     if usuario == request.user:
         if is_ajax:
@@ -682,12 +703,16 @@ def detalle_usuario_view(request, user_id):
 
 
 @login_required
+@require_POST
 def toggle_activo_usuario_view(request, user_id):
     """Cambia el estado activo/inactivo de un usuario vía AJAX."""
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if not is_ajax or request.method != 'POST':
         return JsonResponse({'success': False, 'mensaje': 'Solicitud no válida.'}, status=400)
+
+    if not _puede_modificar_usuarios(request.user):
+        return JsonResponse({'success': False, 'mensaje': 'No tienes permisos para modificar usuarios.'}, status=403)
 
     usuario = get_object_or_404(User, id=user_id)
 
@@ -1066,6 +1091,7 @@ def nueva_password(request):
 
 # ==================== VALIDACIONES EN TIEMPO REAL ====================
 
+@login_required
 def validar_documento_usuario(request):
     """
     Endpoint para validar documento de usuario en tiempo real
@@ -1101,6 +1127,7 @@ def validar_documento_usuario(request):
     return JsonResponse({'valido': True})
 
 
+@login_required
 def validar_email_usuario(request):
     """
     Endpoint para validar email de usuario en tiempo real

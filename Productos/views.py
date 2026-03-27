@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 
 from .models import Producto
 from .forms import ProductoForm
-from compras.models import DetalleCompra
+from compras.models import Compra, DetalleCompra
 from core.global_ordenamiento import apply_smart_sorting,sorting_context
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -240,6 +240,8 @@ def validar_nombre_producto(request):
 
     return JsonResponse({"valido": True, "mensaje": ""})
 
+@login_required
+@require_POST
 def eliminar_producto(request, codigo):
     producto = get_object_or_404(Producto, codigo=codigo)
 

@@ -151,13 +151,17 @@
                             <i class="bi bi-download"></i> Descargar
                         </a>
                         {% endif %}
-                        <button type="button" class="bk-btn primary btn-restaurar" style="justify-content:center;"
-                                data-id="{{ backup.pk }}"
-                                data-nombre="{{ backup.nombre }}"
-                                data-url="{% url 'backup:restaurar' backup.pk %}">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                            {% if backup.estado == 'restaurado' %}Restaurar de Nuevo{% else %}Restaurar{% endif %}
-                        </button>
+                        {% if backup.archivo_existe %}
+                            {% if backup.estado == 'exitoso' or backup.estado == 'restaurado' %}
+                            <button type="button" class="bk-btn primary btn-restaurar" style="justify-content:center;"
+                                    data-id="{{ backup.pk }}"
+                                    data-nombre="{{ backup.nombre }}"
+                                    data-url="{% url 'backup:restaurar' backup.pk %}">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                {% if backup.estado == 'restaurado' %}Restaurar de Nuevo{% else %}Restaurar{% endif %}
+                            </button>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

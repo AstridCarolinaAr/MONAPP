@@ -3,6 +3,7 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -26,6 +27,51 @@ from .models import Compra, DevolucionCompra
 # =========================
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def _detalles_compra_disponibles_para_devolucion(compra_id):
+    detalles = []
+
+    with transaction.atomic():
+        compra = (
+            Compra.objects
+            .select_for_update()
+            .select_related("proveedor")
+            .get(pk=compra_id, anulada=False)
+        )
+
+        for d in (
+            compra.detalles
+            .select_for_update()
+            .select_related("producto")
+            .order_by("producto__nombre")
+        ):
+            cantidad_ya_devuelta = (
+                d.detalles_devolucion
+                .select_for_update()
+                .filter(devolucion__anulada=False)
+                .aggregate(total=Sum("cantidad"))["total"] or 0
+            )
+
+            disponible = max((d.cantidad or 0) - cantidad_ya_devuelta, 0)
+
+            if disponible <= 0:
+                continue
+
+            detalles.append({
+                "id": d.id,
+                "texto": (
+                    f"{d.producto.nombre} | "
+                    f"Comprado: {d.cantidad} | "
+                    f"Devuelto: {cantidad_ya_devuelta} | "
+                    f"Disponible: {disponible} | "
+                    f"Precio: ${d.precio_unitario}"
+                ),
+                "precio_unitario": int(d.precio_unitario or 0),
+                "disponible": disponible,
+            })
+
+    return detalles
 
 def permiso_requerido(permisos, mensaje="No tienes permisos para realizar esta acción."):
     permisos = tuple(permisos) if isinstance(permisos, (list, tuple, set)) else (permisos,)
@@ -521,41 +567,15 @@ def cargar_detalles_compra(request):
     if not compra_id or not compra_id.isdigit():
         return JsonResponse({"success": False, "detalles": [], "message": "Compra inválida."}, status=400)
 
-    compra = get_object_or_404(Compra.objects.select_related("proveedor"), pk=int(compra_id), anulada=False)
-
-    detalles = []
-    for d in compra.detalles.select_related("producto").all().order_by("producto__nombre"):
-        cantidad_ya_devuelta = (
-            d.detalles_devolucion
-            .filter(devolucion__anulada=False)
-            .aggregate(total=Sum("cantidad"))["total"] or 0
+    try:
+        detalles = _detalles_compra_disponibles_para_devolucion(int(compra_id))
+    except Compra.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "detalles": [], "message": "Compra invalida o anulada."},
+            status=404,
         )
 
-        disponible_por_compra = max((d.cantidad or 0) - cantidad_ya_devuelta, 0)
-        stock_actual = d.producto.stock_actual or 0
-        disponible = min(disponible_por_compra, stock_actual)
-        disponible = max(disponible, 0)
-
-        if disponible <= 0:
-            continue
-
-        detalles.append({
-            "id": d.id,
-            "texto": (
-                f"{d.producto.nombre} | "
-                f"Comprado: {d.cantidad} | "
-                f"Devuelto: {cantidad_ya_devuelta} | "
-                f"Disponible: {disponible} | "
-                f"Precio: ${d.precio_unitario}"
-            ),
-            "precio_unitario": int(d.precio_unitario or 0),
-            "disponible": disponible,
-        })
-
-    return JsonResponse({
-        "success": True,
-        "detalles": detalles,
-    })
+    return JsonResponse({"success": True, "detalles": detalles})
 
 @login_required
 @permiso_requerido("compras.change_devolucioncompra", "No tienes permisos para anular devoluciones.")
@@ -607,3 +627,4 @@ def comprobante_devolucion_compra_preview(request, pk):
         request=request
     )
     return JsonResponse({"success": True, "html": html})
+

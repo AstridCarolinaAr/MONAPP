@@ -292,22 +292,6 @@ def crear_gestion_alisado(request):
             if is_modal or es_ajax:
                 return JsonResponse({
                     'success': True,
-                    'message': 'Gestión de alisado actualizada exitosamente.'
-                }, status=200)
-            if is_modal or es_ajax:
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Gestión de alisado actualizada exitosamente.'
-                }, status=200)
-            if is_modal or es_ajax:
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Gestión de alisado actualizada exitosamente.'
-                }, status=200)
-
-            if is_modal or es_ajax:
-                return JsonResponse({
-                    'success': True,
                     'message': 'Gestión de alisado registrada exitosamente.'
                 }, status=201)
 

@@ -5,11 +5,14 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 from .models import Cliente
 from .validaciones import validar_datos_cliente
 
 
+@login_required
 def crear_cliente(request):
     """
     Crea un cliente. 
@@ -67,6 +70,7 @@ def crear_cliente(request):
     return redirect('clientes:lista')
 
 
+@login_required
 def validar_cliente_ajax(request):
     """
     Vista para validaciones en tiempo real desde el frontend.
@@ -91,6 +95,7 @@ def validar_cliente_ajax(request):
     })
 
 
+@login_required
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -144,6 +149,7 @@ def editar_cliente(request, cliente_id):
     })
 
 
+@login_required
 def lista_clientes(request):
     """
     Lista con filtros. NO abre modal por recarga.
@@ -229,6 +235,7 @@ def lista_clientes(request):
 
     return render(request, 'clientes/lista_clientes.html', context)
 
+@login_required
 def validar_documento(request):
     numero = (request.GET.get('numero') or '').strip()
     cliente_id = request.GET.get('cliente_id')
@@ -263,6 +270,8 @@ def validar_documento(request):
     return JsonResponse({'valido': True})
 
 
+@login_required
+@require_POST
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
 
@@ -274,6 +283,8 @@ def eliminar_cliente(request, cliente_id):
     # Si alguien entra por GET, lo mandamos a lista (o puedes renderizar confirmación si tienes template)
     return redirect('clientes:lista')
 
+@login_required
+@require_POST
 def cambiar_estado_cliente(request, cliente_id):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'mensaje': 'Método no permitido'}, status=405)

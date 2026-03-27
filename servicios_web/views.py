@@ -3,14 +3,18 @@ import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from .forms import ServicioWebForm
-from .models import ServicioWeb
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+
+from .forms import ServicioWebForm
+from .models import ServicioWeb
 
 
 _TEXTO_SEGURO_RE = re.compile(r'^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+$')
 
+
+@login_required
 def crear_servicio_web(request):
     is_modal = request.GET.get('modal') == '1' or request.POST.get('modal') == '1'
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -48,6 +52,7 @@ def crear_servicio_web(request):
     return render(request, template_name, context)
 
 
+@login_required
 def editar_servicio_web(request, pk):
     servicio_web = get_object_or_404(ServicioWeb, pk=pk)
     is_modal = request.GET.get('modal') == '1' or request.POST.get('modal') == '1'
@@ -84,7 +89,7 @@ def editar_servicio_web(request, pk):
         'is_modal': is_modal,
     }
     return render(request, template_name, context)
-   
+
 
 @login_required
 def lista_servicios_web(request):
@@ -114,31 +119,31 @@ def lista_servicios_web(request):
 
     return render(request, 'servicios_web/lista_servicios_web.html', context)
 
+
 def servicios_web_publicos(request):
     servicios = ServicioWeb.objects.filter(activo=True).order_by('nombre')
     return render(request, 'servicios_web/publicos.html', {
         'servicios': servicios
     })
 
+
+@login_required
+@require_POST
 def cambiar_estado_servicio_web(request, pk):
-    if request.method == "POST":
-        servicio = get_object_or_404(ServicioWeb, pk=pk)
+    servicio = get_object_or_404(ServicioWeb, pk=pk)
 
-        servicio.activo = not servicio.activo
-        servicio.save()
-
-        return JsonResponse({
-            "success": True,
-            "activo": servicio.activo
-        })
+    servicio.activo = not servicio.activo
+    servicio.save()
 
     return JsonResponse({
-        "success": False,
-        "message": "Método no permitido"
-    }, status=400)
+        "success": True,
+        "activo": servicio.activo
+    })
+
+
+@login_required
 def eliminar_servicio_web(request, pk):
     servicio_web = get_object_or_404(ServicioWeb, pk=pk)
-
 
     if request.method == 'POST':
         nombre = servicio_web.nombre
@@ -150,6 +155,8 @@ def eliminar_servicio_web(request, pk):
         'servicio_web': servicio_web,
     })
 
+
+@login_required
 def validar_nombre_servicio_web(request):
     nombre = (request.GET.get('nombre') or '').strip()
     servicio_id = request.GET.get('servicio_id')
@@ -187,4 +194,3 @@ def validar_nombre_servicio_web(request):
         'valido': True,
         'mensaje': ''
     })
-
