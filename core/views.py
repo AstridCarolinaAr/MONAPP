@@ -1,10 +1,12 @@
 from datetime import date
+from pathlib import Path
 
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
+from django.conf import settings
+from django.http import FileResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.db.models import Sum
 
@@ -278,72 +280,13 @@ def ayuda_view(request):
 
 @login_required
 def ayuda_pdf_view(request):
-    lineas = [
-        "Manual de Usuario MONAPP",
-        "",
-        "1) Como iniciar sesion",
-        "- En la pagina principal, haz clic en Iniciar sesion.",
-        "- Escribe tu usuario y contrasena.",
-        "- Pulsa Entrar para acceder al panel.",
-        "",
-        "2) Como registrar un usuario",
-        "- Ingresa al modulo Usuarios.",
-        "- Haz clic en Nuevo usuario.",
-        "- Completa los campos obligatorios y guarda.",
-        "- Asigna el rol correspondiente.",
-        "",
-        "3) Como usar productos",
-        "- Abre el modulo Productos desde el menu lateral.",
-        "- Usa el buscador para encontrar productos existentes.",
-        "- Crea, edita o activa/inactiva productos segun necesidad.",
-        "- Verifica los mensajes de confirmacion al guardar cambios.",
-    ]
-
-    # PDF mínimo generado sin dependencias externas.
-    pdf_lines = []
-    for linea in lineas:
-        safe = linea.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
-        pdf_lines.append(f"({safe}) Tj")
-
-    content_stream = "BT /F1 11 Tf 40 790 Td 0 -16 Td " + " T* ".join(pdf_lines) + " ET"
-    content_bytes = content_stream.encode("latin-1", errors="replace")
-
-    objetos = []
-    objetos.append(b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
-    objetos.append(b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n")
-    objetos.append(
-        b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
-        b"/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n"
+    pdf_path = Path(settings.BASE_DIR) / "core" / "static" / "core" / "docs" / "ayuda" / "monapp.pdf"
+    return FileResponse(
+        pdf_path.open("rb"),
+        content_type="application/pdf",
+        as_attachment=True,
+        filename="manual_usuario_monapp.pdf",
     )
-    objetos.append(b"4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n")
-    objetos.append(
-        f"5 0 obj << /Length {len(content_bytes)} >> stream\n".encode("ascii")
-        + content_bytes
-        + b"\nendstream endobj\n"
-    )
-
-    pdf = bytearray(b"%PDF-1.4\n")
-    offsets = [0]
-    for obj in objetos:
-        offsets.append(len(pdf))
-        pdf.extend(obj)
-
-    xref_start = len(pdf)
-    pdf.extend(f"xref\n0 {len(offsets)}\n".encode("ascii"))
-    pdf.extend(b"0000000000 65535 f \n")
-    for offset in offsets[1:]:
-        pdf.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
-
-    pdf.extend(
-        (
-            f"trailer << /Size {len(offsets)} /Root 1 0 R >>\n"
-            f"startxref\n{xref_start}\n%%EOF"
-        ).encode("ascii")
-    )
-
-    response = HttpResponse(bytes(pdf), content_type="application/pdf")
-    response["Content-Disposition"] = 'attachment; filename="manual_usuario_monapp.pdf"'
-    return response
 
 
 def solo_admin(view_func):
@@ -354,3 +297,4 @@ def solo_admin(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapper
+

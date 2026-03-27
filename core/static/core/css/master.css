@@ -11,6 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
 
   padding: 1rem 2rem;
 
@@ -187,20 +188,20 @@
 
 @media (max-width: 768px) {
   .header {
-    padding: 0.8rem 1rem;
-    flex-wrap: wrap;
-    row-gap: 0.65rem;
+    padding: 0.75rem 0.85rem;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
   .logo svg {
-    height: 96px;
+    height: 72px;
   }
 
   .nav-glass {
     position: fixed;
-    left: 14px;
-    right: 14px;
-    top: 86px;
+    left: 12px;
+    right: 12px;
+    top: 84px;
     z-index: 1200;
     width: auto;
     max-width: none;
@@ -224,12 +225,16 @@
 
   .nav-toggle {
     display: inline-flex;
-    margin-left: auto;
-    order: 2;
+    position: fixed;
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    right: calc(0.85rem + env(safe-area-inset-right, 0px));
+    z-index: 1301;
+    margin-left: 0;
+    order: 0;
   }
 
   .header .btn {
-    order: 3;
+    display: none;
   }
 
   .header:not(.nav-open) .nav-glass {
