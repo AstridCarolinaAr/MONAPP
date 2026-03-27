@@ -1876,3 +1876,106 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
     transform: none !important;
   }
 }
+
+/* =============================
+   HEADER PERSONAL (ESTILO PROVEEDORES)
+============================= */
+.personal-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* =============================
+   BOTÓN FILTRAR – ESTILO MONA
+============================= */
+.personal-wrapper .btn-filter {
+    background: #ffffff;
+    border: 1px solid #3b2f2f;
+    color: #3b2f2f;
+    border-radius: 995px;
+    padding: 3px 6px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: all .25s ease;
+}
+
+.personal-wrapper .btn-filter:hover {
+    background: #3b2f2f;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.personal-wrapper .btn-filter i {
+    font-size: 12px;
+}
+
+.personal-wrapper .btn-filter:focus,
+.personal-wrapper .btn-filter:active {
+    box-shadow: none !important;
+}
+
+/* =============================
+   DROPDOWN FILTROS PERSONAL
+============================= */
+.personal-filtros-dropdown .dropdown-menu {
+    min-width: 200px;
+    border-radius: 14px;
+    border: 1px solid rgba(59, 47, 47, .12);
+    padding: .5rem;
+}
+
+.personal-filtros-dropdown .dropdown-item {
+    border-radius: 10px;
+    padding: .55rem .75rem;
+    font-size: 12px;
+}
+
+.personal-filtros-dropdown .dropdown-item.active,
+.personal-filtros-dropdown .dropdown-item:active {
+    background: #3b2f2f;
+    color: #fff;
+}
+
+/* =============================
+   FORMULARIO BÚSQUEDA PERSONAL
+============================= */
+.personal-busqueda-form {
+    width: 100%;
+}
+
+/* =============================
+   OPCIONES MENÚ FILTRO CUSTOM
+============================= */
+.personal-filter-option {
+    cursor: pointer;
+    border-radius: 10px;
+    padding: .55rem .75rem;
+    font-size: 12px;
+    color: #3b2f2f;
+    font-weight: 500;
+    transition: background .18s ease;
+}
+
+.personal-filter-option:hover {
+    background: #f5ebe8;
+}
+
+.personal-filter-option.active {
+    background: #3b2f2f;
+    color: #fff;
+    font-weight: 700;
+}
+
+.personal-filter-option.text-danger {
+    color: #dc3545 !important;
+}
+
+.personal-filter-option.text-danger:hover {
+    background: #fff0f0;
+}

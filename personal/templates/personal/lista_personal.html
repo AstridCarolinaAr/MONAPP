@@ -279,99 +279,115 @@
 <div class="personal-wrapper">
     <div class="personal-container">
         <!-- Header -->
-        <div class="personal-header">
-            <h1>
-                <i class="fas fa-users"></i> Personal (Auxiliares y Colaboradores)
-            </h1>
+        <!-- Header -->
+        <div class="personal-header mb-4">
+            <div class="personal-header-top">
+                <div>
+                    <h4 class="mb-0">Listado de Personal</h4>
+                    <small class="text-muted">
+                        Total: {{ personal_list|length }} registro{{ personal_list|length|pluralize }}
+                    </small>
+                </div>
+            </div>
         </div>
-        <div class="premium-search-bar shadow-sm mb-4 anim-from-bottom" style="animation-delay: 0.05s;">
-            <form method="get" class="js-ajax-search-form w-100 m-0 d-flex flex-column flex-md-row align-items-md-center gap-3"
-                data-ajax-url="{% url 'personal:lista_personal' %}" data-ajax-target="#personal-results"
-                data-ajax-debounce="300" autocomplete="off">
+        <div class="module-filters-card">
+            <div class="module-filters-form">
+                <div class="module-filter-field module-filter-field--wide">
+                    <label class="module-filter-label">Buscar</label>
+                    <form method="get"
+                          action="{% url 'personal:lista_personal' %}"
+                          class="personal-busqueda-form js-ajax-search-form"
+                          id="personal-filter-form"
+                          data-ajax-url="{% url 'personal:lista_personal' %}"
+                          data-ajax-target="#personal-results"
+                          data-ajax-debounce="250">
+                        <input type="hidden" name="filtro" id="personal-hidden-filtro" value="{{ request.GET.filtro|default:'todos' }}">
+                        {% if current_sort %}
+                        <input type="hidden" name="sort" value="{{ current_sort }}">
+                        {% endif %}
+                        {% if current_dir %}
+                        <input type="hidden" name="dir" value="{{ current_dir }}">
+                        {% endif %}
 
-                {% if current_sort %}
-                <input type="hidden" name="sort" value="{{ current_sort }}">
-                {% endif %}
-                {% if current_dir %}
-                <input type="hidden" name="dir" value="{{ current_dir }}">
-                {% endif %}
-
-                <!-- Buscador Animado Original -->
-                <div class="flex-grow-1 position-relative d-flex align-items-center" style="min-height: 42px;">
-                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, correo, teléfono o id...' search_value=request.GET.q name='q' modo='inline' %}
+                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, correo, teléfono o id...' search_value=q name='q' modo='inline' %}
+                    </form>
                 </div>
 
-                <!-- Filtro Dropdown Custom (Evita interfaz azul de navegadores) -->
-                <div class="custom-select-wrapper position-relative" style="min-width: 190px;">
-                    <div class="custom-select-trigger d-flex align-items-center rounded-pill px-3" 
-                         style="height: 42px; background: #fbf5f0; border: 1px solid rgba(198, 162, 136, 0.2); cursor: pointer; color: #4b2f2a; font-weight: 600; font-size: 0.88rem;"
-                         onclick="const menu = this.nextElementSibling; menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';">
-                        <i class="bi bi-funnel-fill me-2" style="color: #a38f85; font-size: 0.9rem;"></i>
-                        <span id="customFilterLabel" class="flex-grow-1 text-start">
+                <div class="module-filter-field module-filter-field--medium">
+                    <label class="module-filter-label">Filtrar</label>
+                    <div class="personal-custom-filter-wrap" style="position: relative;">
+                        <button type="button" class="btn btn-filter" id="personal-filter-toggle"
+                                onclick="var m=document.getElementById('personal-filter-menu'); m.style.display=(m.style.display==='block'?'none':'block');">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                            <i class="bi bi-chevron-down" style="font-size:10px;"></i>
+                        </button>
+
+                        <div id="personal-filter-menu" class="personal-filter-menu-panel"
+                             style="display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:190px; background:#fff; border-radius:14px; border:1px solid rgba(59,47,47,.12); padding:.5rem; z-index:2000; box-shadow:0 8px 24px rgba(59,47,47,.15);">
+                            <div class="personal-filter-option {% if not request.GET.filtro or request.GET.filtro == 'todos' %}active{% endif %}"
+                                 onclick="personalSetFiltro('todos', this)">Todos</div>
+                            <div class="personal-filter-option {% if request.GET.filtro == 'activo' %}active{% endif %}"
+                                 onclick="personalSetFiltro('activo', this)">Activos</div>
+                            <div class="personal-filter-option {% if request.GET.filtro == 'inactivo' %}active{% endif %}"
+                                 onclick="personalSetFiltro('inactivo', this)">Inactivos</div>
                             {% for value, label in form.filtro.field.choices %}
-                                {% if request.GET.filtro == value|stringformat:"s" or not request.GET.filtro and forloop.first %}
-                                    {{ label }}
+                                {% if value != 'activo' and value != 'inactivo' and value != 'todos' %}
+                                    <div class="personal-filter-option {% if request.GET.filtro == value %}active{% endif %}"
+                                         onclick="personalSetFiltro('{{ value }}', this)">{{ label }}</div>
                                 {% endif %}
                             {% endfor %}
-                        </span>
-                        <i class="bi bi-chevron-down" style="font-size: 0.8rem; color: #8b6f60;"></i>
-                    </div>
-                    
-                    <div class="custom-select-options position-absolute w-100 shadow-sm" 
-                         style="top: 100%; left: 0; margin-top: 8px; background: #ffffff; border-radius: 16px; border: 1px solid rgba(198, 162, 136, 0.15); z-index: 1050; display: none; overflow: hidden; padding: 6px 0;">
-                        {% for value, label in form.filtro.field.choices %}
-                        <div class="custom-select-option px-3 py-2" 
-                             style="cursor: pointer; transition: background-color 0.2s; font-size: 0.9rem; color: #4b2f2a; font-weight: {% if request.GET.filtro == value|stringformat:'s' or not request.GET.filtro and forloop.first %}700{% else %}500{% endif %}; background-color: {% if request.GET.filtro == value|stringformat:'s' or not request.GET.filtro and forloop.first %}#eaddd3{% else %}transparent{% endif %};"
-                             onmouseenter="if(!this.style.backgroundColor.includes('rgb(234, 221, 211)') && !this.style.backgroundColor.includes('#eaddd3')) this.style.backgroundColor='#fbf5f0';"
-                             onmouseleave="if(!this.style.backgroundColor.includes('rgb(234, 221, 211)') && !this.style.backgroundColor.includes('#eaddd3')) this.style.backgroundColor='transparent';"
-                             onclick="
-                                document.getElementById('hidden_filtro').value='{{ value }}'; 
-                                document.getElementById('customFilterLabel').innerText='{{ label }}'; 
-                                this.parentElement.style.display = 'none';
-                                
-                                // Restablecer estilos de todas las opciones
-                                const siblingOptions = this.parentElement.querySelectorAll('.custom-select-option');
-                                siblingOptions.forEach(opt => {
-                                    opt.style.backgroundColor = 'transparent';
-                                    opt.style.fontWeight = '500';
-                                });
-                                
-                                // Aplicar active a esta opción
-                                this.style.backgroundColor = '#eaddd3';
-                                this.style.fontWeight = '700';
-
-                                const frm = document.getElementById('hidden_filtro').form; 
-                                if(frm._submitAjaxSearch) { frm._submitAjaxSearch(true); } else { frm.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true})); }
-                             ">
-                            {{ label }}
+                            <hr style="margin:.4rem 0; border-color:rgba(59,47,47,.1);">
+                            <div class="personal-filter-option text-danger"
+                                 onclick="personalClearFiltro(this)">Quitar filtros</div>
                         </div>
-                        {% endfor %}
                     </div>
-                    <!-- Guardamos el input real oculto -->
-                    <input type="hidden" name="filtro" id="hidden_filtro" value="{{ request.GET.filtro|default:'' }}">
                 </div>
-
-                <!-- Botón Limpiar -->
-                <div class="d-flex align-items-center gap-2 mt-2 mt-md-0 justify-content-end w-100" style="max-width: fit-content;">
-                    <button type="button" class="btn btn-pill-premium shadow-sm" onclick="
-                        const qInput = this.form.querySelector('[name=q]');
-                        if(qInput) qInput.value = '';
-                        const hFiltro = document.getElementById('hidden_filtro');
-                        if(hFiltro) hFiltro.value = 'activo';
-                        const label = document.getElementById('customFilterLabel');
-                        if(label) label.innerText = 'Activos';
-                        document.querySelectorAll('.custom-select-option').forEach(opt => {
-                            opt.style.backgroundColor = 'transparent'; opt.style.fontWeight = '500';
-                        });
-                        const activosOpt = Array.from(document.querySelectorAll('.custom-select-option')).find(el => el.innerText.trim() === 'Activos');
-                        if(activosOpt){ activosOpt.style.backgroundColor = '#eaddd3'; activosOpt.style.fontWeight = '700'; }
-                        if(this.form._submitAjaxSearch) { this.form._submitAjaxSearch(true); } else { this.form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true})); }
-                    ">
-                        <i class="fas fa-eraser"></i> Limpiar
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
+
+        <script>
+        // Cerrar el menú al hacer click fuera
+        document.addEventListener('click', function(e) {
+            var wrap = document.querySelector('.personal-custom-filter-wrap');
+            var menu = document.getElementById('personal-filter-menu');
+            if (menu && wrap && !wrap.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        function personalSetFiltro(value, clickedEl) {
+            var hiddenFiltro = document.getElementById('personal-hidden-filtro');
+            var menu = document.getElementById('personal-filter-menu');
+            if (!hiddenFiltro) return;
+            hiddenFiltro.value = value;
+
+            // Cerrar menú
+            if (menu) menu.style.display = 'none';
+
+            // Marcar activo visualmente
+            document.querySelectorAll('.personal-filter-option').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            if (clickedEl) clickedEl.classList.add('active');
+
+            // Disparar AJAX o submit normal
+            var frm = hiddenFiltro.form;
+            if (frm) {
+                if (frm._submitAjaxSearch) {
+                    frm._submitAjaxSearch(true);
+                } else {
+                    frm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            }
+        }
+
+        function personalClearFiltro(clickedEl) {
+            var qInput = document.querySelector('#personal-filter-form [name=q]');
+            if (qInput) qInput.value = '';
+            personalSetFiltro('todos', document.querySelector('.personal-filter-option'));
+        }
+        </script>
 
         <div id="personal-results" class="ajax-results-container">
             {% include 'personal/lista_personal_global.html' %}

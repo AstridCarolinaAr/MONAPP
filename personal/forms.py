@@ -151,7 +151,7 @@ class PersonalBusquedaForm(ValidationFormMixin, forms.Form):
             ("todos", "Todos"),
         ]
         + [("rol_" + rol[0], rol[1]) for rol in Personal.ROLES],
-        initial="activo",
+        initial="todos",
         widget=forms.Select(
             attrs={
                 "class": "personal-form-control",

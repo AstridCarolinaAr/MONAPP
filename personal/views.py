@@ -43,12 +43,12 @@ def lista_personal(request):
     personal_list = Personal.objects.all()
     form = PersonalBusquedaForm(request.GET or None)
 
-    filtro = "activo"
+    filtro = "todos"
     if form.is_valid() and form.cleaned_data.get("filtro"):
         filtro = form.cleaned_data.get("filtro")
     elif not request.GET:
         # En carga inicial, establecer el valor del formulario
-        form = PersonalBusquedaForm(initial={"filtro": "activo"})
+        form = PersonalBusquedaForm(initial={"filtro": "todos"})
 
     # BUSQUEDA GLOBAL
     if q:
