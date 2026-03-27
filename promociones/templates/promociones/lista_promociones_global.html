@@ -55,7 +55,7 @@
                                 data-nombre="{{ p.nombre|escapejs }}"
                                 data-descripcion="{{ p.descripcion|escapejs }}"
                                 data-etiqueta="{{ p.get_etiqueta_display }}"
-                                data-descuento="{{ p.porcentaje_descuento }}"
+                                data-descuento="{{ p.porcentaje_descuento|stringformat:".2f" }}"
                                 data-inicio="{{ p.fecha_inicio|date:'d/m/Y' }}"
                                 data-fin="{{ p.fecha_fin|date:'Y-m-d' }}"
                                 data-activa="{{ p.activa|yesno:'Sí,No' }}"
@@ -66,14 +66,12 @@
                             <i class="bi bi-eye"></i>
                         </button>
                         <button type="button" class="btn btn-link btn-edit p-0"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalEditar"
                                 data-pk="{{ p.pk }}"
                                 data-promocion-id="{{ p.pk }}"
                                 data-nombre="{{ p.nombre }}"
                                 data-etiqueta="{{ p.etiqueta }}"
                                 data-descripcion="{{ p.descripcion }}"
-                                data-descuento="{{ p.porcentaje_descuento }}"
+                                data-descuento="{{ p.porcentaje_descuento|stringformat:".2f" }}"
                                 data-inicio="{{ p.fecha_inicio|date:'Y-m-d' }}"
                                 data-fin="{{ p.fecha_fin|date:'Y-m-d' }}"
                                 data-activa="{{ p.activa|yesno:'true,false' }}"
@@ -95,9 +93,19 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center py-5">
-                        <i class="bi bi-percent d-block mb-2" style="font-size:2.5rem;color:#c9b8ae;"></i>
-                        <span class="text-muted">Sin promociones encontradas.</span>
+                    <td colspan="8" class="text-center py-5" style="background-color: #fcf9f7;">
+                        <div class="d-flex flex-column align-items-center gap-3 py-4">
+                            <div style="width: 80px; height: 80px; background: rgba(141, 96, 74, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(141, 96, 74, 0.05);">
+                                <i class="bi bi-percent" style="font-size: 2.2rem; color: #8d604a; opacity: 0.85;"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 1.25rem; font-weight: 700; color: #3a2117; margin-bottom: 6px;">No hay promociones registradas</h4>
+                                <p style="color: #8b6f60; font-size: 0.95rem; max-width: 420px; margin: 0 auto; line-height: 1.5;">Parece que aún no tienes ofertas activas. Comienza publicando tu primera promoción para atraer a más clientes con descuentos exclusivos.</p>
+                            </div>
+                            <button type="button" class="btn btn-pill-dark mt-2" data-bs-toggle="modal" data-bs-target="#modalAgregar" style="white-space: nowrap !important; width: fit-content !important; padding: 10px 24px; font-size: 0.9rem; border: none; outline: none; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="bi bi-plus-lg"></i> Crear mi primera promoción
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
