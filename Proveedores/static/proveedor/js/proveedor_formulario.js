@@ -3,8 +3,8 @@
 
   const qs = (root, sel) => (root || document).querySelector(sel);
 
-  const RE_NIT = /^[0-9]{5,20}$/;
-  const RE_TEL = /^[0-9+\s()-]{7,20}$/;
+  const RE_NIT = /^[0-9]{7,15}$/;
+  const RE_TEL = /^[0-9]{10}$/;
   const RE_DIR = /^.{5,200}$/;
   const RULES = {
     numeric: {
@@ -238,8 +238,9 @@
 
     switch (input.id) {
       case "id_nit":
+        if (!input.hasAttribute("maxlength")) input.setAttribute("maxlength", "15");
         if (!value) message = "NIT obligatorio";
-        else if (!RE_NIT.test(value)) message = "Solo números de 5 a 20";
+        else if (!RE_NIT.test(value)) message = "NIT debe tener entre 7 y 15 digitos";
         break;
 
       case "id_nombre_proveedor":
@@ -249,8 +250,9 @@
         break;
 
       case "id_telefono_proveedor":
+        if (!input.hasAttribute("maxlength")) input.setAttribute("maxlength", "10");
         if (!value) message = "Teléfono obligatorio";
-        else if (!RE_TEL.test(value)) message = "Teléfono inválido";
+        else if (!RE_TEL.test(value)) message = "Teléfono debe tener exactamente 10 digitos";
         break;
 
       case "id_correo_proveedor":
@@ -336,7 +338,18 @@
       const field = qs(form, selector);
       if (!field) return;
 
+      if (field.id === "id_telefono_proveedor") {
+        field.setAttribute("maxlength", "10");
+      } else if (field.id === "id_nit") {
+        field.setAttribute("maxlength", "15");
+      }
+
       field.addEventListener("input", () => {
+        if (field.id === "id_telefono_proveedor" && field.value.length > 10) {
+          field.value = field.value.slice(0, 10);
+        } else if (field.id === "id_nit" && field.value.length > 15) {
+          field.value = field.value.slice(0, 15);
+        }
         field.dataset.touched = "1";
         validateProveedorForm(form);
       });

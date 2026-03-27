@@ -12,9 +12,14 @@
   }
 
   if (toggle && header) {
-    toggle.addEventListener('click', () => {
+    const handleToggle = (event) => {
+      event.preventDefault();
       setNav(!header.classList.contains('nav-open'));
-    });
+    };
+
+    toggle.addEventListener('click', handleToggle);
+    toggle.addEventListener('touchend', handleToggle, { passive: false });
+    toggle.addEventListener('pointerup', handleToggle);
   }
 
   if (backdrop) {

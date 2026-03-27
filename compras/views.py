@@ -318,7 +318,7 @@ def crear_compra(request):
             except services.CompraServiceError as exc:
                 form.add_error(None, str(exc))
             else:
-                messages.success(request, "Compra registrada correctamente.")
+                # messages.success(request, "Compra registrada correctamente.")
                 if is_ajax(request):
                     return JsonResponse({"success": True})
                 return redirect("compras:lista_compras")
