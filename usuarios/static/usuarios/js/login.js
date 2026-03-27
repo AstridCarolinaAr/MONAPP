@@ -1,8 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const loginForm = document.getElementById('loginModalForm');
+    const loginForm = document.getElementById('loginModalForm') || document.getElementById('loginForm');
     const attemptsInfo = document.getElementById('loginAttemptsInfo');
     const toggle = document.getElementById('togglePassword');
     const passInput = document.getElementById('password');
+    const captchaBox = document.getElementById('loginCaptchaBox');
+    const captchaTrigger = document.getElementById('loginCaptchaTrigger');
+    const captchaVerifiedInput = document.getElementById('captchaVerified');
+    const captchaHelpText = document.getElementById('captchaHelpText');
+    const requiresCaptcha = !!(captchaBox && captchaTrigger && captchaVerifiedInput);
     if (toggle && passInput) {
         const toggleIcon = toggle.querySelector('i') || toggle;
         toggle.addEventListener('click', () => {
@@ -89,12 +94,8 @@ document.addEventListener('DOMContentLoaded', function () {
         drawBubbles();
     }
 
-    const captchaBox = document.getElementById('loginCaptchaBox');
-    const captchaTrigger = document.getElementById('loginCaptchaTrigger');
-    const captchaVerifiedInput = document.getElementById('captchaVerified');
-    const captchaHelpText = document.getElementById('captchaHelpText');
     const markCaptchaVerified = () => {
-        if (!captchaBox || !captchaVerifiedInput) return;
+        if (!requiresCaptcha) return;
         captchaBox.classList.remove('captcha-required');
         captchaBox.classList.add('verified');
         captchaVerifiedInput.value = '1';
@@ -102,16 +103,16 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const startCaptchaVerification = () => {
-        if (!captchaBox || !captchaVerifiedInput) return;
+        if (!requiresCaptcha) return;
         if (captchaBox.classList.contains('verified') || captchaBox.classList.contains('verifying')) return;
         captchaBox.classList.add('verifying');
+        markCaptchaVerified();
         setTimeout(() => {
             captchaBox.classList.remove('verifying');
-            markCaptchaVerified();
-        }, 900);
+        }, 450);
     };
 
-    if (captchaTrigger && captchaBox) {
+    if (requiresCaptcha) {
         captchaBox.addEventListener('click', startCaptchaVerification);
         captchaTrigger.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -142,11 +143,11 @@ document.addEventListener('DOMContentLoaded', function () {
         attemptsInfo.classList.toggle('is-blocked', !!blockedMinutes);
     };
 
-    if (loginForm && captchaVerifiedInput) {
+    if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            if (captchaVerifiedInput.value !== '1') {
+            if (requiresCaptcha && captchaVerifiedInput.value !== '1') {
                 if (captchaBox) {
                     captchaBox.classList.remove('verified');
                     captchaBox.classList.add('captcha-required');
@@ -182,10 +183,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 setAttemptsMessage(data.attempts || 0, data.blocked_minutes || 0, data.message || 'Usuario o contraseña incorrectos.');
-                captchaVerifiedInput.value = '0';
-                captchaBox.classList.remove('verified');
-                captchaBox.classList.add('captcha-required');
-                if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
+                if (requiresCaptcha) {
+                    captchaVerifiedInput.value = '0';
+                    captchaBox.classList.remove('verified');
+                    captchaBox.classList.add('captcha-required');
+                    if (captchaHelpText) captchaHelpText.textContent = 'Debes marcar el captcha para poder ingresar.';
+                }
                 if (passInput) passInput.focus();
             } catch (error) {
                 setAttemptsMessage('', '', 'No se pudo validar el ingreso. Intenta de nuevo.');

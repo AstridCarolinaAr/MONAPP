@@ -52,6 +52,28 @@ def _login_session_key(username, suffix):
     return f'login_{suffix}_{safe}'
 
 
+def _login_attempts_snapshot(request, username):
+    """Combina cache y sesión para que el estado no dependa solo de la cache."""
+    ip = _get_client_ip(request)
+    cache_key = _login_rate_limit_key(request, username)
+    ip_cache_key = _login_ip_rate_limit_key(request)
+
+    attempt_data = cache.get(cache_key, {'count': 0, 'blocked_until': None})
+    ip_attempt_data = cache.get(ip_cache_key, {'count': 0, 'blocked_until': None})
+
+    session_attempts = int(request.session.get(_login_session_key(username, 'attempts')) or 0)
+    session_ip_attempts = int(request.session.get(_login_session_key(ip, 'ip_attempts')) or 0)
+
+    attempts_total = max(
+        int(attempt_data.get('count') or 0),
+        int(ip_attempt_data.get('count') or 0),
+        session_attempts,
+        session_ip_attempts,
+    )
+
+    return cache_key, ip_cache_key, attempt_data, ip_attempt_data, attempts_total, ip
+
+
 def _recovery_code_attempts_key(request):
     user_id = request.session.get('recovery_user') or 'anon'
     return f'recovery_code_attempts:{user_id}'
@@ -80,15 +102,12 @@ def login_view(request):
 
     if request.method == 'POST':
         username = (request.POST.get('username') or '').strip()
-        cache_key = _login_rate_limit_key(request, username)
-        ip_cache_key = _login_ip_rate_limit_key(request)
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.POST.get('ajax_login') == '1'
-        attempt_data = cache.get(cache_key, {'count': 0, 'blocked_until': None})
-        ip_attempt_data = cache.get(ip_cache_key, {'count': 0, 'blocked_until': None})
+        cache_key, ip_cache_key, attempt_data, ip_attempt_data, attempts_total, ip = _login_attempts_snapshot(request, username)
         blocked_until = attempt_data.get('blocked_until')
         ip_blocked_until = ip_attempt_data.get('blocked_until')
         session_block_until = request.session.get(_login_session_key(username, 'block_until'))
-        session_block_until_ip = request.session.get(_login_session_key(_get_client_ip(request), 'ip_block_until'))
+        session_block_until_ip = request.session.get(_login_session_key(ip, 'ip_block_until'))
         now = timezone.now()
 
         session_blocks = [dt for dt in [blocked_until, ip_blocked_until] if dt]
@@ -108,7 +127,7 @@ def login_view(request):
                 return JsonResponse({
                     'success': False,
                     'message': message,
-                    'attempts': int(max(int(attempt_data.get("count") or 0), int(ip_attempt_data.get("count") or 0))),
+                    'attempts': attempts_total,
                     'blocked': True,
                     'blocked_minutes': remaining,
                 }, status=429)
@@ -122,9 +141,9 @@ def login_view(request):
             cache.delete(cache_key)
             cache.delete(ip_cache_key)
             request.session.pop(_login_session_key(username, 'block_until'), None)
-            request.session.pop(_login_session_key(_get_client_ip(request), 'ip_block_until'), None)
+            request.session.pop(_login_session_key(ip, 'ip_block_until'), None)
             request.session.pop(_login_session_key(username, 'attempts'), None)
-            request.session.pop(_login_session_key(_get_client_ip(request), 'ip_attempts'), None)
+            request.session.pop(_login_session_key(ip, 'ip_attempts'), None)
             login(request, user)
             if is_ajax:
                 next_url = request.POST.get('next') or request.GET.get('next') or reverse('core:dashboard')
@@ -167,11 +186,11 @@ def login_view(request):
             timeout=24 * 60 * 60,
         )
         if ip_block_until:
-            request.session[_login_session_key(_get_client_ip(request), 'ip_block_until')] = ip_block_until.timestamp()
-        request.session[_login_session_key(_get_client_ip(request), 'ip_attempts')] = ip_current_count
+            request.session[_login_session_key(ip, 'ip_block_until')] = ip_block_until.timestamp()
+        request.session[_login_session_key(ip, 'ip_attempts')] = ip_current_count
 
         error_message = 'Usuario o contraseña incorrectos.'
-        attempts_total = max(current_count, ip_current_count)
+        attempts_total = max(current_count, ip_current_count, attempts_total)
         if is_ajax:
             blocked_minutes = 0
             active_until = max([dt for dt in [block_until, ip_block_until] if dt], default=None)
