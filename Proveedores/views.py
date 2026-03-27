@@ -53,10 +53,10 @@ def validar_nombre_proveedor(request):
 @login_required
 def lista_proveedores(request):
     q = request.GET.get("q", "").strip()
-    estado = request.GET.get("estado", "activo").strip()
+    estado = request.GET.get("estado", "todos").strip()
 
     if estado not in ["activo", "inactivo", "todos"]:
-        estado = "activo"
+        estado = "todos"
 
     proveedores = Proveedor.objects.all()
 

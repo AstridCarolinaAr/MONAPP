@@ -900,20 +900,15 @@ body.sw-enter-ready .sw-enter.is-visible {
     }
 }
 
-@media (max-width: 576px) {
-    .services-toolbar {
-        gap: 10px;
-    }
-
-    .sw-view-controls {
-        gap: 6px;
-    }
-
-    .sq-card {
-        height: 300px;
-    }
-
-    .services-table-wrapper .table-dashboard {
-        min-width: 680px;
-    }
+/* =========================
+   SWITCH COLOR (CAFÉ)
+========================= */
+.form-switch .form-check-input:checked {
+    background-color: #3a2a24;
+    border-color: #3a2a24;
 }
+.form-switch .form-check-input:focus {
+    border-color: #3a2a24;
+    box-shadow: 0 0 0 0.25rem rgba(58, 42, 36, 0.25);
+}
+

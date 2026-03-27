@@ -49,6 +49,8 @@ class Proveedor(models.Model):
                 errores["nit"] = "El NIT no puede contener signos especiales."
             elif not self._solo_numeros(self.nit):
                 errores["nit"] = "El NIT solo debe contener numeros."
+            elif len(self.nit) < 7 or len(self.nit) > 15:
+                errores["nit"] = "El NIT debe tener entre 7 y 15 digitos."
 
         if self.nombre_proveedor:
             self.nombre_proveedor = self.nombre_proveedor.strip().title()
@@ -63,6 +65,8 @@ class Proveedor(models.Model):
                 errores["telefono_proveedor"] = "El telefono no puede contener signos especiales."
             elif not self._solo_numeros(self.telefono_proveedor):
                 errores["telefono_proveedor"] = "El telefono solo debe contener numeros."
+            elif len(self.telefono_proveedor) != 10:
+                errores["telefono_proveedor"] = "El telefono debe tener exactamente 10 digitos."
 
         if self.direccion_proveedor:
             self.direccion_proveedor = self.direccion_proveedor.strip().title()

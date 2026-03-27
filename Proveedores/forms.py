@@ -29,9 +29,9 @@ class ProveedorcrearForm(ValidationFormMixin, forms.ModelForm):
             "direccion_proveedor",
         ]
         widgets = {
-            "nit": forms.TextInput(attrs={"class": "form-control", "required": True}),
+            "nit": forms.TextInput(attrs={"class": "form-control", "required": True, "maxlength": "15"}),
             "nombre_proveedor": forms.TextInput(attrs={"class": "form-control", "required": True}),
-            "telefono_proveedor": forms.TextInput(attrs={"class": "form-control", "required": True}),
+            "telefono_proveedor": forms.TextInput(attrs={"class": "form-control", "required": True, "maxlength": "10"}),
             "correo_proveedor": forms.EmailInput(attrs={"class": "form-control", "required": True}),
             "estado": forms.Select(attrs={"class": "form-select"}),
             "direccion_proveedor": forms.TextInput(attrs={"class": "form-control", "required": True}),
@@ -45,6 +45,8 @@ class ProveedorcrearForm(ValidationFormMixin, forms.ModelForm):
             raise forms.ValidationError("El NIT no puede contener signos especiales.")
         if not _solo_numeros(nit):
             raise forms.ValidationError("El NIT solo debe contener numeros.")
+        if len(nit) < 7 or len(nit) > 15:
+            raise forms.ValidationError("El NIT debe tener entre 7 y 15 digitos.")
         return nit
 
     def clean_nombre_proveedor(self):
@@ -65,8 +67,8 @@ class ProveedorcrearForm(ValidationFormMixin, forms.ModelForm):
             raise forms.ValidationError("El telefono no puede contener signos especiales.")
         if not _solo_numeros(telefono):
             raise forms.ValidationError("El telefono solo debe contener numeros.")
-        if len(telefono) < 7:
-            raise forms.ValidationError("El telefono es demasiado corto.")
+        if len(telefono) != 10:
+            raise forms.ValidationError("El telefono debe tener exactamente 10 digitos.")
         return telefono
 
     def clean_direccion_proveedor(self):
