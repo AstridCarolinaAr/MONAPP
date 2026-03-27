@@ -58,6 +58,10 @@ class ProductoWebForm(ValidationFormMixin, forms.ModelForm):
             raise forms.ValidationError('El nombre debe tener al menos 2 caracteres.')
         if len(nombre) > 200:
             raise forms.ValidationError('El nombre no puede superar 200 caracteres.')
+        if any(ch in nombre for ch in ('<', '>', '`', '{', '}', '[', ']', ';')):
+            raise forms.ValidationError(
+                'El nombre contiene caracteres no permitidos.'
+            )
         # Solo letras (incluye tildes/ñ), números, espacios y algunos especiales
         if not re.match(
             r'^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ0-9\s\-\.\,\(\)\&\+\/\#\*\!\?\:\'"]+$',

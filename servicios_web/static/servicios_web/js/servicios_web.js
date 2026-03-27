@@ -397,16 +397,86 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         /* ── Toggle activo ── */
-        document.querySelectorAll(".toggle-activo-servicioweb").forEach(btn => {
-            btn.addEventListener("click", async e => {
+        if (!window.__serviciosWebToggleBound) {
+            window.__serviciosWebToggleBound = true;
+
+            document.addEventListener("click", async (e) => {
+                const btn = e.target.closest(".toggle-activo-servicioweb");
+                if (!btn) return;
+
+                e.preventDefault();
                 e.stopPropagation();
+
+                const url = btn.dataset.url;
+                const activoActual = btn.dataset.activo === "true";
+                const nombre = btn.dataset.nombre || "el servicio";
+
+                if (!url) {
+                    if (typeof Swal !== "undefined" && Swal.fire) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "No se pudo cambiar el estado",
+                            text: "Falta la URL del cambio de estado.",
+                            confirmButtonColor: "#2b2b2b",
+                            confirmButtonText: "OK",
+                        });
+                    } else {
+                        alert("Falta la URL del cambio de estado.");
+                    }
+                    return;
+                }
+
+                btn.disabled = true;
+
                 try {
-                    const r = await fetch(btn.dataset.url, { method:"POST", headers:{ "X-Requested-With":"XMLHttpRequest", "X-CSRFToken": getCSRFToken() } });
-                    if (!r.ok) throw new Error();
+                    const r = await fetch(url, {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "X-CSRFToken": getCSRFToken()
+                        }
+                    });
+                    const data = await r.json().catch(() => ({}));
+                    if (!r.ok || !data.success) {
+                        throw new Error(data.message || "No se pudo cambiar el estado del servicio.");
+                    }
+
+                    const activo = !!data.activo;
+                    btn.dataset.activo = activo ? "true" : "false";
+
+                    if (typeof Swal !== "undefined" && Swal.fire) {
+                        await Swal.fire({
+                            icon: "success",
+                            title: activo ? "Servicio activado" : "Servicio inactivado",
+                            text: activo
+                                ? `${nombre} quedó activo.`
+                                : `${nombre} quedó inactivo.`,
+                            confirmButtonColor: "#2b2b2b",
+                            confirmButtonText: "OK",
+                        });
+                    } else {
+                        alert(activo ? `${nombre} quedó activo.` : `${nombre} quedó inactivo.`);
+                    }
+
                     window.location.reload();
-                } catch { alert("No se pudo cambiar el estado del servicio."); }
+                } catch (error) {
+                    if (typeof Swal !== "undefined" && Swal.fire) {
+                        await Swal.fire({
+                            icon: "error",
+                            title: "No se pudo cambiar el estado",
+                            text: error.message || "Intenta nuevamente.",
+                            confirmButtonColor: "#2b2b2b",
+                            confirmButtonText: "OK",
+                        });
+                    } else {
+                        alert(error.message || "No se pudo cambiar el estado del servicio.");
+                    }
+                } finally {
+                    btn.disabled = false;
+                }
             });
-        });
+        }
 
         /* ── Media trigger (tabla) ── */
         document.querySelectorAll(".sw-media-trigger").forEach(btn => {

@@ -127,7 +127,7 @@ EMAIL_BACKEND = config(
     "EMAIL_BACKEND",
     default=(
         "django.core.mail.backends.console.EmailBackend"
-        if DEBUG or not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD
+        if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD
         else "django.core.mail.backends.smtp.EmailBackend"
     ),
 )
@@ -150,7 +150,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=(not DEBUG), cast=bool)
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=(not DEBUG), cast=bool)
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", default="Lax")
 CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", default="Lax")
 

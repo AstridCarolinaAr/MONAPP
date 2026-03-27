@@ -31,7 +31,7 @@
         <div class="hero-card-circle3"></div>
 
         <div class="hero-info">
-          <p class="hero-eyebrow">Panel de administraciÃ³n</p>
+          <p class="hero-eyebrow">Panel de administracion</p>
           <h1 class="hero-name">{{ user.first_name|default:user.username }}</h1>
           <p class="hero-role">
             {% if user.is_superuser %}Superadministradora
@@ -39,7 +39,7 @@
           </p>
         </div>
 
-        <!-- â•â• FECHA CENTRADA â•â• -->
+        
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);text-align:center;z-index:4;pointer-events:none;">
           <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(245,240,232,.40);font-weight:400;margin-bottom:6px;">Hoy</div>
           <div id="hero-fecha" style="font-family:'Playfair Display',serif;font-size:clamp(1rem,1.8vw,1.35rem);font-style:italic;color:rgba(245,240,232,.80);letter-spacing:.5px;line-height:1.4;"></div>
@@ -97,15 +97,15 @@
 
       </div>
     </div>
-    <!-- â•â• fin hero â•â• -->
+    
 
-    <!-- STOCK CRÃTICO + CUMPLEAÃ‘OS -->
+    
     <div class="row row-2b" style="margin-bottom:18px;">
 
       <!-- Stock CrÃ­tico -->
       <div class="card">
         <div class="card-head">
-          <span class="card-title"><i class="bi bi-exclamation-octagon-fill"></i>Stock CrÃ­tico</span>
+          <span class="card-title"><i class="bi bi-exclamation-octagon-fill"></i>Stock Cri­tico</span>
           {% if productos_criticos %}<span class="chip chip-red">{{ productos_criticos|length }}</span>{% endif %}
         </div>
         <div class="card-body">
@@ -135,10 +135,10 @@
         </div>
       </div>
 
-      <!-- CumpleaÃ±os -->
+      
       <div class="card">
         <div class="card-head">
-          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>CumpleaÃ±os Hoy</span>
+          <span class="card-title"><i class="bi bi-balloon-heart-fill"></i>Cumpleaños Hoy</span>
           {% if cumpleanios_hoy %}<span class="chip chip-gold">{{ cumpleanios_hoy|length }}</span>{% endif %}
         </div>
         <div class="card-body">

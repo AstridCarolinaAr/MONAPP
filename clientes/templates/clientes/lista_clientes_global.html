@@ -73,19 +73,6 @@
                             <i class="bi bi-pencil-square"></i>
                         </a>
 
-                        <button type="button"
-                                class="table-action-btn btn-toggle-cliente-estado js-toggle-cliente-accion"
-                                data-url="{% url 'clientes:cambiar_estado' cliente.id %}"
-                                data-nombre="{{ cliente.nombre }} {{ cliente.apellido|escapejs }}"
-                                data-activo="{% if cliente.estado == 'activo' %}1{% else %}0{% endif %}"
-                                title="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %}"
-                                aria-label="{% if cliente.estado == 'activo' %}Desactivar{% else %}Activar{% endif %} cliente {{ cliente.nombre }} {{ cliente.apellido }}">
-                            {% if cliente.estado == 'activo' %}
-                                <i class="bi bi-trash3"></i>
-                            {% else %}
-                                <i class="bi bi-arrow-clockwise"></i>
-                            {% endif %}
-                        </button>
                     </div>
 
                     <div class="modal fade" id="modalDetalleCliente{{ cliente.id }}" tabindex="-1" aria-hidden="true">

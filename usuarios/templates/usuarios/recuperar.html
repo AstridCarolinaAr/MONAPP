@@ -135,11 +135,6 @@
             <h1 class="form-title">Recuperar contrase&ntilde;a</h1>
             <p class="form-desc">Ingresa tu correo electr&oacute;nico y te enviaremos un c&oacute;digo de verificaci&oacute;n de 6 d&iacute;gitos.</p>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert-mona">&#9888;&nbsp;{{ message }}</div>
-                {% endfor %}
-            {% endif %}
             {% if error %}
                 <div class="alert-error">&#10060;&nbsp;{{ error }}</div>
             {% endif %}
@@ -161,8 +156,32 @@
     </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const sweetMessages = [
+        {% for message in messages %}
+        {
+            tags: "{{ message.tags|escapejs }}",
+            text: "{{ message|escapejs }}"
+        },
+        {% endfor %}
+    ];
+
+    if (window.Swal && sweetMessages.length) {
+        sweetMessages.forEach(function (msg) {
+            const isError = msg.tags.includes('error');
+            const isSuccess = msg.tags.includes('success');
+            Swal.fire({
+                icon: isError ? 'error' : (isSuccess ? 'success' : 'info'),
+                title: isError ? 'Correo inválido' : (isSuccess ? 'Correo enviado' : 'Mensaje'),
+                text: msg.text,
+                confirmButtonColor: '#3b2f2f',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    }
+
     var emailInp = document.getElementById('email');
     var emailErr = document.getElementById('email-error');
     var form     = document.getElementById('recuperarForm');

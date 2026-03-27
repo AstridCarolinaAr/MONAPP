@@ -256,6 +256,39 @@ input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidde
   color: #fff;
   box-shadow: none;
 }
+
+.btn-back-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 13px 20px;
+  background: linear-gradient(135deg, #5a3e3e 0%, #3b2f2f 100%);
+  color: #fff;
+  border: 1px solid rgba(59,47,47,.22);
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 4px 12px rgba(59,47,47,.2);
+}
+
+.btn-back-login:hover {
+  background: var(--color-cafe-claro);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(59,47,47,.32);
+  text-decoration: none;
+}
+
+.btn-back-login:active {
+  transform: translateY(0);
+  color: #fff;
+  box-shadow: none;
+}
 /* Pulso sutil: la sombra late suavemente */
 @keyframes recovery-pulse {
   0%,100% { box-shadow: 0 0 0 0 rgba(59,47,47,.0),  0 4px 14px rgba(59,47,47,.25); }

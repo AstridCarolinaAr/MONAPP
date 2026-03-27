@@ -316,10 +316,11 @@ def cambiar_estado_cliente(request, cliente_id):
     except Cliente.DoesNotExist:
         return JsonResponse({'ok': False, 'mensaje': 'Cliente no encontrado'}, status=404)
 
-    cliente.estado = 'inactivo' if cliente.estado == 'activo' else 'activo'
-    cliente.save(update_fields=['estado'])
+    nuevo_estado = 'inactivo' if cliente.estado == 'activo' else 'activo'
+    Cliente.objects.filter(id=cliente_id).update(estado=nuevo_estado)
 
     return JsonResponse({
         'ok': True,
-        'estado': cliente.estado,
+        'success': True,
+        'estado': nuevo_estado,
     })

@@ -64,6 +64,7 @@ def lista_productos_web(request):
         'orden': orden,
         'current_sort': current_sort,
         'current_dir': current_dir,
+        'suppress_base_messages': True,
     })
 
 

@@ -26,6 +26,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.urls import reverse
 import traceback
+import smtplib
 
 
 def _login_rate_limit_key(request, username):
@@ -967,20 +968,21 @@ def solicitar_recuperacion(request):
     if request.method == 'POST':
         email = (request.POST.get('email') or '').strip()
 
-        # No revelar si el correo existe o no.
-        messages.success(
-            request,
-            'Si el correo está registrado, recibirás un código de recuperación.'
-        )
-
         user = User.objects.filter(email__iexact=email, is_active=True).first()
-        if user:
-            codigo = str(random.randint(100000, 999999))
+        if not user:
+            messages.error(
+                request,
+                'Ingrese el correo que registro.'
+            )
+            return render(request, 'usuarios/recuperar.html')
 
-            perfil = user.perfil
-            perfil.recovery_code = codigo
-            perfil.recovery_code_created = timezone.now()
-            perfil.save()
+        try:
+            codigo = str(random.randint(100000, 999999))
+            perfil, _ = PerfilUsuario.objects.get_or_create(user=user)
+            PerfilUsuario.objects.filter(pk=perfil.pk).update(
+                recovery_code=codigo,
+                recovery_code_created=timezone.now(),
+            )
 
             request.session['recovery_user'] = user.id
             request.session['codigo_validado'] = False
@@ -995,22 +997,34 @@ def solicitar_recuperacion(request):
             email_msg = EmailMultiAlternatives(
                 subject='✨ Recuperación de contraseña - MONAPP',
                 body='Tu cliente de correo no soporta HTML',
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                from_email=settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL,
                 to=[email],
             )
 
             email_msg.attach_alternative(html_content, "text/html")
-            email_msg.send()
-        else:
-            request.session.pop('recovery_user', None)
-            request.session['codigo_validado'] = False
+            email_msg.send(fail_silently=False)
+
             messages.success(
                 request,
-                'Si el correo está registrado, recibirás un código de recuperación.'
+                'Se envió el código de recuperación al correo registrado.'
             )
-            return redirect(reverse('core:index') + '?login=1')
-
-        return redirect('usuarios:verificar_codigo')
+            return redirect('usuarios:verificar_codigo')
+        except smtplib.SMTPAuthenticationError:
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.error(
+                request,
+                'Gmail rechazó la autenticación. Debes usar una contraseña de aplicación válida para ese correo.'
+            )
+            return render(request, 'usuarios/recuperar.html')
+        except Exception:
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.error(
+                request,
+                'No se pudo enviar el correo de recuperación. Verifica la configuración del servidor de correo.'
+            )
+            return render(request, 'usuarios/recuperar.html')
 
     return render(request, 'usuarios/recuperar.html')
 
@@ -1044,9 +1058,10 @@ def verificar_codigo(request):
             return redirect(reverse('core:index') + '?login=1')
 
         if perfil.recovery_code_created and (now - perfil.recovery_code_created) > timedelta(minutes=5):
-            perfil.recovery_code = None
-            perfil.recovery_code_created = None
-            perfil.save(update_fields=['recovery_code', 'recovery_code_created'])
+            PerfilUsuario.objects.filter(pk=perfil.pk).update(
+                recovery_code=None,
+                recovery_code_created=None,
+            )
             request.session.pop(block_key, None)
             request.session[attempts_key] = 0
             return render(request, 'usuarios/verificar_codigo.html', {
@@ -1115,10 +1130,11 @@ def nueva_password(request):
         user.save()
 
         # Limpiar código
-        perfil = user.perfil
-        perfil.recovery_code = None
-        perfil.recovery_code_created = None
-        perfil.save()
+        perfil, _ = PerfilUsuario.objects.get_or_create(user=user)
+        PerfilUsuario.objects.filter(pk=perfil.pk).update(
+            recovery_code=None,
+            recovery_code_created=None,
+        )
 
         request.session.pop(_recovery_code_attempts_key(request), None)
         request.session.pop(_recovery_code_block_key(request), None)
