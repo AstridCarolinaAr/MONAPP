@@ -11,7 +11,7 @@
 {% block page_title %}Gestion de Promociones{% endblock %}
 {% block page_subtitle %}Promociones activas y configuracion comercial{% endblock %}
 {% block page_actions %}
-<button class="btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+<button type="button" class="btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
     <i class="fa fa-plus"></i> Nueva promoción
 </button>
 {% endblock %}
@@ -121,6 +121,16 @@
 .modal-content .input-group .form-control {
     border-radius: 0 16px 16px 0 !important;
 }
+
+.promo-filter-label{
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #8b6f60;
+    margin: 0 0 6px 12px;
+    user-select: none;
+}
 </style>
 {% endblock %}
 
@@ -138,28 +148,42 @@
               data-ajax-url="{% url 'promociones:lista' %}"
               data-ajax-target="#promo-tabla-wrap"
               data-ajax-debounce="300"
-              autocomplete="off">
+            autocomplete="off">
+            {% if current_sort %}
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            {% endif %}
+            {% if current_dir %}
+                <input type="hidden" name="dir" value="{{ current_dir }}">
+            {% endif %}
 
             <!-- Buscador Global -->
-            <div class="flex-grow-1 position-relative d-flex align-items-center" style="min-height: 42px;">
-                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar promoción...' search_value=q name='q' modo='inline' %}
+            <div class="flex-grow-1 d-flex flex-column" style="min-height: 42px;">
+                <div class="promo-filter-label">Buscar</div>
+                <div class="position-relative d-flex align-items-center" style="min-height: 42px;">
+                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar promoción...' search_value=q name='q' modo='inline' %}
+                </div>
             </div>
 
             <!-- Custom Select: Estado -->
-            <div class="custom-select-wrapper position-relative" style="min-width: 150px;">
-                <div class="custom-select-trigger d-flex align-items-center rounded-pill px-3" onclick="toggleCustomSelect(this)">
-                    <i class="bi bi-toggle-on me-2" style="color: #a38f85; font-size: 0.9rem;"></i>
-                    <span class="custom-select-label flex-grow-1 text-start">
-                        {% if activa_filter == 'si' %}Activa{% elif activa_filter == 'no' %}Inactiva{% else %}Estado{% endif %}
-                    </span>
-                    <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem; color: #8b6f60;"></i>
+            <div class="d-flex flex-column" style="min-width: 150px;">
+                <div class="promo-filter-label">Filtro</div>
+                <div class="custom-select-wrapper position-relative">
+                    <div class="custom-select-trigger d-flex align-items-center rounded-pill px-3"
+                         aria-label="Filtro por estado"
+                         onclick="toggleCustomSelect(this)">
+                        <i class="bi bi-toggle-on me-2" style="color: #a38f85; font-size: 0.9rem;"></i>
+                        <span class="custom-select-label flex-grow-1 text-start">
+                            {% if activa_filter == 'si' %}Activa{% elif activa_filter == 'no' %}Inactiva{% else %}Estado{% endif %}
+                        </span>
+                        <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem; color: #8b6f60;"></i>
+                    </div>
+                    <div class="custom-select-options position-absolute w-100 shadow-sm">
+                        <div class="custom-select-option {% if not activa_filter %}active{% endif %}" onclick="selectCustomOption(this, '', 'Estado')">Todos</div>
+                        <div class="custom-select-option {% if activa_filter == 'si' %}active{% endif %}" onclick="selectCustomOption(this, 'si', 'Activa')">Activas</div>
+                        <div class="custom-select-option {% if activa_filter == 'no' %}active{% endif %}" onclick="selectCustomOption(this, 'no', 'Inactiva')">Inactivas</div>
+                    </div>
+                    <input type="hidden" name="activa" value="{{ activa_filter|default:'' }}">
                 </div>
-                <div class="custom-select-options position-absolute w-100 shadow-sm">
-                    <div class="custom-select-option {% if not activa_filter %}active{% endif %}" onclick="selectCustomOption(this, '', 'Estado')">Todos</div>
-                    <div class="custom-select-option {% if activa_filter == 'si' %}active{% endif %}" onclick="selectCustomOption(this, 'si', 'Activa')">Activas</div>
-                    <div class="custom-select-option {% if activa_filter == 'no' %}active{% endif %}" onclick="selectCustomOption(this, 'no', 'Inactiva')">Inactivas</div>
-                </div>
-                <input type="hidden" name="activa" value="{{ activa_filter|default:'' }}">
             </div>
 
             <div class="ms-md-auto">

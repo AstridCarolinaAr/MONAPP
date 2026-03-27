@@ -1,12 +1,33 @@
+{% load sort_tags %}
 <div class="table-responsive">
     <table class="styled-table">
         <thead>
             <tr>
-                <th>Código</th>
-                <th>Cliente</th>
-                <th>Documento</th>
-                <th>Teléfono</th>
-                <th>Estado</th>
+                <th>
+                    <a href="{% sort_url 'codigo' %}">Código
+                        {% if current_sort == 'codigo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'cliente' %}">Cliente
+                        {% if current_sort == 'cliente' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'documento' %}">Documento
+                        {% if current_sort == 'documento' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'telefono' %}">Teléfono
+                        {% if current_sort == 'telefono' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'estado' %}">Estado
+                        {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
                 <th class="text-end">Acciones</th>
             </tr>
         </thead>

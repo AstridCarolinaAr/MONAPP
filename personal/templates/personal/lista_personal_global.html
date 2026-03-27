@@ -1,16 +1,49 @@
+{% load sort_tags %}
 <div class="table-card anim-from-bottom personal-table-card" style="animation-delay:.15s">
-    <div class="personal-table-scroll">
+    <div class="table-responsive personal-table-scroll" aria-label="Tabla de personal">
         <table class="table styled-table table-hover align-middle mb-0 w-100 personal-table">
             <thead>
                 <tr>
-                    <th class="personal-col-id">Codigo</th>
-                    <th class="personal-col-documento">Documento</th>
-                    <th class="personal-col-nombres">Nombres</th>
-                    <th class="personal-col-telefono">Telefono</th>
-                    <th class="personal-col-correo">Correo</th>
-                    <th class="personal-col-rol">Rol</th>
-                    <th class="personal-col-estado text-center">Estado</th>
-                    <th class="personal-col-fecha">Fecha de Registro</th>
+                    <th class="personal-col-id">
+                        <a href="{% sort_url 'id' %}">Código
+                            {% if current_sort == 'id' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-documento">
+                        <a href="{% sort_url 'documento' %}">Documento
+                            {% if current_sort == 'documento' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-nombres">
+                        <a href="{% sort_url 'nombres' %}">Nombres
+                            {% if current_sort == 'nombres' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-telefono">
+                        <a href="{% sort_url 'telefono' %}">Teléfono
+                            {% if current_sort == 'telefono' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-correo">
+                        <a href="{% sort_url 'correo' %}">Correo
+                            {% if current_sort == 'correo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-rol">
+                        <a href="{% sort_url 'rol' %}">Rol
+                            {% if current_sort == 'rol' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-estado text-center">
+                        <a href="{% sort_url 'estado' %}">Estado
+                            {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="personal-col-fecha">
+                        <a href="{% sort_url 'fecha' %}">Fecha de Registro
+                            {% if current_sort == 'fecha' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    </th>
                     <th class="personal-col-acciones text-end">Acciones</th>
                 </tr>
             </thead>

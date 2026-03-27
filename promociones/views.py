@@ -15,6 +15,10 @@ def lista_promociones(request):
     q = request.GET.get('q', '').strip()
     activa_filter = request.GET.get('activa', '').strip()
     orden = request.GET.get('orden', '').strip()
+    current_sort = request.GET.get('sort', '').strip()
+    current_dir = request.GET.get('dir', 'asc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'asc'
 
     if q:
         promociones = promociones.filter(nombre__icontains=q)
@@ -32,8 +36,25 @@ def lista_promociones(request):
         'fecha_asc': 'fecha_inicio',
         'fecha_desc': '-fecha_inicio',
     }
-    if orden in orden_map:
+
+    sort_map = {
+        'nombre': ('nombre',),
+        'etiqueta': ('etiqueta', 'nombre'),
+        'descuento': ('porcentaje_descuento', 'nombre'),
+        'inicio': ('fecha_inicio', 'nombre'),
+        'fin': ('fecha_fin', 'nombre'),
+        'estado': ('activa', 'nombre'),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        promociones = promociones.order_by(*order_fields)
+    elif orden in orden_map:
         promociones = promociones.order_by(orden_map[orden])
+    else:
+        current_sort = ''
 
     form = PromocionForm()
     context = {
@@ -42,10 +63,12 @@ def lista_promociones(request):
         'q': q,
         'activa_filter': activa_filter,
         'orden': orden,
+        'current_sort': current_sort,
+        'current_dir': current_dir,
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'promociones/_lista_partial.html', context)
+        return render(request, 'promociones/lista_promociones_global.html', context)
 
     return render(request, 'promociones/lista.html', context)
 

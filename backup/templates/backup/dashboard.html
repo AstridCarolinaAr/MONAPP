@@ -1,5 +1,6 @@
 ﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
+{% load sort_tags %}
 
 {% block title %}Respaldo de base de datos{% endblock %}
 {% block page_icon %}<i class="bi bi-shield-lock page-icon"></i>{% endblock %}
@@ -66,6 +67,8 @@
 
     <div class="module-filters-card" style="margin-bottom: 24px;">
         <form id="backupSearchForm" class="module-filters-form" method="get" action="{% url 'backup:dashboard' %}">
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+            <input type="hidden" name="dir" value="{{ current_dir }}">
             <div class="module-filter-field module-filter-field--search">
                 <label class="module-filter-label" for="backupSearchNombre">Buscar</label>
                 <div class="search-toggle-wrapper busqueda-global--inline {% if query or estado or tipo or fecha_desde or fecha_hasta %}is-open{% endif %}">
@@ -150,11 +153,31 @@
                         <table class="bk-table">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>Tipo</th>
-                                    <th>Estado</th>
-                                    <th>Tamaño</th>
-                                    <th>Fecha</th>
+                                    <th>
+                                        <a href="{% sort_url 'nombre' %}">Nombre
+                                            {% if current_sort == 'nombre' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{% sort_url 'tipo' %}">Tipo
+                                            {% if current_sort == 'tipo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{% sort_url 'estado' %}">Estado
+                                            {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{% sort_url 'tamano' %}">Tamaño
+                                            {% if current_sort == 'tamano' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{% sort_url 'fecha' %}">Fecha
+                                            {% if current_sort == 'fecha' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                        </a>
+                                    </th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>

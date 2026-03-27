@@ -6,6 +6,7 @@ from django import forms
 
 from core.form_validations import ValidationFormMixin
 from .models import Promocion
+from PIL import Image, UnidentifiedImageError
 
 
 def _nombre_promocion_duplicado(nombre, promocion_id=None):
@@ -168,6 +169,14 @@ class PromocionForm(ValidationFormMixin, forms.ModelForm):
                 raise forms.ValidationError(
                     "Formato no valido. Solo se permiten imagenes JPG, PNG, WEBP o GIF."
                 )
+
+            try:
+                imagen.seek(0)
+                with Image.open(imagen) as im:
+                    im.verify()
+                imagen.seek(0)
+            except (UnidentifiedImageError, OSError):
+                raise forms.ValidationError("El archivo no es una imagen válida o está corrupto.")
         return imagen
 
     def clean(self):

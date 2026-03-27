@@ -227,6 +227,8 @@ def lista_ventas(request):
             "estado": estado,
             "sort": sort,
             "direction": direction,
+            "current_sort": sort,
+            "current_dir": direction,
         },
     )
 

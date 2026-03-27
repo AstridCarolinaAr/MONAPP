@@ -272,6 +272,16 @@
             max-width: 100%;
         }
     }
+
+    .personal-search-label{
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #8b6f60;
+        margin: 0 0 6px 10px;
+        user-select: none;
+    }
 </style>
 {% endblock %}
 
@@ -297,14 +307,20 @@
                 {% endif %}
 
                 <!-- Buscador Animado Original -->
-                <div class="flex-grow-1 position-relative d-flex align-items-center" style="min-height: 42px;">
-                    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, correo, teléfono o id...' search_value=request.GET.q name='q' modo='inline' %}
+                <div class="flex-grow-1 d-flex flex-column" style="min-height: 42px;">
+                    <div class="personal-search-label">Buscar</div>
+                    <div class="position-relative d-flex align-items-center" style="min-height: 42px;">
+                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, correo, teléfono o id...' search_value=request.GET.q name='q' modo='inline' %}
+                    </div>
                 </div>
 
                 <!-- Filtro Dropdown Custom (Evita interfaz azul de navegadores) -->
-                <div class="custom-select-wrapper position-relative" style="min-width: 190px;">
+                <div class="d-flex flex-column" style="min-width: 190px;">
+                    <div class="personal-search-label">Filtro</div>
+                    <div class="custom-select-wrapper position-relative">
                     <div class="custom-select-trigger d-flex align-items-center rounded-pill px-3" 
                          style="height: 42px; background: #fbf5f0; border: 1px solid rgba(198, 162, 136, 0.2); cursor: pointer; color: #4b2f2a; font-weight: 600; font-size: 0.88rem;"
+                         aria-label="Filtro de personal"
                          onclick="const menu = this.nextElementSibling; menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';">
                         <i class="bi bi-funnel-fill me-2" style="color: #a38f85; font-size: 0.9rem;"></i>
                         <span id="customFilterLabel" class="flex-grow-1 text-start">
@@ -349,6 +365,7 @@
                     </div>
                     <!-- Guardamos el input real oculto -->
                     <input type="hidden" name="filtro" id="hidden_filtro" value="{{ request.GET.filtro|default:'' }}">
+                </div>
                 </div>
 
                 <!-- Botón Limpiar -->

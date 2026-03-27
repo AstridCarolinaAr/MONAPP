@@ -3,6 +3,7 @@ from decimal import Decimal
 from django import forms
 from core.form_validations import ValidationFormMixin
 from .models import ProductoWeb
+from PIL import Image, UnidentifiedImageError
 
 
 def _nombre_producto_duplicado(nombre, producto_id=None):
@@ -113,5 +114,13 @@ class ProductoWebForm(ValidationFormMixin, forms.ModelForm):
                 raise forms.ValidationError(
                     'Formato no válido. Solo se permiten imágenes JPG, PNG, WEBP o GIF.'
                 )
+
+            try:
+                imagen.seek(0)
+                with Image.open(imagen) as im:
+                    im.verify()
+                imagen.seek(0)
+            except (UnidentifiedImageError, OSError):
+                raise forms.ValidationError("El archivo no es una imagen válida o está corrupto.")
         return imagen
     

@@ -343,6 +343,9 @@
               data-ajax-target="#gestion-tabla-wrap"
               data-ajax-debounce="300">
 
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+            <input type="hidden" name="dir" value="{{ current_dir }}">
+
             <div class="module-filter-field module-filter-field--wide">
                 <label class="module-filter-label">Buscar</label>
                 {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por cliente o profesional...' search_value=buscar name='buscar' modo='inline' %}

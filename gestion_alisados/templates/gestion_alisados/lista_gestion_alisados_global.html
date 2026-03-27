@@ -1,16 +1,41 @@
 {% load humanize %}
+{% load sort_tags %}
 
 {% if gestiones %}
 <div class="table-responsive">
     <table class="styled-table">
         <thead>
             <tr>
-                <th>Fecha y Hora</th>
-                <th>Cliente</th>
-                <th>Profesional</th>
-                <th>Tipo de Alisado</th>
-                <th>Precio</th>
-                <th>Saldo Pendiente</th>
+                <th>
+                    <a href="{% sort_url 'fecha' %}">Fecha y Hora
+                        {% if current_sort == 'fecha' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'cliente' %}">Cliente
+                        {% if current_sort == 'cliente' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'profesional' %}">Profesional
+                        {% if current_sort == 'profesional' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'tipo' %}">Tipo de Alisado
+                        {% if current_sort == 'tipo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'precio' %}">Precio
+                        {% if current_sort == 'precio' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="{% sort_url 'saldo' %}">Saldo Pendiente
+                        {% if current_sort == 'saldo' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                    </a>
+                </th>
                 <th>Acciones</th>
             </tr>
         </thead>

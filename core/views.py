@@ -226,8 +226,54 @@ def gestion_datos_view(request):
     return render(request, "core/gestion_datos.html", {"titulo": "Gestión de Datos"})
 
 
+@login_required
 def ayuda_view(request):
-    return render(request, "core/ayuda.html")
+    documentos = [
+        {
+            "titulo": "Manual MONAPP",
+            "descripcion": "Documento principal del sistema.",
+            "icono": "bi-journal-bookmark-fill",
+            "archivo": "core/docs/ayuda/monapp.pdf",
+        },
+        {
+            "titulo": "Manual de usuario (Personal y aliados)",
+            "descripcion": "Gestión de personal, proveedores y clientes.",
+            "icono": "bi-people-fill",
+            "archivo": "core/docs/ayuda/manual_personal_y_aliados.pdf",
+        },
+        {
+            "titulo": "Manual de usuario (Productos, ventas y servicios)",
+            "descripcion": "Operación diaria: productos, ventas y servicios.",
+            "icono": "bi-bag-check-fill",
+            "archivo": "core/docs/ayuda/manual_productos_ventas_y_servicios.pdf",
+        },
+        {
+            "titulo": "Catálogo",
+            "descripcion": "Catálogo general en PDF.",
+            "icono": "bi-journals",
+            "archivo": "core/docs/ayuda/catalogo.pdf",
+        },
+        {
+            "titulo": "Copia de seguridad (Base de datos)",
+            "descripcion": "Guía/archivo relacionado con backups de la BD.",
+            "icono": "bi-shield-lock-fill",
+            "archivo": "core/docs/ayuda/copia_seguridad_base_datos.pdf",
+        },
+        {
+            "titulo": "MONAPP (copia)",
+            "descripcion": "Documento adicional (copia).",
+            "icono": "bi-files",
+            "archivo": "core/docs/ayuda/monapp_copia.pdf",
+        },
+    ]
+
+    documento_principal = documentos[0] if documentos else None
+
+    return render(
+        request,
+        "core/ayuda.html",
+        {"documentos": documentos, "documento_principal": documento_principal},
+    )
 
 
 @login_required

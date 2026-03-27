@@ -26,8 +26,10 @@ def _respuesta_no_autorizado_personal(request):
 def lista_personal(request):
     """Lista todo el personal con búsqueda y filtrado"""
     q = request.GET.get("q", "").strip()
-    current_sort = request.GET.get("sort", "")
-    current_dir = request.GET.get("dir", "")
+    current_sort = request.GET.get("sort", "").strip()
+    current_dir = request.GET.get("dir", "asc").strip().lower()
+    if current_dir not in {"asc", "desc"}:
+        current_dir = "asc"
     grupos = list(request.user.groups.values_list("name", flat=True))
 
     # Verificar si el usuario actual es Administrador (puede eliminar)
@@ -74,6 +76,27 @@ def lista_personal(request):
         elif filtro.startswith("rol_"):
             rol_valor = filtro.replace("rol_", "")
             personal_list = personal_list.filter(rol=rol_valor)
+
+    # ORDENAMIENTO SEGURO (whitelist)
+    sort_map = {
+        "id": ("id",),
+        "documento": ("numero_documento",),
+        "nombres": ("nombres", "apellidos"),
+        "telefono": ("telefono",),
+        "correo": ("correo",),
+        "rol": ("rol", "nombres", "apellidos"),
+        "estado": ("activo", "nombres", "apellidos"),
+        "fecha": ("fecha_creacion",),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == "asc" else f"-{field}")
+        personal_list = personal_list.order_by(*order_fields)
+    else:
+        current_sort = ""
+        personal_list = personal_list.order_by("nombres", "apellidos", "id")
 
     context = {
         "personal_list": personal_list,

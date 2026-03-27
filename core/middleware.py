@@ -120,3 +120,29 @@ class Pretty404Middleware:
             return render(request, "404.html", status=404)
         except Exception:
             return response
+
+
+class SecurityHeadersMiddleware:
+    """
+    Cabeceras defensivas adicionales.
+
+    Nota: se evitan políticas CSP estrictas porque el proyecto usa scripts/estilos inline
+    y recursos CDN; una CSP estricta rompería la UI. Aun así, esto añade hardening útil.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        response.headers.setdefault(
+            "Permissions-Policy",
+            "camera=(), microphone=(), geolocation=(), payment=(), usb=(), "
+            "accelerometer=(), gyroscope=(), magnetometer=()",
+        )
+        response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+        response.headers.setdefault("Cross-Origin-Resource-Policy", "same-site")
+        response.headers.setdefault("X-Permitted-Cross-Domain-Policies", "none")
+
+        return response

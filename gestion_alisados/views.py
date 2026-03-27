@@ -212,6 +212,10 @@ def lista_gestion_alisados(request):
     porosidad    = request.GET.get('porosidad', '')
     textura      = request.GET.get('textura', '')
     estado_pago  = request.GET.get('estado_pago', '')
+    current_sort = request.GET.get('sort', 'fecha').strip()
+    current_dir = request.GET.get('dir', 'desc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'desc'
 
     if buscar:
         gestiones = gestiones.filter(
@@ -231,6 +235,25 @@ def lista_gestion_alisados(request):
     elif estado_pago == 'pendiente':
         gestiones = gestiones.filter(saldo_pendiente__gt=0)
 
+    sort_map = {
+        'fecha': ('fecha_hora',),
+        'cliente': ('cliente__nombre', 'cliente__apellido'),
+        'profesional': ('procedimiento_realizado_por',),
+        'tipo': ('tipo_alisado',),
+        'precio': ('precio_alisado',),
+        'saldo': ('saldo_pendiente',),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        gestiones = gestiones.order_by(*order_fields)
+    else:
+        current_sort = 'fecha'
+        current_dir = 'desc'
+        gestiones = gestiones.order_by('-fecha_hora')
+
     context = {
         'gestiones'    : gestiones,
         'buscar'       : buscar,        
@@ -238,6 +261,8 @@ def lista_gestion_alisados(request):
         'porosidad'    : porosidad,
         'textura'      : textura,
         'estado_pago'  : estado_pago,
+        'current_sort' : current_sort,
+        'current_dir'  : current_dir,
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

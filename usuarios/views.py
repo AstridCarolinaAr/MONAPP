@@ -430,6 +430,10 @@ def lista_usuarios_view(request):
     form = UsuarioBusquedaForm(request.GET)
 
     usuarios = User.objects.select_related('perfil').all()
+    current_sort = (request.GET.get('sort') or '').strip()
+    current_dir = (request.GET.get('dir') or 'asc').strip().lower()
+    if current_dir not in {'asc', 'desc'}:
+        current_dir = 'asc'
 
     if form.is_valid():
         busqueda = form.cleaned_data.get('busqueda')
@@ -453,7 +457,22 @@ def lista_usuarios_view(request):
                 rol_valor = filtro.replace('rol_', '')
                 usuarios = usuarios.filter(groups__name=rol_valor)
 
-    usuarios = usuarios.order_by('-date_joined')
+    sort_map = {
+        'username': ('username',),
+        'nombre': ('first_name', 'last_name', 'username'),
+        'email': ('email', 'username'),
+        'estado': ('is_active', 'username'),
+        'registro': ('date_joined',),
+    }
+
+    if current_sort in sort_map:
+        order_fields = []
+        for field in sort_map[current_sort]:
+            order_fields.append(field if current_dir == 'asc' else f'-{field}')
+        usuarios = usuarios.order_by(*order_fields)
+    else:
+        current_sort = ''
+        usuarios = usuarios.order_by('-date_joined')
 
     q = form.cleaned_data.get('busqueda', '') if form.is_valid() else ''
     context = {
@@ -463,6 +482,8 @@ def lista_usuarios_view(request):
         'es_administrador': es_administrador,
         'puede_modificar' : puede_modificar,
         'q'               : q,
+        'current_sort'    : current_sort,
+        'current_dir'     : current_dir,
     }
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

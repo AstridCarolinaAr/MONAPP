@@ -1,41 +1,27 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 {% load humanize %}
+{% load sort_tags %}
 
 {% block title %}Catálogo Web{% endblock %}
 
 {% block breadcrumb_items %}
-
+<li class="breadcrumb-item active" aria-current="page">Catálogo Web</li>
 {% endblock %}
 
-{% block page_title %}
-    <i class="bi bi-globe2"></i> Catálogo Web de Productos
+{% block page_icon %}<i class="bi bi-globe2 page-icon"></i>{% endblock %}
+{% block page_title %}Catálogo Web{% endblock %}
+{% block page_subtitle %}Gestión de productos del catálogo web{% endblock %}
+
+{% block page_actions %}
+<button type="button" class="btn btn-sm btn-pill-dark" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+    <i class="bi bi-plus-lg"></i> Nuevo producto
+</button>
 {% endblock %}
 
 {% block extra_css %}
 <style>
 /* ============ TABLA ============ */
-.table-container-custom {
-    width: 100% !important;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,.05);
-}
-
-.table-responsive {
-    width: 100% !important;
-    margin: 0;
-    padding: 0;
-}
-
-.styled-table {
-    width: 100% !important;
-    min-width: 100% !important;
-    margin-bottom: 0;
-    border-collapse: collapse;
-}
-
 .pw-table {
     width: 100%;
 }
@@ -137,22 +123,6 @@
     background: #3a2a24;
     color: #fff;
 }
-
-/* Acciones de fila */
-.pw-actions a,
-.pw-actions button {
-    padding: 8px 12px;
-    border-radius: 50px;
-    font-size: .92rem;
-    transition: all .2s;
-    background: none;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-.pw-actions .btn-edit        { color: #382822; display: inline-flex; align-items: center; }
-.pw-actions .btn-del         { color: #382822; display: inline-flex; align-items: center; }
 
 /* Vista vacía */
 .pw-empty {
@@ -346,87 +316,78 @@
 {% block content %}
 <div class="container-fluid px-4 py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+    <div class="module-filters-card">
+        <form method="get"
+              class="module-filters-form js-instant-filter-form"
+              data-instant-filter-debounce="300"
+              autocomplete="off">
 
-            <small class="text-muted">Gestión de productos del catálogo web</small>
-        </div>
-        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo producto
-        </button>
+            {% if current_sort %}
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            {% endif %}
+            {% if current_dir %}
+                <input type="hidden" name="dir" value="{{ current_dir }}">
+            {% endif %}
+
+            <div class="module-filter-field module-filter-field--wide">
+                <label class="module-filter-label">Buscar</label>
+                {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
+            </div>
+
+            <div class="module-filter-field module-filter-field--medium">
+                <label class="module-filter-label">Visibilidad</label>
+                <select name="visible" class="form-select">
+                    <option value="" {% if not visible_filter %}selected{% endif %}>Todas</option>
+                    <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visible</option>
+                    <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Oculto</option>
+                </select>
+            </div>
+
+            <div class="module-filter-field module-filter-field--medium">
+                <label class="module-filter-label">Orden</label>
+                <select name="orden" class="form-select">
+                    <option value="" {% if not orden %}selected{% endif %}>Predeterminado</option>
+                    <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
+                    <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
+                    <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio ↑</option>
+                    <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio ↓</option>
+                    <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Más antiguos</option>
+                    <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Más recientes</option>
+                </select>
+            </div>
+
+            <div class="module-filter-field module-filter-field--small">
+                <label class="module-filter-label">&nbsp;</label>
+                <a class="module-filter-btn module-filter-btn--secondary" href="{% url 'productos_web:lista' %}">
+                    <i class="bi bi-arrow-clockwise"></i> Limpiar
+                </a>
+            </div>
+        </form>
     </div>
-
-    <!-- ───── FILTROS ───── -->
-    <form method="get" class="row g-2 align-items-center mb-4">
-2
-
-        <!-- ESTADO VISIBILIDAD -->
-        <div class="col-md-2">
-            <select name="visible" class="form-select">
-                <option value="">Visibilidad</option>
-                <option value="si" {% if visible_filter == 'si' %}selected{% endif %}>Visible</option>
-                <option value="no" {% if visible_filter == 'no' %}selected{% endif %}>Oculto</option>
-            </select>
-        </div>
-
-        <!-- ORDEN -->
-        <div class="col-md-2">
-            <select name="orden" class="form-select">
-                <option value="">Ordenar</option>
-                <option value="nombre_asc" {% if orden == 'nombre_asc' %}selected{% endif %}>Nombre A–Z</option>
-                <option value="nombre_desc" {% if orden == 'nombre_desc' %}selected{% endif %}>Nombre Z–A</option>
-                <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio ↑</option>
-                <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio ↓</option>
-                <option value="fecha_asc" {% if orden == 'fecha_asc' %}selected{% endif %}>Más antiguos</option>
-                <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Más recientes</option>
-            </select>
-        </div>
-
-        <!-- APLICAR -->
-        <div class="col-md-1">
-            <button class="btn btn-outline-secondary w-100" title="Aplicar filtros">
-                <i class="bi bi-filter"></i>
-            </button>
-        </div>
-
-        <!-- LIMPIAR -->
-        {% if q or visible_filter or orden %}
-        <div class="col-md-1">
-            <a href="{% url 'productos_web:lista' %}"
-              class="btn btn-outline-danger w-100"
-              title="Limpiar filtros">
-                <i class="bi bi-x-lg"></i>
-            </a>
-        </div>
-        {% endif %}
-
-    </form>
-<form method="get" style="width: 360px; max-width: 100%;">
-    {% if estado_stock %}
-        <input type="hidden" name="estado_stock" value="{{ estado_stock }}">
-    {% endif %}
-    {% if current_sort %}
-        <input type="hidden" name="sort" value="{{ current_sort }}">
-    {% endif %}
-    {% if current_dir %}
-        <input type="hidden" name="dir" value="{{ current_dir }}">
-    {% endif %}
-
-    {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar producto...' search_value=q name='q' modo='inline' %}
-</form>
     <!-- ───── TABLA ───── -->
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+    <div class="card border-0 shadow-sm table-card pw-table-card" style="overflow: hidden;">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="pw-tabla">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0 styled-table pw-table" id="pw-tabla">
+                    <thead>
                         <tr>
                             <th>Foto</th>
-                            <th>Nombre</th>
-                            <th>Precio</th>
+                            <th>
+                                <a href="{% sort_url 'nombre' %}">Nombre
+                                    {% if current_sort == 'nombre' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{% sort_url 'precio' %}">Precio
+                                    {% if current_sort == 'precio' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
                             <th>Descripción</th>
-                            <th>Estado</th>
+                            <th class="text-center">
+                                <a href="{% sort_url 'estado' %}">Estado
+                                    {% if current_sort == 'estado' %}<i class="bi bi-caret-{% if current_dir == 'asc' %}up{% else %}down{% endif %}-fill ms-1" aria-hidden="true"></i>{% endif %}
+                                </a>
+                            </th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
@@ -447,44 +408,41 @@
                             <td>
                                 <small class="text-muted">{{ p.descripcion|truncatewords:8|default:"—" }}</small>
                             </td>
-                            <td>
-                                {% if p.visible %}
-                                    <span class="badge bg-success-subtle text-success">Visible</span>
-                                {% else %}
-                                    <span class="badge bg-secondary-subtle text-secondary">Oculto</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end pw-actions">
-                                <label class="pw-switch me-2" title="Alternar visibilidad" style="display:inline-block;vertical-align:middle;">
+                            <td class="text-center">
+                                <label class="pw-switch" title="Alternar visibilidad" aria-label="Alternar visibilidad de {{ p.nombre }}">
                                     <input type="checkbox"
                                            {% if p.visible %}checked{% endif %}
                                            data-toggle-url="{% url 'productos_web:toggle_visible' p.pk %}"
                                            data-nombre="{{ p.nombre }}">
                                     <span class="slider"></span>
                                 </label>
-                                <button type="button" class="btn btn-outline-info btn-sm me-1 btn-detalle-pw"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetallePW"
-                                        data-nombre="{{ p.nombre|escapejs }}"
-                                        data-precio="{{ p.precio }}"
-                                        data-descripcion="{{ p.descripcion|escapejs }}"
-                                        data-visible="{{ p.visible|yesno:'Sí,No' }}"
-                                        data-imagen-url="{% if p.imagen %}{{ p.imagen.url }}{% endif %}"
-                                        data-creado="{{ p.fecha_creacion|date:'d/m/Y H:i' }}"
-                                        data-modificado="{{ p.fecha_modificacion|date:'d/m/Y H:i' }}"
-                                        title="Ver detalles">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <a href="{% url 'productos_web:editar' p.pk %}"
-                                   class="btn btn-outline-secondary btn-sm" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-pw"
-                                        data-nombre="{{ p.nombre }}"
-                                        data-url="{% url 'productos_web:eliminar' p.pk %}"
-                                        title="Eliminar">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
+                            </td>
+                            <td class="text-end pw-actions">
+                                <div class="table-action-group ms-auto">
+                                    <button type="button" class="table-action-btn btn-detalle-pw"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalDetallePW"
+                                            data-nombre="{{ p.nombre|escapejs }}"
+                                            data-precio="{{ p.precio }}"
+                                            data-descripcion="{{ p.descripcion|escapejs }}"
+                                            data-visible="{{ p.visible|yesno:'Sí,No' }}"
+                                            data-imagen-url="{% if p.imagen %}{{ p.imagen.url }}{% endif %}"
+                                            data-creado="{{ p.fecha_creacion|date:'d/m/Y H:i' }}"
+                                            data-modificado="{{ p.fecha_modificacion|date:'d/m/Y H:i' }}"
+                                            title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <a href="{% url 'productos_web:editar' p.pk %}"
+                                       class="table-action-btn" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button" class="table-action-btn table-action-btn--danger btn-eliminar-pw"
+                                            data-nombre="{{ p.nombre }}"
+                                            data-url="{% url 'productos_web:eliminar' p.pk %}"
+                                            title="Eliminar">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}

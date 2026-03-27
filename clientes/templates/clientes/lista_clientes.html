@@ -42,6 +42,13 @@
           data-ajax-target=".ajax-results-container"
           data-ajax-debounce="300">
 
+        {% if current_sort %}
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+        {% endif %}
+        {% if current_dir %}
+            <input type="hidden" name="dir" value="{{ current_dir }}">
+        {% endif %}
+
         <div class="module-filters-form clientes-filters-form">
             <div class="module-filter-field module-filter-field--wide clientes-search-field">
                 <label class="module-filter-label">Buscar</label>

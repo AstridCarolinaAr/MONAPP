@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_http_methods
 
+from core.global_ordenamiento import apply_smart_sorting, sorting_context
+
 from . import services
 from .comprobante import build_comprobante_excel_response
 from .forms import (
@@ -157,6 +159,20 @@ def lista_compras(request):
             )
             devoluciones_qs = devoluciones_qs.filter(filtros)
 
+        devoluciones_qs, sort_key, direction = apply_smart_sorting(
+            request,
+            devoluciones_qs,
+            default_sort="id",
+            default_dir="desc",
+            aliases={
+                "id": "id",
+                "proveedor": "proveedor__nombre_proveedor",
+                "fecha": "fecha",
+                "usuario": "usuario__username",
+                "anulada": "anulada",
+            },
+        )
+
         total_devoluciones = devoluciones_qs.aggregate(total=Sum("total"))["total"] or 0
 
         context.update({
@@ -165,6 +181,7 @@ def lista_compras(request):
             "titulo_modulo": "Gestión de Devoluciones",
             "label_total": "Total devoluciones registradas",
             "placeholder_busqueda": "ID devolución, ID compra, proveedor o usuario",
+            **sorting_context(sort_key, direction),
         })
 
     else:
@@ -217,6 +234,20 @@ def lista_compras(request):
             )
             compras_qs = compras_qs.filter(filtros)
 
+        compras_qs, sort_key, direction = apply_smart_sorting(
+            request,
+            compras_qs,
+            default_sort="id",
+            default_dir="desc",
+            aliases={
+                "id": "id",
+                "proveedor": "proveedor__nombre_proveedor",
+                "fecha": "fecha",
+                "usuario": "usuario__username",
+                "anulada": "anulada",
+            },
+        )
+
         total_compras = compras_qs.aggregate(total=Sum("precio_total"))["total"] or 0
 
         context.update({
@@ -225,6 +256,7 @@ def lista_compras(request):
             "titulo_modulo": "Gestión de Compras",
             "label_total": "Total compras registradas",
             "placeholder_busqueda": "ID compra, ID proveedor, proveedor o usuario",
+            **sorting_context(sort_key, direction),
         })
 
     context["tipo_actual"] = tipo
