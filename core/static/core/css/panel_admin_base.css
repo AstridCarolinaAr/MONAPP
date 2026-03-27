@@ -120,7 +120,7 @@
     /* Layout */
     --sidebar-width: 280px;
     /* Aumentado para dar espacio a la curva */
-    --sidebar-collapsed-width: 70px;
+    --sidebar-collapsed-width: 80px;
     --topbar-height: 70px;
 
     /* Colores base */
@@ -331,10 +331,11 @@
 }
 
 .sidebar-nav .nav-link i {
-    font-size: 12px;
-    margin-right: 11px;
-    width: 10px;
+    font-size: 1.2rem;
+    margin-right: 14px;
+    width: 24px;
     text-align: center;
+    transition: transform 0.2s ease;
 }
 
 .sidebar-nav .nav-link span {
@@ -1018,10 +1019,11 @@
 /* Sidebar colapsado */
 .sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
+    border-radius: 0 20px 20px 0;
 }
 
 .sidebar.collapsed .sidebar-header {
-    padding: 9px 3px;
+    padding: 20px 0;
 }
 
 body.sidebar-collapsed .sidebar-handle {
@@ -1033,8 +1035,9 @@ body.sidebar-collapsed .sidebar-handle i {
 }
 
 .sidebar.collapsed .user-avatar {
-    width: 30px;
-    height: 30px;
+    width: 45px;
+    height: 45px;
+    border-width: 2px;
 }
 
 .sidebar.collapsed .user-name,
@@ -1047,11 +1050,12 @@ body.sidebar-collapsed .sidebar-handle i {
 
 .sidebar.collapsed .nav-link {
     justify-content: center;
-    padding: 5px;
+    padding: 12px 0;
 }
 
 .sidebar.collapsed .nav-link i {
     margin: 0;
+    font-size: 1.4rem;
 }
 
 .main-content.expanded {
@@ -2635,9 +2639,9 @@ td .btn-devolucion i {
 }
 
 /* variantes por acción */
-.act-view {}
 
-.act-edit {}
+
+
 
 .act-del {
     color: rgba(180, 60, 60, 0.95);
@@ -2647,7 +2651,7 @@ td .btn-devolucion i {
     background: rgba(180, 60, 60, 0.12);
 }
 
-.act-toggle {}
+
 
 /* por si luego pones activar/desactivar */
 
