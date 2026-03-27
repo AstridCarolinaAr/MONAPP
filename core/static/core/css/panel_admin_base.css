@@ -155,6 +155,12 @@
         "Noto Sans", "Liberation Sans", sans-serif;
 }
 
+/* Normaliza el grosor en todo el panel */
+.dashboard-body,
+.dashboard-body * {
+    font-weight: 400 !important;
+}
+
 
 /* ==================== SIDEBAR ==================== */
 .sidebar {
