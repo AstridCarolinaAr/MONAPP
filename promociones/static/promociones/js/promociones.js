@@ -10,15 +10,16 @@ if (PROMO_MESSAGES.length) {
     PROMO_MESSAGES.forEach(m => {
         const tag  = Object.keys(PROMO_TAGS_MAP).find(k => m.tags.includes(k)) || 'info';
         const opts = PROMO_TAGS_MAP[tag];
-        Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3500,
-            timerProgressBar: true,
-            background: opts.background,
-            color: opts.color,
-        }).fire({ icon: opts.icon, title: m.text });
+        // Modal central en lugar de Toast para mensajes globales (según preferencia usuario)
+        Swal.fire({
+            icon: opts.icon,
+            title: tag === 'success' ? 'Éxito' : (tag === 'error' ? 'Error' : 'Información'),
+            text: m.text,
+            confirmButtonColor: '#3a2a24',
+            background: '#ffffff',
+            timer: 3000,
+            timerProgressBar: true
+        });
     });
 }
 
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const CSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    /* ── Toggle estado con confirmación Swal ── */
+    /* ── Toggle estado con confirmación y modal de éxito central ── */
     document.querySelectorAll('.promo-switch input[type="checkbox"]').forEach(toggle => {
         toggle.addEventListener('change', function () {
             const url    = this.dataset.toggleUrl;
@@ -48,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.checked = !actNow;
                     return;
                 }
+
+                el.disabled = true;
                 fetch(url, {
                     method: 'POST',
                     headers: {
@@ -62,15 +65,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el estado.', timer: 2500, showConfirmButton: false });
                         return;
                     }
-                    Swal.mixin({
-                        toast: true, position: 'top-end',
-                        showConfirmButton: false, timer: 2000, timerProgressBar: true,
-                        background: '#f0fdf4', color: '#166534',
-                    }).fire({ icon: 'success', title: actNow ? 'Promoción activada' : 'Promoción desactivada' });
+                    
+                    // Modal de éxito central (como el de la segunda imagen)
+                    Swal.fire({
+                        title: 'Estado actualizado',
+                        text: actNow 
+                            ? `"${nombre}" ahora ya está visible en el catálogo` 
+                            : `"${nombre}" ahora ya no está visible en el catálogo`,
+                        icon: 'success',
+                        confirmButtonColor: '#3a2a24',
+                        confirmButtonText: 'Entendido'
+                    });
                 })
                 .catch(() => {
                     el.checked = !actNow;
                     Swal.fire({ icon: 'error', title: 'Error de red', timer: 2500, showConfirmButton: false });
+                })
+                .finally(() => {
+                    el.disabled = false;
                 });
             });
         });
@@ -107,35 +119,94 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalEditar) {
         modalEditar.addEventListener('show.bs.modal', function (e) {
             const btn = e.relatedTarget;
-            // Set form action
+            if (!btn) return; // Seguridad: si no hay botón de origen, no hacemos nada para evitar crash
+
             const formEditar = document.getElementById('formEditar');
-            formEditar.action = btn.dataset.editUrl;
-            formEditar.dataset.promocionId = btn.dataset.promocionId || btn.dataset.pk || '';
-            // Fill fields
-            document.getElementById('edit_nombre').value    = btn.dataset.nombre;
-            document.getElementById('edit_etiqueta').value  = btn.dataset.etiqueta;
-            document.getElementById('edit_descripcion').value = btn.dataset.descripcion;
-            document.getElementById('edit_descuento').value = btn.dataset.descuento;
-            document.getElementById('edit_inicio').value    = btn.dataset.inicio;
-            document.getElementById('edit_fin').value       = btn.dataset.fin;
-            document.getElementById('edit_activa').checked  = btn.dataset.activa === 'true';
-            // Reset image input and preview
-            document.getElementById('edit_imagen').value = '';
-            document.getElementById('edit_imagen_clear').checked = false;
+            if (formEditar) {
+                formEditar.action = btn.dataset.editUrl || '';
+                formEditar.dataset.promocionId = btn.dataset.promocionId || btn.dataset.pk || '';
+            }
+
+            // Rellenar campos con seguridad
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            };
+
+            setVal('edit_nombre', btn.dataset.nombre);
+            setVal('edit_etiqueta', btn.dataset.etiqueta);
+            setVal('edit_descripcion', btn.dataset.descripcion);
+
+            // Manejo especial de descuento (reemplazar coma decimal por punto)
+            const descInput = document.getElementById('edit_descuento');
+            if (descInput && btn.dataset.descuento) {
+                descInput.value = btn.dataset.descuento.replace(',', '.');
+            }
+
+            setVal('edit_inicio', btn.dataset.inicio);
+            setVal('edit_fin', btn.dataset.fin);
+
+            const chkActiva = document.getElementById('edit_activa');
+            if (chkActiva) chkActiva.checked = btn.dataset.activa === 'true';
+
+            // Reset imagen y preview
+            const imgInput = document.getElementById('edit_imagen');
+            if (imgInput) imgInput.value = '';
+            
+            const chkClear = document.getElementById('edit_imagen_clear');
+            if (chkClear) chkClear.checked = false;
+
             const preview = document.getElementById('previewPromoEdit');
-            const imgActual = document.getElementById('edit_imagen_actual');
-            const imgLink   = document.getElementById('edit_imagen_link');
+            const dropzone = document.getElementById('dropzonePromoEdit');
             const imgUrl = btn.dataset.imagenUrl;
+
             if (imgUrl) {
-                preview.src = imgUrl;
-                preview.classList.remove('d-none');
-                imgActual.style.display = 'flex';
-                imgLink.href = imgUrl;
-                imgLink.textContent = imgUrl.split('/').pop();
+                if (preview) {
+                    preview.src = imgUrl;
+                    preview.classList.remove('d-none');
+                    preview.style.filter = 'none';
+                }
+                if (dropzone) dropzone.classList.add('has-image');
             } else {
-                preview.src = '';
-                preview.classList.add('d-none');
-                imgActual.style.display = 'none';
+                if (preview) {
+                    preview.src = '';
+                    preview.classList.add('d-none');
+                }
+                if (dropzone) dropzone.classList.remove('has-image');
+            }
+
+            const infoClear = document.getElementById('edit_info_clear');
+            if (infoClear) infoClear.classList.add('d-none');
+
+            // Lógica Eliminar Imagen (dentro de Edit)
+            const btnRemove = document.getElementById('btnRemoveImageEdit');
+
+            if (btnRemove && chkClear) {
+                // Reset state when opening modal
+                chkClear.checked = false;
+                if (infoClear) infoClear.classList.add('d-none');
+                if (preview) preview.style.filter = 'none';
+
+                btnRemove.onclick = (e) => {
+                    e.stopPropagation();
+                    const willClear = !chkClear.checked;
+                    chkClear.checked = willClear;
+                    
+                    if (willClear) {
+                        if (infoClear) infoClear.classList.remove('d-none');
+                        if (preview) {
+                            preview.style.filter = 'grayscale(1) opacity(0.5)';
+                            preview.style.transition = 'all 0.3s ease';
+                        }
+                        btnRemove.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Restaurar';
+                        btnRemove.classList.replace('btn-danger', 'btn-warning');
+                    } else {
+                        if (infoClear) infoClear.classList.add('d-none');
+                        if (preview) preview.style.filter = 'none';
+                        btnRemove.innerHTML = '<i class="bi bi-trashme-1"></i> Eliminar';
+                        btnRemove.classList.replace('btn-warning', 'btn-danger');
+                    }
+                };
             }
         });
 
@@ -149,6 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     reader.onload = ev => {
                         editPreview.src = ev.target.result;
                         editPreview.classList.remove('d-none');
+                        editPreview.style.filter = 'none';
+                        const dz = document.getElementById('dropzonePromoEdit');
+                        if (dz) dz.classList.add('has-image');
+                        
+                        // Si carga nueva imagen, cancelamos el "clear"
+                        const chkClear = document.getElementById('edit_imagen_clear');
+                        const infoClear = document.getElementById('edit_info_clear');
+                        if (chkClear) chkClear.checked = false;
+                        if (infoClear) infoClear.classList.add('d-none');
                     };
                     reader.readAsDataURL(this.files[0]);
                 }
@@ -284,26 +364,48 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Imagen */
     function promoImagen(input, errEl, previewEl) {
         const TIPOS = ['image/jpeg','image/png','image/webp','image/gif'];
+        const dropzone = input.closest('.promo-dropzone');
         errEl.textContent = ''; errEl.classList.remove('visible');
-        if (!input.files || !input.files[0]) return true;
+        
+        if (!input.files || !input.files[0]) {
+            // No hay archivo (se limpió o no se eligió ninguno)
+            // Si el preview ya tiene un src (caso edición), no quitamos has-image a menos que el input esté realmente vacío
+            if (!input.value) {
+                if (dropzone && !previewEl.src.includes('data:image')) {
+                     // Solo quitamos si no es una imagen persistente de edición o una nueva carga
+                     // Pero para simplificar, si el input es el que manda:
+                     // dropzone.classList.remove('has-image');
+                }
+            }
+            return true;
+        }
+
         const f  = input.files[0];
         const mb = f.size / (1024 * 1024);
+
         if (!TIPOS.includes(f.type)) {
             promoErr(input, errEl, 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.');
             input.value = '';
             if (previewEl) previewEl.classList.add('d-none');
+            if (dropzone) dropzone.classList.remove('has-image');
             return false;
         }
         if (mb > 5) {
             promoErr(input, errEl, `La imagen pesa ${mb.toFixed(1)} MB. Máximo 5 MB.`);
             input.value = '';
             if (previewEl) previewEl.classList.add('d-none');
+            if (dropzone) dropzone.classList.remove('has-image');
             return false;
         }
+
         promoErr(input, errEl, '');
         if (previewEl) {
             const reader = new FileReader();
-            reader.onload = e => { previewEl.src = e.target.result; previewEl.classList.remove('d-none'); };
+            reader.onload = e => { 
+                previewEl.src = e.target.result; 
+                previewEl.classList.remove('d-none'); 
+                if (dropzone) dropzone.classList.add('has-image');
+            };
             reader.readAsDataURL(f);
         }
         return true;
@@ -372,7 +474,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const el = document.getElementById(id); if (el) { el.textContent = ''; el.classList.remove('visible'); }
             });
             if (ag.ctrDesc) ag.ctrDesc.textContent = '';
-            if (ag.prevImg) ag.prevImg.classList.add('d-none');
+            if (ag.prevImg) {
+                ag.prevImg.classList.add('d-none');
+                ag.prevImg.src = '';
+                const dz = ag.prevImg.closest('.promo-dropzone');
+                if (dz) dz.classList.remove('has-image');
+            }
             if (ag.btn) ag.btn.disabled = false;
         });
     }
@@ -513,6 +620,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const ph  = document.getElementById('promoDetImgPh');
             if (btn.dataset.imagenUrl) { img.src = btn.dataset.imagenUrl; img.style.display = ''; ph.style.display = 'none'; }
             else                       { img.style.display = 'none'; ph.style.display = ''; }
+
+            // NUEVO: Pasar el trigger al botón de edición del detalle
+            const btnDetEdit = document.getElementById('btnDetalleEditar');
+            if (btnDetEdit) {
+                btnDetEdit.onclick = () => {
+                    const detailModal = bootstrap.Modal.getInstance(document.getElementById('modalDetallePromo'));
+                    detailModal.hide();
+                    // Buscamos el botón de edición original en la misma fila
+                    const row = btn.closest('tr');
+                    const realEditBtn = row.querySelector('.btn-edit');
+                    if (realEditBtn) {
+                        setTimeout(() => { realEditBtn.click(); }, 350);
+                    }
+                };
+            }
         });
     });
 });
