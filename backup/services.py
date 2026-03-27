@@ -11,10 +11,11 @@ import tempfile
 import time
 import zipfile
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import connection
+from django.utils import timezone
 
 
 def get_backup_dir():

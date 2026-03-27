@@ -118,26 +118,6 @@
             </div>
 
             <hr style="margin: 18px 0; border-color: rgba(0,0,0,0.06);">
-
-            <div class="bk-detail-item" style="margin-bottom: 10px;">
-                <span class="label">Contenido detectado</span>
-                {% if meta.archivos %}
-                <div class="mt-2" style="max-height: 180px; overflow:auto; border: 1px solid rgba(0,0,0,0.06); border-radius: 10px; padding: 10px 12px; background:#fbf8f6;">
-                    <ul class="list-unstyled mb-0" style="font-size:.82rem; line-height:1.5;">
-                        {% for archivo in meta.archivos|slice:":15" %}
-                        <li style="word-break: break-all;">
-                            <i class="bi bi-dot"></i> {{ archivo }}
-                        </li>
-                        {% endfor %}
-                        {% if meta.archivos|length > 15 %}
-                        <li class="text-muted">... y {{ meta.archivos|length|add:"-15" }} archivo{{ meta.archivos|length|add:"-15"|pluralize }} más</li>
-                        {% endif %}
-                    </ul>
-                </div>
-                {% else %}
-                <div class="text-muted">No se detectaron archivos en el ZIP.</div>
-                {% endif %}
-            </div>
             {% else %}
             <p style="color: #8a7a72; font-size: .88rem; margin-bottom: 0;">
                 No se pudo leer la estructura del ZIP.
@@ -186,11 +166,15 @@
         <i class="bi bi-download"></i> Descargar
     </a>
     {% endif %}
-    <button type="button" class="bk-btn primary btn-restaurar"
-            data-id="{{ backup.pk }}"
-            data-nombre="{{ backup.nombre }}"
-            data-url="{% url 'backup:restaurar' backup.pk %}">
-        <i class="bi bi-arrow-counterclockwise"></i>
-        {% if backup.estado == 'restaurado' %}Restaurar de Nuevo{% else %}Restaurar{% endif %}
-    </button>
+    {% if backup.archivo_existe %}
+        {% if backup.estado == 'exitoso' or backup.estado == 'restaurado' %}
+        <button type="button" class="bk-btn primary btn-restaurar"
+                data-id="{{ backup.pk }}"
+                data-nombre="{{ backup.nombre }}"
+                data-url="{% url 'backup:restaurar' backup.pk %}">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            {% if backup.estado == 'restaurado' %}Restaurar de Nuevo{% else %}Restaurar{% endif %}
+        </button>
+        {% endif %}
+    {% endif %}
 </div>

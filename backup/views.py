@@ -301,14 +301,17 @@ def configuracion_backup(request):
     config = BackupConfig.get_config()
 
     if request.method == 'POST':
-        config.backup_automatico = request.POST.get('backup_automatico') == 'on'
-        config.frecuencia_horas = int(request.POST.get('frecuencia_horas', 24))
-        config.max_backups = int(request.POST.get('max_backups', 10))
-        config.incluir_media = request.POST.get('incluir_media') == 'on'
-        config.ruta_backups = request.POST.get('ruta_backups', '').strip()
-        config.save()
-        messages.success(request, 'Configuración guardada correctamente.')
-        return redirect('backup:configuracion')
+        try:
+            config.backup_automatico = request.POST.get('backup_automatico') == 'on'
+            config.frecuencia_horas = int(request.POST.get('frecuencia_horas', 24))
+            config.max_backups = int(request.POST.get('max_backups', 10))
+            config.incluir_media = request.POST.get('incluir_media') == 'on'
+            config.ruta_backups = request.POST.get('ruta_backups', '').strip()
+            config.save()
+            messages.success(request, 'Configuración guardada correctamente.')
+            return redirect('backup:configuracion')
+        except (TypeError, ValueError):
+            messages.error(request, 'Revisa los valores numéricos de la configuración.')
 
     context = {
         'config': config,

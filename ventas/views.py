@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
+from django.urls import reverse
 from .models import Venta, DetalleVenta, DevolucionVenta, DetalleDevolucion
 from inventario.models import Stock
-from django.db.models import F
 from compras.models import DetalleCompra
 from django.contrib import messages
 from .forms import VentaForm
@@ -97,6 +97,30 @@ def _fmt_money_text(value):
         return f"$ {txt}"
     except Exception:
         return "$ 0,00"
+
+
+def _ajustar_stock_producto(producto, delta):
+    if delta == 0:
+        return Stock.objects.filter(producto=producto).first()
+
+    stock_obj, _ = Stock.objects.get_or_create(
+        producto=producto,
+        defaults={"cantidad_actual": 0},
+    )
+    stock_obj = Stock.objects.select_for_update().get(pk=stock_obj.pk)
+
+    stock_anterior = stock_obj.cantidad_actual or 0
+    stock_posterior = stock_anterior + delta
+
+    if stock_posterior < 0:
+        raise ValidationError(
+            f"El stock no puede quedar negativo para {producto.nombre}. "
+            f"Actual: {stock_anterior}, movimiento: {delta}."
+        )
+
+    stock_obj.cantidad_actual = stock_posterior
+    stock_obj.save(update_fields=["cantidad_actual"])
+    return stock_obj
 
 
 def _draw_reporte_watermark(canvas, doc):
@@ -215,31 +239,27 @@ def toggle_estado_venta(request, venta_id):
     )
     nuevo_estado = "anulada" if venta.estado == "activa" else "activa"
 
-    with transaction.atomic():
-        for detalle in venta.detalles.all():
-            if not detalle.producto:
-                continue
-            if nuevo_estado == "anulada":
-                # Restaurar solo lo que no fue devuelto aún
+    try:
+        with transaction.atomic():
+            for detalle in venta.detalles.all():
+                if not detalle.producto:
+                    continue
                 cantidad_restante = detalle.cantidad_disponible_devolver
-                if cantidad_restante > 0:
-                    Stock.objects.filter(producto=detalle.producto).update(
-                        cantidad_actual=F("cantidad_actual") + cantidad_restante
-                    )
-            else:
-                # Vuelve a activa: descontar lo que no había sido devuelto
-                cantidad_restante = detalle.cantidad_disponible_devolver
-                if cantidad_restante > 0:
-                    Stock.objects.filter(producto=detalle.producto).update(
-                        cantidad_actual=F("cantidad_actual") - cantidad_restante
-                    )
-        venta.estado = nuevo_estado
-        venta.save()
+                if cantidad_restante <= 0:
+                    continue
+
+                delta = cantidad_restante if nuevo_estado == "anulada" else -cantidad_restante
+                _ajustar_stock_producto(detalle.producto, delta)
+
+            venta.estado = nuevo_estado
+            venta.save()
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+        return redirect(reverse("ventas:lista") + "?estado=activa")
 
     messages.success(
         request, f"Estado actualizado correctamente: {venta.estado.upper()}"
     )
-    from django.urls import reverse
     return redirect(reverse("ventas:lista") + "?estado=activa")
 
 
@@ -280,35 +300,11 @@ def render_crear_venta(request, form, productos_stock, servicios, personal, stat
 
 @transaction.atomic
 def crear_venta(request):
-    productos = Producto.objects.all()
-    productos_stock = []
-
-    for p in productos:
-        entradas = (
-            DetalleCompra.objects.filter(producto=p).aggregate(total=Sum("cantidad"))[
-                "total"
-            ]
-            or 0
-        )
-
-        salidas = (
-            DetalleVenta.objects.filter(producto=p, venta__estado="activa").aggregate(
-                total=Sum("cantidad")
-            )["total"]
-            or 0
-        )
-
-        devuelto = (
-            DetalleDevolucion.objects.filter(
-                detalle_venta__producto=p,
-                detalle_venta__venta__estado="activa",
-            ).aggregate(total=Sum("cantidad_devuelta"))["total"]
-            or 0
-        )
-
-        stock_real = entradas - salidas + devuelto
-
-        productos_stock.append({"producto": p, "stock": stock_real})
+    productos = Producto.objects.filter(activo=True).select_related("stock")
+    productos_stock = [
+        {"producto": p, "stock": p.stock_actual, "activo": p.activo}
+        for p in productos
+    ]
 
     servicios = Servicio.objects.all()
     personal = Personal.objects.filter(rol="Colaborador", activo=True).order_by(
@@ -404,68 +400,59 @@ def crear_venta(request):
         # ===============================
         # GUARDAR DETALLES
         # ===============================
-        for item in items:
-            if item.get("tipo") == "producto":
-                codigo = item.get("id")
-                if not codigo:
-                    continue
-                    entradas = (
-                        DetalleCompra.objects.filter(producto=Producto).aggregate(
-                            total=Sum("cantidad")
-                        )["total"]
-                        or 0
+        try:
+            for item in items:
+                if item.get("tipo") == "producto":
+                    codigo = item.get("id")
+                    if not codigo:
+                        continue
+
+                    producto = Producto.objects.select_for_update().get(codigo=codigo)
+                    if not producto.activo:
+                        raise ValidationError(
+                            f"El producto {producto.nombre} no esta activo para ventas."
+                        )
+
+                    stock_real = producto.stock_actual
+
+                    cantidad = int(item["cantidad"])
+                    if cantidad > stock_real:
+                        raise ValidationError(f"Stock insuficiente para {producto.nombre}")
+
+                    DetalleVenta.objects.create(
+                        venta=venta,
+                        producto=producto,
+                        precio_unitario=producto.precio,
+                        cantidad=cantidad,
+                        subtotal=producto.precio * cantidad,
                     )
+                    _ajustar_stock_producto(producto, -cantidad)
 
-                producto = Producto.objects.select_for_update().get(codigo=codigo)
+                elif item.get("tipo") == "servicio":
+                    servicio = Servicio.objects.get(id_servicio=item["id_servicio"])
+                    colaborador = Personal.objects.get(id=item["id_personal"])
 
-                entradas = (
-                    DetalleCompra.objects.filter(producto=producto).aggregate(
-                        total=Sum("cantidad")
-                    )["total"]
-                    or 0
-                )
-                salidas = (
-                    DetalleVenta.objects.filter(
-                        producto=producto, venta__estado="activa"
-                    ).aggregate(total=Sum("cantidad"))["total"]
-                    or 0
-                )
-                devuelto_prod = (
-                    DetalleDevolucion.objects.filter(
-                        detalle_venta__producto=producto,
-                        detalle_venta__venta__estado="activa",
-                    ).aggregate(total=Sum("cantidad_devuelta"))["total"]
-                    or 0
-                )
-                stock_real = entradas - salidas + devuelto_prod
-
-                if int(item["cantidad"]) > stock_real:
-                    raise ValidationError(f"Stock insuficiente para {producto.nombre}")
-
-                DetalleVenta.objects.create(
-                    venta=venta,
-                    producto=producto,
-                    precio_unitario=producto.precio,
-                    cantidad=int(item["cantidad"]),
-                    subtotal=producto.precio * int(item["cantidad"]),
-                )
-                # Descontar del Stock
-                Stock.objects.filter(producto=producto).update(
-                    cantidad_actual=F("cantidad_actual") - int(item["cantidad"])
-                )
-
-            elif item.get("tipo") == "servicio":
-                servicio = Servicio.objects.get(id_servicio=item["id_servicio"])
-                colaborador = Personal.objects.get(id=item["id_personal"])
-
-                DetalleVenta.objects.create(
-                    venta=venta,
-                    servicio=servicio,
-                    colaborador_servicio=colaborador,
-                    precio_unitario=servicio.precio,
-                    cantidad=int(item.get("cantidad", 1)),
-                    subtotal=servicio.precio * int(item.get("cantidad", 1)),
-                )
+                    DetalleVenta.objects.create(
+                        venta=venta,
+                        servicio=servicio,
+                        colaborador_servicio=colaborador,
+                        precio_unitario=servicio.precio,
+                        cantidad=int(item.get("cantidad", 1)),
+                        subtotal=servicio.precio * int(item.get("cantidad", 1)),
+                    )
+        except ValidationError as exc:
+            transaction.set_rollback(True)
+            messages.error(request, str(exc))
+            return render(
+                request,
+                "ventas/crear_venta.html",
+                {
+                    "form": form,
+                    "productos_stock": productos_stock,
+                    "servicios": servicios,
+                    "personal": personal,
+                },
+            )
 
         if es_ajax(request):
             return JsonResponse({"success": True})
@@ -527,9 +514,7 @@ def editar_venta_modal(request, pk):
         with transaction.atomic():
             # 1) Restaurar stock de los productos actuales
             for det in detalles_productos:
-                Stock.objects.filter(producto=det.producto).update(
-                    cantidad_actual=F("cantidad_actual") + det.cantidad_disponible_devolver
-                )
+                _ajustar_stock_producto(det.producto, det.cantidad_disponible_devolver)
 
             # 2) Guardar cambios de productos
             for det in detalles_productos:
@@ -568,9 +553,7 @@ def editar_venta_modal(request, pk):
                 det.save()
 
                 # 3) Descontar el nuevo stock
-                Stock.objects.filter(producto=det.producto).update(
-                    cantidad_actual=F("cantidad_actual") - nueva_cantidad
-                )
+                _ajustar_stock_producto(det.producto, -nueva_cantidad)
 
             # 4) Guardar cambios de servicios
             for det in detalles_servicios:
@@ -596,7 +579,10 @@ def editar_venta_modal(request, pk):
         det.stock_disponible = stock_por_producto.get(det.id, 0)
 
     # Lista completa de productos con su stock (para el select de cambio de producto)
-    todos_productos = Producto.objects.all()
+    productos_relacionados_ids = detalles_productos.values_list("producto_id", flat=True)
+    todos_productos = Producto.objects.filter(
+        Q(activo=True) | Q(codigo__in=productos_relacionados_ids)
+    ).distinct()
     todos_stock = []
     for p in todos_productos:
         stock_actual = (
@@ -606,7 +592,7 @@ def editar_venta_modal(request, pk):
         det_actual = detalles_productos.filter(producto=p).first()
         ya_tiene = det_actual.cantidad_disponible_devolver if det_actual else 0
         s = stock_actual + ya_tiene
-        todos_stock.append({"producto": p, "stock": s})
+        todos_stock.append({"producto": p, "stock": s, "activo": p.activo})
 
     ctx = {
         "venta": venta,
@@ -679,7 +665,6 @@ def anular_venta(request, venta_id):
     )
 
     if venta.estado == "anulada":
-        from django.urls import reverse
         return redirect(reverse("ventas:lista") + "?estado=activa")
 
     if request.method == "POST":
@@ -687,13 +672,10 @@ def anular_venta(request, venta_id):
             if detalle.producto:
                 cantidad_restante = detalle.cantidad_disponible_devolver
                 if cantidad_restante > 0:
-                    Stock.objects.filter(producto=detalle.producto).update(
-                        cantidad_actual=F("cantidad_actual") + cantidad_restante
-                    )
+                    _ajustar_stock_producto(detalle.producto, cantidad_restante)
         venta.estado = "anulada"
         venta.save()
 
-    from django.urls import reverse
     return redirect(reverse("ventas:lista") + "?estado=activa")
 
 
@@ -986,6 +968,8 @@ def obtener_valor_columna_venta(venta, columna):
             nombre = ""
             if d.producto:
                 nombre = d.producto.nombre
+                if not d.producto.activo:
+                    nombre += " (Inactivo)"
             elif d.servicio:
                 nombre = d.servicio.nombre
             if nombre:
@@ -1751,6 +1735,149 @@ def devolucion_venta_json(request, venta_id):
     })
 
 
+def editar_venta_modal(request, pk):
+    venta = get_object_or_404(
+        Venta.objects.select_related("cliente").prefetch_related(
+            "detalles__producto",
+            "detalles__devoluciones",
+            "detalles__servicio",
+        ),
+        pk=pk,
+    )
+
+    detalles_productos = venta.detalles.filter(producto__isnull=False).select_related("producto")
+    detalles_servicios = venta.detalles.filter(servicio__isnull=False).select_related("servicio")
+    servicios = Servicio.objects.all()
+    personal = Personal.objects.filter(rol="Colaborador", activo=True).order_by("nombres", "apellidos")
+
+    stock_por_producto = {}
+    for det in detalles_productos:
+        stock_actual = (
+            Stock.objects.filter(producto=det.producto).values_list("cantidad_actual", flat=True).first()
+            or 0
+        )
+        stock_por_producto[det.id] = stock_actual + det.cantidad_disponible_devolver
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                for det in detalles_productos:
+                    _ajustar_stock_producto(det.producto, det.cantidad_disponible_devolver)
+
+                for det in detalles_productos:
+                    cant_str = request.POST.get(f"prod_cant_{det.id}")
+                    nuevo_codigo = request.POST.get(f"prod_codigo_{det.id}")
+                    if cant_str is None:
+                        continue
+
+                    nueva_cantidad = int(cant_str)
+                    if nuevo_codigo and nuevo_codigo != det.producto.codigo:
+                        det.producto = Producto.objects.get(codigo=nuevo_codigo)
+
+                    disponible = (
+                        Stock.objects.select_for_update()
+                        .filter(producto=det.producto)
+                        .values_list("cantidad_actual", flat=True)
+                        .first()
+                        or 0
+                    )
+                    if nueva_cantidad > disponible:
+                        nombre = det.producto.nombre
+                        return JsonResponse(
+                            {"ok": False, "error": f"Stock insuficiente para '{nombre}'. Disponible: {disponible}."},
+                            status=400,
+                        )
+
+                    det.cantidad = nueva_cantidad
+                    det.precio_unitario = det.producto.precio
+                    det.subtotal = det.cantidad * det.precio_unitario
+                    det.save()
+
+                    _ajustar_stock_producto(det.producto, -nueva_cantidad)
+
+                for det in detalles_servicios:
+                    cant_str = request.POST.get(f"serv_cant_{det.id}")
+                    serv_id = request.POST.get(f"serv_servicio_{det.id}")
+                    pers_id = request.POST.get(f"serv_personal_{det.id}")
+
+                    if serv_id:
+                        det.servicio = Servicio.objects.get(pk=serv_id)
+                    if pers_id:
+                        det.colaborador_servicio = Personal.objects.get(pk=pers_id)
+                    if cant_str:
+                        det.cantidad = int(cant_str)
+
+                    det.precio_unitario = det.servicio.precio
+                    det.subtotal = det.cantidad * det.precio_unitario
+                    det.save()
+        except ValidationError as exc:
+            return JsonResponse({"ok": False, "error": str(exc)}, status=400)
+
+        return JsonResponse({"ok": True})
+
+    for det in detalles_productos:
+        det.stock_disponible = stock_por_producto.get(det.id, 0)
+
+    productos_relacionados_ids = detalles_productos.values_list("producto_id", flat=True)
+    todos_productos = Producto.objects.filter(
+        Q(activo=True) | Q(codigo__in=productos_relacionados_ids)
+    ).distinct()
+    todos_stock = []
+    for p in todos_productos:
+        stock_actual = (
+            Stock.objects.filter(producto=p).values_list("cantidad_actual", flat=True).first() or 0
+        )
+        det_actual = detalles_productos.filter(producto=p).first()
+        ya_tiene = det_actual.cantidad_disponible_devolver if det_actual else 0
+        todos_stock.append({
+            "producto": p,
+            "stock": stock_actual + ya_tiene,
+            "activo": p.activo,
+        })
+
+    ctx = {
+        "venta": venta,
+        "detalles_productos": detalles_productos,
+        "detalles_servicios": detalles_servicios,
+        "servicios": servicios,
+        "personal": personal,
+        "todos_stock": todos_stock,
+    }
+
+    if es_ajax(request):
+        html = render_to_string("ventas/form_editar_venta.html", ctx, request=request)
+        return JsonResponse({"success": True, "html": html})
+
+    return render(request, "ventas/form_editar_venta.html", ctx)
+
+
+@transaction.atomic
+def anular_venta(request, venta_id):
+    venta = get_object_or_404(
+        Venta.objects.prefetch_related("detalles__producto", "detalles__devoluciones"),
+        id=venta_id,
+    )
+
+    if venta.estado == "anulada":
+        return redirect(reverse("ventas:lista") + "?estado=activa")
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                for detalle in venta.detalles.all():
+                    if detalle.producto:
+                        cantidad_restante = detalle.cantidad_disponible_devolver
+                        if cantidad_restante > 0:
+                            _ajustar_stock_producto(detalle.producto, cantidad_restante)
+                venta.estado = "anulada"
+                venta.save()
+        except ValidationError as exc:
+            messages.error(request, str(exc))
+            return redirect(reverse("ventas:lista") + "?estado=activa")
+
+    return redirect(reverse("ventas:lista") + "?estado=activa")
+
+
 @transaction.atomic
 def registrar_devolucion(request, venta_id):
     """
@@ -1842,9 +1969,7 @@ def registrar_devolucion(request, venta_id):
         )
         # Restaurar stock si es producto
         if detalle.producto:
-            Stock.objects.filter(producto=detalle.producto).update(
-                cantidad_actual=F("cantidad_actual") + cantidad
-            )
+            _ajustar_stock_producto(detalle.producto, cantidad)
 
     # ── Anulación automática si todos los ítems fueron devueltos ──
     venta_anulada = False

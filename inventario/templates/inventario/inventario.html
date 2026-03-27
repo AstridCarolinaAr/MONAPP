@@ -93,7 +93,12 @@
                                     </div>
                                 </td>
 
-                                <td class="fw-medium">{{ s.producto.nombre }}</td>
+                                <td class="fw-medium">
+                                    {{ s.producto.nombre }}
+                                    {% if not s.producto.activo %}
+                                        <span class="badge bg-secondary ms-2">Inactivo</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ s.producto.get_unidad_medida_display }}</td>
                                 <td>
                                     {% if s.cantidad_actual < 10 %}

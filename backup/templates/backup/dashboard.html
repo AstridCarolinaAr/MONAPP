@@ -208,21 +208,23 @@
                                                     title="Ver detalle">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                            {% if b.archivo_existe and b.estado in 'exitoso,restaurado' %}
-                                            <a href="{% url 'backup:descargar' b.pk %}"
-                                               class="bk-btn success sm icon-only"
-                                               title="Descargar">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                            <button type="button"
-                                                    class="bk-btn primary sm icon-only btn-restaurar"
-                                                    data-id="{{ b.pk }}"
-                                                    data-nombre="{{ b.nombre }}"
-                                                    data-url="{% url 'backup:restaurar' b.pk %}"
-                                                    data-preview-url="{% url 'backup:detalle' b.pk %}?modal=1"
-                                                    title="Ver contenido y restaurar">
-                                                <i class="bi bi-arrow-counterclockwise"></i>
-                                            </button>
+                                            {% if b.archivo_existe %}
+                                                {% if b.estado == 'exitoso' or b.estado == 'restaurado' %}
+                                                <a href="{% url 'backup:descargar' b.pk %}"
+                                                   class="bk-btn success sm icon-only"
+                                                   title="Descargar">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                <button type="button"
+                                                        class="bk-btn primary sm icon-only btn-restaurar"
+                                                        data-id="{{ b.pk }}"
+                                                        data-nombre="{{ b.nombre }}"
+                                                        data-url="{% url 'backup:restaurar' b.pk %}"
+                                                        data-preview-url="{% url 'backup:detalle' b.pk %}?modal=1"
+                                                        title="Ver contenido y restaurar">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                                {% endif %}
                                             {% endif %}
                                             <button type="button"
                                                     class="bk-btn danger sm icon-only btn-eliminar"

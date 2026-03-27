@@ -242,7 +242,7 @@ class CompraFormsTest(TestCase):
         form = DevolucionCompraForm(
             data={
                 "compra": self.compra_anulada.pk,
-                "motivo": "Error",
+                "motivo": "defecto_fabrica",
                 "observacion": "Obs",
             }
         )
@@ -255,7 +255,7 @@ class CompraFormsTest(TestCase):
         form = DevolucionCompraForm(
             data={
                 "compra": self.compra_activa.pk,
-                "motivo": "Producto defectuoso",
+                "motivo": "defecto_fabrica",
                 "observacion": "Observación",
             }
         )
@@ -334,7 +334,7 @@ class CompraFormsTest(TestCase):
         self.assertIn("cantidad", form.errors)
         self.assertIn("solo puedes devolver hasta 2", form.errors["cantidad"][0].lower())
 
-    def test_detalle_devolucion_form_rechaza_si_supera_stock_actual(self):
+    def test_detalle_devolucion_form_ignora_stock_actual_bajo_si_esta_dentro_de_lo_comprado(self):
         stock = self.producto_activo.stock
         stock.cantidad_actual = 1
         stock.save(update_fields=["cantidad_actual"])
@@ -347,9 +347,7 @@ class CompraFormsTest(TestCase):
             compra=self.compra_activa,
         )
 
-        self.assertFalse(form.is_valid())
-        self.assertIn("cantidad", form.errors)
-        self.assertIn("stock disponible actual", form.errors["cantidad"][0].lower())
+        self.assertTrue(form.is_valid(), form.errors)
 
     # =========================
     # DetalleDevolucionCompraFormSet
@@ -435,3 +433,69 @@ class CompraFormsTest(TestCase):
         )
 
         self.assertTrue(formset.is_valid(), formset.errors)
+
+
+def _test_formset_devolucion_rechaza_si_repite_el_mismo_detalle(self):
+    data = {
+        "detalles-TOTAL_FORMS": "3",
+        "detalles-INITIAL_FORMS": "0",
+        "detalles-MIN_NUM_FORMS": "0",
+        "detalles-MAX_NUM_FORMS": "1000",
+        "detalles-0-detalle_compra": str(self.detalle_compra_activo.pk),
+        "detalles-0-cantidad": "2",
+        "detalles-1-detalle_compra": str(self.detalle_compra_activo.pk),
+        "detalles-1-cantidad": "1",
+        "detalles-2-detalle_compra": "",
+        "detalles-2-cantidad": "",
+    }
+
+    formset = DetalleDevolucionCompraFormSet(
+        data=data,
+        prefix="detalles",
+        form_kwargs={"compra": self.compra_activa},
+    )
+
+    self.assertFalse(formset.is_valid())
+
+    errores_detalle = []
+    for form in formset.forms:
+        errores_detalle.extend(form.errors.get("detalle_compra", []))
+
+    self.assertTrue(
+        any("no puedes repetir el mismo detalle de compra" in e.lower() for e in errores_detalle),
+        msg=f"No encontré el error esperado. Errores: {errores_detalle}",
+    )
+
+
+def _test_formset_devolucion_es_valido_si_las_filas_usan_detalles_distintos(self):
+    detalle_compra_extra = DetalleCompra.objects.create(
+        compra=self.compra_activa,
+        producto=self.producto_otro,
+        cantidad=6,
+        precio_unitario=Decimal("3000"),
+    )
+
+    data = {
+        "detalles-TOTAL_FORMS": "3",
+        "detalles-INITIAL_FORMS": "0",
+        "detalles-MIN_NUM_FORMS": "0",
+        "detalles-MAX_NUM_FORMS": "1000",
+        "detalles-0-detalle_compra": str(self.detalle_compra_activo.pk),
+        "detalles-0-cantidad": "4",
+        "detalles-1-detalle_compra": str(detalle_compra_extra.pk),
+        "detalles-1-cantidad": "2",
+        "detalles-2-detalle_compra": "",
+        "detalles-2-cantidad": "",
+    }
+
+    formset = DetalleDevolucionCompraFormSet(
+        data=data,
+        prefix="detalles",
+        form_kwargs={"compra": self.compra_activa},
+    )
+
+    self.assertTrue(formset.is_valid(), formset.errors)
+
+
+CompraFormsTest.test_formset_devolucion_rechaza_si_varias_filas_superan_disponible = _test_formset_devolucion_rechaza_si_repite_el_mismo_detalle
+CompraFormsTest.test_formset_devolucion_es_valido_si_las_filas_no_superan_disponible = _test_formset_devolucion_es_valido_si_las_filas_usan_detalles_distintos

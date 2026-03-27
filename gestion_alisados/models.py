@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from clientes.models import Cliente
 import uuid
 
@@ -302,5 +303,24 @@ class GestionAlisado(models.Model):
         verbose_name = 'Gestión de Alisado'
         verbose_name_plural = 'Gestiones de Alisado'
     
+    def clean(self):
+        super().clean()
+
+        if self.precio_alisado is not None and self.anticipo_cliente is not None:
+            saldo_esperado = self.precio_alisado - self.anticipo_cliente
+            if saldo_esperado < 0:
+                raise ValidationError({
+                    'anticipo_cliente': 'El anticipo no puede ser mayor que el precio del alisado.',
+                })
+
+            if self.saldo_pendiente is not None and self.saldo_pendiente != saldo_esperado:
+                raise ValidationError({
+                    'saldo_pendiente': 'El saldo pendiente debe ser igual al precio menos el anticipo.',
+                })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Alisado - {self.procedimiento_realizado_por} - {self.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
