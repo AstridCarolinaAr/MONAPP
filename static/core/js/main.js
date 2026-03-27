@@ -4,8 +4,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===============================
   const header = document.querySelector('.header');
   const footer = document.querySelector('.footer');
+  const nav = document.querySelector('.nav-glass');
+  const toggle = document.querySelector('[data-nav-toggle]');
+  const backdrop = document.querySelector('[data-nav-backdrop]');
   const navItems = document.querySelectorAll('.nav-item');
   const logo = document.querySelector('.logo svg');
+
+  function setNav(open) {
+    if (!header) return;
+    header.classList.toggle('nav-open', !!open);
+    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  if (toggle && header) {
+    const handleToggle = (event) => {
+      event.preventDefault();
+      setNav(!header.classList.contains('nav-open'));
+    };
+
+    toggle.addEventListener('click', handleToggle);
+    toggle.addEventListener('touchend', handleToggle, { passive: false });
+    toggle.addEventListener('pointerup', handleToggle);
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', () => setNav(false));
+  }
+
+  if (nav) {
+    nav.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', () => setNav(false));
+    });
+  }
 
   // ===============================
   // SCROLL HEADER + FOOTER
