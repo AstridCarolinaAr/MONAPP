@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm, UsuarioBusquedaForm
 from .models import PerfilUsuario
 import random
+import smtplib
 from django.utils import timezone
 from django.core.mail import send_mail
 from datetime import timedelta, datetime
@@ -26,7 +27,6 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.urls import reverse
 import traceback
-import smtplib
 
 
 def _login_rate_limit_key(request, username):
@@ -970,61 +970,71 @@ def solicitar_recuperacion(request):
 
         user = User.objects.filter(email__iexact=email, is_active=True).first()
         if not user:
-            messages.error(
-                request,
-                'Ingrese el correo que registro.'
-            )
+            request.session.pop('recovery_user', None)
+            request.session['codigo_validado'] = False
+            messages.error(request, 'Ingresa un correo válido registrado en el sistema.')
             return render(request, 'usuarios/recuperar.html')
+
+        codigo = str(random.randint(100000, 999999))
+
+        perfil = user.perfil
+        PerfilUsuario.objects.filter(pk=perfil.pk).update(
+            recovery_code=codigo,
+            recovery_code_created=timezone.now(),
+        )
+
+        html_content = render_to_string('usuarios/correo.html', {
+            'codigo': codigo,
+            'year': timezone.now().year
+        })
+
+        email_msg = EmailMultiAlternatives(
+            subject='✨ Recuperación de contraseña - MONAPP',
+            body='Tu cliente de correo no soporta HTML',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email],
+        )
+
+        email_msg.attach_alternative(html_content, "text/html")
 
         try:
-            codigo = str(random.randint(100000, 999999))
-            perfil, _ = PerfilUsuario.objects.get_or_create(user=user)
-            PerfilUsuario.objects.filter(pk=perfil.pk).update(
-                recovery_code=codigo,
-                recovery_code_created=timezone.now(),
-            )
-
-            request.session['recovery_user'] = user.id
-            request.session['codigo_validado'] = False
-            request.session[_recovery_code_attempts_key(request)] = 0
-            request.session.pop(_recovery_code_block_key(request), None)
-
-            html_content = render_to_string('usuarios/correo.html', {
-                'codigo': codigo,
-                'year': timezone.now().year
-            })
-
-            email_msg = EmailMultiAlternatives(
-                subject='✨ Recuperación de contraseña - MONAPP',
-                body='Tu cliente de correo no soporta HTML',
-                from_email=settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL,
-                to=[email],
-            )
-
-            email_msg.attach_alternative(html_content, "text/html")
-            email_msg.send(fail_silently=False)
-
-            messages.success(
-                request,
-                'Se envió el código de recuperación al correo registrado.'
-            )
-            return redirect('usuarios:verificar_codigo')
+            email_msg.send()
         except smtplib.SMTPAuthenticationError:
+            PerfilUsuario.objects.filter(pk=perfil.pk).update(
+                recovery_code=None,
+                recovery_code_created=None,
+            )
             request.session.pop('recovery_user', None)
             request.session['codigo_validado'] = False
             messages.error(
                 request,
-                'Gmail rechazó la autenticación. Debes usar una contraseña de aplicación válida para ese correo.'
+                'No se pudo enviar el correo. Gmail rechazó la autenticación. '
+                'Debes usar una contraseña de aplicación válida.'
             )
             return render(request, 'usuarios/recuperar.html')
-        except Exception:
+        except (smtplib.SMTPException, socket.gaierror, OSError, TimeoutError):
+            PerfilUsuario.objects.filter(pk=perfil.pk).update(
+                recovery_code=None,
+                recovery_code_created=None,
+            )
             request.session.pop('recovery_user', None)
             request.session['codigo_validado'] = False
             messages.error(
                 request,
-                'No se pudo enviar el correo de recuperación. Verifica la configuración del servidor de correo.'
+                'No se pudo enviar el correo en este momento. Intenta de nuevo más tarde.'
             )
             return render(request, 'usuarios/recuperar.html')
+
+        request.session['recovery_user'] = user.id
+        request.session['codigo_validado'] = False
+        request.session[_recovery_code_attempts_key(request)] = 0
+        request.session.pop(_recovery_code_block_key(request), None)
+        messages.success(
+            request,
+            'Si el correo está registrado, recibirás un código de recuperación.'
+        )
+
+        return redirect('usuarios:verificar_codigo')
 
     return render(request, 'usuarios/recuperar.html')
 
@@ -1058,10 +1068,9 @@ def verificar_codigo(request):
             return redirect(reverse('core:index') + '?login=1')
 
         if perfil.recovery_code_created and (now - perfil.recovery_code_created) > timedelta(minutes=5):
-            PerfilUsuario.objects.filter(pk=perfil.pk).update(
-                recovery_code=None,
-                recovery_code_created=None,
-            )
+            perfil.recovery_code = None
+            perfil.recovery_code_created = None
+            perfil.save(update_fields=['recovery_code', 'recovery_code_created'])
             request.session.pop(block_key, None)
             request.session[attempts_key] = 0
             return render(request, 'usuarios/verificar_codigo.html', {
@@ -1130,11 +1139,10 @@ def nueva_password(request):
         user.save()
 
         # Limpiar código
-        perfil, _ = PerfilUsuario.objects.get_or_create(user=user)
-        PerfilUsuario.objects.filter(pk=perfil.pk).update(
-            recovery_code=None,
-            recovery_code_created=None,
-        )
+        perfil = user.perfil
+        perfil.recovery_code = None
+        perfil.recovery_code_created = None
+        perfil.save()
 
         request.session.pop(_recovery_code_attempts_key(request), None)
         request.session.pop(_recovery_code_block_key(request), None)
