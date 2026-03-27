@@ -9,5 +9,3 @@ def split_comma(value):
     if not value:
         return []
     return [v.strip() for v in value.split(',') if v.strip()]
-
-    return [v.strip() for v in value.split(',') if v.strip()]

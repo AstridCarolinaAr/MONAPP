@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from Productos.models import Producto
-from compras.models import Compra, DetalleCompra
+from compras.models import Compra, DetalleCompra, DevolucionCompra
 from inventario.services import aplicar_movimiento_stock
 
 
@@ -152,6 +152,86 @@ def _extraer_lineas_devolucion_validas(compra, formset):
         disponible_para_devolver = min(disponible_por_compra, stock_actual)
 
         if acumulado_por_detalle[detalle_compra.pk] > disponible_para_devolver:
+            raise CompraServiceError(
+                f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
+            )
+
+        lineas.append((detalle_compra, cantidad))
+
+    if not lineas:
+        raise CompraServiceError("Debes agregar al menos un producto a devolver.")
+
+    return lineas
+
+
+def _extraer_lineas_devolucion_bloqueadas(compra, formset):
+    lineas = []
+    acumulado_por_detalle = {}
+    detalles_bloqueados = {}
+    devoluciones_bloqueadas = {}
+
+    for form in formset.forms:
+        if not getattr(form, "cleaned_data", None):
+            continue
+
+        if form.cleaned_data.get("DELETE"):
+            continue
+
+        detalle_post = form.cleaned_data.get("detalle_compra")
+        cantidad = form.cleaned_data.get("cantidad") or 0
+
+        fila_vacia = not detalle_post and not cantidad
+        if fila_vacia:
+            continue
+
+        if not detalle_post or cantidad <= 0:
+            raise CompraServiceError("Hay filas de devolución incompletas o inválidas.")
+
+        detalle_id = detalle_post.pk
+
+        if detalle_id not in detalles_bloqueados:
+            try:
+                detalle_compra = (
+                    compra.detalles
+                    .select_for_update()
+                    .select_related("producto")
+                    .get(pk=detalle_id)
+                )
+            except compra.detalles.model.DoesNotExist as exc:
+                raise CompraServiceError(
+                    "Se detectó un detalle de compra inválido para la devolución."
+                ) from exc
+
+            if detalle_compra.compra_id != compra.pk:
+                raise CompraServiceError(
+                    "Ese detalle no pertenece a la compra seleccionada."
+                )
+
+            detalles_bloqueados[detalle_id] = detalle_compra
+            devoluciones_bloqueadas[detalle_id] = list(
+                detalle_compra.detalles_devolucion
+                .select_for_update()
+                .filter(devolucion__anulada=False)
+            )
+
+        detalle_compra = detalles_bloqueados[detalle_id]
+        cantidad_ya_devuelta = sum(
+            (item.cantidad or 0)
+            for item in devoluciones_bloqueadas[detalle_id]
+        )
+
+        acumulado_por_detalle[detalle_id] = (
+            acumulado_por_detalle.get(detalle_id, 0) + cantidad
+        )
+
+        disponible_por_compra = max(
+            (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+            0,
+        )
+        stock_actual = detalle_compra.producto.stock_actual or 0
+        disponible_para_devolver = min(disponible_por_compra, stock_actual)
+
+        if acumulado_por_detalle[detalle_id] > disponible_para_devolver:
             raise CompraServiceError(
                 f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
             )
@@ -341,7 +421,7 @@ def registrar_devolucion_compra(*, form, formset, usuario):
         if compra.anulada:
             raise CompraServiceError("No puedes devolver sobre una compra anulada.")
 
-        lineas = _extraer_lineas_devolucion_validas(compra, formset)
+        lineas = _extraer_lineas_devolucion_bloqueadas(compra, formset)
 
         devolucion = form.save(commit=False)
         devolucion.compra = compra
@@ -379,11 +459,18 @@ def registrar_devolucion_compra(*, form, formset, usuario):
 
 
 def anular_devolucion_compra(*, devolucion, usuario):
-    if devolucion.anulada:
-        raise CompraServiceError("La devolución ya estaba anulada.")
-
     with transaction.atomic():
-        for d in devolucion.detalles.all():
+        devolucion = (
+            DevolucionCompra.objects
+            .select_for_update()
+            .prefetch_related("detalles__producto")
+            .get(pk=devolucion.pk)
+        )
+
+        if devolucion.anulada:
+            raise CompraServiceError("La devolución ya estaba anulada.")
+
+        for d in devolucion.detalles.select_related("producto").all():
             aplicar_movimiento_stock(
                 producto=d.producto,
                 delta=(d.cantidad or 0),
@@ -392,6 +479,325 @@ def anular_devolucion_compra(*, devolucion, usuario):
                 devolucion=devolucion,
                 observacion=f"Anulación de devolución #{devolucion.id}"
             )
+
+        devolucion.anulada = True
+        devolucion.fecha_anulada = timezone.now().date()
+        devolucion.anulada_en = timezone.now()
+        devolucion.save(update_fields=["anulada", "fecha_anulada", "anulada_en"])
+
+    return devolucion
+
+
+def _extraer_lineas_devolucion_validas(compra, formset):
+    lineas = []
+    vistos_por_detalle = set()
+
+    for form in formset.forms:
+        if not getattr(form, "cleaned_data", None):
+            continue
+
+        if form.cleaned_data.get("DELETE"):
+            continue
+
+        detalle_post = form.cleaned_data.get("detalle_compra")
+        cantidad = form.cleaned_data.get("cantidad") or 0
+
+        if not detalle_post and not cantidad:
+            continue
+
+        if not detalle_post or cantidad <= 0:
+            raise CompraServiceError("Hay filas de devolución incompletas o inválidas.")
+
+        try:
+            detalle_compra = (
+                compra.detalles
+                .select_for_update()
+                .select_related("producto")
+                .get(pk=detalle_post.pk)
+            )
+        except compra.detalles.model.DoesNotExist as exc:
+            raise CompraServiceError(
+                "Se detectó un detalle de compra inválido para la devolución."
+            ) from exc
+
+        if detalle_compra.pk in vistos_por_detalle:
+            raise CompraServiceError(
+                "No puedes repetir el mismo detalle de compra en la misma devolución."
+            )
+        vistos_por_detalle.add(detalle_compra.pk)
+
+        cantidad_ya_devuelta = (
+            detalle_compra.detalles_devolucion
+            .filter(devolucion__anulada=False)
+            .aggregate(total=Sum("cantidad"))["total"] or 0
+        )
+
+        disponible_para_devolver = max(
+            (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+            0,
+        )
+
+        if cantidad > disponible_para_devolver:
+            raise CompraServiceError(
+                f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
+            )
+
+        lineas.append((detalle_compra, cantidad))
+
+    if not lineas:
+        raise CompraServiceError("Debes agregar al menos un producto a devolver.")
+
+    return lineas
+
+
+def _extraer_lineas_devolucion_bloqueadas(compra, formset):
+    lineas = []
+    detalles_bloqueados = {}
+    devoluciones_bloqueadas = {}
+    vistos_por_detalle = set()
+
+    for form in formset.forms:
+        if not getattr(form, "cleaned_data", None):
+            continue
+
+        if form.cleaned_data.get("DELETE"):
+            continue
+
+        detalle_post = form.cleaned_data.get("detalle_compra")
+        cantidad = form.cleaned_data.get("cantidad") or 0
+
+        if not detalle_post and not cantidad:
+            continue
+
+        if not detalle_post or cantidad <= 0:
+            raise CompraServiceError("Hay filas de devolución incompletas o inválidas.")
+
+        detalle_id = detalle_post.pk
+
+        if detalle_id not in detalles_bloqueados:
+            try:
+                detalle_compra = (
+                    compra.detalles
+                    .select_for_update()
+                    .select_related("producto")
+                    .get(pk=detalle_id)
+                )
+            except compra.detalles.model.DoesNotExist as exc:
+                raise CompraServiceError(
+                    "Se detectó un detalle de compra inválido para la devolución."
+                ) from exc
+
+            if detalle_compra.compra_id != compra.pk:
+                raise CompraServiceError(
+                    "Ese detalle no pertenece a la compra seleccionada."
+                )
+
+            detalles_bloqueados[detalle_id] = detalle_compra
+            devoluciones_bloqueadas[detalle_id] = list(
+                detalle_compra.detalles_devolucion
+                .select_for_update()
+                .filter(devolucion__anulada=False)
+            )
+
+        if detalle_id in vistos_por_detalle:
+            raise CompraServiceError(
+                "No puedes repetir el mismo detalle de compra en la misma devolución."
+            )
+        vistos_por_detalle.add(detalle_id)
+
+        detalle_compra = detalles_bloqueados[detalle_id]
+        cantidad_ya_devuelta = sum(
+            (item.cantidad or 0)
+            for item in devoluciones_bloqueadas[detalle_id]
+        )
+
+        disponible_para_devolver = max(
+            (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+            0,
+        )
+
+        if cantidad > disponible_para_devolver:
+            raise CompraServiceError(
+                f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
+            )
+
+        lineas.append((detalle_compra, cantidad))
+
+    if not lineas:
+        raise CompraServiceError("Debes agregar al menos un producto a devolver.")
+
+    return lineas
+
+
+def _extraer_lineas_devolucion_validas(compra, formset):
+    lineas = []
+    vistos_por_detalle = set()
+
+    for form in formset.forms:
+        if not getattr(form, "cleaned_data", None):
+            continue
+
+        if form.cleaned_data.get("DELETE"):
+            continue
+
+        detalle_post = form.cleaned_data.get("detalle_compra")
+        cantidad = form.cleaned_data.get("cantidad") or 0
+
+        if not detalle_post and not cantidad:
+            continue
+
+        if not detalle_post or cantidad <= 0:
+            raise CompraServiceError("Hay filas de devolución incompletas o inválidas.")
+
+        try:
+            detalle_compra = (
+                compra.detalles
+                .select_for_update()
+                .select_related("producto")
+                .get(pk=detalle_post.pk)
+            )
+        except compra.detalles.model.DoesNotExist as exc:
+            raise CompraServiceError(
+                "Se detectó un detalle de compra inválido para la devolución."
+            ) from exc
+
+        if detalle_compra.pk in vistos_por_detalle:
+            raise CompraServiceError(
+                "No puedes repetir el mismo detalle de compra en la misma devolución."
+            )
+        vistos_por_detalle.add(detalle_compra.pk)
+
+        cantidad_ya_devuelta = (
+            detalle_compra.detalles_devolucion
+            .filter(devolucion__anulada=False)
+            .aggregate(total=Sum("cantidad"))["total"] or 0
+        )
+
+        disponible_por_compra = max(
+            (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+            0,
+        )
+        stock_actual = detalle_compra.producto.stock_actual or 0
+        disponible_para_devolver = min(disponible_por_compra, stock_actual)
+
+        if cantidad > disponible_para_devolver:
+            raise CompraServiceError(
+                f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
+            )
+
+        lineas.append((detalle_compra, cantidad))
+
+    if not lineas:
+        raise CompraServiceError("Debes agregar al menos un producto a devolver.")
+
+    return lineas
+
+
+def _extraer_lineas_devolucion_bloqueadas(compra, formset):
+    lineas = []
+    detalles_bloqueados = {}
+    devoluciones_bloqueadas = {}
+    vistos_por_detalle = set()
+
+    for form in formset.forms:
+        if not getattr(form, "cleaned_data", None):
+            continue
+
+        if form.cleaned_data.get("DELETE"):
+            continue
+
+        detalle_post = form.cleaned_data.get("detalle_compra")
+        cantidad = form.cleaned_data.get("cantidad") or 0
+
+        if not detalle_post and not cantidad:
+            continue
+
+        if not detalle_post or cantidad <= 0:
+            raise CompraServiceError("Hay filas de devolución incompletas o inválidas.")
+
+        detalle_id = detalle_post.pk
+
+        if detalle_id not in detalles_bloqueados:
+            try:
+                detalle_compra = (
+                    compra.detalles
+                    .select_for_update()
+                    .select_related("producto")
+                    .get(pk=detalle_id)
+                )
+            except compra.detalles.model.DoesNotExist as exc:
+                raise CompraServiceError(
+                    "Se detectó un detalle de compra inválido para la devolución."
+                ) from exc
+
+            if detalle_compra.compra_id != compra.pk:
+                raise CompraServiceError(
+                    "Ese detalle no pertenece a la compra seleccionada."
+                )
+
+            detalles_bloqueados[detalle_id] = detalle_compra
+            devoluciones_bloqueadas[detalle_id] = list(
+                detalle_compra.detalles_devolucion
+                .select_for_update()
+                .filter(devolucion__anulada=False)
+            )
+
+        if detalle_id in vistos_por_detalle:
+            raise CompraServiceError(
+                "No puedes repetir el mismo detalle de compra en la misma devolución."
+            )
+        vistos_por_detalle.add(detalle_id)
+
+        detalle_compra = detalles_bloqueados[detalle_id]
+        cantidad_ya_devuelta = sum(
+            (item.cantidad or 0)
+            for item in devoluciones_bloqueadas[detalle_id]
+        )
+
+        disponible_por_compra = max(
+            (detalle_compra.cantidad or 0) - cantidad_ya_devuelta,
+            0,
+        )
+        stock_actual = detalle_compra.producto.stock_actual or 0
+        disponible_para_devolver = min(disponible_por_compra, stock_actual)
+
+        if cantidad > disponible_para_devolver:
+            raise CompraServiceError(
+                f"Solo puedes devolver hasta {disponible_para_devolver} unidad(es) de {detalle_compra.producto.nombre}."
+            )
+
+        lineas.append((detalle_compra, cantidad))
+
+    if not lineas:
+        raise CompraServiceError("Debes agregar al menos un producto a devolver.")
+
+    return lineas
+
+
+def anular_devolucion_compra(*, devolucion, usuario):
+    with transaction.atomic():
+        devolucion = (
+            DevolucionCompra.objects
+            .select_for_update()
+            .prefetch_related("detalles__producto")
+            .get(pk=devolucion.pk)
+        )
+
+        if devolucion.anulada:
+            raise CompraServiceError("La devolución ya estaba anulada.")
+
+        for detalle in devolucion.detalles.select_related("producto").all():
+            try:
+                aplicar_movimiento_stock(
+                    producto=detalle.producto,
+                    delta=(detalle.cantidad or 0),
+                    tipo_movimiento="DEV_COMPRA_ANULACION",
+                    usuario=usuario,
+                    devolucion=devolucion,
+                    observacion=f"Anulación de devolución #{devolucion.id}",
+                )
+            except ValidationError as exc:
+                raise CompraServiceError(str(exc)) from exc
 
         devolucion.anulada = True
         devolucion.fecha_anulada = timezone.now().date()

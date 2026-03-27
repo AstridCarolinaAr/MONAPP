@@ -26,7 +26,7 @@ class CompraServicesTest(TestCase):
             nombre_proveedor="Proveedor Test",
             telefono_proveedor="3001234567",
             correo_proveedor="proveedor@test.com",
-            direccion_proveedor="Calle 1 # 2-3",
+            direccion_proveedor="Calle 123",
             estado="activo",
         )
 
@@ -207,7 +207,7 @@ class CompraServicesTest(TestCase):
         form = DevolucionCompraForm(
             data={
                 "compra": compra.pk,
-                "motivo": "Producto defectuoso",
+                "motivo": "defecto_fabrica",
                 "observacion": "Observación de prueba",
             }
         )
@@ -543,6 +543,46 @@ class CompraServicesTest(TestCase):
             ),
         ], any_order=True)
 
+    @patch("compras.services.aplicar_movimiento_stock")
+    def test_registrar_devolucion_compra_rechaza_si_el_estado_cambia_antes_de_guardar(self, mock_mov_stock):
+        compra = self._crear_compra_directa([
+            {"producto": self.producto_1, "cantidad": 5, "precio_unitario": 1000},
+        ])
+        detalle = compra.detalles.first()
+
+        form = self._devolucion_form_valido(compra=compra)
+        formset = self._detalle_devolucion_formset_valido(
+            compra=compra,
+            filas=[
+                {"detalle_compra": detalle, "cantidad": 5},
+            ],
+        )
+
+        self._crear_devolucion_directa(
+            compra=compra,
+            detalles=[
+                {
+                    "detalle_compra": detalle,
+                    "cantidad": 5,
+                    "precio_unitario": detalle.precio_unitario,
+                }
+            ],
+            total=5000,
+            anulada=False,
+        )
+
+        with self.assertRaisesMessage(
+            services.CompraServiceError,
+            "Solo puedes devolver hasta 0 unidad(es)"
+        ):
+            services.registrar_devolucion_compra(
+                form=form,
+                formset=formset,
+                usuario=self.usuario,
+            )
+
+        self.assertEqual(mock_mov_stock.call_count, 0)
+
     # =========================
     # anular_devolucion_compra
     # =========================
@@ -616,3 +656,47 @@ class CompraServicesTest(TestCase):
                 devolucion=devolucion,
                 usuario=self.usuario,
             )
+
+
+def _test_registrar_devolucion_compra_rechaza_detalle_repetido(self):
+    from types import SimpleNamespace
+
+    compra = self._crear_compra_directa([
+        {"producto": self.producto_1, "cantidad": 5, "precio_unitario": 1000},
+    ])
+    detalle = compra.detalles.first()
+
+    form = self._devolucion_form_valido(compra=compra)
+    formset = SimpleNamespace(
+        forms=[
+            SimpleNamespace(
+                cleaned_data={
+                    "DELETE": False,
+                    "detalle_compra": detalle,
+                    "cantidad": 2,
+                }
+            ),
+            SimpleNamespace(
+                cleaned_data={
+                    "DELETE": False,
+                    "detalle_compra": detalle,
+                    "cantidad": 1,
+                }
+            ),
+        ]
+    )
+
+    with self.assertRaisesMessage(
+        services.CompraServiceError,
+        "No puedes repetir el mismo detalle de compra en la misma devolución.",
+    ):
+        services.registrar_devolucion_compra(
+            form=form,
+            formset=formset,
+            usuario=self.usuario,
+        )
+
+
+CompraServicesTest.test_registrar_devolucion_compra_rechaza_detalle_repetido = (
+    _test_registrar_devolucion_compra_rechaza_detalle_repetido
+)

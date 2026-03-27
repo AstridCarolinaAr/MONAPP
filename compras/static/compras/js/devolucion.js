@@ -9,6 +9,64 @@
     return n.toLocaleString("es-CO");
   }
 
+  function getGeneralErrorBox(form) {
+    return qs(form, "#devolucionErroresGenerales");
+  }
+
+  function hideGeneralErrors(form) {
+    const box = getGeneralErrorBox(form);
+    if (!box) return;
+    box.classList.add("d-none");
+    box.innerHTML = "";
+  }
+
+  function showGeneralErrors(form, errores) {
+    const box = getGeneralErrorBox(form);
+    if (!box || !errores || !errores.length) return;
+
+    box.innerHTML = errores.map((e) => `<div>${e}</div>`).join("");
+    box.classList.remove("d-none");
+  }
+
+  function ensureFeedback(input) {
+    if (!input) return null;
+
+    const inputGroup = input.closest(".input-group");
+    const anchor = inputGroup || input;
+
+    let feedback = anchor.parentElement?.querySelector(".invalid-feedback");
+    if (!feedback) {
+      feedback = document.createElement("div");
+      feedback.className = "invalid-feedback";
+      anchor.insertAdjacentElement("afterend", feedback);
+    }
+
+    return feedback;
+  }
+
+  function markInvalid(input, message) {
+    if (!input) return;
+    input.classList.add("is-invalid");
+    input.classList.remove("is-valid");
+    const feedback = ensureFeedback(input);
+    if (feedback) feedback.textContent = message || "Campo inválido.";
+  }
+
+  function markValid(input) {
+    if (!input) return;
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
+    const feedback = ensureFeedback(input);
+    if (feedback) feedback.textContent = "";
+  }
+
+  function clearState(input) {
+    if (!input) return;
+    input.classList.remove("is-invalid", "is-valid");
+    const feedback = ensureFeedback(input);
+    if (feedback) feedback.textContent = "";
+  }
+
   const PATRON_TEXTO_PELIGROSO = /({{|}}|{%|%}|<\s*script|javascript\s*:|on\w+\s*=)/i;
   const MOTIVOS_VALIDOS = new Set([
     "defecto_fabrica",
@@ -58,6 +116,9 @@
 
       const option = detalleSelect.options[detalleSelect.selectedIndex];
       const disponible = Number(option?.dataset?.disponible || 0);
+
+      clearState(detalleSelect);
+      clearState(cantidadInput);
 
       if (disponible > 0) {
         cantidadInput.max = String(disponible);
@@ -164,14 +225,30 @@
   function validateDevolucionForm(form) {
     if (!form) return true;
 
+    hideGeneralErrors(form);
+
     const compra = qs(form, "#id_compra");
     const motivo = qs(form, "#id_motivo");
     const observacion = qs(form, "#id_observacion");
+    const errores = [];
 
-    if (!compra || !compra.value) return false;
-    if (!motivo || !motivo.value || !MOTIVOS_VALIDOS.has(motivo.value)) return false;
+    clearState(compra);
+    clearState(motivo);
+    clearState(observacion);
 
-    if (PATRON_TEXTO_PELIGROSO.test((observacion?.value || "").trim())) return false;
+    if (!compra || !compra.value) {
+      markInvalid(compra, "Selecciona una compra.");
+      errores.push("Selecciona una compra.");
+    }
+    if (!motivo || !motivo.value || !MOTIVOS_VALIDOS.has(motivo.value)) {
+      markInvalid(motivo, "Selecciona un motivo válido.");
+      errores.push("Selecciona un motivo válido.");
+    }
+
+    if (PATRON_TEXTO_PELIGROSO.test((observacion?.value || "").trim())) {
+      markInvalid(observacion, "La observación contiene patrones no permitidos.");
+      errores.push("La observación contiene patrones no permitidos.");
+    }
 
     const items = qsa(form, ".detalle-item").filter((item) => {
       if (item.classList.contains("d-none")) return false;
@@ -180,11 +257,14 @@
     });
 
     let hayDetalle = false;
-    const usados = new Set();
+    const vistosPorDetalle = new Map();
 
     for (const item of items) {
       const detalle = qs(item, 'select[name$="-detalle_compra"], select[id$="-detalle_compra"]');
       const cantidad = qs(item, 'input[name$="-cantidad"]');
+
+      clearState(detalle);
+      clearState(cantidad);
 
       const detalleVal = (detalle?.value || "").trim();
       const cantidadVal = Number(cantidad?.value || 0);
@@ -196,22 +276,46 @@
       if (filaVacia) continue;
 
       if (!detalleVal || !Number.isInteger(cantidadVal) || cantidadVal <= 0) {
-        return false;
-      }
-
-      if (usados.has(detalleVal)) {
-        return false;
+        markInvalid(cantidad, "Ingresa una cantidad válida mayor que 0.");
+        errores.push("Revisa las cantidades ingresadas.");
+        continue;
       }
 
       if (disponible > 0 && cantidadVal > disponible) {
-        return false;
+        markInvalid(
+          cantidad,
+          `Solo puedes devolver hasta ${disponible} unidad(es) en esta fila.`
+        );
+        errores.push(`Una de las filas supera el disponible de ${disponible} unidad(es).`);
+        continue;
       }
 
-      usados.add(detalleVal);
+      if (vistosPorDetalle.has(detalleVal)) {
+        const first = vistosPorDetalle.get(detalleVal);
+        const mensaje = "No puedes repetir el mismo detalle de compra en la misma devolucion.";
+        markInvalid(detalle, mensaje);
+        markInvalid(cantidad, mensaje);
+        markInvalid(first.detalle, mensaje);
+        markInvalid(first.cantidad, mensaje);
+        errores.push(mensaje);
+        continue;
+      }
+
+      vistosPorDetalle.set(detalleVal, { detalle, cantidad, disponible });
+
       hayDetalle = true;
     }
 
-    return hayDetalle;
+    if (!hayDetalle) {
+      errores.push("Debes agregar al menos un producto a devolver.");
+    }
+
+    if (errores.length) {
+      showGeneralErrors(form, Array.from(new Set(errores)));
+      return false;
+    }
+
+    return true;
   }
 
   window.validateDevolucionForm = validateDevolucionForm;

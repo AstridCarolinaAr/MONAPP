@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
 from Productos.models import Producto
@@ -7,10 +8,27 @@ class Stock(models.Model):
     producto = models.OneToOneField(
         Producto,
         on_delete=models.CASCADE,
-        related_name='stock'
+        related_name='stock',
     )
     cantidad_actual = models.IntegerField(default=0)
     actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(cantidad_actual__gte=0),
+                name="inventario_stock_cantidad_no_negativa",
+            )
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.cantidad_actual is not None and self.cantidad_actual < 0:
+            raise ValidationError({"cantidad_actual": "La cantidad actual no puede ser negativa."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad_actual}"
@@ -29,13 +47,13 @@ class MovimientoStock(models.Model):
     producto = models.ForeignKey(
         Producto,
         on_delete=models.PROTECT,
-        related_name="movimientos_stock"
+        related_name="movimientos_stock",
     )
 
     stock = models.ForeignKey(
         Stock,
         on_delete=models.PROTECT,
-        related_name="movimientos"
+        related_name="movimientos",
     )
 
     tipo_movimiento = models.CharField(max_length=30, choices=TIPO_CHOICES)
@@ -48,7 +66,7 @@ class MovimientoStock(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="movimientos_stock"
+        related_name="movimientos_stock",
     )
 
     compra = models.ForeignKey(
@@ -56,7 +74,7 @@ class MovimientoStock(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="movimientos_stock"
+        related_name="movimientos_stock",
     )
 
     devolucion = models.ForeignKey(
@@ -64,7 +82,7 @@ class MovimientoStock(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="movimientos_stock"
+        related_name="movimientos_stock",
     )
 
     observacion = models.TextField(blank=True)

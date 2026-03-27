@@ -229,6 +229,8 @@
                                 </label>
 
                                 {{ form.cliente }}
+                                <input type="hidden" id="clienteNombreImpresion" name="cliente_nombre_impresion" value="">
+                                <input type="hidden" id="clienteDocumentoImpresion" name="cliente_documento_impresion" value="">
 
                                 {% if cliente_bloqueado %}
                                     <input type="hidden" name="cliente" value="{{ cliente_id_bloqueado }}">
@@ -823,12 +825,17 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         const selectedOption = selectCliente.options[selectCliente.selectedIndex];
         if (selectCliente.value) {
             const textoCompleto = (selectedOption.text || '').trim();
-            const nombreCompleto = textoCompleto.split(' - ')[0].trim() || textoCompleto || 'N/A';
-            const numeroDocumento = (selectedOption.getAttribute('data-documento') || textoCompleto.split(' - ').pop() || 'N/A').trim() || 'N/A';
+            const partes = descomponerTextoCliente(textoCompleto);
+            const nombreCompleto = (selectedOption.getAttribute('data-nombre') || partes.nombre || textoCompleto || 'N/A').trim() || 'N/A';
+            const numeroDocumento = (selectedOption.getAttribute('data-documento') || partes.documento || 'N/A').trim() || 'N/A';
             if (infoClienteConsentimiento) {
                 infoClienteConsentimiento.dataset.nombre = nombreCompleto;
                 infoClienteConsentimiento.dataset.documento = numeroDocumento;
             }
+            const inputNombre = document.getElementById('clienteNombreImpresion');
+            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+            if (inputNombre) inputNombre.value = nombreCompleto;
+            if (inputDocumento) inputDocumento.value = numeroDocumento;
             infoClienteConsentimiento.innerHTML = `
                 <strong>Nombre:</strong> ${escapeHtml(nombreCompleto)}<br>
                 <strong>Documento:</strong> ${escapeHtml(numeroDocumento)}
@@ -838,6 +845,10 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
                 infoClienteConsentimiento.dataset.nombre = '';
                 infoClienteConsentimiento.dataset.documento = '';
             }
+            const inputNombre = document.getElementById('clienteNombreImpresion');
+            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+            if (inputNombre) inputNombre.value = '';
+            if (inputDocumento) inputDocumento.value = '';
             infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
         }
     }
@@ -849,6 +860,23 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    function descomponerTextoCliente(textoCompleto) {
+        const texto = String(textoCompleto || '').trim();
+        if (!texto) {
+            return { nombre: '', documento: '' };
+        }
+
+        const separador = texto.lastIndexOf(' - ');
+        if (separador >= 0) {
+            return {
+                nombre: texto.slice(0, separador).trim(),
+                documento: texto.slice(separador + 3).trim(),
+            };
+        }
+
+        return { nombre: texto, documento: '' };
     }
 
     function asegurarOpcion(select, valor) {
@@ -1384,8 +1412,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             selectCliente.options[selectCliente.selectedIndex] || null;
         if (!opcion) return null;
         const textoCompleto = (opcion.text || '').trim();
-        const nombre = textoCompleto.split(' - ')[0].trim() || textoCompleto;
-        const documento = (opcion.getAttribute('data-documento') || textoCompleto.split(' - ').pop() || '').trim();
+        const partes = descomponerTextoCliente(textoCompleto);
+        const nombre = (opcion.getAttribute('data-nombre') || partes.nombre || textoCompleto).trim();
+        const documento = (opcion.getAttribute('data-documento') || partes.documento || '').trim();
         return {
             value: valor,
             nombre: nombre || '—',
@@ -1441,6 +1470,16 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         const select = document.getElementById('selectCliente');
         if (!select) {
             return { nombre: '—', documento: '—' };
+        }
+        const inputNombre = document.getElementById('clienteNombreImpresion');
+        const inputDocumento = document.getElementById('clienteDocumentoImpresion');
+        const nombreGuardado = (inputNombre && inputNombre.value || '').trim();
+        const documentoGuardado = (inputDocumento && inputDocumento.value || '').trim();
+        if (nombreGuardado || documentoGuardado) {
+            return {
+                nombre: nombreGuardado || '—',
+                documento: documentoGuardado || '—',
+            };
         }
         const opcion = (select.selectedOptions && select.selectedOptions[0]) || select.options[select.selectedIndex] || null;
         if (!opcion || !select.value) {
@@ -1706,7 +1745,48 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     function generarHTMLDocumento(datos) {
         const estilos = `
             * { margin:0; padding:0; box-sizing:border-box; }
-            body { font-family:Arial,sans-serif; font-size:11pt; color:#222; padding:20px; }
+            body { font-family:Arial,sans-serif; font-size:11pt; color:#222; padding:20px; background:#f7f4f2; }
+            .preview-toolbar {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 14px;
+                margin: -20px -20px 18px;
+                background: #ffffff;
+                border-bottom: 1px solid #d8ccc6;
+                box-shadow: 0 2px 10px rgba(0,0,0,.06);
+            }
+            .preview-toolbar .toolbar-title {
+                font-size: 10pt;
+                font-weight: bold;
+                color: #634c40;
+            }
+            .preview-toolbar .toolbar-actions {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .preview-toolbar button {
+                border: 1px solid #634c40;
+                background: #fff;
+                color: #634c40;
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 9.5pt;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .preview-toolbar button.print-btn {
+                background: #634c40;
+                color: #fff;
+            }
+            .preview-toolbar button:hover {
+                opacity: 0.94;
+            }
             .header { border-bottom:3px solid #634c40; padding-bottom:12px; margin-bottom:18px; }
             .header h1 { font-size:13pt; color:#634c40; font-weight:bold; }
             .header p { font-size:9pt; color:#666; margin-top:3px; }
@@ -1727,7 +1807,11 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
             .firma-linea { border-top:1px solid #333; margin-top:50px; margin-bottom:5px; }
             .firma-txt { font-size:9pt; color:#555; }
             .consent-box { background:#f9f4f2; border:1px solid #d4b8ac; border-radius:4px; padding:10px 14px; margin-bottom:14px; font-size:9pt; color:#444; }
-            @media print { @page { margin:15mm; size:A4; } body { padding:0; } }
+            @media print {
+                @page { margin:15mm; size:A4; }
+                body { padding:0; background:#fff; }
+                .preview-toolbar { display:none !important; }
+            }
         `;
         const procesos = [
             ['Tintura', datos.tintura], ['Decoloración', datos.decoloracion],
@@ -1740,6 +1824,13 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         return `<!DOCTYPE html><html><head><meta charset="utf-8">
         <title>Tratamiento de Alisado - ${datos.clienteNombre}</title>
         <style>${estilos}</style></head><body>
+        <div class="preview-toolbar">
+          <div class="toolbar-title">Vista previa del documento</div>
+          <div class="toolbar-actions">
+            <button type="button" class="print-btn" onclick="window.print();">Imprimir</button>
+            <button type="button" onclick="if (window.opener && !window.opener.closed) { window.opener.__gestionAlisadoPdfPreview = null; } window.close();">Cerrar</button>
+          </div>
+        </div>
         <div class="header"><h1>TRATAMIENTO DE DATOS — SERVICIO DE ALISADO</h1><p>Formulario de Gestión y Consentimiento Informado</p></div>
         <div class="fecha-box">Fecha: <strong>${datos.fecha}</strong></div>
 
@@ -1816,6 +1907,15 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
           <div class="firma-box"><div class="firma-linea"></div><div class="firma-txt"><strong>${datos.clienteNombre}</strong></div><div class="firma-txt">Doc: ${datos.clienteDocumento}</div><div class="firma-txt">Firma del Cliente</div></div>
           <div class="firma-box"><div class="firma-linea"></div><div class="firma-txt"><strong>${datos.realizadoPor}</strong></div><div class="firma-txt">Responsable del Procedimiento</div></div>
         </div>
+        <script>
+            window.addEventListener('beforeunload', function () {
+                try {
+                    if (window.opener && !window.opener.closed && window.opener.__gestionAlisadoPdfPreview === window) {
+                        window.opener.__gestionAlisadoPdfPreview = null;
+                    }
+                } catch (e) {}
+            });
+        <\/script>
         </body></html>`;
     }
 

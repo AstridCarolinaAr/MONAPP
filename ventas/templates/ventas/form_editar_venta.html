@@ -56,7 +56,7 @@
                         data-precio="{{ item.producto.precio }}"
                         data-stock="{{ item.stock }}"
                         {% if item.producto.codigo == d.producto.codigo %}selected{% endif %}>
-                  {{ item.producto.nombre }} (stock: {{ item.stock }})
+                  {{ item.producto.nombre }}{% if not item.activo %} (Inactivo){% endif %} (stock: {{ item.stock }})
                 </option>
               {% endfor %}
             </select>

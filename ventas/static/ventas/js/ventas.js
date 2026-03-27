@@ -1,4 +1,3 @@
-
 // ---------------------------
 // Utils
 // ---------------------------
@@ -13,80 +12,6 @@ function money(n) {
   return (Math.round(n * 100) / 100).toFixed(2);
 }
 
-const INPUT_RULES = {
-  numeric: {
-    pattern: /[^\d]/g,
-    allow: (text) => /^\d*$/.test(text),
-  },
-  money: {
-    pattern: /[^\d.,\s]/g,
-    allow: (text) => /^[\d.,\s]*$/.test(text),
-  },
-  text: {
-    pattern: /[^\p{L}\p{N}\s]/gu,
-    allow: (text) => /^[\p{L}\p{N}\s]*$/u.test(text),
-  },
-};
-
-function bindRestrictedInput(input, ruleName) {
-  if (!input || input.dataset.guardWired === "1" || !INPUT_RULES[ruleName]) return;
-  input.dataset.guardWired = "1";
-
-  const rule = INPUT_RULES[ruleName];
-
-  const sanitize = () => {
-    const cleaned = String(input.value || "").replace(rule.pattern, "");
-    if (cleaned !== input.value) {
-      input.value = cleaned;
-    }
-  };
-
-  input.addEventListener("beforeinput", (e) => {
-    if (!e.inputType || !e.inputType.startsWith("insert")) return;
-    if (!rule.allow(e.data || "")) e.preventDefault();
-  });
-
-  input.addEventListener("paste", (e) => {
-    const pasted = e.clipboardData?.getData("text") || "";
-    if (!rule.allow(pasted)) {
-      e.preventDefault();
-      sanitize();
-    }
-  });
-
-  input.addEventListener("input", sanitize);
-}
-
-function wireVentasGuards(scope = document) {
-  const root = scope || document;
-  [
-    "#id_cantidad",
-    "#id_precio_unitario",
-    "#motivoDevolucion",
-    "#id_motivo",
-    "#id_observacion",
-  ].forEach((selector) => {
-    const el = root.querySelector(selector) || document.querySelector(selector);
-    if (!el) return;
-
-    if (selector === "#id_precio_unitario") {
-      bindRestrictedInput(el, "money");
-    } else if (selector === "#id_cantidad") {
-      bindRestrictedInput(el, "numeric");
-    } else {
-      bindRestrictedInput(el, "text");
-    }
-  });
-
-  root.querySelectorAll('input[name^="prod_cant_"], input[name^="serv_cant_"]').forEach((el) => {
-    bindRestrictedInput(el, "numeric");
-  });
-
-  root.querySelectorAll('input[name^="prod_precio_"], input[name^="serv_precio_"]').forEach((el) => {
-    bindRestrictedInput(el, "money");
-  });
-}
-
 // ============================================================
 // 1) INIT CREAR VENTA (REUTILIZABLE: página y modal)
 // ============================================================
@@ -99,7 +24,6 @@ function initCrearVenta(scope = document) {
   // Evitar duplicar listeners si abres el modal varias veces
   if (form.dataset.initCrearVenta === "1") return;
   form.dataset.initCrearVenta = "1";
-  wireVentasGuards(form);
 
   // Elementos
   const btnAgregarItem = form.querySelector("#btnAgregarItem");
@@ -502,7 +426,6 @@ function initCrearVenta(scope = document) {
 // Init al cargar cualquier página
 document.addEventListener("DOMContentLoaded", () => {
   initCrearVenta(document);
-  wireVentasGuards(document);
 });
 
 // ============================================================
@@ -537,7 +460,6 @@ document.addEventListener("click", async function (e) {
 
     // ✅ activar lógica del formulario dentro del modal
     initCrearVenta(modalEl);
-    wireVentasGuards(modalEl);
 
     modal.show();
   } catch (err) {
@@ -594,7 +516,6 @@ document.addEventListener("submit", async function (e) {
 
       // volver a enganchar listeners
       initCrearVenta(modalEl);
-      wireVentasGuards(modalEl);
     }
   } catch (err) {
     Swal?.fire?.({

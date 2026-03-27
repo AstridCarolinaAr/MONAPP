@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 from .models import Servicio
 from .forms import ServicioForm
@@ -260,6 +261,7 @@ def eliminar_servicio(request, pk):
     return render(request, 'servicios/eliminar_servicio.html', context)
 
 @login_required
+@require_POST
 def toggle_activo_servicio(request, pk):
     if request.method == 'POST':
         servicio = get_object_or_404(Servicio, pk=pk)

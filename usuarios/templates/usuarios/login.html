@@ -52,6 +52,8 @@
         {% endfor %}
       {% endif %}
 
+      <div id="loginAttemptsInfo" class="small login-attempts-info mb-3" style="display:none;font-weight:600;"></div>
+
       <!-- ═══════ FORMULARIO LOGIN (panel principal) ═══════ -->
       <div id="panelLogin">
         <form method="post" action="{% url 'usuarios:login' %}" id="loginForm" autocomplete="off">

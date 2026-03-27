@@ -3,9 +3,23 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from .models import Personal
 from .forms import PersonalForm, PersonalBusquedaForm
+
+
+def _puede_modificar_personal(user):
+    grupos = set(user.groups.values_list("name", flat=True))
+    return user.is_superuser or "Administrador" in grupos or "Auxiliar" in grupos
+
+
+def _respuesta_no_autorizado_personal(request):
+    mensaje = "No tienes permisos para modificar personal."
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"success": False, "mensaje": mensaje}, status=403)
+    messages.error(request, mensaje)
+    return redirect("personal:lista_personal")
 
 
 @login_required
@@ -80,6 +94,8 @@ def crear_personal(request):
     """Crear nuevo personal"""
     # Verificar si es una petición AJAX para cargar el modal
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not _puede_modificar_personal(request.user):
+        return _respuesta_no_autorizado_personal(request)
     
     if request.method == 'POST':
         form = PersonalForm(request.POST)
@@ -125,6 +141,8 @@ def editar_personal(request, pk):
     """Editar información del personal"""
     personal = get_object_or_404(Personal, pk=pk)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not _puede_modificar_personal(request.user):
+        return _respuesta_no_autorizado_personal(request)
     
     if request.method == 'POST':
         form = PersonalForm(request.POST, instance=personal)
@@ -175,6 +193,8 @@ def eliminar_personal(request, pk):
     """Eliminar personal"""
     personal = get_object_or_404(Personal, pk=pk)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not _puede_modificar_personal(request.user):
+        return _respuesta_no_autorizado_personal(request)
     
     if request.method == 'POST':
         nombre_completo = f"{personal.nombres} {personal.apellidos}"
@@ -236,9 +256,12 @@ def detalle_personal(request, pk):
 
 
 @login_required
+@require_POST
 def toggle_activo_personal(request, pk):
     """Cambiar el estado activo/inactivo del personal mediante AJAX"""
     if request.method == 'POST':
+        if not _puede_modificar_personal(request.user):
+            return JsonResponse({'success': False, 'mensaje': 'No tienes permisos para modificar personal.'}, status=403)
         personal = get_object_or_404(Personal, pk=pk)
         personal.activo = not personal.activo
         personal.save()
