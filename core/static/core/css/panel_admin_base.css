@@ -3136,6 +3136,43 @@ body .sidebar-handle {
   touch-action: manipulation;
 }
 
+/* ==================== RESPONSIVE GLOBAL (TABLAS / FORMULARIOS) ==================== */
+@media (max-width: 768px) {
+    .page-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-start;
+    }
+
+    .page-actions > * {
+        max-width: 100%;
+    }
+
+    table,
+    .styled-table,
+    .personal-table {
+        max-width: 100%;
+    }
+
+    .styled-table,
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-dialog {
+        margin: 12px;
+    }
+}
+
 @media (max-width: 991px) {
   body .sidebar,
   body .sidebar.active {
