@@ -6,99 +6,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<style>
-/* Switch Toggle Styles */
-.personal-switch {
-    display: flex !important;
-    align-items: center !important;
-    gap: 16px !important;
-    padding: 16px 20px !important;
-    background: #f8f8f8 !important;
-    border-radius: 16px !important;
-    border: 1.5px solid transparent !important;
-    transition: all 0.3s ease !important;
-    margin-bottom: 20px !important;
-}
-
-.personal-switch:hover {
-    background: #f0f0f0 !important;
-    border-color: rgba(17, 17, 17, 0.1) !important;
-}
-
-.personal-switch-wrapper {
-    position: relative !important;
-    display: inline-block !important;
-    width: 54px !important;
-    height: 28px !important;
-    flex-shrink: 0 !important;
-    cursor: pointer !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"],
-input[type="checkbox"].personal-switch-input,
-#id_activo {
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    pointer-events: none !important;
-}
-
-.personal-switch-slider {
-    position: absolute !important;
-    cursor: pointer !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background-color: #ccc !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border-radius: 34px !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-}
-
-.personal-switch-slider:before {
-    position: absolute !important;
-    content: "" !important;
-    height: 20px !important;
-    width: 20px !important;
-    left: 4px !important;
-    bottom: 4px !important;
-    background-color: white !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border-radius: 50% !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider,
-input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider,
-#id_activo:checked + .personal-switch-slider {
-    background-color: #4b2f2a !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"]:focus + .personal-switch-slider,
-input[type="checkbox"].personal-switch-input:focus + .personal-switch-slider,
-#id_activo:focus + .personal-switch-slider {
-    box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2) !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider:before,
-input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:before,
-#id_activo:checked + .personal-switch-slider:before {
-    transform: translateX(26px) !important;
-}
-
-.personal-switch-label {
-    margin: 0 !important;
-    cursor: pointer !important;
-    font-weight: 500 !important;
-    color: #111 !important;
-    user-select: none !important;
-    flex-grow: 1 !important;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -129,93 +36,62 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
                 {% endif %}
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-
-                    <!-- Tipo de Documento -->
                     <div class="personal-form-group">
                         <label class="personal-form-label">Tipo de Documento <span style="color: #c7412b;">*</span></label>
-
                         <div class="personal-input-wrap">
                             {{ form.tipo_documento }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
                         {% if form.tipo_documento.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.tipo_documento.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.tipo_documento.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
                     </div>
 
-                    <!-- Número de Documento -->
                     <div class="personal-form-group">
-                        <label class="personal-form-label">Número de Documento <span style="color: #c7412b;">*</span></label>
-
+                        <label class="personal-form-label">Numero de Documento <span style="color: #c7412b;">*</span></label>
                         <div class="personal-input-wrap">
                             {{ form.numero_documento }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
-                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                            Aquí solo se pueden ingresar números
-                        </small>
-
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui solo se pueden ingresar numeros</small>
                         {% if form.numero_documento.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.numero_documento.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.numero_documento.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
                     </div>
-
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                    <!-- Nombres -->
                     <div class="personal-form-group">
                         <label class="personal-form-label">Nombres <span style="color: #c7412b;">*</span></label>
-
                         <div class="personal-input-wrap">
                             {{ form.nombres }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
-                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                            Aquí no se pueden ingresar números
-                        </small>
-
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui no se pueden ingresar numeros</small>
                         {% if form.nombres.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.nombres.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.nombres.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
                     </div>
 
-                    <!-- Apellidos -->
                     <div class="personal-form-group">
                         <label class="personal-form-label">Apellidos <span style="color: #c7412b;">*</span></label>
-
                         <div class="personal-input-wrap">
                             {{ form.apellidos }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
-                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                            Aquí no se pueden ingresar números
-                        </small>
-
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui no se pueden ingresar numeros</small>
                         {% if form.apellidos.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.apellidos.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.apellidos.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
@@ -223,47 +99,31 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                    <!-- Teléfono -->
                     <div class="personal-form-group">
-                        <label class="personal-form-label">Teléfono <span style="color: #c7412b;">*</span></label>
-
+                        <label class="personal-form-label">Telefono <span style="color: #c7412b;">*</span></label>
                         <div class="personal-input-wrap">
                             {{ form.telefono }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
-                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                            Aquí solo se pueden ingresar números
-                        </small>
-
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui solo se pueden ingresar numeros</small>
                         {% if form.telefono.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.telefono.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.telefono.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
                     </div>
 
-                    <!-- Correo -->
                     <div class="personal-form-group">
                         <label class="personal-form-label">Correo <span style="color: #c7412b;">*</span></label>
-
                         <div class="personal-input-wrap">
                             {{ form.correo }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
-                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                            Ingresa un correo válido
-                        </small>
-
+                        <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Ingresa un correo valido</small>
                         {% if form.correo.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.correo.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.correo.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
@@ -271,20 +131,15 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                    <!-- Rol -->
                     <div class="personal-form-group">
                         <label class="personal-form-label">Rol <span style="color: #c7412b;">*</span></label>
-
                         <div class="personal-input-wrap">
                             {{ form.rol }}
                             <span class="personal-valid-icon"><i class="fas fa-check"></i></span>
                             <span class="personal-invalid-icon"><i class="fas fa-exclamation-circle"></i></span>
                         </div>
-
                         {% if form.rol.errors %}
-                            <div class="personal-field-error is-visible">
-                                {{ form.rol.errors|join:", " }}
-                            </div>
+                            <div class="personal-field-error is-visible">{{ form.rol.errors|join:", " }}</div>
                         {% else %}
                             <div class="personal-field-error"></div>
                         {% endif %}
@@ -298,25 +153,4 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
 
 {% block extra_js %}
 <script src="{% static 'personal/js/personal.js' %}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Si la función ya existe en personal.js, se inicializará sola.
-        // Aquí solo mantenemos guards de respaldo para mayor seguridad física.
-        const numeroDocumento = document.querySelector('input[name="numero_documento"]');
-        if (numeroDocumento) {
-            numeroDocumento.setAttribute('maxlength', '12');
-            numeroDocumento.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 12);
-            });
-        }
-
-        const telefono = document.querySelector('input[name="telefono"]');
-        if (telefono) {
-            telefono.setAttribute('maxlength', '10');
-            telefono.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);
-            });
-        }
-    });
-</script>
 {% endblock %}

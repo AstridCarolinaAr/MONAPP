@@ -107,14 +107,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Cargar JavaScript de validaciones -->
 <script src="{% static 'usuarios/js/usuarios.js' %}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar validaciones para editar usuario
-        if (typeof inicializarValidacionesEditarUsuarioCompleto === 'function') {
-            inicializarValidacionesEditarUsuarioCompleto();
-        }
-    });
-</script>
 {% endblock %}

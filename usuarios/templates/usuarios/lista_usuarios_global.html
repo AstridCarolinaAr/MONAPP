@@ -51,15 +51,11 @@
                         </td>
                         <td class="text-end">
                             <div class="table-action-group ms-auto">
-                                <button type="button" class="btn btn-link p-0"
-                                        onclick="abrirModalDetalleUsuario({{ usuario.id }})"
-                                        title="Ver detalles">
+                                <button type="button" class="btn btn-link p-0 btn-detalle-usuario" data-usuario-action="open-detail" data-usuario-id="{{ usuario.id }}" title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 {% if permisos.usuarios.editar %}
-                                <button type="button" class="btn btn-link p-0"
-                                        onclick="abrirModalEditarUsuario({{ usuario.id }})"
-                                        title="Editar">
+                                <button type="button" class="btn btn-link p-0 btn-editar-usuario" data-usuario-action="open-edit" data-usuario-id="{{ usuario.id }}" title="Editar">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                                 {% endif %}

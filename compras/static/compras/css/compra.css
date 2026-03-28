@@ -101,6 +101,12 @@
   gap: 3px;
 }
 
+.compras-action-disabled {
+  color: #9a8f89 !important;
+  pointer-events: none !important;
+  opacity: .55 !important;
+}
+
 /* ===== BOTONES CAFÉ MONAAP ===== */
 .compras-container .btn-pill-dark,
 .modal .btn-pill-dark {

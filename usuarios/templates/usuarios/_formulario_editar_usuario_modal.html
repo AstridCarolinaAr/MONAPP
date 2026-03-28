@@ -1,23 +1,5 @@
 {% load static %}
 
-<style>
-.modal-usuario .form-control,
-.modal-usuario .form-select,
-.modal-usuario .btn,
-.modal-usuario .input-group {
-    border-radius: 16px;
-}
-.modal-usuario .input-group {
-    overflow: hidden;
-}
-.modal-usuario .input-group .input-group-text {
-    border-radius: 16px 0 0 16px;
-}
-.modal-usuario .input-group .form-control {
-    border-radius: 0 16px 16px 0 !important;
-}
-</style>
-
 <form method="post" id="form-editar-usuario" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     
@@ -147,7 +129,7 @@
 
     <!-- Botones -->
     <div class="mt-4 text-end">
-        <button type="button" class="btn btn-secondary me-2" onclick="cerrarModalEditarUsuario()">
+        <button type="button" class="btn btn-secondary me-2" data-usuario-action="close-edit">
             <i class="bi bi-x-circle"></i> Cancelar
         </button>
         <button type="submit" 

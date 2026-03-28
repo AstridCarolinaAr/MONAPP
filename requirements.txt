@@ -24,5 +24,7 @@ sqlparse==0.5.4
 typing_extensions==4.15.0
 tzdata==2025.2
 opencv-python-headless==4.13.0.92
+plotly==6.6.0
+kaleido==1.2.0
 urllib3==2.6.3
 uv==0.9.4

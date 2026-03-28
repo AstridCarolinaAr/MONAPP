@@ -26,7 +26,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid" id="servicios-page"
+     data-crear-servicio-url="{% url 'servicios:crear_servicio' %}"
+     data-lista-servicios-url="{% url 'servicios:lista_servicios' %}">
 
     {% if messages %}
         {% for message in messages %}
@@ -139,13 +141,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-window.URLS = {
-    crearServicio  : "{% url 'servicios:crear_servicio' %}",
-    listaServicios : "{% url 'servicios:lista_servicios' %}",
-    editarServicio : "{% url 'servicios:editar_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000/', ''),
-    toggleActivo   : "{% url 'servicios:toggle_activo_servicio' pk='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000/', ''),
-};
-</script>
 <script src="{% static 'servicios/js/servicios.js' %}"></script>
 {% endblock %}

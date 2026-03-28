@@ -13,7 +13,7 @@
 
 {% block page_actions %}
 {% if puede_modificar %}
-<button type="button" class="btn-pill-dark" onclick="abrirModalPersonal()">
+<button type="button" class="btn-pill-dark" data-personal-action="open-create">
     <i class="fas fa-plus"></i> Nuevo Personal
 </button>
 {% endif %}
@@ -23,273 +23,11 @@
 <link rel="stylesheet" href="{% static 'personal/css/personal.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-<style>
-    /* Estilos para el modal */
-    .modal-personal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    .modal-personal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-    }
-
-    .modal-personal-content {
-        position: relative;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        width: 90%;
-        max-width: 900px;
-        max-height: 92vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(50px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    .modal-personal-header {
-        padding: 16px 22px;
-        background: linear-gradient(135deg, #1a0a0a 0%, #3a2117 60%, #4b2f2a 100%);
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 3px solid #6b4423;
-    }
-
-    .modal-personal-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .modal-personal-close {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-
-    .modal-personal-close:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: rotate(90deg);
-    }
-
-    .modal-personal-body {
-        padding: 18px 22px;
-        overflow-y: auto;
-        max-height: calc(92vh - 82px);
-    }
-
-    #modalDetallePersonal .modal-personal-body {
-        overflow-y: visible;
-        max-height: none;
-    }
-
-    #modalDetallePersonal .modal-personal-content {
-        max-height: none;
-        overflow: visible;
-    }
-
-    /* Scrollbar personalizada para el modal */
-    .modal-personal-body::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .modal-personal-body::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .modal-personal-body::-webkit-scrollbar-thumb {
-        background: #4b2f2a;
-        border-radius: 4px;
-    }
-
-    .modal-personal-body::-webkit-scrollbar-thumb:hover {
-        background: #3a2117;
-    }
-
-    /* Switch para la tabla */
-    .table-switch-wrapper {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 26px;
-    }
-
-    .table-switch-wrapper input[type="checkbox"] {
-        opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-        position: absolute !important;
-    }
-
-    .table-switch-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 34px;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .table-switch-slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .table-switch-wrapper input[type="checkbox"]:checked+.table-switch-slider {
-        background-color: #4b2f2a;
-    }
-
-    .table-switch-wrapper input[type="checkbox"]:disabled+.table-switch-slider {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .table-switch-wrapper input[type="checkbox"]:checked+.table-switch-slider:before {
-        transform: translateX(24px);
-    }
-
-    .table-switch-wrapper input[type="checkbox"]:focus+.table-switch-slider {
-        box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2);
-    }
-
-    .personal-search-card {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        padding: 20px 18px;
-    }
-
-    .personal-search-form {
-        display: block;
-        width: 100%;
-    }
-
-    .personal-search-form .personal-form-group {
-        width: 100%;
-        max-width: 870px;
-        margin-bottom: 0;
-    }
-
-    .personal-search-global-wrap {
-        display: block;
-        width: 100%;
-        margin-top: 2px;
-    }
-
-    .personal-search-global-form {
-        width: 100%;
-        max-width: 380px;
-    }
-
-    .personal-search-global-form input[type="text"],
-    .personal-search-global-form input[type="search"] {
-        height: 42px;
-    }
-
-    .personal-search-global-form .btn,
-    .personal-search-global-form button,
-    .personal-search-global-form [type="submit"] {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        padding: 0;
-        margin: 0 !important;
-        position: static !important;
-        transform: none !important;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
-
-    @media (max-width: 768px) {
-
-        .personal-search-form .personal-form-group,
-        .personal-search-global-form {
-            max-width: 100%;
-        }
-    }
-
-    .personal-search-label{
-        font-size: .72rem;
-        font-weight: 800;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        color: #8b6f60;
-        margin: 0 0 6px 10px;
-        user-select: none;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="personal-wrapper">
+<div class="personal-wrapper" id="personal-page" data-crear-url="{% url 'personal:crear_personal' %}" data-list-url="{% url 'personal:lista_personal' %}">
     <div class="personal-container">
-        <!-- Header -->
-        <!-- Header -->
         <div class="personal-header mb-4">
             <div class="personal-header-top">
                 <div>
@@ -300,6 +38,7 @@
                 </div>
             </div>
         </div>
+
         <div class="module-filters-card">
             <div class="module-filters-form">
                 <div class="module-filter-field module-filter-field--wide">
@@ -318,523 +57,93 @@
                         {% if current_dir %}
                         <input type="hidden" name="dir" value="{{ current_dir }}">
                         {% endif %}
-
-                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, correo, teléfono o id...' search_value=q name='q' modo='inline' %}
+                        {% include 'core/componentes/busqueda_global.html' with placeholder='Buscar por nombre, correo, telefono o id...' search_value=q name='q' modo='inline' %}
                     </form>
                 </div>
 
                 <div class="module-filter-field module-filter-field--medium">
                     <label class="module-filter-label">Filtrar</label>
-                    <div class="personal-custom-filter-wrap" style="position: relative;">
-                        <button type="button" class="btn btn-filter" id="personal-filter-toggle"
-                                onclick="var m=document.getElementById('personal-filter-menu'); m.style.display=(m.style.display==='block'?'none':'block');">
+                    <div class="personal-custom-filter-wrap">
+                        <button type="button" class="btn btn-filter" id="personal-filter-toggle" data-personal-action="toggle-filter-menu">
                             <i class="bi bi-funnel"></i>
                             Filtrar
-                            <i class="bi bi-chevron-down" style="font-size:10px;"></i>
+                            <i class="bi bi-chevron-down"></i>
                         </button>
 
-                        <div id="personal-filter-menu" class="personal-filter-menu-panel"
-                             style="display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:190px; background:#fff; border-radius:14px; border:1px solid rgba(59,47,47,.12); padding:.5rem; z-index:2000; box-shadow:0 8px 24px rgba(59,47,47,.15);">
-                            <div class="personal-filter-option {% if not request.GET.filtro or request.GET.filtro == 'todos' %}active{% endif %}"
-                                 onclick="personalSetFiltro('todos', this)">Todos</div>
-                            <div class="personal-filter-option {% if request.GET.filtro == 'activo' %}active{% endif %}"
-                                 onclick="personalSetFiltro('activo', this)">Activos</div>
-                            <div class="personal-filter-option {% if request.GET.filtro == 'inactivo' %}active{% endif %}"
-                                 onclick="personalSetFiltro('inactivo', this)">Inactivos</div>
+                        <div id="personal-filter-menu" class="personal-filter-menu-panel">
+                            <div class="personal-filter-option {% if not request.GET.filtro or request.GET.filtro == 'todos' %}active{% endif %}" data-personal-action="set-filter" data-filter-value="todos">Todos</div>
+                            <div class="personal-filter-option {% if request.GET.filtro == 'activo' %}active{% endif %}" data-personal-action="set-filter" data-filter-value="activo">Activos</div>
+                            <div class="personal-filter-option {% if request.GET.filtro == 'inactivo' %}active{% endif %}" data-personal-action="set-filter" data-filter-value="inactivo">Inactivos</div>
                             {% for value, label in form.filtro.field.choices %}
                                 {% if value != 'activo' and value != 'inactivo' and value != 'todos' %}
-                                    <div class="personal-filter-option {% if request.GET.filtro == value %}active{% endif %}"
-                                         onclick="personalSetFiltro('{{ value }}', this)">{{ label }}</div>
+                                    <div class="personal-filter-option {% if request.GET.filtro == value %}active{% endif %}" data-personal-action="set-filter" data-filter-value="{{ value }}">{{ label }}</div>
                                 {% endif %}
                             {% endfor %}
-                            <hr style="margin:.4rem 0; border-color:rgba(59,47,47,.1);">
-                            <div class="personal-filter-option text-danger"
-                                 onclick="personalClearFiltro(this)">Quitar filtros</div>
+                            <hr class="personal-filter-separator">
+                            <div class="personal-filter-option text-danger" data-personal-action="clear-filter">Quitar filtros</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <script>
-        // Cerrar el menú al hacer click fuera
-        document.addEventListener('click', function(e) {
-            var wrap = document.querySelector('.personal-custom-filter-wrap');
-            var menu = document.getElementById('personal-filter-menu');
-            if (menu && wrap && !wrap.contains(e.target)) {
-                menu.style.display = 'none';
-            }
-        });
-
-        function personalSetFiltro(value, clickedEl) {
-            var hiddenFiltro = document.getElementById('personal-hidden-filtro');
-            var menu = document.getElementById('personal-filter-menu');
-            if (!hiddenFiltro) return;
-            hiddenFiltro.value = value;
-
-            // Cerrar menú
-            if (menu) menu.style.display = 'none';
-
-            // Marcar activo visualmente
-            document.querySelectorAll('.personal-filter-option').forEach(function(el) {
-                el.classList.remove('active');
-            });
-            if (clickedEl) clickedEl.classList.add('active');
-
-            // Disparar AJAX o submit normal
-            var frm = hiddenFiltro.form;
-            if (frm) {
-                if (frm._submitAjaxSearch) {
-                    frm._submitAjaxSearch(true);
-                } else {
-                    frm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                }
-            }
-        }
-
-        function personalClearFiltro(clickedEl) {
-            var qInput = document.querySelector('#personal-filter-form [name=q]');
-            if (qInput) qInput.value = '';
-            personalSetFiltro('todos', document.querySelector('.personal-filter-option'));
-        }
-        </script>
-
         <div id="personal-results" class="ajax-results-container">
             {% include 'personal/lista_personal_global.html' %}
         </div>
 
-        <!-- Modal para agregar personal -->
-        <div id="modalPersonal" class="modal-personal" style="display: none;">
-            <div class="modal-personal-overlay" onclick="cerrarModalPersonal()"></div>
+        <div id="modalPersonal" class="modal-personal" style="display:none;">
+            <div class="modal-personal-overlay" data-personal-action="close-modal" data-modal-id="modalPersonal"></div>
             <div class="modal-personal-content">
                 <div class="modal-personal-header">
                     <h3><i class="fas fa-plus"></i> Nuevo personal</h3>
-                    <button type="button" class="modal-personal-close" onclick="cerrarModalPersonal()"><i
-                            class="fas fa-times"></i></button>
+                    <button type="button" class="modal-personal-close" data-personal-action="close-modal" data-modal-id="modalPersonal"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-personal-body" id="modalPersonalBody">
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4b2f2a;"></i>
-                        <p style="margin-top: 16px; color: #4b2f2a;">Cargando formulario...</p>
+                    <div style="text-align:center; padding:40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#4b2f2a;"></i>
+                        <p style="margin-top:16px; color:#4b2f2a;">Cargando formulario...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="modalEditarPersonal" class="modal-personal" style="display: none;">
-            <div class="modal-personal-overlay" onclick="cerrarModalEditarPersonal()"></div>
+        <div id="modalEditarPersonal" class="modal-personal" style="display:none;">
+            <div class="modal-personal-overlay" data-personal-action="close-modal" data-modal-id="modalEditarPersonal"></div>
             <div class="modal-personal-content">
                 <div class="modal-personal-header">
                     <h3><i class="bi bi-pencil-square"></i> Editar Personal</h3>
-                    <button type="button" class="modal-personal-close" onclick="cerrarModalEditarPersonal()"><i
-                            class="fas fa-times"></i></button>
+                    <button type="button" class="modal-personal-close" data-personal-action="close-modal" data-modal-id="modalEditarPersonal"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-personal-body" id="modalEditarPersonalBody">
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4b2f2a;"></i>
-                        <p style="margin-top: 16px; color: #4b2f2a;">Cargando formulario...</p>
+                    <div style="text-align:center; padding:40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#4b2f2a;"></i>
+                        <p style="margin-top:16px; color:#4b2f2a;">Cargando formulario...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="modalDetallePersonal" class="modal-personal" style="display: none;">
-            <div class="modal-personal-overlay" onclick="cerrarModalDetallePersonal()"></div>
+        <div id="modalDetallePersonal" class="modal-personal" style="display:none;">
+            <div class="modal-personal-overlay" data-personal-action="close-modal" data-modal-id="modalDetallePersonal"></div>
             <div class="modal-personal-content proveedor-detail-modal personal-detail-modal">
                 <div class="modal-personal-header proveedor-detail-header">
                     <h3 class="modal-title"><i class="fas fa-user-circle"></i> Detalle de personal</h3>
-                    <button type="button" class="modal-personal-close" onclick="cerrarModalDetallePersonal()"><i
-                            class="fas fa-times"></i></button>
+                    <button type="button" class="modal-personal-close" data-personal-action="close-modal" data-modal-id="modalDetallePersonal"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="modal-personal-body proveedor-detail-body personal-detail-body"
-                    id="modalDetallePersonalBody">
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4b2f2a;"></i>
-                        <p style="margin-top: 16px; color: #4b2f2a;">Cargando información...</p>
+                <div class="modal-personal-body proveedor-detail-body personal-detail-body" id="modalDetallePersonalBody">
+                    <div style="text-align:center; padding:40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#4b2f2a;"></i>
+                        <p style="margin-top:16px; color:#4b2f2a;">Cargando informacion...</p>
                     </div>
                 </div>
             </div>
         </div>
-        {% endblock %}
+    </div>
+</div>
+{% endblock %}
 
-        {% block extra_js %}
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="{% static 'personal/js/personal.js' %}"></script>
-        <script>
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i += 1) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === `${name}=`) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            function showModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (!modal) return;
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
-
-            function hideModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (!modal) return;
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-
-            function requestJson(url, options = {}) {
-                const headers = new Headers(options.headers || {});
-                headers.set('X-Requested-With', 'XMLHttpRequest');
-
-                return fetch(url, { credentials: 'same-origin', ...options, headers })
-                    .then(async (response) => {
-                        const rawText = await response.text();
-                        let data = null;
-
-                        try {
-                            data = rawText ? JSON.parse(rawText) : {};
-                        } catch (e) {
-                            const snippet = (rawText || '').replace(/\s+/g, ' ').slice(0, 140);
-                            throw new Error(`Respuesta inválida del servidor (HTTP ${response.status}). ${snippet}`);
-                        }
-
-                        if (!response.ok) {
-                            const msg =
-                                (data && (data.message || data.mensaje || data.detail)) ||
-                                `HTTP ${response.status}`;
-                            throw new Error(msg);
-                        }
-
-                        return data;
-                    });
-            }
-
-            function showLoadError(targetId, message) {
-                const target = document.getElementById(targetId);
-                if (!target) return;
-                target.innerHTML = `
-        <div class="personal-alert danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>${message}</span>
-        </div>
-    `;
-            }
-
-            function bindDynamicValidations() {
-                if (typeof inicializarValidacionesPersonal === 'function') {
-                    inicializarValidacionesPersonal();
-                }
-
-                // Generar Custom Selects
-                const selects = document.querySelectorAll('#form-crear-personal select, #form-editar-personal select');
-                selects.forEach(select => {
-                    if (select.dataset.customized) return;
-                    select.dataset.customized = 'true';
-                    
-                    select.style.display = 'none';
-                    
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'custom-select-wrapper position-relative w-100';
-                    
-                    const trigger = document.createElement('div');
-                    trigger.className = 'personal-form-control d-flex align-items-center justify-content-between';
-                    trigger.style.cursor = 'pointer';
-                    trigger.style.backgroundColor = '#ffffff';
-                    trigger.style.paddingRight = '14px';
-                    trigger.style.height = '46px';
-                    trigger.style.color = '#111';
-                    
-                    const selectedOption = select.options[select.selectedIndex];
-                    const initialText = selectedOption ? selectedOption.text : 'Seleccione...';
-                    
-                    trigger.innerHTML = `
-                        <span class="custom-label" style="font-size: 0.95rem;">${initialText}</span>
-                        <i class="bi bi-chevron-down" style="color: #4b2f2a; font-size: 0.85rem;"></i>
-                    `;
-                    
-                    const menu = document.createElement('div');
-                    menu.className = 'custom-select-options position-absolute w-100 shadow-sm';
-                    menu.style.top = '100%';
-                    menu.style.left = '0';
-                    menu.style.marginTop = '6px';
-                    menu.style.backgroundColor = '#ffffff';
-                    menu.style.borderRadius = '16px';
-                    menu.style.border = '1px solid rgba(198, 162, 136, 0.2)';
-                    menu.style.zIndex = '1060';
-                    menu.style.display = 'none';
-                    menu.style.overflow = 'hidden';
-                    menu.style.padding = '6px 0';
-                    
-                    Array.from(select.options).forEach(opt => {
-                        if (!opt.value && opt.text.trim().toLowerCase() === '---------') opt.text = 'Seleccione una opción';
-                        const val = opt.value, text = opt.text;
-                        
-                        const item = document.createElement('div');
-                        item.className = 'custom-select-option px-3 py-2';
-                        item.style.cursor = 'pointer'; item.style.transition = 'background-color 0.2s';
-                        item.style.fontSize = '0.95rem'; item.style.color = '#4b2f2a';
-                        
-                        const isActive = (select.value === val);
-                        item.style.fontWeight = isActive ? '700' : '500';
-                        item.style.backgroundColor = isActive ? '#eaddd3' : 'transparent';
-                        item.innerHTML = text;
-                        
-                        item.onmouseenter = function() { if (select.value !== val) this.style.backgroundColor = '#fbf5f0'; };
-                        item.onmouseleave = function() { if (select.value !== val) this.style.backgroundColor = 'transparent'; };
-                        
-                        item.onclick = function(e) {
-                            e.stopPropagation();
-                            select.value = val;
-                            select.dispatchEvent(new Event('change', { bubbles: true })); select.dispatchEvent(new Event('input', { bubbles: true }));
-                            trigger.querySelector('.custom-label').innerText = text;
-                            Array.from(menu.children).forEach(child => { child.style.backgroundColor = 'transparent'; child.style.fontWeight = '500'; });
-                            this.style.backgroundColor = '#eaddd3'; this.style.fontWeight = '700';
-                            menu.style.display = 'none';
-                        };
-                        menu.appendChild(item);
-                    });
-                    
-                    trigger.onclick = function(e) {
-                        e.stopPropagation();
-                        document.querySelectorAll('.custom-select-options').forEach(m => { if (m !== menu) m.style.display = 'none'; });
-                        menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';
-                    };
-                    
-                    const observer = new MutationObserver(mutations => {
-                        mutations.forEach(m => {
-                            if (m.attributeName === 'class') {
-                                if (select.classList.contains('is-invalid')) { trigger.style.borderColor = '#dc3545'; trigger.style.boxShadow = '0 0 0 0.25rem rgba(220, 53, 69, 0.25)'; }
-                                else if (select.classList.contains('is-valid')) { trigger.style.borderColor = '#198754'; trigger.style.boxShadow = 'none'; }
-                                else { trigger.style.borderColor = 'rgba(198, 162, 136, 0.5)'; trigger.style.boxShadow = 'none'; }
-                            }
-                        });
-                    });
-                    observer.observe(select, { attributes: true });
-
-                    wrapper.appendChild(trigger); wrapper.appendChild(menu);
-                    select.parentNode.insertBefore(wrapper, select.nextSibling);
-                });
-            }
-
-            function enviarFormularioFiltro(form) {
-                if (form) {
-                    form.submit();
-                }
-            }
-
-            function bindPersonalForm(formId, submitFn) {
-                const form = document.getElementById(formId);
-                if (!form) return;
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    submitFn(form);
-                });
-            }
-
-            function abrirModalPersonal() {
-                showModal('modalPersonal');
-                requestJson("{% url 'personal:crear_personal' %}")
-                    .then((data) => {
-                        const modalBody = document.getElementById('modalPersonalBody');
-                        if (!modalBody) return;
-                        modalBody.innerHTML = data.html_form;
-                        bindDynamicValidations();
-                        bindPersonalForm('form-crear-personal', enviarFormularioPersonal);
-                    })
-                    .catch((err) => {
-                        showLoadError('modalPersonalBody', (err && err.message) ? err.message : 'Error al cargar el formulario. Intenta nuevamente.');
-                    });
-            }
-
-            function cerrarModalPersonal() {
-                hideModal('modalPersonal');
-            }
-
-            function enviarFormularioPersonal(form) {
-                const formData = new FormData(form);
-                requestJson("{% url 'personal:crear_personal' %}", { method: 'POST', body: formData })
-                    .then((data) => {
-                        if (data.success) {
-                            cerrarModalPersonal();
-                            Swal.fire({ title: 'Creado exitosamente', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false, confirmButtonColor: '#5d4037' })
-                                .then(() => location.reload());
-                            return;
-                        }
-                        const modalBody = document.getElementById('modalPersonalBody');
-                        if (!modalBody) return;
-                        modalBody.innerHTML = data.html_form;
-                        bindDynamicValidations();
-                        bindPersonalForm('form-crear-personal', enviarFormularioPersonal);
-                    })
-                    .catch((err) => {
-                        showLoadError('modalPersonalBody', (err && err.message) ? err.message : 'Error al guardar. Intenta nuevamente.');
-                    });
-            }
-
-            function abrirModalEditarPersonal(personalId) {
-                showModal('modalEditarPersonal');
-                requestJson(`/personal/${personalId}/editar/`)
-                    .then((data) => {
-                        const modalBody = document.getElementById('modalEditarPersonalBody');
-                        if (!modalBody) return;
-                        modalBody.innerHTML = data.html_form;
-                        bindDynamicValidations();
-                        bindPersonalForm('form-editar-personal', function (form) {
-                            enviarFormularioEditarPersonal(form, personalId);
-                        });
-                    })
-                    .catch((err) => {
-                        showLoadError('modalEditarPersonalBody', (err && err.message) ? err.message : 'Error al cargar el formulario de edicion. Intenta nuevamente.');
-                    });
-            }
-
-            function cerrarModalEditarPersonal() {
-                hideModal('modalEditarPersonal');
-            }
-
-            function enviarFormularioEditarPersonal(form, personalId) {
-                const formData = new FormData(form);
-                requestJson(`/personal/${personalId}/editar/`, { method: 'POST', body: formData })
-                    .then((data) => {
-                        if (data.success) {
-                            cerrarModalEditarPersonal();
-                            Swal.fire({ title: 'Actualizado exitosamente', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false, confirmButtonColor: '#5d4037' })
-                                .then(() => location.reload());
-                            return;
-                        }
-                        const modalBody = document.getElementById('modalEditarPersonalBody');
-                        if (!modalBody) return;
-                        modalBody.innerHTML = data.html_form;
-                        bindDynamicValidations();
-                        bindPersonalForm('form-editar-personal', function (newForm) {
-                            enviarFormularioEditarPersonal(newForm, personalId);
-                        });
-                    })
-                    .catch((err) => {
-                        showLoadError('modalEditarPersonalBody', (err && err.message) ? err.message : 'Error al guardar cambios. Intenta nuevamente.');
-                    });
-            }
-
-            function abrirModalDetallePersonal(personalId) {
-                showModal('modalDetallePersonal');
-                requestJson(`/personal/${personalId}/detalle/`)
-                    .then((data) => {
-                        const modalBody = document.getElementById('modalDetallePersonalBody');
-                        if (!modalBody) return;
-                        modalBody.innerHTML = data.html_content;
-                    })
-                    .catch(() => {
-                        showLoadError('modalDetallePersonalBody', 'Error al cargar la informacion. Intenta nuevamente.');
-                    });
-            }
-
-            function cerrarModalDetallePersonal() {
-                hideModal('modalDetallePersonal');
-            }
-
-            function abrirModalEliminarPersonal(personalId) {
-                const csrftoken = getCookie('csrftoken');
-                Swal.fire({
-                    title: 'Estas seguro?',
-                    text: 'Esta accion no se puede deshacer',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5d4037',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Si, eliminar',
-                    cancelButtonText: 'Cancelar',
-                    showLoaderOnConfirm: true,
-                    preConfirm: () => {
-                        return fetch(`/personal/${personalId}/eliminar/`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': csrftoken,
-                                'X-Requested-With': 'XMLHttpRequest',
-                            },
-                        })
-                            .then((response) => {
-                                if (!response.ok) throw new Error('Error en la solicitud');
-                                return response.json();
-                            })
-                            .then((data) => {
-                                if (!data.success) throw new Error(data.message || 'Error al eliminar');
-                                return data;
-                            })
-                            .catch((error) => {
-                                Swal.showValidationMessage(`Error: ${error.message}`);
-                            });
-                    },
-                    allowOutsideClick: () => !Swal.isLoading(),
-                }).then((result) => {
-                    if (!result.isConfirmed) return;
-                    Swal.fire({ title: 'Eliminado', text: result.value.message || 'Personal eliminado exitosamente', icon: 'success', timer: 1500, showConfirmButton: false, confirmButtonColor: '#5d4037' })
-                        .then(() => location.reload());
-                });
-            }
-
-            function actualizarEstadoPersonal(switchElement) {
-                const personalId = switchElement.dataset.personalId;
-                const personalNombre = switchElement.dataset.personalNombre;
-                const isChecked = switchElement.checked;
-                const csrftoken = getCookie('csrftoken');
-
-                switchElement.disabled = true;
-
-                fetch(`/personal/${personalId}/toggle-activo/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.success) {
-                            switchElement.disabled = false;
-                            Swal.fire({ title: 'Estado actualizado', text: `${personalNombre} ahora ${data.activo ? 'esta activo' : 'ya no esta activo'}`, icon: 'success', timer: 1800, showConfirmButton: false, confirmButtonColor: '#5d4037' });
-                            return;
-                        }
-
-                        switchElement.checked = !isChecked;
-                        switchElement.disabled = false;
-                        Swal.fire({ title: 'Error', text: data.mensaje || 'Error al cambiar el estado', icon: 'error', confirmButtonColor: '#5d4037' });
-                    })
-                    .catch(() => {
-                        switchElement.checked = !isChecked;
-                        switchElement.disabled = false;
-                        Swal.fire({ title: 'Error de conexion', text: 'No se pudo cambiar el estado. Intenta nuevamente.', icon: 'error', confirmButtonColor: '#5d4037' });
-                    });
-            }
-
-            document.addEventListener('change', function (e) {
-                if (!e.target.classList.contains('toggle-activo-checkbox')) return;
-                actualizarEstadoPersonal(e.target);
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key !== 'Escape') return;
-                cerrarModalPersonal();
-                cerrarModalEditarPersonal();
-                cerrarModalDetallePersonal();
-            });
-
-            // Cierra el custom dropdown al hacer click fuera
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.custom-select-wrapper')) {
-                    document.querySelectorAll('.custom-select-options').forEach(function(el) {
-                        el.style.display = 'none';
-                    });
-                }
-            });
-        </script>
-        {% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'personal/js/personal.js' %}"></script>
+<script src="{% static 'personal/js/lista_personal.js' %}"></script>
+{% endblock %}

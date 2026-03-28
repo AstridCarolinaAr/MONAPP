@@ -57,7 +57,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        <span class="badge bg-secondary text-uppercase" style="font-size:.75rem;">{{ p.get_etiqueta_display }}</span>
+                        <span class="badge bg-secondary text-uppercase promo-tag-badge">{{ p.get_etiqueta_display }}</span>
                     </td>
                     <td class="text-center">
                         <span class="promo-discount">{{ p.porcentaje_descuento }}%</span>
@@ -87,10 +87,10 @@
                                 data-nombre="{{ p.nombre|escapejs }}"
                                 data-descripcion="{{ p.descripcion|escapejs }}"
                                 data-etiqueta="{{ p.get_etiqueta_display }}"
-                                data-descuento="{{ p.porcentaje_descuento|stringformat:".2f" }}"
+                                data-descuento="{{ p.porcentaje_descuento|stringformat:'.2f' }}"
                                 data-inicio="{{ p.fecha_inicio|date:'d/m/Y' }}"
                                 data-fin="{{ p.fecha_fin|date:'Y-m-d' }}"
-                                data-activa="{{ p.activa|yesno:'Sí,No' }}"
+                                data-activa="{{ p.activa|yesno:'Si,No' }}"
                                 data-imagen-url="{% if p.imagen %}{{ p.imagen.url }}{% endif %}"
                                 data-creado="{{ p.fecha_creacion|date:'d/m/Y H:i' }}"
                                 data-modificado="{{ p.fecha_modificacion|date:'d/m/Y H:i' }}"
@@ -103,7 +103,7 @@
                                 data-nombre="{{ p.nombre }}"
                                 data-etiqueta="{{ p.etiqueta }}"
                                 data-descripcion="{{ p.descripcion }}"
-                                data-descuento="{{ p.porcentaje_descuento|stringformat:".2f" }}"
+                                data-descuento="{{ p.porcentaje_descuento|stringformat:'.2f' }}"
                                 data-inicio="{{ p.fecha_inicio|date:'Y-m-d' }}"
                                 data-fin="{{ p.fecha_fin|date:'Y-m-d' }}"
                                 data-activa="{{ p.activa|yesno:'true,false' }}"
@@ -113,30 +113,26 @@
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         {% if permisos.roles.es_admin %}
-                        <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-promo promo-action-btn promo-action-btn--danger"
+                        <button type="button" class="btn btn-outline-danger btn-sm ms-1 btn-eliminar-promo promo-action-btn promo-action-btn--danger promo-delete-action"
                                 data-nombre="{{ p.nombre }}"
                                 data-url="{% url 'promociones:eliminar' p.pk %}"
-                                style="color:#382822;"
                                 title="Eliminar">
-                            <i class="bi bi-trash3" style="font-size:24px;"></i>
+                            <i class="bi bi-trash3"></i>
                         </button>
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center py-5" style="background-color: #fcf9f7;">
+                    <td colspan="8" class="text-center py-5 promo-empty-cell">
                         <div class="d-flex flex-column align-items-center gap-3 py-4">
-                            <div style="width: 80px; height: 80px; background: rgba(141, 96, 74, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(141, 96, 74, 0.05);">
-                                <i class="bi bi-percent" style="font-size: 2.2rem; color: #8d604a; opacity: 0.85;"></i>
+                            <div class="promo-empty-state">
+                                <i class="bi bi-percent"></i>
                             </div>
                             <div>
-                                <h4 style="font-size: 1.25rem; font-weight: 700; color: #3a2117; margin-bottom: 6px;">No hay promociones registradas</h4>
-                                <p style="color: #8b6f60; font-size: 0.95rem; max-width: 420px; margin: 0 auto; line-height: 1.5;">Parece que aún no tienes ofertas activas. Comienza publicando tu primera promoción para atraer a más clientes con descuentos exclusivos.</p>
+                                <h4 class="promo-empty-title">No hay promociones registradas</h4>
+                                <p class="promo-empty-text">Parece que aun no tienes ofertas activas. Comienza publicando tu primera promocion para atraer a mas clientes con descuentos exclusivos.</p>
                             </div>
-                            <button type="button" class="btn btn-pill-dark mt-2" data-bs-toggle="modal" data-bs-target="#modalAgregar" style="white-space: nowrap !important; width: fit-content !important; padding: 10px 24px; font-size: 0.9rem; border: none; outline: none; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <i class="bi bi-plus-lg"></i> Crear mi primera promoción
-                            </button>
                         </div>
                     </td>
                 </tr>

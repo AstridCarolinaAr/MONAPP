@@ -1963,6 +1963,29 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
     box-shadow: none !important;
 }
 
+.personal-custom-filter-wrap {
+    position: relative;
+}
+
+.personal-filter-menu-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 190px;
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid rgba(59, 47, 47, .12);
+    padding: .5rem;
+    z-index: 2000;
+    box-shadow: 0 8px 24px rgba(59, 47, 47, .15);
+}
+
+.personal-filter-separator {
+    margin: .4rem 0;
+    border-color: rgba(59, 47, 47, .1);
+}
+
 /* =============================
    DROPDOWN FILTROS PERSONAL
 ============================= */
@@ -2021,4 +2044,52 @@ input[type="checkbox"].personal-switch-input:checked+.personal-switch-slider:bef
 
 .personal-filter-option.text-danger:hover {
     background: #fff0f0;
+}
+
+/* =============================
+   ESTADO VACIO PERSONAL
+============================= */
+.personal-empty-cell {
+    padding: 60px 20px;
+    background-color: #fdfaf7;
+}
+
+.personal-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.personal-empty-state-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(75, 47, 42, 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    box-shadow: 0 8px 24px rgba(75, 47, 42, 0.05);
+}
+
+.personal-empty-state-icon i {
+    font-size: 2rem;
+    color: #4b2f2a;
+    opacity: 0.8;
+}
+
+.personal-empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3a2117;
+    margin-bottom: 6px;
+}
+
+.personal-empty-state-text {
+    color: #8b6f60;
+    font-size: 0.95rem;
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.5;
 }

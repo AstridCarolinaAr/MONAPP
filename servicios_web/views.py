@@ -42,7 +42,7 @@ def crear_servicio_web(request):
     else:
         form = ServicioWebForm()
 
-    template_name = 'servicios_web/_servicio_web_form.html' if is_modal else 'servicios_web/crear_servicio_web.html'
+    template_name = 'servicios_web/_servicio_web_form.html' if is_modal else 'servicios_web/crear_servicio.html'
 
     context = {
         'form': form,
@@ -81,7 +81,7 @@ def editar_servicio_web(request, pk):
     else:
         form = ServicioWebForm(instance=servicio_web)
 
-    template_name = 'servicios_web/_servicio_web_form.html' if is_modal else 'servicios_web/editar_servicio_web.html'
+    template_name = 'servicios_web/_servicio_web_form.html' if is_modal else 'servicios_web/editar_servicio.html'
 
     context = {
         'form': form,
@@ -151,7 +151,7 @@ def eliminar_servicio_web(request, pk):
         messages.success(request, f'Servicio Web "{nombre}" eliminado exitosamente.')
         return redirect('servicios_web:lista_servicios_web')
 
-    return render(request, 'servicios_web/eliminar_servcio.html', {
+    return render(request, 'servicios_web/eliminar_servicio.html', {
         'servicio_web': servicio_web,
     })
 

@@ -419,6 +419,25 @@ function inicializarValidacionesPersonal() {
         actualizarEstadoBoton();
     }
 
+    function aplicarLimitesBasicos() {
+        const numeroDocumento = form.querySelector('input[name="numero_documento"]');
+        if (numeroDocumento) {
+            numeroDocumento.setAttribute('maxlength', '12');
+            numeroDocumento.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 12);
+            });
+        }
+
+        const telefono = form.querySelector('input[name="telefono"]');
+        if (telefono) {
+            telefono.setAttribute('maxlength', '10');
+            telefono.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);
+            });
+        }
+    }
+
+    aplicarLimitesBasicos();
     setTimeout(validarValoresIniciales, 0);
 }
 

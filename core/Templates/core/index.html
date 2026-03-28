@@ -1,4 +1,4 @@
-{% extends 'master.html' %}
+﻿{% extends 'master.html' %}
 {% load static %}
 
 {% block title %}
@@ -20,10 +20,10 @@ Servicios
     <!-- ==================== HERO ==================== -->
     <section class="sq-hero" id="inicio">
         <div class="sq-hero-inner">
-            <h1 class="sq-hero-brand">MONAKERATINA</h1>
-            <video class="sq-brand-video-fill" autoplay muted loop playsinline>
-                <source src="{% static 'core/mp4/brand.mp4' %}" type="video/mp4">
-            </video>
+            <h1 class="visually-hidden">MONAKERATINA</h1>
+            <div class="sq-hero-brand-wrap" aria-hidden="true">
+                <img class="sq-hero-brand-image" src="{% static 'core/IMG/logo_monakeratina.jpg' %}" alt="Monakeratina">
+            </div>
             <h2 >
                 Alisados y tratamientos capilares profesionales que cuidan tu cabello desde la raíz.
             </h2>

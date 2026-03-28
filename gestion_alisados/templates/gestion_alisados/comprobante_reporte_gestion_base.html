@@ -3,7 +3,7 @@
 <div class="invoice-sheet invoice-sheet-premium">
   <div
     class="invoice-watermark invoice-watermark-premium"
-    style="background-image: url('{{ watermark_src }}');"
+    data-watermark-src="{{ watermark_src }}"
   ></div>
 
   <div class="invoice-content premium-content">
@@ -42,7 +42,7 @@
             </td>
             <td>
               <span>Filtros</span>
-              <strong style="font-size: 8.7pt; line-height: 1.3;">{{ filtros_texto }}</strong>
+              <strong class="invoice-filters-text">{{ filtros_texto }}</strong>
             </td>
           </tr>
         </tbody>

@@ -1,105 +1,6 @@
-{% load static %}
-
-<!-- Cargar JavaScript de validaciones -->
-<script src="{% static 'personal/js/personal.js' %}"></script>
-
-<style>
-/* Switch Toggle Styles */
-.personal-switch {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    padding: 12px 16px !important;
-    background: #f8f8f8 !important;
-    border-radius: 16px !important;
-    border: 1.5px solid transparent !important;
-    transition: all 0.3s ease !important;
-    margin-bottom: 12px !important;
-}
-
-.personal-switch:hover {
-    background: #f0f0f0 !important;
-    border-color: rgba(17, 17, 17, 0.1) !important;
-}
-
-.personal-switch-wrapper {
-    position: relative !important;
-    display: inline-block !important;
-    width: 54px !important;
-    height: 28px !important;
-    flex-shrink: 0 !important;
-    cursor: pointer !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"],
-input[type="checkbox"].personal-switch-input,
-#id_activo {
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    pointer-events: none !important;
-}
-
-.personal-switch-slider {
-    position: absolute !important;
-    cursor: pointer !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background-color: #ccc !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border-radius: 34px !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-}
-
-.personal-switch-slider:before {
-    position: absolute !important;
-    content: "" !important;
-    height: 20px !important;
-    width: 20px !important;
-    left: 4px !important;
-    bottom: 4px !important;
-    background-color: white !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border-radius: 50% !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider,
-input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider,
-#id_activo:checked + .personal-switch-slider {
-    background-color: #4b2f2a !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"]:focus + .personal-switch-slider,
-input[type="checkbox"].personal-switch-input:focus + .personal-switch-slider,
-#id_activo:focus + .personal-switch-slider {
-    box-shadow: 0 0 0 3px rgba(75, 47, 42, 0.2) !important;
-}
-
-.personal-switch-wrapper input[type="checkbox"]:checked + .personal-switch-slider:before,
-input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:before,
-#id_activo:checked + .personal-switch-slider:before {
-    transform: translateX(26px) !important;
-}
-
-.personal-switch-label {
-    margin: 0 !important;
-    cursor: pointer !important;
-    font-weight: 500 !important;
-    color: #111 !important;
-    user-select: none !important;
-    flex-grow: 1 !important;
-}
-</style>
-
 <form method="post" id="{% if editando %}form-editar-personal{% else %}form-crear-personal{% endif %}" novalidate data-personal-id="{% if personal %}{{ personal.id }}{% endif %}">
     {% csrf_token %}
-    
+
     {% if form.non_field_errors %}
         <div class="personal-alert danger">
             <i class="fas fa-exclamation-triangle"></i>
@@ -115,67 +16,52 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
     {% endif %}
 
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-        <!-- Tipo de Documento -->
         <div class="personal-form-group">
             <label class="personal-form-label">Tipo de Documento <span style="color: #c7412b;">*</span></label>
             {{ form.tipo_documento }}
             <div class="invalid-feedback" style="display: none;"></div>
         </div>
 
-        <!-- Número de Documento -->
         <div class="personal-form-group">
-            <label class="personal-form-label">Número de Documento <span style="color: #c7412b;">*</span></label>
+            <label class="personal-form-label">Numero de Documento <span style="color: #c7412b;">*</span></label>
             {{ form.numero_documento }}
-            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                Aquí solo se pueden ingresar números
-            </small>
+            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui solo se pueden ingresar numeros</small>
             <div class="invalid-feedback" style="display: none;"></div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-        <!-- Nombres -->
         <div class="personal-form-group">
             <label class="personal-form-label">Nombres <span style="color: #c7412b;">*</span></label>
             {{ form.nombres }}
-            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                Aquí no se pueden ingresar números
-            </small>
+            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui no se pueden ingresar numeros</small>
             <div class="invalid-feedback" style="display: none;"></div>
         </div>
 
-        <!-- Apellidos -->
         <div class="personal-form-group">
             <label class="personal-form-label">Apellidos <span style="color: #c7412b;">*</span></label>
             {{ form.apellidos }}
-            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                Aquí no se pueden ingresar números
-            </small>
+            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui no se pueden ingresar numeros</small>
             <div class="invalid-feedback" style="display: none;"></div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-        <!-- Teléfono -->
         <div class="personal-form-group">
-            <label class="personal-form-label">Teléfono <span style="color: #c7412b;">*</span></label>
+            <label class="personal-form-label">Telefono <span style="color: #c7412b;">*</span></label>
             {{ form.telefono }}
-            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">
-                Aquí no se pueden ingresar letras
-            </small>
+            <small style="color: #6c757d; font-size: 0.8rem; margin-top: 4px; display: block;">Aqui no se pueden ingresar letras</small>
             <div class="invalid-feedback" style="display: none;"></div>
         </div>
 
-        <!-- Correo -->
         <div class="personal-form-group">
-            <label class="personal-form-label">Correo Electrónico <span style="color: #c7412b;">*</span></label>
+            <label class="personal-form-label">Correo Electronico <span style="color: #c7412b;">*</span></label>
             {{ form.correo }}
             <div class="invalid-feedback" style="display: none;"></div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-        <!-- Rol -->
         <div class="personal-form-group">
             <label class="personal-form-label">Rol <span style="color: #c7412b;">*</span></label>
             {{ form.rol }}
@@ -183,7 +69,6 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
         </div>
     </div>
 
-    <!-- Estado -->
     <div class="personal-switch">
         <label class="personal-switch-wrapper" for="id_activo">
             {{ form.activo }}
@@ -192,154 +77,15 @@ input[type="checkbox"].personal-switch-input:checked + .personal-switch-slider:b
         <label class="personal-switch-label" for="id_activo">Personal Activo</label>
     </div>
 
-    <!-- Botones -->
-    <div style="display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;">
+    <div class="personal-form-actions">
         <button type="submit" id="btnGuardarPersonal" class="personal-btn personal-btn-dark success">
             <i class="fas fa-save"></i> Guardar
         </button>
-        <button type="button" class="personal-btn secondary" onclick="cerrarModalPersonal()">
+        <button type="button"
+                class="personal-btn secondary"
+                data-personal-action="close-modal"
+                data-modal-id="{% if editando %}modalEditarPersonal{% else %}modalPersonal{% endif %}">
             <i class="fas fa-times"></i> Cancelar
         </button>
     </div>
 </form>
-
-<script>
-(function() {
-    function attachFormatSelects() {
-        // Encontrar todos los selects dentro de este modal que sean de la forma
-        const selects = document.querySelectorAll('#form-crear-personal select, #form-editar-personal select');
-        selects.forEach(select => {
-            if (select.dataset.customized) return;
-            select.dataset.customized = 'true';
-            
-            // Ocultar select original para conservar su valor POST pero reemplazar su interfaz
-            select.style.display = 'none';
-            
-            // Contenedor general "Wrapper"
-            const wrapper = document.createElement('div');
-            wrapper.className = 'custom-select-wrapper position-relative w-100';
-            
-            // Trigger visual imitando a personal-form-control
-            const trigger = document.createElement('div');
-            trigger.className = 'personal-form-control d-flex align-items-center justify-content-between';
-            trigger.style.cursor = 'pointer';
-            trigger.style.backgroundColor = '#ffffff';
-            trigger.style.paddingRight = '14px';
-            trigger.style.height = '46px';
-            trigger.style.color = '#111';
-            
-            const selectedOption = select.options[select.selectedIndex];
-            const initialText = selectedOption ? selectedOption.text : 'Seleccione...';
-            
-            trigger.innerHTML = `
-                <span class="custom-label" style="font-size: 0.95rem;">${initialText}</span>
-                <i class="bi bi-chevron-down" style="color: #4b2f2a; font-size: 0.85rem;"></i>
-            `;
-            
-            // Menú Dropdown
-            const menu = document.createElement('div');
-            menu.className = 'custom-select-options position-absolute w-100 shadow-sm';
-            menu.style.top = '100%';
-            menu.style.left = '0';
-            menu.style.marginTop = '6px';
-            menu.style.backgroundColor = '#ffffff';
-            menu.style.borderRadius = '16px';
-            menu.style.border = '1px solid rgba(198, 162, 136, 0.2)';
-            menu.style.zIndex = '1060';
-            menu.style.display = 'none';
-            menu.style.overflow = 'hidden';
-            menu.style.padding = '6px 0';
-            
-            // Generar las opciones basado en el HTML genérico
-            Array.from(select.options).forEach(opt => {
-                // ignorar placeholder si está vacio
-                if (!opt.value && opt.text.trim().toLowerCase() === '---------') {
-                    opt.text = 'Seleccione una opción';
-                }
-                
-                const val = opt.value;
-                const text = opt.text;
-                
-                const item = document.createElement('div');
-                item.className = 'custom-select-option px-3 py-2';
-                item.style.cursor = 'pointer';
-                item.style.transition = 'background-color 0.2s';
-                item.style.fontSize = '0.95rem';
-                item.style.color = '#4b2f2a';
-                
-                const isActive = (select.value === val);
-                item.style.fontWeight = isActive ? '700' : '500';
-                item.style.backgroundColor = isActive ? '#eaddd3' : 'transparent';
-                item.innerHTML = text;
-                
-                item.onmouseenter = function() {
-                    if (select.value !== val) this.style.backgroundColor = '#fbf5f0';
-                };
-                item.onmouseleave = function() {
-                    if (select.value !== val) this.style.backgroundColor = 'transparent';
-                };
-                
-                // Acción al dar click a una opción del nuevo menú
-                item.onclick = function(e) {
-                    e.stopPropagation();
-                    select.value = val;
-                    // Informar a framework que se cambió para las validaciones
-                    select.dispatchEvent(new Event('change', { bubbles: true }));
-                    select.dispatchEvent(new Event('input', { bubbles: true }));
-                    
-                    // Update visual trigger
-                    trigger.querySelector('.custom-label').innerText = text;
-                    
-                    // Resetear el active de todas las demás
-                    Array.from(menu.children).forEach(child => {
-                        child.style.backgroundColor = 'transparent';
-                        child.style.fontWeight = '500';
-                    });
-                    this.style.backgroundColor = '#eaddd3';
-                    this.style.fontWeight = '700';
-                    
-                    menu.style.display = 'none';
-                };
-                
-                menu.appendChild(item);
-            });
-            
-            // Acción Clickaer visual
-            trigger.onclick = function(e) {
-                e.stopPropagation();
-                document.querySelectorAll('.custom-select-options').forEach(m => {
-                    if (m !== menu) m.style.display = 'none';
-                });
-                menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';
-            };
-            
-            // Sincronizar estilo en validación is-invalid (Django Error feedback)
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(m) {
-                    if (m.attributeName === 'class') {
-                        if (select.classList.contains('is-invalid')) {
-                            trigger.style.borderColor = '#dc3545';
-                            trigger.style.boxShadow = '0 0 0 0.25rem rgba(220, 53, 69, 0.25)';
-                        } else if (select.classList.contains('is-valid')) {
-                            trigger.style.borderColor = '#198754';
-                            trigger.style.boxShadow = 'none';
-                        } else {
-                            trigger.style.borderColor = 'rgba(198, 162, 136, 0.5)';
-                            trigger.style.boxShadow = 'none';
-                        }
-                    }
-                });
-            });
-            observer.observe(select, { attributes: true });
-
-            wrapper.appendChild(trigger);
-            wrapper.appendChild(menu);
-            
-            select.parentNode.insertBefore(wrapper, select.nextSibling);
-        });
-    }
-
-    // Corremos inmediatamente
-    attachFormatSelects();
-})();
-</script>

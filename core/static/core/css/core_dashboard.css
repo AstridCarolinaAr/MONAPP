@@ -303,7 +303,7 @@
 @media (max-width: 800px) {
   .top-row { grid-template-columns: 1fr; }
   .hero-card { width: 100%; height: auto; }
-  .hero-mascot { width: 120px; }
+  .hero-mascot { width: 120px; top: -24px; left: 50%; }
 }
 
 /* â”€â”€ KPIs EXTERNOS â”€â”€ */

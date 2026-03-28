@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+﻿{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}{{ titulo }}{% endblock %}
@@ -9,242 +9,20 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'servicios/css/estilos.css' %}">
-<style>
-    .section-title {
-        background-color: #f8f9fa;
-        padding: 10px 15px;
-        margin-top: 20px;
-        margin-bottom: 15px;
-        border-left: 4px solid #634c40;
-        font-weight: bold;
-    }
-    
-    .form-group-inline {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .percentage-suffix {
-        font-size: 1.2em;
-        font-weight: bold;
-    }
-    
-    .conditional-field {
-        display: none;
-        margin-top: 10px;
-    }
-    
-    .conditional-field.show {
-        display: block;
-    }
-
-    .gestion-alisado-actions {
-        position: sticky;
-        bottom: 0;
-        z-index: 15;
-        background: #fff;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.08);
-    }
-
-    .gestion-alisado-step-actions {
-        position: sticky;
-        bottom: 0;
-        z-index: 20;
-        background: #fff;
-        margin-top: 1rem;
-        padding: 1rem 0 0.5rem;
-        box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.08);
-    }
-    
-    .checkbox-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px;
-    }
-    
-    /* Estilos para navegación por pasos */
-    .form-step {
-        display: none;
-    }
-    
-    .form-step.active {
-        display: block;
-    }
-    
-    .progress-steps {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 30px;
-        position: relative;
-    }
-    
-    .progress-steps::before {
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background-color: #dee2e6;
-        z-index: 0;
-    }
-    
-    .step-item {
-        flex: 1;
-        text-align: center;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .step-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #dee2e6;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 10px;
-        font-weight: bold;
-        transition: all 0.3s;
-    }
-    
-    .step-item.active .step-circle {
-        background-color: #634c40;
-        color: white;
-    }
-    
-    .step-item.completed .step-circle {
-        background-color: #382a23;
-        color: white;
-    }
-    
-    .step-label {
-        font-size: 14px;
-        color: #6c757d;
-    }
-    
-    .step-item.active .step-label {
-        color: #634c40;
-        font-weight: bold;
-    }
-    
-    /* Estilos para validación en tiempo real */
-    .form-control.is-valid,
-    .form-select.is-valid {
-        border-color: #382a23;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23382a23' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(.375em + .1875rem) center;
-        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
-        padding-right: calc(1.5em + .75rem);
-    }
-    
-    .form-control.is-invalid,
-    .form-select.is-invalid {
-        border-color: #dc3545;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(.375em + .1875rem) center;
-        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
-        padding-right: calc(1.5em + .75rem);
-    }
-    
-    .invalid-feedback {
-        display: block;
-        margin-top: .25rem;
-        font-size: .875em;
-        color: #dc3545;
-        animation: slideDown 0.3s ease;
-    }
-    
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .form-control:focus.is-valid,
-    .form-select:focus.is-valid {
-        border-color: #382a23;
-        box-shadow: 0 0 0 0.25rem rgba(56, 42, 35, 0.25);
-    }
-    
-    .form-control:focus.is-invalid,
-    .form-select:focus.is-invalid {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
-    }
-
-    /* ── ALERTA checkbox de términos ── */
-    @keyframes pulseTc {
-        0%   { background-color: rgba(220,53,69,0.00); border-color: transparent; }
-        20%  { background-color: rgba(220,53,69,0.18); border-color: #dc3545; }
-        40%  { background-color: rgba(220,53,69,0.06); border-color: #e07080; }
-        60%  { background-color: rgba(220,53,69,0.18); border-color: #dc3545; }
-        80%  { background-color: rgba(220,53,69,0.06); border-color: #e07080; }
-        100% { background-color: rgba(220,53,69,0.07); border-color: #dc3545; }
-    }
-
-    #wrapperCheckboxAceptacion {
-        border-radius: 8px;
-        padding: 10px 12px;
-        border: 2px solid transparent;
-        transition: background 0.3s, border-color 0.3s;
-    }
-
-    #wrapperCheckboxAceptacion.alerta-tc {
-        animation: pulseTc 0.7s ease forwards;
-        background-color: rgba(220,53,69,0.07);
-        border-color: #dc3545;
-    }
-
-    #wrapperCheckboxAceptacion.alerta-tc label {
-        color: #dc3545 !important;
-    }
-
-    #wrapperCheckboxAceptacion.alerta-tc #checkboxAceptacion {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 3px rgba(220,53,69,0.25);
-    }
-
-    #msgCheckboxError {
-        display: none;
-        color: #dc3545;
-        font-size: 0.85em;
-        margin-top: 8px;
-        font-weight: 600;
-    }
-
-    #msgCheckboxError.visible {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        animation: slideDown 0.3s ease;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'gestion_alisados/css/gestion_alisados.css' %}">
 {% endblock %}
 
 {% block content %}
 <!-- Contenedor de notificaciones toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+<div class="toast-container position-fixed top-0 end-0 p-3 gestion-toast-layer">
     <div id="notificacionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
-        <div class="toast-header" style="background-color: #634c40; color: white;">
+        <div class="toast-header gestion-toast-header">
             <i class="bi bi-check-circle-fill me-2" id="toastIcon"></i>
-            <strong class="me-auto" id="toastTitle">Notificación</strong>
+            <strong class="me-auto" id="toastTitle">NotificaciÃ³n</strong>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body" id="toastMessage">
-            Mensaje de notificación
+            Mensaje de notificaciÃ³n
         </div>
     </div>
 </div>
@@ -253,7 +31,7 @@
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <div class="card shadow">
-                <div class="card-header text-white" style="background-color: #634c40;">
+                <div class="card-header text-white gestion-toast-header">
                     <h4 class="mb-0">{{ titulo }}</h4>
                 </div>
                 <div class="card-body">
@@ -261,22 +39,22 @@
                     <div class="progress-steps">
                         <div class="step-item active" data-step="1">
                             <div class="step-circle">1</div>
-                            <div class="step-label">Información General</div>
+                            <div class="step-label">InformaciÃ³n General</div>
                         </div>
                         <div class="step-item" data-step="2">
                             <div class="step-circle">2</div>
-                            <div class="step-label">Características y Cuidados</div>
+                            <div class="step-label">CaracterÃ­sticas y Cuidados</div>
                         </div>
                     </div>
                     
-                    <form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" data-es-edicion="{% if gestion %}1{% else %}0{% endif %}">
+                    <form method="post" enctype="multipart/form-data" id="gestionAlisadoForm" data-es-edicion="{% if gestion %}1{% else %}0{% endif %}" data-ultima-gestion-url="{% url 'gestion_alisados:ultima_gestion_cliente' %}">
                         {% csrf_token %}
                         
-                        <!-- PASO 1: Información General -->
+                        <!-- PASO 1: InformaciÃ³n General -->
                         <div class="form-step active" id="step1">
                         
-                        <!-- Sección: Selección de Cliente -->
-                        <div class="section-title">Selección de Cliente</div>
+                        <!-- SecciÃ³n: SelecciÃ³n de Cliente -->
+                        <div class="section-title">SelecciÃ³n de Cliente</div>
                         
                         <div class="row">
                             <div class="col-md-12 mb-3">
@@ -297,8 +75,8 @@
                             </div>
                         </div>
                         
-                        <!-- Sección: Información del Servicio y Pago -->
-                        <div class="section-title">Información del Servicio y Pago</div>
+                        <!-- SecciÃ³n: InformaciÃ³n del Servicio y Pago -->
+                        <div class="section-title">InformaciÃ³n del Servicio y Pago</div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -366,8 +144,8 @@
                             </div>
                         </div>
                         
-                        <!-- Sección: Información del Procedimiento -->
-                        <div class="section-title">Información del Procedimiento</div>
+                        <!-- SecciÃ³n: InformaciÃ³n del Procedimiento -->
+                        <div class="section-title">InformaciÃ³n del Procedimiento</div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -408,8 +186,8 @@
                             </div>
                         </div>
                         
-                        <!-- Sección: Características del Cabello -->
-                        <div class="section-title">Características del Cabello</div>
+                        <!-- SecciÃ³n: CaracterÃ­sticas del Cabello -->
+                        <div class="section-title">CaracterÃ­sticas del Cabello</div>
                         
                         <div class="row">
                             <div class="col-md-4 mb-3">
@@ -499,10 +277,10 @@
                         
                         </div><!-- Fin del Paso 1 -->
                         
-                        <!-- PASO 2: Características y Cuidados -->
+                        <!-- PASO 2: CaracterÃ­sticas y Cuidados -->
                         <div class="form-step" id="step2">
                         
-                        <!-- Sección: Estado de Salud -->
+                        <!-- SecciÃ³n: Estado de Salud -->
                         <div class="section-title">Estado de Salud y Condiciones Especiales</div>
                         
                         <div class="row">
@@ -546,8 +324,8 @@
                             </div>
                         </div>
                         
-                        <!-- Sección: Procesos Químicos -->
-                        <div class="section-title">Procesos Químicos Previos</div>
+                        <!-- SecciÃ³n: Procesos QuÃ­micos -->
+                        <div class="section-title">Procesos QuÃ­micos Previos</div>
                         
                         <div class="checkbox-group mb-3">
                             <div class="form-check">
@@ -601,8 +379,8 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Sección: Hábitos y Cuidados -->
-                        <div class="section-title">Hábitos y Cuidados</div>
+                        <!-- SecciÃ³n: HÃ¡bitos y Cuidados -->
+                        <div class="section-title">HÃ¡bitos y Cuidados</div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -669,7 +447,7 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Sección: Recomendaciones -->
+                        <!-- SecciÃ³n: Recomendaciones -->
                         <div class="section-title">Recomendaciones y Anotaciones</div>
                         
                         <div class="mb-3">
@@ -682,20 +460,20 @@
                         
                         </div><!-- Fin del Paso 2 -->
                         
-                        <!-- Botones de navegación -->
+                        <!-- Botones de navegaciÃ³n -->
                         <div class="d-flex justify-content-between mt-4 gestion-alisado-step-actions">
                             <a href="{% url 'gestion_alisados:lista_gestion_alisados' %}" class="btn btn-secondary" id="btnCancelar">
                                 <i class="bi bi-arrow-left"></i> Cancelar
                             </a>
                             
                             <div>
-                                <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
+                                <button type="button" class="btn btn-secondary gestion-btn-hidden gestion-btn-primary" id="btnAnterior">
                                     <i class="bi bi-arrow-left"></i> Anterior
                                 </button>
-                                <button type="button" class="btn text-white" id="btnSiguiente" style="background-color: #634c40; border-color: #634c40;">
+                                <button type="button" class="btn text-white gestion-btn-primary" id="btnSiguiente">
                                     Siguiente <i class="bi bi-arrow-right"></i>
                                 </button>
-                                <button type="button" class="btn text-white" id="btnGuardar" style="display: none; background-color: #634c40; border-color: #634c40;">
+                                <button type="button" class="btn text-white gestion-btn-hidden gestion-btn-primary" id="btnGuardar">
                                     <i class="bi bi-save"></i> Guardar
                                 </button>
                             </div>
@@ -711,85 +489,85 @@
 <div class="modal fade" id="modalConsentimiento" tabindex="-1" aria-labelledby="modalConsentimientoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header text-white" style="background-color: #634c40;">
+            <div class="modal-header text-white gestion-toast-header">
                 <h5 class="modal-title" id="modalConsentimientoLabel">
-                    <i class="bi bi-file-earmark-text"></i> Consentimiento Informado - Términos y Condiciones
+                    <i class="bi bi-file-earmark-text"></i> Consentimiento Informado - TÃ©rminos y Condiciones
                 </h5>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body gestion-modal-shell">
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle-fill"></i>
-                    <strong>Por favor leer primariamente la información de la página 02</strong>
+                    <strong>Por favor leer primariamente la informaciÃ³n de la pÃ¡gina 02</strong>
                 </div>
                 
-                <h5 class="text-primary mt-4">SISTEMA ÚNICO DE HABILITACIÓN/SERVICIOS Y PÁGINA 02</h5>
-                <p>El procedimiento puede generar molestias, casos ocasionales y/o reacciones alérgicas.</p>
+                <h5 class="text-primary mt-4">SISTEMA ÃšNICO DE HABILITACIÃ“N/SERVICIOS Y PÃGINA 02</h5>
+                <p>El procedimiento puede generar molestias, casos ocasionales y/o reacciones alÃ©rgicas.</p>
                 
                 <h5 class="text-primary mt-4">RECOMENDACIONES Y ADVERTENCIAS</h5>
                 <ol>
-                    <li>El tratamiento es un PROCEDIMIENTO que tiene limitada duración y en su estancia no reja necesariamente de manera permanente.</li>
-                    <li>El tratamiento puede producir daños si no se siguen las recomendaciones indicadas (uso de acondicionador, shampoo sin sal, etc.)</li>
-                    <li>El tratamiento puede generar enrojecimiento del cuero cabelludo, irritación, ardor de los ojos, sensación de quemazón, resequedad del cabello y otros efectos temporales.</li>
-                    <li>No existe garantía, excepción de nuestros términos y condiciones. En caso de no cumplir las recomendaciones no se acepta ningún reclamo.</li>
-                    <li>La sesión de retoque únicamente procede cuando el procedimiento se efectúa de manera adecuada.</li>
-                    <li>He sido informado adecuadamente sobre cómo actúa el tratamiento, los posibles efectos secundarios que se pueden presentar y los resultados esperados.</li>
+                    <li>El tratamiento es un PROCEDIMIENTO que tiene limitada duraciÃ³n y en su estancia no reja necesariamente de manera permanente.</li>
+                    <li>El tratamiento puede producir daÃ±os si no se siguen las recomendaciones indicadas (uso de acondicionador, shampoo sin sal, etc.)</li>
+                    <li>El tratamiento puede generar enrojecimiento del cuero cabelludo, irritaciÃ³n, ardor de los ojos, sensaciÃ³n de quemazÃ³n, resequedad del cabello y otros efectos temporales.</li>
+                    <li>No existe garantÃ­a, excepciÃ³n de nuestros tÃ©rminos y condiciones. En caso de no cumplir las recomendaciones no se acepta ningÃºn reclamo.</li>
+                    <li>La sesiÃ³n de retoque Ãºnicamente procede cuando el procedimiento se efectÃºa de manera adecuada.</li>
+                    <li>He sido informado adecuadamente sobre cÃ³mo actÃºa el tratamiento, los posibles efectos secundarios que se pueden presentar y los resultados esperados.</li>
                     <li>Nuestros productos tienen lixivia.</li>
                     <li>El anticipo no hace parte fundamental en el resultado del tratamiento realizado. El cliente es responsable.</li>
-                    <li>Algunos tratamientos tienen como contraindicación el alisado, en este caso, el cliente deberá asumir las consecuencias de su decisión.</li>
+                    <li>Algunos tratamientos tienen como contraindicaciÃ³n el alisado, en este caso, el cliente deberÃ¡ asumir las consecuencias de su decisiÃ³n.</li>
                     <li>Entiendo que para obtener los mejores resultados posibles, las intervenciones necesarias pueden ser realizadas en diferentes etapas.</li>
-                    <li>También se han informado de las ventajas de no someterse al procedimiento.</li>
-                    <li><strong>ADVERTENCIA: ALGUNOS DE NUESTROS PROCEDIMIENTOS PUEDEN SUBIR DE TONO O ACLARAR DEL CABELLO SOBRE TODO EN CABELLOS CON DECOLORACIÓN.</strong></li>
+                    <li>TambiÃ©n se han informado de las ventajas de no someterse al procedimiento.</li>
+                    <li><strong>ADVERTENCIA: ALGUNOS DE NUESTROS PROCEDIMIENTOS PUEDEN SUBIR DE TONO O ACLARAR DEL CABELLO SOBRE TODO EN CABELLOS CON DECOLORACIÃ“N.</strong></li>
                 </ol>
                 
                 <h5 class="text-primary mt-4">CUIDADOS</h5>
                 <ol>
                     <li>Lavar el cabello con shampoo sin sal o cualquier producto capilar sin sal, el USO DE ACONDICIONADOR es obligatorio.</li>
                     <li>SECAR EL CABELLO CON SECADOR INDICADO NO LO LAVES.</li>
-                    <li>SI TE ACUESTAS O VAS A DORMIR: EL LEVANTARTE DEBERÁS SECAR EL CABELLO MARCAS MARCADAS O FRIZZ, ES TOTALMENTE NORMAL.</li>
-                    <li>Peinar justo después de aplicar el producto el cabello mojado, no será conveniente que la persona realice peinados ajustados.</li>
-                    <li>Si el cabello se dejará secar al aire libre peinar constantemente hasta que se encuentre completamente seco.</li>
+                    <li>SI TE ACUESTAS O VAS A DORMIR: EL LEVANTARTE DEBERÃS SECAR EL CABELLO MARCAS MARCADAS O FRIZZ, ES TOTALMENTE NORMAL.</li>
+                    <li>Peinar justo despuÃ©s de aplicar el producto el cabello mojado, no serÃ¡ conveniente que la persona realice peinados ajustados.</li>
+                    <li>Si el cabello se dejarÃ¡ secar al aire libre peinar constantemente hasta que se encuentre completamente seco.</li>
                     <li>No exponer cualquiera de nuestros tratamientos a componentes marinos del cloro.</li>
-                    <li>Mantener el tratamiento indicado por la persona que aplicó el tratamiento.</li>
-                    <li>Avisar oportunamente de cualquier cambio o reacción desfavorable que no haya sido explicada.</li>
-                    <li>Podrá aplicar tinte 15 días después del tratamiento. Después del procedimiento de reconexión molecular se podrá decolorar en 4 meses.</li>
-                    <li>Debes traer a la cita todas las indicaciones del asesor (shampoo, secador, plancha, etc.) para ser instruida en el uso correcto del tratamiento de alisado, para esto LAVADA la clienta podrá recibir de venir a nuestras instalaciones por SEGUNDA sesión: NO COBRO, algunos casos el día del procedimiento sin excepción de tratamiento igual 15ml pesos sin algunos casos viene incluido.</li>
+                    <li>Mantener el tratamiento indicado por la persona que aplicÃ³ el tratamiento.</li>
+                    <li>Avisar oportunamente de cualquier cambio o reacciÃ³n desfavorable que no haya sido explicada.</li>
+                    <li>PodrÃ¡ aplicar tinte 15 dÃ­as despuÃ©s del tratamiento. DespuÃ©s del procedimiento de reconexiÃ³n molecular se podrÃ¡ decolorar en 4 meses.</li>
+                    <li>Debes traer a la cita todas las indicaciones del asesor (shampoo, secador, plancha, etc.) para ser instruida en el uso correcto del tratamiento de alisado, para esto LAVADA la clienta podrÃ¡ recibir de venir a nuestras instalaciones por SEGUNDA sesiÃ³n: NO COBRO, algunos casos el dÃ­a del procedimiento sin excepciÃ³n de tratamiento igual 15ml pesos sin algunos casos viene incluido.</li>
                 </ol>
                 
-                <h5 class="text-primary mt-4">COMPROMISOS DEL TRATAMIENTO - PORCENTAJES DE TRATADO O ELIMINACIÓN DE ONDA</h5>
+                <h5 class="text-primary mt-4">COMPROMISOS DEL TRATAMIENTO - PORCENTAJES DE TRATADO O ELIMINACIÃ“N DE ONDA</h5>
                 <ol>
                     <li>El resultado del procedimiento de alisado progresivo depende de los postis cuidados y sus respectivos:
                         <ul>
-                            <li><strong>ALISADO FOTÓNICO:</strong> duración de 4a 5 a 6 meses y elimina hasta 80% de la onda.</li>
-                            <li><strong>CIRUGIA CAPILAR:</strong> duración de hasta 3 meses y elimina el 70% de la onda.</li>
-                            <li><strong>RECONEXIÓN MOLECULAR:</strong> duración de hasta 6 meses y elimina hasta el 80% de la onda.</li>
-                            <li><strong>AMINOÁCIDOS CANNABIS:</strong> duración de 4 hasta 6 meses y elimina hasta el 85% de la onda.</li>
+                            <li><strong>ALISADO FOTÃ“NICO:</strong> duraciÃ³n de 4a 5 a 6 meses y elimina hasta 80% de la onda.</li>
+                            <li><strong>CIRUGIA CAPILAR:</strong> duraciÃ³n de hasta 3 meses y elimina el 70% de la onda.</li>
+                            <li><strong>RECONEXIÃ“N MOLECULAR:</strong> duraciÃ³n de hasta 6 meses y elimina hasta el 80% de la onda.</li>
+                            <li><strong>AMINOÃCIDOS CANNABIS:</strong> duraciÃ³n de 4 hasta 6 meses y elimina hasta el 85% de la onda.</li>
                         </ul>
                     </li>
-                    <li>El procedimiento de retoque puede requerir de sesiones adicionales para lograr el efecto deseado. SEGÚN EL PROCEDIMIENTO aplicado (puede durar de 4 a 6 meses), en este caso, el cliente deberá asumir los gastos del REFUERZO DE ALISADO que se realizará de 10 a 15 días después de la primera copia con o sin medicamentos, exámenes médicos.</li>
-                    <li>Acepto que en caso de presentarse cualquier complicación, mantencion y similares estarán en su totalidad a cargo del paciente.</li>
-                    <li>Tengo conocimiento que realizado el procedimiento NO HAY LUGAR a devolución de dinero.</li>
+                    <li>El procedimiento de retoque puede requerir de sesiones adicionales para lograr el efecto deseado. SEGÃšN EL PROCEDIMIENTO aplicado (puede durar de 4 a 6 meses), en este caso, el cliente deberÃ¡ asumir los gastos del REFUERZO DE ALISADO que se realizarÃ¡ de 10 a 15 dÃ­as despuÃ©s de la primera copia con o sin medicamentos, exÃ¡menes mÃ©dicos.</li>
+                    <li>Acepto que en caso de presentarse cualquier complicaciÃ³n, mantencion y similares estarÃ¡n en su totalidad a cargo del paciente.</li>
+                    <li>Tengo conocimiento que realizado el procedimiento NO HAY LUGAR a devoluciÃ³n de dinero.</li>
                 </ol>
                 
                 <div class="alert alert-info mt-4">
                     <i class="bi bi-info-circle-fill"></i>
-                    <strong>¡PUEDES TOMARLE FOTO A ESTA INFORMACIÓN!</strong><br>
-                    Después de pagado y REALIZADO el procedimiento adicional. La línea de atención al cliente está para resolver cualquier inquietud o consulta relacionado con el servicio ofrecido.
+                    <strong>Â¡PUEDES TOMARLE FOTO A ESTA INFORMACIÃ“N!</strong><br>
+                    DespuÃ©s de pagado y REALIZADO el procedimiento adicional. La lÃ­nea de atenciÃ³n al cliente estÃ¡ para resolver cualquier inquietud o consulta relacionado con el servicio ofrecido.
                 </div>
                 
                 <div class="card bg-light mt-4 p-3">
                     <h6 class="fw-bold">ACEPTO Y AUTORIZO:</h6>
-                    <p class="mb-2">He leído y comprendido toda la información anterior y acepto los términos y condiciones del tratamiento de alisado.</p>
+                    <p class="mb-2">He leÃ­do y comprendido toda la informaciÃ³n anterior y acepto los tÃ©rminos y condiciones del tratamiento de alisado.</p>
                     
                     <div id="wrapperCheckboxAceptacion">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="checkboxAceptacion" required>
                             <label class="form-check-label fw-bold" for="checkboxAceptacion">
-                                Acepto todos los términos, condiciones, recomendaciones y compromisos descritos anteriormente
+                                Acepto todos los tÃ©rminos, condiciones, recomendaciones y compromisos descritos anteriormente
                             </label>
                         </div>
                         <div id="msgCheckboxError">
                             <i class="bi bi-exclamation-triangle-fill"></i>
-                            Debes aceptar los términos y condiciones para continuar.
+                            Debes aceptar los tÃ©rminos y condiciones para continuar.
                         </div>
                     </div>
                     
@@ -799,7 +577,7 @@
                         </label>
                         {{ form.firma_consentimiento }}
                         <div class="form-text">Suba una imagen con la firma del cliente (formatos: JPG, PNG, etc.) - <strong>Campo obligatorio</strong></div>
-                        <div id="errorFirma" class="text-danger" style="display: none;">
+                        <div id="errorFirma" class="text-danger" class="gestion-btn-hidden">
                             <i class="bi bi-exclamation-triangle"></i> Debe cargar la firma del cliente para continuar
                         </div>
                         {% if form.firma_consentimiento.errors %}
@@ -809,7 +587,7 @@
                     
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle-fill"></i>
-                        <strong>Información del cliente seleccionado:</strong><br>
+                        <strong>InformaciÃ³n del cliente seleccionado:</strong><br>
                         <span id="infoClienteConsentimiento">Seleccione un cliente en el formulario</span>
                     </div>
                     
@@ -830,7 +608,7 @@
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <button type="button" class="btn text-white" id="btnConfirmarConsentimiento" style="background-color: #634c40; border-color: #634c40;">
+                <button type="button" class="btn text-white gestion-btn-primary" id="btnConfirmarConsentimiento">
                     <i class="bi bi-check-circle"></i> Aceptar y Guardar
                 </button>
             </div>
@@ -841,1136 +619,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-/* ===============================
-   FUNCIÓN DE NOTIFICACIONES TOAST
-=============================== */
-function mostrarNotificacion(mensaje, tipo = 'success') {
-    const toast = document.getElementById('notificacionToast');
-    const toastHeader = toast.querySelector('.toast-header');
-    const toastIcon = document.getElementById('toastIcon');
-    const toastTitle = document.getElementById('toastTitle');
-    const toastMessage = document.getElementById('toastMessage');
-    
-    // Configurar colores e iconos según el tipo
-    const configuraciones = {
-        'success': {
-            color: '#198754',
-            icon: 'bi-check-circle-fill',
-            title: 'Éxito'
-        },
-        'error': {
-            color: '#dc3545',
-            icon: 'bi-x-circle-fill',
-            title: 'Error'
-        },
-        'warning': {
-            color: '#ffc107',
-            icon: 'bi-exclamation-triangle-fill',
-            title: 'Advertencia'
-        },
-        'info': {
-            color: '#0dcaf0',
-            icon: 'bi-info-circle-fill',
-            title: 'Información'
-        }
-    };
-    
-    const config = configuraciones[tipo] || configuraciones['info'];
-    
-    // Aplicar estilos
-    toastHeader.style.backgroundColor = config.color;
-    toastIcon.className = `${config.icon} me-2`;
-    toastTitle.textContent = config.title;
-    toastMessage.textContent = mensaje;
-    
-    // Mostrar el toast
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-}
 
-document.addEventListener('DOMContentLoaded', function() {
-    let currentStep = 1;
-    const totalSteps = 2;
-    
-    // Inicializar información del cliente en consentimiento
-    const selectCliente = document.getElementById('selectCliente');
-    const infoClienteConsentimiento = document.getElementById('infoClienteConsentimiento');
-    const formularioGestion = document.getElementById('gestionAlisadoForm');
-    const esEdicionGestion = formularioGestion && formularioGestion.dataset.esEdicion === '1';
-    const urlUltimaGestionCliente = "{% url 'gestion_alisados:ultima_gestion_cliente' %}";
-
-    function actualizarInfoCliente() {
-        const selectedOption = selectCliente.options[selectCliente.selectedIndex];
-        if (selectCliente.value) {
-            const textoCompleto = (selectedOption.text || '').trim();
-            const separador = textoCompleto.lastIndexOf(' - ');
-            const partes = separador >= 0 ? {
-                nombre: textoCompleto.slice(0, separador).trim(),
-                documento: textoCompleto.slice(separador + 3).trim(),
-            } : { nombre: textoCompleto, documento: '' };
-            const nombreCompleto = (selectedOption.getAttribute('data-nombre') || partes.nombre || textoCompleto || 'N/A').trim() || 'N/A';
-            const numeroDocumento = (selectedOption.getAttribute('data-documento') || partes.documento || 'N/A').trim() || 'N/A';
-            const inputNombre = document.getElementById('clienteNombreImpresion');
-            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
-            if (inputNombre) inputNombre.value = nombreCompleto;
-            if (inputDocumento) inputDocumento.value = numeroDocumento;
-            infoClienteConsentimiento.innerHTML = `
-                <strong>Nombre:</strong> ${nombreCompleto}<br>
-                <strong>Documento:</strong> ${numeroDocumento}
-            `;
-        } else {
-            const inputNombre = document.getElementById('clienteNombreImpresion');
-            const inputDocumento = document.getElementById('clienteDocumentoImpresion');
-            if (inputNombre) inputNombre.value = '';
-            if (inputDocumento) inputDocumento.value = '';
-            infoClienteConsentimiento.textContent = 'Seleccione un cliente en el formulario';
-        }
-    }
-
-    function asegurarOpcion(select, valor) {
-        if (!select || valor === null || valor === undefined || valor === '') return;
-        const texto = String(valor);
-        const existe = Array.from(select.options).some(function (opt) {
-            return opt.value === texto;
-        });
-        if (!existe) {
-            select.add(new Option(texto, texto, true, true));
-        } else {
-            select.value = texto;
-        }
-    }
-
-    function aplicarDatosHistorial(datos) {
-        if (!datos || esEdicionGestion || !formularioGestion) return;
-
-        formularioGestion.reset();
-        if (datos.cliente) {
-            selectCliente.value = datos.cliente;
-        }
-
-        const mapaCampos = {
-            precio_alisado: datos.precio_alisado,
-            es_oferta_especial: datos.es_oferta_especial,
-            descripcion_oferta: datos.descripcion_oferta,
-            anticipo_cliente: datos.anticipo_cliente,
-            medio_pago: datos.medio_pago,
-            saldo_pendiente: datos.saldo_pendiente,
-            procedimiento_realizado_por: datos.procedimiento_realizado_por,
-            tipo_alisado: datos.tipo_alisado,
-            requiere_resellado: datos.requiere_resellado,
-            porcentaje_alisado: datos.porcentaje_alisado,
-            porosidad: datos.porosidad,
-            textura: datos.textura,
-            forma_natural: datos.forma_natural,
-            elasticidad: datos.elasticidad,
-            longitud: datos.longitud,
-            densidad: datos.densidad,
-            piel_cabelludo: datos.piel_cabelludo,
-            alopecia: datos.alopecia,
-            caida_cabello: datos.caida_cabello,
-            lactante: datos.lactante,
-            gestante: datos.gestante,
-            caspa: datos.caspa,
-            procesos_otro: datos.procesos_otro,
-            cuenta_con_secador: datos.cuenta_con_secador,
-            frecuencia_recoge_cabello: datos.frecuencia_recoge_cabello,
-            realiza_ejercicio: datos.realiza_ejercicio,
-            frecuencia_ejercicio: datos.frecuencia_ejercicio,
-            usa_casco: datos.usa_casco,
-            productos_capilares: datos.productos_capilares,
-            se_bana_agua_caliente: datos.se_bana_agua_caliente,
-            requiere_refuerzo_15dias: datos.requiere_refuerzo_15dias,
-            sufre_tiroides: datos.sufre_tiroides,
-            medicamento_tiroides: datos.medicamento_tiroides,
-            despunte_hoy: datos.despunte_hoy,
-            recomendaciones_post_cuidados: datos.recomendaciones_post_cuidados
-        };
-
-        Object.keys(mapaCampos).forEach(function (nombre) {
-            const control = formularioGestion.elements.namedItem(nombre);
-            const valor = mapaCampos[nombre];
-            if (!control) return;
-
-            if (control.type === 'checkbox') {
-                control.checked = Boolean(valor);
-                return;
-            }
-
-            if (control.tagName === 'SELECT') {
-                asegurarOpcion(control, valor);
-                return;
-            }
-
-            control.value = valor == null ? '' : String(valor);
-        });
-
-        actualizarInfoCliente();
-        if (typeof calcularSaldo === 'function') {
-            calcularSaldo();
-        }
-    }
-
-    async function cargarHistorialClienteSeleccionado() {
-        if (esEdicionGestion || !selectCliente || !selectCliente.value) return;
-
-        const clienteActual = selectCliente.value;
-        formularioGestion.reset();
-        selectCliente.value = clienteActual;
-        actualizarInfoCliente();
-
-        try {
-            const response = await fetch(`${urlUltimaGestionCliente}?cliente=${encodeURIComponent(selectCliente.value)}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const data = await response.json();
-
-            if (data && data.success && data.tiene_historial && data.datos) {
-                aplicarDatosHistorial(data.datos);
-            }
-        } catch (error) {
-            console.warn('No se pudo cargar el historial del cliente.', error);
-        }
-    }
-    
-    // Actualizar info cuando cambia el cliente
-    selectCliente.addEventListener('change', function () {
-        actualizarInfoCliente();
-        cargarHistorialClienteSeleccionado();
-    });
-    
-    // Actualizar al cargar
-    actualizarInfoCliente();
-    if (selectCliente.value && !esEdicionGestion) {
-        cargarHistorialClienteSeleccionado();
-    }
-    
-    // ========== VALIDACIÓN EN TIEMPO REAL ==========
-    function validarCampoTiempoReal(campo) {
-        if (!campo) return;
-        
-        // Limpiar validaciones previas
-        campo.classList.remove('is-valid', 'is-invalid');
-        const errorExistente = campo.parentElement.querySelector('.invalid-feedback');
-        if (errorExistente) {
-            errorExistente.remove();
-        }
-        
-        let esValido = true;
-        let mensajeError = '';
-        
-        // Validar campos requeridos
-        if (campo.hasAttribute('required')) {
-            if (!campo.value || campo.value.trim() === '') {
-                esValido = false;
-                mensajeError = 'Este campo es obligatorio';
-            }
-        }
-        
-        // Si tiene valor, validar según el tipo
-        if (campo.value && campo.value.trim() !== '') {
-            // Validar números
-            if (campo.type === 'number') {
-                const valor = parseFloat(campo.value);
-                if (isNaN(valor)) {
-                    esValido = false;
-                    mensajeError = 'Debe ingresar un número válido';
-                } else if (campo.hasAttribute('min') && valor < parseFloat(campo.getAttribute('min'))) {
-                    esValido = false;
-                    mensajeError = `El valor mínimo es ${campo.getAttribute('min')}`;
-                } else if (campo.hasAttribute('max') && valor > parseFloat(campo.getAttribute('max'))) {
-                    esValido = false;
-                    mensajeError = `El valor máximo es ${campo.getAttribute('max')}`;
-                } else if (valor < 0) {
-                    esValido = false;
-                    mensajeError = 'No se permiten valores negativos';
-                }
-            }
-            
-            // Validar select
-            if (campo.tagName === 'SELECT' && campo.hasAttribute('required')) {
-                if (campo.value === '' || campo.value === 'None') {
-                    esValido = false;
-                    mensajeError = 'Debe seleccionar una opción';
-                }
-            }
-            
-            // Validar textarea mínimo de caracteres (si aplica)
-            if (campo.tagName === 'TEXTAREA' && campo.value.trim().length > 0) {
-                if (campo.value.trim().length < 3) {
-                    esValido = false;
-                    mensajeError = 'Debe ingresar al menos 3 caracteres';
-                }
-            }
-            
-            // Validar email (si el campo es de tipo email)
-            if (campo.type === 'email') {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(campo.value)) {
-                    esValido = false;
-                    mensajeError = 'Ingrese un correo electrónico válido';
-                }
-            }
-        }
-        
-        // Aplicar clases de validación
-        if (campo.value && campo.value.trim() !== '') {
-            if (esValido) {
-                campo.classList.add('is-valid');
-            } else {
-                campo.classList.add('is-invalid');
-                
-                // Mostrar mensaje de error
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.className = 'invalid-feedback d-block';
-                feedbackDiv.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${mensajeError}`;
-                campo.parentElement.appendChild(feedbackDiv);
-            }
-        }
-        
-        return esValido;
-    }
-    
-    // Aplicar validación en tiempo real a todos los campos
-    function inicializarValidacionTiempoReal() {
-        // Obtener todos los campos del formulario
-        const camposValidar = document.querySelectorAll(
-            'input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea'
-        );
-        
-        camposValidar.forEach(function(campo) {
-            // Excluir campos del modal de nuevo cliente (tienen su propia validación)
-            if (campo.id && campo.id.startsWith('modal_')) {
-                return;
-            }
-            
-            // Validar al perder el foco (blur)
-            campo.addEventListener('blur', function() {
-                validarCampoTiempoReal(this);
-            });
-            
-            // Validar mientras escribe (para campos de texto)
-            if (campo.tagName === 'INPUT' && campo.type === 'text') {
-                campo.addEventListener('input', function() {
-                    // Solo validar si ya ha perdido el foco al menos una vez
-                    if (this.classList.contains('is-valid') || this.classList.contains('is-invalid')) {
-                        validarCampoTiempoReal(this);
-                    }
-                });
-            }
-            
-            // Validar inmediatamente al cambiar (para select y number)
-            if (campo.tagName === 'SELECT' || campo.type === 'number') {
-                campo.addEventListener('change', function() {
-                    validarCampoTiempoReal(this);
-                });
-            }
-            
-            // Para campos numéricos, validar también al escribir
-            if (campo.type === 'number') {
-                campo.addEventListener('input', function() {
-                    if (this.classList.contains('is-valid') || this.classList.contains('is-invalid')) {
-                        validarCampoTiempoReal(this);
-                    }
-                });
-            }
-        });
-    }
-    
-    // Inicializar validación en tiempo real
-    inicializarValidacionTiempoReal();
-    
-    // Función para mostrar el paso actual
-    function showStep(step) {
-        // Ocultar todos los pasos
-        document.querySelectorAll('.form-step').forEach(function(stepEl) {
-            stepEl.classList.remove('active');
-        });
-        
-        // Mostrar el paso actual
-        document.getElementById('step' + step).classList.add('active');
-        
-        // Actualizar indicadores de progreso
-        document.querySelectorAll('.step-item').forEach(function(item) {
-            const stepNum = parseInt(item.getAttribute('data-step'));
-            item.classList.remove('active', 'completed');
-            
-            if (stepNum === step) {
-                item.classList.add('active');
-            } else if (stepNum < step) {
-                item.classList.add('completed');
-            }
-        });
-        
-        // Actualizar botones
-        const btnAnterior = document.getElementById('btnAnterior');
-        const btnSiguiente = document.getElementById('btnSiguiente');
-        const btnGuardar = document.getElementById('btnGuardar');
-        
-        if (step === 1) {
-            btnAnterior.style.display = 'none';
-            btnSiguiente.style.display = 'inline-block';
-            btnGuardar.style.display = 'none';
-        } else if (step === totalSteps) {
-            btnAnterior.style.display = 'inline-block';
-            btnSiguiente.style.display = 'none';
-            btnGuardar.style.display = 'inline-block';
-        } else {
-            btnAnterior.style.display = 'inline-block';
-            btnSiguiente.style.display = 'inline-block';
-            btnGuardar.style.display = 'none';
-        }
-        
-        // Scroll hacia arriba
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    
-    // Función para validar los campos del paso actual
-    function validateStep(step) {
-        let isValid = true;
-        let firstInvalidField = null;
-        const currentStepEl = document.getElementById('step' + step);
-
-        // Limpiar errores previos
-        currentStepEl.querySelectorAll('.validation-error').forEach(function(el) {
-            el.remove();
-        });
-
-        currentStepEl.querySelectorAll('.is-invalid').forEach(function(el) {
-            el.classList.remove('is-invalid');
-        });
-
-        currentStepEl.querySelectorAll('.alert.alert-danger').forEach(function(el) {
-            el.remove();
-        });
-
-        // Solo validar campos required visibles y habilitados
-        const requiredFields = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
-
-        requiredFields.forEach(function(field) {
-            const estaOculto = field.offsetParent === null;
-            const estaDeshabilitado = field.disabled;
-            const contenedorOculto = field.closest('.conditional-field') && !field.closest('.conditional-field').classList.contains('show');
-
-            if (estaOculto || estaDeshabilitado || contenedorOculto) {
-                return;
-            }
-
-            const valor = (field.value || '').trim();
-
-            if (!valor) {
-                isValid = false;
-                field.classList.add('is-invalid');
-
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'validation-error text-danger mt-1';
-                errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Este campo es obligatorio';
-
-                field.parentElement.appendChild(errorDiv);
-
-                if (!firstInvalidField) {
-                    firstInvalidField = field;
-                }
-                return;
-            }
-
-            // Validación extra para selects
-            if (field.tagName === 'SELECT' && (field.value === '' || field.value === 'None')) {
-                isValid = false;
-                field.classList.add('is-invalid');
-
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'validation-error text-danger mt-1';
-                errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Debe seleccionar una opción';
-
-                field.parentElement.appendChild(errorDiv);
-
-                if (!firstInvalidField) {
-                    firstInvalidField = field;
-                }
-            }
-        });
-
-        if (!isValid && firstInvalidField) {
-            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstInvalidField.focus();
-
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <strong>¡Atención!</strong> Te faltan campos obligatorios por completar en este paso.
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-
-            currentStepEl.insertBefore(alertDiv, currentStepEl.firstChild);
-
-            setTimeout(function() {
-                if (alertDiv && alertDiv.parentElement) {
-                    alertDiv.remove();
-                }
-            }, 5000);
-        }
-
-        return isValid;
-    }
-    
-    // Botón Siguiente
-    document.getElementById('btnSiguiente').addEventListener('click', function() {
-        if (validateStep(currentStep)) {
-            if (currentStep < totalSteps) {
-                currentStep++;
-                showStep(currentStep);
-            }
-        }
-    });
-    
-    // Botón Anterior
-    document.getElementById('btnAnterior').addEventListener('click', function() {
-        if (currentStep > 1) {
-            currentStep--;
-            showStep(currentStep);
-        }
-    });
-    
-    // Inicializar primer paso
-    showStep(1);
-    
-    // Calcular saldo pendiente automáticamente
-    const precioInput = document.getElementById('{{ form.precio_alisado.id_for_label }}');
-    const anticipoInput = document.getElementById('{{ form.anticipo_cliente.id_for_label }}');
-    const saldoInput = document.getElementById('{{ form.saldo_pendiente.id_for_label }}');
-    
-    function calcularSaldo() {
-        const precio = parseInt(precioInput.value) || 0;
-        const anticipo = parseInt(anticipoInput.value) || 0;
-        const saldo = precio - anticipo;
-        saldoInput.value = Math.max(0, saldo);
-    }
-    
-    anticipoInput.addEventListener('focus', function () {
-        if (this.value === '0') {
-            this.value = '';
-            calcularSaldo();
-        }
-    });
-    precioInput.addEventListener('input', calcularSaldo);
-    anticipoInput.addEventListener('input', calcularSaldo);
-    
-    // Mostrar/ocultar campo de oferta especial
-    const ofertaSelect = document.getElementById('{{ form.es_oferta_especial.id_for_label }}');
-    const ofertaContainer = document.getElementById('descripcion_oferta_container');
-    const promocionContainer = document.getElementById('promocion_oferta_container');
-    const promocionSelect = document.getElementById('promocion_oferta_select');
-    const descripcionOferta = document.getElementById('{{ form.descripcion_oferta.id_for_label }}');
-    
-    if (ofertaSelect && ofertaContainer) {
-        function toggleOferta() {
-            const habilitar = ofertaSelect.value === 'si';
-            if (habilitar) {
-                ofertaContainer.classList.add('show');
-                if (promocionContainer) promocionContainer.classList.add('show');
-            } else {
-                ofertaContainer.classList.remove('show');
-                if (promocionContainer) promocionContainer.classList.remove('show');
-                if (promocionSelect) promocionSelect.value = '';
-                if (descripcionOferta) descripcionOferta.value = '';
-            }
-        }
-        
-        ofertaSelect.addEventListener('change', toggleOferta);
-        toggleOferta();
-    }
-
-    if (promocionSelect && descripcionOferta) {
-        promocionSelect.addEventListener('change', function () {
-            const option = this.options[this.selectedIndex];
-            if (!option || !option.value) return;
-
-            const nombre = option.value.trim();
-            const descuento = option.dataset.descuento ? ` (${option.dataset.descuento}% OFF)` : '';
-            const descripcion = option.dataset.descripcion ? ` - ${option.dataset.descripcion}` : '';
-            descripcionOferta.value = `${nombre}${descuento}${descripcion}`.trim();
-            descripcionOferta.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-    }
-    
-    // Mostrar/ocultar campo de medicamento tiroides
-    const tiroidesSelect = document.getElementById('{{ form.sufre_tiroides.id_for_label }}');
-    const tiroidesContainer = document.getElementById('medicamento_tiroides_container');
-    
-    if (tiroidesSelect && tiroidesContainer) {
-        function toggleTiroides() {
-            if (tiroidesSelect.value === 'si') {
-                tiroidesContainer.classList.add('show');
-            } else {
-                tiroidesContainer.classList.remove('show');
-            }
-        }
-        
-        tiroidesSelect.addEventListener('change', toggleTiroides);
-        toggleTiroides();
-    }
-    
-    // Mostrar/ocultar campo de frecuencia de ejercicio
-    const ejercicioSelect = document.getElementById('{{ form.realiza_ejercicio.id_for_label }}');
-    const ejercicioContainer = document.getElementById('frecuencia_ejercicio_container');
-    
-    if (ejercicioSelect && ejercicioContainer) {
-        function toggleEjercicio() {
-            if (ejercicioSelect.value === 'si') {
-                ejercicioContainer.classList.add('show');
-            } else {
-                ejercicioContainer.classList.remove('show');
-            }
-        }
-        
-        ejercicioSelect.addEventListener('change', toggleEjercicio);
-        toggleEjercicio();
-    }
-    
-    // Validar porcentaje de alisado (0-100)
-    const porcentajeInput = document.getElementById('{{ form.porcentaje_alisado.id_for_label }}');
-    
-    porcentajeInput.addEventListener('input', function() {
-        let value = parseInt(this.value);
-        
-        if (isNaN(value)) {
-            return;
-        }
-        
-        if (value < 0) {
-            this.value = 0;
-        } else if (value > 100) {
-            this.value = 100;
-        }
-    });
-
-    const estadoImpresion = {
-        clienteNombre: '—',
-        clienteDocumento: '—',
-        precioAlisado: '—',
-        esOferta: 'No',
-        descripOferta: '—',
-        anticipo: '—',
-        medioPago: '—',
-        saldo: '—',
-        realizadoPor: '—',
-        tipoAlisado: '—',
-        resellado: 'No',
-        porcentaje: '—',
-    };
-
-    function getClienteSeleccionado() {
-        if (!selectCliente) return null;
-        const opcion = selectCliente.selectedOptions && selectCliente.selectedOptions[0];
-        if (!selectCliente.value || !opcion) return null;
-        const nombreGuardado = (document.getElementById('clienteNombreImpresion')?.value || '').trim();
-        const documentoGuardado = (document.getElementById('clienteDocumentoImpresion')?.value || '').trim();
-        if (nombreGuardado || documentoGuardado) {
-            return {
-                value: selectCliente.value,
-                nombre: nombreGuardado || '—',
-                documento: documentoGuardado || '—',
-            };
-        }
-        const textoCompleto = (opcion.text || '').trim();
-        const separador = textoCompleto.lastIndexOf(' - ');
-        const partes = separador >= 0 ? {
-            nombre: textoCompleto.slice(0, separador).trim(),
-            documento: textoCompleto.slice(separador + 3).trim(),
-        } : { nombre: textoCompleto, documento: '' };
-        return {
-            value: selectCliente.value,
-            nombre: (opcion.getAttribute('data-nombre') || partes.nombre || '').trim(),
-            documento: (opcion.getAttribute('data-documento') || partes.documento || '').trim(),
-        };
-    }
-
-    function actualizarEstadoImpresion() {
-        const cliente = getClienteSeleccionado();
-        estadoImpresion.clienteNombre = cliente ? cliente.nombre : '?';
-        estadoImpresion.clienteDocumento = cliente ? (cliente.documento || '?') : '?';
-        estadoImpresion.precioAlisado = (precioInput && precioInput.value !== '') ? precioInput.value : '?';
-        estadoImpresion.anticipo = (anticipoInput && anticipoInput.value !== '') ? anticipoInput.value : '?';
-        estadoImpresion.medioPago = leerTextoSeleccion(document.getElementById('id_medio_pago'));
-        estadoImpresion.realizadoPor = leerTextoSeleccion(document.getElementById('id_procedimiento_realizado_por'));
-        estadoImpresion.tipoAlisado = leerTextoSeleccion(document.getElementById('id_tipo_alisado'));
-        estadoImpresion.porcentaje = (porcentajeInput && porcentajeInput.value !== '') ? porcentajeInput.value + '%' : '?';
-        estadoImpresion.saldo = (saldoInput && saldoInput.value !== '') ? saldoInput.value : '?';
-        estadoImpresion.esOferta = leerTextoSeleccion(document.getElementById('{{ form.es_oferta_especial.id_for_label }}')) || 'No';
-        estadoImpresion.descripOferta = (descripcionOferta && descripcionOferta.value.trim()) ? descripcionOferta.value.trim() : '?';
-        estadoImpresion.resellado = leerTextoSeleccion(document.getElementById('{{ form.requiere_resellado.id_for_label }}')) || 'No';
-    }
-
-    function leerTextoSeleccion(el) {
-        if (!el) return '—';
-        if (el.tagName !== 'SELECT') return (el.value || '—').trim() || '—';
-        const opt = el.selectedOptions && el.selectedOptions[0];
-        if (!opt || !el.value || !opt.value) return '—';
-        return opt.text.trim() || '—';
-    }
-
-    [selectCliente, precioInput, anticipoInput, porcentajeInput, ofertaSelect, promocionSelect, descripcionOferta, document.getElementById('{{ form.medio_pago.id_for_label }}'), document.getElementById('{{ form.procedimiento_realizado_por.id_for_label }}'), document.getElementById('{{ form.tipo_alisado.id_for_label }}'), document.getElementById('{{ form.requiere_resellado.id_for_label }}')].forEach(function (el) {
-        if (!el) return;
-        const ev = el.tagName === 'SELECT' ? 'change' : 'input';
-        el.addEventListener(ev, actualizarEstadoImpresion);
-    });
-    actualizarEstadoImpresion();
-    
-    porcentajeInput.addEventListener('blur', function() {
-        if (this.value === '' || isNaN(parseInt(this.value))) {
-            return;
-        }
-        
-        let value = parseInt(this.value);
-        
-        if (value < 0) {
-            this.value = 0;
-        } else if (value > 100) {
-            this.value = 100;
-        }
-    });
-    
-    // Variables para el modal de consentimiento
-    const modalConsentimiento = new bootstrap.Modal(document.getElementById('modalConsentimiento'));
-    const checkboxAceptacion = document.getElementById('checkboxAceptacion');
-    const btnConfirmarConsentimiento = document.getElementById('btnConfirmarConsentimiento');
-    const btnCerrarModal = document.getElementById('btnCerrarModal');
-    const formulario = document.getElementById('gestionAlisadoForm');
-    
-    // Mostrar fecha actual en el consentimiento
-    const fechaActual = new Date().toLocaleDateString('es-CO', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    document.getElementById('fechaConsentimiento').textContent = fechaActual;
-    
-    // Habilitar/deshabilitar botón de confirmar según validación
-    const inputFirma = document.getElementById('{{ form.firma_consentimiento.id_for_label }}');
-    const errorFirma = document.getElementById('errorFirma');
-    
-    const wrapperCheck = document.getElementById('wrapperCheckboxAceptacion');
-    const msgCheckError = document.getElementById('msgCheckboxError');
-
-    /* Dispara el pulso + estado visual de alerta en el checkbox */
-    function sacudirCheckbox() {
-        // Quitar clase para poder re-disparar la animación
-        wrapperCheck.classList.remove('alerta-tc');
-        msgCheckError.classList.remove('visible');
-
-        // Forzar reflow para reiniciar la animación
-        void wrapperCheck.offsetWidth;
-
-        // Aplicar alerta
-        wrapperCheck.classList.add('alerta-tc');
-        msgCheckError.classList.add('visible');
-
-        // Scroll suave hacia el checkbox dentro del modal
-        wrapperCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Limpiar estilo cuando el usuario lo marque
-        checkboxAceptacion.addEventListener('change', function limpiarAlerta() {
-            if (this.checked) {
-                wrapperCheck.classList.remove('alerta-tc');
-                msgCheckError.classList.remove('visible');
-            }
-            this.removeEventListener('change', limpiarAlerta);
-        });
-    }
-
-    function validarConsentimiento() {
-        const clienteSeleccionado = !!getClienteSeleccionado();
-        const aceptacionMarcada   = checkboxAceptacion.checked;
-        const firmaSubida         = inputFirma && inputFirma.files && inputFirma.files.length > 0;
-
-        // Mostrar/ocultar mensaje de error de firma
-        if (aceptacionMarcada && !firmaSubida) {
-            errorFirma.style.display = 'block';
-        } else {
-            errorFirma.style.display = 'none';
-        }
-
-        btnConfirmarConsentimiento.disabled = !(clienteSeleccionado && aceptacionMarcada && firmaSubida);
-    }
-
-    checkboxAceptacion.addEventListener('change', validarConsentimiento);
-    selectCliente.addEventListener('change', validarConsentimiento);
-
-    if (inputFirma) {
-        inputFirma.addEventListener('change', validarConsentimiento);
-    }
-    
-    // Interceptar el clic en el botón Guardar
-    document.getElementById('btnGuardar').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Validar el paso actual antes de mostrar el modal
-        if (validateStep(currentStep)) {
-            // Verificar que haya un cliente seleccionado
-            if (!selectCliente.value) {
-                mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
-                return;
-            }
-            
-            // Limpiar estado del modal
-            checkboxAceptacion.checked = false;
-            validarConsentimiento();
-            
-            // Actualizar información del cliente en el modal
-            actualizarInfoCliente();
-            
-            // Mostrar el modal
-            modalConsentimiento.show();
-        }
-    });
-    
-    // Cerrar modal sin guardar
-    btnCerrarModal.addEventListener('click', function() {
-        modalConsentimiento.hide();
-    });
-    
-    // Confirmar y guardar
-    btnConfirmarConsentimiento.addEventListener('click', function() {
-        const cliente = getClienteSeleccionado();
-        if (!cliente) {
-            mostrarNotificacion('Por favor seleccione un cliente antes de continuar', 'warning');
-            return;
-        }
-
-        // 1. Verificar checkbox de aceptaci?n
-        if (!checkboxAceptacion.checked) {
-            sacudirCheckbox();
-            return;
-        }
-
-        // 2. Verificar firma
-        const firmaSubida = inputFirma && inputFirma.files && inputFirma.files.length > 0;
-        if (!firmaSubida) {
-            errorFirma.style.display = 'block';
-            errorFirma.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
-
-        // Obtener datos del cliente seleccionado
-        const nombreCompleto = cliente.nombre;
-        const numeroDocumento = cliente.documento || '';
-
-        // Agregar los datos de consentimiento al formulario como campos ocultos
-        const inputNombre = document.createElement('input');
-        inputNombre.type = 'hidden';
-        inputNombre.name = 'consentimiento_nombre';
-        inputNombre.value = nombreCompleto;
-        formulario.appendChild(inputNombre);
-
-        const inputCedula = document.createElement('input');
-        inputCedula.type = 'hidden';
-        inputCedula.name = 'consentimiento_cedula';
-        inputCedula.value = numeroDocumento;
-        formulario.appendChild(inputCedula);
-
-        const inputFecha = document.createElement('input');
-        inputFecha.type = 'hidden';
-        inputFecha.name = 'consentimiento_fecha';
-        inputFecha.value = fechaActual;
-        formulario.appendChild(inputFecha);
-
-        const inputAceptado = document.createElement('input');
-        inputAceptado.type = 'hidden';
-        inputAceptado.name = 'consentimiento_aceptado';
-        inputAceptado.value = 'true';
-        formulario.appendChild(inputAceptado);
-
-        // Cerrar modal
-        modalConsentimiento.hide();
-
-        // Enviar el formulario
-        formulario.submit();
-    });
-
-    /* ===============================
-       RECOPILAR DATOS DEL FORMULARIO
-    =============================== */
-    function recopilarDatosFormulario() {
-        actualizarEstadoImpresion();
-        return {
-            ...estadoImpresion,
-            fecha: new Date().toLocaleDateString('es-CO', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
-        };
-
-        const datos = {};
-
-        // Cliente
-        const cliente = getClienteSeleccionado();
-        datos.clienteNombre    = cliente ? cliente.nombre : '?';
-        datos.clienteDocumento = cliente ? (cliente.documento || '?') : '?';
-
-        // Helper para leer select o input por name
-        function getCampoFormulario(name) {
-            if (!formulario) return null;
-            const campo = formulario.elements.namedItem(name);
-            if (!campo) return null;
-            if (typeof campo.length === 'number' && !campo.tagName) {
-                const candidatos = Array.from(campo);
-                return candidatos.find(field => !field.disabled && field.type !== 'hidden') || candidatos[0] || null;
-            }
-            return campo;
-        }
-
-        function getValByName(name) {
-            const el = getCampoFormulario(name);
-            if (!el) return '—';
-            if (el.type === 'checkbox') {
-                return el.checked ? 'Sí' : 'No';
-            }
-            if (el.tagName === 'SELECT') {
-                const opt = el.options[el.selectedIndex];
-                return opt ? opt.text.trim() : '—';
-            }
-            return (el.value || '—').trim() || '—';
-        }
-        function getBoolByName(name) {
-            const el = getCampoFormulario(name);
-            return (el && el.checked) ? 'Sí' : 'No';
-        }
-        // Convertir si/no values a Sí/No
-        function siNo(name) {
-            const v = getValByName(name);
-            return v === 'si' || v === 'Sí' ? 'Sí' : (v === 'no' || v === 'No' ? 'No' : v);
-        }
-
-        function leerValorElemento(el) {
-            if (!el) return '—';
-            if (el.tagName === 'SELECT') {
-                const opt = el.selectedOptions && el.selectedOptions[0];
-                if (!opt || !el.value || !opt.value) return '—';
-                return opt.text.trim() || '—';
-            }
-            return (el.value || '—').trim() || '—';
-        }
-
-        datos.precioAlisado  = leerValorElemento(document.getElementById('id_precio_alisado'));
-        datos.esOferta       = siNo('es_oferta_especial');
-        datos.descripOferta  = getValByName('descripcion_oferta');
-        datos.anticipo       = leerValorElemento(document.getElementById('id_anticipo_cliente'));
-        datos.medioPago      = leerValorElemento(document.getElementById('id_medio_pago'));
-        datos.saldo          = getValByName('saldo_pendiente');
-
-        datos.realizadoPor   = leerValorElemento(document.getElementById('id_procedimiento_realizado_por'));
-        datos.tipoAlisado    = leerValorElemento(document.getElementById('id_tipo_alisado'));
-        datos.resellado      = siNo('requiere_resellado');
-        datos.porcentaje     = leerValorElemento(document.getElementById('id_porcentaje_alisado')) + '%';
-
-        datos.porosidad      = getValByName('porosidad');
-        datos.textura        = getValByName('textura');
-        datos.formaNatural   = getValByName('forma_natural');
-        datos.elasticidad    = getValByName('elasticidad');
-        datos.longitud       = getValByName('longitud');
-        datos.densidad       = getValByName('densidad');
-        datos.pielCabelludo  = getValByName('piel_cabelludo');
-        datos.alopecia       = getValByName('alopecia');
-        datos.caida          = getValByName('caida_cabello');
-        datos.caspa          = getValByName('caspa');
-
-        datos.lactante       = siNo('lactante');
-        datos.gestante       = siNo('gestante');
-        datos.tiroides       = siNo('sufre_tiroides');
-        datos.medTiroides    = getValByName('medicamento_tiroides');
-        datos.despunte       = siNo('despunte_hoy');
-
-        datos.tintura        = getBoolByName('procesos_tintura');
-        datos.decoloracion   = getBoolByName('procesos_decoloracion');
-        datos.ondulados      = getBoolByName('procesos_ondulados');
-        datos.extracciones   = getBoolByName('procesos_extracciones');
-        datos.alisados       = getBoolByName('procesos_alisados');
-        datos.superAclarante = getBoolByName('procesos_super_aclarante');
-        datos.otrosProcesos  = getValByName('procesos_otro');
-
-        datos.secador        = siNo('cuenta_con_secador');
-        datos.usaCasco       = siNo('usa_casco');
-        datos.aguaCaliente   = siNo('se_bana_agua_caliente');
-        datos.refuerzo15     = siNo('requiere_refuerzo_15dias');
-        datos.frecRecoge     = getValByName('frecuencia_recoge_cabello');
-        datos.ejercicio      = siNo('realiza_ejercicio');
-        datos.frecEjercicio  = getValByName('frecuencia_ejercicio');
-        datos.productos      = getValByName('productos_capilares');
-        datos.recomendaciones = getValByName('recomendaciones_post_cuidados');
-
-        datos.fecha = new Date().toLocaleDateString('es-CO', {
-            year: 'numeric', month: 'long', day: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        });
-        return datos;
-    }
-
-    /* ===============================
-       HTML COMPARTIDO DEL DOCUMENTO
-    =============================== */
-    function generarHTMLDocumento(datos) {
-        const estilos = `
-            * { margin:0; padding:0; box-sizing:border-box; }
-            body { font-family:Arial,sans-serif; font-size:11pt; color:#222; padding:20px; }
-            .header { display:flex; align-items:center; gap:16px; border-bottom:3px solid #634c40; padding-bottom:12px; margin-bottom:18px; }
-            .header-text h1 { font-size:13pt; color:#634c40; font-weight:bold; }
-            .header-text p { font-size:9pt; color:#666; }
-            .fecha-box { text-align:right; font-size:9pt; color:#555; margin-bottom:10px; }
-            .seccion { margin-bottom:14px; }
-            .seccion-titulo { background:#634c40; color:white; padding:5px 10px; font-size:10pt; font-weight:bold; border-radius:3px; margin-bottom:8px; }
-            .fila { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:5px; }
-            .campo { flex:1; min-width:170px; margin-bottom:4px; }
-            .campo-label { font-size:8pt; color:#634c40; font-weight:bold; text-transform:uppercase; }
-            .campo-valor { font-size:10pt; border-bottom:1px solid #ccc; padding:2px 4px; min-height:20px; color:#333; }
-            .campo-valor.largo { border:1px solid #ccc; padding:4px; min-height:36px; border-radius:3px; margin-top:2px; }
-            .procesos-grid { display:flex; flex-wrap:wrap; gap:6px; }
-            .proceso-item { border:1px solid #ccc; border-radius:3px; padding:3px 8px; font-size:9.5pt; }
-            .proceso-si { background:#f0e8e4; border-color:#634c40; color:#634c40; font-weight:bold; }
-            .proceso-no { color:#aaa; }
-            .firma-seccion { margin-top:30px; border-top:2px solid #634c40; padding-top:20px; display:flex; justify-content:space-between; }
-            .firma-box { text-align:center; flex:1; padding:0 20px; }
-            .firma-linea { border-top:1px solid #333; margin-top:50px; margin-bottom:5px; }
-            .firma-texto { font-size:9pt; color:#555; }
-            .consent-box { background:#f9f4f2; border:1px solid #d4b8ac; border-radius:4px; padding:10px 14px; margin-bottom:14px; font-size:9pt; color:#444; }
-            .consent-box strong { color:#634c40; }
-            @media print { @page { margin:15mm; size:A4; } body { padding:0; } }
-        `;
-
-        const procesos = [
-            ['Tintura', datos.tintura],
-            ['Decoloración', datos.decoloracion],
-            ['Ondulados Perm', datos.ondulados],
-            ['Extracciones', datos.extracciones],
-            ['Alisados', datos.alisados],
-            ['Super Aclarante', datos.superAclarante],
-        ];
-
-        return `<!DOCTYPE html><html><head><meta charset="utf-8">
-        <title>Tratamiento de Alisado - ${datos.clienteNombre}</title>
-        <style>${estilos}</style></head><body>
-
-        <div class="header">
-            <div class="header-text">
-                <h1>TRATAMIENTO DE DATOS &mdash; SERVICIO DE ALISADO</h1>
-                <p>Formulario de Gestión y Consentimiento Informado</p>
-            </div>
-        </div>
-        <div class="fecha-box">Fecha de registro: <strong>${datos.fecha}</strong></div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Información del Cliente</div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">Nombre completo</div><div class="campo-valor">${datos.clienteNombre}</div></div>
-                <div class="campo"><div class="campo-label">Número de documento</div><div class="campo-valor">${datos.clienteDocumento}</div></div>
-            </div>
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Información del Servicio y Pago</div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">Precio del Alisado</div><div class="campo-valor">$ ${datos.precioAlisado}</div></div>
-                <div class="campo"><div class="campo-label">Anticipo</div><div class="campo-valor">$ ${datos.anticipo}</div></div>
-                <div class="campo"><div class="campo-label">Saldo Pendiente</div><div class="campo-valor">$ ${datos.saldo}</div></div>
-                <div class="campo"><div class="campo-label">Medio de Pago</div><div class="campo-valor">${datos.medioPago}</div></div>
-                <div class="campo"><div class="campo-label">¿Oferta especial?</div><div class="campo-valor">${datos.esOferta}${datos.esOferta === 'Sí' ? ' — ' + datos.descripOferta : ''}</div></div>
-            </div>
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Información del Procedimiento</div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">Realizado por</div><div class="campo-valor">${datos.realizadoPor}</div></div>
-                <div class="campo"><div class="campo-label">Porcentaje de Alisado</div><div class="campo-valor">${datos.porcentaje}</div></div>
-                <div class="campo"><div class="campo-label">Requiere Resellado</div><div class="campo-valor">${datos.resellado}</div></div>
-            </div>
-            <div class="campo"><div class="campo-label">Tipo de Alisado</div><div class="campo-valor largo">${datos.tipoAlisado}</div></div>
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Características del Cabello</div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">Porosidad</div><div class="campo-valor">${datos.porosidad}</div></div>
-                <div class="campo"><div class="campo-label">Textura</div><div class="campo-valor">${datos.textura}</div></div>
-                <div class="campo"><div class="campo-label">Forma Natural</div><div class="campo-valor">${datos.formaNatural}</div></div>
-                <div class="campo"><div class="campo-label">Elasticidad</div><div class="campo-valor">${datos.elasticidad}</div></div>
-            </div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">Longitud</div><div class="campo-valor">${datos.longitud}</div></div>
-                <div class="campo"><div class="campo-label">Densidad</div><div class="campo-valor">${datos.densidad}</div></div>
-                <div class="campo"><div class="campo-label">Piel Cabelludo</div><div class="campo-valor">${datos.pielCabelludo}</div></div>
-                <div class="campo"><div class="campo-label">Alopecia</div><div class="campo-valor">${datos.alopecia}</div></div>
-                <div class="campo"><div class="campo-label">Caída de Cabello</div><div class="campo-valor">${datos.caida}</div></div>
-                <div class="campo"><div class="campo-label">Caspa</div><div class="campo-valor">${datos.caspa}</div></div>
-            </div>
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Estado de Salud y Condiciones Especiales</div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">¿Lactante?</div><div class="campo-valor">${datos.lactante}</div></div>
-                <div class="campo"><div class="campo-label">¿Gestante?</div><div class="campo-valor">${datos.gestante}</div></div>
-                <div class="campo"><div class="campo-label">¿Tiroides?</div><div class="campo-valor">${datos.tiroides}${datos.tiroides === 'Sí' ? ' — ' + datos.medTiroides : ''}</div></div>
-                <div class="campo"><div class="campo-label">¿Despunte hoy?</div><div class="campo-valor">${datos.despunte}</div></div>
-            </div>
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Procesos Químicos Previos</div>
-            <div class="procesos-grid">
-                ${procesos.map(([l, v]) => `<div class="proceso-item ${v === 'Sí' ? 'proceso-si' : 'proceso-no'}">${v === 'Sí' ? '✓' : '○'} ${l}</div>`).join('')}
-            </div>
-            ${datos.otrosProcesos && datos.otrosProcesos !== '—' ? `<div style="margin-top:6px"><div class="campo-label">Otro:</div><div class="campo-valor">${datos.otrosProcesos}</div></div>` : ''}
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Hábitos y Cuidados</div>
-            <div class="fila">
-                <div class="campo"><div class="campo-label">¿Tiene secador?</div><div class="campo-valor">${datos.secador}</div></div>
-                <div class="campo"><div class="campo-label">¿Usa casco?</div><div class="campo-valor">${datos.usaCasco}</div></div>
-                <div class="campo"><div class="campo-label">¿Baña con agua caliente?</div><div class="campo-valor">${datos.aguaCaliente}</div></div>
-                <div class="campo"><div class="campo-label">Refuerzo 15 días</div><div class="campo-valor">${datos.refuerzo15}</div></div>
-                <div class="campo"><div class="campo-label">¿Realiza ejercicio?</div><div class="campo-valor">${datos.ejercicio}${datos.ejercicio === 'Sí' ? ' — ' + datos.frecEjercicio : ''}</div></div>
-            </div>
-            <div class="campo"><div class="campo-label">¿Cada cuánto recoge el cabello?</div><div class="campo-valor largo">${datos.frecRecoge}</div></div>
-            <div class="campo" style="margin-top:6px"><div class="campo-label">Productos capilares (shampoo, acondicionador, mascarilla)</div><div class="campo-valor largo">${datos.productos}</div></div>
-        </div>
-
-        <div class="seccion">
-            <div class="seccion-titulo">Recomendaciones y Anotaciones</div>
-            <div class="campo"><div class="campo-valor largo">${datos.recomendaciones}</div></div>
-        </div>
-
-        <div class="consent-box">
-            <strong>Consentimiento Informado:</strong> El/La cliente declara haber leído y comprendido todos los términos y condiciones del tratamiento de alisado, incluyendo recomendaciones, advertencias, compromisos y porcentajes de tratamiento. Acepta voluntariamente el procedimiento y sus condiciones.
-        </div>
-
-        <div class="firma-seccion">
-            <div class="firma-box">
-                <div class="firma-linea"></div>
-                <div class="firma-texto"><strong>${datos.clienteNombre}</strong></div>
-                <div class="firma-texto">Doc: ${datos.clienteDocumento}</div>
-                <div class="firma-texto">Firma del Cliente</div>
-            </div>
-            <div class="firma-box">
-                <div class="firma-linea"></div>
-                <div class="firma-texto"><strong>${datos.realizadoPor}</strong></div>
-                <div class="firma-texto">Responsable del Procedimiento</div>
-            </div>
-        </div>
-
-        </body></html>`;
-    }
-
-</script>
 
 <!-- Modal Crear Cliente -->
 <div class="modal fade" id="modalCrearCliente" tabindex="-1">
@@ -2002,17 +651,17 @@ document.addEventListener('DOMContentLoaded', function() {
                       id="tipo_documento_modal"
                       class="form-select">
                 <option value="">Seleccione</option>
-                <option value="CC">Cédula</option>
+                <option value="CC">CÃ©dula</option>
                 <option value="TI">Tarjeta</option>
-                <option value="CE">Extranjería</option>
+                <option value="CE">ExtranjerÃ­a</option>
                 <option value="PP">Pasaporte</option>
               </select>
               <div class="invalid-feedback"></div>
             </div>
             
-            <!-- NÚMERO DOCUMENTO -->
+            <!-- NÃšMERO DOCUMENTO -->
             <div class="col-md-6">
-              <label class="form-label">Número documento <span class="text-danger">*</span></label>
+              <label class="form-label">NÃºmero documento <span class="text-danger">*</span></label>
               <input type="text"
                      id="numero_documento_modal"
                      name="numero_documento"
@@ -2042,7 +691,7 @@ document.addEventListener('DOMContentLoaded', function() {
                      id="apellido_modal"
                      name="apellido"
                      class="form-control"
-                     placeholder="Ej: Pérez"
+                     placeholder="Ej: PÃ©rez"
                      autocomplete="off">
               <div class="invalid-feedback"></div>
             </div>
@@ -2057,9 +706,9 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="invalid-feedback"></div>
             </div>
 
-            <!-- TELÉFONO -->
+            <!-- TELÃ‰FONO -->
             <div class="col-md-6">
-              <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
+              <label class="form-label">TelÃ©fono <small class="text-muted">(opcional)</small></label>
               <input type="text"
                      id="telefono_modal"
                      name="telefono"
@@ -2072,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <!-- CORREO -->
             <div class="col-12">
-              <label class="form-label">Correo electrónico <small class="text-muted">(opcional)</small></label>
+              <label class="form-label">Correo electrÃ³nico <small class="text-muted">(opcional)</small></label>
               <input type="email"
                      id="correo_modal"
                      name="correo"
@@ -2099,565 +748,11 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
-<style>
-  .invalid-feedback {
-    display: block !important;
-    font-size: 0.875em;
-    margin-top: 0.25rem;
-  }
-  
-  .form-control.is-invalid,
-  .form-select.is-invalid {
-    border-color: #dc3545 !important;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  }
-  
-  .form-control.is-valid,
-  .form-select.is-valid {
-    border-color: #198754 !important;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  }
-</style>
+<link rel="stylesheet" href="{% static 'gestion_alisados/css/gestion_alisados.css' %}">
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
 
-    const modalCliente = document.getElementById('modalCrearCliente');
-    const formCliente = document.getElementById('formCrearCliente');
-    const btnGuardar = document.getElementById('btnGuardarClienteModal');
-    const selectCliente = document.getElementById('selectCliente');
 
-    if (!modalCliente || !formCliente || !btnGuardar) return;
 
-    /* ===============================
-       FUNCIÓN: ESTADO DEL BOTÓN
-    =============================== */
-    function actualizarEstadoBoton() {
-        const obligatorios = [
-            'tipo_documento_modal',
-            'numero_documento_modal',
-            'nombre_modal',
-            'apellido_modal',
-            'fecha_nacimiento_modal'
-        ];
 
-        let hayError = false;
-        let hayVacios = false;
-        let noValidos = false;
-
-        obligatorios.forEach(id => {
-            const campo = document.getElementById(id);
-            if (!campo) return;
-
-            if (campo.value.trim() === '') {
-                hayVacios = true;
-            }
-
-            if (campo.classList.contains('is-invalid')) {
-                hayError = true;
-            }
-
-            if (campo.value.trim() !== '' && !campo.classList.contains('is-valid')) {
-                noValidos = true;
-            }
-        });
-
-        if (hayError || hayVacios || noValidos) {
-            btnGuardar.disabled = true;
-            btnGuardar.classList.remove('btn-dark');
-            btnGuardar.classList.add('btn-secondary');
-        } else {
-            btnGuardar.disabled = false;
-            btnGuardar.classList.remove('btn-secondary');
-            btnGuardar.classList.add('btn-dark');
-        }
-    }
-
-    /* ===============================
-       FUNCIONES AUXILIARES
-    =============================== */
-    function invalido(input, feedback, mensaje) {
-        input.classList.add('is-invalid');
-        input.classList.remove('is-valid');
-        feedback.textContent = mensaje;
-    }
-
-    function valido(input, feedback) {
-        input.classList.remove('is-invalid');
-        input.classList.add('is-valid');
-        feedback.textContent = '';
-    }
-
-    function limpiar(input, feedback) {
-        input.classList.remove('is-invalid', 'is-valid');
-        feedback.textContent = '';
-    }
-
-    /* ===============================
-       VALIDACIONES EN TIEMPO REAL
-    =============================== */
-    document.addEventListener('input', async function (e) {
-        const input = e.target;
-        const feedback = input.nextElementSibling;
-        if (!feedback || !input.id.includes('_modal')) return;
-
-        const valor = input.value.trim();
-
-        /* ===== NÚMERO DOCUMENTO ===== */
-        if (input.id === 'numero_documento_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length < 6 || valor.length > 12) {
-                invalido(input, feedback, 'Debe tener entre 6 y 12 dígitos.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            try {
-                const url = `/clientes/validar-documento/?numero=${valor}`;
-                const res = await fetch(url);
-                const data = await res.json();
-
-                if (!data.valido) {
-                    invalido(input, feedback, data.mensaje);
-                } else {
-                    valido(input, feedback);
-                }
-            } catch {
-                invalido(input, feedback, 'Error validando el documento.');
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== NOMBRE / APELLIDO ===== */
-        if (input.id === 'nombre_modal' || input.id === 'apellido_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-            if (!soloLetras.test(valor)) {
-                invalido(
-                    input,
-                    feedback,
-                    input.id === 'nombre_modal'
-                        ? 'El nombre solo puede contener letras.'
-                        : 'El apellido solo puede contener letras.'
-                );
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== TELÉFONO ===== */
-        if (input.id === 'telefono_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (!/^\d+$/.test(valor)) {
-                invalido(input, feedback, 'Solo se permiten números.');
-                actualizarEstadoBoton();
-                return;
-            }
-
-            if (valor.length !== 10) {
-                const digitosActuales = valor.length;
-                const faltanOSobran = digitosActuales < 10 
-                    ? `Faltan ${10 - digitosActuales} dígito${10 - digitosActuales > 1 ? 's' : ''}`
-                    : `Sobran ${digitosActuales - 10} dígito${digitosActuales - 10 > 1 ? 's' : ''}`;
-                invalido(input, feedback, `Debe tener exactamente 10 dígitos. ${faltanOSobran}.`);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            valido(input, feedback);
-            actualizarEstadoBoton();
-        }
-
-        /* ===== CORREO ===== */
-        if (input.id === 'correo_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailRegex.test(valor)) {
-                invalido(input, feedback, 'Correo electrónico inválido.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-
-        /* ===== FECHA NACIMIENTO ===== */
-        if (input.id === 'fecha_nacimiento_modal') {
-            if (valor === '') {
-                limpiar(input, feedback);
-                actualizarEstadoBoton();
-                return;
-            }
-
-            const fecha = new Date(valor);
-            const hoy = new Date();
-
-            if (fecha > hoy) {
-                invalido(input, feedback, 'La fecha no puede ser futura.');
-            } else {
-                valido(input, feedback);
-            }
-
-            actualizarEstadoBoton();
-        }
-    });
-
-    /* ===============================
-       VALIDACIÓN TIPO DOCUMENTO (SELECT)
-    =============================== */
-    const tipoDocumentoSelect = document.getElementById('tipo_documento_modal');
-    
-    if (tipoDocumentoSelect) {
-        tipoDocumentoSelect.addEventListener('change', function() {
-            const feedback = this.nextElementSibling;
-            
-            if (this.value.trim() === '') {
-                limpiar(this, feedback);
-            } else {
-                valido(this, feedback);
-            }
-            
-            actualizarEstadoBoton();
-        });
-    }
-
-    /* ===============================
-       SUBMIT DEL FORMULARIO
-    =============================== */
-    formCliente.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        btnGuardar.disabled = true;
-        btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-        
-        const formData = new FormData(formCliente);
-        
-        try {
-            const response = await fetch('/clientes/crear/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Agregar el nuevo cliente al select
-                const option = document.createElement('option');
-                option.value = data.cliente.id;
-                option.textContent = `${data.cliente.nombre} ${data.cliente.apellido} - ${data.cliente.numero_documento}`;
-                option.setAttribute('data-documento', data.cliente.numero_documento);
-                option.selected = true;
-                selectCliente.appendChild(option);
-                
-                // Cerrar el modal
-                const modalInstancia = bootstrap.Modal.getInstance(modalCliente);
-                modalInstancia.hide();
-                
-                // Limpiar el formulario
-                formCliente.reset();
-                formCliente.querySelectorAll('.form-control, .form-select').forEach(el => {
-                    el.classList.remove('is-valid', 'is-invalid');
-                });
-                
-                // Mostrar mensaje de éxito
-                mostrarNotificacion('Cliente registrado correctamente', 'success');
-            } else {
-                // Mostrar errores
-                const alertaErrores = document.getElementById('alertaErroresCliente');
-                const listaErrores = document.getElementById('listaErroresCliente');
-                listaErrores.innerHTML = '';
-                
-                for (const [campo, mensaje] of Object.entries(data.errores)) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${campo}:</strong> ${mensaje}`;
-                    listaErrores.appendChild(li);
-                }
-                
-                alertaErrores.classList.remove('d-none');
-            }
-        } catch (error) {
-            mostrarNotificacion('Error al guardar el cliente. Por favor, intenta nuevamente.', 'error');
-        } finally {
-            btnGuardar.disabled = false;
-            btnGuardar.innerHTML = 'Guardar cliente';
-            actualizarEstadoBoton();
-        }
-    });
-
-    /* ===============================
-       LIMPIAR TODO AL CERRAR MODAL
-    =============================== */
-    modalCliente.addEventListener('hidden.bs.modal', function () {
-        formCliente.reset();
-
-        formCliente.querySelectorAll('input, select, textarea').forEach(el => {
-            el.value = '';
-            el.defaultValue = '';
-            el.classList.remove('is-valid', 'is-invalid');
-        });
-
-        formCliente.querySelectorAll('.invalid-feedback').forEach(el => {
-            el.textContent = '';
-        });
-
-        const alertaErrores = document.getElementById('alertaErroresCliente');
-        alertaErrores.classList.add('d-none');
-
-        btnGuardar.disabled = true;
-        btnGuardar.classList.remove('btn-dark');
-        btnGuardar.classList.add('btn-secondary');
-    });
-
-    /* ===============================
-       AL ABRIR MODAL → BOTÓN BLOQUEADO
-    =============================== */
-    modalCliente.addEventListener('shown.bs.modal', function () {
-        actualizarEstadoBoton();
-    });
-
-});
-</script>
-
-<script>
-(function () {
-    const VACIO = '—';
-
-    function getForm() {
-        return document.getElementById('gestionAlisadoForm');
-    }
-
-    function getControl(nombre) {
-        const form = getForm();
-        if (!form) return null;
-        const control = form.elements.namedItem(nombre);
-        if (!control) return null;
-        if (typeof control.length === 'number' && !control.tagName) {
-            const candidato = Array.from(control).find(function (el) {
-                return el && !el.disabled && el.type !== 'hidden';
-            });
-            return candidato || control[0] || null;
-        }
-        return control;
-    }
-
-    function getTextoControl(nombre) {
-        const control = getControl(nombre);
-        if (!control) return VACIO;
-        if (control.type === 'checkbox') {
-            return control.checked ? 'Sí' : 'No';
-        }
-        if (control.tagName === 'SELECT') {
-            const opcion = control.selectedOptions && control.selectedOptions[0];
-            return (opcion && opcion.value) ? (opcion.text || VACIO).trim() || VACIO : VACIO;
-        }
-        const valor = (control.value || '').trim();
-        return valor || VACIO;
-    }
-
-    function getTextoCliente() {
-        const selectCliente = document.getElementById('selectCliente');
-        if (!selectCliente || !selectCliente.value) return VACIO;
-        const opcion = selectCliente.selectedOptions && selectCliente.selectedOptions[0];
-        if (!opcion) return VACIO;
-        const nombreGuardado = (document.getElementById('clienteNombreImpresion')?.value || '').trim();
-        if (nombreGuardado) return nombreGuardado;
-        const textoCompleto = (opcion.text || '').trim();
-        const separador = textoCompleto.lastIndexOf(' - ');
-        const partes = separador >= 0 ? {
-            nombre: textoCompleto.slice(0, separador).trim(),
-            documento: textoCompleto.slice(separador + 3).trim(),
-        } : { nombre: textoCompleto, documento: '' };
-        return (opcion.getAttribute('data-nombre') || partes.nombre || VACIO).trim() || VACIO;
-    }
-
-    function getDocumentoCliente() {
-        const selectCliente = document.getElementById('selectCliente');
-        if (!selectCliente || !selectCliente.value) return VACIO;
-        const opcion = selectCliente.selectedOptions && selectCliente.selectedOptions[0];
-        if (!opcion) return VACIO;
-        const documentoGuardado = (document.getElementById('clienteDocumentoImpresion')?.value || '').trim();
-        if (documentoGuardado) return documentoGuardado;
-        const textoCompleto = (opcion.text || '').trim();
-        const separador = textoCompleto.lastIndexOf(' - ');
-        const partes = separador >= 0 ? {
-            nombre: textoCompleto.slice(0, separador).trim(),
-            documento: textoCompleto.slice(separador + 3).trim(),
-        } : { nombre: textoCompleto, documento: '' };
-        return (opcion.getAttribute('data-documento') || partes.documento || VACIO).trim() || VACIO;
-    }
-
-    function recopilarDatosImpresion() {
-        actualizarEstadoImpresion();
-        return {
-            clienteNombre: estadoImpresion.clienteNombre,
-            clienteDocumento: estadoImpresion.clienteDocumento,
-            fecha: new Date().toLocaleDateString('es-CO', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }),
-            precioAlisado: getTextoControl('precio_alisado'),
-            anticipo: getTextoControl('anticipo_cliente'),
-            saldo: getTextoControl('saldo_pendiente'),
-            medioPago: getTextoControl('medio_pago'),
-            esOferta: getTextoControl('es_oferta_especial'),
-            descripOferta: getTextoControl('descripcion_oferta'),
-            realizadoPor: getTextoControl('procedimiento_realizado_por'),
-            porcentaje: getTextoControl('porcentaje_alisado'),
-            resellado: getTextoControl('requiere_resellado'),
-            tipoAlisado: getTextoControl('tipo_alisado'),
-            porosidad: getTextoControl('porosidad'),
-            textura: getTextoControl('textura'),
-            formaNatural: getTextoControl('forma_natural'),
-            elasticidad: getTextoControl('elasticidad'),
-            longitud: getTextoControl('longitud'),
-            densidad: getTextoControl('densidad'),
-            pielCabelludo: getTextoControl('piel_cabelludo'),
-            alopecia: getTextoControl('alopecia'),
-            caida: getTextoControl('caida_cabello'),
-            caspa: getTextoControl('caspa'),
-            lactante: getTextoControl('lactante'),
-            gestante: getTextoControl('gestante'),
-            tiroides: getTextoControl('sufre_tiroides'),
-            medTiroides: getTextoControl('medicamento_tiroides'),
-            despunte: getTextoControl('despunte_hoy'),
-            tintura: getTextoControl('procesos_tintura'),
-            decoloracion: getTextoControl('procesos_decoloracion'),
-            ondulados: getTextoControl('procesos_ondulados'),
-            extracciones: getTextoControl('procesos_extracciones'),
-            alisados: getTextoControl('procesos_alisados'),
-            superAclarante: getTextoControl('procesos_super_aclarante'),
-            otrosProcesos: getTextoControl('procesos_otro'),
-            secador: getTextoControl('cuenta_con_secador'),
-            usaCasco: getTextoControl('usa_casco'),
-            aguaCaliente: getTextoControl('se_bana_agua_caliente'),
-            refuerzo15: getTextoControl('requiere_refuerzo_15dias'),
-            ejercicio: getTextoControl('realiza_ejercicio'),
-            frecEjercicio: getTextoControl('frecuencia_ejercicio'),
-            frecRecoge: getTextoControl('frecuencia_recoge_cabello'),
-            productos: getTextoControl('productos_capilares'),
-            recomendaciones: getTextoControl('recomendaciones_post_cuidados')
-        };
-    }
-
-    function mostrarExito(mensaje) {
-        if (window.Swal) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Documento',
-                text: mensaje,
-                confirmButtonColor: '#634c40'
-            });
-            return;
-        }
-        alert(mensaje);
-    }
-
-    function descargarPdf() {
-        const datos = recopilarDatosImpresion();
-        const htmlDoc = generarHTMLDocumento(datos);
-        const previewUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlDoc);
-        const ventana = window.open(previewUrl, '_blank', 'width=860,height=720');
-        if (!ventana) {
-            if (window.Swal) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Ventanas emergentes bloqueadas',
-                    text: 'Permite las ventanas emergentes e intenta de nuevo.',
-                    confirmButtonColor: '#634c40'
-                });
-            } else {
-                alert('Permite las ventanas emergentes e intenta de nuevo.');
-            }
-            return;
-        }
-        ventana.focus();
-        setTimeout(function () {
-            try {
-                ventana.print();
-            } catch (error) {
-                console.warn('No se pudo abrir la impresión del PDF.', error);
-            }
-        }, 700);
-    }
-
-    function descargarWord() {
-        const datos = recopilarDatosImpresion();
-        const blob = new Blob(['\ufeff' + generarHTMLDocumento(datos)], { type: 'application/msword;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const enlace = document.createElement('a');
-        const nombreLimpio = (datos.clienteNombre || 'cliente').split(' - ')[0].replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').replace(/\s+/g, '_') || 'cliente';
-        enlace.href = url;
-        enlace.download = 'Alisado_' + nombreLimpio + '_' + new Date().toISOString().slice(0, 10) + '.doc';
-        document.body.appendChild(enlace);
-        enlace.click();
-        document.body.removeChild(enlace);
-        URL.revokeObjectURL(url);
-        mostrarExito('Documento Word descargado correctamente.');
-    }
-
-    function reemplazarBoton(id, handler) {
-        const boton = document.getElementById(id);
-        if (!boton || !boton.parentNode) return;
-        const clon = boton.cloneNode(true);
-        boton.parentNode.replaceChild(clon, boton);
-        clon.addEventListener('click', handler);
-    }
-
-    reemplazarBoton('btnImprimirPDF', function (e) {
-        e.preventDefault();
-        descargarPdf();
-    });
-
-    reemplazarBoton('btnImprimirWord', function (e) {
-        e.preventDefault();
-        descargarWord();
-    });
-})();
-</script>
-
+<script src="{% static 'gestion_alisados/js/form_gestion_alisado.js' %}?v={% now 'U' %}"></script>
 {% endblock %}

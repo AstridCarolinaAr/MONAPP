@@ -17,6 +17,34 @@ const INPUT_RULES = {
     },
 };
 
+function getServicioPageUrls() {
+    const page = document.getElementById('servicios-page');
+    const urls = {
+        crearServicio: '',
+        listaServicios: '',
+        editarServicio: '',
+        toggleActivo: '',
+    };
+
+    if (page) {
+        urls.crearServicio = page.dataset.crearServicioUrl || '';
+        urls.listaServicios = page.dataset.listaServiciosUrl || '';
+        urls.editarServicio = page.dataset.editarServicioUrl || '';
+        urls.toggleActivo = page.dataset.toggleActivoUrl || '';
+    }
+
+    if (window.URLS) {
+        urls.crearServicio = urls.crearServicio || window.URLS.crearServicio || '';
+        urls.listaServicios = urls.listaServicios || window.URLS.listaServicios || '';
+        urls.editarServicio = urls.editarServicio || window.URLS.editarServicio || '';
+        urls.toggleActivo = urls.toggleActivo || window.URLS.toggleActivo || '';
+    }
+
+    return urls;
+}
+
+const SERVICIOS_URLS = getServicioPageUrls();
+
 function bindRestrictedInput(input, ruleName) {
     if (!input || input.dataset.guardWired === '1' || !INPUT_RULES[ruleName]) return;
     input.dataset.guardWired = '1';
@@ -201,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         modalCrear.addEventListener('show.bs.modal', function () {
             const content = document.getElementById('modalFormContent');
             content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Cargando...</p></div>';
-            fetch(window.URLS.crearServicio + '?modal=1')
+            fetch(SERVICIOS_URLS.crearServicio + '?modal=1')
                 .then(r => r.text())
                 .then(html => {
                     content.innerHTML = html;
@@ -301,9 +329,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const cb = e.target;
         const id = cb.dataset.id;
-        const endpoint = `${window.URLS.toggleActivo}${id}/`;
+        const endpoint = cb.dataset.toggleUrl || '';
 
-        if (!id || !window.URLS || !window.URLS.toggleActivo) {
+        if (!id || !endpoint) {
             cb.checked = !cb.checked;
             alert('No se pudo cambiar el estado.');
             return;
@@ -787,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function recargarListadoServicios() {
         const target = document.getElementById('lista-servicios-resultados');
         const filtros = document.getElementById('filtrosServicios');
-        const ajaxUrl = window.URLS?.listaServicios;
+        const ajaxUrl = SERVICIOS_URLS.listaServicios;
 
         if (!target || !ajaxUrl) {
             window.location.reload();

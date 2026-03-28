@@ -26,7 +26,7 @@ function abrirModalUsuario() {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    fetch(window.USUARIOS_URLS.crearUsuario, {
+    fetch(USUARIOS_URLS.crearUsuario, {
         method: 'GET',
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
@@ -65,7 +65,7 @@ function enviarFormularioUsuario(form) {
     const formData = new FormData(form);
     const modalBody = document.getElementById('modalUsuarioBody');
 
-    fetch(window.USUARIOS_URLS.crearUsuario, {
+    fetch(USUARIOS_URLS.crearUsuario, {
         method: 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
         body: formData
@@ -413,6 +413,19 @@ function enviarFormularioEditarUsuario(form, usuarioId) {
    EVENT DELEGATION & TECLADO
 ════════════════════════════════ */
 document.addEventListener('click', function (e) {
+    const actionBtn = e.target.closest('[data-usuario-action]');
+    if (actionBtn) {
+        const action = actionBtn.dataset.usuarioAction;
+        if (action === 'open-create') abrirModalUsuario();
+        if (action === 'close-create') cerrarModalUsuario();
+        if (action === 'open-detail') abrirModalDetalleUsuario(actionBtn.dataset.usuarioId);
+        if (action === 'close-detail') cerrarModalDetalleUsuario();
+        if (action === 'open-edit') abrirModalEditarUsuario(actionBtn.dataset.usuarioId);
+        if (action === 'close-edit') cerrarModalEditarUsuario();
+        if (action === 'open-delete') abrirModalEliminarUsuario(actionBtn.dataset.usuarioId);
+        if (action === 'confirm-delete') confirmarEliminarUsuario(actionBtn.dataset.usuarioId);
+    }
+
     if (e.target.closest('.btn-detalle-usuario')) {
         const btn = e.target.closest('.btn-detalle-usuario');
         abrirModalDetalleUsuario(btn.getAttribute('data-usuario-id'));
@@ -500,3 +513,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+function getUsuariosPageUrls() {
+    const page = document.getElementById('usuarios-page');
+    return {
+        crearUsuario: page ? page.dataset.crearUsuarioUrl : '',
+    };
+}
+
+const USUARIOS_URLS = getUsuariosPageUrls();

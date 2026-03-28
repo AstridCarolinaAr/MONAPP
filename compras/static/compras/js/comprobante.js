@@ -50,6 +50,15 @@
       );
     }
 
+    function applyWatermarks(root) {
+      root.querySelectorAll(".invoice-watermark-premium[data-watermark-src]").forEach((el) => {
+        const src = el.dataset.watermarkSrc;
+        if (src) {
+          el.style.backgroundImage = `url('${src}')`;
+        }
+      });
+    }
+
     // =========================
     // Descargar PDF desde la vista previa
     // =========================
@@ -153,6 +162,7 @@
         }
 
         previewBody.innerHTML = data.html;
+        applyWatermarks(previewBody);
       } catch (error) {
         console.error("ERROR FETCH COMPROBANTE:", error);
         previewBody.innerHTML = errorHTML(error.message || "Error inesperado.");

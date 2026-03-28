@@ -36,10 +36,10 @@
     </div>
 
     <div style="display: flex; gap: 12px; margin-top: 32px;">
-        <button type="button" class="btn btn-outline-secondary" style="flex: 1;" onclick="cerrarModalEliminarUsuario()">
+        <button type="button" class="btn btn-outline-secondary" style="flex: 1;" data-usuario-action="close-delete">
             <i class="bi bi-x-lg"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-danger" style="flex: 1;" onclick="confirmarEliminarUsuario({{ usuario.id }})">
+        <button type="button" class="btn btn-danger" style="flex: 1;" data-usuario-action="confirm-delete" data-usuario-id="{{ usuario.id }}">
             <i class="bi bi-person-fill-dash"></i> Sí, Desactivar
         </button>
     </div>

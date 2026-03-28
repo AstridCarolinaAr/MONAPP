@@ -495,11 +495,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        /* ── Segundo botón crear (empty state) ── */
-        document.getElementById("btnOpenCrearServicioWeb2")?.addEventListener("click", function () {
-            abrirModalDesdeURL(this.dataset.url, "Nuevo Servicio Web");
-        });
-
         /* ── Ordenar tabla ── */
         const sortState = {};
         document.querySelectorAll(".sw-sortable").forEach(header => {

@@ -33,11 +33,63 @@ from reportlab.lib.pagesizes import A4, letter, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph, Image as RLImage
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 Personal = apps.get_model("personal", "Personal")
+
+
+def _build_plotly_chart_image(labels, values, tipo="bar", title="", color="#A67C52"):
+    """
+    Genera una imagen PNG de Plotly para incrustarla en el PDF.
+
+    Si Kaleido/Chrome no está disponible, devuelve None para no romper el reporte.
+    """
+    if not labels:
+        return None
+
+    try:
+        fig = go.Figure()
+
+        if tipo == "line":
+            fig.add_trace(
+                go.Scatter(
+                    x=labels,
+                    y=values,
+                    mode="lines+markers",
+                    line=dict(color=color, width=2),
+                    marker=dict(color=color, size=8),
+                    hovertemplate="%{x}<br>Total: %{y}<extra></extra>",
+                )
+            )
+        else:
+            fig.add_trace(
+                go.Bar(
+                    x=labels,
+                    y=values,
+                    marker_color=color,
+                    hovertemplate="%{x}<br>Total: %{y}<extra></extra>",
+                )
+            )
+
+        fig.update_layout(
+            title=title,
+            xaxis_title="Fecha",
+            yaxis_title="Total ($)",
+            template="plotly_white",
+            margin=dict(l=30, r=20, t=50, b=90),
+            height=350,
+            width=900,
+            showlegend=False,
+            font=dict(size=12),
+        )
+        fig.update_xaxes(tickangle=-45)
+
+        image_bytes = fig.to_image(format="png", width=900, height=350, scale=2)
+        image_buffer = BytesIO(image_bytes)
+        image_buffer.seek(0)
+        return image_buffer
+    except Exception:
+        return None
 
 
 def _texto_seguro(valor):
@@ -681,142 +733,6 @@ def anular_venta(request, venta_id):
     return redirect(reverse("ventas:lista") + "?estado=activa")
 
 
-def clean(self):
-    if self.cantidad <= 0:
-        raise ValidationError("La cantidad debe ser mayor a 0")
-
-    if self.precio_unitario <= 0:
-        raise ValidationError("El precio debe ser mayor a 0")
-
-
-# def reporte_ventas(request):
-#     fecha_inicio = request.GET.get("fecha_inicio", "").strip()
-#     fecha_fin = request.GET.get("fecha_fin", "").strip()
-#     fecha_inicio_comp = request.GET.get("fecha_inicio_comp", "").strip()
-#     fecha_fin_comp = request.GET.get("fecha_fin_comp", "").strip()
-
-#     incluir_total = request.GET.get("incluir_total") == "1"
-#     incluir_tabla = request.GET.get("incluir_tabla") == "1"
-#     incluir_grafica = request.GET.get("incluir_grafica") == "1"
-#     comparativo = request.GET.get("comparativo") == "1"
-
-#     ventas = (
-#         Venta.objects
-#         .select_related("cliente")
-#         .prefetch_related("detalles__producto", "detalles__servicio")
-#         .annotate(
-#             total_orden=Coalesce(
-#                 Sum("detalles__subtotal"),
-#                 Value(0),
-#                 output_field=DecimalField(max_digits=12, decimal_places=2)
-#             )
-#         )
-#         .order_by("fecha")
-#     )
-
-#     ventas_comp = Venta.objects.none()
-
-#     if fecha_inicio and fecha_fin:
-#         ventas = ventas.filter(fecha__date__range=[fecha_inicio, fecha_fin])
-
-#     if comparativo and fecha_inicio_comp and fecha_fin_comp:
-#         ventas_comp = (
-#             Venta.objects
-#             .select_related("cliente")
-#             .prefetch_related("detalles__producto", "detalles__servicio")
-#             .annotate(
-#                 total_orden=Coalesce(
-#                     Sum("detalles__subtotal"),
-#                     Value(0),
-#                     output_field=DecimalField(max_digits=12, decimal_places=2)
-#                 )
-#             )
-#             .filter(fecha__date__range=[fecha_inicio_comp, fecha_fin_comp])
-#             .order_by("fecha")
-#         )
-
-#     total_principal = ventas.aggregate(
-#         total=Coalesce(
-#             Sum("detalles__subtotal"),
-#             Value(0),
-#             output_field=DecimalField(max_digits=12, decimal_places=2)
-#         )
-#     )["total"]
-
-#     total_comparativo = 0
-#     if comparativo and fecha_inicio_comp and fecha_fin_comp:
-#         total_comparativo = ventas_comp.aggregate(
-#             total=Coalesce(
-#                 Sum("detalles__subtotal"),
-#                 Value(0),
-#                 output_field=DecimalField(max_digits=12, decimal_places=2)
-#             )
-#         )["total"]
-
-#     grafica_principal_labels = []
-#     grafica_principal_data = []
-
-#     if incluir_grafica:
-#         grafica_principal = (
-#             ventas
-#             .annotate(dia=TruncDate("fecha"))
-#             .values("dia")
-#             .annotate(total=Coalesce(
-#                 Sum("detalles__subtotal"),
-#                 Value(0),
-#                 output_field=DecimalField(max_digits=12, decimal_places=2)
-#             ))
-#             .order_by("dia")
-#         )
-
-#         grafica_principal_labels = [
-#             item["dia"].strftime("%d/%m/%Y") for item in grafica_principal if item["dia"]
-#         ]
-#         grafica_principal_data = [float(item["total"]) for item in grafica_principal]
-
-#     grafica_comp_labels = []
-#     grafica_comp_data = []
-
-#     if incluir_grafica and comparativo and fecha_inicio_comp and fecha_fin_comp:
-#         grafica_comp = (
-#             ventas_comp
-#             .annotate(dia=TruncDate("fecha"))
-#             .values("dia")
-#             .annotate(total=Coalesce(
-#                 Sum("detalles__subtotal"),
-#                 Value(0),
-#                 output_field=DecimalField(max_digits=12, decimal_places=2)
-#             ))
-#             .order_by("dia")
-#         )
-
-#         grafica_comp_labels = [
-#             item["dia"].strftime("%d/%m/%Y") for item in grafica_comp if item["dia"]
-#         ]
-#         grafica_comp_data = [float(item["total"]) for item in grafica_comp]
-
-#     return render(
-#         request,
-#         "ventas/reporte_ventas.html",
-#         {
-#             "ventas": ventas,
-#             "ventas_comp": ventas_comp,
-#             "fecha_inicio": fecha_inicio,
-#             "fecha_fin": fecha_fin,
-#             "fecha_inicio_comp": fecha_inicio_comp,
-#             "fecha_fin_comp": fecha_fin_comp,
-#             "incluir_total": incluir_total,
-#             "incluir_tabla": incluir_tabla,
-#             "incluir_grafica": incluir_grafica,
-#             "comparativo": comparativo,
-#             "total_principal": total_principal,
-#             "total_comparativo": total_comparativo,
-#             "grafica_principal_labels": grafica_principal_labels,
-#             "grafica_principal_data": grafica_principal_data,
-#             "grafica_comp_labels": grafica_comp_labels,
-#             "grafica_comp_data": grafica_comp_data,
-#         },
-#     )
 COLUMNAS_REPORTE_VENTAS = {
     "codigo_venta": "Código venta",
     "cliente": "Cliente",
@@ -1509,51 +1425,39 @@ def exportar_reporte_ventas(request):
         elements.append(Paragraph("Gráfica de ventas - rango principal", styles["Heading3"]))
         elements.append(Spacer(1, 6))
 
-        fig, ax = plt.subplots(figsize=(9, 3.5))
         tipo = data.get("tipo_grafica", "bar")
         labels = data["grafica_principal_labels"]
         valores = data["grafica_principal_data"]
-
-        if tipo == "line":
-            ax.plot(labels, valores, marker="o", color="#A67C52", linewidth=1.8)
+        img_buf = _build_plotly_chart_image(
+            labels,
+            valores,
+            tipo=tipo,
+            title="Ventas - rango principal",
+            color="#A67C52",
+        )
+        if img_buf:
+            elements.append(RLImage(img_buf, width=560, height=220))
         else:
-            ax.bar(labels, valores, color="#A67C52")
-
-        ax.set_ylabel("Total ($)")
-        ax.tick_params(axis="x", rotation=45, labelsize=7)
-        ax.tick_params(axis="y", labelsize=8)
-        plt.tight_layout()
-
-        img_buf = BytesIO()
-        fig.savefig(img_buf, format="png", dpi=120)
-        plt.close(fig)
-        img_buf.seek(0)
-        elements.append(RLImage(img_buf, width=560, height=220))
+            elements.append(Paragraph("No fue posible generar la gráfica del rango principal.", styles["Italic"]))
 
         if data["comparativo"] and data["grafica_comp_labels"]:
             elements.append(Spacer(1, 14))
             elements.append(Paragraph("Gráfica de ventas - rango comparativo", styles["Heading3"]))
             elements.append(Spacer(1, 6))
 
-            fig2, ax2 = plt.subplots(figsize=(9, 3.5))
             labels2 = data["grafica_comp_labels"]
             valores2 = data["grafica_comp_data"]
-
-            if tipo == "line":
-                ax2.plot(labels2, valores2, marker="o", color="#3B261A", linewidth=1.8)
+            img_buf2 = _build_plotly_chart_image(
+                labels2,
+                valores2,
+                tipo=tipo,
+                title="Ventas - rango comparativo",
+                color="#3B261A",
+            )
+            if img_buf2:
+                elements.append(RLImage(img_buf2, width=560, height=220))
             else:
-                ax2.bar(labels2, valores2, color="#3B261A")
-
-            ax2.set_ylabel("Total ($)")
-            ax2.tick_params(axis="x", rotation=45, labelsize=7)
-            ax2.tick_params(axis="y", labelsize=8)
-            plt.tight_layout()
-
-            img_buf2 = BytesIO()
-            fig2.savefig(img_buf2, format="png", dpi=120)
-            plt.close(fig2)
-            img_buf2.seek(0)
-            elements.append(RLImage(img_buf2, width=560, height=220))
+                elements.append(Paragraph("No fue posible generar la gráfica comparativa.", styles["Italic"]))
 
     doc.build(elements, onFirstPage=_draw_reporte_watermark, onLaterPages=_draw_reporte_watermark)
     buffer.seek(0)
@@ -1631,51 +1535,39 @@ def exportar_reporte_ventas(request):
         elements.append(Paragraph("Gráfica de ventas — rango principal", styles["Heading3"]))
         elements.append(Spacer(1, 6))
 
-        fig, ax = plt.subplots(figsize=(9, 3.5))
         tipo = data.get("tipo_grafica", "bar")
         labels = data["grafica_principal_labels"]
         valores = data["grafica_principal_data"]
-
-        if tipo == "line":
-            ax.plot(labels, valores, marker="o", color="#8d604a", linewidth=1.8)
+        img_buf = _build_plotly_chart_image(
+            labels,
+            valores,
+            tipo=tipo,
+            title="Ventas — rango principal",
+            color="#8d604a",
+        )
+        if img_buf:
+            elements.append(RLImage(img_buf, width=560, height=220))
         else:
-            ax.bar(labels, valores, color="#8d604a")
-
-        ax.set_ylabel("Total ($)")
-        ax.tick_params(axis="x", rotation=45, labelsize=7)
-        ax.tick_params(axis="y", labelsize=8)
-        plt.tight_layout()
-
-        img_buf = BytesIO()
-        fig.savefig(img_buf, format="png", dpi=120)
-        plt.close(fig)
-        img_buf.seek(0)
-        elements.append(RLImage(img_buf, width=560, height=220))
+            elements.append(Paragraph("No fue posible generar la gráfica del rango principal.", styles["Italic"]))
 
         if data["comparativo"] and data["grafica_comp_labels"]:
             elements.append(Spacer(1, 16))
             elements.append(Paragraph("Gráfica de ventas — rango comparativo", styles["Heading3"]))
             elements.append(Spacer(1, 6))
 
-            fig2, ax2 = plt.subplots(figsize=(9, 3.5))
             labels2 = data["grafica_comp_labels"]
             valores2 = data["grafica_comp_data"]
-
-            if tipo == "line":
-                ax2.plot(labels2, valores2, marker="o", color="#4a7c8d", linewidth=1.8)
+            img_buf2 = _build_plotly_chart_image(
+                labels2,
+                valores2,
+                tipo=tipo,
+                title="Ventas — rango comparativo",
+                color="#4a7c8d",
+            )
+            if img_buf2:
+                elements.append(RLImage(img_buf2, width=560, height=220))
             else:
-                ax2.bar(labels2, valores2, color="#4a7c8d")
-
-            ax2.set_ylabel("Total ($)")
-            ax2.tick_params(axis="x", rotation=45, labelsize=7)
-            ax2.tick_params(axis="y", labelsize=8)
-            plt.tight_layout()
-
-            img_buf2 = BytesIO()
-            fig2.savefig(img_buf2, format="png", dpi=120)
-            plt.close(fig2)
-            img_buf2.seek(0)
-            elements.append(RLImage(img_buf2, width=560, height=220))
+                elements.append(Paragraph("No fue posible generar la gráfica comparativa.", styles["Italic"]))
 
     doc.build(elements)
     buffer.seek(0)
